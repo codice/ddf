@@ -10,26 +10,25 @@
  *
  **/
 /*global define */
-define(['jquery',
-        'underscore',
-        'marionette',
-        'wreqr'
-    ], function ($, _, Marionette, wreqr) {
-        'use strict';
-        var ModalController;
+define(['jquery', 'underscore', 'marionette', 'wreqr'], function(
+  $,
+  _,
+  Marionette,
+  wreqr
+) {
+  'use strict'
+  var ModalController
 
-        ModalController = Marionette.Controller.extend({
-            initialize: function (options) {
-                this.application = options.application;
-                this.listenTo(wreqr.vent, "showModal", this.showModal);
-            },
-            showModal: function(modalView) {
-                this.application.modalRegion.show(modalView);
-                modalView.show();
-            }
+  ModalController = Marionette.Controller.extend({
+    initialize: function(options) {
+      this.application = options.application
+      this.listenTo(wreqr.vent, 'showModal', this.showModal)
+    },
+    showModal: function(modalView) {
+      this.application.modalRegion.show(modalView)
+      modalView.show()
+    },
+  })
 
-        });
-
-        return ModalController;
-    }
-);
+  return ModalController
+})

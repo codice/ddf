@@ -7,8 +7,6 @@
   "main": "index.js",
   "scripts": {
     "start": "hotreloadify src/main/webapp/js/index.js --proxy=https://localhost:8993 --open",
-    "format": "standard ./src/**/*.js --fix",
-    "pretest": "standard ./src/**/*.js",
     "test": "globstar -- browserify -d ./src/test/js/*.js -o ./target/test.js && tap ./target/test.js",
     "prebuild": "mkdirp ./target/webapp",
     "build": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js && ace package",
@@ -48,7 +46,6 @@
     "minifyify": "7.3.3",
     "mkdirp": "0.5.1",
     "node-lessify": "0.1.4",
-    "standard": "8.6.0",
     "tap": "5.7.2",
     "tape": "4.5.1",
     "ace": "*"

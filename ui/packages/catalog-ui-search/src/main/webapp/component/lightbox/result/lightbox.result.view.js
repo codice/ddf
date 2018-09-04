@@ -16,5 +16,5 @@
 const LightboxView = require('./../Lightbox.view')
 
 module.exports = LightboxView.extend({
-  className: 'is-result-form'
+  className: 'is-result-form',
 })

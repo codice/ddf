@@ -18,23 +18,28 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableSet;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
+import de.micromata.opengis.kml.v_2_2_0.Data;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -45,7 +50,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.kml.util.KmlMarshaller;
@@ -86,6 +95,24 @@ public class KMLTransformerImplTest {
 
   private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
 
+  private static final ImmutableSet<String> METACARD_TAGS = ImmutableSet.of("item1", "item2");
+
+  private static final String METACARD_DATE_STRING = "3900-12-21T00:00:00.000+0000";
+
+  private static final String METACARD_ID = "1234567890";
+
+  private static final String METACARD_METADATA = "<xml>Metadata</xml>";
+
+  private static final String METACARD_VERSION = "myVersion";
+
+  private static final String METACARD_TYPE = "myContentType";
+
+  private static final String METACARD_SOURCE = "sourceID";
+
+  private static final String METACARD_TITLE = "myTitle";
+
+  private static Date metacardDate = new Date(2000, 11, 21);
+
   private static BundleContext mockContext = mock(BundleContext.class);
 
   private static Bundle mockBundle = mock(Bundle.class);
@@ -96,6 +123,11 @@ public class KMLTransformerImplTest {
 
   @BeforeClass
   public static void setUp() throws IOException {
+    metacardDate =
+        new Date(
+            metacardDate.getTime()
+                + Calendar.getInstance().getTimeZone().getOffset(metacardDate.getTime()));
+
     when(mockContext.getBundle()).thenReturn(mockBundle);
     URL url = KMLTransformerImplTest.class.getResource(DEFAULT_STYLE_LOCATION);
     when(mockBundle.getResource(any(String.class))).thenReturn(url);
@@ -223,6 +255,74 @@ public class KMLTransformerImplTest {
   }
 
   @Test
+  public void testPerformDefaultTransformationExtendedData()
+      throws CatalogTransformerException, DateTimeParseException {
+    MetacardImpl metacard = createMockMetacard();
+
+    metacard.setLocation(POINT_WKT);
+    metacard.setCreatedDate(metacardDate);
+    metacard.setEffectiveDate(metacardDate);
+    metacard.setExpirationDate(metacardDate);
+    metacard.setModifiedDate(metacardDate);
+    metacard.setTags(METACARD_TAGS);
+
+    final Set<AttributeDescriptor> attributeDescriptors =
+        metacard.getMetacardType().getAttributeDescriptors();
+
+    Placemark placemark = kmlTransformer.performDefaultTransformation(metacard);
+
+    final List<Data> dataList = placemark.getExtendedData().getData();
+
+    int dataCount = 0;
+    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+      final String attributeName = attributeDescriptor.getName();
+      final Attribute attribute = metacard.getAttribute(attributeName);
+      if (attribute != null) {
+        dataCount++;
+      }
+    }
+
+    assertThat(dataList.size(), is(dataCount));
+
+    for (Data data : dataList) {
+      switch (data.getName()) {
+        case Core.ID:
+          assertThat(data.getValue(), is(METACARD_ID));
+          break;
+        case Core.TITLE:
+          assertThat(data.getValue(), is(METACARD_TITLE));
+          break;
+        case Core.LOCATION:
+          assertThat(data.getValue(), is(POINT_WKT));
+          break;
+        case Metacard.CONTENT_TYPE:
+          assertThat(data.getValue(), is(METACARD_TYPE));
+          break;
+        case Metacard.CONTENT_TYPE_VERSION:
+          assertThat(data.getValue(), is(METACARD_VERSION));
+          break;
+        case Core.METADATA:
+          assertThat(data.getValue(), is(METACARD_METADATA));
+          break;
+        case Core.METACARD_TAGS:
+          assertThat(
+              data.getValue(),
+              is(METACARD_TAGS.asList().get(0) + "," + METACARD_TAGS.asList().get(1)));
+          break;
+        case Core.MODIFIED:
+        case Metacard.EFFECTIVE:
+        case Core.EXPIRATION:
+        case Core.CREATED:
+          assertThat(data.getValue(), is(METACARD_DATE_STRING));
+          break;
+        default:
+          throw new IllegalArgumentException(
+              String.format("Data %s was not expected", data.getName()));
+      }
+    }
+  }
+
+  @Test
   public void testPerformDefaultTransformationMultiPolygonLocation()
       throws CatalogTransformerException {
     MetacardImpl metacard = createMockMetacard();
@@ -298,19 +398,19 @@ public class KMLTransformerImplTest {
 
   private MetacardImpl createMockMetacard() {
     MetacardImpl metacard = new MetacardImpl();
-    metacard.setContentTypeName("myContentType");
-    metacard.setContentTypeVersion("myVersion");
+    metacard.setContentTypeName(METACARD_TYPE);
+    metacard.setContentTypeVersion(METACARD_VERSION);
     metacard.setCreatedDate(Calendar.getInstance().getTime());
     metacard.setEffectiveDate(Calendar.getInstance().getTime());
     metacard.setExpirationDate(Calendar.getInstance().getTime());
-    metacard.setId("1234567890");
+    metacard.setId(METACARD_ID);
     // metacard.setLocation(wkt);
-    metacard.setMetadata("<xml>Metadata</xml>");
+    metacard.setMetadata(METACARD_METADATA);
     metacard.setModifiedDate(Calendar.getInstance().getTime());
     // metacard.setResourceSize("10MB");
     // metacard.setResourceURI(uri)
-    metacard.setSourceId("sourceID");
-    metacard.setTitle("myTitle");
+    metacard.setSourceId(METACARD_SOURCE);
+    metacard.setTitle(METACARD_TITLE);
     return metacard;
   }
 }

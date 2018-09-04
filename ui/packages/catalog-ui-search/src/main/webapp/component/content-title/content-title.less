@@ -1,4 +1,4 @@
-@{customElementNamespace}content-title{
+@{customElementNamespace}content-title {
   .customElement;
   position: relative;
 
@@ -16,7 +16,7 @@
     margin: 0px;
     overflow: hidden;
   }
-  
+
   .title-display:empty::before {
     content: 'Workspace Title';
   }
@@ -32,7 +32,9 @@
     background: @backgroundNavigation;
     transform: scale(1);
     opacity: 1;
-    transition: padding @coreTransitionTime ease-out @coreTransitionTime, transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
+    transition: padding @coreTransitionTime ease-out @coreTransitionTime,
+      transform @coreTransitionTime ease-out,
+      opacity @coreTransitionTime ease-out;
   }
 
   input {
@@ -56,7 +58,7 @@
     transition-delay: @coreTransitionTime;
     padding-right: 15px;
   }
-  
+
   input:focus {
     cursor: text;
     text-decoration: none;

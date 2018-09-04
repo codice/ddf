@@ -13,50 +13,54 @@
  *
  **/
 /*global require*/
-const Backbone = require('backbone');
-const MetacardModel = require('js/model/Metacard');
-const mtgeo = require('mt-geo');
-const Common = require('js/Common');
+const Backbone = require('backbone')
+const MetacardModel = require('js/model/Metacard')
+const mtgeo = require('mt-geo')
+const Common = require('js/Common')
 
 module.exports = Backbone.AssociatedModel.extend({
-    relations: [{
-        type: Backbone.One,
-        key: 'targetMetacard',
-        relatedModel: MetacardModel,
-        isTransient: true
-    }],
-    defaults: {
-        mouseLat: undefined,
-        mouseLon: undefined,
-        clickLat: undefined,
-        clickLon: undefined,
-        target: undefined,
-        targetMetacard: undefined
+  relations: [
+    {
+      type: Backbone.One,
+      key: 'targetMetacard',
+      relatedModel: MetacardModel,
+      isTransient: true,
     },
-    isOffMap: function() {
-        return this.get('mouseLat') === undefined;
-    },
-    clearMouseCoordinates: function() {
-        this.set({
-            mouseLat: undefined,
-            mouseLon: undefined
-        });
-    },
-    updateMouseCoordinates: function(coordinates) {
-        this.set({
-            mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
-            mouseLon: Number(Common.wrapMapCoordinates(coordinates.lon, [-180, 180]).toFixed(6))
-        });
-    },
-    updateClickCoordinates: function () {
-        const lat = this.get('mouseLat');
-        const lon = this.get('mouseLon');
-        const dms =  `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`;
+  ],
+  defaults: {
+    mouseLat: undefined,
+    mouseLon: undefined,
+    clickLat: undefined,
+    clickLon: undefined,
+    target: undefined,
+    targetMetacard: undefined,
+  },
+  isOffMap: function() {
+    return this.get('mouseLat') === undefined
+  },
+  clearMouseCoordinates: function() {
+    this.set({
+      mouseLat: undefined,
+      mouseLon: undefined,
+    })
+  },
+  updateMouseCoordinates: function(coordinates) {
+    this.set({
+      mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
+      mouseLon: Number(
+        Common.wrapMapCoordinates(coordinates.lon, [-180, 180]).toFixed(6)
+      ),
+    })
+  },
+  updateClickCoordinates: function() {
+    const lat = this.get('mouseLat')
+    const lon = this.get('mouseLon')
+    const dms = `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`
 
-        this.set({
-            clickLat: lat,
-            clickLon: lon,
-            clickDms: dms
-        });
-    }
-});
+    this.set({
+      clickLat: lat,
+      clickLon: lon,
+      clickDms: dms,
+    })
+  },
+})

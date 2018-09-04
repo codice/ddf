@@ -14,132 +14,134 @@
  **/
 /*global define*/
 define([
-    'q',
-    'js/model/Service.js',
-    'backbone',
-    'underscore',
-    'backboneassociation'
-],
-function (Q, Service, Backbone, _) {
-    var Registry = {};
+  'q',
+  'js/model/Service.js',
+  'backbone',
+  'underscore',
+  'backboneassociation',
+], function(Q, Service, Backbone, _) {
+  var Registry = {}
 
+  Registry.ConfigurationList = Backbone.Collection.extend({
+    model: Service.Configuration,
+  })
 
-    Registry.ConfigurationList = Backbone.Collection.extend({
-        model: Service.Configuration
-    });
+  Registry.Model = Backbone.AssociatedModel.extend({
+    configUrl:
+      '../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui',
+    initialize: function() {
+      this.set('registryConfiguration', new Registry.ConfigurationList())
+    },
+    addRegistryConfiguration: function(registry) {
+      this.get('registryConfiguration').add(registry)
+    },
+    removeRegistry: function(registry) {
+      this.get('registryConfiguration').remove(registry)
+    },
+    size: function() {
+      return this.get('registryConfiguration').length
+    },
+  })
 
-    Registry.Model = Backbone.AssociatedModel.extend({
-        configUrl: "../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
-        initialize: function() {
-            this.set('registryConfiguration', new Registry.ConfigurationList());
-        },
-        addRegistryConfiguration: function(registry) {
+  Registry.Collection = Backbone.Collection.extend({
+    model: Registry.Model,
+    addRegistry: function(configuration) {
+      var registry = new Registry.Model(configuration.get('properties'))
+      registry.addRegistryConfiguration(configuration)
 
-            this.get("registryConfiguration").add(registry);
-           
-        },
-        removeRegistry: function(registry) {
-            this.get("registryConfiguration").remove(registry);
-        },
-        size: function() {
-            return this.get('registryConfiguration').length;
-        }
-    });
+      this.add(registry)
+      registry.trigger('change')
+    },
+    removeRegistry: function(registry) {
+      this.remove(registry)
+    },
+    comparator: function(model) {
+      var str = model.get('id') || ''
+      return str.toLowerCase()
+    },
+  })
 
-    Registry.Collection = Backbone.Collection.extend({
-        model: Registry.Model,
-        addRegistry: function(configuration) {
+  Registry.Response = Backbone.Model.extend({
+    initialize: function(options) {
+      if (options.model) {
+        this.model = options.model
+        var collection = new Registry.Collection()
+        this.set({ collection: collection })
+        this.listenTo(this.model, 'change', this.parseServiceModel)
+      }
+    },
+    parseServiceModel: function() {
+      var resModel = this
+      var collection = resModel.get('collection')
+      collection.reset()
+      if (this.model.get('value')) {
+        this.model.get('value').each(function(service) {
+          if (!_.isEmpty(service.get('configurations'))) {
+            service.get('configurations').each(function(configuration) {
+              collection.addRegistry(configuration)
+            })
+          }
+        })
+      }
+      collection.sort()
+      collection.trigger('reset')
+    },
+    getRegistryMetatypes: function() {
+      var resModel = this
+      var metatypes = []
+      if (resModel.model.get('value')) {
+        resModel.model.get('value').each(function(service) {
+          var id = service.get('id')
+          var name = service.get('name')
+          if (this.isRegistryName(id) || this.isRegistryName(name)) {
+            metatypes.push(service)
+          }
+        })
+      }
+      return metatypes
+    },
+    isRegistryName: function(val) {
+      return val && val.indexOf('Registry') !== -1
+    },
+    getRegistryModel: function(initialModel) {
+      var resModel = this
+      var serviceCollection = resModel.model.get('value')
+      if (!initialModel) {
+        initialModel = new Registry.Model()
+      }
 
-            var registry = new Registry.Model(configuration.get("properties"));
-            registry.addRegistryConfiguration(configuration);
+      if (serviceCollection) {
+        serviceCollection.each(function(service) {
+          var config = new Service.Configuration({ service: service })
+          config.set('fpid', config.get('fpid'))
+          initialModel.addRegistryConfiguration(config)
+        })
+      }
+      return initialModel
+    },
+    createDeletePromise: function(registry, config) {
+      var deferred = Q.defer()
+      var serviceModels = this.model.get('value')
+      config
+        .destroy()
+        .done(function() {
+          //sync up the service model so that the refresh updates properly
+          serviceModels.remove(config.getService())
+          deferred.resolve({
+            registry: registry,
+            config: config,
+          })
+        })
+        .fail(function() {
+          deferred.reject(
+            new Error(
+              "Unable to delete configuration '" + registry.get('name') + "'."
+            )
+          )
+        })
+      return deferred.promise
+    },
+  })
 
-            this.add(registry);
-            registry.trigger('change');
-        },
-        removeRegistry: function(registry) {
-            this.remove(registry);
-        },
-        comparator: function(model) {
-            var str = model.get('id') || '';
-            return str.toLowerCase();
-        }
-    });
-
-    Registry.Response = Backbone.Model.extend({
-        initialize: function(options) {
-            if(options.model) {
-                this.model = options.model;
-                var collection = new Registry.Collection();
-                this.set({collection: collection});
-                this.listenTo(this.model, 'change', this.parseServiceModel);
-            }
-        },
-        parseServiceModel: function() {
-            var resModel = this;
-            var collection = resModel.get('collection');
-            collection.reset();
-            if(this.model.get("value")) {
-                this.model.get("value").each(function(service) {
-                    if(!_.isEmpty(service.get("configurations"))) {
-                        service.get("configurations").each(function(configuration) {
-                            collection.addRegistry(configuration);
-                        });
-                    }
-                });
-            }
-            collection.sort();
-            collection.trigger('reset');
-        },
-        getRegistryMetatypes: function() {
-            var resModel = this;
-            var metatypes = [];
-            if(resModel.model.get('value')) {
-                resModel.model.get('value').each(function(service) {
-                var id = service.get('id');
-                var name = service.get('name');
-                if (this.isRegistryName(id) || this.isRegistryName(name)) {
-                    metatypes.push(service);
-                }
-                });
-            }
-            return metatypes;
-        },
-        isRegistryName: function(val) {
-            return val && val.indexOf('Registry') !== -1;
-        },
-        getRegistryModel: function(initialModel) {
-            var resModel = this;
-            var serviceCollection = resModel.model.get('value');
-            if (!initialModel) {
-                initialModel = new Registry.Model();
-            }
-
-            if(serviceCollection) {
-                serviceCollection.each(function(service) {
-                    var config = new Service.Configuration({service: service});
-                    config.set('fpid', config.get('fpid'));
-                    initialModel.addRegistryConfiguration(config);
-                });
-            }
-            return initialModel;
-        },
-        createDeletePromise: function(registry, config) {
-            var deferred = Q.defer();
-            var serviceModels = this.model.get('value');
-            config.destroy().done(function() {
-                //sync up the service model so that the refresh updates properly
-                serviceModels.remove(config.getService());
-                deferred.resolve({
-                    registry: registry,
-                    config: config
-                });
-            }).fail(function() {
-                deferred.reject(new Error("Unable to delete configuration '" + registry.get('name') + "'."));
-            });
-            return deferred.promise;
-        }
-    });
-
-
-    return Registry;
-});
+  return Registry
+})

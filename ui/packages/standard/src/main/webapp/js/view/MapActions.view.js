@@ -12,87 +12,99 @@
 /*global define*/
 
 define([
-        'underscore',
-        'marionette',
-        'icanhaz',
-        'wreqr',
-        'text!templates/mapActions.handlebars'
-    ],
-    function (_, Marionette, ich, wreqr, mapActionsTemplate) {
-        "use strict";
+  'underscore',
+  'marionette',
+  'icanhaz',
+  'wreqr',
+  'text!templates/mapActions.handlebars',
+], function(_, Marionette, ich, wreqr, mapActionsTemplate) {
+  'use strict'
 
-        ich.addTemplate('mapActionsTemplate', mapActionsTemplate);
+  ich.addTemplate('mapActionsTemplate', mapActionsTemplate)
 
-        var mapActionsView = Marionette.ItemView.extend({
-            template: 'mapActionsTemplate',
+  var mapActionsView = Marionette.ItemView.extend({
+    template: 'mapActionsTemplate',
 
-            events: {
-                'click .overlay-link': 'overlayImage'
-            },
+    events: {
+      'click .overlay-link': 'overlayImage',
+    },
 
-            serializeData: function () {
-                return _.extend(this.model.toJSON(), {
-                    mapActions: this.getMapActions(),
-                    overlayActions: this.getOverlayActions()
-                });
-            },
+    serializeData: function() {
+      return _.extend(this.model.toJSON(), {
+        mapActions: this.getMapActions(),
+        overlayActions: this.getOverlayActions(),
+      })
+    },
 
-            getMapActions: function () {
-                if (this.model.has('actions')) {
-                    return this.model.get('actions').filter(function(action) {
-                        return action.get('id').startsWith('catalog.data.metacard.map.');
-                    });
-                }
+    getMapActions: function() {
+      if (this.model.has('actions')) {
+        return this.model.get('actions').filter(function(action) {
+          return action.get('id').startsWith('catalog.data.metacard.map.')
+        })
+      }
 
-                return [];
-            },
+      return []
+    },
 
-            getOverlayActions: function () {
-                if (this.model.has('actions')) {
-                    var modelOverlayActions = this.model.get('actions').filter(function(action) {
-                        return action.get('id').startsWith('catalog.data.metacard.map.overlay.');
-                    });
+    getOverlayActions: function() {
+      if (this.model.has('actions')) {
+        var modelOverlayActions = this.model
+          .get('actions')
+          .filter(function(action) {
+            return action
+              .get('id')
+              .startsWith('catalog.data.metacard.map.overlay.')
+          })
 
-                    var _this = this;
-                    return _.map(modelOverlayActions, function(modelOverlayAction) {
-                        return {
-                            description: modelOverlayAction.get('description'),
-                            url: modelOverlayAction.get('url'),
-                            overlayText: _this.getOverlayText(modelOverlayAction.get('url'))
-                        };
-                    });
-                }
+        var _this = this
+        return _.map(modelOverlayActions, function(modelOverlayAction) {
+          return {
+            description: modelOverlayAction.get('description'),
+            url: modelOverlayAction.get('url'),
+            overlayText: _this.getOverlayText(modelOverlayAction.get('url')),
+          }
+        })
+      }
 
-                return [];
-            },
+      return []
+    },
 
-            getOverlayText: function (actionUrl) {
-                var overlayTransformerPrefix = 'overlay.';
-                var overlayTransformerIndex = actionUrl.lastIndexOf(overlayTransformerPrefix);
-                if (overlayTransformerIndex >= 0) {
-                    var overlayName = actionUrl.substr(overlayTransformerIndex + overlayTransformerPrefix.length);
-                    return "Overlay " + overlayName + " on the map";
-                }
+    getOverlayText: function(actionUrl) {
+      var overlayTransformerPrefix = 'overlay.'
+      var overlayTransformerIndex = actionUrl.lastIndexOf(
+        overlayTransformerPrefix
+      )
+      if (overlayTransformerIndex >= 0) {
+        var overlayName = actionUrl.substr(
+          overlayTransformerIndex + overlayTransformerPrefix.length
+        )
+        return 'Overlay ' + overlayName + ' on the map'
+      }
 
-                return "";
-            },
+      return ''
+    },
 
-            overlayImage: function (event) {
-                var clickedOverlayUrl = event.target.getAttribute('data-url');
-                var currentOverlayUrl = this.model.get('currentOverlayUrl');
+    overlayImage: function(event) {
+      var clickedOverlayUrl = event.target.getAttribute('data-url')
+      var currentOverlayUrl = this.model.get('currentOverlayUrl')
 
-                var removeOverlay = clickedOverlayUrl === currentOverlayUrl;
+      var removeOverlay = clickedOverlayUrl === currentOverlayUrl
 
-                if (removeOverlay) {
-                    this.model.unset('currentOverlayUrl', {silent: true});
-                    wreqr.vent.trigger('metacard:overlay:remove', this.model.get('properties').get('id'));
-                } else {
-                    this.model.set('currentOverlayUrl', clickedOverlayUrl, {silent: true});
-                    wreqr.vent.trigger('metacard:overlay', this.model);
-                }
-                this.render();
-            }
-        });
+      if (removeOverlay) {
+        this.model.unset('currentOverlayUrl', { silent: true })
+        wreqr.vent.trigger(
+          'metacard:overlay:remove',
+          this.model.get('properties').get('id')
+        )
+      } else {
+        this.model.set('currentOverlayUrl', clickedOverlayUrl, {
+          silent: true,
+        })
+        wreqr.vent.trigger('metacard:overlay', this.model)
+      }
+      this.render()
+    },
+  })
 
-        return mapActionsView;
-});
+  return mapActionsView
+})

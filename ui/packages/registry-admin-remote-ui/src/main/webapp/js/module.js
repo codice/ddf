@@ -15,41 +15,41 @@
 
 /*global define*/
 define([
-    'js/application',
-    'js/view/Registry.view.js',
-    'js/model/Registry.js',
-    'js/model/Service.js'
-],
-function(Application, RegistryView, Registry, Service) {
+  'js/application',
+  'js/view/Registry.view.js',
+  'js/model/Registry.js',
+  'js/model/Service.js',
+], function(Application, RegistryView, Registry, Service) {
+  Application.App.module('Remote Registries', function(
+    RegistryModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var serviceModel = new Service.Response()
+    serviceModel.fetch()
 
-    Application.App.module('Remote Registries', function(RegistryModule, App, Backbone, Marionette)  {
+    var registryResponse = new Registry.Response({ model: serviceModel })
 
-        var serviceModel = new Service.Response();
-        serviceModel.fetch();
+    var registryPage = new RegistryView.RegistryPage({
+      model: registryResponse,
+    })
 
-        var registryResponse = new Registry.Response({model: serviceModel});
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-        var registryPage = new RegistryView.RegistryPage({model: registryResponse});
+      show: function() {
+        this.region.show(registryPage)
+      },
+    })
 
-        var Controller = Marionette.Controller.extend({
-
-            initialize: function(options){
-                this.region = options.region;
-            },
-
-            show: function(){
-                this.region.show(registryPage);
-            }
-
-        });
-
-        RegistryModule.addInitializer(function(){
-            RegistryModule.contentController = new Controller({
-                region: App.mainRegion
-            });
-            RegistryModule.contentController.show();
-        });
-
-
-    });
-});
+    RegistryModule.addInitializer(function() {
+      RegistryModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      RegistryModule.contentController.show()
+    })
+  })
+})

@@ -13,11 +13,11 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var DropdownView = require('../dropdown.view');
-var template = require('./dropdown.associations-filter.hbs');
+var Marionette = require('marionette')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.associations-filter.hbs')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-associationsFilter'
-});
+  template: template,
+  className: 'is-associationsFilter',
+})

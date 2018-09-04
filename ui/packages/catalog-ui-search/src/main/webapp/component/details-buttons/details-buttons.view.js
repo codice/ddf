@@ -14,23 +14,22 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './details-buttons.hbs',
-    'js/CustomElements',
-], function (Marionette, _, $, template, CustomElements) {
-
-    return Marionette.ItemView.extend({
-        setDefaultModel: function(){
-            //override
-        },
-        template: template,
-        tagName: CustomElements.register('details-buttons'),
-        initialize: function (options) {
-            if (options.model === undefined){
-                this.setDefaultModel();
-            }
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  './details-buttons.hbs',
+  'js/CustomElements',
+], function(Marionette, _, $, template, CustomElements) {
+  return Marionette.ItemView.extend({
+    setDefaultModel: function() {
+      //override
+    },
+    template: template,
+    tagName: CustomElements.register('details-buttons'),
+    initialize: function(options) {
+      if (options.model === undefined) {
+        this.setDefaultModel()
+      }
+    },
+  })
+})

@@ -13,11 +13,11 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./hover-preview.hbs');
-var CustomElements = require('js/CustomElements');
+var Marionette = require('marionette')
+var template = require('./hover-preview.hbs')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.ItemView.extend({
-    template: template,
-    tagName: CustomElements.register('hover-preview')
-});
+  template: template,
+  tagName: CustomElements.register('hover-preview'),
+})

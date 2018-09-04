@@ -14,26 +14,31 @@
  **/
 /*global define, setTimeout*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './alerts.hbs',
-    'js/CustomElements',
-    'component/alert-item/alert-item.collection.view'
-], function (Marionette, _, $, template, CustomElements, AlertItemCollectionView) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('alerts'),
-        modelEvents: {},
-        events: {
-        },
-        regions: {
-            alertList: '.alerts-list'
-        },
-        ui: {},
-        onBeforeShow: function () {
-            this.alertList.show(new AlertItemCollectionView());
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  './alerts.hbs',
+  'js/CustomElements',
+  'component/alert-item/alert-item.collection.view',
+], function(
+  Marionette,
+  _,
+  $,
+  template,
+  CustomElements,
+  AlertItemCollectionView
+) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('alerts'),
+    modelEvents: {},
+    events: {},
+    regions: {
+      alertList: '.alerts-list',
+    },
+    ui: {},
+    onBeforeShow: function() {
+      this.alertList.show(new AlertItemCollectionView())
+    },
+  })
+})

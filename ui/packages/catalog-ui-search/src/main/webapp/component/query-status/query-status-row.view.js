@@ -13,32 +13,40 @@
  *
  **/
 /*global require*/
-var template = require('./query-status-row.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var user = require('component/singletons/user-instance');
+var template = require('./query-status-row.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var user = require('component/singletons/user-instance')
 
 module.exports = Marionette.ItemView.extend({
-    className: 'is-tr',
-    tagName: CustomElements.register('query-status-row'),
-    template: template,
-    events: {
-        'click button': 'triggerFilter'
-    },
-    modelEvents: {
-        'change': 'render'
-    },
-    triggerFilter: function() {
-        user.get('user').get('preferences').set('resultFilter', "(\"source-id\" = '"+this.model.id+"')");
-        user.get('user').get('preferences').savePreferences();
-        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-    },
-    serializeData: function(){
-        var modelJSON = this.model.toJSON();
-        modelJSON.fromremote = modelJSON.top - modelJSON.fromcache;
-        modelJSON.elapsed = modelJSON.elapsed / 1000;
-        modelJSON.anyHasReturned = modelJSON.hasReturned || modelJSON.cacheHasReturned;
-        modelJSON.anyHasNotReturned = !modelJSON.hasReturned || !modelJSON.cacheHasReturned;
-        return modelJSON;
-    }
-});
+  className: 'is-tr',
+  tagName: CustomElements.register('query-status-row'),
+  template: template,
+  events: {
+    'click button': 'triggerFilter',
+  },
+  modelEvents: {
+    change: 'render',
+  },
+  triggerFilter: function() {
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultFilter', '("source-id" = \'' + this.model.id + "')")
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  serializeData: function() {
+    var modelJSON = this.model.toJSON()
+    modelJSON.fromremote = modelJSON.top - modelJSON.fromcache
+    modelJSON.elapsed = modelJSON.elapsed / 1000
+    modelJSON.anyHasReturned =
+      modelJSON.hasReturned || modelJSON.cacheHasReturned
+    modelJSON.anyHasNotReturned =
+      !modelJSON.hasReturned || !modelJSON.cacheHasReturned
+    return modelJSON
+  },
+})

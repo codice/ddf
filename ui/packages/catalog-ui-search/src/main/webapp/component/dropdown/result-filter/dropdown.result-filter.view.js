@@ -14,30 +14,37 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.result-filter.hbs',
-    'component/result-filter/result-filter.view',
-    'component/singletons/user-instance'
-], function (Marionette, _, $, DropdownView, template, ComponentView, user) {
-
-    return DropdownView.extend({
-        attributes: {
-            'data-help': 'Used to setup a local filter of a result set.  It does not re-execute the search.'
-        },
-        template: template,
-        className: 'is-resultFilter',
-        componentToShow: ComponentView,
-        initialize: function(){
-            DropdownView.prototype.initialize.call(this);
-            this.listenTo(user.get('user').get('preferences'), 'change:resultFilter', this.handleFilter);
-            this.handleFilter();
-        },
-        handleFilter: function(){
-            var resultFilter = user.get('user').get('preferences').get('resultFilter');
-            this.$el.toggleClass('has-filter', Boolean(resultFilter));
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.result-filter.hbs',
+  'component/result-filter/result-filter.view',
+  'component/singletons/user-instance',
+], function(Marionette, _, $, DropdownView, template, ComponentView, user) {
+  return DropdownView.extend({
+    attributes: {
+      'data-help':
+        'Used to setup a local filter of a result set.  It does not re-execute the search.',
+    },
+    template: template,
+    className: 'is-resultFilter',
+    componentToShow: ComponentView,
+    initialize: function() {
+      DropdownView.prototype.initialize.call(this)
+      this.listenTo(
+        user.get('user').get('preferences'),
+        'change:resultFilter',
+        this.handleFilter
+      )
+      this.handleFilter()
+    },
+    handleFilter: function() {
+      var resultFilter = user
+        .get('user')
+        .get('preferences')
+        .get('resultFilter')
+      this.$el.toggleClass('has-filter', Boolean(resultFilter))
+    },
+  })
+})

@@ -8,31 +8,35 @@ import defaultConfig from './test-data/config'
 
 describe('buffer', () => {
   it('should be a valid JSON config buffer', () => {
-    const state = Map({buffer: JSON.stringify(standardLayout)})
+    const state = Map({ buffer: JSON.stringify(standardLayout) })
     expect(validate(state)).to.equal(undefined)
   })
   it('should not be a valid JSON config buffer', () => {
-    const state = Map({buffer: '[invalid: {json config: "string"}]'})
+    const state = Map({ buffer: '[invalid: {json config: "string"}]' })
     expect(validate(state)).to.not.equal(undefined)
   })
   it('should return the initial state', () => {
     expect(buffer(undefined, {})).to.equal(Map())
   })
   it('should handle SET_BUFFER', () => {
-    const state = Map({buffer: JSON.stringify(standardLayout, null, 2)})
-    expect(buffer(undefined, {
-      type: 'default-layout/SET_BUFFER',
-      value: JSON.stringify(standardLayout)
-    }).get('buffer')).to.equal(state.get('buffer'))
+    const state = Map({ buffer: JSON.stringify(standardLayout, null, 2) })
+    expect(
+      buffer(undefined, {
+        type: 'default-layout/SET_BUFFER',
+        value: JSON.stringify(standardLayout),
+      }).get('buffer')
+    ).to.equal(state.get('buffer'))
   })
   it('should handle RESET', () => {
     const configPath = ['value', 'configurations', 0, 'properties']
     const conf = fromJS(defaultConfig).getIn(configPath)
     const defaultLayout = JSON.parse(conf.get('defaultLayout'))
-    expect(buffer(undefined, {
-      type: 'default-layout/RESET',
-      value: conf
-    }).get('buffer')).to.equal(JSON.stringify(defaultLayout, null, 2))
+    expect(
+      buffer(undefined, {
+        type: 'default-layout/RESET',
+        value: conf,
+      }).get('buffer')
+    ).to.equal(JSON.stringify(defaultLayout, null, 2))
   })
 })
 
@@ -57,9 +61,11 @@ describe('config', () => {
   it('should handle SET_CONFIG', () => {
     const configPath = ['value', 'configurations', 0, 'properties']
     const conf = fromJS(defaultConfig).getIn(configPath)
-    expect(config(undefined, {
-      type: 'default-layout/SET_CONFIG',
-      value: conf
-    }).get('defaultLayout')).to.equal(conf.get('defaultLayout'))
+    expect(
+      config(undefined, {
+        type: 'default-layout/SET_CONFIG',
+        value: conf,
+      }).get('defaultLayout')
+    ).to.equal(conf.get('defaultLayout'))
   })
 })

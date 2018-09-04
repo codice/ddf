@@ -13,27 +13,26 @@
  *
  **/
 /* global define */
-define([
-    'marionette',
-    './tab-item.view',
-    'js/CustomElements'
-    ],function (Marionette, TabItemView, CustomElements) {
-
-    return Marionette.CollectionView.extend({
-        tagName: CustomElements.register('tab-item-collection'),
-        itemView: TabItemView,
-        events: {
-            'shown.bs.tab': 'tabShown'
-        },
-        tabShown: function(event){
-            var id = event.target.getAttribute('data-id');
-            this.children.each(function(childView) {
-                if (childView.model.id === id) {
-                    childView.triggerShown();
-                } else {
-                    childView.triggerHidden();
-                }
-            });
+define(['marionette', './tab-item.view', 'js/CustomElements'], function(
+  Marionette,
+  TabItemView,
+  CustomElements
+) {
+  return Marionette.CollectionView.extend({
+    tagName: CustomElements.register('tab-item-collection'),
+    itemView: TabItemView,
+    events: {
+      'shown.bs.tab': 'tabShown',
+    },
+    tabShown: function(event) {
+      var id = event.target.getAttribute('data-id')
+      this.children.each(function(childView) {
+        if (childView.model.id === id) {
+          childView.triggerShown()
+        } else {
+          childView.triggerHidden()
         }
-    });
-});
+      })
+    },
+  })
+})

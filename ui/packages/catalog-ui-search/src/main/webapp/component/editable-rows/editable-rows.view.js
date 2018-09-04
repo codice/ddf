@@ -12,38 +12,40 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const CustomElements = require('js/CustomElements');
-const EditableRowsTemplate = require('./editable-rows.hbs');
-const EditableRowsView = require('component/editable-row/editable-row.collection.view');
-const JsonView = require('component/json/json.view');
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const EditableRowsTemplate = require('./editable-rows.hbs')
+const EditableRowsView = require('component/editable-row/editable-row.collection.view')
+const JsonView = require('component/json/json.view')
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('editable-rows'),
-    template: EditableRowsTemplate,
-    events:      { 'click .add-row': 'addRow' },
-    regions:     { rows: '.rows' },
-    initialize: function(){
-        this.listenTo(this.collection, 'add remove update reset', this.checkEmpty);
-    },
-    checkEmpty: function(){
-        this.$el.toggleClass('is-empty', this.collection.isEmpty());
-    },
-    addRow: function () {
-        this.collection.add({});
-    },
-    embed: function (model) {
-        return new JsonView({ model: model });
-    },
-    onRender: function () {
-        this.rows.show(new EditableRowsView({
-            collection: this.collection,
-            embed: this.embed,
-            embedOptions: this.options
-        }));
-        this.checkEmpty();
-    }
-});
+  tagName: CustomElements.register('editable-rows'),
+  template: EditableRowsTemplate,
+  events: { 'click .add-row': 'addRow' },
+  regions: { rows: '.rows' },
+  initialize: function() {
+    this.listenTo(this.collection, 'add remove update reset', this.checkEmpty)
+  },
+  checkEmpty: function() {
+    this.$el.toggleClass('is-empty', this.collection.isEmpty())
+  },
+  addRow: function() {
+    this.collection.add({})
+  },
+  embed: function(model) {
+    return new JsonView({ model: model })
+  },
+  onRender: function() {
+    this.rows.show(
+      new EditableRowsView({
+        collection: this.collection,
+        embed: this.embed,
+        embedOptions: this.options,
+      })
+    )
+    this.checkEmpty()
+  },
+})

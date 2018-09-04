@@ -10,14 +10,13 @@
  *
  **/
 /*global requirejs*/
-(function () {
-    'use strict';
+;(function() {
+  'use strict'
 
-    requirejs.config({
-
-        paths: {
-            //module
-            moduleDetailLayout: 'templates/module/ModuleDetail.layout.handlebars'
-        }
-    });
-}());
+  requirejs.config({
+    paths: {
+      //module
+      moduleDetailLayout: 'templates/module/ModuleDetail.layout.handlebars',
+    },
+  })
+})()

@@ -15,7 +15,7 @@ This capability allows use of ${branding} as the SSO solution for an entire ente
 |Located in Feature
 |Description
 
-|security-idp-sp
+|security-idp-client
 |security-idp
 |The IdP client that interacts with the specified Identity Provider.
 

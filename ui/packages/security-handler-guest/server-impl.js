@@ -10,63 +10,65 @@
  *
  **/
 var URL = require('url'),
-    httpProxy = require('http-proxy'),
-    proxy = new httpProxy.RoutingProxy(),
-    fs = require('node-fs'),
-    path = require('path'),
-    _ = require('lodash');
+  httpProxy = require('http-proxy'),
+  proxy = new httpProxy.RoutingProxy(),
+  fs = require('node-fs'),
+  path = require('path'),
+  _ = require('lodash')
 
 function stringFormat(format /* arg1, arg2... */) {
-    if (arguments.length === 0) {
-        return undefined;
+  if (arguments.length === 0) {
+    return undefined
+  }
+  if (arguments.length === 1) {
+    return format
+  }
+  var args = Array.prototype.slice.call(arguments, 1)
+  return format.replace(/\{\{|\}\}|\{(\d+)\}/g, function(m, n) {
+    if (m === '{{') {
+      return '{'
     }
-    if (arguments.length === 1) {
-        return format;
+    if (m === '}}') {
+      return '}'
     }
-    var args = Array.prototype.slice.call(arguments, 1);
-    return format.replace(/\{\{|\}\}|\{(\d+)\}/g, function (m, n) {
-        if (m === "{{") {
-            return "{";
-        }
-        if (m === "}}") {
-            return "}";
-        }
-        return args[n];
-    });
+    return args[n]
+  })
 }
 
-var server = {};
+var server = {}
 
-server.requestProxy = function (req, res) {
-    "use strict";
+server.requestProxy = function(req, res) {
+  'use strict'
 
-    req.url = "http://localhost:8181" + req.url;
-    var urlObj = URL.parse(req.url);
-    req.url = urlObj.path;
-    // Buffer requests so that eventing and async methods still work
-    // https://github.com/nodejitsu/node-http-proxy#post-requests-and-buffering
-    var buffer = httpProxy.buffer(req);
-    console.log('Proxying Request "' + req.url + '"');
+  req.url = 'http://localhost:8181' + req.url
+  var urlObj = URL.parse(req.url)
+  req.url = urlObj.path
+  // Buffer requests so that eventing and async methods still work
+  // https://github.com/nodejitsu/node-http-proxy#post-requests-and-buffering
+  var buffer = httpProxy.buffer(req)
+  console.log('Proxying Request "' + req.url + '"')
 
-    proxy.proxyRequest(req, res, {
-        host: urlObj.hostname,
-        port: urlObj.port || 80,
-        buffer: buffer,
-        changeOrigin: true
-    });
+  proxy.proxyRequest(req, res, {
+    host: urlObj.hostname,
+    port: urlObj.port || 80,
+    buffer: buffer,
+    changeOrigin: true,
+  })
+}
 
-};
+server.mockLoginServer = function(req, res) {
+  var usernamePasswordJson = req.get('usernamePasswordJson')
 
-server.mockLoginServer = function (req, res) {
-    var usernamePasswordJson = req.get('usernamePasswordJson');
+  if (
+    usernamePasswordJson.username === 'srogers' &&
+    usernamePasswordJson.password === 'password1'
+  ) {
+    res.status(200).end()
+  } else {
+    var message = stringFormat('Username/Password is invalid.')
+    res.status(500).send(message)
+    res.end()
+  }
+}
 
-    if (usernamePasswordJson.username === 'srogers' && usernamePasswordJson.password === 'password1') {
-        res.status(200).end();
-    } else {
-        var message = stringFormat('Username/Password is invalid.');
-        res.status(500).send(message);
-        res.end();
-    }
-};
-
-module.exports = server;
+module.exports = server

@@ -11,91 +11,91 @@
  **/
 
 .btn-default {
-    color: #ffffff;
-    background-color: #575757;
-    border-color: #575757;
+  color: #ffffff;
+  background-color: #575757;
+  border-color: #575757;
 }
 
 .btn-default.active {
-    color: #ffffff;
-    background-color: #282828;
-    border-color: #575757;
+  color: #ffffff;
+  background-color: #282828;
+  border-color: #575757;
 }
 
 .ingest-upload-buttons {
-    float: right;
+  float: right;
 }
 
 .file-upload-region {
-    overflow: auto;
-    max-height: 400px;
+  overflow: auto;
+  max-height: 400px;
 }
 
 .drop-zone {
-    text-align: center;
-    border: dashed medium black;
-    padding-top: 15px;
-    padding-bottom: 15px;
+  text-align: center;
+  border: dashed medium black;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
 .uploadProgressBar {
-    padding-top: 5px;
+  padding-top: 5px;
 }
 
 .file-list {
-    padding: 0;
-    margin-top: 10px;
+  padding: 0;
+  margin-top: 10px;
 }
 
 .file-list-item {
-    list-style-type: none;
-    margin-bottom: 5px;
-    padding: 5px;
-    text-align: left;
-    margin-right: 16px;
-    color: #AAA;
-    white-space: nowrap;
-    overflow-x: hidden;
-    position: relative;
+  list-style-type: none;
+  margin-bottom: 5px;
+  padding: 5px;
+  text-align: left;
+  margin-right: 16px;
+  color: #aaa;
+  white-space: nowrap;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .file-info-area {
-    float: left;
+  float: left;
 }
 
 .file-progress-area {
-    clear: both;
+  clear: both;
 }
 
 .text-input-area {
-    margin-top: 5px;
-    width: 50%;
+  margin-top: 5px;
+  width: 50%;
 }
 
 .cc-span {
-    padding-left:9px;
+  padding-left: 9px;
 }
 
 h4 {
-   display:inline;
+  display: inline;
 }
 
 .glyphicon-question-sign {
-    margin: 5px 5px 5px 5px;
+  margin: 5px 5px 5px 5px;
 }
 
 .nav {
-    margin-bottom: 35px;
+  margin-bottom: 35px;
 }
 
 .title-header {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .start-upload-web {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .fileupload-dialog {
-    margin-left: 5px;
+  margin-left: 5px;
 }

@@ -14,47 +14,46 @@
  **/
 /*global require*/
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const CustomElements = require('js/CustomElements');
-const SortItemCollectionView = require(
-    'component/sort-item/sort-item.collection.view');
-const template = require('./sort.hbs');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const SortItemCollectionView = require('component/sort-item/sort-item.collection.view')
+const template = require('./sort.hbs')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('sort'),
   regions: {
-    sorts: '.sorts'
+    sorts: '.sorts',
   },
   events: {
-    'click .sort-add': 'handleAdd'
+    'click .sort-add': 'handleAdd',
   },
-  handleAdd: function () {
+  handleAdd: function() {
     this.childView.collection.add({
       attribute: this.getNextAttribute(),
-      direction: 'descending'
-    });
+      direction: 'descending',
+    })
   },
-  getNextAttribute: function () {
-    let filtered = this.childView.children.findByModel(
-        this.collection.models[0]).sortAttributes
-    .filter((type) => {
-      let sorts = this.childView.collection.filter((sort) => {
-        return sort.get('attribute') === type.value;
-      });
-      return sorts.length === 0;
-    });
-    return filtered[0].value;
+  getNextAttribute: function() {
+    let filtered = this.childView.children
+      .findByModel(this.collection.models[0])
+      .sortAttributes.filter(type => {
+        let sorts = this.childView.collection.filter(sort => {
+          return sort.get('attribute') === type.value
+        })
+        return sorts.length === 0
+      })
+    return filtered[0].value
   },
-  initialize: function () {
+  initialize: function() {
     this.childView = new SortItemCollectionView({
       collection: this.collection,
-      showBestTextOption: this.options.showBestTextOption
-    });
+      showBestTextOption: this.options.showBestTextOption,
+    })
   },
-  onBeforeShow: function () {
-    this.showChildView('sorts', this.childView);
-  }
-});
+  onBeforeShow: function() {
+    this.showChildView('sorts', this.childView)
+  },
+})

@@ -13,14 +13,14 @@
  *
  **/
 
-const Marionette = require('marionette');
-const RowView = require('./editable-row.view');
-const CustomElements = require('js/CustomElements');
+const Marionette = require('marionette')
+const RowView = require('./editable-row.view')
+const CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
-    childView: RowView,
-    tagName: CustomElements.register('editable-row-collection'),
-    childViewOptions: function() {
-        return this.options;
-    },
-});
+  childView: RowView,
+  tagName: CustomElements.register('editable-row-collection'),
+  childViewOptions: function() {
+    return this.options
+  },
+})

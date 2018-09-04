@@ -13,48 +13,51 @@
  *
  **/
 /*global require, setTimeout*/
-var uuid = require('uuid');
-var _ = require('underscore');
+var uuid = require('uuid')
+var _ = require('underscore')
 
-var remove = exports.remove = function (id, timeout) {
-    return function (dispatch) {
-        dispatch({
-            type: 'START_REMOVE_ANNOUNCEMENT',
-            id: id
-        });
+var remove = (exports.remove = function(id, timeout) {
+  return function(dispatch) {
+    dispatch({
+      type: 'START_REMOVE_ANNOUNCEMENT',
+      id: id,
+    })
 
-        setTimeout(function () {
-            dispatch({
-                type: 'REMOVE_ANNOUNCEMENT',
-                id: id
-            });
-        }, timeout || 250);
-    };
-};
+    setTimeout(function() {
+      dispatch({
+        type: 'REMOVE_ANNOUNCEMENT',
+        id: id,
+      })
+    }, timeout || 250)
+  }
+})
 
-exports.announce = function (announcement, timeout) {
-    var id = uuid.v4();
+exports.announce = function(announcement, timeout) {
+  var id = uuid.v4()
 
-    return function (dispatch, getState) {
-        getState()
-            .filter(function (a) {
-                return a.title === announcement.title && a.message === announcement.message && a.type === announcement.type
-            })
-            .map(function (a) {
-                return a.id;
-            })
-            .forEach(function (id) {
-                dispatch(remove(id));
-            });
+  return function(dispatch, getState) {
+    getState()
+      .filter(function(a) {
+        return (
+          a.title === announcement.title &&
+          a.message === announcement.message &&
+          a.type === announcement.type
+        )
+      })
+      .map(function(a) {
+        return a.id
+      })
+      .forEach(function(id) {
+        dispatch(remove(id))
+      })
 
+    dispatch({
+      type: 'ADD_ANNOUNCEMENT',
+      announcement: _.extend({ id: id }, announcement),
+    })
 
-        dispatch({
-            type: 'ADD_ANNOUNCEMENT',
-            announcement: _.extend({ id: id }, announcement)
-        });
-
-        setTimeout(function () {
-            dispatch(remove(id, timeout));
-        }, timeout || 5000);
-    };
-};
+    setTimeout(function() {
+      dispatch(remove(id, timeout))
+    }, timeout || 5000)
+  }
+}

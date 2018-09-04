@@ -14,27 +14,33 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.result-sort.hbs',
-    'component/result-sort/result-sort.view',
-    'component/singletons/user-instance'
-], function (Marionette, _, $, DropdownView, template, ComponentView, user) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-resultSort',
-        componentToShow: ComponentView,
-        initialize: function(){
-            DropdownView.prototype.initialize.call(this);
-            this.listenTo(user.get('user').get('preferences'), 'change:resultSort', this.handleSort);
-            this.handleSort();
-        },
-        handleSort: function(){
-            var resultSort = user.get('user').get('preferences').get('resultSort');
-            this.$el.toggleClass('has-sort', Boolean(resultSort));
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.result-sort.hbs',
+  'component/result-sort/result-sort.view',
+  'component/singletons/user-instance',
+], function(Marionette, _, $, DropdownView, template, ComponentView, user) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-resultSort',
+    componentToShow: ComponentView,
+    initialize: function() {
+      DropdownView.prototype.initialize.call(this)
+      this.listenTo(
+        user.get('user').get('preferences'),
+        'change:resultSort',
+        this.handleSort
+      )
+      this.handleSort()
+    },
+    handleSort: function() {
+      var resultSort = user
+        .get('user')
+        .get('preferences')
+        .get('resultSort')
+      this.$el.toggleClass('has-sort', Boolean(resultSort))
+    },
+  })
+})

@@ -1,28 +1,28 @@
 @{customElementNamespace}dropdown.is-query {
-    display: block;
+  display: block;
+  position: relative;
+  text-align: center;
+
+  .fa-search {
+    width: @minimumButtonSize;
+    text-align: right;
+  }
+
+  .notification-icon {
     position: relative;
-    text-align: center;
+    cursor: pointer;
+  }
 
-    .fa-search {
-        width: @minimumButtonSize;
-        text-align: right;
-    }
-
-    .notification-icon {
-        position: relative;
-        cursor: pointer;
-    }
-
-    .fa-bell {
-        display: none;
-    }
+  .fa-bell {
+    display: none;
+  }
 }
 
 @{customElementNamespace}dropdown.is-query.is-polling {
   .fa-bell-slash {
-      display: none;
+    display: none;
   }
   .fa-bell {
-      display: inline;
+    display: inline;
   }
 }

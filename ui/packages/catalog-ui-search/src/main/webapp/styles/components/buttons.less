@@ -29,7 +29,8 @@ button,
     border: 0px 0px 2px shade(@buttonColor, 50%);
   }
 
-  &.is-disabled, &:disabled {
+  &.is-disabled,
+  &:disabled {
     .background-gradient(tint(@buttonColor, 10%), shade(@buttonColor, 10%));
     cursor: not-allowed;
   }
@@ -50,8 +51,8 @@ button.is-positive,
 button.is-neutral,
 .composed-button.is-neutral {
   color: inherit;
-  .button-mixin(rgba(0,0,0,0));
-  background: rgba(0,0,0,0);
+  .button-mixin(rgba(0, 0, 0, 0));
+  background: rgba(0, 0, 0, 0);
 }
 
 button.is-primary,
@@ -65,7 +66,6 @@ button > span.is-disabled {
 }
 
 button.is-disabled {
-
   > span:not(.is-disabled) {
     display: inline;
   }
@@ -81,7 +81,7 @@ button.in-text,
   font-size: inherit;
 }
 
-button.in-text  {
+button.in-text {
   padding: 0px @minimumSpacing;
 }
 

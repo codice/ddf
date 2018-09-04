@@ -14,31 +14,30 @@
  **/
 /* global define */
 define([
-        'icanhaz',
-        'backbone',
-        'js/views/Modal',
-        'properties',
-        'text!templates/systemUsage.layout.handlebars'
-    ],
-    function (ich, Backbone, Modal, properties, systemUsageTemplate) {
-        ich.addTemplate('systemUsageTemplate', systemUsageTemplate);
+  'icanhaz',
+  'backbone',
+  'js/views/Modal',
+  'properties',
+  'text!templates/systemUsage.layout.handlebars',
+], function(ich, Backbone, Modal, properties, systemUsageTemplate) {
+  ich.addTemplate('systemUsageTemplate', systemUsageTemplate)
 
-        var SystemUsageModal = Modal.extend({
-            template: 'systemUsageTemplate',
-            model: new Backbone.Model(properties),
-            initialize: function () {
-                // there is no automatic chaining of initialize.
-                Modal.prototype.initialize.apply(this, arguments);
-            },
-            onRender: function () {
-                var usage = properties.admin.systemUsageMessage;
-                var $iframe = this.$el.find('iframe');
-                $iframe.ready(function(){
-                    $iframe.contents()[0].open();
-                    $iframe.contents()[0].write('<html>' +  usage + '</html>');
-                    $iframe.contents()[0].close();
-                });
-            }
-        });
-        return SystemUsageModal;
-    });
+  var SystemUsageModal = Modal.extend({
+    template: 'systemUsageTemplate',
+    model: new Backbone.Model(properties),
+    initialize: function() {
+      // there is no automatic chaining of initialize.
+      Modal.prototype.initialize.apply(this, arguments)
+    },
+    onRender: function() {
+      var usage = properties.admin.systemUsageMessage
+      var $iframe = this.$el.find('iframe')
+      $iframe.ready(function() {
+        $iframe.contents()[0].open()
+        $iframe.contents()[0].write('<html>' + usage + '</html>')
+        $iframe.contents()[0].close()
+      })
+    },
+  })
+  return SystemUsageModal
+})

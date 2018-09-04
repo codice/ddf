@@ -19,59 +19,59 @@ import takeWhile from 'lodash/takeWhile'
 const POLLING_INTERVAL = 5000
 
 // for applying a filter to the logs
-export const filter = (filter) => ({
+export const filter = filter => ({
   type: 'FILTER_LOGS',
-  filter: filter
+  filter: filter,
 })
 
 // for appending new logs to the stored log list
 // note: user will not lose context when scrolling
-export const append = (entries) => ({
+export const append = entries => ({
   type: 'APPEND_LOGS',
-  entries: entries.map((entry) => ({
+  entries: entries.map(entry => ({
     hash: entry.hash || MD5(entry),
-    ...entry
-  }))
+    ...entry,
+  })),
 })
 
 // used for expanding the max amount of stored logs displayed on screen
 export const grow = () => ({
-  type: 'GROW_DISPLAY_SIZE'
+  type: 'GROW_DISPLAY_SIZE',
 })
 
 // expands logs with the given hash
-export const expandEntry = (hash) => ({
+export const expandEntry = hash => ({
   type: 'CHANGE_EXPANDED_ENTRY',
-  hash: hash
+  hash: hash,
 })
 
 // called at beginning of fetching
 // prevents slow networks from making duplicate calls to the backend
 export const beginFetching = () => ({
-  type: 'BEGIN_FETCHING'
+  type: 'BEGIN_FETCHING',
 })
 
 // called at the end of fetching
 export const endFetching = () => ({
-  type: 'END_FETCHING'
+  type: 'END_FETCHING',
 })
 
 // toggle polling to the backend for new logs
 export const togglePolling = () => ({
-  type: 'TOGGLE_POLLING'
+  type: 'TOGGLE_POLLING',
 })
 
-export const showError = (errorMessage) => ({
+export const showError = errorMessage => ({
   type: 'SHOW_ERROR',
-  message: errorMessage
+  message: errorMessage,
 })
 
 export const dismissError = () => ({
-  type: 'DISMISS_ERROR'
+  type: 'DISMISS_ERROR',
 })
 
 // retrieves new logs from the backend and appends any new ones
-export const fetch = (getLogs) => (dispatch, getState) => {
+export const fetch = getLogs => (dispatch, getState) => {
   if (getState().isPolling && !getState().isFetching) {
     dispatch(beginFetching())
     getLogs((err, logs) => {
@@ -93,7 +93,7 @@ export const getUnique = (oldLogs, newLogs) => {
     return newLogs
   }
   const oldHash = oldLogs[0].hash
-  return takeWhile(newLogs, (entry) => MD5(entry) !== oldHash)
+  return takeWhile(newLogs, entry => MD5(entry) !== oldHash)
 }
 
 // timeout loop for polling the backend

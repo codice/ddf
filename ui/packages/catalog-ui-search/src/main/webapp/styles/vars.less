@@ -3,18 +3,18 @@
 @reactNamespace: intrigue-react-;
 
 //fonts
-@import "font-families.less";
+@import 'font-families.less';
 
 //sizing
-@minimumButtonSize: 2.75rem;  //44px
-@minimumLineSize: 1.875rem;   //30px
+@minimumButtonSize: 2.75rem; //44px
+@minimumLineSize: 1.875rem; //30px
 @border-radius: 1px;
 
 //screensizes
 @minimumScreenSize: 20rem; //320px
 @mobileScreenSize: 26.25rem; //420px
-@smallScreenSize: 58.75rem;  //940px
-@mediumScreenSize: 90rem;  // 1440px
+@smallScreenSize: 58.75rem; //940px
+@mediumScreenSize: 90rem; // 1440px
 
 //z-indexes
 @zIndexMenubar: 101;
@@ -30,8 +30,8 @@
 @zIndexBlocking: 105;
 
 //transitions
-@transitionTime: .0s;
-@coreTransitionTime: .250s;
+@transitionTime: 0s;
+@coreTransitionTime: 0.25s;
 
 //font sizes
 @minimumFontSize: 1rem;
@@ -44,8 +44,8 @@
 @largeSpacing: 3 * @minimumSpacing;
 
 //dividers.
-@dividerHeight: .0625rem;
-@minimumDividerSize: @dividerHeight + 2*@minimumSpacing;
+@dividerHeight: 0.0625rem;
+@minimumDividerSize: @dividerHeight + 2 * @minimumSpacing;
 
 //opacity
 @minimumOpacity: 0.6;
@@ -63,82 +63,82 @@
 
 //color usage
 @customBackgroundNavigation: #252529;
-@customBackgroundAccentContent: #2A2A2E;
+@customBackgroundAccentContent: #2a2a2e;
 @customBackgroundDropdown: #35353a;
 @customBackgroundContent: #35353a;
 @customBackgroundModal: #252529;
 @customBackgroundSlideout: #252529;
 
 .theme() when (@theme = dark), (default()) {
-    //color palette
-    @primary-color: #3c6dd5;
-    @positive-color: #428442;
-    @negative-color: #8a423c;
-    @warning-color: #c89600;
-    @favorite-color: #d1d179;
+  //color palette
+  @primary-color: #3c6dd5;
+  @positive-color: #428442;
+  @negative-color: #8a423c;
+  @warning-color: #c89600;
+  @favorite-color: #d1d179;
 
-    //color usage
-    @backgroundNavigation: #252529;
-    @backgroundAccentContent: #2A2A2E;
-    @backgroundDropdown: #35353a;
-    @backgroundContent: #35353a;
-    @backgroundModal: #252529;
-    @backgroundSlideout: #252529;
+  //color usage
+  @backgroundNavigation: #252529;
+  @backgroundAccentContent: #2a2a2e;
+  @backgroundDropdown: #35353a;
+  @backgroundContent: #35353a;
+  @backgroundModal: #252529;
+  @backgroundSlideout: #252529;
 }
 
 .theme() when (@theme = sea) {
-    //color palette
-    @primary-color: #32a6ad;
-    @positive-color: #154e7d;
-    @negative-color: #a32c00;
-    @warning-color: #b65e1f;
-    @favorite-color: #709e33;
+  //color palette
+  @primary-color: #32a6ad;
+  @positive-color: #154e7d;
+  @negative-color: #a32c00;
+  @warning-color: #b65e1f;
+  @favorite-color: #709e33;
 
-    //color usage
-    @backgroundNavigation: #0f3757;
-    @backgroundAccentContent: #ffffff;
-    @backgroundDropdown: #ffffff;
-    @backgroundContent: #ffffff;
-    @backgroundModal: #e5e6e6;
-    @backgroundSlideout: #e5e6e6;
+  //color usage
+  @backgroundNavigation: #0f3757;
+  @backgroundAccentContent: #ffffff;
+  @backgroundDropdown: #ffffff;
+  @backgroundContent: #ffffff;
+  @backgroundModal: #e5e6e6;
+  @backgroundSlideout: #e5e6e6;
 }
 
 .theme() when (@theme = light) {
-    //color palette
-    @primary-color: #3c6dd5;
-    @positive-color: #428442;
-    @negative-color: #8a423c;
-    @warning-color: #c89600;
-    @favorite-color: #d1d179;
+  //color palette
+  @primary-color: #3c6dd5;
+  @positive-color: #428442;
+  @negative-color: #8a423c;
+  @warning-color: #c89600;
+  @favorite-color: #d1d179;
 
-    //color usage
-    @backgroundNavigation: #3c6dd5;
-    @backgroundAccentContent: #edf9fc;
-    @backgroundDropdown: #f3fdff;
-    @backgroundContent: #f3fdff;
-    @backgroundModal: #edf9fc;
-    @backgroundSlideout: #edf9fc;
+  //color usage
+  @backgroundNavigation: #3c6dd5;
+  @backgroundAccentContent: #edf9fc;
+  @backgroundDropdown: #f3fdff;
+  @backgroundContent: #f3fdff;
+  @backgroundModal: #edf9fc;
+  @backgroundSlideout: #edf9fc;
 }
 
 .theme() when (@theme = custom) {
-    //color palette
-    @primary-color: @customPrimaryColor;
-    @positive-color: @customPositiveColor;
-    @negative-color: @customNegativeColor;
-    @warning-color: @customWarningColor;
-    @favorite-color: @customFavoriteColor;
+  //color palette
+  @primary-color: @customPrimaryColor;
+  @positive-color: @customPositiveColor;
+  @negative-color: @customNegativeColor;
+  @warning-color: @customWarningColor;
+  @favorite-color: @customFavoriteColor;
 
-    //color usage
-    @backgroundNavigation: @customBackgroundNavigation;
-    @backgroundAccentContent: @customBackgroundAccentContent;
-    @backgroundDropdown: @customBackgroundDropdown;
-    @backgroundContent: @customBackgroundContent;
-    @backgroundModal: @customBackgroundModal;
-    @backgroundSlideout: @customBackgroundSlideout;
+  //color usage
+  @backgroundNavigation: @customBackgroundNavigation;
+  @backgroundAccentContent: @customBackgroundAccentContent;
+  @backgroundDropdown: @customBackgroundDropdown;
+  @backgroundContent: @customBackgroundContent;
+  @backgroundModal: @customBackgroundModal;
+  @backgroundSlideout: @customBackgroundSlideout;
 }
 
 .theme();
 
-@import "mixins.less";
-@import "util.less";
-@import "components/init.less";
+@import 'mixins.less';
+@import 'util.less';
+@import 'components/init.less';

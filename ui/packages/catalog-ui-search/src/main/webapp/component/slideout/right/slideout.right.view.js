@@ -13,17 +13,17 @@
  *
  **/
 /*global require*/
-var SlideoutView = require('./../slideout.view');
-var $ = require('jquery');
+var SlideoutView = require('./../slideout.view')
+var $ = require('jquery')
 
 module.exports = SlideoutView.extend({
-    className: 'is-right',
-    open: function() {
-        $('html').toggleClass('has-slideout-right', true);
-        SlideoutView.prototype.open.call(this);
-    },
-    close: function() {
-        $('html').toggleClass('has-slideout-right', false);
-        SlideoutView.prototype.close.call(this);
-    }
-});
+  className: 'is-right',
+  open: function() {
+    $('html').toggleClass('has-slideout-right', true)
+    SlideoutView.prototype.open.call(this)
+  },
+  close: function() {
+    $('html').toggleClass('has-slideout-right', false)
+    SlideoutView.prototype.close.call(this)
+  },
+})

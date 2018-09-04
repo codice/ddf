@@ -10,27 +10,25 @@
  *
  **/
 /*global define*/
-define([
-    'backbone',
-    'js/Common',
-    'backbone-associations'
-], function(Backbone, Common) {
-
-    return Backbone.AssociatedModel.extend({
-        defaults: {
-            unseen: true,
-            queryId: undefined,
-            workspaceId: undefined,
-            when: undefined,
-            metacardIds: []
-        },
-        initialize: function () {
-            if (!this.id){
-                this.set('id', Common.generateUUID());
-            }
-        },
-        getTimeComparator: function(){
-            return this.get('when');
-        }
-    });
-});
+define(['backbone', 'js/Common', 'backbone-associations'], function(
+  Backbone,
+  Common
+) {
+  return Backbone.AssociatedModel.extend({
+    defaults: {
+      unseen: true,
+      queryId: undefined,
+      workspaceId: undefined,
+      when: undefined,
+      metacardIds: [],
+    },
+    initialize: function() {
+      if (!this.id) {
+        this.set('id', Common.generateUUID())
+      }
+    },
+    getTimeComparator: function() {
+      return this.get('when')
+    },
+  })
+})

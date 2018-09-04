@@ -7,7 +7,7 @@ const isInIframe = () => window !== window.top
 const BackdropView = ({ muiTheme, children, ...rest }) => {
   let fixed = {
     height: '100%',
-    backgroundColor: muiTheme.palette.backdropColor
+    backgroundColor: muiTheme.palette.backdropColor,
   }
 
   if (isInIframe()) {

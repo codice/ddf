@@ -12,9 +12,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette');
+const Marionette = require('marionette')
 
 module.exports = Marionette.ItemView.extend({
-    tagName: 'pre',
-    template: 'JSON: {{json this}}'
-});
+  tagName: 'pre',
+  template: 'JSON: {{json this}}',
+})

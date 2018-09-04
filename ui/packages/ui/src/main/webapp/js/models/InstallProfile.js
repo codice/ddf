@@ -13,42 +13,40 @@
  *
  **/
 /*global define*/
-define(['backbone','underscore'],function(Backbone,_){
+define(['backbone', 'underscore'], function(Backbone, _) {
+  var InstallProfile = {}
 
-    var InstallProfile = {};
+  InstallProfile.Model = Backbone.Model.extend({
+    toJSON: function() {
+      var modelJSON = _.clone(this.attributes)
+      return _.extend(modelJSON, {
+        displayName: modelJSON.name.replace('profile-', ''),
+      })
+    },
+  })
 
-    InstallProfile.Model = Backbone.Model.extend({
-        toJSON: function(){
-            var modelJSON = _.clone(this.attributes);
-            return _.extend(modelJSON,{
-                displayName: modelJSON.name.replace('profile-','')
-            });
-         }
-    });
-
-    InstallProfile.Collection = Backbone.Collection.extend({
-        model: InstallProfile.Model,
-        sortNames: ['standard', 'full'],
-        url: './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/',
-        parse: function(resp){
-            return resp.value;
-        },
-        comparator: function(model1, model2){
-            var returnValue = 0;
-            _.every(this.sortNames, function(sortName){
-                if(model1.get('name') === sortName){
-                    returnValue = -1;
-                } else if(model2.get('name') === sortName){
-                    returnValue = 1;
-                }
-
-                return returnValue === 0;
-
-            });
-            return returnValue;
+  InstallProfile.Collection = Backbone.Collection.extend({
+    model: InstallProfile.Model,
+    sortNames: ['standard', 'full'],
+    url:
+      './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/',
+    parse: function(resp) {
+      return resp.value
+    },
+    comparator: function(model1, model2) {
+      var returnValue = 0
+      _.every(this.sortNames, function(sortName) {
+        if (model1.get('name') === sortName) {
+          returnValue = -1
+        } else if (model2.get('name') === sortName) {
+          returnValue = 1
         }
-    });
 
-    return InstallProfile;
+        return returnValue === 0
+      })
+      return returnValue
+    },
+  })
 
-});
+  return InstallProfile
+})

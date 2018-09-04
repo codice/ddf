@@ -4,7 +4,6 @@
   "description": "Grunt port allocator task.",
   "main": "src/main/js/tasks/grunt-port-allocator.js",
   "scripts": {
-    "pretest": "jshint tasks lib test",
     "test": "tap ./test/port-allocator.js && grunt --gruntfile ./test/Gruntfile.js"
   },
   "author": "Codice",
@@ -25,7 +24,6 @@
   "devDependencies": {
     "grunt": "1.0.1",
     "grunt-cli": "1.2.0",
-    "jshint": "2.8.0",
     "tap": "3.1.2"
   },
   "dependencies": {

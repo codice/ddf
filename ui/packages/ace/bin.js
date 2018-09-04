@@ -6,7 +6,7 @@ const program = require('commander')
 const find = require('find-up')
 const cheerio = require('cheerio')
 
-const wrap = (path) => (args = {}) => {
+const wrap = path => (args = {}) => {
   const cmd = require(path)
 
   let pkg, pom
@@ -14,8 +14,9 @@ const wrap = (path) => (args = {}) => {
   try {
     pkg = require(find.sync('package.json'))
     pom = cheerio.load(
-      fs.readFileSync(find.sync('pom.xml'), {encoding: 'utf8'}),
-      { xmlMode: true, decodeEntities: false })
+      fs.readFileSync(find.sync('pom.xml'), { encoding: 'utf8' }),
+      { xmlMode: true, decodeEntities: false }
+    )
   } catch (e) {
     console.error(e)
   }
@@ -60,6 +61,13 @@ program
   .action(wrap('./lib/lint'))
 
 program
+  .command('format')
+  .description('run formatter')
+  .option('-m, --modified', 'only run against modified code')
+  .option('-w, --write', 'fix errors that are found')
+  .action(wrap('./lib/format'))
+
+program
   .command('pom')
   .description('verify/fix the root pom')
   .option('-f, --fix', 'sync pom with packages')
@@ -69,7 +77,9 @@ program
   .command('gen-feature')
   .description('generate a feature file')
   .option('-e, --extend <feature-file>', 'extend an existing feature file')
-  .option('-x, --exclude [projects]', 'exclude existing wabs', (val) => val.split(','))
+  .option('-x, --exclude [projects]', 'exclude existing wabs', val =>
+    val.split(',')
+  )
   .action(wrap('./lib/gen-feature'))
 
 program
@@ -82,9 +92,15 @@ program
   .command('start')
   .description('start the dev server')
   .option('-N, --no-open', 'do not open default browser')
-  .option('-a, --auth <auth>', 'auth <username:password> (default: admin:admin)')
+  .option(
+    '-a, --auth <auth>',
+    'auth <username:password> (default: admin:admin)'
+  )
   .option('-e, --env <env>', 'build environment <development|test|production>')
-  .option('--proxy <target>', 'set proxy target (default: https://localhost:8993)')
+  .option(
+    '--proxy <target>',
+    'set proxy target (default: https://localhost:8993)'
+  )
   .option('--port <port>', 'dev server port (default: 8080)')
   .option('--host <host>', 'dev server host (default: localhost)')
   .action(wrap('./lib/start'))
@@ -92,10 +108,12 @@ program
 program
   .command('disable-idp')
   .description('disable idp authentication in running ddf instance')
-  .option('-a, --auth <auth>', 'auth <username:password> (default: admin:admin)')
+  .option(
+    '-a, --auth <auth>',
+    'auth <username:password> (default: admin:admin)'
+  )
   .option('--port <port>', 'ddf server port (default: 8993)')
   .option('--host <host>', 'ddf server host (default: localhost)')
   .action(wrap('./lib/disable-idp'))
 
 program.parse(process.argv)
-

@@ -13,21 +13,21 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./input-number.hbs');
-var InputView = require('../input.view');
+var Marionette = require('marionette')
+var template = require('./input-number.hbs')
+var InputView = require('../input.view')
 
 module.exports = InputView.extend({
-        template: template,
-        getCurrentValue: function(){
-            var value = this.$el.find('input').val();
-            if (value !== ''){
-                return Number(value);
-            } else {
-                return value;
-            }
-        },
-        isValid: function(){
-            return this.getCurrentValue() !== '';
-        }
-});
+  template: template,
+  getCurrentValue: function() {
+    var value = this.$el.find('input').val()
+    if (value !== '') {
+      return Number(value)
+    } else {
+      return value
+    }
+  },
+  isValid: function() {
+    return this.getCurrentValue() !== ''
+  },
+})

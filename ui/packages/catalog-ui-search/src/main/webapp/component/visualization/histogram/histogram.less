@@ -24,7 +24,8 @@
     transform: translateX(0%);
   }
 
-  > .histogram-empty, > .histogram-no-matching-data {
+  > .histogram-empty,
+  > .histogram-no-matching-data {
     text-align: center;
     padding: @largeSpacing;
     display: none;
@@ -33,7 +34,6 @@
       color: @warning-color;
     }
   }
-
 }
 
 @{customElementNamespace}histogram.is-empty {
@@ -48,7 +48,6 @@
     opacity: 0;
     transform: translateX(-100%);
   }
-
 }
 
 @{customElementNamespace}histogram.no-matching-data:not(.is-empty) {
@@ -57,11 +56,11 @@
   > .histogram-no-matching-data {
     display: block;
   }
-
 }
 
-
-.is-medium-screen, .is-small-screen, .is-mobile-screen {
+.is-medium-screen,
+.is-small-screen,
+.is-mobile-screen {
   @{customElementNamespace}histogram {
     overflow: auto;
     > .histogram-container {

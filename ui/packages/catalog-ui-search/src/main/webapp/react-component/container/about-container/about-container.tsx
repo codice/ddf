@@ -9,28 +9,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
+import * as React from 'react'
 import About from '../../presentation/about'
-const properties = require('properties');
-const moment = require('moment');
+const properties = require('properties')
+const moment = require('moment')
 
 class AboutContainer extends React.Component {
-    constructor(props: {}) {
-        super(props);
-    }
-    render() {
-        return (
-            <About 
-                date={moment(properties.commitDate).format("MMMM Do YYYY")}
-                branding={properties.branding} 
-                isDirty={properties.isDirty} 
-                commitHash={properties.commitHash}
-                commitDate={properties.commitDate}
-                product={properties.product}
-                version={properties.version}    
-            />
-        )
-    }
+  constructor(props: {}) {
+    super(props)
+  }
+  render() {
+    return (
+      <About
+        date={moment(properties.commitDate).format('MMMM Do YYYY')}
+        branding={properties.branding}
+        isDirty={properties.isDirty}
+        commitHash={properties.commitHash}
+        commitDate={properties.commitDate}
+        product={properties.product}
+        version={properties.version}
+      />
+    )
+  }
 }
 
 export default AboutContainer

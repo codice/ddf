@@ -11,161 +11,211 @@
  **/
 /*global define*/
 define([
-    'underscore',
-    'backbone',
-    'js/model/Metacard',
-    'js/model/Query',
-    'js/model/QueryResponse',
-    'js/model/QueryResult',
-    'js/cql',
-    'component/router/router'
-], function (_, Backbone, Metacard, Query, QueryResponse, QueryResult, cql, router) {
-
-    return new (Backbone.AssociatedModel.extend({
-        relations: [
-            {
-                type: Backbone.One,
-                key: 'currentQuery',
-                relatedModel: Query.Model
-            },
-            {
-                type: Backbone.One,
-                key: 'currentMetacard',
-                relatedModel: QueryResponse
-            },
-            {
-                type: Backbone.Many,
-                key: 'selectedResults',
-                relatedModel: Metacard
-            },
-            {
-                type: Backbone.Many,
-                key: 'activeSearchResults',
-                relatedModel: QueryResult
-            },
-            {
-                type: Backbone.Many,
-                key: 'completeActiveSearchResults',
-                relatedModel: QueryResult
-            }
-        ],
-        defaults: {
-            currentQuery: undefined,
-            currentMetacard: undefined,
-            selectedResults: [],
-            activeSearchResults: [],
-            activeSearchResultsAttributes: [],
-            completeActiveSearchResults: [],
-            completeActiveSearchResultsAttributes: [],
-        },
-        initialize: function(){
-            this.set('currentResult', new QueryResponse());
-            this.listenTo(this, 'change:currentMetacard', this.handleUpdate);
-            this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard);
-            this.listenTo(this, 'change:currentResult', this.handleResultChange);
-            this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
-            this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
-            this.listenTo(router, 'change', this.handleRoute);
-            this.handleRoute();
-        },
-        handleRoute() {
-            if (router.toJSON().name === 'openMetacard'){
-                const metacardId = router.toJSON().args[0];
-                const queryForMetacard = new Query.Model({
-                    cql: cql.write({
-                        type: 'AND',
-                        filters: [{
-                            type: '=',
-                            value: metacardId,
-                            property: '"id"'
-                        }, {
-                            type: 'ILIKE',
-                            value: '*',
-                            property: '"metacard-tags"'
-                        }]
-                    }),
-                    federation: 'enterprise'
-                });
-                if (this.get('currentQuery')){
-                    this.get('currentQuery').cancelCurrentSearches();
-                }
-                queryForMetacard.startSearch();
-                this.set({
-                    'currentMetacard': undefined,
-                    'currentResult': queryForMetacard.get('result'),
-                    'currentQuery': queryForMetacard
-                });
-            }
-        },
-        updateActiveSearchResultsFullAttributes: function() {
-            var availableAttributes = this.get('completeActiveSearchResults').reduce(function(currentAvailable, result) {
-                currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
-                return currentAvailable;
-            }, []).sort();
-            this.set('completeActiveSearchResultsAttributes', availableAttributes);
-        },
-        getCompleteActiveSearchResultsAttributes: function(){
-            return this.get('completeActiveSearchResultsAttributes');
-        },
-        getCompleteActiveSearchResults: function(){
-            return this.get('completeActiveSearchResults');
-        },
-        setCompleteActiveSearchResults: function(results){
-            this.get('completeActiveSearchResults').reset(results.models || results);
-        },
-        handleResultChange: function(){
-            this.listenTo(this.get('currentResult'), 'sync reset:results', this.handleResults);
-        },
-        handleResults: function(){
-            this.set('currentMetacard', this.get('currentResult').get('results').first());
-        },
-        updateActiveSearchResultsAttributes: function(){
-            var availableAttributes = this.get('activeSearchResults').reduce(function(currentAvailable, result) {
-                currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
-                return currentAvailable;
-            }, []).sort();
-            this.set('activeSearchResultsAttributes', availableAttributes);
-        }, 
-        getActiveSearchResultsAttributes: function(){
-            return this.get('activeSearchResultsAttributes');
-        },
-        handleUpdate: function(){
-            this.clearSelectedResults();
-            this.setActiveSearchResults(this.get('currentResult').get('results'));
-            this.setCompleteActiveSearchResults(this.get('currentResult').get('results'));
-            this.addSelectedResult(this.get('currentMetacard'));
-        },
-        handleCurrentMetacard: function(){
-            if (this.get('currentMetacard') !== undefined){
-                this.get('currentQuery').cancelCurrentSearches();
-            }
-        },
-        getActiveSearchResults: function(){
-            return this.get('activeSearchResults');
-        },
-        setActiveSearchResults: function(results){
-            this.get('activeSearchResults').reset(results.models || results);
-        },
-        addToActiveSearchResults: function(results){
-            this.get('activeSearchResults').add(results.models || results);
-        },
-        getSelectedResults: function(){
-            return this.get('selectedResults');
-        },
-        clearSelectedResults: function(){
-            this.getSelectedResults().reset();
-        },
-        addSelectedResult: function(metacard){
-            this.getSelectedResults().add(metacard);
-        },
-        removeSelectedResult: function(metacard){
-            this.getSelectedResults().remove(metacard);
-        },
-        setCurrentQuery: function(query){
-            this.set('currentQuery', query);
-        },
-        getCurrentQuery: function(){
-            return this.get('currentQuery');
+  'underscore',
+  'backbone',
+  'js/model/Metacard',
+  'js/model/Query',
+  'js/model/QueryResponse',
+  'js/model/QueryResult',
+  'js/cql',
+  'component/router/router',
+], function(
+  _,
+  Backbone,
+  Metacard,
+  Query,
+  QueryResponse,
+  QueryResult,
+  cql,
+  router
+) {
+  return new (Backbone.AssociatedModel.extend({
+    relations: [
+      {
+        type: Backbone.One,
+        key: 'currentQuery',
+        relatedModel: Query.Model,
+      },
+      {
+        type: Backbone.One,
+        key: 'currentMetacard',
+        relatedModel: QueryResponse,
+      },
+      {
+        type: Backbone.Many,
+        key: 'selectedResults',
+        relatedModel: Metacard,
+      },
+      {
+        type: Backbone.Many,
+        key: 'activeSearchResults',
+        relatedModel: QueryResult,
+      },
+      {
+        type: Backbone.Many,
+        key: 'completeActiveSearchResults',
+        relatedModel: QueryResult,
+      },
+    ],
+    defaults: {
+      currentQuery: undefined,
+      currentMetacard: undefined,
+      selectedResults: [],
+      activeSearchResults: [],
+      activeSearchResultsAttributes: [],
+      completeActiveSearchResults: [],
+      completeActiveSearchResultsAttributes: [],
+    },
+    initialize: function() {
+      this.set('currentResult', new QueryResponse())
+      this.listenTo(this, 'change:currentMetacard', this.handleUpdate)
+      this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard)
+      this.listenTo(this, 'change:currentResult', this.handleResultChange)
+      this.listenTo(
+        this.get('activeSearchResults'),
+        'update add remove reset',
+        this.updateActiveSearchResultsAttributes
+      )
+      this.listenTo(
+        this.get('completeActiveSearchResults'),
+        'update add remove reset',
+        this.updateActiveSearchResultsFullAttributes
+      )
+      this.listenTo(router, 'change', this.handleRoute)
+      this.handleRoute()
+    },
+    handleRoute() {
+      if (router.toJSON().name === 'openMetacard') {
+        const metacardId = router.toJSON().args[0]
+        const queryForMetacard = new Query.Model({
+          cql: cql.write({
+            type: 'AND',
+            filters: [
+              {
+                type: '=',
+                value: metacardId,
+                property: '"id"',
+              },
+              {
+                type: 'ILIKE',
+                value: '*',
+                property: '"metacard-tags"',
+              },
+            ],
+          }),
+          federation: 'enterprise',
+        })
+        if (this.get('currentQuery')) {
+          this.get('currentQuery').cancelCurrentSearches()
         }
-    }))();
-});
+        queryForMetacard.startSearch()
+        this.set({
+          currentMetacard: undefined,
+          currentResult: queryForMetacard.get('result'),
+          currentQuery: queryForMetacard,
+        })
+      }
+    },
+    updateActiveSearchResultsFullAttributes: function() {
+      var availableAttributes = this.get('completeActiveSearchResults')
+        .reduce(function(currentAvailable, result) {
+          currentAvailable = _.union(
+            currentAvailable,
+            Object.keys(
+              result
+                .get('metacard')
+                .get('properties')
+                .toJSON()
+            )
+          )
+          return currentAvailable
+        }, [])
+        .sort()
+      this.set('completeActiveSearchResultsAttributes', availableAttributes)
+    },
+    getCompleteActiveSearchResultsAttributes: function() {
+      return this.get('completeActiveSearchResultsAttributes')
+    },
+    getCompleteActiveSearchResults: function() {
+      return this.get('completeActiveSearchResults')
+    },
+    setCompleteActiveSearchResults: function(results) {
+      this.get('completeActiveSearchResults').reset(results.models || results)
+    },
+    handleResultChange: function() {
+      this.listenTo(
+        this.get('currentResult'),
+        'sync reset:results',
+        this.handleResults
+      )
+    },
+    handleResults: function() {
+      this.set(
+        'currentMetacard',
+        this.get('currentResult')
+          .get('results')
+          .first()
+      )
+    },
+    updateActiveSearchResultsAttributes: function() {
+      var availableAttributes = this.get('activeSearchResults')
+        .reduce(function(currentAvailable, result) {
+          currentAvailable = _.union(
+            currentAvailable,
+            Object.keys(
+              result
+                .get('metacard')
+                .get('properties')
+                .toJSON()
+            )
+          )
+          return currentAvailable
+        }, [])
+        .sort()
+      this.set('activeSearchResultsAttributes', availableAttributes)
+    },
+    getActiveSearchResultsAttributes: function() {
+      return this.get('activeSearchResultsAttributes')
+    },
+    handleUpdate: function() {
+      this.clearSelectedResults()
+      this.setActiveSearchResults(this.get('currentResult').get('results'))
+      this.setCompleteActiveSearchResults(
+        this.get('currentResult').get('results')
+      )
+      this.addSelectedResult(this.get('currentMetacard'))
+    },
+    handleCurrentMetacard: function() {
+      if (this.get('currentMetacard') !== undefined) {
+        this.get('currentQuery').cancelCurrentSearches()
+      }
+    },
+    getActiveSearchResults: function() {
+      return this.get('activeSearchResults')
+    },
+    setActiveSearchResults: function(results) {
+      this.get('activeSearchResults').reset(results.models || results)
+    },
+    addToActiveSearchResults: function(results) {
+      this.get('activeSearchResults').add(results.models || results)
+    },
+    getSelectedResults: function() {
+      return this.get('selectedResults')
+    },
+    clearSelectedResults: function() {
+      this.getSelectedResults().reset()
+    },
+    addSelectedResult: function(metacard) {
+      this.getSelectedResults().add(metacard)
+    },
+    removeSelectedResult: function(metacard) {
+      this.getSelectedResults().remove(metacard)
+    },
+    setCurrentQuery: function(query) {
+      this.set('currentQuery', query)
+    },
+    getCurrentQuery: function() {
+      return this.get('currentQuery')
+    },
+  }))()
+})

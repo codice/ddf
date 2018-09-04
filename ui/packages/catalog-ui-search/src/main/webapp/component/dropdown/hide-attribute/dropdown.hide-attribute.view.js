@@ -14,17 +14,16 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.hide-attribute.hbs',
-    'component/hide-attribute/hide-attribute.view'
-], function (Marionette, _, $, DropdownView, template, HideAttributeView) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-hideAttribute',
-        componentToShow: HideAttributeView
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.hide-attribute.hbs',
+  'component/hide-attribute/hide-attribute.view',
+], function(Marionette, _, $, DropdownView, template, HideAttributeView) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-hideAttribute',
+    componentToShow: HideAttributeView,
+  })
+})

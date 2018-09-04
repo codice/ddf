@@ -27,10 +27,12 @@
       display: none;
     }
 
-    > .result-actions, .result-validation {
+    > .result-actions,
+    .result-validation {
       display: inline-block;
     }
-    > div, > button {
+    > div,
+    > button {
       text-align: center;
       vertical-align: top;
       width: @minimumButtonSize;
@@ -46,14 +48,14 @@
     position: absolute;
     left: 0px;
     top: 0px;
-    width: .5*@minimumSpacing;
+    width: 0.5 * @minimumSpacing;
     height: 100%;
   }
 
   .container-content {
     width: ~'calc(100% - 0.5*@{minimumSpacing})';
     position: relative;
-    left: 0.5*@minimumSpacing;
+    left: 0.5 * @minimumSpacing;
     padding: 0px @minimumSpacing;
   }
 
@@ -84,7 +86,7 @@
   .result-validation .resultWarning {
     color: @warning-color !important;
   }
-  
+
   .result-validation .resultWarning,
   .result-validation .resultError {
     display: inline-block;
@@ -100,7 +102,7 @@
     display: none;
     padding-right: @minimumSpacing;
   }
-  
+
   .source-icon {
     display: inline;
     padding-right: @minimumSpacing;
@@ -114,7 +116,7 @@
 }
 
 @{customElementNamespace}result-item.is-blacklisted {
-  opacity: .4;
+  opacity: 0.4;
 }
 
 @{customElementNamespace}result-item.is-grid {
@@ -122,7 +124,7 @@
     opacity: 1;
     display: block;
     height: auto;
-    padding: .5*@minimumSpacing 0px;
+    padding: 0.5 * @minimumSpacing 0px;
 
     img {
       max-width: 100%;

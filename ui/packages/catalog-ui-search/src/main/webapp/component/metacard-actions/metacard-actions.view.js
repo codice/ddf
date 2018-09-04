@@ -14,49 +14,55 @@
  **/
 /*global define, setTimeout*/
 define([
-    'marionette',
-    'lodash',
-    'jquery',
-    './metacard-actions.hbs',
-    'js/CustomElements',
-    'js/store',
-    'component/map-actions/map-actions.view'
-], function (Marionette, _, $, template, CustomElements, store, MapActions) {
-
-    return Marionette.LayoutView.extend({
-        setDefaultModel: function(){
-            this.model = this.selectionInterface.getSelectedResults().first();
-        },
-        template: template,
-        tagName: CustomElements.register('metacard-actions'),
-        regions: {
-            mapActions: '.map-actions'
-        },
-        events: {
-        },
-        ui: {
-        },
-        selectionInterface: store,
-        initialize: function(options){
-            this.selectionInterface = options.selectionInterface || this.selectionInterface;
-            if (!options.model){
-                this.setDefaultModel();
-            }
-        },
-        serializeData: function() {
-            return {
-                exportActions: _.sortBy(this.model.getExportActions().map(action => ({
-                    url: action.get('url'),
-                    title: action.getExportType()
-                })), (action) => action.title.toLowerCase()),
-                otherActions: _.sortBy(this.model.getOtherActions().map(action => ({
-                    url: action.get('url'),
-                    title: action.get('title')
-                })), (action) => action.title.toLowerCase())   
-            };
-        },
-        onRender: function () {
-            this.mapActions.show(new MapActions({ model: this.model }), {replaceElement: true});
-        }
-    });
-});
+  'marionette',
+  'lodash',
+  'jquery',
+  './metacard-actions.hbs',
+  'js/CustomElements',
+  'js/store',
+  'component/map-actions/map-actions.view',
+], function(Marionette, _, $, template, CustomElements, store, MapActions) {
+  return Marionette.LayoutView.extend({
+    setDefaultModel: function() {
+      this.model = this.selectionInterface.getSelectedResults().first()
+    },
+    template: template,
+    tagName: CustomElements.register('metacard-actions'),
+    regions: {
+      mapActions: '.map-actions',
+    },
+    events: {},
+    ui: {},
+    selectionInterface: store,
+    initialize: function(options) {
+      this.selectionInterface =
+        options.selectionInterface || this.selectionInterface
+      if (!options.model) {
+        this.setDefaultModel()
+      }
+    },
+    serializeData: function() {
+      return {
+        exportActions: _.sortBy(
+          this.model.getExportActions().map(action => ({
+            url: action.get('url'),
+            title: action.getExportType(),
+          })),
+          action => action.title.toLowerCase()
+        ),
+        otherActions: _.sortBy(
+          this.model.getOtherActions().map(action => ({
+            url: action.get('url'),
+            title: action.get('title'),
+          })),
+          action => action.title.toLowerCase()
+        ),
+      }
+    },
+    onRender: function() {
+      this.mapActions.show(new MapActions({ model: this.model }), {
+        replaceElement: true,
+      })
+    },
+  })
+})

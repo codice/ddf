@@ -13,137 +13,136 @@
  *
  **/
 body {
-    height: 100%;
+  height: 100%;
 }
 
 .login-container {
-    margin-left: auto;
-    margin-right: auto;
-    width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 900px;
 }
 
 .form-container {
-    display: inline-block;
-    margin-left: 50px;
-    margin-right: 50px;
+  display: inline-block;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .full-height {
-    height: 100%;
+  height: 100%;
 }
 
 .banner-container {
-    text-align : center;
-    color : white;
+  text-align: center;
+  color: white;
 }
 
-.green{
-    background-color : darkgreen;
+.green {
+  background-color: darkgreen;
 }
-
 
 .blue {
-    background-color : blue;
+  background-color: blue;
 }
 
 .red {
-    background-color : darkred;
+  background-color: darkred;
 }
 
 .yellow {
-    background-color : gold;
+  background-color: gold;
 }
 
 .light-green {
-    background-color: lightgreen;
+  background-color: lightgreen;
 }
 
 .light-blue {
-    background-color: lightskyblue;
+  background-color: lightskyblue;
 }
 
 .light-red {
-    background-color: tomato;
+  background-color: tomato;
 }
 
 .light-yellow {
-    background-color: #ffff00;
+  background-color: #ffff00;
 }
 
 .white {
-    background-color: white;
+  background-color: white;
 }
 
 .black {
-    background-color: black;
+  background-color: black;
 }
 
 .banner-text-green {
-    color: darkgreen;
+  color: darkgreen;
 }
 
 .banner-text-blue {
-    color: blue;
+  color: blue;
 }
 
 .banner-text-red {
-    color: darkred;
+  color: darkred;
 }
 
 .banner-text-yellow {
-    color: gold;
+  color: gold;
 }
 
 .banner-text-light-green {
-    color: lightgreen;
+  color: lightgreen;
 }
 
 .banner-text-light-blue {
-    color: lightskyblue;
+  color: lightskyblue;
 }
 
 .banner-text-light-red {
-    color: tomato;
+  color: tomato;
 }
 
 .banner-text-light-yellow {
-    color: #ffff00;
+  color: #ffff00;
 }
 
 .banner-text-white {
-    color: white;
+  color: white;
 }
 
 .banner-text-black {
-    color: black;
+  color: black;
 }
 
 html.has-header header {
-    position: fixed;
-    top: 0px;
-    right: 0px;
-    left: 0px;
-    height: 20px;
-    text-align: center;
-    z-index: 2;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  height: 20px;
+  text-align: center;
+  z-index: 2;
 }
 
 html.has-header .main-content-wrapper {
-    padding-top: 20px;
-    z-index: 1;
+  padding-top: 20px;
+  z-index: 1;
 }
 
 html.has-footer footer {
-    position: fixed;
-    bottom: 0px;
-    right: 0px;
-    left: 0px;
-    height: 20px;
-    text-align: center;
-    z-index: 2;
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  height: 20px;
+  text-align: center;
+  z-index: 2;
 }
 
 html.has-footer .main-content-wrapper {
-    padding-bottom: 20px;
-    z-index: 1;
+  padding-bottom: 20px;
+  z-index: 1;
 }

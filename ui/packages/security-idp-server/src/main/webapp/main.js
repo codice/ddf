@@ -12,98 +12,90 @@
 /*global require, window */
 /*jslint nomen:false, -W064 */
 
-(function () {
-    'use strict';
+;(function() {
+  'use strict'
 
-    require.config({
+  require.config({
+    paths: {
+      bootstrap: '../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+      q: '../webjars/q/1.4.1/q',
 
-        paths: {
+      // backbone
+      backbone: '../webjars/backbone/1.1.2/backbone',
+      underscore: '../webjars/underscore/1.8.3/underscore-min',
+      marionette: '../webjars/marionette/1.8.8/lib/backbone.marionette.min',
 
-            bootstrap: '../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-            q: '../webjars/q/1.4.1/q',
+      // jquery
+      jquery: '../webjars/jquery/3.2.1/dist/jquery.min',
+      jqueryuiCore:
+        '../webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
 
-            // backbone
-            backbone: '../webjars/backbone/1.1.2/backbone',
-            underscore: '../webjars/underscore/1.8.3/underscore-min',
-            marionette: '../webjars/marionette/1.8.8/lib/backbone.marionette.min',
+      // purl
+      purl: '../webjars/purl/2.3.1/purl',
 
-            // jquery
-            jquery: '../webjars/jquery/3.2.1/dist/jquery.min',
-            jqueryuiCore: '../webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
+      // handlebars
+      handlebars: '../webjars/handlebars/2.0.0/handlebars.min',
+      icanhaz: 'js/ich',
 
-            // purl
-            purl: '../webjars/purl/2.3.1/purl',
+      // require plugins
+      text: '../webjars/requirejs-plugins/1.0.3/lib/text',
 
-            // handlebars
-            handlebars: '../webjars/handlebars/2.0.0/handlebars.min',
-            icanhaz: 'js/ich',
+      // default login ui
+      app: 'js/application',
+    },
 
-            // require plugins
-            text: '../webjars/requirejs-plugins/1.0.3/lib/text',
+    shim: {
+      backbone: {
+        deps: ['underscore', 'jquery'],
+        exports: 'Backbone',
+      },
+      marionette: {
+        deps: ['jquery', 'underscore', 'backbone'],
+        exports: 'Marionette',
+      },
+      underscore: {
+        exports: '_',
+      },
+      handlebars: {
+        exports: 'Handlebars',
+      },
+      icanhaz: {
+        deps: ['jquery', 'handlebars'],
+        exports: 'ich',
+      },
+      bootstrap: {
+        deps: ['jquery'],
+      },
+      purl: {
+        deps: ['jquery'],
+      },
+    },
 
-            // default login ui
-            app: 'js/application'
-        },
+    waitSeconds: 200,
+  })
 
+  require([
+    'backbone',
+    'marionette',
+    'icanhaz',
+    'js/application',
+    'bootstrap',
+  ], function(Backbone, Marionette, ich, Application) {
+    var app = Application.App
 
-        shim: {
+    Marionette.Renderer.render = function(template, data) {
+      if (!template) {
+        return ''
+      }
+      return ich[template](data)
+    }
 
-            backbone: {
-                deps: ['underscore', 'jquery'],
-                exports: 'Backbone'
-            },
-            marionette: {
-                deps: ['jquery', 'underscore', 'backbone'],
-                exports: 'Marionette'
-            },
-            underscore: {
-                exports: '_'
-            },
-            handlebars: {
-                exports: 'Handlebars'
-            },
-            icanhaz: {
-                deps: ['jquery', 'handlebars'],
-                exports: 'ich'
-            },
-            bootstrap: {
-                deps: ['jquery']
-            },
-            purl: {
-                deps: ['jquery']
-            }
+    if (window) {
+      // make ddf object available on window.  Makes debugging in chrome console much easier
+      window.app = app
+    }
 
-        },
-
-        waitSeconds: 200
-    });
-
-
-    require([
-        'backbone',
-        'marionette',
-        'icanhaz',
-        'js/application',
-        'bootstrap'
-
-    ], function (Backbone, Marionette, ich, Application) {
-
-        var app = Application.App;
-
-        Marionette.Renderer.render = function (template, data) {
-            if (!template) {
-                return '';
-            }
-            return ich[template](data);
-        };
-
-        if (window) {
-            // make ddf object available on window.  Makes debugging in chrome console much easier
-            window.app = app;
-        }
-
-        // Actually start up the application.
-        app.start();
-    });
-
-}());
+    // Actually start up the application.
+    app.start()
+  })
+})()

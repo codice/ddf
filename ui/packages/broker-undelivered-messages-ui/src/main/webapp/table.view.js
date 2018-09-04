@@ -12,21 +12,27 @@
 import React from 'react'
 import RowView from './row.view'
 import store from './store'
-import {checkAllMessages} from './actions'
+import { checkAllMessages } from './actions'
 
-export default ({data, checked}) => (
+export default ({ data, checked }) => (
   <table>
     <thead>
       <tr>
         <th>
-          <input type='checkbox' checked={checked} onChange={() => store.dispatch(checkAllMessages(!checked))} />
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={() => store.dispatch(checkAllMessages(!checked))}
+          />
         </th>
         <th>Time Stamp</th>
         <th>Message</th>
       </tr>
     </thead>
     <tbody>
-      {data.map((n, i) => <RowView {...n} key={i} />)}
+      {data.map((n, i) => (
+        <RowView {...n} key={i} />
+      ))}
     </tbody>
   </table>
 )

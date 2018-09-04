@@ -13,12 +13,12 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var UploadItemView = require('./upload-item.view');
-var CustomElements = require('js/CustomElements');
+var Marionette = require('marionette')
+var UploadItemView = require('./upload-item.view')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
-    tagName: CustomElements.register('upload-item-collection'),
-    childView: UploadItemView,
-    className: 'is-list has-list-highlighting'
-});
+  tagName: CustomElements.register('upload-item-collection'),
+  childView: UploadItemView,
+  className: 'is-list has-list-highlighting',
+})

@@ -10,9 +10,9 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
-var AssociationModel = require('./association');
+var Backbone = require('backbone')
+var AssociationModel = require('./association')
 
 module.exports = Backbone.Collection.extend({
-    model: AssociationModel
-});
+  model: AssociationModel,
+})

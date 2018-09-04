@@ -11,44 +11,41 @@
  **/
 /*global define*/
 
-define([
-        'jquery'
-    ],
-    function ($) {
+define(['jquery'], function($) {
+  $.whenAll = function() {
+    var args = arguments,
+      sliceDeferred = [].slice,
+      i = 0,
+      length = args.length,
+      count = length,
+      rejected,
+      deferred = $.Deferred()
 
-        $.whenAll = function() {
-            var args = arguments,
-                sliceDeferred = [].slice,
-                i = 0,
-                length = args.length,
-                count = length,
-                rejected,
-                deferred = $.Deferred();
+    function resolveFunc(i, reject) {
+      return function(value) {
+        rejected = rejected || reject
+        args[i] =
+          arguments.length > 1 ? sliceDeferred.call(arguments, 0) : value
+        if (!--count) {
+          // Strange bug in FF4:
+          // Values changed onto the arguments object sometimes end up as undefined values
+          // outside the $.when method. Cloning the object into a fresh array solves the issue
+          var fn = rejected ? deferred.rejectWith : deferred.resolveWith
+          fn.call(deferred, deferred, sliceDeferred.call(args, 0))
+        }
+      }
+    }
 
-            function resolveFunc( i, reject ) {
-                return function( value ) {
-                    rejected = rejected || reject;
-                    args[ i ] = arguments.length > 1 ? sliceDeferred.call( arguments, 0 ) : value;
-                    if ( !( --count ) ) {
-                        // Strange bug in FF4:
-                        // Values changed onto the arguments object sometimes end up as undefined values
-                        // outside the $.when method. Cloning the object into a fresh array solves the issue
-                        var fn = rejected ? deferred.rejectWith : deferred.resolveWith;
-                        fn.call(deferred, deferred, sliceDeferred.call( args, 0 ));
-                    }
-                };
-            }
-
-            for( ; i < length; i++ ) {
-                if ( args[ i ] && $.isFunction( args[ i ].promise ) ) {
-                    args[ i ].promise().then( resolveFunc(i), resolveFunc(i, true) );
-                } else {
-                    --count;
-                }
-            }
-            if ( count === 0 ) {
-                deferred.resolveWith( deferred, args );
-            }
-            return deferred.promise();
-        };
-    });
+    for (; i < length; i++) {
+      if (args[i] && $.isFunction(args[i].promise)) {
+        args[i].promise().then(resolveFunc(i), resolveFunc(i, true))
+      } else {
+        --count
+      }
+    }
+    if (count === 0) {
+      deferred.resolveWith(deferred, args)
+    }
+    return deferred.promise()
+  }
+})

@@ -1,1 +1,1 @@
-module.exports = require('./location');
+module.exports = require('./location')

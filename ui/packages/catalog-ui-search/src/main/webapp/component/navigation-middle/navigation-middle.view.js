@@ -13,18 +13,18 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./navigation-middle.hbs');
-var CustomElements = require('CustomElements');
-const router = require('component/router/router');
+var Marionette = require('marionette')
+var template = require('./navigation-middle.hbs')
+var CustomElements = require('CustomElements')
+const router = require('component/router/router')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('navigation-middle'),
-    serializeData: function() {
-        return {
-            menuClass: this.options.classes,
-            menuText: this.options.text
-        };
+  template: template,
+  tagName: CustomElements.register('navigation-middle'),
+  serializeData: function() {
+    return {
+      menuClass: this.options.classes,
+      menuText: this.options.text,
     }
-});
+  },
+})

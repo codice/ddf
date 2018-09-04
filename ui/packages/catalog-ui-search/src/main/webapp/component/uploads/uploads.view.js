@@ -14,26 +14,31 @@
  **/
 /*global define, setTimeout*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './uploads.hbs',
-    'js/CustomElements',
-    'component/upload-batch-item/upload-batch-item.collection.view'
-], function (Marionette, _, $, template, CustomElements, UploadBatchItemCollectionView) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('uploads'),
-        modelEvents: {},
-        events: {
-        },
-        regions: {
-            uploadList: '.uploads-list'
-        },
-        ui: {},
-        onBeforeShow: function () {
-            this.uploadList.show(new UploadBatchItemCollectionView());
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  './uploads.hbs',
+  'js/CustomElements',
+  'component/upload-batch-item/upload-batch-item.collection.view',
+], function(
+  Marionette,
+  _,
+  $,
+  template,
+  CustomElements,
+  UploadBatchItemCollectionView
+) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('uploads'),
+    modelEvents: {},
+    events: {},
+    regions: {
+      uploadList: '.uploads-list',
+    },
+    ui: {},
+    onBeforeShow: function() {
+      this.uploadList.show(new UploadBatchItemCollectionView())
+    },
+  })
+})

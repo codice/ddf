@@ -10,24 +10,22 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone',
-    'js/model/QueryResult',
-], function (_, Backbone, QueryResult) {
-
-    return Backbone.AssociatedModel.extend({
-        relations: [
-            {
-                type: Backbone.Many,
-                key: 'results',
-                relatedModel: QueryResult
-            }
-        ],
-        defaults: {
-            results: []
-        },
-        initialize: function(){
-        }
-    });
-});
+define(['underscore', 'backbone', 'js/model/QueryResult'], function(
+  _,
+  Backbone,
+  QueryResult
+) {
+  return Backbone.AssociatedModel.extend({
+    relations: [
+      {
+        type: Backbone.Many,
+        key: 'results',
+        relatedModel: QueryResult,
+      },
+    ],
+    defaults: {
+      results: [],
+    },
+    initialize: function() {},
+  })
+})

@@ -51,7 +51,7 @@ const displaySize = (state = INITIAL_DISPLAY_SIZE, { type } = {}) => {
 const expandedHash = (state = null, { type, hash } = {}) => {
   switch (type) {
     case 'CHANGE_EXPANDED_ENTRY':
-      return (state === hash || hash === undefined) ? null : hash
+      return state === hash || hash === undefined ? null : hash
     default:
       return state
   }
@@ -60,7 +60,7 @@ const expandedHash = (state = null, { type, hash } = {}) => {
 const isPolling = (state = false, { type } = {}) => {
   switch (type) {
     case 'TOGGLE_POLLING':
-      return (!state)
+      return !state
     case 'SHOW_ERROR':
       return false
     default:
@@ -90,4 +90,12 @@ const errorState = (state = { isInError: false }, { type, message } = {}) => {
   }
 }
 
-export default combineReducers({ logs, filter, displaySize, expandedHash, isPolling, isFetching, errorState })
+export default combineReducers({
+  logs,
+  filter,
+  displaySize,
+  expandedHash,
+  isPolling,
+  isFetching,
+  errorState,
+})

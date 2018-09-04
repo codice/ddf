@@ -2,7 +2,7 @@
   display: block;
   white-space: nowrap;
   position: relative;
-  height: 3*@minimumButtonSize;
+  height: 3 * @minimumButtonSize;
   overflow: hidden;
   cursor: pointer;
   animation: new-upload-batch-item @coreTransitionTime 1 ease-in-out;
@@ -31,7 +31,7 @@
   }
 
   .details-summary {
-    height: 2*@minimumButtonSize;
+    height: 2 * @minimumButtonSize;
   }
 
   .upload-actions {
@@ -43,7 +43,7 @@
     overflow: hidden;
   }
 
-  .upload-actions  {
+  .upload-actions {
     button {
       width: @minimumButtonSize;
       height: 100%;
@@ -63,12 +63,13 @@
 @{customElementNamespace}upload-batch-item.is-destroyed {
   height: 0px !important;
   margin: 0px !important;
-  transition: height @coreTransitionTime linear, margin @coreTransitionTime linear;
+  transition: height @coreTransitionTime linear,
+    margin @coreTransitionTime linear;
 }
 
 @{customElementNamespace}upload-batch-item-collection {
-
-  @{customElementNamespace}upload-batch-item + @{customElementNamespace}upload-batch-item {
+  @{customElementNamespace}upload-batch-item
+    + @{customElementNamespace}upload-batch-item {
     margin-top: 10px;
   }
 
@@ -79,11 +80,11 @@
   }
 }
 
-@keyframes new-upload-batch-item{
-        0% {
-            height: 0px;
-        }
-        100% {
-            height: 3*@minimumButtonSize;
-        }
-    }
+@keyframes new-upload-batch-item {
+  0% {
+    height: 0px;
+  }
+  100% {
+    height: 3 * @minimumButtonSize;
+  }
+}

@@ -9,46 +9,46 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const { Direction } = require('../utils/dms-utils');
+const { Direction } = require('../utils/dms-utils')
 
 const dmsLatitude = {
   coordinate: '',
-  direction: Direction.North
-};
+  direction: Direction.North,
+}
 
 const dmsLongitude = {
   coordinate: '',
-  direction: Direction.East
-};
+  direction: Direction.East,
+}
 
 const dmsPoint = {
-  latitude: {...dmsLatitude},
-  longitude: {...dmsLongitude}
-};
+  latitude: { ...dmsLatitude },
+  longitude: { ...dmsLongitude },
+}
 
 const dmsModel = {
   shape: 'point',
-  point: {...dmsPoint},
+  point: { ...dmsPoint },
   circle: {
-    point: {...dmsPoint},
+    point: { ...dmsPoint },
     radius: '1',
-    units: 'meters'
+    units: 'meters',
   },
   line: {
-    list: []
+    list: [],
   },
   polygon: {
-    list: []
+    list: [],
   },
   boundingbox: {
-    north: {...dmsLatitude},
-    south: {...dmsLatitude},
-    east: {...dmsLongitude},
-    west: {...dmsLongitude}
-  }
-};
+    north: { ...dmsLatitude },
+    south: { ...dmsLatitude },
+    east: { ...dmsLongitude },
+    west: { ...dmsLongitude },
+  },
+}
 
 module.exports = {
   dmsPoint,
   dmsModel,
-};
+}

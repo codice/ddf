@@ -9,48 +9,46 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*jshint browser: true */
 
-define(['backbone',
-        'jquery'],
-    function (Backbone, $) {
+define(['backbone', 'jquery'], function(Backbone, $) {
+  var QueryMonitor = {}
 
-        var QueryMonitor = {};
+  QueryMonitor.MonitorModel = Backbone.Model.extend({
+    initialize: function() {
+      this.set({ users: [] })
+      this.pollActiveSearches()
+    },
+    getActiveSearches: function() {
+      var url =
+        '../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/activeSearches/'
+      var that = this
+      $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function(data) {
+          that.set({ users: data.value })
+        },
+      })
+    },
+    stopSearch: function(uuid) {
+      var url =
+        '../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/' +
+        uuid
+      $.ajax({
+        url: url,
+        dataType: 'json',
+      })
+    },
+    pollActiveSearches: function() {
+      var that = this
+      ;(function poll() {
+        setTimeout(function() {
+          that.getActiveSearches()
+          poll()
+        }, 1000)
+      })()
+    },
+  })
 
-        QueryMonitor.MonitorModel = Backbone.Model.extend({
-
-            initialize: function() {
-                this.set({'users' : []});
-                this.pollActiveSearches();
-            },
-            getActiveSearches: function() {
-                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/activeSearches/";
-                var that = this;
-                $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    success: function(data) {
-                        that.set({'users' : data.value});
-                    }
-                });
-            },
-            stopSearch: function(uuid) {
-                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/" + uuid;
-                $.ajax({
-                    url: url,
-                    dataType: 'json'
-                });
-            },
-            pollActiveSearches: function() {
-               var that = this;
-               (function poll() {
-                    setTimeout(function() {
-                        that.getActiveSearches();
-                        poll();
-                    }, 1000);
-               })();
-            }
-        });
-
-        return QueryMonitor;
-    });
+  return QueryMonitor
+})

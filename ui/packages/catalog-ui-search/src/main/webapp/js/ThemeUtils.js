@@ -12,10 +12,10 @@
 /*global require*/
 
 module.exports = {
-    getFontSize: function (percentage) {
-        return (percentage * 16) / 100;
-    },
-    getZoomScale: function (fontSize) {
-        return Math.floor(100 * (fontSize / 16));
-    }
-};
+  getFontSize: function(percentage) {
+    return (percentage * 16) / 100
+  },
+  getZoomScale: function(fontSize) {
+    return Math.floor(100 * (fontSize / 16))
+  },
+}

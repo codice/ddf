@@ -22,15 +22,19 @@ import './polling-button.less'
 const pollingButton = ({ isPolling, onTogglePolling }) => {
   if (isPolling) {
     return (
-      <button className='button-live' onClick={onTogglePolling}>
-        <span className='status-text'><b>LIVE</b></span>
-        <span >◉</span>
+      <button className="button-live" onClick={onTogglePolling}>
+        <span className="status-text">
+          <b>LIVE</b>
+        </span>
+        <span>◉</span>
       </button>
     )
   } else {
     return (
-      <button className='button-paused' onClick={onTogglePolling}>
-        <span className='status-text'><b>PAUSED</b></span>
+      <button className="button-paused" onClick={onTogglePolling}>
+        <span className="status-text">
+          <b>PAUSED</b>
+        </span>
         <span>◉</span>
       </button>
     )
@@ -39,6 +43,9 @@ const pollingButton = ({ isPolling, onTogglePolling }) => {
 
 const mapStateToProps = ({ isPolling }) => ({ isPolling })
 
-export default connect(mapStateToProps, {
-  onTogglePolling: togglePolling
-})(pollingButton)
+export default connect(
+  mapStateToProps,
+  {
+    onTogglePolling: togglePolling,
+  }
+)(pollingButton)

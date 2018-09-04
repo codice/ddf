@@ -1,4 +1,5 @@
-{{!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,11 +11,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="choice-details">
-</div>
-<div class="choice-save">
-</div>
-<div class="choice-actions is-button" title="Shows a list of actions to take on the workspace" 
-    data-help="Shows a list of actions to take on the workspace.">
-</div>
+-->
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <service id="ErrorPageInjector"  interface="org.osgi.framework.hooks.service.EventListenerHook">
+        <bean class="org.codice.ddf.platform.error.injector.ErrorPageInjector" init-method="init" />
+    </service>
+
+</blueprint>

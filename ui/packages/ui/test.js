@@ -11,34 +11,61 @@
  **/
 /*global require,__dirname*/
 var express = require('express'),
-    server = require('./server-impl');
+  server = require('./server-impl')
 
-var app = express();
+var app = express()
 // uncomment to get some debugging
 //app.use(express.logger());
 //enable the live reload
-app.use(require('connect-livereload')());
+app.use(require('connect-livereload')())
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/css',express.static(__dirname + '/target/webapp/css'));
-app.use('/lib',express.static(__dirname + '/target/webapp/lib'));
-app.use(express.static(__dirname + '/src/main/webapp'));
+app.use('/css', express.static(__dirname + '/target/webapp/css'))
+app.use('/lib', express.static(__dirname + '/target/webapp/lib'))
+app.use(express.static(__dirname + '/src/main/webapp'))
 
 //if we're mocking, it is being run by grunt
-console.log('setting up mock query endpoint');
-app.all('./internal/catalog/sources', server.mockSources);
-app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listModules', server.mockRequest);
-app.all('/admin/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate', server.mockRequest);
-app.all('/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/', server.mockInstallationProfiles);
-app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getService/*', server.mockGetService);
-app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/*', server.mockClaims);
-app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add', server.mockRequest);
-app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices', server.mockRequest);
-app.all('/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/', server.mockAppTree);
-app.all('/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/*', server.mockStart);
+console.log('setting up mock query endpoint')
+app.all('./internal/catalog/sources', server.mockSources)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listModules',
+  server.mockRequest
+)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate',
+  server.mockRequest
+)
+app.all(
+  '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/',
+  server.mockInstallationProfiles
+)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getService/*',
+  server.mockGetService
+)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/*',
+  server.mockClaims
+)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add',
+  server.mockRequest
+)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices',
+  server.mockRequest
+)
+app.all(
+  '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/',
+  server.mockAppTree
+)
+app.all(
+  '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/*',
+  server.mockStart
+)
 
-exports = module.exports = app;
+exports = module.exports = app
 
 exports.use = function() {
-	app.use.apply(app, arguments);
-};
+  app.use.apply(app, arguments)
+}

@@ -6,7 +6,11 @@ const ls = require('./ls-packages')
 
 const missingArtifacts = (packages, $) => {
   const attached = $('artifacts > artifact')
-    .map((i, el) => $(el).find('classifier').text())
+    .map((i, el) =>
+      $(el)
+        .find('classifier')
+        .text()
+    )
     .get()
 
   return packages.filter(({ name }) => !attached.includes(name)).length > 0
@@ -23,21 +27,27 @@ const bin = () => require.resolve('ace/bin.js')
 const includeArtifacts = (missing, $) => {
   const h = (tag, ...children) => $('<' + tag + '>').append(children)
 
-  const artifacts = h('artifacts',
+  const artifacts = h(
+    'artifacts',
     [
       `<!-- NOTE: please don't edit these artifacts manually. -->`,
       `<![CDATA[ They were calculated by running "ace pom --fix". ]]>`,
       `<!-- Please re-run the command if the artifacts need to be updated. -->`,
-      h('artifact',
+      h(
+        'artifact',
         h('file', 'target/features.xml'),
         h('type', 'xml'),
-        h('classifier', 'features'))
+        h('classifier', 'features')
+      ),
     ].concat(
       missing.map(({ name, __path }) =>
-        h('artifact',
+        h(
+          'artifact',
           h('file', jarPath(name, __path)),
           h('type', 'jar'),
-          h('classifier', name)))
+          h('classifier', name)
+        )
+      )
     )
   )
 
@@ -45,8 +55,9 @@ const includeArtifacts = (missing, $) => {
 }
 
 module.exports = ({ args, pkg, pom }) => {
-  const packages = ls(pkg.workspaces)
-    .filter((pkg) => pkg['context-path'] !== undefined)
+  const packages = ls(pkg.workspaces).filter(
+    pkg => pkg['context-path'] !== undefined
+  )
 
   if (missingArtifacts(packages, pom) && !args.fix) {
     console.error('ace error pom.xml is out of sync with packages')

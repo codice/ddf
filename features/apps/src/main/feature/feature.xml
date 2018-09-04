@@ -66,7 +66,8 @@
         <feature>metrics-services</feature>
         <feature>security-logger</feature>
         <feature>persistence-core</feature>
-        <feature>error</feature>
+        <feature>error-api</feature>
+        <feature>error-impl</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
@@ -98,7 +99,7 @@
     </feature>
 
     <feature name="admin-app" version="${project.version}"
-             description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.">
+             description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.">
         <feature>admin-core</feature>
         <feature>admin-ui</feature>
         <feature>admin-core-migration-commands</feature>

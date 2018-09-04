@@ -10,14 +10,14 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
+var Backbone = require('backbone')
 
 module.exports = Backbone.Model.extend({
-    defaults: function(){
-        return {
-            parent: undefined,
-            relationship: 'related',
-            child: undefined
-        };
+  defaults: function() {
+    return {
+      parent: undefined,
+      relationship: 'related',
+      child: undefined,
     }
-});
+  },
+})

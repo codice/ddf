@@ -13,26 +13,29 @@
  *
  **/
 /*global require*/
-const Marionette = require('marionette');
-const template = require('./export-actions.hbs');
-const CustomElements = require('js/CustomElements');
-const _ = require('lodash');
+const Marionette = require('marionette')
+const template = require('./export-actions.hbs')
+const CustomElements = require('js/CustomElements')
+const _ = require('lodash')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('export-actions'),
-    className: 'composed-menu',
-    events: {
-        'click > div': 'triggerAction'
-    },
-    triggerAction: function(e) {
-        window.open(e.target.getAttribute('data-url'));
-    },
-    serializeData: function() {
-        const exportActions = this.model.getExportActions();
-        return _.sortBy(exportActions.map(action => ({
-            url: action.get('url'),
-            title: action.getExportType()
-        })), (action) => action.title.toLowerCase());
-    }
-});
+  template: template,
+  tagName: CustomElements.register('export-actions'),
+  className: 'composed-menu',
+  events: {
+    'click > div': 'triggerAction',
+  },
+  triggerAction: function(e) {
+    window.open(e.target.getAttribute('data-url'))
+  },
+  serializeData: function() {
+    const exportActions = this.model.getExportActions()
+    return _.sortBy(
+      exportActions.map(action => ({
+        url: action.get('url'),
+        title: action.getExportType(),
+      })),
+      action => action.title.toLowerCase()
+    )
+  },
+})

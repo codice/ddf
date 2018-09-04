@@ -14,86 +14,96 @@
  **/
 /*global define*/
 define([
-    'backbone',
-    'marionette',
-    'js/views/module/ModuleDetail.layout',
-    'js/models/module/ModulePlugin',
-    'js/models/AppConfigPlugin',
-    'components/tab-content/tab-content.collection.view',
-    'components/tab-item/tab-item.collection.view',
-    'q'
-],function (Backbone, Marionette, ModuleDetailLayout, ModulePlugin, AppConfigPlugin, PluginTabContentView, PluginTabView, Q) {
+  'backbone',
+  'marionette',
+  'js/views/module/ModuleDetail.layout',
+  'js/models/module/ModulePlugin',
+  'js/models/AppConfigPlugin',
+  'components/tab-content/tab-content.collection.view',
+  'components/tab-item/tab-item.collection.view',
+  'q',
+], function(
+  Backbone,
+  Marionette,
+  ModuleDetailLayout,
+  ModulePlugin,
+  AppConfigPlugin,
+  PluginTabContentView,
+  PluginTabView,
+  Q
+) {
+  var ModuleDetailController = Marionette.Controller.extend({
+    initialize: function(options) {
+      this.regions = options.regions
+    },
+    show: function() {
+      var layoutView = new ModuleDetailLayout()
+      this.regions.applications.show(layoutView)
 
-    var ModuleDetailController = Marionette.Controller.extend({
+      this.fetchSystemConfigPlugins()
+        .then(function(systemConfigPlugins) {
+          var staticModulePlugins = [
+            new Backbone.Model({
+              id: 'systemInformationModuleTabID',
+              displayName: 'Information',
+              javascriptLocation:
+                'components/system-information/system-information.view.js',
+            }),
+            new Backbone.Model({
+              id: 'featureModuleTabID',
+              displayName: 'Features',
+              javascriptLocation: 'components/features/features.view.js',
+            }),
+            new Backbone.Model({
+              id: 'configurationModuleTabID',
+              displayName: 'Configuration',
+              javascriptLocation:
+                'components/application-services/application-services.view',
+            }),
+          ]
 
-        initialize: function(options){
-            this.regions = options.regions;
+          var staticList = new ModulePlugin.Collection()
+          staticList.comparator = function(model) {
+            return model.get('displayName')
+          }
+          staticList.add(staticModulePlugins)
+
+          var dynamicList = new Backbone.Collection()
+          dynamicList.comparator = function(model) {
+            return model.get('displayName')
+          }
+          dynamicList.add(systemConfigPlugins.models)
+          dynamicList.sort()
+
+          var completeList = new Backbone.Collection()
+          completeList.add(staticList.models)
+          completeList.add(dynamicList.models)
+
+          layoutView.tabs.show(new PluginTabView({ collection: completeList }))
+          layoutView.tabContent.show(
+            new PluginTabContentView({ collection: completeList })
+          )
+          layoutView.selectFirstTab()
+        })
+        .fail(function(error) {
+          throw error
+        })
+    },
+    fetchSystemConfigPlugins: function() {
+      var pageName = 'system-module'
+      var collection = new AppConfigPlugin.Collection()
+      var defer = Q.defer()
+      collection.fetchByAppName(pageName, {
+        success: function() {
+          defer.resolve(collection)
         },
-        show: function() {
-            var layoutView = new ModuleDetailLayout();
-            this.regions.applications.show(layoutView);
-
-            this.fetchSystemConfigPlugins().then(function(systemConfigPlugins){
-                var staticModulePlugins = [
-                     new Backbone.Model({
-                        'id': 'systemInformationModuleTabID',
-                        'displayName': 'Information',
-                        'javascriptLocation': 'components/system-information/system-information.view.js'
-                    }),
-                    new Backbone.Model({
-                        'id': 'featureModuleTabID',
-                        'displayName': 'Features',
-                        'javascriptLocation': 'components/features/features.view.js'
-                    }),
-                    new Backbone.Model({
-                        'id': 'configurationModuleTabID',
-                        'displayName': 'Configuration',
-                        'javascriptLocation': 'components/application-services/application-services.view'
-                     })
-                ];
-
-                var staticList = new ModulePlugin.Collection();
-                staticList.comparator = function(model) {
-                    return model.get('displayName');
-                };
-                staticList.add(staticModulePlugins);
-
-                var dynamicList = new Backbone.Collection();
-                dynamicList.comparator = function(model) {
-                    return model.get('displayName');
-                };
-                dynamicList.add(systemConfigPlugins.models);
-                dynamicList.sort();
-
-                var completeList = new Backbone.Collection();
-                completeList.add(staticList.models);
-                completeList.add(dynamicList.models);
-
-                layoutView.tabs.show(new PluginTabView({collection: completeList}));
-                layoutView.tabContent.show(new PluginTabContentView({collection: completeList}));
-                layoutView.selectFirstTab();
-            }).fail(function(error){
-                    throw error;
-            });
+        failure: function() {
+          defer.reject(new Error('Error fetching system page plugins for {0}'))
         },
-        fetchSystemConfigPlugins: function(){
-            var pageName = 'system-module';
-            var collection = new AppConfigPlugin.Collection();
-            var defer = Q.defer();
-            collection.fetchByAppName(pageName, {
-                success: function(){
-                    defer.resolve(collection);
-                },
-                failure: function(){
-                    defer.reject(new Error("Error fetching system page plugins for {0}"));
-                }
-            });
-            return defer.promise;
-        }
-    });
+      })
+      return defer.promise
+    },
+  })
 
-    return ModuleDetailController;
-
-
-
-});
+  return ModuleDetailController
+})

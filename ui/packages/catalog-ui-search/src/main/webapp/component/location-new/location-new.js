@@ -10,74 +10,86 @@
  *
  **/
 /*global define*/
-const _ = require('underscore');
-const Backbone = require('backbone');
-const { validateWkt, validateDd, validateDms, validateUsng, ddToWkt, dmsToWkt, usngToWkt } = require('./utils');
-const { ddModel, dmsModel, usngModel } = require('./models');
+const _ = require('underscore')
+const Backbone = require('backbone')
+const {
+  validateWkt,
+  validateDd,
+  validateDms,
+  validateUsng,
+  ddToWkt,
+  dmsToWkt,
+  usngToWkt,
+} = require('./utils')
+const { ddModel, dmsModel, usngModel } = require('./models')
 
 module.exports = Backbone.AssociatedModel.extend({
-    defaults: {
-        showErrors: true,
-        valid: true,
-        error: null,
-        mode: 'wkt',
-        wkt: '',
-        dd: ddModel,
-        dms: dmsModel,
-        usng: usngModel
-    },
+  defaults: {
+    showErrors: true,
+    valid: true,
+    error: null,
+    mode: 'wkt',
+    wkt: '',
+    dd: ddModel,
+    dms: dmsModel,
+    usng: usngModel,
+  },
 
-    initialize() {
-        this.listenTo(this, 'change:wkt change:dms change:dd change:usng change:mode', this.validate.bind(this));
-    },
+  initialize() {
+    this.listenTo(
+      this,
+      'change:wkt change:dms change:dd change:usng change:mode',
+      this.validate.bind(this)
+    )
+  },
 
-    isValid() {
-        return this.get('valid');
-    },
+  isValid() {
+    return this.get('valid')
+  },
 
-    /*
+  /*
      * Return the active input converted to WKT. If the input failed validation, return "INVALID".
      * If the input is blank, return null.
      */
-    getValue() {
-        if (!this.isValid()) {
-            return "INVALID";
-        }
+  getValue() {
+    if (!this.isValid()) {
+      return 'INVALID'
+    }
 
-        const mode = this.get('mode');
-        switch (mode) {
-            case 'wkt':
-                return this.get(mode);
-            case 'dd':
-                return ddToWkt(this.get(mode));
-            case 'dms':
-                return dmsToWkt(this.get(mode));
-            case 'usng':
-                return usngToWkt(this.get(mode));
-            default:
-                return null;
-        }
-    },
+    const mode = this.get('mode')
+    switch (mode) {
+      case 'wkt':
+        return this.get(mode)
+      case 'dd':
+        return ddToWkt(this.get(mode))
+      case 'dms':
+        return dmsToWkt(this.get(mode))
+      case 'usng':
+        return usngToWkt(this.get(mode))
+      default:
+        return null
+    }
+  },
 
-    /* Run the appropriate validator for the active mode. Blank input is considered valid */
-    validate() {
-        const mode = this.get('mode');
-        var validationReport;
-        switch (mode) {
-            case 'wkt':
-                validationReport = validateWkt(this.get(mode));
-                break;
-            case 'dd':
-                validationReport = validateDd(this.get(mode));
-                break;
-            case 'dms':
-                validationReport = validateDms(this.get(mode));
-                break;
-            case 'usng':
-                validationReport = validateUsng(this.get(mode));
-                break;
-        }
-        this.set('valid', validationReport ? validationReport.valid : true);
-        this.set('error', validationReport ? validationReport.error : false);
-    },
-});
+  /* Run the appropriate validator for the active mode. Blank input is considered valid */
+  validate() {
+    const mode = this.get('mode')
+    var validationReport
+    switch (mode) {
+      case 'wkt':
+        validationReport = validateWkt(this.get(mode))
+        break
+      case 'dd':
+        validationReport = validateDd(this.get(mode))
+        break
+      case 'dms':
+        validationReport = validateDms(this.get(mode))
+        break
+      case 'usng':
+        validationReport = validateUsng(this.get(mode))
+        break
+    }
+    this.set('valid', validationReport ? validationReport.valid : true)
+    this.set('error', validationReport ? validationReport.error : false)
+  },
+})

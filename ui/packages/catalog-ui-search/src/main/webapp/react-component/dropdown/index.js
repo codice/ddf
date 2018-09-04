@@ -1,1 +1,1 @@
-module.exports = require('./dropdown');
+module.exports = require('./dropdown')

@@ -18,7 +18,7 @@ import React from 'react'
 import './text-filter.less'
 
 export default ({ field, value, onChange }) => {
-  const change = (e) => {
+  const change = e => {
     var o = {}
     o[field] = e.target.value
     onChange(o)
@@ -26,9 +26,10 @@ export default ({ field, value, onChange }) => {
 
   return (
     <input
-      className='text-filter'
+      className="text-filter"
       value={value}
       onChange={change}
-      placeholder={field.toUpperCase()} />
+      placeholder={field.toUpperCase()}
+    />
   )
 }

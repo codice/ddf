@@ -15,43 +15,41 @@
 
 /*global define*/
 define([
-        'application',
-        'js/view/Ingest.view.js',
-        'js/model/Ingest.js'
-    ],
-    function(Application, IngestView, Ingest) {
+  'application',
+  'js/view/Ingest.view.js',
+  'js/model/Ingest.js',
+], function(Application, IngestView, Ingest) {
+  Application.App.module('Ingest', function(
+    SourceModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var ingest = new Ingest.DetailModel()
 
-        Application.App.module('Ingest', function(SourceModule, App, Backbone, Marionette)  {
+    var ingestPage = new IngestView.Details({ model: ingest })
 
-            var ingest = new Ingest.DetailModel();
+    // Define a controller to run this module
+    // --------------------------------------
 
-            var ingestPage = new IngestView.Details({model: ingest});
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            // Define a controller to run this module
-            // --------------------------------------
+      show: function() {
+        this.region.show(ingestPage)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
+    // Initialize this module when the app starts
+    // ------------------------------------------
 
-                initialize: function(options){
-                    this.region = options.region;
-                },
-
-                show: function(){
-                    this.region.show(ingestPage);
-                }
-
-            });
-
-            // Initialize this module when the app starts
-            // ------------------------------------------
-
-            SourceModule.addInitializer(function(){
-                SourceModule.contentController = new Controller({
-                    region: App.mainRegion
-                });
-                SourceModule.contentController.show();
-            });
-
-
-        });
-    });
+    SourceModule.addInitializer(function() {
+      SourceModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      SourceModule.contentController.show()
+    })
+  })
+})

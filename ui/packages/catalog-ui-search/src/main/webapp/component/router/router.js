@@ -10,24 +10,24 @@
  *
  **/
 /*global define, document*/
-const $ = require('jquery');
-const _ = require('underscore');
-const Backbone = require('backbone');
+const $ = require('jquery')
+const _ = require('underscore')
+const Backbone = require('backbone')
 
 module.exports = new (Backbone.Model.extend({
-    defaults: {
-        name: undefined,
-        path: undefined,
-        args: undefined,
-        lowBandwidth: window.location.search.indexOf('lowBandwidth') !== -1
-    },
-    initialize: function(){
-        this.listenTo(this, 'change:name', this.handleChangeName);
-    },
-    notFound: function() {
-        this.set('name', 'notFound');
-    },
-    handleChangeName: function(){
-        $('html').attr('data-route', this.get('name'));
-    }
-}))();
+  defaults: {
+    name: undefined,
+    path: undefined,
+    args: undefined,
+    lowBandwidth: window.location.search.indexOf('lowBandwidth') !== -1,
+  },
+  initialize: function() {
+    this.listenTo(this, 'change:name', this.handleChangeName)
+  },
+  notFound: function() {
+    this.set('name', 'notFound')
+  },
+  handleChangeName: function() {
+    $('html').attr('data-route', this.get('name'))
+  },
+}))()

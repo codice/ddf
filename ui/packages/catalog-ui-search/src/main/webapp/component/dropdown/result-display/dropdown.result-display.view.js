@@ -13,23 +13,22 @@
  *
  **/
 /*global define*/
-define([
-    '../dropdown.view',
-    './dropdown.result-display.hbs'
-], function (DropdownView, template) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-resultDisplay',
-        serializeData: function(){
-            var values = this.model.get('value');
-            var selection = this.options.list.filter(function(item){
-                return values.indexOf(item.value) !== -1;
-            })[0];
-            return {
-                selection: selection,
-                icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o'
-            };
-        }
-    });
-});
+define(['../dropdown.view', './dropdown.result-display.hbs'], function(
+  DropdownView,
+  template
+) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-resultDisplay',
+    serializeData: function() {
+      var values = this.model.get('value')
+      var selection = this.options.list.filter(function(item) {
+        return values.indexOf(item.value) !== -1
+      })[0]
+      return {
+        selection: selection,
+        icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o',
+      }
+    },
+  })
+})

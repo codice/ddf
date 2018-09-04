@@ -13,7 +13,6 @@
     position: relative;
   }
 
-
   .property-label {
     text-align: right;
     > div,
@@ -61,7 +60,7 @@
     color: @negative-color;
   }
 
-  .input-validation:nth-of-type(2){
+  .input-validation:nth-of-type(2) {
     display: none;
   }
 
@@ -84,7 +83,7 @@
     padding-right: @largeSpacing;
     padding-top: @minimumSpacing;
     opacity: @minimumOpacity;
-    .background-gradient(rgba(0,0,0,.05), rgba(255,255,255,.05));
+    .background-gradient(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
     z-index: 0;
   }
 
@@ -167,9 +166,10 @@
   }
 }
 
-.is-medium-screen, .is-small-screen, .is-mobile-screen {
+.is-medium-screen,
+.is-small-screen,
+.is-mobile-screen {
   @{customElementNamespace}property {
-
     white-space: normal;
 
     .property-value,

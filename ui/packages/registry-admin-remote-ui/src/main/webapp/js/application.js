@@ -10,26 +10,28 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone',
-    'marionette',
-    'icanhaz'
-    ],function (_, Backbone, Marionette, ich) {
-    'use strict';
+define(['underscore', 'backbone', 'marionette', 'icanhaz'], function(
+  _,
+  Backbone,
+  Marionette,
+  ich
+) {
+  'use strict'
 
-    var Application = {};
+  var Application = {}
 
-    Marionette.Renderer.render = function (template, data) {
-        if(!template){return '';}
-        return ich[template](data);
-    };
+  Marionette.Renderer.render = function(template, data) {
+    if (!template) {
+      return ''
+    }
+    return ich[template](data)
+  }
 
-    Application.App = new Marionette.Application();
+  Application.App = new Marionette.Application()
 
-    Application.App.addRegions({
-        mainRegion: 'main'
-    });
+  Application.App.addRegions({
+    mainRegion: 'main',
+  })
 
-    return Application;
-});
+  return Application
+})

@@ -14,34 +14,44 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    'js/store',
-    './details-user.hbs',
-    'js/CustomElements',
-    'component/dropdown/dropdown',
-    'component/dropdown/login-form/dropdown.login-form.view'
-], function (Marionette, _, $, store, template, CustomElements, DropdownModel, LoginForm) {
-
-    return Marionette.LayoutView.extend({
-        regions: {
-            'userInfo': '.user-info-region'
-        },
-        setDefaultModel: function(){
-            //override
-        },
-        template: template,
-        tagName: CustomElements.register('details-user'),
-        initialize: function (options) {
-            if (options.model === undefined){
-                this.setDefaultModel();
-            }
-        },
-        onRender: function () {
-            this.userInfo.show(new LoginForm({
-                model: new DropdownModel()
-            }));
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  'js/store',
+  './details-user.hbs',
+  'js/CustomElements',
+  'component/dropdown/dropdown',
+  'component/dropdown/login-form/dropdown.login-form.view',
+], function(
+  Marionette,
+  _,
+  $,
+  store,
+  template,
+  CustomElements,
+  DropdownModel,
+  LoginForm
+) {
+  return Marionette.LayoutView.extend({
+    regions: {
+      userInfo: '.user-info-region',
+    },
+    setDefaultModel: function() {
+      //override
+    },
+    template: template,
+    tagName: CustomElements.register('details-user'),
+    initialize: function(options) {
+      if (options.model === undefined) {
+        this.setDefaultModel()
+      }
+    },
+    onRender: function() {
+      this.userInfo.show(
+        new LoginForm({
+          model: new DropdownModel(),
+        })
+      )
+    },
+  })
+})

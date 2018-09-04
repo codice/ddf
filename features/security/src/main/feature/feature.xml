@@ -71,6 +71,12 @@
         <bundle>mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-error-page-injector" version="${project.version}"
+             description="Adding a better error page to Jetty">
+        <feature>error-api</feature>
+        <bundle>mvn:ddf.platform.error/platform-error-page-injector/${project.version}</bundle>
+    </feature>
+
     <feature name="security-encryption" version="${project.version}"
              description="Security Encryption">
         <feature>wss4j</feature>
@@ -88,7 +94,10 @@
 
     <feature name="web-container" version="${project.version}">
         <feature prerequisite="true">platform-filter-delegate</feature>
+        <!-- prerequisite=true is set because the platform-error-page-injector needs to start running before -->
+        <!-- any web servlets are initialized to properly add filters and error pages -->
         <feature>platform-paxweb-jettyconfig</feature>
+        <feature>platform-error-page-injector</feature>
         <feature>war</feature>
     </feature>
 

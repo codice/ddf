@@ -1,1 +1,1 @@
-export {default} from './loading-companion'
+export { default } from './loading-companion'

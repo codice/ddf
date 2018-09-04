@@ -79,14 +79,13 @@
   cursor: pointer;
 
   &:hover {
-    background: rgba(66,66,66,.9);
+    background: rgba(66, 66, 66, 0.9);
   }
 }
 
 .is-dropdown.is-open {
-
   &:hover {
-    background: rgba(66,66,66,.6);
+    background: rgba(66, 66, 66, 0.6);
   }
 }
 
@@ -150,12 +149,15 @@
     }
   }
   @{customElementNamespace}histogram {
-    .hovertext rect, .hovertext path, .axistext path {
+    .hovertext rect,
+    .hovertext path,
+    .axistext path {
       fill: @backgroundDropdown !important;
       stroke: contrast(@backgroundDropdown) !important;
       fill-opacity: 1 !important;
     }
-    .hovertext text, .axistext text {
+    .hovertext text,
+    .axistext text {
       fill: contrast(@backgroundDropdown) !important;
     }
     svg text {
@@ -201,7 +203,7 @@
   }
   @{customElementNamespace}table {
     th + th,
-    td + td  {
+    td + td {
       border-left: 1px solid fade(@contrastColor, 5%);
     }
     .is-thead > th {
@@ -215,7 +217,7 @@
     .column {
       border-top: 1px solid fade(@contrastColor, 80%) !important;
       border-bottom: 1px solid fade(@contrastColor, 80%) !important;
-     }
+    }
   }
   @{customElementNamespace}upload-item {
     .info-progress,
@@ -230,7 +232,9 @@
     }
   }
   @{customElementNamespace}input.is-autocomplete {
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
+    .select2-container--default
+      .select2-selection--single
+      .select2-selection__rendered {
       color: @contrastColor;
     }
   }

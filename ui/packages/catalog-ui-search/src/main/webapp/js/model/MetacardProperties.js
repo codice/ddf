@@ -9,39 +9,50 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Backbone = require('backbone');
-var _ = require('underscore');
-var metacardDefinitions = require('component/singletons/metacard-definitions');
-var Turf = require('@turf/turf');
-var TurfMeta = require('@turf/meta');
-var wkx = require('wkx');
-var properties = require('properties');
-require('backbone-associations');
+var Backbone = require('backbone')
+var _ = require('underscore')
+var metacardDefinitions = require('component/singletons/metacard-definitions')
+var Turf = require('@turf/turf')
+var TurfMeta = require('@turf/meta')
+var wkx = require('wkx')
+var properties = require('properties')
+require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({
-    defaults: function () {
-        return {
-            'metacard-tags': ['resource']
-        }
-    },
-    hasGeometry: function (attribute) {
-        return _.filter(this.toJSON(), function (value, key) {
-            return (attribute === undefined || attribute === key) && metacardDefinitions.metacardTypes[key] &&
-                metacardDefinitions.metacardTypes[key].type === "GEOMETRY";
-        }).length > 0;
-    },
-    getCombinedGeoJSON: function () {
-        return;
-    },
-    getPoints: function (attribute) {
-        return this.getGeometries(attribute).reduce(function (pointArray, wkt) {
-            return pointArray.concat(TurfMeta.coordAll(wkx.Geometry.parse(wkt).toGeoJSON()));
-        }, []);
-    },
-    getGeometries: function (attribute) {
-        return _.filter(this.toJSON(), function (value, key) {
-            return !properties.isHidden(key) && (attribute === undefined || attribute === key) && metacardDefinitions.metacardTypes[key] &&
-                metacardDefinitions.metacardTypes[key].type === "GEOMETRY";
-        });
+  defaults: function() {
+    return {
+      'metacard-tags': ['resource'],
     }
-});
+  },
+  hasGeometry: function(attribute) {
+    return (
+      _.filter(this.toJSON(), function(value, key) {
+        return (
+          (attribute === undefined || attribute === key) &&
+          metacardDefinitions.metacardTypes[key] &&
+          metacardDefinitions.metacardTypes[key].type === 'GEOMETRY'
+        )
+      }).length > 0
+    )
+  },
+  getCombinedGeoJSON: function() {
+    return
+  },
+  getPoints: function(attribute) {
+    return this.getGeometries(attribute).reduce(function(pointArray, wkt) {
+      return pointArray.concat(
+        TurfMeta.coordAll(wkx.Geometry.parse(wkt).toGeoJSON())
+      )
+    }, [])
+  },
+  getGeometries: function(attribute) {
+    return _.filter(this.toJSON(), function(value, key) {
+      return (
+        !properties.isHidden(key) &&
+        (attribute === undefined || attribute === key) &&
+        metacardDefinitions.metacardTypes[key] &&
+        metacardDefinitions.metacardTypes[key].type === 'GEOMETRY'
+      )
+    })
+  },
+})

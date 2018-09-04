@@ -12,134 +12,129 @@
 /*global require, window */
 /*jslint nomen:false, -W064 */
 
-(function () {
-    'use strict';
+;(function() {
+  'use strict'
 
-    require.config({
+  require.config({
+    paths: {
+      bootstrap: '../../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+      q: '../../../webjars/q/1.4.1/q',
 
-        paths: {
+      // backbone
+      backbone: '../../../webjars/backbone/1.1.2/backbone',
+      backboneassociation:
+        '../../../webjars/backbone-associations/0.6.2/backbone-associations',
+      underscore: '../../../webjars/underscore/1.8.3/underscore-min',
+      marionette: '../../../webjars/marionette/1.8.8/lib/backbone.marionette',
+      modelbinder:
+        '../../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
+      collectionbinder:
+        '../../../webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder',
+      poller: '../../../webjars/backbone-poller/1.1.3/backbone.poller',
+      iframeresizer:
+        '../../../webjars/iframe-resizer/2.6.2/js/iframeResizer.min',
 
-            bootstrap: '../../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-            q: '../../../webjars/q/1.4.1/q',
+      // jquery
+      jquery: '../../../webjars/jquery/3.2.1/dist/jquery.min',
+      jqueryui: '../../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+      multiselect:
+        '../../../webjars/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
+      perfectscrollbar:
+        '../../../webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
 
-            // backbone
-            backbone: '../../../webjars/backbone/1.1.2/backbone',
-            backboneassociation: '../../../webjars/backbone-associations/0.6.2/backbone-associations',
-            underscore: '../../../webjars/underscore/1.8.3/underscore-min',
-            marionette: '../../../webjars/marionette/1.8.8/lib/backbone.marionette',
-            modelbinder: '../../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
-            collectionbinder: '../../../webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder',
-            poller: '../../../webjars/backbone-poller/1.1.3/backbone.poller',
-            iframeresizer: '../../../webjars/iframe-resizer/2.6.2/js/iframeResizer.min',
+      // handlebars
+      handlebars: '../../../webjars/handlebars/4.0.10/handlebars.min',
+      icanhaz: 'js/ich',
 
-            // jquery
-            jquery: '../../../webjars/jquery/3.2.1/dist/jquery.min',
-            jqueryui: '../../../webjars/jquery-ui/1.12.1/jquery-ui.min',
-            multiselect: '../../../webjars/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: '../../../webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
+      // require plugins
+      text: '../../../webjars/requirejs-plugins/1.0.3/lib/text',
+      css: '../../../webjars/require-css/0.1.10/css',
 
-            // handlebars
-            handlebars: '../../../webjars/handlebars/4.0.10/handlebars.min',
-            icanhaz: 'js/ich',
+      // default admin ui
+      app: 'js/application',
 
-            // require plugins
-            text: '../../../webjars/requirejs-plugins/1.0.3/lib/text',
-            css: '../../../webjars/require-css/0.1.10/css',
+      moment: '../../../webjars/moment/2.20.1/min/moment.min',
+    },
 
-            // default admin ui
-            app: 'js/application',
+    shim: {
+      backbone: {
+        deps: ['underscore', 'jquery'],
+        exports: 'Backbone',
+      },
+      modelbinder: {
+        deps: ['underscore', 'jquery', 'backbone'],
+      },
+      collectionbinder: {
+        deps: ['modelbinder'],
+      },
+      poller: {
+        deps: ['underscore', 'backbone'],
+      },
+      backboneassociation: ['backbone'],
+      marionette: {
+        deps: ['jquery', 'underscore', 'backbone'],
+        exports: 'Marionette',
+      },
+      underscore: {
+        exports: '_',
+      },
+      handlebars: {
+        exports: 'Handlebars',
+      },
+      icanhaz: {
+        deps: ['handlebars', 'jquery'],
+        exports: 'ich',
+      },
 
-            moment: '../../../webjars/moment/2.20.1/min/moment.min'
-        },
+      moment: {
+        exports: 'moment',
+      },
 
+      perfectscrollbar: ['jquery'],
 
-        shim: {
+      multiselect: ['jquery'],
 
-            backbone: {
-                deps: ['underscore', 'jquery'],
-                exports: 'Backbone'
-            },
-            modelbinder: {
-                deps: ['underscore', 'jquery', 'backbone']
-            },
-            collectionbinder: {
-                deps: ['modelbinder']
-            },
-            poller: {
-                deps: ['underscore', 'backbone']
-            },
-            backboneassociation: ['backbone'],
-            marionette: {
-                deps: ['jquery', 'underscore', 'backbone'],
-                exports: 'Marionette'
-            },
-            underscore: {
-                exports: '_'
-            },
-            handlebars: {
-                exports: 'Handlebars'
-            },
-            icanhaz: {
-                deps: ['handlebars', 'jquery'],
-                exports: 'ich'
-            },
+      jqueryui: ['jquery'],
+      bootstrap: ['jqueryui'],
+    },
 
-            moment: {
-                exports: 'moment'
-            },
+    waitSeconds: 200,
+  })
 
-            perfectscrollbar: ['jquery'],
+  require([
+    'jquery',
+    'backbone',
+    'marionette',
+    'icanhaz',
+    'js/application',
+    'js/HandlebarsHelpers',
+    'modelbinder',
+    'bootstrap',
+  ], function($, Backbone, Marionette, ich, Application) {
+    var app = Application.App
+    // Once the application has been initialized (i.e. all initializers have completed), start up
+    // Backbone.history.
+    app.on('initialize:after', function() {
+      Backbone.history.start()
+      //bootstrap call for tabs
+      $('tabs').tab()
+    })
 
-            multiselect: ['jquery'],
-
-            jqueryui: ['jquery'],
-            bootstrap: ['jqueryui']
-
-        },
-
-        waitSeconds: 200
-    });
-
-
-    require([
-        'jquery',
-        'backbone',
-        'marionette',
-        'icanhaz',
-        'js/application',
-        'js/HandlebarsHelpers',
-        'modelbinder',
-        'bootstrap'
-    ], function ($, Backbone, Marionette, ich, Application) {
-
-
-        var app = Application.App;
-        // Once the application has been initialized (i.e. all initializers have completed), start up
-        // Backbone.history.
-        app.on('initialize:after', function () {
-            Backbone.history.start();
-            //bootstrap call for tabs
-            $('tabs').tab();
-        });
-
-        if (window) {
-            // make ddf object available on window.  Makes debugging in chrome console much easier
-            window.app = app;
-            if (!window.console) {
-                window.console = {
-                    log: function () {
-                        // no op
-                    }
-                };
-            }
+    if (window) {
+      // make ddf object available on window.  Makes debugging in chrome console much easier
+      window.app = app
+      if (!window.console) {
+        window.console = {
+          log: function() {
+            // no op
+          },
         }
+      }
+    }
 
-        // Actually start up the application.
-        app.start();
+    // Actually start up the application.
+    app.start()
 
-        require(['js/module'], function () {
-
-        });
-
-    });
-}());
+    require(['js/module'], function() {})
+  })
+})()

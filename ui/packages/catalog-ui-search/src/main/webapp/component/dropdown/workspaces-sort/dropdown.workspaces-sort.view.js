@@ -14,18 +14,17 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.workspaces-sort.hbs'
-], function (Marionette, _, $, DropdownView, template) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-workspacesSort',
-        getCenteringElement: function(){
-            return this.el;
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.workspaces-sort.hbs',
+], function(Marionette, _, $, DropdownView, template) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-workspacesSort',
+    getCenteringElement: function() {
+      return this.el
+    },
+  })
+})

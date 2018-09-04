@@ -14,59 +14,73 @@
  **/
 /*global define*/
 define([
-    'wreqr',
-    'marionette',
-    'backbone',
-    'underscore',
-    'jquery',
-    './metacard-menu.hbs',
-    'js/CustomElements',
-    'js/store',
-    'component/metacard/metacard',
-    'component/metacard-title/metacard-title.view'
-], function (wreqr, Marionette, Backbone, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('metacard-menu'),
-        events: {
-            'click > .workspace-title': 'goToWorkspace'
+  'wreqr',
+  'marionette',
+  'backbone',
+  'underscore',
+  'jquery',
+  './metacard-menu.hbs',
+  'js/CustomElements',
+  'js/store',
+  'component/metacard/metacard',
+  'component/metacard-title/metacard-title.view',
+], function(
+  wreqr,
+  Marionette,
+  Backbone,
+  _,
+  $,
+  template,
+  CustomElements,
+  store,
+  metacardInstance,
+  MetacardTitleView
+) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('metacard-menu'),
+    events: {
+      'click > .workspace-title': 'goToWorkspace',
+    },
+    regions: {
+      metacardTitle: '.metacard-title',
+    },
+    onFirstRender: function() {
+      this.listenTo(metacardInstance, 'change:currentMetacard', this.render)
+    },
+    onRender: function() {
+      if (metacardInstance.get('currentMetacard')) {
+        this.metacardTitle.show(
+          new MetacardTitleView({
+            model: new Backbone.Collection(
+              metacardInstance.get('currentMetacard')
+            ),
+          })
+        )
+      }
+    },
+    goToWorkspace: function(e) {
+      var workspaceId = $(e.currentTarget).attr('data-workspaceid')
+      wreqr.vent.trigger('router:navigate', {
+        fragment: 'workspaces/' + workspaceId,
+        options: {
+          trigger: true,
         },
-        regions: {
-            metacardTitle: '.metacard-title'
-        },
-        onFirstRender: function(){
-            this.listenTo(metacardInstance, 'change:currentMetacard', this.render);
-        },
-        onRender: function(){
-            if (metacardInstance.get('currentMetacard')){
-                this.metacardTitle.show(new MetacardTitleView({
-                    model: new Backbone.Collection(metacardInstance.get('currentMetacard'))
-                }));
-            }
-        },
-        goToWorkspace: function(e){
-            var workspaceId = $(e.currentTarget).attr('data-workspaceid');
-            wreqr.vent.trigger('router:navigate', {
-                fragment: 'workspaces/'+workspaceId,
-                options: {
-                    trigger: true
-                }
-            });
-        },
-        serializeData: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            var resultJSON, workspaceJSON;
-            if (metacardInstance.get('currentMetacard')){
-                resultJSON = metacardInstance.get('currentMetacard').toJSON()
-            }
-            if (currentWorkspace){
-                workspaceJSON = currentWorkspace.toJSON()
-            }
-            return {
-                result: resultJSON,
-                workspace: workspaceJSON
-            }
-        }
-    });
-});
+      })
+    },
+    serializeData: function() {
+      var currentWorkspace = store.getCurrentWorkspace()
+      var resultJSON, workspaceJSON
+      if (metacardInstance.get('currentMetacard')) {
+        resultJSON = metacardInstance.get('currentMetacard').toJSON()
+      }
+      if (currentWorkspace) {
+        workspaceJSON = currentWorkspace.toJSON()
+      }
+      return {
+        result: resultJSON,
+        workspace: workspaceJSON,
+      }
+    },
+  })
+})

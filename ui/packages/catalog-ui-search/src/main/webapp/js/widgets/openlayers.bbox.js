@@ -12,248 +12,292 @@
 /*global define*/
 
 define([
-        'marionette',
-        'backbone',
-        'openlayers',
-        'underscore',
-        'properties',
-        'wreqr',
-        'maptype',
-        './notification.view',
-        './drawing.controller',
-        '../OpenLayersGeometryUtils'
-    ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, DrawingController, olUtils) {
-        "use strict";
+  'marionette',
+  'backbone',
+  'openlayers',
+  'underscore',
+  'properties',
+  'wreqr',
+  'maptype',
+  './notification.view',
+  './drawing.controller',
+  '../OpenLayersGeometryUtils',
+], function(
+  Marionette,
+  Backbone,
+  ol,
+  _,
+  properties,
+  wreqr,
+  maptype,
+  NotificationView,
+  DrawingController,
+  olUtils
+) {
+  'use strict'
 
-        var Draw = {};
+  var Draw = {}
 
-        Draw.BboxModel = Backbone.Model.extend({
-            defaults: {
-                north: undefined,
-                east: undefined,
-                west: undefined,
-                south: undefined
-            }
-        });
-        Draw.BboxView = Marionette.View.extend({
-            initialize: function (options) {
-                this.map = options.map;
-                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
-            },
-            setModelFromGeometry: function (geometry) {
+  Draw.BboxModel = Backbone.Model.extend({
+    defaults: {
+      north: undefined,
+      east: undefined,
+      west: undefined,
+      south: undefined,
+    },
+  })
+  Draw.BboxView = Marionette.View.extend({
+    initialize: function(options) {
+      this.map = options.map
+      this.listenTo(
+        this.model,
+        'change:mapNorth change:mapSouth change:mapEast change:mapWest',
+        this.updateGeometry
+      )
+    },
+    setModelFromGeometry: function(geometry) {
+      var extent = geometry.getExtent()
 
-                var extent = geometry.getExtent();
+      var northWest = ol.proj.transform(
+        [extent[0], extent[3]],
+        properties.projection,
+        'EPSG:4326'
+      )
+      var southEast = ol.proj.transform(
+        [extent[2], extent[1]],
+        properties.projection,
+        'EPSG:4326'
+      )
+      this.model.set({
+        north: northWest[1],
+        south: southEast[1],
+        west: northWest[0],
+        east: southEast[0],
+      })
+    },
 
-                var northWest = ol.proj.transform([extent[0], extent[3]], properties.projection, 'EPSG:4326');
-                var southEast = ol.proj.transform([extent[2], extent[1]], properties.projection, 'EPSG:4326');
-                this.model.set({
-                    north: northWest[1],
-                    south: southEast[1],
-                    west: northWest[0],
-                    east: southEast[0]
-                });
-            },
+    modelToRectangle: function(model) {
+      //ensure that the values are numeric
+      //so that the openlayer projections
+      //do not fail
+      var north = parseFloat(model.get('mapNorth'))
+      var south = parseFloat(model.get('mapSouth'))
+      var east = parseFloat(model.get('mapEast'))
+      var west = parseFloat(model.get('mapWest'))
 
-            modelToRectangle: function (model) {
+      // If we are crossing the date line, we must go outside [-180, 180]
+      // for openlayers to draw correctly. This means we can't draw boxes
+      // that encompass more than half the world. This actually matches
+      // how the backend searches anyway.
+      if (east - west < -180) {
+        east += 360
+      } else if (east - west > 180) {
+        west += 360
+      }
 
-                //ensure that the values are numeric
-                //so that the openlayer projections
-                //do not fail
-                var north  = parseFloat(model.get('mapNorth'));
-                var south = parseFloat(model.get('mapSouth'));
-                var east = parseFloat(model.get('mapEast'));
-                var west = parseFloat(model.get('mapWest'));
+      var northWest = ol.proj.transform(
+        [west, north],
+        'EPSG:4326',
+        properties.projection
+      )
+      var northEast = ol.proj.transform(
+        [east, north],
+        'EPSG:4326',
+        properties.projection
+      )
+      var southWest = ol.proj.transform(
+        [west, south],
+        'EPSG:4326',
+        properties.projection
+      )
+      var southEast = ol.proj.transform(
+        [east, south],
+        'EPSG:4326',
+        properties.projection
+      )
 
-                // If we are crossing the date line, we must go outside [-180, 180]
-                // for openlayers to draw correctly. This means we can't draw boxes
-                // that encompass more than half the world. This actually matches
-                // how the backend searches anyway.
-                if (east - west < -180) {
-                    east += 360;
-                } else if (east - west > 180) {
-                    west += 360;
-                }
+      var coords = []
+      coords.push(northWest)
+      coords.push(northEast)
+      coords.push(southEast)
+      coords.push(southWest)
+      coords.push(northWest)
+      var rectangle = new ol.geom.LineString(coords)
+      return rectangle
+    },
 
-                var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
-                var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
-                var southWest = ol.proj.transform([west,south], 'EPSG:4326', properties.projection);
-                var southEast = ol.proj.transform([east,south], 'EPSG:4326', properties.projection);
+    updatePrimitive: function(model) {
+      var rectangle = this.modelToRectangle(model)
+      // make sure the current model has width and height before drawing
+      if (
+        rectangle &&
+        !_.isUndefined(rectangle) &&
+        (model.get('north') !== model.get('south') &&
+          model.get('east') !== model.get('west'))
+      ) {
+        this.drawBorderedRectangle(rectangle)
+        //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
+        //the filled in shape won't show up
+        if (!this.buttonPressed) {
+          this.drawBorderedRectangle(rectangle)
+        }
+      }
+    },
 
-                var coords = [];
-                coords.push(northWest);
-                coords.push(northEast);
-                coords.push(southEast);
-                coords.push(southWest);
-                coords.push(northWest);
-                var rectangle = new ol.geom.LineString(coords);
-                return rectangle;
-            },
+    updateGeometry: function(model) {
+      var rectangle = this.modelToRectangle(model)
+      if (rectangle) {
+        this.drawBorderedRectangle(rectangle)
+      }
+    },
 
-            updatePrimitive: function (model) {
-                var rectangle = this.modelToRectangle(model);
-                // make sure the current model has width and height before drawing
-                if (rectangle && !_.isUndefined(rectangle) && (model.get('north') !== model.get('south') && model.get('east') !== model.get('west'))) {
-                    this.drawBorderedRectangle(rectangle);
-                    //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
-                    //the filled in shape won't show up
-                    if (!this.buttonPressed) {
-                        this.drawBorderedRectangle(rectangle);
-                    }
-                }
-            },
+    drawBorderedRectangle: function(rectangle) {
+      if (this.vectorLayer) {
+        this.map.removeLayer(this.vectorLayer)
+      }
 
-            updateGeometry: function (model) {
-                var rectangle = this.modelToRectangle(model);
-                if (rectangle) {
-                    this.drawBorderedRectangle(rectangle);
-                }
-            },
+      if (!rectangle) {
+        // handles case where model changes to empty vars and we don't want to draw anymore
+        return
+      }
 
-            drawBorderedRectangle: function (rectangle) {
+      this.billboard = new ol.Feature({
+        geometry: rectangle,
+      })
 
-                if(this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
+      var color = this.model.get('color')
 
-                if (!rectangle) {
-                    // handles case where model changes to empty vars and we don't want to draw anymore
-                    return;
-                }
+      var iconStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: color ? color : '#914500',
+          width: 3,
+        }),
+      })
+      this.billboard.setStyle(iconStyle)
 
-                this.billboard = new ol.Feature({
-                    geometry: rectangle
-                });
+      var vectorSource = new ol.source.Vector({
+        features: [this.billboard],
+      })
 
-                var color = this.model.get('color');
+      var vectorLayer = new ol.layer.Vector({
+        source: vectorSource,
+      })
 
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: color ? color : '#914500', width: 3})
-                });
-                this.billboard.setStyle(iconStyle);
+      this.vectorLayer = vectorLayer
+      this.map.addLayer(vectorLayer)
+    },
 
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
+    handleRegionStop: function() {
+      const geometry = olUtils.wrapCoordinatesFromGeometry(
+        this.primitive.getGeometry()
+      )
+      this.setModelFromGeometry(geometry)
+      this.updateGeometry(this.model)
+      this.listenTo(
+        this.model,
+        'change:mapNorth change:mapSouth change:mapEast change:mapWest',
+        this.updateGeometry
+      )
 
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
+      this.model.trigger('EndExtent', this.model)
+      wreqr.vent.trigger('search:bboxdisplay', this.model)
+    },
+    start: function() {
+      var that = this
+      this.primitive = new ol.interaction.DragBox({
+        condition: ol.events.condition.always,
+        style: new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: [0, 0, 255, 0],
+          }),
+        }),
+      })
 
-                this.vectorLayer = vectorLayer;
-                this.map.addLayer(vectorLayer);
-            },
+      this.map.addInteraction(this.primitive)
+      this.primitive.on('boxend', function() {
+        that.handleRegionStop()
+        that.map.removeInteraction(that.primitive)
+      })
+      this.primitive.on('boxstart', function(sketchFeature) {
+        that.startCoordinate = sketchFeature.coordinate
+      })
+      this.primitive.on('boxdrag', function(sketchFeature) {
+        var geometryRepresentation = new ol.geom.LineString([
+          that.startCoordinate,
+          [that.startCoordinate[0], sketchFeature.coordinate[1]],
+          sketchFeature.coordinate,
+          [sketchFeature.coordinate[0], that.startCoordinate[1]],
+          that.startCoordinate,
+        ])
+        that.drawBorderedRectangle(geometryRepresentation)
+        that.setModelFromGeometry(that.primitive.getGeometry())
+      })
+    },
+    startCoordinate: undefined,
+    stop: function() {
+      this.stopListening()
+    },
 
-            handleRegionStop: function () {
-                const geometry = olUtils.wrapCoordinatesFromGeometry(this.primitive.getGeometry());
-                this.setModelFromGeometry(geometry);
-                this.updateGeometry(this.model);
-                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
+    destroyPrimitive: function() {
+      if (this.primitive) {
+        this.map.removeInteraction(this.primitive)
+      }
+      if (this.vectorLayer) {
+        this.map.removeLayer(this.vectorLayer)
+      }
+    },
+  })
 
-                this.model.trigger("EndExtent", this.model);
-                wreqr.vent.trigger('search:bboxdisplay', this.model);
-            },
-            start: function () {
-                var that = this;
-                this.primitive = new ol.interaction.DragBox({
-                    condition: ol.events.condition.always,
-                    style: new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: [0,0,255,0]
-                        })
-                    })
-                });
+  Draw.Controller = DrawingController.extend({
+    drawingType: 'bbox',
+    show: function(model) {
+      if (this.enabled) {
+        var bboxModel = model || new Draw.BboxModel()
 
-                this.map.addInteraction(this.primitive);
-                this.primitive.on('boxend', function(){
-                    that.handleRegionStop();
-                    that.map.removeInteraction(that.primitive);
-                });
-                this.primitive.on('boxstart', function (sketchFeature) {
-                    that.startCoordinate = sketchFeature.coordinate;
-                });
-                this.primitive.on('boxdrag', function (sketchFeature) {
-                    var geometryRepresentation = new ol.geom.LineString([
-                        that.startCoordinate,
-                        [that.startCoordinate[0], sketchFeature.coordinate[1]],
-                        sketchFeature.coordinate,
-                        [sketchFeature.coordinate[0], that.startCoordinate[1]],
-                        that.startCoordinate
-                    ]);
-                    that.drawBorderedRectangle(geometryRepresentation);
-                    that.setModelFromGeometry(that.primitive.getGeometry());
-                });
-            },
-            startCoordinate: undefined,
-            stop: function () {
-                this.stopListening();
-            },
+        var existingView = this.getViewForModel(model)
+        if (existingView) {
+          existingView.destroyPrimitive()
+          existingView.updatePrimitive(model)
+        } else {
+          var view = new Draw.BboxView({
+            map: this.options.map,
+            model: bboxModel,
+          })
+          view.updatePrimitive(model)
+          this.addView(view)
+        }
 
+        return bboxModel
+      }
+    },
+    draw: function(model) {
+      if (this.enabled) {
+        var bboxModel = model || new Draw.BboxModel()
+        var view = new Draw.BboxView({
+          map: this.options.map,
+          model: bboxModel,
+        })
 
-            destroyPrimitive: function () {
-                if (this.primitive) {
-                    this.map.removeInteraction(this.primitive);
-                }
-                if (this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
-            }
+        var existingView = this.getViewForModel(model)
+        if (existingView) {
+          existingView.stop()
+          existingView.destroyPrimitive()
+          this.removeView(existingView)
+        }
+        view.start()
+        this.addView(view)
+        this.notificationView = new NotificationView({
+          el: this.notificationEl,
+        }).render()
+        bboxModel.trigger('BeginExtent')
+        this.listenToOnce(bboxModel, 'EndExtent', function() {
+          this.notificationView.destroy()
+        })
 
-        });
+        return bboxModel
+      }
+    },
+  })
 
-        Draw.Controller = DrawingController.extend({
-            drawingType: 'bbox',
-            show: function(model) {
-                if (this.enabled) {
-                    var bboxModel = model || new Draw.BboxModel();
-
-                    var existingView = this.getViewForModel(model);
-                    if (existingView) {
-                        existingView.destroyPrimitive();
-                        existingView.updatePrimitive(model);
-                    } else {
-                        var view = new Draw.BboxView(
-                            {
-                                map: this.options.map,
-                                model: bboxModel
-                            });
-                        view.updatePrimitive(model);
-                        this.addView(view);
-                    }
-
-                    return bboxModel;
-                }
-            },
-            draw: function (model) {
-
-                if (this.enabled) {
-                    var bboxModel = model || new Draw.BboxModel();
-                    var view = new Draw.BboxView(
-                            {
-                                map: this.options.map,
-                                model: bboxModel
-                            });
-
-                    var existingView = this.getViewForModel(model);
-                    if (existingView) {
-                        existingView.stop();
-                        existingView.destroyPrimitive();
-                        this.removeView(existingView);
-                    }
-                    view.start();
-                    this.addView(view);
-                    this.notificationView = new NotificationView({
-                        el: this.notificationEl
-                    }).render();
-                    bboxModel.trigger('BeginExtent');
-                    this.listenToOnce(bboxModel, 'EndExtent', function () {
-                        this.notificationView.destroy();
-                    });
-
-                    return bboxModel;
-                }
-            }
-        });
-
-        return Draw;
-    });
+  return Draw
+})

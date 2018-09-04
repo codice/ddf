@@ -14,36 +14,35 @@
  **/
 /*global define*/
 define([
-    'backbone',
-    'marionette',
-    'js/wreqr',
-    'text!./application.hbs',
-    'js/CustomElements'
+  'backbone',
+  'marionette',
+  'js/wreqr',
+  'text!./application.hbs',
+  'js/CustomElements',
 ], function(Backbone, Marionette, wreqr, template, CustomElements) {
-    "use strict";
+  'use strict'
 
-    var DetailedApplicationLayout = Marionette.Layout.extend({
-        template: template,
-        tagName: CustomElements.register('application'),
-        className: 'well',
-        regions: {
-            content: '.content',
-            tabs: '.tab-container',
-            tabContent: '.tab-content-container'
-        },
-        events: {
-            'click .nav-to-applications': 'navToApplications',
-        },
-        navToApplications: function(e){
-            e.preventDefault();
-            wreqr.vent.trigger('navigateTo:applicationHome');
-        },
+  var DetailedApplicationLayout = Marionette.Layout.extend({
+    template: template,
+    tagName: CustomElements.register('application'),
+    className: 'well',
+    regions: {
+      content: '.content',
+      tabs: '.tab-container',
+      tabContent: '.tab-content-container',
+    },
+    events: {
+      'click .nav-to-applications': 'navToApplications',
+    },
+    navToApplications: function(e) {
+      e.preventDefault()
+      wreqr.vent.trigger('navigateTo:applicationHome')
+    },
 
-        selectFirstTab: function(){
-            this.$('.tab-container a:first').tab('show');
-        }
-    });
+    selectFirstTab: function() {
+      this.$('.tab-container a:first').tab('show')
+    },
+  })
 
-    return DetailedApplicationLayout;
-
-});
+  return DetailedApplicationLayout
+})

@@ -12,31 +12,30 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var _ = require('underscore');
+var _ = require('underscore')
 
-module.exports = function (state, action) {
-    if (state === undefined) {
-        return [];
-    }
+module.exports = function(state, action) {
+  if (state === undefined) {
+    return []
+  }
 
-    switch (action.type) {
-        case 'ADD_ANNOUNCEMENT':
-            return state.concat(action.announcement);
-        case 'START_REMOVE_ANNOUNCEMENT':
-            return state.map(function (announcement) {
-                if (announcement.id === action.id) {
-                    return _.extend({}, announcement, { removing: true });
-                }
-                return announcement;
-            });
-        case 'REMOVE_ANNOUNCEMENT':
-            return state.filter(function (announcement) {
-                return announcement.id !== action.id;
-            });
-        case 'DEDUPE_ANNOUNCEMENT':
-            return
-        default:
-            return state;
-    }
-};
-
+  switch (action.type) {
+    case 'ADD_ANNOUNCEMENT':
+      return state.concat(action.announcement)
+    case 'START_REMOVE_ANNOUNCEMENT':
+      return state.map(function(announcement) {
+        if (announcement.id === action.id) {
+          return _.extend({}, announcement, { removing: true })
+        }
+        return announcement
+      })
+    case 'REMOVE_ANNOUNCEMENT':
+      return state.filter(function(announcement) {
+        return announcement.id !== action.id
+      })
+    case 'DEDUPE_ANNOUNCEMENT':
+      return
+    default:
+      return state
+  }
+}

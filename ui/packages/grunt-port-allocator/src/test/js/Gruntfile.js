@@ -1,27 +1,23 @@
-module.exports = function (grunt) {
-
-  grunt.loadTasks('../../main/js/tasks');
+module.exports = function(grunt) {
+  grunt.loadTasks('../../main/js/tasks')
 
   grunt.initConfig({
     ports: {
       random: 0,
-      express: 0
+      express: 0,
     },
     express: {
-      port: '<%= ports.express %>'
-    }
-  });
+      port: '<%= ports.express %>',
+    },
+  })
 
-  grunt.registerTask('port:check', function () {
-    var config = grunt.config('ports');
+  grunt.registerTask('port:check', function() {
+    var config = grunt.config('ports')
 
     if (config.express === 0) {
-      grunt.fail.fatal('grunt-port-allocator failed to allocate ports.');
+      grunt.fail.fatal('grunt-port-allocator failed to allocate ports.')
     }
+  })
 
-  });
-
-  grunt.registerTask('default', ['port:allocator', 'port:check']);
-
-};
-
+  grunt.registerTask('default', ['port:allocator', 'port:check'])
+}

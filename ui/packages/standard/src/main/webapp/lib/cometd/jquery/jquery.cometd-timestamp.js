@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-(function ($) {
-    function bind(TimeStampExtension, cometd) {
-        var result = new TimeStampExtension();
-        cometd.registerExtension('timestamp', result);
-        return result;
-    }
+;(function($) {
+  function bind(TimeStampExtension, cometd) {
+    var result = new TimeStampExtension()
+    cometd.registerExtension('timestamp', result)
+    return result
+  }
 
-    if (typeof define === 'function' && define.amd) {
-        define(['org/cometd/TimeStampExtension', 'jquery.cometd'], bind);
-    }
-    else {
-        bind(org.cometd.TimeStampExtension, $.cometd);
-    }
-})(jQuery);
+  if (typeof define === 'function' && define.amd) {
+    define(['org/cometd/TimeStampExtension', 'jquery.cometd'], bind)
+  } else {
+    bind(org.cometd.TimeStampExtension, $.cometd)
+  }
+})(jQuery)

@@ -220,20 +220,14 @@
           "queryId": "4dbd1c72-b61c-46b6-9484-5cba29f9ab81",
           "color": "#1f78b4",
           "geometry": {
-            "coordinates": [
-              -87.65005,
-              41.85003
-            ],
+            "coordinates": [-87.65005, 41.85003],
             "type": "Point"
           },
           "properties": {
             "effective": "2017-04-07T00:30:20.889 0000",
             "point-of-contact": "system@localhost.local",
             "created": "1987-03-03T00:29:03.006 0000",
-            "metacard-tags": [
-              "resource",
-              "VALID"
-            ],
+            "metacard-tags": ["resource", "VALID"],
             "modified": "2017-04-07T00:30:20.889 0000",
             "id": "fff1b066e0ef47379eae4fc482b1eeda",
             "metacard-type": "ddf.metacard",
@@ -455,20 +449,14 @@
           "queryId": "4dbd1c72-b61c-46b6-9484-5cba29f9ab81",
           "color": "#1f78b4",
           "geometry": {
-            "coordinates": [
-              102.41722,
-              18.49278
-            ],
+            "coordinates": [102.41722, 18.49278],
             "type": "Point"
           },
           "properties": {
             "effective": "2017-04-07T00:30:20.889 0000",
             "point-of-contact": "system@localhost.local",
             "created": "1987-04-21T15:44:06.008 0000",
-            "metacard-tags": [
-              "resource",
-              "VALID"
-            ],
+            "metacard-tags": ["resource", "VALID"],
             "modified": "2017-04-07T00:30:20.889 0000",
             "id": "ff1c478c19a44c6f9165caad92b4ef50",
             "metacard-type": "ddf.metacard",

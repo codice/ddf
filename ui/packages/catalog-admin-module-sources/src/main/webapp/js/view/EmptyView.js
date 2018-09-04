@@ -14,25 +14,24 @@
  **/
 /*global define*/
 define([
-    'text!templates/emptyView.handlebars',
-    'marionette',
-    'icanhaz'
-], function (emptyViewTemplate, Marionette, ich) {
+  'text!templates/emptyView.handlebars',
+  'marionette',
+  'icanhaz',
+], function(emptyViewTemplate, Marionette, ich) {
+  if (!ich.emptyViewTemplate) {
+    ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
+  }
 
-    if (!ich.emptyViewTemplate) {
-        ich.addTemplate('emptyViewTemplate', emptyViewTemplate);
-    }
+  var EmptyView = {}
 
-    var EmptyView = {};
+  EmptyView.sources = Marionette.ItemView.extend({
+    template: 'emptyViewTemplate',
+    serializeData: function() {
+      return {
+        message: 'There are no sources configured.',
+      }
+    },
+  })
 
-    EmptyView.sources = Marionette.ItemView.extend({
-        template: 'emptyViewTemplate',
-        serializeData: function () {
-            return {
-                message: "There are no sources configured."
-            };
-        }
-    });
-
-    return EmptyView;
-});
+  return EmptyView
+})

@@ -10,109 +10,119 @@
  *
  **/
 /* global define */
-define(['application',
-        'cometdinit',
-        'marionette',
-        'js/view/Workspace.view',
-        'js/model/Workspace',
-        'wreqr',
-        'poller',
-        'js/model/source',
-        'underscore',
-        'properties',
-        // Load non attached libs and plugins
-        'datepicker',
-        'datepickerOverride',
-        'datepickerAddon',
-        'multiselect',
-        'multiselectfilter'
-    ],
-    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source, _, properties) {
+define([
+  'application',
+  'cometdinit',
+  'marionette',
+  'js/view/Workspace.view',
+  'js/model/Workspace',
+  'wreqr',
+  'poller',
+  'js/model/source',
+  'underscore',
+  'properties',
+  // Load non attached libs and plugins
+  'datepicker',
+  'datepickerOverride',
+  'datepickerAddon',
+  'multiselect',
+  'multiselectfilter',
+], function(
+  Application,
+  Cometd,
+  Marionette,
+  WorkspaceView,
+  Workspace,
+  wreqr,
+  poller,
+  Source,
+  _,
+  properties
+) {
+  Application.App.module('WorkspaceModule', function(WorkspaceModule) {
+    var setTypes = function() {
+      var allTypes = []
+      if (_.size(properties.typeNameMapping) > 0) {
+        _.each(properties.typeNameMapping, function(value, key) {
+          if (_.isArray(value)) {
+            allTypes.push({
+              name: key,
+              value: value.join(','),
+            })
+          }
+        })
+      } else {
+        allTypes = _.chain(
+          WorkspaceModule.sources.map(function(source) {
+            return source.get('contentTypes')
+          })
+        )
+          .flatten()
+          .filter(function(element) {
+            return element.name !== ''
+          })
+          .sortBy(function(element) {
+            return element.name.toUpperCase()
+          })
+          .uniq(false, function(type) {
+            return type.name
+          })
+          .map(function(element) {
+            element.value = element.name
+            return element
+          })
+          .value()
+      }
+      WorkspaceModule.types.set(allTypes)
+    }
 
-        Application.App.module('WorkspaceModule', function(WorkspaceModule) {
+    WorkspaceModule.sources = new Source.Collection()
+    WorkspaceModule.sources.fetch().done(function() {
+      setTypes()
+    })
 
-            var setTypes = function () {
-                var allTypes = [];
-                if (_.size(properties.typeNameMapping) > 0) {
-                    _.each(properties.typeNameMapping, function(value, key) {
-                        if (_.isArray(value)) {
-                            allTypes.push({
-                                name: key,
-                                value: value.join(',')
-                            });
-                        }
-                    });
-                } else {
-                    allTypes = _.chain(WorkspaceModule.sources.map(function (source) {
-                        return source.get('contentTypes');
-                    }))
-                    .flatten()
-                    .filter(function (element) {
-                        return element.name !== '';
-                    })
-                    .sortBy(function (element) {
-                        return element.name.toUpperCase();
-                    })
-                    .uniq(false, function (type) {
-                        return type.name;
-                    })
-                    .map(function (element) {
-                        element.value = element.name;
-                        return element;
-                    })
-                    .value();
-                }
-                WorkspaceModule.types.set(allTypes);
-            };
+    WorkspaceModule.types = new Source.Types()
 
-            WorkspaceModule.sources = new Source.Collection();
-            WorkspaceModule.sources.fetch().done(function() {
-                setTypes();
-            });
+    // Poll the server for changes to Sources every 60 seconds -
+    // This matches the DDF SourcePoller polling interval
+    poller.get(WorkspaceModule.sources, { delay: 60000 }).start()
 
-            WorkspaceModule.types = new Source.Types();
+    wreqr.reqres.setHandler('workspace:getsources', function() {
+      return WorkspaceModule.sources
+    })
 
-            // Poll the server for changes to Sources every 60 seconds -
-            // This matches the DDF SourcePoller polling interval
-            poller.get(WorkspaceModule.sources, { delay: 60000 }).start();
+    this.listenTo(WorkspaceModule.sources, 'change', setTypes)
 
-            wreqr.reqres.setHandler('workspace:getsources', function () {
-                return WorkspaceModule.sources;
-            });
+    wreqr.reqres.setHandler('workspace:gettypes', function() {
+      return WorkspaceModule.types
+    })
 
-            this.listenTo(WorkspaceModule.sources, 'change', setTypes);
+    WorkspaceModule.workspaces = new Workspace.WorkspaceResult()
+    WorkspaceModule.workspaces.fetch()
 
-            wreqr.reqres.setHandler('workspace:gettypes', function () {
-                return WorkspaceModule.types;
-            });
+    wreqr.reqres.setHandler('workspace:getworkspaces', function() {
+      return WorkspaceModule.workspaces
+    })
 
-            WorkspaceModule.workspaces = new Workspace.WorkspaceResult();
-            WorkspaceModule.workspaces.fetch();
+    var workspaceView = new WorkspaceView.PanelLayout({
+      model: WorkspaceModule.workspaces,
+    })
 
-            wreqr.reqres.setHandler('workspace:getworkspaces', function () {
-                return WorkspaceModule.workspaces;
-            });
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            var workspaceView = new WorkspaceView.PanelLayout({model: WorkspaceModule.workspaces});
+      show: function() {
+        this.region.show(workspaceView)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
-
-                initialize: function(options){
-                    this.region = options.region;
-                },
-
-                show: function(){
-                    this.region.show(workspaceView);
-                }
-
-            });
-
-            WorkspaceModule.addInitializer(function(){
-                WorkspaceModule.contentController = new Controller({
-                    region: Application.App.controlPanelRegion
-                });
-                WorkspaceModule.contentController.show();
-            });
-        });
-
-    });
+    WorkspaceModule.addInitializer(function() {
+      WorkspaceModule.contentController = new Controller({
+        region: Application.App.controlPanelRegion,
+      })
+      WorkspaceModule.contentController.show()
+    })
+  })
+})

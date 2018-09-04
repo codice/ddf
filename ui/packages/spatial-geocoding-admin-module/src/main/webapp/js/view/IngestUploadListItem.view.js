@@ -14,40 +14,41 @@
  **/
 /* global define */
 define([
-        'backbone.marionette',
-        'jquery',
-        'icanhaz',
-        'text!templates/ingestNewFileRow.handlebars'
-    ],
-    function (Marionette,$,ich,ingestNewFileRow) {
-        ich.addTemplate('ingestNewFileRow',ingestNewFileRow);
-        var UploadItem = Marionette.ItemView.extend({
-            template: 'ingestNewFileRow',
-            tagName: 'li',
-            className: 'file-list-item',
-            modelEvents: {
-                'change:progress': 'changeProgress',
-                'change:state': 'handleStateChange', // only re-render on state changes,
-                'startItemUpload': 'startUpload'
-            },
-            handleStateChange: function() {
-                this.trigger('stateChanged');
-                this.render();
-            },
-            startUpload: function(){
-                if (this.model.get('state') === 'start') {
-                    this.model.set({'state': 'uploading'});
-                    this.model.trigger('uploading'); // push up to whoever wants to listen.
-                }
-            },
-            doneUpload: function(){
-                this.model.set({'state':'done'});
-            },
-            changeProgress: function(){
-                var progress = this.model.get('progress');
-                this.$('.progress-percent-text').html(progress + "%");
-                this.$(".progress-bar").attr('aria-valuenow', progress).css({width: progress+'%'});
-            }
-        });
-        return UploadItem;
-    });
+  'backbone.marionette',
+  'jquery',
+  'icanhaz',
+  'text!templates/ingestNewFileRow.handlebars',
+], function(Marionette, $, ich, ingestNewFileRow) {
+  ich.addTemplate('ingestNewFileRow', ingestNewFileRow)
+  var UploadItem = Marionette.ItemView.extend({
+    template: 'ingestNewFileRow',
+    tagName: 'li',
+    className: 'file-list-item',
+    modelEvents: {
+      'change:progress': 'changeProgress',
+      'change:state': 'handleStateChange', // only re-render on state changes,
+      startItemUpload: 'startUpload',
+    },
+    handleStateChange: function() {
+      this.trigger('stateChanged')
+      this.render()
+    },
+    startUpload: function() {
+      if (this.model.get('state') === 'start') {
+        this.model.set({ state: 'uploading' })
+        this.model.trigger('uploading') // push up to whoever wants to listen.
+      }
+    },
+    doneUpload: function() {
+      this.model.set({ state: 'done' })
+    },
+    changeProgress: function() {
+      var progress = this.model.get('progress')
+      this.$('.progress-percent-text').html(progress + '%')
+      this.$('.progress-bar')
+        .attr('aria-valuenow', progress)
+        .css({ width: progress + '%' })
+    },
+  })
+  return UploadItem
+})

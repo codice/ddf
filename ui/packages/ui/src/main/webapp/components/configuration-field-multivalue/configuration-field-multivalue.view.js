@@ -15,31 +15,28 @@
 /*global define*/
 /** Main view page for add. */
 define([
-    'marionette',
-    'text!./configuration-field-multivalue.hbs',
-    'js/CustomElements'
-], function (Marionette, template, CustomElements) {
-
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('configuration-field-multivalue'),
-        initialize: function() {
-            this.modelBinder = new Backbone.ModelBinder();
-        },
-        events: {
-            "click .minus-button": "minusButton"
-        },
-        minusButton: function() {
-            this.model.collection.remove(this.model);
-        },
-        onRender: function() {
-            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-            this.modelBinder.bind(this.model, this.$el, bindings);
-        },
-        onClose: function() {
-            this.modelBinder.unbind();
-        }
-    });
-
-
-});
+  'marionette',
+  'text!./configuration-field-multivalue.hbs',
+  'js/CustomElements',
+], function(Marionette, template, CustomElements) {
+  return Marionette.ItemView.extend({
+    template: template,
+    tagName: CustomElements.register('configuration-field-multivalue'),
+    initialize: function() {
+      this.modelBinder = new Backbone.ModelBinder()
+    },
+    events: {
+      'click .minus-button': 'minusButton',
+    },
+    minusButton: function() {
+      this.model.collection.remove(this.model)
+    },
+    onRender: function() {
+      var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name')
+      this.modelBinder.bind(this.model, this.$el, bindings)
+    },
+    onClose: function() {
+      this.modelBinder.unbind()
+    },
+  })
+})

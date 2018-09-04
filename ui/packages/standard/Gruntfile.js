@@ -11,166 +11,130 @@
  **/
 /*global module,require*/
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
+  require('load-grunt-tasks')(grunt, { requireResolution: true })
 
-    require('load-grunt-tasks')(grunt, {requireResolution: true});
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
 
-    grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+    ports: {
+      phantom: 0,
+      selenium: 0,
+      express: 0,
+    },
 
-        ports: {
-            phantom: 0,
-            selenium: 0,
-            express: 0,
+    clean: {
+      build: ['target/webapp'],
+    },
+    cssmin: {
+      compress: {
+        files: {
+          'target/webapp/css/index.css': ['src/main/webapp/css/*.css'],
         },
-
-        clean: {
-            build: ['target/webapp']
+      },
+    },
+    less: {
+      css: {
+        options: {
+          cleancss: true,
         },
-        cssmin: {
-            compress: {
-                files: {
-                    "target/webapp/css/index.css": ["src/main/webapp/css/*.css"]
-                }
-            }
+        files: {
+          'src/main/webapp/css/styles.css': 'src/main/webapp/less/styles.less',
         },
-        less: {
-            css: {
-                options: {
-                    cleancss: true
-                },
-                files: {
-                    "src/main/webapp/css/styles.css": "src/main/webapp/less/styles.less"
-                }
-            }
+      },
+    },
+    mochaWebdriver: {
+      options: {
+        autoInstall: true,
+        usePromises: true,
+        reporter: 'spec',
+        timeout: 1000 * 30,
+        slow: 10000,
+        expressPort: '<%= ports.express %>',
+      },
+      phantom: {
+        src: ['src/test/js/wd/*.js'],
+        options: {
+          hostname: '127.0.0.1',
+          usePhantom: true,
+          phantomPort: '<%= ports.phantom %>',
         },
-        jshint: {
-            all: {
-                src: [
-                    'Gruntfile.js',
-                    'src/main/webapp/js/**/*.js',
-                    'src/main/webapp/config.js',
-                    'src/main/webapp/main.js',
-                    'src/main/webapp/properties.js',
-                    'src/test/js/**/*.js'
-                ]
-            },
-            options: {
-                bitwise: true,        // Prohibits the use of bitwise operators such as ^ (XOR), | (OR) and others.
-                forin: true,          // Requires all for in loops to filter object's items.
-                latedef: true,        // Prohibits the use of a variable before it was defined.
-                newcap: true,         // Requires you to capitalize names of constructor functions.
-                noarg: true,          // Prohibits the use of arguments.caller and arguments.callee. Both .caller and .callee make quite a few optimizations impossible so they were deprecated in future versions of JavaScript.
-                noempty: true,         // Warns when you have an empty block in your code.
-                regexp: true,         // Prohibits the use of unsafe . in regular expressions.
-                undef: true,          // Prohibits the use of explicitly undeclared variables.
-                unused: true,         // Warns when you define and never use your variables.
-                maxlen: 250,          // Set the maximum length of a line to 250 characters.  If triggered, the line should be wrapped.
-                eqeqeq: true,         // Prohibits the use of == and != in favor of === and !==
-
-                // Relaxing Options
-                scripturl: true,      // This option suppresses warnings about the use of script-targeted URLsâ€”such as
-
-                reporter: require('jshint-stylish'),
-
-                // options here to override JSHint defaults
-                globals: {
-                    console: true,
-                    module: true,
-                    define: true
-                }
-            }
+      },
+      selenium: {
+        src: ['src/test/js/wd/*.js'],
+        options: {
+          // make sure to start selenium server at host:port first
+          hostname: '127.0.0.1',
+          port: '<%= ports.selenium %>',
+          // mochaWebdriver always starts a selenium server so
+          // starting phantomjs instance that will not be used
+          phantomPort: '<%= ports.phantom %>',
+          usePhantom: true,
         },
-        mochaWebdriver: {
-            options: {
-                autoInstall: true,
-                usePromises: true,
-                reporter: 'spec',
-                timeout: 1000 * 30,
-                slow: 10000,
-                expressPort: '<%= ports.express %>'
+      },
+      sauce: {
+        src: ['src/test/js/wd/*.js'],
+        options: {
+          autoInstall: false,
+          testName: 'Search UI',
+          concurrency: 3,
+          timeout: 1000 * 60 * 2,
+          browsers: [
+            {
+              platform: 'Windows 7',
+              browserName: 'internet explorer',
+              version: '9',
             },
-            phantom: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    hostname: '127.0.0.1',
-                    usePhantom: true,
-                    phantomPort: '<%= ports.phantom %>'
-                }
-            },
-            selenium: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    // make sure to start selenium server at host:port first
-                    hostname: '127.0.0.1',
-                    port: '<%= ports.selenium %>',
-                    // mochaWebdriver always starts a selenium server so
-                    // starting phantomjs instance that will not be used
-                    phantomPort: '<%= ports.phantom %>',
-                    usePhantom: true
-                }
-            },
-            sauce: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    autoInstall: false,
-                    testName: 'Search UI',
-                    concurrency: 3,
-                    timeout: 1000 * 60 * 2,
-                    browsers: [
-                        {platform: 'Windows 7', browserName: 'internet explorer', version: '9'},
-                        {platform: 'Windows 7', browserName: 'chrome', version: '38'},
-                        {platform: 'Windows 7', browserName: 'firefox', version: '31'}
-                    ]
-                }
-            }
+            { platform: 'Windows 7', browserName: 'chrome', version: '38' },
+            { platform: 'Windows 7', browserName: 'firefox', version: '31' },
+          ],
         },
-        express: {
-            options: {
-                port: 8282,
-                hostname: '*'
-            },
-            test: {
-                options: {
-                    port: '<%= ports.express %>',
-                    script: './test.js'
-                }
-            },
-            server: {
-                options: {
-                    script: './server.js'
-                }
-            }
+      },
+    },
+    express: {
+      options: {
+        port: 8282,
+        hostname: '*',
+      },
+      test: {
+        options: {
+          port: '<%= ports.express %>',
+          script: './test.js',
         },
-        watch: {
-            jsFiles: {
-                files: ['<%= jshint.all.src %>'],
-                tasks: ['jshint']
-            },
-            livereload: {
-                options: {livereload: true},
-                files: ['target/webapp/css/index.css'
-                    // this one is more dangerous, tends to reload the page if one file changes
-                    // probably too annoying to be useful, uncomment if you want to try it out
-//                    '<%= jshint.files %>'
-                ]
-            },
-            lessFiles: {
-                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
-                tasks: ['less']
-            },
-            cssFiles: {
-                files: ['src/main/webapp/css/*.css'],
-                tasks: ['cssmin']
-            },
-        }
-    });
+      },
+      server: {
+        options: {
+          script: './server.js',
+        },
+      },
+    },
+    watch: {
+      livereload: {
+        options: { livereload: true },
+        files: ['target/webapp/css/index.css'],
+      },
+      lessFiles: {
+        files: [
+          'src/main/webapp/less/*.less',
+          'src/main/webapp/less/**/*.less',
+          'src/main/webapp/less/***/*.less',
+        ],
+        tasks: ['less'],
+      },
+      cssFiles: {
+        files: ['src/main/webapp/css/*.css'],
+        tasks: ['cssmin'],
+      },
+    },
+  })
 
+  grunt.registerTask('test', [
+    'port:allocator',
+    'express:test' /*, 'mochaWebdriver:phantom'*/,
+  ])
+  // grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
+  // grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
-    grunt.registerTask('test', ['port:allocator', 'express:test'/*, 'mochaWebdriver:phantom'*/]);
-    // grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
-    // grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
-
-    grunt.registerTask('build', ['less', 'cssmin', 'jshint']);
-    grunt.registerTask('default', ['build', 'express:server', 'watch']);
-};
+  grunt.registerTask('build', ['less', 'cssmin'])
+  grunt.registerTask('default', ['build', 'express:server', 'watch'])
+}

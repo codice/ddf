@@ -2,7 +2,7 @@
   .customElement;
   overflow: hidden;
   position: relative;
-  height: 2*@minimumLineSize;
+  height: 2 * @minimumLineSize;
   white-space: nowrap;
 
   > div {
@@ -14,18 +14,18 @@
     height: 100%;
     text-overflow: ellipsis;
     width: auto;
-    transition: padding 1*@coreTransitionTime ease-out;
-    padding-right: 3*@minimumButtonSize;
+    transition: padding 1 * @coreTransitionTime ease-out;
+    padding-right: 3 * @minimumButtonSize;
     max-width: 100%;
   }
 
   > .content-interactions,
   > .content-save,
   > .content-adhoc {
-    transform: translateX(-3*@minimumButtonSize);
-    transition: width 2*@coreTransitionTime ease-out, 
-        margin 2*@coreTransitionTime ease-out,
-        transform 1*@coreTransitionTime ease-out;
+    transform: translateX(-3 * @minimumButtonSize);
+    transition: width 2 * @coreTransitionTime ease-out,
+      margin 2 * @coreTransitionTime ease-out,
+      transform 1 * @coreTransitionTime ease-out;
     width: @minimumButtonSize;
     height: 100%;
     text-align: center;
@@ -43,22 +43,21 @@
 }
 
 @{customElementNamespace}workspace-menu.is-saved {
-
   .content-save {
-      opacity: 1;
-      transition-delay: 10*@coreTransitionTime;
-      overflow: hidden;
-      width: 0%;
+    opacity: 1;
+    transition-delay: 10 * @coreTransitionTime;
+    overflow: hidden;
+    width: 0%;
   }
 
   .content-interactions,
   .content-adhoc {
-    transition-delay: 10*@coreTransitionTime;
-    transform: translateX(-2*@minimumButtonSize);
+    transition-delay: 10 * @coreTransitionTime;
+    transform: translateX(-2 * @minimumButtonSize);
   }
 
   .content-title {
-    transition-delay: 10*@coreTransitionTime;
-    padding-right: 2*@minimumButtonSize;
+    transition-delay: 10 * @coreTransitionTime;
+    padding-right: 2 * @minimumButtonSize;
   }
 }

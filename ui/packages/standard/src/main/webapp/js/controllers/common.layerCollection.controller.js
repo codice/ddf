@@ -10,26 +10,22 @@
  *
  **/
 /*global define*/
-/*jshint newcap: false, bitwise: false */
 
-define([
-    'marionette'
-], function (Marionette) {
-    "use strict";
+define(['marionette'], function(Marionette) {
+  'use strict'
 
-    var Controller = Marionette.Object.extend({
-        initialize: function (options) {
-            this.collection = options.collection;
-            this.layerForCid = {};
+  var Controller = Marionette.Object.extend({
+    initialize: function(options) {
+      this.collection = options.collection
+      this.layerForCid = {}
 
-            this.listenTo(this.collection, 'change:alpha', this.setAlpha);
-            this.listenTo(this.collection, 'change:show', this.setShow);
+      this.listenTo(this.collection, 'change:alpha', this.setAlpha)
+      this.listenTo(this.collection, 'change:show', this.setShow)
 
-            // subclasses must implement reIndexLayers()
-            this.listenTo(this.collection, 'sort', this.reIndexLayers);
-        }
-    });
+      // subclasses must implement reIndexLayers()
+      this.listenTo(this.collection, 'sort', this.reIndexLayers)
+    },
+  })
 
-    return Controller;
-
-});
+  return Controller
+})

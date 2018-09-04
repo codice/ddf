@@ -38,39 +38,39 @@
  **/
 /*global define*/
 
-define(['handlebars', 'jquery'], function (Handlebars, $) {
-    'use strict';
-    var ich = {};
+define(['handlebars', 'jquery'], function(Handlebars, $) {
+  'use strict'
+  var ich = {}
 
-    ich.templates = {};
+  ich.templates = {}
 
-// public function for adding templates
-// We're enforcing uniqueness to avoid accidental template overwrites.
-// If you want a different template, it should have a different name.
-    ich.addTemplate = function (name, templateString) {
-        if (ich[name]) throw "Invalid name: " + name + ".";
-        if (ich.templates[name]) throw "Template \" + name + \" exists";
+  // public function for adding templates
+  // We're enforcing uniqueness to avoid accidental template overwrites.
+  // If you want a different template, it should have a different name.
+  ich.addTemplate = function(name, templateString) {
+    if (ich[name]) throw 'Invalid name: ' + name + '.'
+    if (ich.templates[name]) throw 'Template " + name + " exists'
 
-        ich.templates[name] = Handlebars.compile(templateString);
-        ich[name] = function (data, raw) {
-            data = data || {};
-            var result = ich.templates[name](data);
-            return raw? result: $(result);
-        };
-    };
+    ich.templates[name] = Handlebars.compile(templateString)
+    ich[name] = function(data, raw) {
+      data = data || {}
+      var result = ich.templates[name](data)
+      return raw ? result : $(result)
+    }
+  }
 
-// public function for adding partials
-    ich.addPartial = function (name, templateString) {
-        if (Handlebars.partials[name]) throw "Partial \" + name + \" exists";
-        Handlebars.registerPartial(name, templateString);
-    };
+  // public function for adding partials
+  ich.addPartial = function(name, templateString) {
+    if (Handlebars.partials[name]) throw 'Partial " + name + " exists'
+    Handlebars.registerPartial(name, templateString)
+  }
 
-    ich.addHelper = function (name, func) {
-        if (Handlebars.helpers[name]) throw "Helper \" + name + \" exists";
-        if (typeof func === 'function') {
-            Handlebars.registerHelper(name, func);
-        }
-    };
+  ich.addHelper = function(name, func) {
+    if (Handlebars.helpers[name]) throw 'Helper " + name + " exists'
+    if (typeof func === 'function') {
+      Handlebars.registerHelper(name, func)
+    }
+  }
 
-    return ich;
-});
+  return ich
+})

@@ -17,7 +17,7 @@ import React from 'react'
 import levels from '../../levels'
 
 const options = () => {
-  return levels().map(function (level) {
+  return levels().map(function(level) {
     return (
       <option key={level} value={level}>
         {level}
@@ -26,8 +26,10 @@ const options = () => {
   })
 }
 
-const select = (fn) => {
-  return function (e) { fn(e.target.value) }
+const select = fn => {
+  return function(e) {
+    fn(e.target.value)
+  }
 }
 
 // log level selector

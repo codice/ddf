@@ -1,4 +1,4 @@
-:title: Configuring Included IdP
+:title: Configuring Included Identity Provider
 :type: subConfiguration
 :status: published
 :parent: Configuring REST Services for Users
@@ -6,9 +6,9 @@
 :order: 00
 
 == {title}
+The included IdP is installed by default.
 
 .Installing the IdP from the ${admin-console}
-Install the included IdP implementation.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.
@@ -16,13 +16,12 @@ Install the included IdP implementation.
 . Install `security-idp` feature.
 
 .Installing the IdP from the ${command-console}
-Install the included IdP implementation.
 
-. Run the command `features:install security-idp` from the ${command-console}.
+Run the command `feature:install security-idp` from the ${command-console}.
 
 .[[_configuring_the_idp_server]]Configuring the IdP Server
 
-. Navigate to *${admin-console}*.
+. Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *IdP Server*.
@@ -31,14 +30,14 @@ Install the included IdP implementation.
 .. Disable the *Limit RelayStates to 80 Bytes* option to allow interoperability with Service Providers that are not compliant with the SAML Specifications and send RelayStates larger than 80 bytes.
 . Configure Guest Access:
 .. Disable the *Allow Guest Access* option to disallow a user to authenticate against the IdP with a guest account.
-. Configure SP Metadata:
-.. Select the `+` next to SP Metadata to add a new entry.
+. Configure the Service Providers (SP) Metadata:
+.. Select the `+` next to *SP Metadata* to add a new entry.
 .. Populate the new entry with:
-... an HTTPS URL (https://),
+... an HTTPS URL (https://) such as https://localhost:8993/services/saml/sso/metadata1,
 ... a file URL (file:), or
-... an XML block to refer to desired metadata, e.g. (https://localhost:8993/services/saml/sso/metadata)
+... an XML block to refer to desired metadata.
 
-.IdP Server example.xml
+.Service Provider Metadata Example
 [source,xml,linenums]
 ----
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://localhost:8993/services/saml">
@@ -69,37 +68,37 @@ Install the included IdP implementation.
 </md:EntityDescriptor>
 ----
 
-.Configuring IdP Authentication Types
-Set the authentication types that will be accepted by the IdP.
+.Configuring IdP as the Authentication Type
+To use the IdP for authentication,
 
-. Navigate to the Admin Console.
-. Select the Security application.
-. Select the Configuration tab.
-. Select Web Context Policy Manager
-. Under Authentication Types, set the IDP authentication type as necessary. Note that it should only be used on context paths that will be accessed by users via web browsers. For example:
-* `/search=IDP`
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *Web Context Policy Manager*.
+. Under *Authentication Types*, set the IdP authentication type to context paths as necessary.
+Note that it should only be used on context paths that will be accessed by users via web browsers. For example:
+* `/search=IdP`
 
-Other authentication types can also be used in conjunction with the IDP type.
-For example, if you wanted to secure the entire system with the IDP, but still allow legacy clients that don’t understand the SAML ECP specification to connect, you could set `/=IDP|PKI`.
-With that configuration, any clients that failed to connect using either the SAML 2.0 Web SSO Profile or the SAML ECP spec would fall back to 2-way TLS for authentication.
+Other authentication types can also be used in conjunction with the IdP type.
+For example, if you wanted to secure the entire system with the IdP, but still allow legacy clients that don’t understand the SAML ECP specification to connect, you could set `/=IdP|PKI`.
+With that configuration, any clients that failed to connect using either the SAML 2.0 Web SSO Profile or the SAML ECP specification would fall back to 2-way TLS for authentication.
 
 [NOTE]
 ====
-If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in Search UI standard settings.
+If you have configured `/search` to use IdP, ensure to select the "External Authentication" checkbox in Search UI standard settings.
 ====
 
-.[[_configuring_idp_sp]]Configuring Security IdP Service Provider (SP)
-The IdP client that interacts with the specified Identity Provider.
+.[[_configuring_idp_sp]]Configuring the SP
+To configure the IdP client (also known as the SP) that interacts with the specified IdP,
 
-. Navigate to Admin Console.
-. Select the Security application.
-. Select the Configuration tab.
-. Select IdP Client.
-. Populate IdP Metadata field through one of the following:
-.. An HTTPS URL (https://)
-.. A file URL (file:)
-.. An XML block to refer to desired metadata, such as:
-... e.g., https://localhost:8993/services/idp/login/metadata
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *IdP Client*.
+. Populate *IdP Metadata* field through one of the following:
+.. an HTTPS URL (https://) e.g., https://localhost:8993/services/idp/login/metadata,
+.. a file URL (file:), or
+.. an XML block to refer to desired metadata.
 
 .IdP Client (SP) example.xml
 [source,xml,linenums]

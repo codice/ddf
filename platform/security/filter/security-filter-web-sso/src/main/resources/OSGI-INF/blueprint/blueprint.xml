@@ -35,12 +35,4 @@
         </service-properties>
     </service>
 
-    <reference id="webContainer"
-            interface="org.ops4j.pax.web.service.WebContainer"
-            availability="mandatory"/>
-
-    <bean id="errorPage" class="org.codice.ddf.security.filter.websso.ErrorPage" init-method="registerErrorCodes">
-        <argument ref="webContainer"/>
-    </bean>
-
 </blueprint>

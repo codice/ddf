@@ -13,24 +13,24 @@
  *
  **/
 /*global require*/
-const Marionette = require('marionette');
-const template = require('./notfound.hbs');
-const CustomElements = require('js/CustomElements');
-const router = require('component/router/router');
-const NavigatorView = require('component/navigator/navigator.view');
+const Marionette = require('marionette')
+const template = require('./notfound.hbs')
+const CustomElements = require('js/CustomElements')
+const router = require('component/router/router')
+const NavigatorView = require('component/navigator/navigator.view')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('notfound'),
-    regions: {
-        content: '> .content > .navigator',
-    },
-    onBeforeShow: function() {
-        this.content.show(new NavigatorView({}));
-    },
-    serializeData: function() {
-        return {
-            route: window.location.hash.substring(1)
-        };
+  template: template,
+  tagName: CustomElements.register('notfound'),
+  regions: {
+    content: '> .content > .navigator',
+  },
+  onBeforeShow: function() {
+    this.content.show(new NavigatorView({}))
+  },
+  serializeData: function() {
+    return {
+      route: window.location.hash.substring(1),
     }
-});
+  },
+})

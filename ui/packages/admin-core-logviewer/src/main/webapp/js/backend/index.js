@@ -17,16 +17,18 @@ require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
 // retrieves logs from the endpoint
-export const getLogs = (done) => {
-  const endpoint = '../jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents'
+export const getLogs = done => {
+  const endpoint =
+    '../jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents'
 
-  window.fetch(endpoint, {
-    credentials: 'same-origin',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-    .then((res) => res.json())
-    .then((json) => done(null, json.value))
+  window
+    .fetch(endpoint, {
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    })
+    .then(res => res.json())
+    .then(json => done(null, json.value))
     .catch(done)
 }

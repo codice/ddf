@@ -13,11 +13,11 @@
  *
  **/
 
-var redux = require('redux');
-var thunk = require('redux-thunk').default;
+var redux = require('redux')
+var thunk = require('redux-thunk').default
 
-var reducer = require('./reducer');
+var reducer = require('./reducer')
 
-module.exports = function (prevState) {
-    return redux.createStore(reducer, prevState, redux.applyMiddleware(thunk));
-};
+module.exports = function(prevState) {
+  return redux.createStore(reducer, prevState, redux.applyMiddleware(thunk))
+}

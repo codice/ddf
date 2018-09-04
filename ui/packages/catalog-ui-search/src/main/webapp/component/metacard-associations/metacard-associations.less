@@ -3,7 +3,7 @@
   overflow: hidden;
 
   > .editor-content {
-    display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+    display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     width: 100%;
     text-align: center;
     padding: 10px 20px;
@@ -47,10 +47,10 @@
     display: none;
     width: 100%;
   }
-  
+
   > .editor-footer {
     white-space: nowrap;
-    .footer-cancel, 
+    .footer-cancel,
     .footer-save {
       display: none;
       width: 50%;
@@ -80,7 +80,7 @@
   > .list-footer button {
     display: block;
   }
-  
+
   > .editor-footer {
     .footer-edit {
       display: none;
@@ -93,94 +93,92 @@
 }
 
 @{customElementNamespace}metacard-associations.filter-by-parent {
-
-    @{customElementNamespace}association.is-parent:not(.is-child) {
-      .association-content {
-        opacity: .2;
-      }
-
-      .association-content > div:after {
-        content: attr(data-label);
-        position: absolute;
-        left: 0px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 100%;
-        opacity: .2;
-      }
-
-      .association-content > .association-relationship:after,
-      .association-content > .association-child:after {
-        padding-left: 20px;
-      }
-
-      @{customElementNamespace}dropdown,
-      .association-remove {
-        visibility: hidden;
-      }
+  @{customElementNamespace}association.is-parent:not(.is-child) {
+    .association-content {
+      opacity: 0.2;
     }
 
-    @{customElementNamespace}association .association-child {
-      &:after {
-        content: attr(data-label);
-        position: absolute;
-        left: 0px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 100%;
-        opacity: .2;
-        padding-left: 20px;
-      }
-
-      @{customElementNamespace}dropdown {
-       visibility: hidden;
-      }
+    .association-content > div:after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      opacity: 0.2;
     }
+
+    .association-content > .association-relationship:after,
+    .association-content > .association-child:after {
+      padding-left: 20px;
+    }
+
+    @{customElementNamespace}dropdown,
+    .association-remove {
+      visibility: hidden;
+    }
+  }
+
+  @{customElementNamespace}association .association-child {
+    &:after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      opacity: 0.2;
+      padding-left: 20px;
+    }
+
+    @{customElementNamespace}dropdown {
+      visibility: hidden;
+    }
+  }
 }
 
 @{customElementNamespace}metacard-associations.filter-by-child {
-
   @{customElementNamespace}association.is-child:not(.is-parent) {
-      .association-content {
-        opacity: .2;
-      }
-
-      .association-content > div:after {
-        content: attr(data-label);
-        position: absolute;
-        left: 0px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 100%;
-        opacity: .2;
-      }
-
-      .association-content > .association-relationship:after,
-      .association-content > .association-child:after {
-        padding-left: 20px;
-      }
-
-      @{customElementNamespace}dropdown,
-      .association-remove {
-        visibility: hidden;
-      }
+    .association-content {
+      opacity: 0.2;
     }
 
-    @{customElementNamespace}association .association-parent {
-      &:after {
-        content: attr(data-label);
-        position: absolute;
-        left: 0px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 100%;
-        opacity: .2;
-      }
-
-      @{customElementNamespace}dropdown {
-       visibility: hidden;
-      }
+    .association-content > div:after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      opacity: 0.2;
     }
+
+    .association-content > .association-relationship:after,
+    .association-content > .association-child:after {
+      padding-left: 20px;
+    }
+
+    @{customElementNamespace}dropdown,
+    .association-remove {
+      visibility: hidden;
+    }
+  }
+
+  @{customElementNamespace}association .association-parent {
+    &:after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      opacity: 0.2;
+    }
+
+    @{customElementNamespace}dropdown {
+      visibility: hidden;
+    }
+  }
 }
 
 @{customElementNamespace}metacard-associations.show-graph {

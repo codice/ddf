@@ -9,60 +9,67 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Backbone = require('backbone');
-var properties = require('properties');
-require('backbone-associations');
+var Backbone = require('backbone')
+var properties = require('properties')
+require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({
-    defaults: {
-        count: 0,
-        elapsed: 0,
-        hits: 0,
-        id: 'undefined',
-        successful: undefined,
-        top: 0,
-        fromcache: 0,
-        cacheHasReturned: properties.isCacheDisabled,
-        cacheSuccessful: true,
-        cacheMessages: [],
-        hasReturned: false,
-        messages: []
-    },
-    initialize: function () {
-        this.listenToOnce(this, 'change:successful', this.setHasReturned);
-    },
-    setHasReturned: function () {
-        this.set('hasReturned', true);
-    },
-    setCacheHasReturned: function () {
-        this.set('cacheHasReturned', true);
-    },
-    updateMessages: function (messages, id, status) {
-        if (this.id === id) {
-            this.set('messages', messages);
-        }
-        if (id === 'cache') {
-            this.set({
-                cacheHasReturned: true,
-                cacheSuccessful: status ? status.successful : false,
-                cacheMessages: messages
-            });
-        }
-    },
-    updateStatus: function (results) {
-        var top = 0;
-        var fromcache = 0;
-        results.forEach(function (result) {
-            if (result.get('metacard').get('properties').get('source-id') === this.id) {
-                top++;
-                if (!result.get('uncached')) {
-                    fromcache++;
-                }
-            }
-        }.bind(this));
-        this.set({
-            top: top,
-            fromcache: fromcache
-        });
+  defaults: {
+    count: 0,
+    elapsed: 0,
+    hits: 0,
+    id: 'undefined',
+    successful: undefined,
+    top: 0,
+    fromcache: 0,
+    cacheHasReturned: properties.isCacheDisabled,
+    cacheSuccessful: true,
+    cacheMessages: [],
+    hasReturned: false,
+    messages: [],
+  },
+  initialize: function() {
+    this.listenToOnce(this, 'change:successful', this.setHasReturned)
+  },
+  setHasReturned: function() {
+    this.set('hasReturned', true)
+  },
+  setCacheHasReturned: function() {
+    this.set('cacheHasReturned', true)
+  },
+  updateMessages: function(messages, id, status) {
+    if (this.id === id) {
+      this.set('messages', messages)
     }
-});
+    if (id === 'cache') {
+      this.set({
+        cacheHasReturned: true,
+        cacheSuccessful: status ? status.successful : false,
+        cacheMessages: messages,
+      })
+    }
+  },
+  updateStatus: function(results) {
+    var top = 0
+    var fromcache = 0
+    results.forEach(
+      function(result) {
+        if (
+          result
+            .get('metacard')
+            .get('properties')
+            .get('source-id') === this.id
+        ) {
+          top++
+          if (!result.get('uncached')) {
+            fromcache++
+          }
+        }
+      }.bind(this)
+    )
+    this.set({
+      top: top,
+      fromcache: fromcache,
+    })
+  },
+})

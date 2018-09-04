@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -26,9 +27,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.eclipse.jetty.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,25 +44,44 @@ public class CsrfFilter implements SecurityFilter {
   public static final String ORIGIN_HEADER = "Origin";
   public static final String REFERER_HEADER = "Referer";
 
-  public static final String JOLOKIA_CONTEXT = "/admin/jolokia";
-  public static final String INTRIGUE_CONTEXT = "/search/catalog/internal";
-  public static final String WEBSOCKET_CONTEXT = "/search/catalog/ws";
+  private static final String APACHE_CLIENT_USER_AGENT = "Apache-HttpClient/.*";
+  private static final String APACHE_USER_AGENT = "Apache-CXF/.*";
+  private static final String JAVA_CLIENT_USER_AGENT = "Google-HTTP-Java-Client/.*";
+  private static final String JAVA_USER_AGENT = "Java/.*";
+
+  private static final String SERVICE_CONTEXT = "/services";
+  private static final String JOLOKIA_CONTEXT = "/admin/jolokia";
+  private static final String INTRIGUE_CONTEXT = "/search/catalog/internal";
+  private static final String WEBSOCKET_CONTEXT = "/search/catalog/ws";
+  private static final String WEBSOCKET_CONTEXT_REGEX = "/search/catalog/ws.*";
+  private static final String CATALOG_CONTEXT = "/search/catalog/internal/catalog/.*";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CsrfFilter.class);
+
+  private static final MultivaluedMap<Pattern, String> BROWSER_PROTECTION_WHITELIST =
+      new MultivaluedHashMap<>();
+  private static final MultivaluedMap<Pattern, String> SYSTEM_PROTECTION_WHITELIST =
+      new MultivaluedHashMap<>();
+  private static final List<Pattern> USER_AGENT_WHITELIST = new ArrayList<>();
 
   // List of context paths that require cross-site protections
   private List<String> protectedContexts;
   // List of authorities that are treated as same-origin as the system
   private List<String> trustedAuthorities;
 
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    LOGGER.debug("Starting CSRF filter.");
-
+  public CsrfFilter() {
+    super();
+    trustedAuthorities = new ArrayList<>();
     protectedContexts = new ArrayList<>();
+
     protectedContexts.add(JOLOKIA_CONTEXT);
     protectedContexts.add(INTRIGUE_CONTEXT);
     protectedContexts.add(WEBSOCKET_CONTEXT);
+  }
+
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    LOGGER.debug("Starting CSRF filter.");
 
     // internal authority system properties
     String internalHostname = SystemBaseUrl.INTERNAL.getHost();
@@ -69,7 +93,6 @@ public class CsrfFilter implements SecurityFilter {
     String externalHttpPort = SystemBaseUrl.EXTERNAL.getHttpPort();
     String externalHttpsPort = SystemBaseUrl.EXTERNAL.getHttpsPort();
 
-    trustedAuthorities = new ArrayList<>();
     // internal http & https authorities
     trustedAuthorities.add(internalHostname + ":" + internalHttpPort);
     trustedAuthorities.add(internalHostname + ":" + internalHttpsPort);
@@ -77,6 +100,18 @@ public class CsrfFilter implements SecurityFilter {
     // external http & https authorities
     trustedAuthorities.add(externalHostname + ":" + externalHttpPort);
     trustedAuthorities.add(externalHostname + ":" + externalHttpsPort);
+
+    // WebSockets API does not allow for custom headers, authority check is sufficient
+    BROWSER_PROTECTION_WHITELIST.add(
+        Pattern.compile(WEBSOCKET_CONTEXT_REGEX), HttpMethod.GET.asString());
+
+    // Downloading does not allow adding headers, authority check is sufficient
+    BROWSER_PROTECTION_WHITELIST.add(Pattern.compile(CATALOG_CONTEXT), HttpMethod.GET.asString());
+
+    USER_AGENT_WHITELIST.add(Pattern.compile(APACHE_USER_AGENT));
+    USER_AGENT_WHITELIST.add(Pattern.compile(APACHE_CLIENT_USER_AGENT));
+    USER_AGENT_WHITELIST.add(Pattern.compile(JAVA_USER_AGENT));
+    USER_AGENT_WHITELIST.add(Pattern.compile(JAVA_CLIENT_USER_AGENT));
   }
 
   /**
@@ -100,42 +135,121 @@ public class CsrfFilter implements SecurityFilter {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     String targetContextPath = httpRequest.getRequestURI();
+    String requestMethod = httpRequest.getMethod();
+    String userAgentHeader = httpRequest.getHeader(HttpHeaders.USER_AGENT);
 
     // Begin CSRF checks if request is accessing a Cross-Site protected context
-    if (protectedContexts.stream().anyMatch(targetContextPath::startsWith)) {
+    if (protectedContexts.stream().anyMatch(targetContextPath::startsWith)
+        && doBrowserProtectionFilter(httpRequest, httpResponse, targetContextPath, requestMethod)) {
+      return;
+    }
 
-      String sourceOrigin = httpRequest.getHeader(ORIGIN_HEADER);
-      String sourceReferer = httpRequest.getHeader(REFERER_HEADER);
-      String csrfHeader = httpRequest.getHeader(CSRF_HEADER);
-
-      // Reject if no origin or referer header is present on the request
-      if (sourceOrigin == null && sourceReferer == null) {
-        respondForbidden(
-            httpResponse,
-            "Cross-site check failure: Incoming request did not have an Origin or Referer header.");
-        return;
-      }
-
-      // Reject if neither the Origin nor Referer header are a trusted authority
-      if (!isTrustedAuthority(sourceOrigin) && !isTrustedAuthority(sourceReferer)) {
-        respondForbidden(
-            httpResponse,
-            "Cross-site check failure: Neither the Origin nor Referer header matched a system internal or external name.");
-        return;
-      }
-
-      // Check for presence of anti-CSRF header
-      // WebSockets API does not allow for custom headers, authority check is sufficient
-      if (!targetContextPath.startsWith(WEBSOCKET_CONTEXT) && csrfHeader == null) {
-        respondForbidden(
-            httpResponse,
-            "Cross-site check failure: Request did not have required X-Requested-With header.");
-        return;
-      }
+    // Execute CSRF check if user is accessing /services
+    if (targetContextPath.startsWith(SERVICE_CONTEXT)
+        && doSystemProtectionFilter(
+            httpResponse, targetContextPath, requestMethod, userAgentHeader)) {
+      return;
     }
 
     // All checks passed
     chain.doFilter(request, response);
+  }
+
+  private boolean doBrowserProtectionFilter(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+      String targetContextPath,
+      String requestMethod) {
+    String sourceOrigin = httpRequest.getHeader(ORIGIN_HEADER);
+    String sourceReferer = httpRequest.getHeader(REFERER_HEADER);
+    String csrfHeader = httpRequest.getHeader(CSRF_HEADER);
+
+    // Reject if no origin or referer header is present on the request
+    if (sourceOrigin == null && sourceReferer == null) {
+      respondForbidden(
+          httpResponse,
+          "Cross-site check failure: Incoming request did not have an Origin or Referer header.");
+      return true;
+    }
+
+    // Reject if neither the Origin nor Referer header are a trusted authority
+    if (!isTrustedAuthority(sourceOrigin) && !isTrustedAuthority(sourceReferer)) {
+      respondForbidden(
+          httpResponse,
+          "Cross-site check failure: Neither the Origin nor Referer header matched a system internal or external name.");
+      return true;
+    }
+
+    // Check if the context path is whitelisted
+    boolean contextPathIsWhitelisted = false;
+    Pattern whitelistKey = getMultivaluedMapKey(BROWSER_PROTECTION_WHITELIST, targetContextPath);
+
+    if (whitelistKey != null) {
+      Pattern requestMethodPattern = Pattern.compile(requestMethod);
+      if (BROWSER_PROTECTION_WHITELIST
+          .get(whitelistKey)
+          .stream()
+          .anyMatch(method -> requestMethodPattern.matcher(method).matches())) {
+        contextPathIsWhitelisted = true;
+      }
+    }
+
+    // Check for presence of anti-CSRF header if the path is not whitelisted
+    if (csrfHeader == null && !contextPathIsWhitelisted) {
+      respondForbidden(
+          httpResponse,
+          "Cross-site check failure: Request did not have required X-Requested-With header.");
+      return true;
+    }
+    return false;
+  }
+
+  private boolean doSystemProtectionFilter(
+      HttpServletResponse httpResponse,
+      String targetContextPath,
+      String requestMethod,
+      String userAgentHeader) {
+
+    // Check if the user-agent is whitelisted
+    Pattern whitelistUserAgent = null;
+
+    if (userAgentHeader != null) {
+      whitelistUserAgent =
+          USER_AGENT_WHITELIST
+              .stream()
+              .filter(regex -> regex.matcher(userAgentHeader).matches())
+              .findFirst()
+              .orElse(null);
+    }
+
+    // Check if the context path is whitelisted
+    boolean contextPathIsWhitelisted = false;
+    Pattern whitelistKey = getMultivaluedMapKey(SYSTEM_PROTECTION_WHITELIST, targetContextPath);
+
+    if (whitelistKey != null) {
+      Pattern requestMethodPattern = Pattern.compile(requestMethod);
+      if (SYSTEM_PROTECTION_WHITELIST
+          .get(whitelistKey)
+          .stream()
+          .anyMatch(method -> requestMethodPattern.matcher(method).matches())) {
+        contextPathIsWhitelisted = true;
+      }
+    }
+
+    if (userAgentHeader != null && whitelistUserAgent == null && !contextPathIsWhitelisted) {
+      respondForbidden(httpResponse, "Cross-site check failure: Request was made from a browser.");
+      return true;
+    }
+    return false;
+  }
+
+  private Pattern getMultivaluedMapKey(
+      MultivaluedMap<Pattern, String> map, String targetContextPath) {
+    return map.keySet()
+        .stream()
+        .filter(regex -> regex.matcher(targetContextPath).matches())
+        .findFirst()
+        .orElse(null);
   }
 
   /**
@@ -182,6 +296,32 @@ public class CsrfFilter implements SecurityFilter {
       httpResponse.flushBuffer();
     } catch (IOException ioe) {
       LOGGER.debug("Failed to send auth response: {}", ioe);
+    }
+  }
+
+  public void setWhiteListContexts(List<String> whiteListContexts) {
+    if (whiteListContexts == null) {
+      return;
+    }
+
+    SYSTEM_PROTECTION_WHITELIST.clear();
+    for (String entry : whiteListContexts) {
+      String[] split = entry.split("=");
+
+      if (split.length == 2) {
+        Pattern existingPattern =
+            SYSTEM_PROTECTION_WHITELIST
+                .keySet()
+                .stream()
+                .filter(regex -> regex.toString().equals(split[0].trim()))
+                .findFirst()
+                .orElse(null);
+        if (existingPattern == null) {
+          existingPattern = Pattern.compile(split[0].trim());
+        }
+
+        SYSTEM_PROTECTION_WHITELIST.add(existingPattern, split[1].trim());
+      }
     }
   }
 

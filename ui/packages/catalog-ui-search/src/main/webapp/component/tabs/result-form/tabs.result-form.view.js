@@ -12,24 +12,26 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /* global require */
- var TabsView = require('../tabs.view')
- var ResultFormModel = require('./tabs.result-form')
- var store = require('js/store')
+/* global require */
+var TabsView = require('../tabs.view')
+var ResultFormModel = require('./tabs.result-form')
+var store = require('js/store')
 
- module.exports = TabsView.extend({
-   selectionInterface: store,
-   setDefaultModel: function () {
-     this.model = new ResultFormModel()
-   },
-   initialize: function () {
-     this.setDefaultModel()
-     TabsView.prototype.initialize.call(this)
-   },
-   determineContent: function () {
-     var ActiveTab = this.model.getActiveView()
-     this.tabsContent.show(new ActiveTab({
-       model: this.options.model
-     }))
-   }
- })
+module.exports = TabsView.extend({
+  selectionInterface: store,
+  setDefaultModel: function() {
+    this.model = new ResultFormModel()
+  },
+  initialize: function() {
+    this.setDefaultModel()
+    TabsView.prototype.initialize.call(this)
+  },
+  determineContent: function() {
+    var ActiveTab = this.model.getActiveView()
+    this.tabsContent.show(
+      new ActiveTab({
+        model: this.options.model,
+      })
+    )
+  },
+})

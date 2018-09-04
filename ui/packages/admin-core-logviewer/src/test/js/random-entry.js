@@ -21,28 +21,24 @@ const bundleName = [
   'catalog.bundle',
   'platform.bundle',
   'security.bundle',
-  'utils.bundle'
+  'utils.bundle',
 ]
 
-const bundleVersion = [
-  '1.2.3',
-  '3.4.5',
-  '5.6.7'
-]
+const bundleVersion = ['1.2.3', '3.4.5', '5.6.7']
 
 const messages = [
   'First log message',
   'Second log message',
-  'Third log message'
+  'Third log message',
 ]
 
-export default function (o) {
+export default function(o) {
   return {
-    timestamp: (new Date()).toISOString(),
+    timestamp: new Date().toISOString(),
     level: random(levels().slice(1)),
     bundleName: random(bundleName),
     bundleVersion: random(bundleVersion),
     message: random(messages),
-    ...o
+    ...o,
   }
 }

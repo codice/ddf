@@ -14,17 +14,17 @@
  **/
 /*global require*/
 
-var SaveView = require('../unsaved-indicator.view');
+var SaveView = require('../unsaved-indicator.view')
 
 module.exports = SaveView.extend({
-    attributes: {
-        'data-help': 'Indicates the workspace is unsaved.',
-        title: 'Indicates the workspace is unsaved.'
-    },
-    initialize: function() {
-        this.listenTo(this.model, 'change', this.handleSaved);
-    },
-    isSaved: function() {
-        return this.model.isSaved();
-    }
-});
+  attributes: {
+    'data-help': 'Indicates the workspace is unsaved.',
+    title: 'Indicates the workspace is unsaved.',
+  },
+  initialize: function() {
+    this.listenTo(this.model, 'change', this.handleSaved)
+  },
+  isSaved: function() {
+    return this.model.isSaved()
+  },
+})

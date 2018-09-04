@@ -12,32 +12,30 @@
 /*global define,require*/
 
 // #Main Application
-define([
-    'marionette',
-    'icanhaz'
-], function (Marionette,ich) {
-    'use strict';
+define(['marionette', 'icanhaz'], function(Marionette, ich) {
+  'use strict'
 
-    var Application = {};
+  var Application = {}
 
-    // This was moved from the main.js file into here.
-    // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
-    Marionette.Renderer.render = function (template, data) {
-        if(!template){return '';}
-        return ich[template](data);
-    };
+  // This was moved from the main.js file into here.
+  // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
+  Marionette.Renderer.render = function(template, data) {
+    if (!template) {
+      return ''
+    }
+    return ich[template](data)
+  }
 
+  Application.App = new Marionette.Application()
 
-    Application.App = new Marionette.Application();
+  //add regions
+  Application.App.addRegions({
+    mainRegion: 'main',
+  })
 
-    //add regions
-    Application.App.addRegions({
-        mainRegion: 'main'
-    });
+  Application.App.addInitializer(function() {
+    require(['js/module'])
+  })
 
-    Application.App.addInitializer(function () {
-        require(['js/module']);
-    });
-
-    return Application;
-});
+  return Application
+})

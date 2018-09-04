@@ -1,39 +1,39 @@
-@{customElementNamespace}input.is-boolean { 
-    input {
-        display: none;
-    }
+@{customElementNamespace}input.is-boolean {
+  input {
+    display: none;
+  }
 
-    .if-editing label {
-        width: 100%;
-        cursor: pointer;
-        height: @minimumButtonSize;
-    }
+  .if-editing label {
+    width: 100%;
+    cursor: pointer;
+    height: @minimumButtonSize;
+  }
 
-    .checkbox-placeholder {
-        width: 100%;
-        padding-left: 10px;
-        height: 100%;
-        text-align: left;
+  .checkbox-placeholder {
+    width: 100%;
+    padding-left: 10px;
+    height: 100%;
+    text-align: left;
 
-        span {
-            font-size: @minimumFontSize;
-        }
+    span {
+      font-size: @minimumFontSize;
     }
+  }
 
-    .is-not-checked {
-        display: block;
-    }
-    
+  .is-not-checked {
+    display: block;
+  }
+
+  .is-checked {
+    display: none;
+  }
+
+  input:checked + button {
     .is-checked {
-        display: none;
+      display: block;
     }
-
-    input:checked + button {
-        .is-checked {
-            display: block;
-        }
-        .is-not-checked {
-            display: none;
-        }
+    .is-not-checked {
+      display: none;
     }
+  }
 }

@@ -12,27 +12,24 @@
 /*global define*/
 /*jslint browser: true*/
 
-define([
-        'underscore'
-    ],
-    function (_) {
-        'use strict';
+define(['underscore'], function(_) {
+  'use strict'
 
-        return {
-            is2dAvailable: undefined,
-            isAvailable: function () {
-                if (_.isUndefined(this.is2dAvailable)) {
-                    this.is2dAvailable = false;
+  return {
+    is2dAvailable: undefined,
+    isAvailable: function() {
+      if (_.isUndefined(this.is2dAvailable)) {
+        this.is2dAvailable = false
 
-                    try {
-                        var canvas = document.createElement('canvas');
-                        var twoD = canvas.getContext('2d');
-                        if (twoD) {
-                            this.is2dAvailable = true;
-                        }
-                    } catch(e) {}
-                }
-                return this.is2dAvailable;
-            }
-        };
-    });
+        try {
+          var canvas = document.createElement('canvas')
+          var twoD = canvas.getContext('2d')
+          if (twoD) {
+            this.is2dAvailable = true
+          }
+        } catch (e) {}
+      }
+      return this.is2dAvailable
+    },
+  }
+})

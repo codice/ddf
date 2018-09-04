@@ -1,1 +1,1 @@
-module.exports = require('./text-field');
+module.exports = require('./text-field')

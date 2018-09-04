@@ -57,7 +57,11 @@ config=file:etc/artemis-backup.xml
 ----
 +
 . Restart Servers: +
-If the ${branding} instances are currently running, stop and restart the backup and then the live server. Making sure the backup starts first ensures that the live server doesn't have any issues establishing the backup due to the backup being busy initializing. See <<{managing-prefix}starting,Starting ${branding}>> for detailed steps.
+The ${branding} instances should be restarted in the following order:
+1. Live server
+2. Backup server
+
+In order to maintain connectivity to the broker during a restart, only stop and start a single server at a time. See <<{managing-prefix}starting,Starting ${branding}>> for detailed steps.
 +
 . Verify Cluster Replication: +
 Once both servers are started, the following command can be run using curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22/ReplicaSync[browser] to verify that the servers have successfully synced.

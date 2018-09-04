@@ -9,24 +9,36 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
+import * as React from 'react'
 
 interface Props {
-    help: string,
-    icon?: string,
-    iconText?: string,
-    description: string,
-    onClick: () => void;
+  help: string
+  icon?: string
+  iconText?: string
+  description: string
+  onClick: () => void
 }
 
-const WorkspaceTemplate =  (props: Props) => {
-    const { help, icon, iconText, description, onClick } = props;
-    return (
-        <div className="home-templates-choices-choice" onClick={onClick} data-help={help}>
-            <div className={`${icon} home-templates-choices-choice-preview ${icon ? 'home-templates-choices-choice-preview-icon' : ''}`}>{iconText}</div>
-            <div className="home-templates-choices-choice-description">{description}</div>
-        </div>
-    )
+const WorkspaceTemplate = (props: Props) => {
+  const { help, icon, iconText, description, onClick } = props
+  return (
+    <div
+      className="home-templates-choices-choice"
+      onClick={onClick}
+      data-help={help}
+    >
+      <div
+        className={`${icon} home-templates-choices-choice-preview ${
+          icon ? 'home-templates-choices-choice-preview-icon' : ''
+        }`}
+      >
+        {iconText}
+      </div>
+      <div className="home-templates-choices-choice-description">
+        {description}
+      </div>
+    </div>
+  )
 }
 
 export default WorkspaceTemplate

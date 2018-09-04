@@ -12,94 +12,102 @@
 /*global define, window, setTimeout, location*/
 /* eslint-disable no-undefined */
 const wreqr = require('wreqr')
-const _ = require('underscore');
+const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const Application = require('application')
 const router = require('component/router/router')
-import ReactRouter from '../react-component/container/router-container';
-import React from 'react';
-import { render } from 'react-dom';
+import ReactRouter from '../react-component/container/router-container'
+import React from 'react'
+import { render } from 'react-dom'
 const plugin = require('plugins/router')
 // notfound route needs to come at the end otherwise no other routes will work
 const routeDefinitions = {
-    ...plugin(require('!./router/routes-loader!js/router/routes.js')),
-    ...require('!./router/routes-loader!js/router/routes-dev.js'),
-    ...require('!./router/routes-loader!js/router/routes-notfound.js')
+  ...plugin(require('!./router/routes-loader!js/router/routes.js')),
+  ...require('!./router/routes-loader!js/router/routes-dev.js'),
+  ...require('!./router/routes-loader!js/router/routes-notfound.js'),
 }
 
 const initializeRoutes = function(routeDefinitions) {
-    Application.App.router.show(new RouterView({
-        routeDefinitions
-    }), {
-        replaceElement: true
-    });
+  Application.App.router.show(
+    new RouterView({
+      routeDefinitions,
+    }),
+    {
+      replaceElement: true,
+    }
+  )
 }
 
 const onComponentResolution = function(deferred, component) {
-    this.component = this.component || new component();
-    deferred.resolve(this.component);
+  this.component = this.component || new component()
+  deferred.resolve(this.component)
 }
 
 //initializeRoutes(routeDefinitions);
 render(
-    <ReactRouter routeDefinitions={routeDefinitions}></ReactRouter>,
-    Application.App.router.$el[0]
-);
+  <ReactRouter routeDefinitions={routeDefinitions} />,
+  Application.App.router.$el[0]
+)
 
 const Router = Backbone.Router.extend({
-    preloadRoutes() {
-        Object.keys(routeDefinitions).forEach(this.preloadRoute);
-    },
-    preloadFragment(fragment) {
-        this.preloadRoute(this.getRouteNameFromFragment(fragment));
-    },
-    preloadRoute(routeName) {
-        routeDefinitions[routeName].preload();
-    },
-    getRouteNameFromFragment(fragment) {
-        return this.routes[_.find(Object.keys(this.routes), (routePattern) => {
-            return this._routeToRegExp(routePattern).test(fragment);
-        })];
-    },
-    routes: Object.keys(routeDefinitions).reduce((routesBlob, key) => {
-        const { patterns } = routeDefinitions[key]
-        patterns.forEach((pattern) => routesBlob[pattern] = key);
-        return routesBlob
-    }, {}),
-    initialize: function(){
-        this.listenTo(wreqr.vent, 'router:preload', this.handlePreload);
-        this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
-        this.on('route', this.onRoute, this);
-        /*
+  preloadRoutes() {
+    Object.keys(routeDefinitions).forEach(this.preloadRoute)
+  },
+  preloadFragment(fragment) {
+    this.preloadRoute(this.getRouteNameFromFragment(fragment))
+  },
+  preloadRoute(routeName) {
+    routeDefinitions[routeName].preload()
+  },
+  getRouteNameFromFragment(fragment) {
+    return this.routes[
+      _.find(Object.keys(this.routes), routePattern => {
+        return this._routeToRegExp(routePattern).test(fragment)
+      })
+    ]
+  },
+  routes: Object.keys(routeDefinitions).reduce((routesBlob, key) => {
+    const { patterns } = routeDefinitions[key]
+    patterns.forEach(pattern => (routesBlob[pattern] = key))
+    return routesBlob
+  }, {}),
+  initialize: function() {
+    this.listenTo(wreqr.vent, 'router:preload', this.handlePreload)
+    this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate)
+    this.on('route', this.onRoute, this)
+    /*
             HACK:  listeners for the router aren't setup (such as the onRoute or controller)
                 until after initialize is done.  SetTimeout (with timeout of 0) pushes this
                 navigate onto the end of the current execution queue
             */
-        setTimeout(function(){
-            var currentFragment = location.hash;
-            Backbone.history.fragment = undefined;
-            this.navigate(currentFragment, {trigger: true});
-        }.bind(this), 0);
-    },
-    handlePreload({fragment}) {
-        this.preloadFragment(fragment);
-    },
-    handleNavigate: function(args){
-        this.navigate(args.fragment, args.options);
-    },
-    onRoute: function(name, args){
-        this.updateRoute(name, _.invert(this.routes)[name], args);
-    },
-    updateRoute: function(name, path, args){
-        router.set({
-            name: name,
-            path: path,
-            args: args
-        });
-        $(window).trigger('resize');
-        wreqr.vent.trigger('resize');
-    }
-});
+    setTimeout(
+      function() {
+        var currentFragment = location.hash
+        Backbone.history.fragment = undefined
+        this.navigate(currentFragment, { trigger: true })
+      }.bind(this),
+      0
+    )
+  },
+  handlePreload({ fragment }) {
+    this.preloadFragment(fragment)
+  },
+  handleNavigate: function(args) {
+    this.navigate(args.fragment, args.options)
+  },
+  onRoute: function(name, args) {
+    this.updateRoute(name, _.invert(this.routes)[name], args)
+  },
+  updateRoute: function(name, path, args) {
+    router.set({
+      name: name,
+      path: path,
+      args: args,
+    })
+    $(window).trigger('resize')
+    wreqr.vent.trigger('resize')
+  },
+})
 
-module.exports = new Router();
+module.exports = new Router()

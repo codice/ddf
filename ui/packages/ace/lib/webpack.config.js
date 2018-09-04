@@ -9,85 +9,78 @@ const merge = require('webpack-merge')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin')
-const WebpackBundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const WebpackBundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin
 
-const resolve = (place) => path.resolve(place)
-const nodeResolve = (place) => require.resolve(place)
+const resolve = place => path.resolve(place)
+const nodeResolve = place => require.resolve(place)
 
 const gitEnv = () => {
   const commitHash = exec('git rev-parse --short HEAD').toString()
 
-  const isDirty = exec('git status').toString()
-    .indexOf('working directory clean') === -1
+  const isDirty =
+    exec('git status')
+      .toString()
+      .indexOf('working directory clean') === -1
 
   const commitDate = exec('git log -1 --pretty=format:%cI').toString()
 
   return {
     __COMMIT_HASH__: JSON.stringify(commitHash),
     __IS_DIRTY__: JSON.stringify(isDirty),
-    __COMMIT_DATE__: JSON.stringify(commitDate)
+    __COMMIT_DATE__: JSON.stringify(commitDate),
   }
 }
 
 const babelLoader = (plugins = []) => ({
   loader: nodeResolve('babel-loader'),
   options: {
-    presets: [
-      'react',
-      ['latest', { modules: false }],
-      'stage-0'
-    ],
+    presets: ['react', ['latest', { modules: false }], 'stage-0'],
     cacheDirectory: true,
-    plugins: [
-      nodeResolve('react-hot-loader/babel'),
-      ...plugins
-    ]
-  }
+    plugins: [nodeResolve('react-hot-loader/babel'), ...plugins],
+  },
 })
 
 const base = ({ alias = {}, env }) => ({
-  entry: [
-    nodeResolve('babel-polyfill'),
-    nodeResolve('whatwg-fetch')
-  ],
+  entry: [nodeResolve('babel-polyfill'), nodeResolve('whatwg-fetch')],
   output: {
     path: resolve('./target/webapp'),
     filename: 'bundle.[hash].js',
-    globalObject: 'this'
+    globalObject: 'this',
   },
   plugins: [
     new WebpackBundleAnalyzerPlugin({
       openAnalyzer: false,
       analyzerMode: 'static',
-      reportFilename: resolve('target/report.html')
+      reportFilename: resolve('target/report.html'),
     }),
     new webpack.DefinePlugin(gitEnv()),
     new HtmlWebpackPlugin({
       title: 'My App',
       filename: 'index.html',
-      template: resolve('src/main/webapp/index.html')
-    })
+      template: resolve('src/main/webapp/index.html'),
+    }),
   ],
   externals: {
     'react/addons': true,
     'react/lib/ExecutionEnvironment': true,
-    'react/lib/ReactContext': true
+    'react/lib/ReactContext': true,
   },
   module: {
     rules: [
       {
         test: /\.(png|gif|jpg|jpeg)$/,
-        use: nodeResolve('file-loader')
+        use: nodeResolve('file-loader'),
       },
       {
         test: /Cesium\.js$/,
         use: [
           {
             loader: nodeResolve('exports-loader'),
-            options: { Cesium: true }
+            options: { Cesium: true },
           },
-          nodeResolve('script-loader')
-        ]
+          nodeResolve('script-loader'),
+        ],
       },
       {
         test: /jquery-ui/,
@@ -96,41 +89,45 @@ const base = ({ alias = {}, env }) => ({
           options: {
             jQuery: 'jquery',
             $: 'jquery',
-            jqueryui: 'jquery-ui'
-          }
-        }
+            jqueryui: 'jquery-ui',
+          },
+        },
       },
       {
         test: /bootstrap/,
         use: {
           loader: nodeResolve('imports-loader'),
-          options: { jQuery: 'jquery' }
-        }
+          options: { jQuery: 'jquery' },
+        },
       },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: babelLoader(env === 'test' ? [
-          [
-            nodeResolve('babel-plugin-istanbul'),
-            { exclude: [ '**/*spec.js' ] }
-          ]
-        ] : [])
+        use: babelLoader(
+          env === 'test'
+            ? [
+                [
+                  nodeResolve('babel-plugin-istanbul'),
+                  { exclude: ['**/*spec.js'] },
+                ],
+              ]
+            : []
+        ),
       },
       {
         test: /\.(hbs|handlebars)$/,
         use: {
-          loader: nodeResolve('handlebars-loader')
-        }
+          loader: nodeResolve('handlebars-loader'),
+        },
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         use: {
           loader: nodeResolve('file-loader'),
           options: {
-            name: 'fonts/[name]-[hash].[ext]'
-          }
-        }
+            name: 'fonts/[name]-[hash].[ext]',
+          },
+        },
       },
       {
         test: /\.(css|less)$/,
@@ -138,40 +135,46 @@ const base = ({ alias = {}, env }) => ({
           nodeResolve('style-loader'),
           {
             loader: nodeResolve('css-loader'),
-            options: { sourceMap: true }
+            options: { sourceMap: true },
           },
           {
             loader: nodeResolve('less-loader'),
-            options: { sourceMap: true }
-          }
-        ]
+            options: { sourceMap: true },
+          },
+        ],
       },
       {
         test: /\.unless$/,
-        use: [nodeResolve('raw-loader'), path.resolve(__dirname, 'concat-less.js')],
-        exclude: /node_modules/
+        use: [
+          nodeResolve('raw-loader'),
+          path.resolve(__dirname, 'concat-less.js'),
+        ],
+        exclude: /node_modules/,
       },
       {
         test: /\.worker\.js$/,
-        use: [nodeResolve('worker-loader'), babelLoader()]
+        use: [nodeResolve('worker-loader'), babelLoader()],
       },
       {
         test: /\.tsx?$/,
-        use: [{
-          loader: nodeResolve('ts-loader'),
-          options: {
-            compilerOptions: {
-              jsx: 'react',
-              allowJs: true,
-              sourceMap: true
-            }
-          }
-        }, {
-          loader: nodeResolve('stylelint-custom-processor-loader')
-        }],
-        exclude: /node_modules/
-      }
-    ]
+        use: [
+          {
+            loader: nodeResolve('ts-loader'),
+            options: {
+              compilerOptions: {
+                jsx: 'react',
+                allowJs: true,
+                sourceMap: true,
+              },
+            },
+          },
+          {
+            loader: nodeResolve('stylelint-custom-processor-loader'),
+          },
+        ],
+        exclude: /node_modules/,
+      },
+    ],
   },
   resolve: {
     alias,
@@ -181,87 +184,83 @@ const base = ({ alias = {}, env }) => ({
       'src/main/webapp/js',
       'src/main/webapp/css',
       'src/main/webapp/lib/',
-      'node_modules'
-    ]
-  }
-})
-
-const dev = (base, { main }) => merge.smart(base, {
-  mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
-  entry: [
-    nodeResolve('console-polyfill'),
-    resolve(main)
-  ],
-  plugins: [
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
-    new SimpleProgressWebpackPlugin({
-      format: 'compact'
-    })
-  ]
-})
-
-const test = (base, { main }) => merge.smart(base, {
-  mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
-  node: {
-    __filename: true
+      'node_modules',
+    ],
   },
-  entry: glob.sync('src/main/webapp/**/*spec.js*').map(resolve),
-  output: {
-    path: resolve('target/test/'),
-    filename: 'test.js'
-  },
-  plugins: [
-    new HtmlWebpackPlugin(),
-    new webpack.HotModuleReplacementPlugin()
-  ],
-  module: {
-    rules: [
-      {
-        test: /.*spec\.jsx?$/,
-        use: [
-          nodeResolve('mocha-loader'),
-          path.resolve(__dirname, 'spec-loader.js'),
-          babelLoader()
-        ],
-        exclude: /node_modules/
-      }
-    ]
-  }
 })
 
-const prod = (base, { main }) => merge.smart(base, {
-  mode: 'production',
-  devtool: 'source-map',
-  entry: [
-    resolve(main)
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.(css|less)$/,
-        loader: ExtractTextPlugin.extract({
-          fallback: nodeResolve('style-loader'),
+const dev = (base, { main }) =>
+  merge.smart(base, {
+    mode: 'development',
+    devtool: 'cheap-module-eval-source-map',
+    entry: [nodeResolve('console-polyfill'), resolve(main)],
+    plugins: [
+      new webpack.NamedModulesPlugin(),
+      new webpack.HotModuleReplacementPlugin(),
+      new SimpleProgressWebpackPlugin({
+        format: 'compact',
+      }),
+    ],
+  })
+
+const test = (base, { main }) =>
+  merge.smart(base, {
+    mode: 'development',
+    devtool: 'cheap-module-eval-source-map',
+    node: {
+      __filename: true,
+    },
+    entry: glob.sync('src/main/webapp/**/*spec.js*').map(resolve),
+    output: {
+      path: resolve('target/test/'),
+      filename: 'test.js',
+    },
+    plugins: [
+      new HtmlWebpackPlugin(),
+      new webpack.HotModuleReplacementPlugin(),
+    ],
+    module: {
+      rules: [
+        {
+          test: /.*spec\.jsx?$/,
           use: [
-            {
-              loader: nodeResolve('css-loader'),
-              options: { sourceMap: true }
-            },
-            {
-              loader: nodeResolve('less-loader'),
-              options: { sourceMap: true }
-            }
-          ]
-        })
-      }
-    ]
-  },
-  plugins: [
-    new ExtractTextPlugin({ filename: 'styles.[hash].css' })
-  ]
-})
+            nodeResolve('mocha-loader'),
+            path.resolve(__dirname, 'spec-loader.js'),
+            babelLoader(),
+          ],
+          exclude: /node_modules/,
+        },
+      ],
+    },
+  })
+
+const prod = (base, { main }) =>
+  merge.smart(base, {
+    mode: 'production',
+    devtool: 'source-map',
+    entry: [resolve(main)],
+    module: {
+      rules: [
+        {
+          test: /\.(css|less)$/,
+          loader: ExtractTextPlugin.extract({
+            fallback: nodeResolve('style-loader'),
+            use: [
+              {
+                loader: nodeResolve('css-loader'),
+                options: { sourceMap: true },
+              },
+              {
+                loader: nodeResolve('less-loader'),
+                options: { sourceMap: true },
+              },
+            ],
+          }),
+        },
+      ],
+    },
+    plugins: [new ExtractTextPlugin({ filename: 'styles.[hash].css' })],
+  })
 
 const devServer = ({ auth, target, publicPath }) => ({
   publicPath,
@@ -270,32 +269,29 @@ const devServer = ({ auth, target, publicPath }) => ({
   disableHostCheck: true,
   historyApiFallback: true,
   contentBase: resolve('src/main/resources/'),
-  proxy: [
-    '/admin',
-    '/search',
-    '/services',
-    '/webjars'
-  ].reduce((o, url) => {
+  proxy: ['/admin', '/search', '/services', '/webjars'].reduce((o, url) => {
     o[url] = {
       auth,
       target,
       ws: true,
       secure: false,
-      headers: { Origin: target }
+      headers: { Origin: target },
     }
     return o
-  }, {})
+  }, {}),
 })
 
-module.exports = (opts) => {
+module.exports = opts => {
   const { env = 'development', main, auth, proxy, publicPath } = opts
   const alias = Object.keys(opts.alias || {}).reduce((o, key) => {
     const [pkg, ...rest] = opts.alias[key].split('/')
 
     if (pkg === '.') {
-      const dirname = path.dirname(require.resolve(pkg + '/package.json', {
-        paths: [process.cwd()]
-      }))
+      const dirname = path.dirname(
+        require.resolve(pkg + '/package.json', {
+          paths: [process.cwd()],
+        })
+      )
       o[key] = path.join(dirname, ...rest)
     } else {
       o[key] = opts.alias[key]
@@ -306,13 +302,16 @@ module.exports = (opts) => {
 
   const b = {
     ...base({ env, alias }),
-    devServer: devServer({ auth, publicPath, target: proxy })
+    devServer: devServer({ auth, publicPath, target: proxy }),
   }
 
   switch (env) {
-    case 'production': return prod(b, { main })
-    case 'test': return test(b, { main })
+    case 'production':
+      return prod(b, { main })
+    case 'test':
+      return test(b, { main })
     case 'development':
-    default: return dev(b, { main })
+    default:
+      return dev(b, { main })
   }
 }

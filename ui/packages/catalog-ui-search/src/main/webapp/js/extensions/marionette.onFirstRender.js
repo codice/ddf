@@ -9,17 +9,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette');
+const Marionette = require('marionette')
 
-const render = Marionette.ItemView.prototype.render;
+const render = Marionette.ItemView.prototype.render
 /**
  * Overrides render to add a callback for onFirstRender.
  */
 Marionette.ItemView.prototype.render = function() {
-    const firstRender = this.isRendered !== true;
-    render.apply(this, arguments);
-    if (firstRender) {
-        this.triggerMethod('firstRender', this);
-    }
-    return this;
-};
+  const firstRender = this.isRendered !== true
+  render.apply(this, arguments)
+  if (firstRender) {
+    this.triggerMethod('firstRender', this)
+  }
+  return this
+}

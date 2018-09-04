@@ -9,47 +9,46 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import styled from '../../styles/styled-components';
-import { CustomElement } from '../../styles/mixins';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { CustomElement } from '../../styles/mixins'
 import WorkspaceItemContainer from '../../container/workspace-item-container'
 
 type Props = {
-    filterDropdown: React.ReactNode,
-    sortDropdown: React.ReactNode,
-    byDate: boolean;
-    workspaces: Backbone.Model[];
+  filterDropdown: React.ReactNode
+  sortDropdown: React.ReactNode
+  byDate: boolean
+  workspaces: Backbone.Model[]
 }
 
 const Root = styled.div`
-    ${CustomElement}
-    position: relative;
-    
-    .home-items-center {
-        max-width: 1200px;
-        margin: auto;
-        padding: 0px 100px;
-    }
+  ${CustomElement} position: relative;
 
-    .home-items-header {
-        font-size: ${props => props.theme.minimumFontSize};
-        font-weight: bolder;
-        line-height: ${props => props.theme.minimumButtonSize};
-    }
+  .home-items-center {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0px 100px;
+  }
 
-    .header-menu {
-        float: right;
-        text-align: center;
-    }
+  .home-items-header {
+    font-size: ${props => props.theme.minimumFontSize};
+    font-weight: bolder;
+    line-height: ${props => props.theme.minimumButtonSize};
+  }
 
-    .menu-button {
-        display: inline-block;
-        padding: 0px 10px;
-    }
+  .header-menu {
+    float: right;
+    text-align: center;
+  }
 
-    ${props => {
-        if (props.theme.screenBelow(props.theme.smallScreenSize)) {
-            return `
+  .menu-button {
+    display: inline-block;
+    padding: 0px 10px;
+  }
+
+  ${props => {
+    if (props.theme.screenBelow(props.theme.smallScreenSize)) {
+      return `
                 .home-items-center {
                     max-width: 100%;
                     padding: 0px 20px;
@@ -58,53 +57,49 @@ const Root = styled.div`
                     text-align: center;
                 }
             `
-        }
-    }}
+    }
+  }};
 `
 
 const WorkspaceItemRoot = styled.div`
-    width: 18rem;
-    overflow: hidden;
-    display: inline-block;
-    margin-bottom: ${props => props.theme.minimumSpacing};
-    margin-right: ${props => props.theme.largeSpacing};
+  width: 18rem;
+  overflow: hidden;
+  display: inline-block;
+  margin-bottom: ${props => props.theme.minimumSpacing};
+  margin-right: ${props => props.theme.largeSpacing};
 `
 
-const WorkspacesItems =  (props: Props) => {
-    return (
-        <Root>
-            <div className="home-items-center">
-                <div className="home-items-header clearfix">
-                    {
-                        props.byDate ? 
-                        <span className="header-hint by-date">
-                            Recent workspaces
-                        </span> : 
-                        <span className="header-hint by-title">
-                            Workspaces by title
-                        </span>
-                    }
-                    <div className="header-menu">
-                        <div className="menu-button home-items-filter">
-                            {props.filterDropdown}
-                        </div>
-                        <div className="menu-button home-items-display">
-                            {props.sortDropdown}
-                        </div>
-                    </div>
-                </div>
-                <div className="home-items-choices is-list is-inline has-list-highlighting">
-                    {props.workspaces.map((workspace) => {
-                        return <WorkspaceItemRoot key={workspace.id}>
-                            <WorkspaceItemContainer 
-                                workspace={workspace}
-                            />
-                        </WorkspaceItemRoot>
-                    })}
-                </div>
+const WorkspacesItems = (props: Props) => {
+  return (
+    <Root>
+      <div className="home-items-center">
+        <div className="home-items-header clearfix">
+          {props.byDate ? (
+            <span className="header-hint by-date">Recent workspaces</span>
+          ) : (
+            <span className="header-hint by-title">Workspaces by title</span>
+          )}
+          <div className="header-menu">
+            <div className="menu-button home-items-filter">
+              {props.filterDropdown}
             </div>
-        </Root>
-    )
+            <div className="menu-button home-items-display">
+              {props.sortDropdown}
+            </div>
+          </div>
+        </div>
+        <div className="home-items-choices is-list is-inline has-list-highlighting">
+          {props.workspaces.map(workspace => {
+            return (
+              <WorkspaceItemRoot key={workspace.id}>
+                <WorkspaceItemContainer workspace={workspace} />
+              </WorkspaceItemRoot>
+            )
+          })}
+        </div>
+      </div>
+    </Root>
+  )
 }
 
 export default WorkspacesItems

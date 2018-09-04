@@ -13,23 +13,25 @@
  *
  **/
 /*global require*/
-var Behaviors = require('./Behaviors');
-var Marionette = require('marionette');
+var Behaviors = require('./Behaviors')
+var Marionette = require('marionette')
 
-Behaviors.addBehavior('button', Marionette.Behavior.extend({
+Behaviors.addBehavior(
+  'button',
+  Marionette.Behavior.extend({
     modelEvents: {
-        'change:isEditing': 'onRender'
+      'change:isEditing': 'onRender',
     },
     events: {
-        'keydown': 'emulateClick',
-        'click': 'blur'
+      keydown: 'emulateClick',
+      click: 'blur',
     },
     emulateClick: function(e) {
-        if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.$el.mousedown().click();
-        }
+      if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
+        e.preventDefault()
+        e.stopPropagation()
+        this.$el.mousedown().click()
+      }
     },
     /*
         If there is such a thing as being in edit mode, make sure to only give a tabindex 
@@ -37,10 +39,11 @@ Behaviors.addBehavior('button', Marionette.Behavior.extend({
         when it is disabled (so to speak).
     */
     onRender: function() {
-        if (this.view.model.toJSON().isEditing === false) {
-            this.$el.removeAttr('tabindex');
-        } else {
-            this.$el.attr('tabindex', 0);
-        }
-    }
-}));
+      if (this.view.model.toJSON().isEditing === false) {
+        this.$el.removeAttr('tabindex')
+      } else {
+        this.$el.attr('tabindex', 0)
+      }
+    },
+  })
+)

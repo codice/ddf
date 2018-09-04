@@ -13,80 +13,84 @@
  *
  **/
 /*global define, require, module*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var $ = require('jquery');
-var template = require('./list-editor.hbs');
-var CustomElements = require('js/CustomElements');
-require('behaviors/button.behavior');
-var DropdownView = require('component/dropdown/dropdown.view');
-var PropertyView = require('component/property/property.view');
-var Property = require('component/property/property');
-var List = require('js/model/List');
-var DropdownView = require('component/dropdown/popout/dropdown.popout.view');
-var ListFilterView = require('component/result-filter/list/result-filter.list.view');
-const properties = require('properties');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var $ = require('jquery')
+var template = require('./list-editor.hbs')
+var CustomElements = require('js/CustomElements')
+require('behaviors/button.behavior')
+var DropdownView = require('component/dropdown/dropdown.view')
+var PropertyView = require('component/property/property.view')
+var Property = require('component/property/property')
+var List = require('js/model/List')
+var DropdownView = require('component/dropdown/popout/dropdown.popout.view')
+var ListFilterView = require('component/result-filter/list/result-filter.list.view')
+const properties = require('properties')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-editor'),
   template: template,
   events: {
     'click .editor-cancel': 'cancel',
-    'click .editor-save': 'save'
+    'click .editor-save': 'save',
   },
   regions: {
     listTitle: '.list-title',
     listTemplate: '.list-template',
     listCQLSwitch: '.list-limiting-switch',
     listCQL: '.list-limiting',
-    listIcon: '.list-icon'
+    listIcon: '.list-icon',
   },
   listTemplateId: 'custom',
   onBeforeShow: function() {
-    this.showListTitle();
-    this.showListTemplate();
-    this.showCQLSwitch();
-    this.showCQL();
-    this.showIcon();
-    this.edit();
+    this.showListTitle()
+    this.showListTemplate()
+    this.showCQLSwitch()
+    this.showCQL()
+    this.showIcon()
+    this.edit()
   },
   showListTitle: function() {
     this.listTitle.show(
       PropertyView.getPropertyView({
         label: 'Title',
         value: [this.model.get('title')],
-        type: 'TEXT'
+        type: 'TEXT',
       })
-    );
+    )
   },
   handleListTemplate() {
-    this.$el.toggleClass('is-template', this.listTemplateId !== 'custom');
+    this.$el.toggleClass('is-template', this.listTemplateId !== 'custom')
   },
   showListTemplate() {
     if (this.options.showListTemplates === true) {
       const propertyModel = new Property({
-          label: 'Template',
-          value: [this.listTemplateId],
-          enum: [{
+        label: 'Template',
+        value: [this.listTemplateId],
+        enum: [
+          {
             label: 'Custom',
-            value: 'custom'
-          }].concat(properties.listTemplates.map(template =>
-            ({
-              label: template.id,
-              value: template.id,
-              class: List.getIconMapping()[template['list.icon']]
-            })
-          )),
-          id: 'Template'
-      });
-      this.listTemplate.show(new PropertyView({
-          model: propertyModel
-      }));
-      this.listTemplate.currentView.turnOnEditing();
+            value: 'custom',
+          },
+        ].concat(
+          properties.listTemplates.map(template => ({
+            label: template.id,
+            value: template.id,
+            class: List.getIconMapping()[template['list.icon']],
+          }))
+        ),
+        id: 'Template',
+      })
+      this.listTemplate.show(
+        new PropertyView({
+          model: propertyModel,
+        })
+      )
+      this.listTemplate.currentView.turnOnEditing()
       this.listenTo(propertyModel, 'change:value', () => {
-        this.listTemplateId = propertyModel.getValue()[0];
-        this.handleListTemplate();
-      });
+        this.listTemplateId = propertyModel.getValue()[0]
+        this.handleListTemplate()
+      })
     }
   },
   showCQLSwitch: function() {
@@ -97,21 +101,25 @@ module.exports = Marionette.LayoutView.extend({
         radio: [
           {
             label: 'Yes',
-            value: true
+            value: true,
           },
           {
             label: 'No',
-            value: false
-          }
-        ]
+            value: false,
+          },
+        ],
       })
-    );
-    this.listenTo(this.listCQLSwitch.currentView.model, 'change:value', this.handleCQLSwitch);
-    this.handleCQLSwitch();
+    )
+    this.listenTo(
+      this.listCQLSwitch.currentView.model,
+      'change:value',
+      this.handleCQLSwitch
+    )
+    this.handleCQLSwitch()
   },
   handleCQLSwitch: function() {
-    var shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0];
-    this.$el.toggleClass('is-limited', shouldLimit);
+    var shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
+    this.$el.toggleClass('is-limited', shouldLimit)
   },
   showCQL: function() {
     this.listCQL.show(
@@ -119,68 +127,74 @@ module.exports = Marionette.LayoutView.extend({
         componentToShow: ListFilterView,
         defaultSelection: this.model.get('list.cql'),
         leftIcon: 'fa fa-pencil',
-        label: 'Edit Filter'
+        label: 'Edit Filter',
       })
-    );
+    )
   },
   showIcon: function() {
     this.listIcon.show(
       PropertyView.getPropertyView({
         label: 'Icon',
         value: [this.model.get('list.icon')],
-        enum: List.getIconMappingForSelect()
+        enum: List.getIconMappingForSelect(),
       })
-    );
+    )
   },
   edit: function() {
-    this.$el.addClass('is-editing');
+    this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
-        region.currentView.turnOnEditing();
+        region.currentView.turnOnEditing()
       }
-    });
-    var tabbable = _.filter(this.$el.find('[tabindex], input, button'), function(
-      element
-    ) {
-      return element.offsetParent !== null;
-    });
+    })
+    var tabbable = _.filter(
+      this.$el.find('[tabindex], input, button'),
+      function(element) {
+        return element.offsetParent !== null
+      }
+    )
     if (tabbable.length > 0) {
-      $(tabbable[0]).focus();
+      $(tabbable[0]).focus()
     }
   },
   cancel: function() {
-    this.$el.removeClass('is-editing');
-    this.onBeforeShow();
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+    this.$el.removeClass('is-editing')
+    this.onBeforeShow()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   saveIcon: function() {
-    const icon = this.listTemplateId === 'custom' ?
-      this.listIcon.currentView.model.getValue()[0] :
-      properties.listTemplates.filter((template) => template.id === this.listTemplateId)[0]['list.icon'];
-    this.model.set('list.icon', icon);
+    const icon =
+      this.listTemplateId === 'custom'
+        ? this.listIcon.currentView.model.getValue()[0]
+        : properties.listTemplates.filter(
+            template => template.id === this.listTemplateId
+          )[0]['list.icon']
+    this.model.set('list.icon', icon)
   },
   saveTitle: function() {
-    this.model.set('title', this.listTitle.currentView.model.getValue()[0]);
+    this.model.set('title', this.listTitle.currentView.model.getValue()[0])
   },
   saveCQL: function() {
-    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0];
-    let cql = '';
+    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
+    let cql = ''
     if (this.listTemplateId !== 'custom') {
-      cql = properties.listTemplates.filter((template) => template.id === this.listTemplateId)[0]['list.cql'];
+      cql = properties.listTemplates.filter(
+        template => template.id === this.listTemplateId
+      )[0]['list.cql']
     } else if (shouldLimit === true) {
-      cql = this.listCQL.currentView.model.getValue();
+      cql = this.listCQL.currentView.model.getValue()
     }
-    this.model.set('list.cql', cql);
+    this.model.set('list.cql', cql)
   },
   save: function() {
-    this.saveTitle();
-    this.saveIcon();
-    this.saveCQL();
-    this.cancel();
+    this.saveTitle()
+    this.saveIcon()
+    this.saveCQL()
+    this.cancel()
   },
   serializeData: function() {
     return this.model.toJSON({
-      additionalProperties: ['cid', 'color']
-    });
-  }
-});
+      additionalProperties: ['cid', 'color'],
+    })
+  },
+})

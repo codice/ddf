@@ -1,1 +1,1 @@
-export {default} from './cancel-drawing-container'
+export { default } from './cancel-drawing-container'

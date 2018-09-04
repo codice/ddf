@@ -34,58 +34,56 @@
     padding-bottom: 0;
   }
 
-    .property-value {
-      width: @query-annotations-width;
-      display: block;
-      vertical-align: top;
-      position: relative;
-      z-index: 1;
-    }
-
-    .property-label {
-      text-align: left;
-      font-size: @minimumFontSize;
-      width: @query-annotations-width;
-      margin-top: -@mediumSpacing;
-    }
-  }
-
-
-  ddf-property .property-label label {
-    text-align: left;
+  .property-value {
+    width: @query-annotations-width;
+    display: block;
     vertical-align: top;
-  }
-  .if-inline {
-    display: none;
-
-    ddf-property.is-editing.is-changed:not(.is-readOnly) .property-revert {
-      display: inline;
-    }
-
-    ddf-property .property-label {
-      width: 500px;
-    }
+    position: relative;
+    z-index: 1;
   }
 
-  .add-annotation-field {
-    .property-label {
-      text-align: left;
-      font-size: @minimumFontSize;
-      width: @query-annotations-width;
-      margin-top:0;
-    }
+  .property-label {
+    text-align: left;
+    font-size: @minimumFontSize;
+    width: @query-annotations-width;
+    margin-top: -@mediumSpacing;
   }
+}
+
+ddf-property .property-label label {
+  text-align: left;
+  vertical-align: top;
+}
+.if-inline {
+  display: none;
+
+  ddf-property.is-editing.is-changed:not(.is-readOnly) .property-revert {
+    display: inline;
+  }
+
+  ddf-property .property-label {
+    width: 500px;
+  }
+}
+
+.add-annotation-field {
+  .property-label {
+    text-align: left;
+    font-size: @minimumFontSize;
+    width: @query-annotations-width;
+    margin-top: 0;
+  }
+}
 
 @{customElementNamespace}query-annotations.has-no-annotations {
   .no-annotations {
     border-bottom: 1px solid rgba(255, 255, 255, @minimumOpacity);
     border-top: 1px solid rgba(255, 255, 255, @minimumOpacity);
     padding: @minimumSpacing;
-    text-align:center;
+    text-align: center;
     position: relative;
-    display:block;
+    display: block;
     margin: @minimumSpacing;
     width: @query-annotations-width;
   }
 }
-

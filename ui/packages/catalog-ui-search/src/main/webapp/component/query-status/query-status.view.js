@@ -14,20 +14,22 @@
  **/
 /*global require*/
 
-var Marionette = require('marionette');
-var template = require('./query-status.hbs');
-var CustomElements = require('js/CustomElements');
-var TableView = require('component/table/query-status/table-query-status.view');
+var Marionette = require('marionette')
+var template = require('./query-status.hbs')
+var CustomElements = require('js/CustomElements')
+var TableView = require('component/table/query-status/table-query-status.view')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('query-status'),
-    regions: {
-        table: '.table-container'
-    },
-    onBeforeShow: function(){
-        this.table.show(new TableView({
-            model: this.model
-        }));
-    }
-});
+  template: template,
+  tagName: CustomElements.register('query-status'),
+  regions: {
+    table: '.table-container',
+  },
+  onBeforeShow: function() {
+    this.table.show(
+      new TableView({
+        model: this.model,
+      })
+    )
+  },
+})
