@@ -29,8 +29,10 @@ import ddf.security.samlp.impl.RelayStates;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -191,9 +193,9 @@ public class IdpHandler implements AuthenticationHandler {
             IdpHandler.class.getResourceAsStream("/templates/soap.handlebars");
         InputStream soapfaultMessageStream =
             IdpHandler.class.getResourceAsStream("/templates/soapfault.handlebars")) {
-      postBindingTemplate = IOUtils.toString(postFormStream);
-      soapMessageTemplate = IOUtils.toString(soapMessageStream);
-      soapfaultMessageTemplate = IOUtils.toString(soapfaultMessageStream);
+      postBindingTemplate = IOUtils.toString(postFormStream, StandardCharsets.UTF_8);
+      soapMessageTemplate = IOUtils.toString(soapMessageStream, StandardCharsets.UTF_8);
+      soapfaultMessageTemplate = IOUtils.toString(soapfaultMessageStream, StandardCharsets.UTF_8);
     }
   }
 
@@ -552,11 +554,7 @@ public class IdpHandler implements AuthenticationHandler {
   }
 
   private String getSpIssuerId() {
-    return String.format(
-        "https://%s:%s%s/saml",
-        SystemBaseUrl.INTERNAL.getHost(),
-        SystemBaseUrl.INTERNAL.getHttpsPort(),
-        SystemBaseUrl.INTERNAL.getRootContext());
+    return SystemBaseUrl.EXTERNAL.constructUrl("/saml", true);
   }
 
   private String serializeAndSign(boolean isPost, boolean wantSigned, AuthnRequest authnRequest)
@@ -606,12 +604,23 @@ public class IdpHandler implements AuthenticationHandler {
     return URLEncoder.encode(RestSecurity.deflateAndBase64Encode(request), "UTF-8");
   }
 
-  private String encodePostRequest(String request) throws WSSecurityException, IOException {
+  private String encodePostRequest(String request) throws WSSecurityException {
     return Base64.getEncoder().encodeToString(request.getBytes(StandardCharsets.UTF_8));
   }
 
   private String recreateFullRequestUrl(HttpServletRequest request) {
     StringBuffer requestURL = request.getRequestURL();
+
+    try {
+      URL url = new URL(requestURL.toString());
+      if (url.getHost().equals(SystemBaseUrl.EXTERNAL.getHost())
+          && String.valueOf(url.getPort()).equals(SystemBaseUrl.EXTERNAL.getPort())) {
+        requestURL = new StringBuffer(SystemBaseUrl.EXTERNAL.constructUrl(request.getRequestURI()));
+      }
+    } catch (MalformedURLException e) {
+      LOGGER.debug("Unable to convert request URL to URL object.");
+    }
+
     String queryString = request.getQueryString();
 
     if (queryString == null) {
