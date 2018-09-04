@@ -37,8 +37,9 @@ require('behaviors/button.behavior')
 require('behaviors/dropdown.behavior')
 const HandleBarsHelpers = require('js/HandlebarsHelpers')
 const ResultLinkView = require('component/result-link/result-link.view')
+const plugin = require('plugins/result-item')
 
-module.exports = Marionette.LayoutView.extend({
+const ResultItemView = Marionette.LayoutView.extend({
   template(data) {
     return (
       <React.Fragment>
@@ -149,6 +150,7 @@ module.exports = Marionette.LayoutView.extend({
                 ''
               )}
             </div>
+            {this.getExtensions()}
             <div className="content-footer">
               <div className="result-validation">
                 {data.hasError ? (
@@ -203,6 +205,9 @@ module.exports = Marionette.LayoutView.extend({
         </div>
       </React.Fragment>
     )
+  },
+  getExtensions: function() {
+    return null
   },
   attributes: function() {
     return {
@@ -468,3 +473,5 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
 })
+
+module.exports = plugin(ResultItemView)
