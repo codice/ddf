@@ -28,7 +28,7 @@
         <solr.script.dir>
             ${project.build.directory}/solr/bin/
         </solr.script.dir>
-        <solr.port>9994</solr.port>
+        <solr.port>9784</solr.port>
     </properties>
     <dependencies>
         <!-- Pax Exam Karaf container dependencies -->
