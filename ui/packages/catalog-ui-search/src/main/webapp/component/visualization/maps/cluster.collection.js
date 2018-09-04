@@ -11,18 +11,16 @@
  **/
 /*global require*/
 
-var ClusterModel = require('./cluster')
-var Backbone = require('backbone')
+var ClusterModel = require('./cluster');
+var Backbone = require('backbone');
 
 var ClusterCollection = Backbone.Collection.extend({
-  model: ClusterModel,
-  isClustered: function(result) {
-    return Boolean(
-      this.find(function(cluster) {
-        return Boolean(cluster.get('results').get(result))
-      })
-    )
-  },
-})
+    model: ClusterModel,
+    isClustered: function(result){
+        return Boolean(this.find(function(cluster){
+            return Boolean(cluster.get('results').get(result));
+        }));
+    }
+});
 
-module.exports = ClusterCollection
+module.exports = ClusterCollection;

@@ -14,30 +14,32 @@
  **/
 /*global define*/
 define([
-  'marionette',
-  'text!templates/emptyView.handlebars',
-  'icanhaz',
-], function(Marionette, emptyViewTemplate, ich) {
-  ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
+    'marionette',
+    'text!templates/emptyView.handlebars',
+    'icanhaz'
+],
+function (Marionette, emptyViewTemplate, ich) {
 
-  var EmptyView = {}
+    ich.addTemplate('emptyViewTemplate', emptyViewTemplate);
 
-  EmptyView.view = Marionette.ItemView.extend({
-    template: 'emptyViewTemplate',
-    initialize: function(options) {
-      this.message = options.message
-    },
-    serializeData: function() {
-      return { message: this.message }
-    },
-  })
+    var EmptyView = {};
 
-  EmptyView.services = Marionette.ItemView.extend({
-    template: 'emptyViewTemplate',
-    serializeData: function() {
-      return { message: 'There are no services currently configured.' }
-    },
-  })
+    EmptyView.view = Marionette.ItemView.extend({
+        template: 'emptyViewTemplate',
+        initialize: function(options) {
+            this.message = options.message;
+        },
+        serializeData: function() {
+            return  {message: this.message};
+        }
+    });
 
-  return EmptyView
-})
+    EmptyView.services = Marionette.ItemView.extend({
+        template: 'emptyViewTemplate',
+        serializeData: function() {
+            return  {message: "There are no services currently configured."};
+        }
+    });
+
+    return EmptyView;
+});

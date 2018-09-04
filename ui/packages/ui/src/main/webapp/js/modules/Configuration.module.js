@@ -12,25 +12,33 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* jshint unused: false */
 /*global define*/
-define(['js/application', 'require'], function(Application, require) {
-  Application.App.module('Configurations', function(ServiceModule, App) {
-    require([
-      'js/controllers/ModuleDetail.controller',
-    ], function(ModuleDetailController) {
-      ServiceModule.addInitializer(function() {
-        ServiceModule.controllers = {}
-        ServiceModule.controllers.appDetailController = new ModuleDetailController(
-          {
-            regions: {
-              applications: App.configurations,
-            },
-          }
-        )
+define([
+    'js/application',
+    'require'
+],function(Application, require) {
 
-        // display main app home.
-        ServiceModule.controllers.appDetailController.show()
-      })
-    })
-  })
-})
+    Application.App.module('Configurations', function(ServiceModule, App) {
+
+        require([
+            'js/controllers/ModuleDetail.controller'
+        ], function(ModuleDetailController) {
+
+            ServiceModule.addInitializer(function(){
+
+                ServiceModule.controllers = {};
+                ServiceModule.controllers.appDetailController = new ModuleDetailController({
+                    regions: {
+                        applications: App.configurations
+                    }
+                });
+
+                // display main app home.
+                ServiceModule.controllers.appDetailController.show();
+            });
+        });
+
+
+    });
+});

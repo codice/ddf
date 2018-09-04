@@ -11,20 +11,21 @@
  **/
 /*global define*/
 define([
-  'underscore',
-  '../tabs',
-  'js/store',
-  'component/editor/metacards-basic/metacards-basic.view',
-  'component/metacard-archive/metacard-archive.view',
-], function(_, Tabs, store, MetacardsBasicView, MetacardArchiveView) {
-  var MetacardsTabs = Tabs.extend({
-    defaults: {
-      tabs: {
-        Details: MetacardsBasicView,
-        Archive: MetacardArchiveView,
-      },
-    },
-  })
+    'underscore',
+    '../tabs',
+    'js/store',
+    'component/editor/metacards-basic/metacards-basic.view',
+    'component/metacard-archive/metacard-archive.view'
+], function (_, Tabs, store, MetacardsBasicView, MetacardArchiveView) {
 
-  return MetacardsTabs
-})
+    var MetacardsTabs = Tabs.extend({
+        defaults: {
+            tabs: {
+                'Details': MetacardsBasicView,
+                'Archive': MetacardArchiveView
+            }
+        }
+    });
+
+    return MetacardsTabs;
+});

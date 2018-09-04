@@ -10,6 +10,9 @@
  *
  **/
 /*global define*/
-define(['js/model/Sources'], function(Sources) {
-  return new Sources()
-})
+define([
+    'js/model/Sources'
+], function (Sources) {
+
+    return new Sources();
+});

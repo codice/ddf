@@ -14,26 +14,24 @@
  **/
 /*global define*/
 define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.companion.view',
-  'js/CustomElements',
-], function(Marionette, _, $, DropdownCompanionView, CustomElements) {
-  var namespace = CustomElements.getNamespace()
+    'marionette',
+    'underscore',
+    'jquery',
+    '../dropdown.companion.view',
+    'js/CustomElements'
+], function (Marionette, _, $, DropdownCompanionView, CustomElements) {
 
-  return DropdownCompanionView.extend({
-    className: 'is-hint',
-    listenForOutsideClick: function() {
-      DropdownCompanionView.prototype.listenForOutsideClick.call(this)
-      $(namespace + 'help').on(
-        'mousedown.' + this.cid,
-        function(event) {
-          if (this.$el.find(event.target).length === 0) {
-            this.close()
-          }
-        }.bind(this)
-      )
-    },
-  })
-})
+    var namespace = CustomElements.getNamespace();
+
+    return DropdownCompanionView.extend({
+        className: 'is-hint',
+        listenForOutsideClick: function () {
+            DropdownCompanionView.prototype.listenForOutsideClick.call(this);
+            $(namespace+'help').on('mousedown.' + this.cid, function (event) {
+                if (this.$el.find(event.target).length === 0) {
+                    this.close();
+                }
+            }.bind(this));
+        }
+    });
+});

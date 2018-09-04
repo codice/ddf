@@ -12,305 +12,246 @@
 /*global define*/
 
 define([
-  'marionette',
-  'backbone',
-  'cesium',
-  'underscore',
-  'wreqr',
-  'js/widgets/cesium.bbox',
-  'maptype',
-  './notification.view',
-  '@turf/turf',
-  '@turf/circle',
-  './drawing.controller',
-  'js/DistanceUtils',
-], function(
-  Marionette,
-  Backbone,
-  Cesium,
-  _,
-  wreqr,
-  DrawBbox,
-  maptype,
-  NotificationView,
-  Turf,
-  TurfCircle,
-  DrawingController,
-  DistanceUtils
-) {
-  'use strict'
-  var DrawCircle = {}
+        'marionette',
+        'backbone',
+        'cesium',
+        'underscore',
+        'wreqr',
+        'js/widgets/cesium.bbox',
+        'maptype',
+        './notification.view',
+        '@turf/turf',
+        '@turf/circle',
+        './drawing.controller',
+        'js/DistanceUtils'
+    ],
+    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, Turf, TurfCircle, DrawingController, DistanceUtils) {
+        "use strict";
+        var DrawCircle = {};
 
-  DrawCircle.CircleModel = Backbone.Model.extend({
-    defaults: {
-      lat: undefined,
-      lon: undefined,
-      radius: undefined,
-    },
-  })
-  var defaultAttrs = ['lat', 'lon', 'radius']
-  DrawCircle.CircleView = Marionette.View.extend({
-    initialize: function() {
-      this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
-        this.options.map.scene.canvas
-      )
+        DrawCircle.CircleModel = Backbone.Model.extend({
+            defaults: {
+                lat: undefined,
+                lon: undefined,
+                radius: undefined
+            }
+        });
+        var defaultAttrs = ['lat', 'lon', 'radius'];
+        DrawCircle.CircleView = Marionette.View.extend({
+            initialize: function() {
+                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.options.map.scene.canvas);
 
-      this.listenTo(
-        this.model,
-        'change:lat change:lon change:radius change:radiusUnits',
-        this.updatePrimitive
-      )
-      this.updatePrimitive(this.model)
-    },
-    enableInput: function() {
-      var controller = this.options.map.scene.screenSpaceCameraController
-      controller.enableTranslate = true
-      controller.enableZoom = true
-      controller.enableRotate = true
-      controller.enableTilt = true
-      controller.enableLook = true
-    },
-    disableInput: function() {
-      var controller = this.options.map.scene.screenSpaceCameraController
-      controller.enableTranslate = false
-      controller.enableZoom = false
-      controller.enableRotate = false
-      controller.enableTilt = false
-      controller.enableLook = false
-    },
+                this.listenTo(this.model, 'change:lat change:lon change:radius change:radiusUnits', this.updatePrimitive);
+                this.updatePrimitive(this.model);
+            },
+            enableInput: function() {
+                var controller = this.options.map.scene.screenSpaceCameraController;
+                controller.enableTranslate = true;
+                controller.enableZoom = true;
+                controller.enableRotate = true;
+                controller.enableTilt = true;
+                controller.enableLook = true;
+            },
+            disableInput: function() {
+                var controller = this.options.map.scene.screenSpaceCameraController;
+                controller.enableTranslate = false;
+                controller.enableZoom = false;
+                controller.enableRotate = false;
+                controller.enableTilt = false;
+                controller.enableLook = false;
+            },
 
-    setCircleRadius: function(mn, mx) {
-      var startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
-          mn
-        ),
-        stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
-          mx
-        ),
-        radius = Math.abs(
-          Cesium.Cartesian3.distance(startCartographic, stopCart)
-        )
+            setCircleRadius: function(mn, mx) {
+                var startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(mn),
+                    stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(mx),
+                    radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart));
 
-      var modelProp = {
-        lat: ((mn.latitude * 180) / Math.PI).toFixed(14),
-        lon: ((mn.longitude * 180) / Math.PI).toFixed(14),
-        radius: DistanceUtils.getDistanceFromMeters(
-          radius,
-          this.model.get('radiusUnits')
-        ),
-      }
+                var modelProp = {
+                    lat: (mn.latitude * 180 / Math.PI).toFixed(14),
+                    lon: (mn.longitude * 180 / Math.PI).toFixed(14),
+                    radius: DistanceUtils.getDistanceFromMeters(radius, this.model.get('radiusUnits'))
 
-      this.model.set(modelProp)
-    },
+                };
 
-    isModelReset: function(modelProp) {
-      if (
-        _.every(defaultAttrs, function(val) {
-          return _.isUndefined(modelProp[val])
-        }) ||
-        _.isEmpty(modelProp)
-      ) {
-        return true
-      }
-      return false
-    },
+                this.model.set(modelProp);
 
-    updatePrimitive: function(model) {
-      var modelProp = model.toJSON()
-      if (this.isModelReset(modelProp)) {
-        this.options.map.scene.primitives.remove(this.primitive)
-        this.stopListening()
-        return
-      }
+            },
 
-      if (modelProp.radius === 0 || isNaN(modelProp.radius)) {
-        modelProp.radius = 1
-      }
+            isModelReset: function(modelProp) {
+                if (_.every(defaultAttrs, function(val) {
+                        return _.isUndefined(modelProp[val]);
+                    }) || _.isEmpty(modelProp)) {
+                    return true;
+                }
+                return false;
+            },
 
-      this.drawBorderedCircle(model)
-    },
-    drawBorderedCircle: function(model) {
-      // if model has been reset
+            updatePrimitive: function(model) {
+                var modelProp = model.toJSON();
+                if (this.isModelReset(modelProp)) {
+                    this.options.map.scene.primitives.remove(this.primitive);
+                    this.stopListening();
+                    return;
+                }
 
-      var modelProp = model.toJSON()
+                if (modelProp.radius === 0 || isNaN(modelProp.radius)) {
+                    modelProp.radius = 1;
+                }
 
-      // first destroy old one
-      if (this.primitive && !this.primitive.isDestroyed()) {
-        this.options.map.scene.primitives.remove(this.primitive)
-      }
+                this.drawBorderedCircle(model);
+            },
+            drawBorderedCircle: function(model) {
+                // if model has been reset
 
-      if (
-        this.isModelReset(modelProp) ||
-        modelProp.lat === undefined ||
-        modelProp.lon === undefined
-      ) {
-        return
-      }
+                var modelProp = model.toJSON();
 
-      var color = this.model.get('color')
+                // first destroy old one
+                if (this.primitive && !this.primitive.isDestroyed()) {
+                    this.options.map.scene.primitives.remove(this.primitive);
+                }
 
-      var centerPt = Turf.point([modelProp.lon, modelProp.lat])
-      var circleToCheck = new TurfCircle(
-        centerPt,
-        DistanceUtils.getDistanceInMeters(
-          modelProp.radius,
-          modelProp.radiusUnits
-        ),
-        64,
-        'meters'
-      )
+                if (this.isModelReset(modelProp) || modelProp.lat === undefined || modelProp.lon === undefined) {
+                    return;
+                }
 
-      this.primitive = new Cesium.PolylineCollection()
-      this.primitive.add({
-        width: 8,
-        material: Cesium.Material.fromType('PolylineOutline', {
-          color: color
-            ? Cesium.Color.fromCssColorString(color)
-            : Cesium.Color.KHAKI,
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 4,
-        }),
-        id: 'userDrawing',
-        positions: Cesium.Cartesian3.fromDegreesArray(
-          _.flatten(circleToCheck.geometry.coordinates)
-        ),
-      })
+                var color = this.model.get('color');
 
-      this.options.map.scene.primitives.add(this.primitive)
-    },
-    handleRegionStop: function() {
-      this.enableInput()
-      if (!this.mouseHandler.isDestroyed()) {
-        this.mouseHandler.destroy()
-      }
-      this.drawBorderedCircle(this.model)
-      this.stopListening(
-        this.model,
-        'change:lat change:lon change:radius',
-        this.updatePrimitive
-      )
-      this.listenTo(
-        this.model,
-        'change:lat change:lon change:radius',
-        this.drawBorderedCircle
-      )
-      this.model.trigger('EndExtent', this.model)
-      wreqr.vent.trigger('search:circledisplay', this.model)
-    },
-    handleRegionInter: function(movement) {
-      var cartesian = this.options.map.scene.camera.pickEllipsoid(
-          movement.endPosition,
-          this.options.map.scene.globe.ellipsoid
-        ),
-        cartographic
-      if (cartesian) {
-        cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
-          cartesian
-        )
-        this.setCircleRadius(this.click1, cartographic)
-      }
-    },
-    handleRegionStart: function(movement) {
-      var cartesian = this.options.map.scene.camera.pickEllipsoid(
-          movement.position,
-          this.options.map.scene.globe.ellipsoid
-        ),
-        that = this
-      if (cartesian) {
-        this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
-          cartesian
-        )
-        this.mouseHandler.setInputAction(function() {
-          that.handleRegionStop()
-        }, Cesium.ScreenSpaceEventType.LEFT_UP)
-        this.mouseHandler.setInputAction(function(movement) {
-          that.handleRegionInter(movement)
-        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-      }
-    },
-    start: function() {
-      this.disableInput()
+                var centerPt = Turf.point([modelProp.lon, modelProp.lat]);
+                var circleToCheck = new TurfCircle(centerPt, DistanceUtils.getDistanceInMeters(modelProp.radius, modelProp.radiusUnits), 64, 'meters');
 
-      var that = this
+                this.primitive = new Cesium.PolylineCollection();
+                this.primitive.add({
+                    width: 8,
+                    material: Cesium.Material.fromType('PolylineOutline', {
+                        color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 4
+                    }),
+                    id: 'userDrawing',
+                   positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(circleToCheck.geometry.coordinates))
+                });
 
-      // Now wait for start
-      this.mouseHandler.setInputAction(function(movement) {
-        that.handleRegionStart(movement)
-      }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
-    },
-    stop: function() {
-      this.stopListening()
-      this.enableInput()
-    },
+                this.options.map.scene.primitives.add(this.primitive);
+            },
+            handleRegionStop: function() {
+                this.enableInput();
+                if (!this.mouseHandler.isDestroyed()) {
+                    this.mouseHandler.destroy();
+                }
+                this.drawBorderedCircle(this.model);
+                this.stopListening(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
+                this.listenTo(this.model, 'change:lat change:lon change:radius', this.drawBorderedCircle);
+                this.model.trigger("EndExtent", this.model);
+                wreqr.vent.trigger('search:circledisplay', this.model);
+            },
+            handleRegionInter: function(movement) {
+                var cartesian = this.options.map.scene.camera.pickEllipsoid(movement.endPosition, this.options.map.scene.globe.ellipsoid),
+                    cartographic;
+                if (cartesian) {
+                    cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+                    this.setCircleRadius(this.click1, cartographic);
+                }
+            },
+            handleRegionStart: function(movement) {
+                var cartesian = this.options.map.scene.camera.pickEllipsoid(movement.position, this.options.map.scene.globe.ellipsoid),
+                    that = this;
+                if (cartesian) {
+                    this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+                    this.mouseHandler.setInputAction(function() {
+                        that.handleRegionStop();
+                    }, Cesium.ScreenSpaceEventType.LEFT_UP);
+                    this.mouseHandler.setInputAction(function(movement) {
+                        that.handleRegionInter(movement);
+                    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+                }
+            },
+            start: function() {
+                this.disableInput();
 
-    drawStop: function() {
-      this.enableInput()
-      this.mouseHandler.destroy()
-    },
+                var that = this;
 
-    destroyPrimitive: function() {
-      if (!this.mouseHandler.isDestroyed()) {
-        this.mouseHandler.destroy()
-      }
-      if (this.primitive && !this.primitive.isDestroyed()) {
-        this.options.map.scene.primitives.remove(this.primitive)
-      }
-    },
-    destroy: function() {
-      this.destroyPrimitive()
-      this.remove() // backbone cleanup.
-    },
-  })
+                // Now wait for start
+                this.mouseHandler.setInputAction(function(movement) {
+                    that.handleRegionStart(movement);
+                }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+            },
+            stop: function() {
+                this.stopListening();
+                this.enableInput();
+            },
 
-  DrawCircle.Controller = DrawingController.extend({
-    drawingType: 'circle',
-    show: function(model) {
-      if (this.enabled) {
-        var circleModel = model || new DrawCircle.CircleModel()
+            drawStop: function() {
+                this.enableInput();
+                this.mouseHandler.destroy();
+            },
 
-        var existingView = this.getViewForModel(model)
-        if (existingView) {
-          existingView.drawStop()
-          existingView.destroyPrimitive()
-          existingView.updatePrimitive(model)
-        } else {
-          var view = new DrawCircle.CircleView({
-            map: this.options.map,
-            model: circleModel,
-          })
-          view.updatePrimitive(model)
-          this.addView(view)
-        }
+            destroyPrimitive: function() {
+                if (!this.mouseHandler.isDestroyed()) {
+                    this.mouseHandler.destroy();
+                }
+                if (this.primitive && !this.primitive.isDestroyed()) {
+                    this.options.map.scene.primitives.remove(this.primitive);
+                }
+            },
+            destroy: function(){
+                this.destroyPrimitive();
+                this.remove(); // backbone cleanup.
+            }
 
-        return circleModel
-      }
-    },
-    draw: function(model) {
-      if (this.enabled) {
-        var circleModel = model || new DrawCircle.CircleModel()
-        var view = new DrawCircle.CircleView({
-          map: this.options.map,
-          model: circleModel,
-        })
 
-        var existingView = this.getViewForModel(model)
-        if (existingView) {
-          existingView.stop()
-          existingView.destroyPrimitive()
-          this.removeView(existingView)
-        }
-        view.start()
-        this.addView(view)
-        this.notificationView = new NotificationView({
-          el: this.options.notificationEl,
-        }).render()
-        this.listenToOnce(circleModel, 'EndExtent', function() {
-          this.notificationView.destroy()
-        })
+        });
 
-        return circleModel
-      }
-    },
-  })
+        DrawCircle.Controller = DrawingController.extend({
+            drawingType: 'circle',
+            show: function(model) {
+                if (this.enabled) {
+                    var circleModel = model || new DrawCircle.CircleModel();
 
-  return DrawCircle
-})
+                    var existingView = this.getViewForModel(model);
+                    if (existingView) {
+                        existingView.drawStop();
+                        existingView.destroyPrimitive();
+                        existingView.updatePrimitive(model);
+                    } else {
+                        var view = new DrawCircle.CircleView({
+                            map: this.options.map,
+                            model: circleModel
+                        });
+                        view.updatePrimitive(model);
+                        this.addView(view);
+                    }
+
+                    return circleModel;
+                }
+            },
+            draw: function(model) {
+                if (this.enabled) {
+                    var circleModel = model || new DrawCircle.CircleModel();
+                    var view = new DrawCircle.CircleView({
+                        map: this.options.map,
+                        model: circleModel
+                    });
+
+                    var existingView = this.getViewForModel(model);
+                    if (existingView) {
+                        existingView.stop();
+                        existingView.destroyPrimitive();
+                        this.removeView(existingView);
+                    }
+                    view.start();
+                    this.addView(view);
+                    this.notificationView = new NotificationView({
+                        el: this.options.notificationEl
+                    }).render();
+                    this.listenToOnce(circleModel, 'EndExtent', function() {
+                        this.notificationView.destroy();
+                    });
+
+                    return circleModel;
+                }
+            }
+        });
+
+
+        return DrawCircle;
+    });

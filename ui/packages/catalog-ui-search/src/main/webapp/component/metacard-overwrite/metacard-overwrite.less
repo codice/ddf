@@ -2,8 +2,7 @@
   overflow: auto;
   white-space: nowrap;
 
-  > div,
-  > button {
+  > div, > button {
     display: inline-block;
   }
 
@@ -79,7 +78,7 @@
   }
 
   .progress-bar {
-    z-index: 0;
+    z-index: 0;    
     top: 0px;
     left: 0px;
     position: absolute;
@@ -105,13 +104,16 @@
 }
 
 @{customElementNamespace}metacard-overwrite.show-progress {
+
   button.overwrite-confirm,
   .overwrite-progress {
     transform: translateX(-100%);
-  }
-}
+  } 
+
+} 
 
 @{customElementNamespace}metacard-overwrite.has-error {
+
   .overwrite-progress,
   .overwrite-error {
     transform: translateX(-300%);
@@ -119,8 +121,10 @@
 }
 
 @{customElementNamespace}metacard-overwrite.has-success {
+
   .overwrite-progress,
   .overwrite-success {
     transform: translateX(-200%);
   }
+
 }

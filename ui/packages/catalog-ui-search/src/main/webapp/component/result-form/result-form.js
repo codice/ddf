@@ -14,15 +14,17 @@
  **/
 /*global define,window*/
 
-define(['backbone', './result-form.collection'], function(
-  Backbone,
-  ResultFormCollection
-) {
-  let resultFormCollection = new ResultFormCollection()
+ define([
+     'backbone',
+     './result-form.collection'
+ ], function (Backbone, ResultFormCollection) {
+
+  let resultFormCollection = new ResultFormCollection();
   return new (Backbone.Model.extend({
-    initialize: function() {},
-    getResultCollection: function() {
-      return resultFormCollection
-    },
-  }))()
+      initialize: function () {
+      },
+      getResultCollection: function() {
+        return resultFormCollection;
+    }
+    }));
 })

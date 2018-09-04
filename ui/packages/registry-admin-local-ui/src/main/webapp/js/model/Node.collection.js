@@ -13,11 +13,16 @@
  *
  **/
 /*global define*/
-define(['backbone', './Node'], function(Backbone, Node) {
-  return Backbone.Collection.extend({
-    model: Node.Summary,
-    comparator: function(model) {
-      return model.get('name').toLowerCase()
-    },
-  })
-})
+/*jshint -W024*/
+define([
+    'backbone',
+    './Node'
+], function (Backbone, Node) {
+
+    return Backbone.Collection.extend({
+        model: Node.Summary,
+        comparator: function(model){
+            return model.get('name').toLowerCase();
+        }
+    });
+});

@@ -13,37 +13,39 @@
  *
  **/
 /*global define*/
-define(['marionette', 'js/models/InstallProfile', 'q'], function(
-  Marionette,
-  InstallProfile,
-  Q
-) {
-  var InstallMainController = Marionette.Controller.extend({
-    installProfiles: null,
+define([
+    'marionette',
+    'js/models/InstallProfile',
+    'q'
+    ],function(Marionette, InstallProfile, Q){
 
-    fetchInstallProfiles: function() {
-      var defer = Q.defer()
+    var InstallMainController = Marionette.Controller.extend({
 
-      if (this.installProfiles) {
-        defer.resolve(this.installProfiles)
-      } else {
-        this.installProfiles = new InstallProfile.Collection()
+        installProfiles: null,
 
-        this.installProfiles.fetch({
-          success: function(collection) {
-            defer.resolve(collection)
-          },
-          failure: function() {
-            defer.reject(
-              new Error('There was an error fetching the installation items.')
-            )
-          },
-        })
-      }
+        fetchInstallProfiles: function(){
 
-      return defer.promise
-    },
-  })
+            var defer = Q.defer();
 
-  return InstallMainController
-})
+            if(this.installProfiles){
+                defer.resolve(this.installProfiles);
+            } else {
+                this.installProfiles = new InstallProfile.Collection();
+
+                this.installProfiles.fetch({
+                    success: function(collection){
+                        defer.resolve(collection);
+                    },
+                    failure: function(){
+                        defer.reject(new Error("There was an error fetching the installation items."));
+                    }
+                });
+            }
+
+            return defer.promise;
+        }
+
+    });
+
+    return InstallMainController;
+});

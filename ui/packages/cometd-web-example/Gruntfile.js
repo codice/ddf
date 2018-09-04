@@ -12,7 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-module.exports = function(grunt) {
+module.exports = function (grunt) {
+
   grunt.initConfig({
     bower: {
       install: {
@@ -21,18 +22,13 @@ module.exports = function(grunt) {
           cleanTargetDir: false,
           layout: 'byComponent',
           copy: false,
-        },
-      },
+        }
+      }
     },
     watch: {
       all: {
-        files: [
-          'Gruntfile.js',
-          'src/main/webapp/**/*.html',
-          'src/main/webapp/**/*.js',
-          'src/main/webapp/**/*.css',
-        ],
-      },
+        files: ['Gruntfile.js', 'src/main/webapp/**/*.html', 'src/main/webapp/**/*.js', 'src/main/webapp/**/*.css']
+      }
     },
     connect: {
       server: {
@@ -40,21 +36,19 @@ module.exports = function(grunt) {
           base: 'src/main/webapp',
           port: 8000,
           hostname: '*',
-          livereload: true,
-        },
-      },
+          livereload: true
+        }
+      }
     },
-  })
+  });
 
-  grunt.loadNpmTasks('grunt-contrib-connect')
-  grunt.loadNpmTasks('grunt-contrib-watch')
-  grunt.loadNpmTasks('grunt-bower-task')
-  grunt.registerTask('build', ['bower:install'])
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-bower-task');
+  grunt.registerTask('build', ['bower:install']);
   grunt.registerTask('serve', 'launch webserver and watch tasks', [
-    'build',
-    'connect:server',
-    'watch',
-  ])
+    'build', 'connect:server', 'watch'
+  ]);
 
-  grunt.registerTask('default', ['serve'])
-}
+  grunt.registerTask('default', ['serve']);
+};

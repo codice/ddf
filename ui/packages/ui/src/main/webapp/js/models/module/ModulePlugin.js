@@ -13,33 +13,35 @@
  *
  **/
 /*global define*/
-define(['backbone', 'underscore'], function(Backbone, _) {
-  var ModulePlugin = {}
+define([
+    'backbone',
+    'underscore'
+],function (Backbone, _) {
 
-  ModulePlugin.Model = Backbone.Model.extend({})
 
-  ModulePlugin.Collection = Backbone.Collection.extend({
-    model: ModulePlugin.Model,
-    url:
-      './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForModule(java.lang.String)/',
-    fetchByModuleName: function(moduleName, options) {
-      var collection = this
+    var ModulePlugin = {};
 
-      var newOptions = _.extend(
-        {
-          url: collection.url + moduleName,
+    ModulePlugin.Model = Backbone.Model.extend({});
+
+    ModulePlugin.Collection = Backbone.Collection.extend({
+        model: ModulePlugin.Model,
+        url: './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForModule(java.lang.String)/',
+        fetchByModuleName: function(moduleName, options) {
+            var collection = this;
+
+            var newOptions = _.extend({
+                url: collection.url + moduleName
+            }, options);
+            return this.fetch(newOptions);
         },
-        options
-      )
-      return this.fetch(newOptions)
-    },
-    parse: function(resp) {
-      return resp.value
-    },
-    comparator: function(model) {
-      return model.get('order')
-    },
-  })
+        parse: function(resp){
+            return resp.value;
+        },
+        comparator: function(model){
+            return model.get("order");
+        }
+    });
 
-  return ModulePlugin
-})
+    return ModulePlugin;
+
+});

@@ -10,130 +10,122 @@
  *
  **/
 /* global define, require */
-define(['application', 'cometdinit', 'marionette', 'maptype'], function(
-  Application,
-  Cometd,
-  Marionette,
-  maptype
-) {
-  Application.App.module('MapModule', function(MapModule) {
-    var mapView
-    if (maptype.is3d()) {
-      var Map3d = Marionette.LayoutView.extend({
-        template: 'map',
-        className: 'height-full',
-        regions: {
-          mapDrawingPopup: '#mapDrawingPopup',
-        },
-        events: {
-          'click .cluster-results': 'toggleClustering',
-        },
-        onShow: function() {
-          var that = this
-          require([
-            'js/controllers/cesium.controller',
-            'js/widgets/cesium.bbox',
-            'js/widgets/cesium.circle',
-            'js/widgets/cesium.polygon',
-            'js/widgets/filter.cesium.geometry.group',
-          ], function(
-            GeoController,
-            DrawBbox,
-            DrawCircle,
-            DrawPolygon,
-            FilterCesiumGeometryGroup
-          ) {
-            var geoController = new GeoController()
+define(['application',
+        'cometdinit',
+        'marionette',
+        'maptype'
+    ],
+    function(Application, Cometd, Marionette, maptype) {
 
-            new FilterCesiumGeometryGroup.Controller({
-              geoController: geoController,
-            })
+        Application.App.module('MapModule', function(MapModule) {
 
-            new DrawBbox.Controller({
-              scene: geoController.scene,
-              notificationEl: mapView.mapDrawingPopup.el,
-            })
+            var mapView;
+            if (maptype.is3d()) {
+                var Map3d = Marionette.LayoutView.extend({
+                    template: 'map',
+                    className: 'height-full',
+                    regions: {
+                        mapDrawingPopup: '#mapDrawingPopup'
+                    },
+                    events: {
+                        'click .cluster-results': 'toggleClustering'
+                    },
+                    onShow: function() {
+                        var that = this;
+                        require(['js/controllers/cesium.controller',
+                            'js/widgets/cesium.bbox',
+                            'js/widgets/cesium.circle',
+                            'js/widgets/cesium.polygon',
+                            'js/widgets/filter.cesium.geometry.group'
+                        ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, FilterCesiumGeometryGroup) {
 
-            new DrawCircle.Controller({
-              scene: geoController.scene,
-              notificationEl: mapView.mapDrawingPopup.el,
-            })
+                            var geoController = new GeoController();
 
-            new DrawPolygon.Controller({
-              scene: geoController.scene,
-              notificationEl: mapView.mapDrawingPopup.el,
-              drawHelper: geoController.drawHelper,
-              geoController: geoController,
-            })
+                            new FilterCesiumGeometryGroup.Controller({
+                                geoController: geoController
+                            });
 
-            this.$('.cesium-viewer-toolbar').append(
-              "<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>"
-            )
-            that.geoController = geoController
-          })
-        },
-        toggleClustering: function() {
-          this.geoController.toggleClustering()
-        },
-      })
+                            new DrawBbox.Controller({
+                                scene: geoController.scene,
+                                notificationEl: mapView.mapDrawingPopup.el
+                            });
 
-      mapView = new Map3d()
-    } else if (maptype.is2d()) {
-      var Map2d = Marionette.LayoutView.extend({
-        template: 'map',
-        className: 'height-full',
-        regions: {
-          mapDrawingPopup: '#mapDrawingPopup',
-        },
-        onShow: function() {
-          require([
-            'js/controllers/openlayers.controller',
-            'js/widgets/openlayers.bbox',
-            'js/widgets/openlayers.polygon',
-            'js/widgets/filter.openlayers.geometry.group',
-          ], function(
-            GeoController,
-            DrawBbox,
-            DrawPolygon,
-            FilterCesiumGeometryGroup
-          ) {
-            var geoController = new GeoController()
+                            new DrawCircle.Controller({
+                                scene: geoController.scene,
+                                notificationEl: mapView.mapDrawingPopup.el
+                            });
 
-            new FilterCesiumGeometryGroup.Controller({
-              geoController: geoController,
-            })
+                            new DrawPolygon.Controller({
+                                scene: geoController.scene,
+                                notificationEl: mapView.mapDrawingPopup.el,
+                                drawHelper: geoController.drawHelper,
+                                geoController: geoController
+                            });
 
-            new DrawBbox.Controller({
-              map: geoController.mapViewer,
-              notificationEl: mapView.mapDrawingPopup.el,
-            })
+                            this.$('.cesium-viewer-toolbar').append("<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>");
+                            that.geoController = geoController;
+                        });
+                    },
+                    toggleClustering: function () {
+                        this.geoController.toggleClustering();
+                    }
+                });
 
-            new DrawPolygon.Controller({
-              map: geoController.mapViewer,
-              notificationEl: mapView.mapDrawingPopup.el,
-            })
-          })
-        },
-      })
+                mapView = new Map3d();
+            } else if (maptype.is2d()) {
+                var Map2d = Marionette.LayoutView.extend({
+                    template: 'map',
+                    className: 'height-full',
+                    regions: {
+                        mapDrawingPopup: '#mapDrawingPopup'
+                    },
+                    onShow: function() {
+                        require(['js/controllers/openlayers.controller',
+                            'js/widgets/openlayers.bbox',
+                            'js/widgets/openlayers.polygon',
+                            'js/widgets/filter.openlayers.geometry.group'
+                        ], function (GeoController, DrawBbox, DrawPolygon, FilterCesiumGeometryGroup) {
 
-      mapView = new Map2d()
-    }
-    if (mapView) {
-      var Controller = Marionette.Controller.extend({
-        initialize: function(options) {
-          this.region = options.region
-        },
+                            var geoController = new GeoController();
 
-        show: function() {
-          this.region.show(mapView)
-        },
-      })
-      MapModule.addInitializer(function() {
-        MapModule.contentController = new Controller({
-          region: Application.App.mapRegion,
-        })
-        MapModule.contentController.show()
-      })
-    }
-  })
-})
+                            new FilterCesiumGeometryGroup.Controller({
+                                geoController: geoController
+                            });
+
+                            new DrawBbox.Controller({
+                                map: geoController.mapViewer,
+                                notificationEl: mapView.mapDrawingPopup.el
+                            });
+
+                            new DrawPolygon.Controller({
+                                map: geoController.mapViewer,
+                                notificationEl: mapView.mapDrawingPopup.el
+                            });
+                        });
+                    }
+                });
+
+                mapView = new Map2d();
+            }
+            if (mapView) {
+                var Controller = Marionette.Controller.extend({
+
+                    initialize: function (options) {
+                        this.region = options.region;
+                    },
+
+                    show: function () {
+                        this.region.show(mapView);
+                    }
+
+                });
+                MapModule.addInitializer(function () {
+                    MapModule.contentController = new Controller({
+                        region: Application.App.mapRegion
+                    });
+                    MapModule.contentController.show();
+                });
+            }
+        });
+
+    });

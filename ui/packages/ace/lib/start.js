@@ -17,16 +17,11 @@ module.exports = ({ args, pkg }) => {
     env,
     proxy,
     publicPath,
-    auth:
-      args.auth ||
-      console.log(
-        chalk.yellow(
-          'WARNING: using default basic auth (admin:admin)! See options for how to override this.'
-        )
-      ) ||
+    auth: args.auth ||
+      console.log(chalk.yellow('WARNING: using default basic auth (admin:admin)! See options for how to override this.')) ||
       'admin:admin',
     main: pkg.main,
-    alias: pkg.alias,
+    alias: pkg.alias
   })
 
   const devServer = { host, port, ...config.devServer }
@@ -35,7 +30,7 @@ module.exports = ({ args, pkg }) => {
   const compiler = webpack(config)
   const server = new WebpackDevServer(compiler, devServer)
 
-  server.listen(port, host, err => {
+  server.listen(port, host, (err) => {
     if (err) {
       console.error(err)
       process.exit(1)

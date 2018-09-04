@@ -14,22 +14,23 @@
  **/
 /* global define */
 define([
-  'marionette',
-  './tab-content.view',
-  'js/wreqr.js',
-  'js/CustomElements',
-  'iframeresizer',
-], function(Marionette, TabContentView, wreqr, CustomElements) {
-  var PluginTabContentsView = Marionette.CollectionView.extend({
-    className: 'tab-content',
-    tagName: CustomElements.register('tab-content-collection'),
-    itemView: TabContentView,
-    itemViewOptions: function() {
-      return {
-        applicationModel: this.model,
-      }
-    },
-  })
+    'marionette',
+    './tab-content.view',
+    'js/wreqr.js',
+    'js/CustomElements',
+    'iframeresizer'
+    ],function (Marionette, TabContentView, wreqr, CustomElements) {
 
-  return PluginTabContentsView
-})
+    var PluginTabContentsView = Marionette.CollectionView.extend({
+        className: 'tab-content',
+        tagName: CustomElements.register('tab-content-collection'),
+        itemView: TabContentView,
+        itemViewOptions: function(){
+            return {
+                applicationModel: this.model
+            };
+        }
+    });
+
+    return PluginTabContentsView;
+});

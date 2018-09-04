@@ -10,32 +10,35 @@
  *
  **/
 /* global define */
-define([
-  'application',
-  'cometdinit',
-  'marionette',
-  'backbone',
-  'js/view/Menu.view',
-  'properties',
-], function(Application, Cometd, Marionette, Backbone, Menu, properties) {
-  Application.App.module('MenuModule', function(MenuModule) {
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+define(['application',
+        'cometdinit',
+        'marionette',
+        'backbone',
+        'js/view/Menu.view',
+        'properties'
+    ],
+    function(Application, Cometd, Marionette, Backbone, Menu, properties) {
 
-      show: function() {
-        this.region.show(
-          new Menu.Bar({ model: new Backbone.Model(properties) })
-        )
-      },
-    })
+        Application.App.module('MenuModule', function(MenuModule) {
 
-    MenuModule.addInitializer(function() {
-      MenuModule.contentController = new Controller({
-        region: Application.App.menuRegion,
-      })
-      MenuModule.contentController.show()
-    })
-  })
-})
+            var Controller = Marionette.Controller.extend({
+
+                initialize: function(options){
+                    this.region = options.region;
+                },
+
+                show: function(){
+                    this.region.show(new Menu.Bar({model: new Backbone.Model(properties)}));
+                }
+
+            });
+
+            MenuModule.addInitializer(function(){
+                MenuModule.contentController = new Controller({
+                    region: Application.App.menuRegion
+                });
+                MenuModule.contentController.show();
+            });
+        });
+
+});

@@ -13,19 +13,24 @@
  *
  **/
 /*global define*/
-define(['backbone'], function(Backbone) {
-  var SystemInformation = {}
+define([
+    'backbone'
+],function (Backbone) {
 
-  SystemInformation.Model = Backbone.Model.extend({
-    defaults: {
-      fetched: false,
-    },
-    url: './jolokia/read/java.lang:type=Runtime/',
-    parse: function(resp) {
-      resp.value.fetched = true
-      return resp.value
-    },
-  })
 
-  return SystemInformation
-})
+    var SystemInformation = {};
+
+    SystemInformation.Model = Backbone.Model.extend({
+        defaults: {
+            fetched: false
+        },
+        url: './jolokia/read/java.lang:type=Runtime/',
+        parse: function(resp){
+            resp.value.fetched = true;
+            return resp.value;
+        }
+    });
+
+    return SystemInformation;
+
+});

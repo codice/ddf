@@ -13,18 +13,19 @@
  *
  **/
 /*global define*/
-define(['backbone'], function(Backbone) {
-  var Status = {}
+define(['backbone'], 
+function (Backbone) {
 
-  Status.Model = Backbone.Model.extend({
-    url:
-      '../jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/',
-    model: Status.Model,
+    var Status = {};
 
-    initialize: function(pid) {
-      this.url += pid
-    },
-  })
+    Status.Model = Backbone.Model.extend({
+        url: "../jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/",
+            model: Status.Model,
 
-  return Status
-})
+            initialize: function(pid) {
+                this.url += pid;
+            }
+        });
+
+    return Status;
+});

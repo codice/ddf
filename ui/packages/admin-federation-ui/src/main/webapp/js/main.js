@@ -12,34 +12,36 @@
 /*global require, window */
 /*jslint nomen:false, -W064 */
 
-require('styles/styles.less')
+require('styles/styles.less');
 
-require(['jquery', 'backbone', 'js/application'], function(
-  $,
-  Backbone,
-  Application
-) {
-  var app = Application.App
-  // Once the application has been initialized (i.e. all initializers have completed), start up
-  // Backbone.history.
-  app.on('initialize:after', function() {
-    Backbone.history.start()
-  })
+require([
+    'jquery',
+    'backbone',
+    'js/application'
+], function ($, Backbone, Application) {
 
-  if (window) {
-    // make ddf object available on window.  Makes debugging in chrome console much easier
-    window.app = app
-    if (!window.console) {
-      window.console = {
-        log: function() {
-          // no op
-        },
-      }
+    var app = Application.App;
+    // Once the application has been initialized (i.e. all initializers have completed), start up
+    // Backbone.history.
+    app.on('initialize:after', function () {
+        Backbone.history.start();
+    });
+
+    if (window) {
+        // make ddf object available on window.  Makes debugging in chrome console much easier
+        window.app = app;
+        if (!window.console) {
+            window.console = {
+                log: function () {
+                    // no op
+                }
+            };
+        }
     }
-  }
 
-  // Actually start up the application.
-  app.start()
+    // Actually start up the application.
+    app.start();
 
-  require('js/module')
-})
+    require('js/module');
+});
+

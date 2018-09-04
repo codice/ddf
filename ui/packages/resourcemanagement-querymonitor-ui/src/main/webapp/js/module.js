@@ -15,43 +15,43 @@
 
 /*global define*/
 define([
-  'application',
-  'js/view/QueryMonitor.view.js',
-  'js/model/QueryMonitor.js',
-], function(Application, QueryMonitorView, QueryMonitor) {
-  Application.App.module('QueryMonitor', function(
-    SourceModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var queryMonitor = new QueryMonitor.MonitorModel()
+        'application',
+        'js/view/QueryMonitor.view.js',
+        'js/model/QueryMonitor.js'
+    ],
+    function(Application, QueryMonitorView, QueryMonitor) {
 
-    var queryMonitorPage = new QueryMonitorView.QueryMonitorPage({
-      model: queryMonitor,
-    })
+        Application.App.module('QueryMonitor', function(SourceModule, App, Backbone, Marionette)  {
 
-    // Define a controller to run this module
-    // --------------------------------------
+            var queryMonitor = new QueryMonitor.MonitorModel();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            var queryMonitorPage = new QueryMonitorView.QueryMonitorPage({model: queryMonitor});
 
-      show: function() {
-        this.region.show(queryMonitorPage)
-      },
-    })
+            // Define a controller to run this module
+            // --------------------------------------
 
-    // Initialize this module when the app starts
-    // ------------------------------------------
+            var Controller = Marionette.Controller.extend({
 
-    SourceModule.addInitializer(function() {
-      SourceModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      SourceModule.contentController.show()
-    })
-  })
-})
+                initialize: function(options){
+                    this.region = options.region;
+                },
+
+                show: function(){
+                    this.region.show(queryMonitorPage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            SourceModule.addInitializer(function(){
+                SourceModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                SourceModule.contentController.show();
+            });
+
+
+        });
+    });

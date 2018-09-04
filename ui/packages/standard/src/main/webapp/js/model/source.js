@@ -10,14 +10,19 @@
  *
  **/
 /*global define*/
-define(['backbone'], function(Backbone) {
-  'use strict'
+define([
+        'backbone'
+    ],
+    function (Backbone) {
+        "use strict";
 
-  return {
-    Collection: Backbone.Collection.extend({
-      url: './internal/catalog/sources',
-      useAjaxSync: true,
-    }),
-    Types: Backbone.Collection.extend({}),
-  }
-})
+        return  {
+            Collection: Backbone.Collection.extend({
+                url: "./internal/catalog/sources",
+                useAjaxSync: true
+            }),
+            Types: Backbone.Collection.extend({
+
+            })
+        };
+});

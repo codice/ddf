@@ -1,4 +1,5 @@
 @{customElementNamespace}tabs {
+
   .customElement;
   background: inherit;
   .tabs-list {
@@ -23,6 +24,7 @@
     }
 
     &.is-open {
+
       .tabs-collapsed {
         display: block;
         width: 100%;
@@ -53,6 +55,7 @@
     }
 
     .tabs-title {
+
       display: none;
 
       &.is-active.is-merged {
@@ -73,6 +76,7 @@
       }
 
       &.has-activeTab {
+
         opacity: 1;
         .is-bold();
         border-bottom: 1px solid;
@@ -116,18 +120,20 @@
 
   .tabs-content {
     margin-top: 1px;
-    height: ~'calc(100% - @{minimumButtonSize})';
+    height: ~"calc(100% - @{minimumButtonSize})";
     background: inherit;
 
     > * {
       margin-top: 1px;
     }
   }
+
 }
 
 .is-mobile-screen {
   @{customElementNamespace}tabs {
     .tabs-list {
+
       &.is-open {
         .tabs-dropdown {
           position: fixed;
@@ -147,4 +153,5 @@
       }
     }
   }
+
 }

@@ -10,18 +10,19 @@
  *
  **/
 /*global define*/
-const _ = require('underscore')
-const Tabs = require('../tabs')
-const store = require('js/store')
-const IngestView = require('component/ingest/ingest.view')
-const BuilderView = require('component/builder/builder.view')
+const _ = require('underscore');
+const Tabs = require('../tabs');
+const store = require('js/store');
+const IngestView = require('component/ingest/ingest.view');
+const BuilderView = require('component/builder/builder.view');
 
 module.exports = Tabs.extend({
-  defaults: {
-    tabs: {
-      Import: IngestView,
-      Manual: BuilderView,
+    defaults: {
+        tabs: {
+            'Import': IngestView,
+            'Manual': BuilderView
+        }
     },
-  },
-  initialize(options) {},
-})
+    initialize(options){
+    }
+});

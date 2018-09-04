@@ -14,20 +14,21 @@
  **/
 /*global define*/
 define([
-  'text!templates/emptyView.handlebars',
-  'marionette',
-  'icanhaz',
-], function(emptyViewTemplate, Marionette, ich) {
-  ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
+        'text!templates/emptyView.handlebars',
+        'marionette',
+        'icanhaz'
+        ],function (emptyViewTemplate, Marionette, ich) {
 
-  var EmptyView = {}
+    ich.addTemplate('emptyViewTemplate', emptyViewTemplate);
 
-  EmptyView.registries = Marionette.ItemView.extend({
-    template: 'emptyViewTemplate',
-    serializeData: function() {
-      return { message: 'There are no registries configured.' }
-    },
-  })
+    var EmptyView = {};
 
-  return EmptyView
-})
+    EmptyView.registries = Marionette.ItemView.extend({
+        template: 'emptyViewTemplate',
+        serializeData: function() {
+            return  {message: "There are no registries configured."};
+        }
+    });
+
+    return EmptyView;
+});

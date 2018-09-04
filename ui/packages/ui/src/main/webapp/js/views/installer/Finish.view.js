@@ -15,39 +15,41 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
-  'icanhaz',
-  'text!templates/installer/finish.handlebars',
-], function(Marionette, ich, finishTemplate) {
-  ich.addTemplate('finishTemplate', finishTemplate)
+    'marionette',
+    'icanhaz',
+    'text!templates/installer/finish.handlebars'
+    ],
+    function (Marionette, ich, finishTemplate) {
 
-  var ConfigurationView = Marionette.ItemView.extend({
-    template: 'finishTemplate',
-    tagName: 'div',
-    className: 'full-height',
-    initialize: function(options) {
-      this.navigationModel = options.navigationModel
-      this.listenTo(this.navigationModel, 'next', this.next)
-      this.listenTo(this.navigationModel, 'previous', this.previous)
-      this.model = this.navigationModel
-    },
-    onClose: function() {
-      this.stopListening(this.navigationModel)
-    },
-    next: function() {
-      this.showLoading()
-      //this is your hook to perform any validation you need to do before going to the next step
-      this.navigationModel.nextStep()
-    },
-    previous: function() {
-      //this is your hook to perform any teardown that must be done before going to the previous step
-      this.navigationModel.previousStep()
-    },
-    showLoading: function() {
-      this.$('.main-content').hide()
-      this.$('.loading-overlay').toggleClass('active', true)
-    },
-  })
+        ich.addTemplate('finishTemplate', finishTemplate);
 
-  return ConfigurationView
-})
+    var ConfigurationView = Marionette.ItemView.extend({
+        template: 'finishTemplate',
+        tagName: 'div',
+        className: 'full-height',
+        initialize: function(options) {
+            this.navigationModel = options.navigationModel;
+            this.listenTo(this.navigationModel,'next', this.next);
+            this.listenTo(this.navigationModel,'previous', this.previous);
+            this.model = this.navigationModel;
+        },
+        onClose: function() {
+            this.stopListening(this.navigationModel);
+        },
+        next: function() {
+            this.showLoading();
+            //this is your hook to perform any validation you need to do before going to the next step
+            this.navigationModel.nextStep();
+        },
+        previous: function() {
+            //this is your hook to perform any teardown that must be done before going to the previous step
+            this.navigationModel.previousStep();
+        },
+        showLoading: function(){
+            this.$('.main-content').hide();
+            this.$('.loading-overlay').toggleClass('active', true);
+        }
+    });
+
+    return ConfigurationView;
+});

@@ -12,113 +12,121 @@
 /*global require, window */
 /*jslint nomen:false, -W064 */
 
-;(function() {
-  'use strict'
+(function () {
+    'use strict';
 
-  require.config({
-    paths: {
-      bootstrap: '../../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-      q: '../../../webjars/q/1.4.1/q',
+    require.config({
 
-      // backbone
-      backbone: '../../../webjars/backbone/1.1.2/backbone',
-      backboneassociation:
-        '../../../webjars/backbone-associations/0.6.2/backbone-associations-min',
-      underscore: '../../../webjars/underscore/1.8.3/underscore-min',
-      marionette:
-        '../../../webjars/marionette/1.8.8/lib/backbone.marionette.min',
-      modelbinder:
-        '../../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
-      poller: '../../../webjars/backbone-poller/1.1.3/backbone.poller',
+        paths: {
 
-      // jquery
-      jquery: '../../../webjars/jquery/3.2.1/dist/jquery.min',
-      jqueryui: '../../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+            bootstrap: '../../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+            q: '../../../webjars/q/1.4.1/q',
 
-      // handlebars
-      handlebars: '../../../webjars/handlebars/4.0.10/handlebars.min',
-      icanhaz: 'js/ich',
+            // backbone
+            backbone: '../../../webjars/backbone/1.1.2/backbone',
+            backboneassociation: '../../../webjars/backbone-associations/0.6.2/backbone-associations-min',
+            underscore: '../../../webjars/underscore/1.8.3/underscore-min',
+            marionette: '../../../webjars/marionette/1.8.8/lib/backbone.marionette.min',
+            modelbinder: '../../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+            poller: '../../../webjars/backbone-poller/1.1.3/backbone.poller',
 
-      // require plugins
-      text: '../../../webjars/requirejs-plugins/1.0.3/lib/text',
-    },
+            // jquery
+            jquery: '../../../webjars/jquery/3.2.1/dist/jquery.min',
+            jqueryui: '../../../webjars/jquery-ui/1.12.1/jquery-ui.min',
 
-    shim: {
-      backbone: {
-        deps: ['underscore', 'jquery'],
-        exports: 'Backbone',
-      },
-      modelbinder: {
-        deps: ['underscore', 'jquery', 'backbone'],
-      },
-      collectionbinder: {
-        deps: ['modelbinder'],
-      },
-      poller: {
-        deps: ['underscore', 'backbone'],
-      },
-      backbonerelational: ['backbone'],
-      backboneassociation: ['backbone'],
-      marionette: {
-        deps: ['jquery', 'underscore', 'backbone'],
-        exports: 'Marionette',
-      },
-      underscore: {
-        exports: '_',
-      },
-      handlebars: {
-        exports: 'Handlebars',
-      },
-      icanhaz: {
-        deps: ['handlebars', 'jquery'],
-        exports: 'ich',
-      },
+            // handlebars
+            handlebars: '../../../webjars/handlebars/4.0.10/handlebars.min',
+            icanhaz: 'js/ich',
 
-      perfectscrollbar: ['jquery'],
+            // require plugins
+            text: '../../../webjars/requirejs-plugins/1.0.3/lib/text'
+        },
 
-      multiselect: ['jquery'],
 
-      jqueryui: ['jquery'],
-      bootstrap: ['jqueryui'],
-    },
+        shim: {
 
-    waitSeconds: 200,
-  })
+            backbone: {
+                deps: ['underscore', 'jquery'],
+                exports: 'Backbone'
+            },
+            modelbinder: {
+                deps: ['underscore', 'jquery', 'backbone']
+            },
+            collectionbinder: {
+                deps: ['modelbinder']
+            },
+            poller: {
+                deps: ['underscore', 'backbone']
+            },
+            backbonerelational: ['backbone'],
+            backboneassociation: ['backbone'],
+            marionette: {
+                deps: ['jquery', 'underscore', 'backbone'],
+                exports: 'Marionette'
+            },
+            underscore: {
+                exports: '_'
+            },
+            handlebars: {
+                exports: 'Handlebars'
+            },
+            icanhaz: {
+                deps: ['handlebars', 'jquery'],
+                exports: 'ich'
+            },
 
-  require([
-    'jquery',
-    'backbone',
-    'marionette',
-    'icanhaz',
-    'js/application',
-    'js/HandlebarsHelpers',
-    'modelbinder',
-    'bootstrap',
-  ], function($, Backbone, Marionette, ich, Application) {
-    var app = Application.App
-    // Once the application has been initialized (i.e. all initializers have completed), start up
-    // Backbone.history.
-    app.on('initialize:after', function() {
-      Backbone.history.start()
-      //bootstrap call for tabs
-      $('tabs').tab()
-    })
+            perfectscrollbar: ['jquery'],
 
-    if (window) {
-      // make ddf object available on window.  Makes debugging in chrome console much easier
-      window.app = app
-      if (!window.console) {
-        window.console = {
-          log: function() {
-            // no op
-          },
+            multiselect: ['jquery'],
+
+            jqueryui: ['jquery'],
+            bootstrap: ['jqueryui']
+
+        },
+
+        waitSeconds: 200
+    });
+
+
+    require([
+        'jquery',
+        'backbone',
+        'marionette',
+        'icanhaz',
+        'js/application',
+        'js/HandlebarsHelpers',
+        'modelbinder',
+        'bootstrap'
+    ], function ($, Backbone, Marionette, ich, Application) {
+
+
+        var app = Application.App;
+        // Once the application has been initialized (i.e. all initializers have completed), start up
+        // Backbone.history.
+        app.on('initialize:after', function () {
+            Backbone.history.start();
+            //bootstrap call for tabs
+            $('tabs').tab();
+        });
+
+        if (window) {
+            // make ddf object available on window.  Makes debugging in chrome console much easier
+            window.app = app;
+            if (!window.console) {
+                window.console = {
+                    log: function () {
+                        // no op
+                    }
+                };
+            }
         }
-      }
-    }
 
-    // Actually start up the application.
-    app.start()
+        // Actually start up the application.
+        app.start();
 
-    require(['js/module'], function() {})
-  })
-})()
+        require(['js/module'], function () {
+
+        });
+
+    });
+}());

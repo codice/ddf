@@ -11,71 +11,73 @@
  **/
 /*global define, window,decodeURI*/
 define([
-  'marionette',
-  'icanhaz',
-  'underscore',
-  'text!templates/login.handlebars',
-  'jquery',
-  'purl',
-], function(Marionette, ich, _, loginTemplate, $) {
-  ich.addTemplate('loginTemplate', loginTemplate)
+    'marionette',
+    'icanhaz',
+    'underscore',
+    'text!templates/login.handlebars',
+    'jquery',
+    'purl'
+], function (Marionette, ich, _, loginTemplate, $) {
 
-  var Login = {}
+    ich.addTemplate('loginTemplate', loginTemplate);
 
-  Login.LoginForm = Marionette.ItemView.extend({
-    template: 'loginTemplate',
-    events: {
-      'click .btn-signin': 'logInUser',
-      'click .btn-clear': 'clearFields',
-      'keypress #username': 'logInEnter',
-      'keypress #password': 'logInEnter',
-    },
-    logInEnter: function(e) {
-      if (e.keyCode === 13) {
-        this.logInUser()
-      }
-    },
-    logInUser: function() {
-      var view = this
+    var Login = {};
 
-      var prevUrl = decodeURI($.url().param('prevurl'))
-
-      $.ajax({
-        type: 'POST',
-        url: '../services/login',
-        data: {
-          username: view.$('#username').val(),
-          password: view.$('#password').val(),
-          prevurl: prevUrl,
+    Login.LoginForm = Marionette.ItemView.extend({
+        template: 'loginTemplate',
+        events: {
+            'click .btn-signin': 'logInUser',
+            'click .btn-clear': 'clearFields',
+            'keypress #username': 'logInEnter',
+            'keypress #password': 'logInEnter'
         },
-        async: false,
-        error: function() {
-          view.showErrorText()
-          view.setErrorState()
+        logInEnter: function (e) {
+            if (e.keyCode === 13) {
+                this.logInUser();
+            }
         },
-        success: function() {
-          if (!_.isUndefined(prevUrl) && prevUrl !== 'undefined') {
-            window.location.href = prevUrl
-          } else {
-            window.location.href = window.location.origin
-          }
-        },
-      })
-    },
-    showErrorText: function() {
-      this.$('#loginError').show()
-    },
-    setErrorState: function() {
-      this.$('#password').focus(function() {
-        this.select()
-      })
-    },
-    clearFields: function() {
-      this.$('#username').val('')
-      this.$('#password').val('')
-      this.$('#loginError').hide()
-    },
-  })
+        logInUser: function () {
+            var view = this;
 
-  return Login
-})
+            var prevUrl = decodeURI($.url().param('prevurl'));
+
+            $.ajax({
+                type: "POST",
+                url: "../services/login",
+                data: {
+                    "username": view.$('#username').val(),
+                    "password": view.$('#password').val(),
+                    "prevurl": prevUrl
+                },
+                async: false,
+                error: function () {
+                    view.showErrorText();
+                    view.setErrorState();
+                },
+                success: function () {
+                    if (!_.isUndefined(prevUrl) && prevUrl !== 'undefined') {
+                        window.location.href = prevUrl;
+                    } else {
+                        window.location.href = window.location.origin;
+                    }
+                }
+            });
+        },
+        showErrorText: function () {
+            this.$('#loginError').show();
+        },
+        setErrorState: function () {
+            this.$('#password').focus(function () {
+                    this.select();
+                }
+            );
+        },
+        clearFields: function () {
+            this.$('#username').val('');
+            this.$('#password').val('');
+            this.$('#loginError').hide();
+        }
+    });
+
+    return Login;
+});

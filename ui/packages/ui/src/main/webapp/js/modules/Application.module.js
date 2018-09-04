@@ -12,37 +12,47 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* jshint unused: false */
 /*global define*/
-define(['js/application', 'require'], function(Application, require) {
-  Application.App.module('Applications', function(ApplicationModule, App) {
-    require([
-      'js/controllers/App.controller',
-      'js/controllers/AppDetail.controller',
-    ], function(AppController, AppDetailController) {
-      // Define a controller to run this module
-      // --------------------------------------
+define([
+    'js/application',
+    'require'
+    ],function(Application, require) {
 
-      // Initialize this module when the app starts
-      // ------------------------------------------
 
-      ApplicationModule.addInitializer(function() {
-        ApplicationModule.controllers = {}
-        ApplicationModule.controllers.appController = new AppController({
-          regions: {
-            applications: App.applications,
-          },
-        })
-        ApplicationModule.controllers.appDetailController = new AppDetailController(
-          {
-            regions: {
-              applications: App.applications,
-            },
-          }
-        )
+    Application.App.module('Applications', function(ApplicationModule, App) {
 
-        // display main app home.
-        ApplicationModule.controllers.appController.show()
-      })
-    })
-  })
-})
+        require([
+                'js/controllers/App.controller',
+                'js/controllers/AppDetail.controller'
+            ], function(AppController, AppDetailController) {
+
+            // Define a controller to run this module
+            // --------------------------------------
+
+
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            ApplicationModule.addInitializer(function(){
+
+
+                ApplicationModule.controllers = {};
+                ApplicationModule.controllers.appController = new AppController({
+                    regions: {
+                        applications: App.applications
+                    }
+                });
+                ApplicationModule.controllers.appDetailController = new AppDetailController({
+                    regions: {
+                        applications: App.applications
+                    }
+                });
+
+                // display main app home.
+                ApplicationModule.controllers.appController.show();
+            });
+        });
+    });
+});

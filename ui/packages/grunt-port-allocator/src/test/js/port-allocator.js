@@ -1,55 +1,66 @@
-var net = require('net')
+var net = require('net');
 
-var tap = require('tap')
-var allocator = require('../../main/js/lib/port-allocator.js')
+var tap = require('tap');
+var allocator = require('../../main/js/lib/port-allocator.js');
 
-tap.test('single port allocation', function(t) {
-  t.plan(2)
+tap.test('single port allocation', function (t) {
 
-  allocator(function(err, ports) {
-    t.notOk(err)
-    t.ok(ports, 'get the array of ports')
-  })
-})
+  t.plan(2);
 
-tap.test('try binding to alocated port', function(t) {
-  t.plan(2)
+  allocator(function (err, ports) {
+    t.notOk(err);
+    t.ok(ports, 'get the array of ports');
+  });
 
-  allocator(function(err, ports) {
-    t.notOk(err)
+});
 
-    var s = net.createServer()
+tap.test('try binding to alocated port', function (t) {
 
-    s.on('error', function() {
-      t.fail('could not bind to allocated port')
-    })
+  t.plan(2);
 
-    s.on('listening', function() {
-      t.pass('seems legit')
-    })
+  allocator(function (err, ports) {
 
-    s.listen(ports[0])
-  })
-})
+    t.notOk(err);
+
+    var s = net.createServer();
+
+    s.on('error', function () {
+      t.fail('could not bind to allocated port');
+    });
+
+    s.on('listening', function () {
+      t.pass('seems legit');
+    });
+
+    s.listen(ports[0]);
+  });
+
+});
 
 // the ports bound in the test will be effected by the previous
 // tests since the allocator keeps the inital port bound
-tap.test('multiple port allocation', function(t) {
-  t.plan(3)
+tap.test('multiple port allocation', function (t) {
 
-  allocator(function(err, a) {
-    t.notOk(err)
-    allocator(function(err, b) {
-      t.notOk(err)
+  t.plan(3);
 
-      t.notSame(a, b)
-    })
-  })
-})
+  allocator(function (err, a) {
+
+    t.notOk(err);
+    allocator(function (err, b) {
+      t.notOk(err);
+
+      t.notSame(a, b);
+    });
+
+  });
+
+});
 
 // need to kill process because it won't exit because of all the
 // bound ports
-tap.test('kill', function(t) {
-  t.end()
-  process.exit()
-})
+tap.test('kill', function (t) {
+
+  t.end();
+  process.exit();
+
+});

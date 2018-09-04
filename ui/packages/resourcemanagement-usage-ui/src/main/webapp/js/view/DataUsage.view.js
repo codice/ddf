@@ -11,232 +11,187 @@
  **/
 /*global define*/
 define([
-  'jquery',
-  'backbone',
-  'underscore',
-  'backbone.marionette',
-  'handlebars',
-  'icanhaz',
-  'text!templates/dataUsagePage.handlebars',
-  'text!templates/dataUsageTable.handlebars',
-  'text!templates/dataUsageControl.handlebars',
-], function(
-  $,
-  Backbone,
-  _,
-  Marionette,
-  Handlebars,
-  ich,
-  userDataPage,
-  userDataTable,
-  userPageControl
-) {
-  var DataUsageView = {}
+        'jquery',
+        'backbone',
+        'underscore',
+        'backbone.marionette',
+        'handlebars',
+        'icanhaz',
+        'text!templates/dataUsagePage.handlebars',
+        'text!templates/dataUsageTable.handlebars',
+        'text!templates/dataUsageControl.handlebars'
+    ],
+    function ($, Backbone, _, Marionette, Handlebars, ich, userDataPage, userDataTable, userPageControl) {
 
-  ich.addTemplate('userDataPage', userDataPage)
-  ich.addTemplate('userDataTable', userDataTable)
-  ich.addTemplate('userPageControl', userPageControl)
+        var DataUsageView = {};
 
-  DataUsageView.UsagePage = Marionette.LayoutView.extend({
-    template: 'userDataPage',
-    regions: {
-      usageTable: '.user-data-table',
-      control: '.page-control',
-    },
-    initialize: function() {
-      _.bindAll.apply(_, [this].concat(_.functions(this)))
-    },
-    onRender: function() {
-      this.usageTable.show(new DataUsageView.UsageTable({ model: this.model }))
-      this.control.show(new DataUsageView.PageControl({ model: this.model }))
-    },
-  })
+        ich.addTemplate('userDataPage', userDataPage);
+        ich.addTemplate('userDataTable', userDataTable);
+        ich.addTemplate('userPageControl', userPageControl);
 
-  DataUsageView.UsageTable = Marionette.CompositeView.extend({
-    template: 'userDataTable',
-    tagName: 'table',
-    className: 'table table-striped table-bordered table-hover table-condensed',
-    events: {
-      'change .data-limit-td': 'contentChanged',
-    },
-    contentChanged: function(e) {
-      var dataSize = $(e.target)
-        .parent()
-        .find('select')
-        .find(':selected')
-        .text()
-      var inputValue = $(e.target)
-        .parent()
-        .find('input')
-        .val()
-      var user = $(e.target)
-        .parent()
-        .find('input')
-        .attr('name')
+        DataUsageView.UsagePage = Marionette.LayoutView.extend({
+            template: 'userDataPage',
+            regions: {
+                usageTable: '.user-data-table',
+                control: '.page-control'
+            },
+            initialize : function () {
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
+            },
+            onRender: function () {
+                this.usageTable.show(new DataUsageView.UsageTable({model : this.model}));
+                this.control.show(new DataUsageView.PageControl({model : this.model}));
+            }
+        });
 
-      if (this.model.isLimitChanged(user, inputValue, dataSize)) {
-        $(e.target).addClass('notify')
-      } else {
-        $(e.target).removeClass('notify')
-      }
-    },
-    initialize: function() {
-      _.bindAll.apply(_, [this].concat(_.functions(this)))
-      this.listenTo(this.model, 'change:users', this.render)
-    },
-  })
+        DataUsageView.UsageTable = Marionette.CompositeView.extend({
+            template: 'userDataTable',
+            tagName : 'table',
+            className : 'table table-striped table-bordered table-hover table-condensed',
+            events : {
+                'change .data-limit-td' : 'contentChanged',
 
-  DataUsageView.PageControl = Marionette.LayoutView.extend({
-    template: 'userPageControl',
-    events: {
-      'click .save': 'updateUsers',
-      'click .refresh': 'refreshUsers',
-      'change .data-limit-all': 'notifyAllData',
-      'change .input-time': 'notifyTimeChange',
-    },
-    initialize: function() {
-      _.bindAll.apply(_, [this].concat(_.functions(this)))
-      this.listenTo(this.model, 'change:saving', this.render)
-      this.listenTo(this.model, 'change:cronTime', this.render)
-      this.listenTo(this.model, 'change:monitorLocalSources', this.render)
-    },
-    onRender: function() {
-      this.setupPopOver(
-        '[data-toggle="update-all-popover"]',
-        'Updates the data limit for all users in the table. This value overrides all individual user limits. ' +
-          '[-1] indicates unlimited data usage. [0] indicates data usage is prohibited.'
-      )
-      this.setupPopOver(
-        '[data-toggle="cron-time-popover"]',
-        'Sets the time for the Data Usage for each user to reset. The system must be restarted for this new time to take effect.'
-      )
-      this.setupPopOver(
-        '[data-toggle="monitor-local-sources"]',
-        'When checked, the Data Usage Plugin will also consider data usage from local sources.'
-      )
-    },
-    updateUsers: function() {
-      var userData = this.model.get('users')
-      var data = {}
-      var updateAllUsers = $('.data-limit-all').val()
-      var allDataSize = $('.data-size-all')
-        .find(':selected')
-        .text()
-      var dataAllUsersByteLimit
+            },
+            contentChanged : function(e) {
+                var dataSize = $(e.target).parent().find('select').find(':selected').text();
+                var inputValue = $(e.target).parent().find('input').val();
+                var user = $(e.target).parent().find('input').attr('name');
 
-      if (allDataSize === 'GB') {
-        dataAllUsersByteLimit = this.getToBytes(
-          parseFloat(updateAllUsers),
-          allDataSize
-        )
-      } else {
-        dataAllUsersByteLimit = this.getToBytes(
-          parseInt(updateAllUsers),
-          allDataSize
-        )
-      }
+                if(this.model.isLimitChanged(user, inputValue, dataSize)) {
+                    $(e.target).addClass('notify');
+                } else {
+                    $(e.target).removeClass('notify');
+                }
+            },
+            initialize : function () {
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
+               this.listenTo(this.model, 'change:users', this.render);
+            }
+        });
 
-      var that = this
+        DataUsageView.PageControl = Marionette.LayoutView.extend({
+            template: 'userPageControl',
+            events: {
+                'click .save' : 'updateUsers',
+                'click .refresh' : 'refreshUsers',
+                'change .data-limit-all' : 'notifyAllData',
+                'change .input-time' : 'notifyTimeChange'
+            },
+            initialize : function () {
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
+               this.listenTo(this.model, 'change:saving', this.render);
+               this.listenTo(this.model, 'change:cronTime', this.render);
+               this.listenTo(this.model, 'change:monitorLocalSources', this.render);
+            },
+            onRender : function() {
+               this.setupPopOver('[data-toggle="update-all-popover"]',
+                 "Updates the data limit for all users in the table. This value overrides all individual user limits. " +
+                 "[-1] indicates unlimited data usage. [0] indicates data usage is prohibited.");
+               this.setupPopOver('[data-toggle="cron-time-popover"]', 'Sets the time for the Data Usage for each user to reset. The system must be restarted for this new time to take effect.');
+               this.setupPopOver('[data-toggle="monitor-local-sources"]', 'When checked, the Data Usage Plugin will also consider data usage from local sources.');
+            },
+            updateUsers : function () {
+                var userData = this.model.get('users');
+                var data = {};
+                var updateAllUsers = $('.data-limit-all').val();
+                var allDataSize = $('.data-size-all').find(":selected").text();
+                var dataAllUsersByteLimit;
 
-      $('.usertabledata tr').each(function(i, row) {
-        var $row = $(row)
-        var user = $row.find('td[name*="user"]').html()
+                if(allDataSize === "GB") {
+                    dataAllUsersByteLimit = this.getToBytes(parseFloat(updateAllUsers), allDataSize);
+                } else {
+                    dataAllUsersByteLimit = this.getToBytes(parseInt(updateAllUsers), allDataSize);
+                }
 
-        var dataSize = $row.find(':selected').text()
-        var usageLimit
+                var that = this;
 
-        if (dataSize === 'GB') {
-          usageLimit = parseFloat(
-            $row.find('input[name*="' + user + '"]').val()
-          )
-        } else {
-          usageLimit = parseInt($row.find('input[name*="' + user + '"]').val())
-        }
+                $('.usertabledata tr').each(function (i, row){
+                    var $row = $(row);
+                    var user = $row.find('td[name*="user"]').html();
 
-        var dataByteLimit = that.getToBytes(usageLimit, dataSize)
+                    var dataSize = $row.find(":selected").text();
+                    var usageLimit;
 
-        if (
-          updateAllUsers !== '' &&
-          updateAllUsers >= -1 &&
-          dataAllUsersByteLimit !== dataByteLimit &&
-          dataAllUsersByteLimit !== userData[i].usageLimit
-        ) {
-          // global limit precedes user limits
-          data[user] = dataAllUsersByteLimit
-        } else if (usageLimit === -1 && usageLimit !== userData[i].usageLimit) {
-          // unlimited data usage
-          data[user] = -1
-        } else if (
-          dataByteLimit >= 0 &&
-          dataByteLimit !== userData[i].usageLimit
-        ) {
-          data[user] = dataByteLimit
-        }
-      })
+                    if(dataSize === "GB") {
+                        usageLimit = parseFloat($row.find('input[name*="'+ user + '"]').val());
+                    } else {
+                        usageLimit = parseInt($row.find('input[name*="'+ user + '"]').val());
+                    }
 
-      if (!_.isEmpty(data)) {
-        this.model.submitUsageData(data)
-      }
+                    var dataByteLimit = that.getToBytes(usageLimit, dataSize);
 
-      var updateTime = $('.input-time').val()
-      if (updateTime !== this.model.get('cronTime')) {
-        this.model.updateCronTime(updateTime)
-      }
-      var updateMonitorLocalSources = $('.monitor-checkbox').prop('checked')
-      if (updateMonitorLocalSources !== this.model.get('monitorLocalSources')) {
-        this.model.updateMonitorLocalSources(updateMonitorLocalSources)
-      }
-    },
-    refreshUsers: function() {
-      this.model.getUsageData()
-      this.model.trigger('change:users', this.model)
-      this.model.trigger('change:monitorLocalSources', this.model)
-    },
-    notifyAllData: function(e) {
-      var value = $(e.target).val()
-      var select = $(e.target)
-        .parent()
-        .find('select')
+                    if(updateAllUsers !== "" &&  updateAllUsers >= -1 && dataAllUsersByteLimit !== dataByteLimit && dataAllUsersByteLimit !== userData[i].usageLimit) {
+                        // global limit precedes user limits
+                        data[user] = dataAllUsersByteLimit;
+                    } else if(usageLimit === -1 && usageLimit !== userData[i].usageLimit) {
+                        // unlimited data usage
+                        data[user] = -1;
+                    } else if(dataByteLimit >= 0 && dataByteLimit !== userData[i].usageLimit) {
+                        data[user] = dataByteLimit;
+                    }
+                });
 
-      if (value !== '') {
-        $(e.target).addClass('notify')
-        select.addClass('notify')
-      } else {
-        $(e.target).removeClass('notify')
-        select.removeClass('notify')
-      }
-    },
-    notifyTimeChange: function(e) {
-      var timeInput = $(e.target).val()
-      if (timeInput !== this.model.get('cronTime')) {
-        $(e.target).addClass('notify')
-      } else {
-        $(e.target).removeClass('notify')
-      }
-    },
-    getToBytes: function(dataLimit, dataSize) {
-      var toBytes
+                if(!_.isEmpty(data)) {
+                    this.model.submitUsageData(data);
+                }
 
-      if (dataLimit === -1) {
-        return dataLimit
-      }
+                var updateTime = $('.input-time').val();
+                if(updateTime !== this.model.get('cronTime')) {
+                    this.model.updateCronTime(updateTime);
+                }
+                var updateMonitorLocalSources = $('.monitor-checkbox').prop('checked');
+                if(updateMonitorLocalSources !== this.model.get('monitorLocalSources')) {
+                    this.model.updateMonitorLocalSources(updateMonitorLocalSources);
+                }
+            },
+            refreshUsers : function() {
+                this.model.getUsageData();
+                this.model.trigger('change:users', this.model);
+                this.model.trigger('change:monitorLocalSources', this.model);
+            },
+            notifyAllData : function(e) {
+                var value = $(e.target).val();
+                var select = $(e.target).parent().find('select');
 
-      if (dataSize === 'GB') {
-        toBytes = 1000 * 1000 * 1000
-      } else {
-        toBytes = 1000 * 1000
-      }
+                if(value !== "") {
+                    $(e.target).addClass('notify');
+                    select.addClass('notify');
+                } else {
+                    $(e.target).removeClass('notify');
+                    select.removeClass('notify');
+                }
+            },
+            notifyTimeChange : function(e) {
+                var timeInput = $(e.target).val();
+                if(timeInput !== this.model.get("cronTime")) {
+                    $(e.target).addClass('notify');
+                } else {
+                    $(e.target).removeClass('notify');
+                }
+            },
+            getToBytes : function(dataLimit, dataSize) {
+                var toBytes;
 
-      return dataLimit * toBytes
-    },
-    setupPopOver: function(selector, content) {
-      var options = {
-        trigger: 'hover',
-        content: content,
-      }
-      this.$el.find(selector).popover(options)
-    },
-  })
+                if(dataLimit === -1) {
+                    return dataLimit;
+                }
 
-  return DataUsageView
-})
+                if(dataSize === "GB") {
+                    toBytes = (1000 * 1000 * 1000);
+                } else {
+                    toBytes = (1000 * 1000);
+                }
+
+                return dataLimit * toBytes;
+            },
+            setupPopOver: function(selector, content) {
+                var options = {
+                    trigger: 'hover',
+                    content: content
+                };
+                this.$el.find(selector).popover(options);
+            }
+        });
+
+        return DataUsageView;
+    });

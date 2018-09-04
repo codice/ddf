@@ -10,12 +10,13 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone', './property'], function(
-  _,
-  Backbone,
-  Property
-) {
-  return Backbone.Collection.extend({
-    model: Property,
-  })
-})
+define([
+    'underscore',
+    'backbone',
+    './property'
+], function (_, Backbone, Property) {
+
+    return Backbone.Collection.extend({
+        model: Property
+    });
+});

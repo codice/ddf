@@ -15,42 +15,44 @@
 
 /*global define*/
 define([
-  'js/application',
-  'js/view/Metrics.view.js',
-  'poller',
-  'js/model/Metrics.js',
-], function(Application, MetricsView, poller, Metrics) {
-  Application.App.module('Metrics', function(
-    MetricsModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var metrics = new Metrics.MetricsModel()
+        'js/application',
+        'js/view/Metrics.view.js',
+        'poller',
+        'js/model/Metrics.js'
+    ],
+    function (Application, MetricsView, poller, Metrics) {
 
-    var metricsPage = new MetricsView.MetricsPage({ model: metrics })
+        Application.App.module('Metrics', function (MetricsModule, App, Backbone, Marionette) {
 
-    // Define a controller to run this module
-    // --------------------------------------
+            var metrics = new Metrics.MetricsModel();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            var metricsPage = new MetricsView.MetricsPage({model: metrics});
 
-      show: function() {
-        this.region.show(metricsPage)
-      },
-    })
+            // Define a controller to run this module
+            // --------------------------------------
 
-    // Initialize this module when the app starts
-    // ------------------------------------------
+            var Controller = Marionette.Controller.extend({
 
-    MetricsModule.addInitializer(function() {
-      MetricsModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      MetricsModule.contentController.show()
-    })
-  })
-})
+                initialize: function (options) {
+                    this.region = options.region;
+                },
+
+                show: function () {
+                    this.region.show(metricsPage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            MetricsModule.addInitializer(function () {
+                MetricsModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                MetricsModule.contentController.show();
+            });
+
+
+        });
+    });

@@ -10,28 +10,26 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone')
+var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
-  defaults: function() {
+  defaults: function () {
     return {
       type: 'text',
       src: undefined,
       federation: 'enterprise',
-      sorts: [
-        {
-          attribute: 'modified',
-          direction: 'descending',
-        },
-      ],
-      template: undefined,
-    }
+      sorts: [{
+        attribute: 'modified',
+        direction: 'descending',
+      }],
+      template: undefined
+    };
   },
-  isTemplate: function(template) {
+  isTemplate: function (template) {
     if (this.get('template') !== undefined) {
-      return this.get('template').id === template.id
+      return this.get('template').id === template.id;
     } else {
-      return false
+      return false;
     }
-  },
-})
+  }
+});
