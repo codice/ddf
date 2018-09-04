@@ -123,7 +123,7 @@ module.exports = async ({ args }) => {
           '**/ddf-theme-cosmo.css',
           '**/ddf-theme-cyborg.css',
           '**/ddf-theme-flatly.css',
-          '**/packages/ui/src/main/webapp/css/styles.css',
+          '**/packages/*/src/main/webapp/css/styles.css',
           '**/packages/codice-icons/icons/codice.font.js',
         ],
       })
