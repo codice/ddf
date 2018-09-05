@@ -48,6 +48,7 @@ public class CsrfFilter implements SecurityFilter {
   private static final String APACHE_USER_AGENT = "Apache-CXF/.*";
   private static final String JAVA_CLIENT_USER_AGENT = "Google-HTTP-Java-Client/.*";
   private static final String JAVA_USER_AGENT = "Java/.*";
+  private static final String JETTY_USER_AGENT = "Jetty/.*";
 
   private static final String SERVICE_CONTEXT = "/services";
   private static final String JOLOKIA_CONTEXT = "/admin/jolokia";
@@ -112,6 +113,7 @@ public class CsrfFilter implements SecurityFilter {
     USER_AGENT_WHITELIST.add(Pattern.compile(APACHE_CLIENT_USER_AGENT));
     USER_AGENT_WHITELIST.add(Pattern.compile(JAVA_USER_AGENT));
     USER_AGENT_WHITELIST.add(Pattern.compile(JAVA_CLIENT_USER_AGENT));
+    USER_AGENT_WHITELIST.add(Pattern.compile(JETTY_USER_AGENT));
   }
 
   /**
