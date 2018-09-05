@@ -23,8 +23,12 @@ import static spark.Spark.post;
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -48,7 +52,6 @@ public class QueryApplication implements SparkApplication, Function {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
   private static final String APPLICATION_JSON = "application/json";
-  private static final String TRANSFORMER_ID_PROPERTY = "id";
 
   private FeatureService featureService;
 
@@ -96,13 +99,17 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql/transforms",
         (req, res) -> {
           List<String> transformers =
-              queryResponseTransformers
+              Optional.ofNullable(cqlTransformHandler)
+                  .map(CqlTransformHandler::getQueryResponseTransformers)
+                  .orElse(Collections.emptyList())
                   .stream()
                   .map(
                       serviceReference ->
-                          serviceReference.getProperty(TRANSFORMER_ID_PROPERTY).toString())
+                          serviceReference.getProperty(CqlTransformHandler.TRANSFORMER_ID_PROPERTY))
+                  .map(Object::toString)
+                  .filter(StringUtils::isNotBlank)
                   .collect(Collectors.toList());
-          transformers.removeIf(StringUtils::isBlank);
+
           return mapper.toJson(transformers);
         });
 

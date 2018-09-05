@@ -1,84 +1,128 @@
-const React = require('react');
+const React = require('react')
 
-const { retrieveExportOptions, exportDataAs } = require('js/services/exportService');
-const CustomElements = require('js/CustomElements');
-const Component = CustomElements.registerReact('export-results');
+const {
+  retrieveExportOptions,
+  exportDataAs,
+} = require('js/services/exportService')
+const CustomElements = require('js/CustomElements')
+const Component = CustomElements.registerReact('export-results')
 
-const capitalize = (value) => value.charAt(0).toUpperCase() + value.slice(1)
+const capitalize = value => value.charAt(0).toUpperCase() + value.slice(1)
 
 class ExportResults extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     const passedProps = (props && props.options && props.options.props) || {}
-    const defaultExportSize = Object.keys(passedProps.export)[0];
+    const defaultExportSize = Object.keys(passedProps.export)[0]
     this.state = {
       ...passedProps,
       exportSizeValue: defaultExportSize,
-      exportFormats: []
-    };
+      exportFormats: [],
+    }
   }
 
   componentWillMount = async () => {
-    if (this.state && this.state.exportFormats && this.state.exportFormats.length > 0) {
-      return;
+    if (
+      this.state &&
+      this.state.exportFormats &&
+      this.state.exportFormats.length > 0
+    ) {
+      return
     }
 
-    let jsonData;
+    let jsonData
 
     try {
-      const response = await retrieveExportOptions();
-      jsonData = await response.json();
+      const response = await retrieveExportOptions()
+      jsonData = await response.json()
     } catch (error) {
-      console.error(error);
-      jsonData = [];
+      console.error(error)
+      jsonData = []
     }
 
-    this.setState({exportFormats: jsonData});
+    this.setState({ exportFormats: jsonData })
   }
 
   onDownloadClick = async () => {
     const forExport = this.state.export[this.state.exportSizeValue]
     try {
-      const url = forExport.url + ((this.state.exportFormatValue === undefined) ? this.state.defaultExportFormat : this.state.exportFormatValue)
-      const response = await exportDataAs(url, forExport.data(), this.state.contentType);
-      this.state.onDownloadSuccess && this.state.onDownloadSuccess(response) || console.log(response);
+      const url =
+        forExport.url +
+        (this.state.exportFormatValue === undefined
+          ? this.state.defaultExportFormat
+          : this.state.exportFormatValue)
+      const response = await exportDataAs(
+        url,
+        forExport.data(),
+        this.state.contentType
+      )
+      ;(this.state.onDownloadSuccess &&
+        this.state.onDownloadSuccess(response)) ||
+        console.log(response)
     } catch (error) {
-      this.state.onDownloadError && this.state.onDownloadError(error) || console.error(error);
+      ;(this.state.onDownloadError && this.state.onDownloadError(error)) ||
+        console.error(error)
     }
   }
 
-  handleExportSizeChange = (event) => {
-    this.setState({exportSizeValue: event.target.value})
+  handleExportSizeChange = event => {
+    this.setState({ exportSizeValue: event.target.value })
   }
 
-  handleExportFormatChange = (event) => {
-    this.setState({exportFormatValue: event.target.value})
+  handleExportFormatChange = event => {
+    this.setState({ exportFormatValue: event.target.value })
   }
 
-  renderExportSizeOption = (exportOption) => {
-    return <option key={exportOption} value={exportOption}>{capitalize(exportOption)}</option>;
+  renderExportSizeOption = exportOption => {
+    return (
+      <option key={exportOption} value={exportOption}>
+        {capitalize(exportOption)}
+      </option>
+    )
   }
 
-  renderExportFormatOption = (key) => {
-    return (key && <option key={key} value={key}>{key.toUpperCase()}</option>) || null;
+  renderExportFormatOption = key => {
+    return (
+      (key && (
+        <option key={key} value={key}>
+          {key.toUpperCase()}
+        </option>
+      )) ||
+      null
+    )
   }
 
   render = () => {
-    return this.state && <Component>
-      {` Export `}
-      <select value={this.state.exportSizeValue} onChange={this.handleExportSizeChange} className="export-set-selection">
-        {Object.keys(this.state.export).map(this.renderExportSizeOption)}
-      </select>
-      {` as `}
-      <select value={this.state.exportFormatValue || this.state.defaultExportFormat} onChange={this.handleExportFormatChange} className="export-format-selection">
-        {this.state.exportFormats.map(this.renderExportFormatOption)}
-      </select>
-      <button onClick={this.onDownloadClick} className="is-button">
-        <span className="fa fa-download"></span>
-      </button>
-    </Component> || null
+    return (
+      (this.state && (
+        <Component>
+          {` Export `}
+          <select
+            value={this.state.exportSizeValue}
+            onChange={this.handleExportSizeChange}
+            className="export-set-selection"
+          >
+            {Object.keys(this.state.export).map(this.renderExportSizeOption)}
+          </select>
+          {` as `}
+          <select
+            value={
+              this.state.exportFormatValue || this.state.defaultExportFormat
+            }
+            onChange={this.handleExportFormatChange}
+            className="export-format-selection"
+          >
+            {this.state.exportFormats.map(this.renderExportFormatOption)}
+          </select>
+          <button onClick={this.onDownloadClick} className="is-button">
+            <span className="fa fa-download" />
+          </button>
+        </Component>
+      )) ||
+      null
+    )
   }
 }
 
-module.exports = ExportResults;
+module.exports = ExportResults
