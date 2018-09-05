@@ -275,8 +275,6 @@ public class SolrFilterDelegateTest {
   @Test
   public void testPropertyIsLikeWildcard() {
     stub(mockResolver.anyTextFields()).toReturn(Collections.singletonList("metadata_txt").stream());
-    stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
-        .toReturn("metadata_txt_tokenized");
 
     String searchPhrase = "*";
     String expectedQuery = "*:*";
