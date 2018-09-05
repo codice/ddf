@@ -18,10 +18,10 @@ import { Button, buttonTypeEnum } from '../button'
 const HelpView = require('component/help/help.view')
 const UserSettings = require('component/user-settings/user-settings.view')
 const UserNotifications = require('component/user-notifications/user-notifications.view')
-const UserView = require('component/user/user.view')
 const SlideoutViewInstance = require('component/singletons/slideout.view-instance.js')
 const SlideoutRightViewInstance = require('component/singletons/slideout.right.view-instance.js')
 const user = require('component/singletons/user-instance')
+import UserView from '../../../react-component/container/user'
 export interface Props {
   username: string
   hasUnseenNotifications: boolean
@@ -146,7 +146,7 @@ const toggleUserSettings = () => {
 }
 
 const toggleUser = () => {
-  SlideoutRightViewInstance.updateContent(new UserView())
+  SlideoutRightViewInstance.updateContent(UserView)
   SlideoutRightViewInstance.open()
 }
 
