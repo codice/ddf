@@ -67,6 +67,8 @@ public class LdapLoginConfig {
 
   public static final String LDAP_LOAD_BALANCING = "ldapLoadBalancing";
 
+  public static final String FAILOVER = "failover";
+
   public static final String BIND_METHOD = "bindMethod";
 
   public static final String USER_BASE_DN = "userBaseDn";
@@ -152,7 +154,7 @@ public class LdapLoginConfig {
 
       String loadBalancingAlgorithm = (String) props.get(LDAP_LOAD_BALANCING);
       Options options = Options.defaultOptions();
-      if (loadBalancingAlgorithm != null && loadBalancingAlgorithm.equalsIgnoreCase("failover")) {
+      if (loadBalancingAlgorithm != null && loadBalancingAlgorithm.equalsIgnoreCase(FAILOVER)) {
         ldapConnectionFactory = Connections.newFailoverLoadBalancer(connectionFactories, options);
       } else {
         ldapConnectionFactory = Connections.newRoundRobinLoadBalancer(connectionFactories, options);

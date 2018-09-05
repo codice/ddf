@@ -56,6 +56,8 @@ public class ClaimsHandlerManager {
 
   public static final String LOAD_BALANCING = "ldapLoadBalancing";
 
+  public static final String FAILOVER = "failover";
+
   public static final String START_TLS = "startTls";
 
   public static final String OVERRIDE_CERT_DN = "overrideCertDn";
@@ -219,7 +221,7 @@ public class ClaimsHandlerManager {
     }
 
     Options options = Options.defaultOptions();
-    if (loadBalancingAlgorithm != null && loadBalancingAlgorithm.equalsIgnoreCase("failover")) {
+    if (loadBalancingAlgorithm != null && loadBalancingAlgorithm.equalsIgnoreCase(FAILOVER)) {
       return Connections.newFailoverLoadBalancer(connectionFactories, options);
     } else {
       return Connections.newRoundRobinLoadBalancer(connectionFactories, options);

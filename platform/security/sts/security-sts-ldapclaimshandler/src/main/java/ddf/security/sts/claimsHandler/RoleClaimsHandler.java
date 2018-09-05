@@ -247,7 +247,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
         ConnectionEntryReader entryReader =
             connection.search(
                 baseDN, SearchScope.WHOLE_SUBTREE, filter.toString(), membershipUserAttribute);
-        String userDN = loginUserAttribute + "=" + user + "," + baseDN;
+        String userDN = String.format("%s=%s,%s", loginUserAttribute, user, baseDN);
         String specificUserBaseDN = baseDN;
         while (entryReader.hasNext()) {
           if (entryReader.isEntry()) {
