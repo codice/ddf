@@ -68,6 +68,8 @@ The `validator` key must have a value of one of the following:
  ** (3) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound, decimal number: epsilon (the maximum tolerable error on either side of the range)]
  - `enumeration`
  * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
+ - `relationship`
+ * `arguments`: (4+) [attribute value or null, one of mustHave|cannotHave|canOnlyHave, target attribute name, null or target attribute value(s) as additional arguments]
  - `match_any`
  * `validators`: (unlimited) [list of previously defined validators: valid if any validator succeeds]
 ====
@@ -132,10 +134,10 @@ The `validator` key must have a value of one of the following:
                 ]
             }
         ]
-        "title": [
+        "topic.vocabulary": [
              {
                  "validator": "relationship",
-                 "arguments": [<optional attribute value>, "<mustHave|cannotHave|canOnlyHave>", "description", <optional target value(s)>]
+                 "arguments": ["animal", "canOnlyHave", "topic.category", "cat", "dog", "lizard"]
              }
          ]
     }

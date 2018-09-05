@@ -17,7 +17,10 @@ import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.validator.RelationshipValidator
+import ddf.catalog.validation.report.AttributeValidationReport
 import ddf.catalog.validation.report.MetacardValidationReport
+import ddf.catalog.validation.violation.ValidationViolation
+import org.apache.commons.lang.ObjectUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -29,13 +32,6 @@ class RelationshipValidatorSpec extends Specification {
     public static final String CANNOT_HAVE = "cannotHave"
     public static final String CAN_ONLY_HAVE = "canOnlyHave"
     public MetacardImpl metacard = new MetacardImpl()
-
-    def "invalid relationship"() {
-        when:
-        new RelationshipValidator(null, null, "nemesis", null)
-        then:
-        thrown(IllegalArgumentException)
-    }
 
     def "tostring"() {
         when:
@@ -88,35 +84,49 @@ class RelationshipValidatorSpec extends Specification {
         setAttribute("target.def", "blah blah")
         setAttribute("source.multivalued", "one", "two", "three")
         setAttribute("target.multivalued", "one", "two", "three")
-        RelationshipValidator validator =
-                new RelationshipValidator(
-                        sourceAttribute, sourceValue, relationship, targetAttribute, targetValues)
-        when:
-        Optional<MetacardValidationReport> metacardValidationReport =
-                validator.validateMetacard(metacard)
-        then:
-        expectViolation == (metacardValidationReport.isPresent() && !metacardValidationReport.get().getAttributeValidationViolations().isEmpty())
-        when:
-        ValidationException e
+        RelationshipValidator validator
+        Exception e = null
         try {
-            validator.validate(metacard)
+            validator = new RelationshipValidator(
+                    sourceAttribute, sourceValue, relationship, targetAttribute, targetValues)
+        } catch (IllegalArgumentException v) {
+            e = v
+        }
+        when:
+        Optional<MetacardValidationReport> metacardValidationReport
+        if (validator != null) {
+            metacardValidationReport = validator.validateMetacard(metacard)
+        }
+        then:
+        expectViolation == (e != null && e instanceof IllegalArgumentException) || (metacardValidationReport != null && metacardValidationReport.isPresent() && !metacardValidationReport.get().getAttributeValidationViolations().isEmpty())
+        when:
+        try {
+            if (validator != null) {
+                validator.validate(metacard)
+            }
         } catch (ValidationException v) {
             e = v
         }
         then:
-        expectViolation == (e != null)
+        if (validator != null) {
+            expectViolation == (e instanceof ValidationException)
+        }
         where:
-        expectViolation | sourceAttribute | sourceValue | relationship  | targetAttribute      | targetValues
-        false           | "source.undef"  | null        | MUST_HAVE     | "target.def"         | null
-        true            | "source.def"    | null        | MUST_HAVE     | "target.undef"       | null
-        false           | "source.def"    | null        | MUST_HAVE     | "target.def"         | ["blah blah"]
-        false           | "source.def"    | "blah"      | MUST_HAVE     | "target.undef"       | null
-        true            | "source.def"    | "blah blah" | MUST_HAVE     | "target.undef"       | null
-        true            | "source.def"    | null        | CANNOT_HAVE   | "target.multivalued" | ["two"]
-        true            | "source.def"    | null        | CANNOT_HAVE   | "target.def"         | ["blah blah"]
-        false           | "source.def"    | null        | CANNOT_HAVE   | "target.multivalued" | ["five"]
-        false           | "source.def"    | null        | CAN_ONLY_HAVE | "target.multivalued" | ["one", "two", "three", "four"]
-        true            | "source.def"    | null        | CAN_ONLY_HAVE | "target.multivalued" | ["one", "two", "five"]
+        expectViolation | sourceAttribute | sourceValue | relationship      | targetAttribute      | targetValues
+        false           | "source.undef"  | null        | MUST_HAVE         | "target.def"         | null
+        true            | "source.def"    | null        | MUST_HAVE         | "target.undef"       | null
+        false           | "source.def"    | null        | MUST_HAVE         | "target.def"         | ["blah blah"]
+        false           | "source.def"    | "blah"      | MUST_HAVE         | "target.undef"       | null
+        true            | "source.def"    | "blah blah" | MUST_HAVE         | "target.undef"       | null
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.multivalued" | ["two"]
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | ["blah blah"]
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | null
+        false           | "source.def"    | null        | CANNOT_HAVE       | "target.undef"       | null
+        false           | "source.def"    | null        | CANNOT_HAVE       | "target.multivalued" | ["five"]
+        false           | "source.def"    | null        | CAN_ONLY_HAVE     | "target.multivalued" | ["one", "two", "three", "four"]
+        true            | "source.def"    | null        | CAN_ONLY_HAVE     | "target.multivalued" | ["one", "two", "five"]
+        true            | "source.def"    | null        | CAN_ONLY_HAVE     | "target.def"         | null
+        true            | "source.def"    | null        | "badRelationship" | "target.def"         | null
     }
 
     void setAttribute(String attribute, String... value) {

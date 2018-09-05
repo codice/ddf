@@ -33,9 +33,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class RelationshipValidator implements ReportingMetacardValidator, MetacardValidator {
+  private static final String MUST_HAVE = "mustHave";
+  private static final String CANNOT_HAVE = "cannotHave";
+  private static final String CAN_ONLY_HAVE = "canOnlyHave";
   private final Map<String, Function<Attribute, Optional<ValidationViolation>>> relationships =
       new HashMap<>();
   private final String sourceAttribute;
@@ -50,9 +54,9 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
       String relationship,
       String targetAttribute,
       String... targetValues) {
-    relationships.put("mustHave", this::mustHave);
-    relationships.put("cannotHave", this::cannotHave);
-    relationships.put("canOnlyHave", this::canOnlyHave);
+    relationships.put(MUST_HAVE, this::mustHave);
+    relationships.put(CANNOT_HAVE, this::cannotHave);
+    relationships.put(CAN_ONLY_HAVE, this::canOnlyHave);
     this.sourceAttribute = sourceAttribute;
     this.sourceValue = sourceValue;
     this.relationship = relationship;
@@ -65,6 +69,10 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     if (!relationships.keySet().contains(relationship)) {
       throw new IllegalArgumentException(
           "Unrecognized relationship " + relationship + " for validator " + this.toString());
+    }
+    if (CAN_ONLY_HAVE.equals(relationship) && CollectionUtils.isEmpty(this.targetValues)) {
+      throw new IllegalArgumentException(
+          "Relationship " + CAN_ONLY_HAVE + " must specify one or more target values");
     }
   }
 
@@ -90,12 +98,7 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
 
   private Optional<ValidationViolation> mustHave(Attribute attribute) {
     return getValidationViolation(
-        targetAttribute
-            + " must have "
-            + (targetValues.stream().anyMatch(StringUtils::isNotEmpty)
-                ? "a value of " + getValuesAsString()
-                : "a value")
-            + ".",
+        "must have",
         attribute == null
             || !attribute
                 .getValues()
@@ -108,19 +111,19 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
 
   private Optional<ValidationViolation> cannotHave(Attribute attribute) {
     return getValidationViolation(
-        targetAttribute + " cannot be one of " + getValuesAsString(),
+        "cannot have",
         attribute != null
             && attribute
                 .getValues()
                 .stream()
                 .map(Objects::toString)
                 .filter(StringUtils::isNotEmpty)
-                .anyMatch(targetValues::contains));
+                .anyMatch(v -> targetValues.isEmpty() || targetValues.contains(v)));
   }
 
   private Optional<ValidationViolation> canOnlyHave(Attribute attribute) {
     return getValidationViolation(
-        targetAttribute + " must be one of " + getValuesAsString(),
+        "can only have",
         attribute == null
             || !attribute
                 .getValues()
@@ -134,16 +137,28 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     return targetValues.stream().map(Object::toString).collect(Collectors.joining(", "));
   }
 
-  private Optional<ValidationViolation> getValidationViolation(String message, boolean isViolated) {
+  private String getValidationMessage(String relationship) {
+    boolean hasSourceValue = StringUtils.isNotEmpty(sourceValue);
+    boolean hasTargetValues = targetValues.stream().anyMatch(StringUtils::isNotEmpty);
+    return "If "
+        + sourceAttribute
+        + " "
+        + (hasSourceValue ? "has a value of '" + sourceValue + "'" : "is specified")
+        + ", "
+        + targetAttribute
+        + " "
+        + relationship
+        + " "
+        + (hasTargetValues ? ": [" + getValuesAsString() + "]." : "a value.");
+  }
+
+  private Optional<ValidationViolation> getValidationViolation(
+      String relationship, boolean isViolated) {
     if (isViolated) {
       return Optional.of(
           new ValidationViolationImpl(
               Collections.singleton(targetAttribute),
-              "If "
-                  + sourceAttribute
-                  + (StringUtils.isNotEmpty(sourceValue) ? " is set to " + sourceValue : " is set")
-                  + ", "
-                  + message,
+              getValidationMessage(relationship),
               ValidationViolation.Severity.ERROR));
     } else {
       return Optional.empty();
