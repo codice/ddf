@@ -144,6 +144,7 @@ define([
       )
     },
     runQuery: function(e) {
+      this.model.handleChangeResultCount()
       this.model.startSearch()
       e.stopPropagation()
     },

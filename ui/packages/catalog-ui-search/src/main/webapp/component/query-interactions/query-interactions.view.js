@@ -100,6 +100,7 @@ define([
       )
     },
     handleRun: function() {
+      this.model.handleChangeResultCount()
       this.model.startSearch()
     },
     handleRefreshResultCount: function() {
