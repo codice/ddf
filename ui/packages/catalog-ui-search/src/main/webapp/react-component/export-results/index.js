@@ -50,8 +50,8 @@ class ExportResults extends React.Component {
       const url =
         forExport.url +
         (this.state.exportFormatValue === undefined
-          ? this.state.defaultExportFormat
-          : this.state.exportFormatValue)
+          ? encodeURIComponent(this.state.defaultExportFormat)
+          : encodeURIComponent(this.state.exportFormatValue))
       const response = await exportDataAs(
         url,
         forExport.data(),

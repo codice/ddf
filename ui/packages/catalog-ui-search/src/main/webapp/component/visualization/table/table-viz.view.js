@@ -143,6 +143,19 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
+  buildCqlQueryFromMetacards: function(metacards) {
+    let cqlQuery = ''
+    for (const [index, metacard] of metacards.entries()) {
+      cqlQuery +=
+        '(("id" ILIKE \'' +
+        metacard.metacard.id +
+        '\'))'
+      if (index !== metacards.length - 1) {
+        cqlQuery += ' OR '
+      }
+    }
+    return '(' + cqlQuery + ')'
+  },
   saveExport: (data, status, xhr) => {
     if (status === 200) {
       var filename = getFilenameFromContentDisposition(
@@ -184,7 +197,9 @@ module.exports = Marionette.LayoutView.extend({
         columnOrder: hasColumnOrder ? columnOrderValue : {},
         columnAliasMap: properties.attributeAliases,
       },
-      cql: this.options.selectionInterface.getCurrentQuery().get('cql'),
+      cql: this.buildCqlQueryFromMetacards(
+        this.options.selectionInterface.getActiveSearchResults().toJSON()
+      ),
     })
 
     const allData = () => ({
