@@ -128,12 +128,18 @@ public class WorkspaceTransformerImpl implements WorkspaceTransformer {
         entry.getKey(),
         value);
 
-    if (value instanceof Serializable) {
-      metacard.setAttribute(new AttributeImpl(entry.getKey(), (Serializable) value));
-    } else if (value instanceof List) {
-      metacard.setAttribute(new AttributeImpl(entry.getKey(), (List<Serializable>) value));
-    } else {
-      LOGGER.debug("The value was expected to be Serializable or a list of Serializable items.");
+    try {
+      if (value instanceof Serializable) {
+        metacard.setAttribute(new AttributeImpl(entry.getKey(), (Serializable) value));
+      } else if (value instanceof List) {
+        metacard.setAttribute(new AttributeImpl(entry.getKey(), (List<Serializable>) value));
+      } else {
+        LOGGER.debug(
+            "The {} was expected to be Serializable or a list of Serializable items.", value);
+      }
+    } catch (ClassCastException ex) {
+      LOGGER.debug(
+          "The value was expected to be Serializable or a list of Serializable items.", ex);
     }
   }
 
