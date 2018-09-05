@@ -24,7 +24,7 @@ None.
 
 ===  Installing ${ddf-geowebcache}
 
-Install ${ddf-geowebcache} from the ${admin-console}.
+Install the ${ddf-geowebcache} application from the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

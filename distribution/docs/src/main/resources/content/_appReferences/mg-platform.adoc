@@ -22,7 +22,7 @@ None.
 
 ===  Installing ${ddf-platform}
 
-Install ${ddf-platform} through the ${admin-console}.
+Install the ${ddf-platform} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.
