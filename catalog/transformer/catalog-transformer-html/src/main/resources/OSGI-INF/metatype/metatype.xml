@@ -23,7 +23,7 @@
       name="Category Title"
       id="title"
       type="String"
-      default="Association"/>
+      default=""/>
     <AD
       description="All of the attributes that will be in this category of the metacard export"
       name="Attributes"

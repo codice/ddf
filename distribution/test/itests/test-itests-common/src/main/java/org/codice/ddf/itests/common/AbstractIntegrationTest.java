@@ -347,9 +347,6 @@ public abstract class AbstractIntegrationTest {
   public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT =
       new DynamicUrl(SERVICE_ROOT, "/internal/catalog/download/cache");
 
-  public static final DynamicUrl COMETD_ENDPOINT =
-      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/search/cometd/");
-
   static {
     // Make Pax URL use the maven.repo.local setting if present
     if (System.getProperty(MVN_LOCAL_REPO) != null) {
@@ -393,7 +390,7 @@ public abstract class AbstractIntegrationTest {
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog?_wadl");
 
-      getServiceManager().startFeature(true, "search-ui-deprecated", "search-ui-app", "catalog-ui");
+      getServiceManager().startFeature(true, "search-ui-app", "catalog-ui");
       getServiceManager().waitForAllBundles();
     } catch (Exception e) {
       throw new IllegalStateException("Failed to start up required features.", e);

@@ -128,8 +128,6 @@ public class PolicyManagerTest {
     manager.setContextPolicy(
         "/search/standard", new Policy("/search/standard", null, new ArrayList<>(), null));
     manager.setContextPolicy(
-        "/search/cometd", new Policy("/search/cometd", null, new ArrayList<>(), null));
-    manager.setContextPolicy(
         "/search/simple", new Policy("/search/simple", null, new ArrayList<>(), null));
     manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, new ArrayList<>(), null));
     manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<>(), null));

@@ -15,6 +15,7 @@
   <head>
     <style>
       /* Overall Settings */
+
       * {
         margin: 0px;
         padding: 0px;
@@ -234,6 +235,33 @@
           } else {
             attribute.parentElement.style.display = "";
           }
+        }
+
+        updateTableRowColors();
+      }
+      function isEmptyValueAttribute(attribute) {
+        var attrValue = attribute.getElementsByClassName("attribute-value")[0];
+        return attrValue.classList.contains("empty-attribute");
+      }
+      function updateTableRowColors() {
+        var hideFields = document.querySelector('#empty-fields-checkbox').checked;
+        var categoryTables = document.getElementsByClassName("category-table");
+
+        var colorOdd = "#FFFFFF";
+        var colorEven = "#eff2f6";
+
+        for (var category of categoryTables) {
+            var attributes = category.getElementsByClassName("metacard-attribute");
+            var current = colorEven;
+
+            for (var attr of attributes) {
+                if (hideFields && isEmptyValueAttribute(attr)) {
+                    continue;
+                } else {
+                    attr.style.backgroundColor = current;
+                    current = current === colorEven ? colorOdd : colorEven;
+                }
+            }
         }
       }
       function toggleCategory(category) {

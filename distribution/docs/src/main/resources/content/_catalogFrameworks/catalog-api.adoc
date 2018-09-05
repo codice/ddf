@@ -78,52 +78,6 @@ There are three policies available.
 
 If no sort policy is defined for a particular search, the temporal policy will automatically be applied.
 
-===== Asynchronous Search & Retrieval
-
-Asynchronous Search & Retrieval allows a requestor to execute multiple queries at once, begin multiple product downloads while query results are being returned, cancel queries and downloads, and receive status on the state of incoming query results and product downloads.
-
-.Important Terms for Asynchronous Search
-[cols="3" options="header"]
-|===
-|Capability
-|Description
-|Endpoint Integration
-
-|Asynchronous Search
-|Search multiple sources simultaneously
-|Search UI
-
-|Product caching
-|Allows quick retrieval of already downloaded products
-|${ddf-catalog}
-
-|Canceling Product Downloads
-|The ability to cancel a download in progress
-|${ddf-catalog}
-
-|Activities
-a|Activities
-* `download`
-* `retry`
-* `cancel`
-* `pause`
-* `remove`
-* `resume`
-|${ddf-catalog}, CometD endpoint
-
-|Notifications
-|Time-stamped messages of an action
-|${ddf-catalog}, Search UI/CometD endpoint
-
-|Workspaces
-|Ability to save and manage queries and save metacards
-|${ddf-platform}, Search UI/CometD endpoint
-
-|3D Map support
-|Ability to execute a geospatial search using a 3D map
-|N/A
-
-|===
 
 ===== Product Retrieval
 
@@ -216,12 +170,8 @@ ${branding} can send/receive notifications of "Activities" occuring in the syste
 ====== Notifications
 
 Currently, the notifications provide information about product retrieval only.
-For example, in the ${branding} Search UI, after a user initiates a resource download, they receive notifications when the download completed, failed, canceled, or is being retried.
 
 ====== Activities
 
 Activity events include the status and progress of actions that are being performed by the user, such as searches and downloads.
-Activities can be enabled by selecting "Show tasks" in the Standard Search UI configuration.
-A list of all activities opens in a drop-down menu, from which activities can be read and deleted.
-If a download activity is being performed, the Activity drop-down menu provides the link to retrieve the product.
-If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down menu until the action being performed is complete.
+

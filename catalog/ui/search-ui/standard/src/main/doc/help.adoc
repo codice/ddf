@@ -1,5 +1,0 @@
-= Standard Search UI Help
-include::_contents/config.adoc[]
-
-== Overview
-include::_contents/help-contents.adoc[]
