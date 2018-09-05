@@ -200,18 +200,22 @@ public class AssertionConsumerService {
       @QueryParam(SIG_ALG) String signatureAlgorithm,
       @QueryParam(SIGNATURE) String signature) {
 
-    LOGGER.info("HTTP-Redirect binding should not be used for Single Sign On responses");
-    if (validateSignature(deflatedSamlResponse, relayState, signatureAlgorithm, signature)) {
-      try {
-        return processSamlResponse(
-            RestSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
-      } catch (IOException e) {
-        String msg = "Unable to decode and inflate AuthN response.";
-        LOGGER.info(msg, e);
-        return Response.serverError().entity(msg).build();
-      }
-    } else {
+    LOGGER.warn("HTTP-Redirect binding should not be used for Single Sign-On responses");
+    if (StringUtils.isBlank(deflatedSamlResponse)) {
+      return Response.serverError().entity("SAML is in a bad state.").build();
+    }
+    if (!validateSignature(deflatedSamlResponse, relayState, signatureAlgorithm, signature)) {
       return Response.serverError().entity("Invalid AuthN response signature.").build();
+    }
+
+    try {
+      return processSamlResponse(
+          RestSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
+
+    } catch (IOException e) {
+      String msg = "Unable to decode and inflate AuthN response.";
+      LOGGER.info(msg, e);
+      return Response.serverError().entity(msg).build();
     }
   }
 
