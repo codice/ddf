@@ -13,6 +13,7 @@
  *
  **/
 /*global require, window, setTimeout*/
+import React from 'react'
 var Marionette = require('marionette')
 var template = require('./slideout.hbs')
 var CustomElements = require('js/CustomElements')
@@ -23,7 +24,18 @@ var Common = require('js/Common')
 var componentName = 'slideout'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template() {
+    const ContentView = this.contentView || (() => null)
+    return (
+      <React.Fragment>
+        <div className="slideout-cover" />
+        <div className="slideout-content">
+          <ContentView />
+        </div>
+      </React.Fragment>
+    )
+  },
+  contentView: undefined,
   tagName: CustomElements.register(componentName),
   events: {
     click: 'handleOutsideClick',
@@ -73,7 +85,13 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   updateContent: function(view) {
-    this.slideoutContent.show(view)
+    this.contentView = undefined
+    if (view._isMarionetteView === true) {
+      this.slideoutContent.show(view)
+    } else {
+      this.contentView = view
+      this.render()
+    }
   },
   handleSpecialKeys: function(event) {
     var code = event.keyCode

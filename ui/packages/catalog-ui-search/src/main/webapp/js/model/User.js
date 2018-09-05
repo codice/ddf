@@ -316,6 +316,9 @@ define([
         relatedModel: User.Preferences,
       },
     ],
+    getEmail() {
+      return this.get('email')
+    },
     getUserName() {
       return this.get('username')
     },
@@ -370,6 +373,9 @@ define([
       } catch (e) {
         return {}
       }
+    },
+    getEmail() {
+      return this.get('user').getEmail()
     },
     getUserName() {
       return this.get('user').getUserName()

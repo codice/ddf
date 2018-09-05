@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,18 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="login-container">
-    {{#if user.isGuest}}
-        <form class="login-form" novalidate>
-            <div align="center" id="loginError" class="alert alert-error" style="display: none;">Credentials are invalid.</div>
-
-            <input placeholder="Username" type="text" id="username" name="username" />
-            <input placeholder="Password" type="password" id="password" name="password" />
-
-            <button id="sign-in" class="is-primary">Sign In</button>
-        </form>
-    {{else}}
-        <button id="sign-out" class="is-negative">Sign Out</button>
-    {{/if}}
-</div>
+export { default } from './user'
