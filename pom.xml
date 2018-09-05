@@ -57,7 +57,7 @@
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.14</ddf.support.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.1</acdebugger.version>
+        <acdebugger.version>1.2</acdebugger.version>
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
