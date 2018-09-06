@@ -60,7 +60,6 @@ import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.Serializable;
@@ -72,7 +71,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
-import org.codice.ddf.configuration.SystemInfo;
 import org.codice.solr.client.solrj.SolrClient;
 import org.geotools.filter.NullFilterImpl;
 import org.junit.After;
@@ -117,8 +115,6 @@ public class CachingFederationStrategyTest {
 
   private HashMap<String, Serializable> properties;
 
-  @Mock private ValidationQueryFactory validationQueryFactory;
-
   private ArgumentCaptor<QueryRequestImpl> requestArgumentCaptor;
 
   @Mock private CacheBulkProcessor cacheBulkProcessor;
@@ -144,7 +140,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            validationQueryFactory,
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
     federateStrategy =
@@ -154,7 +149,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            validationQueryFactory,
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
     ArgumentCaptor<QueryResponseImpl> responseArgumentCaptor =
@@ -482,7 +476,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
@@ -507,7 +500,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
@@ -516,20 +508,6 @@ public class CachingFederationStrategyTest {
     // First plugin throws exception, so second plugin is untouched
     verify(mockPlug).process(any(Source.class), any(QueryRequest.class));
     verifyZeroInteractions(mockPlug2);
-  }
-
-  @Test
-  public void testCatalogProviderSource() throws Exception {
-    CatalogProvider catalogProviderSource = mock(CatalogProvider.class);
-    when(catalogProviderSource.getId()).thenReturn(SystemInfo.getSiteName());
-
-    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
-
-    strategy.federate(Arrays.asList(catalogProviderSource), fedQueryRequest);
-
-    verify(validationQueryFactory)
-        .getQueryRequestWithValidationFilter(
-            any(QueryRequest.class), any(Boolean.class), any(Boolean.class));
   }
 
   @Test
@@ -683,7 +661,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -696,7 +673,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             null,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -709,7 +685,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -722,7 +697,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -735,7 +709,6 @@ public class CachingFederationStrategyTest {
             null,
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -748,7 +721,6 @@ public class CachingFederationStrategyTest {
             Arrays.asList(null),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -761,20 +733,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             null,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
-            new CacheQueryFactory(new GeotoolsFilterBuilder()));
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void testNullValidationQueryFactory() throws Exception {
-    strategy =
-        new CachingFederationStrategy(
-            queryExecutor,
-            Arrays.asList(preQueryPlugin),
-            new ArrayList<>(),
-            cache,
-            cacheExecutor,
-            null,
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
   }
 
@@ -787,7 +745,6 @@ public class CachingFederationStrategyTest {
             new ArrayList<>(),
             cache,
             cacheExecutor,
-            mock(ValidationQueryFactory.class),
             null);
   }
 

@@ -44,17 +44,12 @@
         </argument>
     </bean>
 
-    <bean id="validationQueryFactory" class="ddf.catalog.cache.solr.impl.ValidationQueryFactory">
-        <argument ref="filterAdapter"/>
-        <argument ref="filterBuilder"/>
-    </bean>
-
     <bean id="cacheQueryFactory" class="ddf.catalog.cache.solr.impl.CacheQueryFactory">
         <argument ref="filterBuilder"/>
     </bean>
 
     <bean id="federationStrategy"
-          depends-on="queryThreadPool preFederatedQuerySortedList postFederatedQuerySortedList solrCatalogCache cacheThreadPool validationQueryFactory cacheQueryFactory"
+          depends-on="queryThreadPool preFederatedQuerySortedList postFederatedQuerySortedList solrCatalogCache cacheThreadPool cacheQueryFactory"
           class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
         <cm:managed-properties
@@ -65,7 +60,6 @@
         <argument ref="postFederatedQuerySortedList"/>
         <argument ref="solrCatalogCache"/>
         <argument ref="cacheThreadPool"/>
-        <argument ref="validationQueryFactory"/>
         <argument ref="cacheQueryFactory"/>
         <property name="maxStartIndex" value="50000"/>
     </bean>

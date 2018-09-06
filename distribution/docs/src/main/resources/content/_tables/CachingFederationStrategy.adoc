@@ -51,18 +51,4 @@
 |false
 |true
 
-|Show Validation Errors
-|showErrors
-|Boolean
-|Show metacards with validation errors in search results
-|false
-|true
-
-|Show Validation Warnings
-|showWarnings
-|Boolean
-|Show metacards with validation warnings in search results
-|true
-|true
-
 |===

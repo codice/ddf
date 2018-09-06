@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 import ddf.action.ActionRegistry;
-import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -41,7 +40,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.operations.CreateOperations;
@@ -409,10 +407,6 @@ public class FanoutCatalogFrameworkTest {
     StorageProvider storageProvider = new MockMemoryStorageProvider();
 
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-    FilterAdapter filterAdapter = mock(FilterAdapter.class);
-
-    ValidationQueryFactory validationQueryFactory =
-        new ValidationQueryFactory(filterAdapter, filterBuilder);
 
     QueryRequestImpl queryRequest = new QueryRequestImpl(mock(Query.class));
     ResultImpl result = new ResultImpl(metacard);
@@ -429,7 +423,6 @@ public class FanoutCatalogFrameworkTest {
     frameworkProperties.setCatalogProviders(Collections.singletonList(catalogProvider));
     frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
     frameworkProperties.setFilterBuilder(filterBuilder);
-    frameworkProperties.setValidationQueryFactory(validationQueryFactory);
     frameworkProperties.setFederationStrategy(strategy);
     frameworkProperties.setQueryResponsePostProcessor(queryResponsePostProcessor);
 

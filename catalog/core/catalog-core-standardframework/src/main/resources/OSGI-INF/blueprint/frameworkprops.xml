@@ -47,7 +47,6 @@
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-        <property name="validationQueryFactory" ref="validationQueryFactory"/>
         <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
         <property name="attributeInjectors" ref="attributeInjectors"/>
     </bean>
