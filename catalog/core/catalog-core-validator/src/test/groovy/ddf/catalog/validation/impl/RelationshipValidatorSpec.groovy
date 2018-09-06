@@ -113,7 +113,10 @@ class RelationshipValidatorSpec extends Specification {
         }
         where:
         expectViolation | sourceAttribute | sourceValue | relationship      | targetAttribute      | targetValues
+        false           | "source.def"    | null        | MUST_HAVE         | "target.def"         | null
+        false           | "source.def"    | null        | MUST_HAVE         | "target.def"         | [null]
         false           | "source.undef"  | null        | MUST_HAVE         | "target.def"         | null
+        false           | "source.undef"  | null        | MUST_HAVE         | "target.def"         | [null]
         true            | "source.def"    | null        | MUST_HAVE         | "target.undef"       | null
         false           | "source.def"    | null        | MUST_HAVE         | "target.def"         | ["blah blah"]
         false           | "source.def"    | "blah"      | MUST_HAVE         | "target.undef"       | null

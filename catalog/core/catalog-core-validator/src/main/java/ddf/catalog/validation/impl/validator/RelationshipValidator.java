@@ -62,7 +62,11 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     this.relationship = relationship;
     this.targetAttribute = targetAttribute;
     if (targetValues != null) {
-      this.targetValues = Arrays.asList(targetValues);
+      this.targetValues =
+          Arrays.stream(targetValues)
+              .filter(Objects::nonNull)
+              .map(Objects::toString)
+              .collect(Collectors.toList());
     } else {
       this.targetValues = Collections.emptyList();
     }
@@ -100,13 +104,21 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     return getValidationViolation(
         "must have",
         attribute == null
-            || !attribute
-                .getValues()
-                .stream()
-                .map(Objects::toString)
-                .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toCollection(ArrayList::new))
-                .containsAll(targetValues));
+            || (targetValues.isEmpty()
+                ? attribute
+                        .getValues()
+                        .stream()
+                        .map(Objects::toString)
+                        .filter(StringUtils::isNotEmpty)
+                        .count()
+                    < 1
+                : !attribute
+                    .getValues()
+                    .stream()
+                    .map(Objects::toString)
+                    .filter(StringUtils::isNotEmpty)
+                    .collect(Collectors.toCollection(ArrayList::new))
+                    .containsAll(targetValues)));
   }
 
   private Optional<ValidationViolation> cannotHave(Attribute attribute) {
