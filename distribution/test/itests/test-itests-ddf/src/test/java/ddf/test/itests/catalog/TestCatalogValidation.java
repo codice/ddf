@@ -25,6 +25,7 @@ import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configure
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureValidationFilterPlugin;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -107,8 +108,10 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   public void setup() throws Exception {
     configureShowInvalidMetacards("true", "true", getAdminConfig());
     configureFilterInvalidMetacards("false", "false", getAdminConfig());
-    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
+    configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
     configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
+    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
+    configureValidationFilterPlugin(Arrays.asList("invalid-state=guest"), getAdminConfig());
     clearCatalogAndWait();
   }
 
@@ -296,7 +299,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=system-admin"), getAdminConfig());
+        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
 
     // Configure to filter metacards with validation warnings but not validation errors
     configureFilterInvalidMetacards("false", "true", getAdminConfig());
@@ -330,7 +333,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=system-admin"), getAdminConfig());
+        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
 
     // Configure to filter metacards with validation errors but not validation warnings
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
@@ -364,7 +367,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=system-admin"), getAdminConfig());
+        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
 
     // configure to filter both metacards with validation errors and validation warnings
     configureFilterInvalidMetacards("true", "true", getAdminConfig());
@@ -398,7 +401,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=system-admin"), getAdminConfig());
+        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
 
     testWithRetry(
         () -> {
@@ -421,6 +424,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   @Test
   public void testValidationEnforced() throws Exception {
     // Update metacardMarkerPlugin config with enforcedMetacardValidators
+    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
     configureEnforcedMetacardValidators(
         Collections.singletonList("sample-validator"), getAdminConfig());
 
@@ -500,15 +504,12 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testValidationUnenforced() throws Exception {
-    getServiceManager().stopBundle("catalog-security-filter");
-
-    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-
     try {
+      getServiceManager().stopBundle("catalog-security-filter");
+
+      String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
+      String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
+
       // metacardMarkerPlugin has no enforcedMetacardValidators
       // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
       // null"
@@ -521,13 +522,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               .body(query)
               .post(CSW_PATH.getUrl())
               .then();
-      // Assert Metacard1 is in results AND not Metacard2
+      // Assert Metacard1 Metacard2 are in results
       response.body(
           hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
       response.body(
-          not(
-              hasXPath(
-                  format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
+          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
 
       // Search for all entries that have no validation warnings
       query =
@@ -552,9 +551,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       // Only search that will actually return all entries
       query =
           new CswQueryBuilder()
-              .addAttributeFilter(
-                  PROPERTY_IS_LIKE, Validation.VALIDATION_WARNINGS, "sampleWarnings")
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_ERRORS, "*")
+              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
               .addLogicalOperator(OR)
               .getQuery();
 
@@ -573,7 +571,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       // Search for all entries that are invalid
       query =
           new CswQueryBuilder()
-              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_WARNINGS, "*")
+              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_ERRORS, "*")
               .getQuery();
 
       response =
@@ -592,7 +590,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
       query =
           new CswQueryBuilder()
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
               .addLogicalOperator(NOT)
               .getQuery();
 
@@ -616,10 +614,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testValidationEnforcedUpdate() throws Exception {
-    // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
-    final String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    final String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
+    // Update metacardMarkerPlugin config with no enforcedMetacardValidators
+    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
+    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
 
+    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
     configureShowInvalidMetacards("false", "true", getAdminConfig());
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
@@ -665,6 +664,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   @Test
   public void testValidationUnenforcedUpdate() throws Exception {
     // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
+
     final String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
     final String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
 
@@ -715,7 +715,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   @Test
   public void testValidationFiltering() throws Exception {
     // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-    configureEnforcedMetacardValidators(Arrays.asList(""), getAdminConfig());
+    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
+    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
 
     // Configure the PDP
     PdpProperties pdpProperties = new PdpProperties();
@@ -723,24 +724,20 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         "matchOneMappings",
         Arrays.asList("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"));
     Configuration config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
+    Dictionary<String, ?> oldProps = config.getProperties();
     Dictionary<String, ?> configProps = new Hashtable<>(pdpProperties);
     config.update(configProps);
 
-    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=system-admin"), getAdminConfig());
+        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
+    configureValidationFilterPlugin(Arrays.asList("invalid-state=data-manager"), getAdminConfig());
 
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
     try {
-
       String query =
           new CswQueryBuilder()
-              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_WARNINGS, "*")
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_ERRORS, "*")
+              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
               .addLogicalOperator(OR)
               .getQuery();
 
@@ -748,7 +745,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
           given()
               .auth()
               .preemptive()
-              .basic("admin", "admin")
+              .basic("localhost", "localhost")
               .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
               .body(query)
               .post(CSW_PATH.getUrl())
@@ -775,13 +772,15 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
       // Configure invalid filtering
       configureMetacardValidityFilterPlugin(
-          Arrays.asList("invalid-state=system-admin,guest"), getAdminConfig());
+          Arrays.asList("invalid-state=data-manager,guest"), getAdminConfig());
+      configureValidationFilterPlugin(
+          Arrays.asList("invalid-state=data-manager,guest"), getAdminConfig());
 
       response =
           given()
               .auth()
               .preemptive()
-              .basic("admin", "admin")
+              .basic("localhost", "localhost")
               .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
               .body(query)
               .post(CSW_PATH.getUrl())
@@ -805,9 +804,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
           hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
 
     } finally {
-      config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
-      configProps = new Hashtable<>(new PdpProperties());
-      config.update(configProps);
+      config.update(oldProps);
     }
   }
 
@@ -817,8 +814,6 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
     String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
-    configureShowInvalidMetacards("true", "true", getAdminConfig());
 
     // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
     // null"

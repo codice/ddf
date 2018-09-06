@@ -44,11 +44,6 @@ public class CsrfFilter implements SecurityFilter {
   public static final String ORIGIN_HEADER = "Origin";
   public static final String REFERER_HEADER = "Referer";
 
-  private static final String APACHE_CLIENT_USER_AGENT = "Apache-HttpClient/.*";
-  private static final String APACHE_USER_AGENT = "Apache-CXF/.*";
-  private static final String JAVA_CLIENT_USER_AGENT = "Google-HTTP-Java-Client/.*";
-  private static final String JAVA_USER_AGENT = "Java/.*";
-
   private static final String SERVICE_CONTEXT = "/services";
   private static final String JOLOKIA_CONTEXT = "/admin/jolokia";
   private static final String INTRIGUE_CONTEXT = "/search/catalog/internal";
@@ -62,8 +57,9 @@ public class CsrfFilter implements SecurityFilter {
       new MultivaluedHashMap<>();
   private static final MultivaluedMap<Pattern, String> SYSTEM_PROTECTION_WHITELIST =
       new MultivaluedHashMap<>();
-  private static final List<Pattern> USER_AGENT_WHITELIST = new ArrayList<>();
 
+  // List of user agents that are white listed
+  private List<Pattern> userAgentWhitelist = new ArrayList<>();
   // List of context paths that require cross-site protections
   private List<String> protectedContexts;
   // List of authorities that are treated as same-origin as the system
@@ -107,11 +103,6 @@ public class CsrfFilter implements SecurityFilter {
 
     // Downloading does not allow adding headers, authority check is sufficient
     BROWSER_PROTECTION_WHITELIST.add(Pattern.compile(CATALOG_CONTEXT), HttpMethod.GET.asString());
-
-    USER_AGENT_WHITELIST.add(Pattern.compile(APACHE_USER_AGENT));
-    USER_AGENT_WHITELIST.add(Pattern.compile(APACHE_CLIENT_USER_AGENT));
-    USER_AGENT_WHITELIST.add(Pattern.compile(JAVA_USER_AGENT));
-    USER_AGENT_WHITELIST.add(Pattern.compile(JAVA_CLIENT_USER_AGENT));
   }
 
   /**
@@ -215,7 +206,7 @@ public class CsrfFilter implements SecurityFilter {
 
     if (userAgentHeader != null) {
       whitelistUserAgent =
-          USER_AGENT_WHITELIST
+          userAgentWhitelist
               .stream()
               .filter(regex -> regex.matcher(userAgentHeader).matches())
               .findFirst()
@@ -296,6 +287,19 @@ public class CsrfFilter implements SecurityFilter {
       httpResponse.flushBuffer();
     } catch (IOException ioe) {
       LOGGER.debug("Failed to send auth response: {}", ioe);
+    }
+  }
+
+  public void setUserAgentWhitelist(List<String> userAgentWhitelist) {
+    if (userAgentWhitelist == null) {
+      return;
+    }
+
+    this.userAgentWhitelist.clear();
+
+    for (String agent : userAgentWhitelist) {
+      Pattern userAgentPattern = Pattern.compile(agent);
+      this.userAgentWhitelist.add(userAgentPattern);
     }
   }
 

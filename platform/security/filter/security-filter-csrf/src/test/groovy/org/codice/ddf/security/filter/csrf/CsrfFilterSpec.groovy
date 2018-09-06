@@ -228,6 +228,10 @@ class CsrfFilterSpec extends Specification {
                 '/services/idp/login[/]?$=POST',
                 '/services/saml/sso[/]?$=POST'))
 
+        csrfFilter.setUserAgentWhitelist(ImmutableList.of("Apache-CXF/.*",
+                "Google-HTTP-Java-Client/.*",
+                "Java/.*"))
+
         csrfFilter.doFilter(request, response, chain)
 
         then:
@@ -281,6 +285,10 @@ class CsrfFilterSpec extends Specification {
                 '/services/catalog/sources.*=GET',
                 '/services/idp/login[/]?$=POST',
                 '/services/saml/sso[/]?$=POST'))
+
+        csrfFilter.setUserAgentWhitelist(ImmutableList.of("Apache-CXF/.*",
+                "Google-HTTP-Java-Client/.*",
+                "Java/.*"))
 
         csrfFilter.doFilter(request, response, chain)
 

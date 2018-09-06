@@ -46,7 +46,6 @@ import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
-import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -77,7 +76,6 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
@@ -358,8 +356,6 @@ public class CatalogFrameworkImplTest {
     frameworkProperties.setMimeTypeMapper(
         new MimeTypeMapperImpl(Collections.singletonList(mimeTypeResolver)));
     frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
-    frameworkProperties.setValidationQueryFactory(
-        new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(), new GeotoolsFilterBuilder()));
 
     Map<String, FederatedSource> federatedSourceMap = new HashMap<>();
     if (federatedSources != null) {
@@ -2878,8 +2874,6 @@ public class CatalogFrameworkImplTest {
     frameworkProperties.setFederationStrategy(federationStrategy);
     frameworkProperties.setQueryResponsePostProcessor(new QueryResponsePostProcessor(null, null));
     frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());
-    frameworkProperties.setValidationQueryFactory(
-        new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(), new GeotoolsFilterBuilder()));
     frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
     return createFramework(frameworkProperties);
