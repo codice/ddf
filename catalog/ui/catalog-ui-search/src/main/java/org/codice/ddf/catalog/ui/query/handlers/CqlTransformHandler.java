@@ -151,7 +151,12 @@ public class CqlTransformHandler implements Route {
 
     Object schema = queryResponseTransformer.getProperty("schema");
 
-    if (queryResponseTransformer.getProperty("mime-type").toString().equals("[text/csv]")) {
+    List<String> mimeTypeServiceProperty =
+        queryResponseTransformer.getProperty("mime-type") instanceof List
+            ? (List) queryResponseTransformer.getProperty("mime-type")
+            : Collections.emptyList();
+
+    if (mimeTypeServiceProperty.contains("text/csv")) {
       arguments = csvTransformArgumentsAdapter(arguments);
     } else if (schema != null && schema.toString().equals(CSW_SCHEMA_VALUE)) {
       arguments = cswTransformArgumentsAdapter();
