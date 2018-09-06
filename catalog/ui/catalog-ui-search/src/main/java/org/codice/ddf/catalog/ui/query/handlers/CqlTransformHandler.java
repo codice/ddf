@@ -22,10 +22,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -271,9 +269,9 @@ public class CqlTransformHandler implements Route {
 
     Map<String, Serializable> args =
         ImmutableMap.<String, Serializable>builder()
-            .put("hiddenFields", new HashSet<>(hiddenFieldsSet))
-            .put("columnOrder", new ArrayList<>(columnOrderList))
-            .put("aliases", new HashMap<>(aliasMap))
+            .put("hiddenFields", (Serializable) hiddenFieldsSet)
+            .put("columnOrder", (Serializable) columnOrderList)
+            .put("aliases", (Serializable) aliasMap)
             .build();
 
     return args;
