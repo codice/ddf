@@ -26,6 +26,7 @@ import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -136,7 +137,8 @@ public class AccessControlUtil {
 
   public static Metacard setAccessAdministrator(Metacard metacard, String subjectIdentity) {
     metacard.setAttribute(
-        new AttributeImpl(Security.ACCESS_ADMINISTRATORS, ImmutableSet.of(subjectIdentity)));
+        new AttributeImpl(
+            Security.ACCESS_ADMINISTRATORS, Arrays.asList((Serializable) subjectIdentity)));
     return metacard;
   }
 

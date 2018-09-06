@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
+
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
@@ -73,6 +75,7 @@ public class AccessControlPreIngestPlugin implements PreIngestPlugin {
             .getMetacards()
             .stream()
             .filter((m) -> aclMetacardTypes.contains(m.getMetacardType().getName()))
+            .filter((m) -> !m.getTags().contains(SYSTEM_TEMPLATE))
             .collect(Collectors.toList());
 
     boolean missingOwner =
