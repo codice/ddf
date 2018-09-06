@@ -78,7 +78,7 @@
         <cxf.rt-databinding-jibx>3.1.15</cxf.rt-databinding-jibx>
         <cxf.rt-databinding-xmlbeans>3.1.15</cxf.rt-databinding-xmlbeans>
         <javax.ws.rs.version>2.1</javax.ws.rs.version>
-        <bouncy.version>1.59</bouncy.version>
+        <bouncy.version>1.60</bouncy.version>
         <xmlsec.version>2.1.2</xmlsec.version>
         <jts.version>1.14.0</jts.version>
         <jts.bundle.version>1.14.0_1</jts.bundle.version>
