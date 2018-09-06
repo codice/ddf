@@ -26,7 +26,7 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 
 import java.util.List;
 import javax.inject.Inject;
-import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.BootFinished;
 import org.codice.ddf.test.common.features.FeatureUtilities;
 import org.codice.ddf.test.common.features.TestUtilitiesFeatures;
 import org.junit.Test;
@@ -62,7 +62,8 @@ public class ITCamelFeatures {
     return FeatureUtilities.featureRepoToFeatureParameters(FEATURE_REPO_PATH);
   }
 
-  @Inject private FeaturesService featuresService;
+  /** To make sure the tests run only when the boot features are fully installed */
+  @Inject private BootFinished bootFinished;
 
   @Inject private FeatureUtilities featureUtilities;
 
@@ -74,6 +75,6 @@ public class ITCamelFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    featureUtilities.installAndUninstallFeature(featuresService, featureName);
+    featureUtilities.installAndUninstallFeature(featureName);
   }
 }

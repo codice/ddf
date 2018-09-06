@@ -18,9 +18,9 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -30,15 +30,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.Repository;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.ops4j.pax.exam.options.UrlProvisionOption;
 import org.osgi.framework.Bundle;
@@ -49,45 +48,54 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 public class FeatureUtilities {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureUtilities.class);
 
-  public static final String FEATURE_NAME_XPATH = "//*[local-name() = 'feature']/@name";
+  private static final String FEATURE_XPATH =
+      "/*[local-name() = 'features']/*[local-name() = 'feature']";
 
   private BundleService bundleService;
 
   /**
-   * Returns a list of feature names defined in a feature file.
+   * Returns a list of feature ids (name/version) defined in a feature file.
    *
    * @param featureFilePath
-   * @return feature names in feature file
+   * @return feature feature ids in feature file
    */
   public static List<String> getFeaturesFromFeatureRepo(String featureFilePath) {
     XPath xPath = XPathFactory.newInstance().newXPath();
-    List<String> featureNames = new ArrayList<>();
+    List<String> featureIds = new ArrayList<>();
 
     try (FileInputStream fi = new FileInputStream(new File(featureFilePath))) {
       Document featuresFile = XMLUtils.getInstance().getSecureDocumentBuilder(false).parse(fi);
 
       NodeList features =
-          (NodeList)
-              xPath.compile(FEATURE_NAME_XPATH).evaluate(featuresFile, XPathConstants.NODESET);
+          (NodeList) xPath.compile(FEATURE_XPATH).evaluate(featuresFile, XPathConstants.NODESET);
+
+      LOGGER.info("Found {} feature(s)", features.getLength());
 
       for (int i = 0; i < features.getLength(); i++) {
-        featureNames.add(features.item(i).getNodeValue());
+        NamedNodeMap attributes = features.item(i).getAttributes();
+        Node name = attributes.getNamedItem("name");
+        Node version = attributes.getNamedItem("version");
+        String featureId = String.format("%s/%s", name.getNodeValue(), version.getNodeValue());
+        LOGGER.info("Found feature id: {}", featureId);
+        featureIds.add(featureId);
       }
-    } catch (ParserConfigurationException
-        | XPathExpressionException
-        | IOException
-        | SAXException e) {
+    } catch (Exception e) {
+      LOGGER.error(
+          "Error encountered using xpath to retrieve names and versions from {}",
+          featureFilePath,
+          e);
       throw new RuntimeException(
           "Unable to read features names in feature file at: " + featureFilePath, e);
     }
-    return featureNames;
+    return featureIds;
   }
 
   /**
@@ -113,7 +121,7 @@ public class FeatureUtilities {
       String featureFilePath, List<String> ignoredFeatures) {
     return getFeaturesFromFeatureRepo(featureFilePath)
         .stream()
-        .filter(f -> !ignoredFeatures.contains(f))
+        .filter(f -> !ignoredFeatures.contains(f.split("/")[0]))
         .map(feat -> new Object[] {feat})
         .collect(Collectors.toList());
   }
@@ -154,15 +162,13 @@ public class FeatureUtilities {
   /**
    * Uninstalls the specified feature.
    *
-   * @param featuresService
    * @param featureName
    * @throws Exception
    */
-  public void uninstallFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
+  public void uninstallFeature(String featureName) throws Exception {
     long startTime = System.currentTimeMillis();
     LOGGER.info("{} feature uninstalling", featureName);
-    featuresService.uninstallFeature(featureName);
+    getFeaturesService().uninstallFeature(featureName);
     LOGGER.info(
         "{} feature uninstalled in {} ms.", featureName, (System.currentTimeMillis() - startTime));
   }
@@ -170,31 +176,33 @@ public class FeatureUtilities {
   /**
    * Installs the specified feature. Waits for all bundles to move into the Active state.
    *
-   * @param featuresService
    * @param featureName
    * @throws Exception
    */
-  public void installFeature(FeaturesService featuresService, String featureName) throws Exception {
-    long startTime = System.currentTimeMillis();
-    LOGGER.info("{} feature installing", featureName);
-    featuresService.installFeature(featureName);
-    waitForRequiredBundles("");
-    LOGGER.info(
-        "{} feature installed in {} ms.", featureName, (System.currentTimeMillis() - startTime));
+  public void installFeature(String featureName) throws Exception {
+    try {
+      long startTime = System.currentTimeMillis();
+      LOGGER.info("\n\n\n{} feature installing", featureName);
+      getFeaturesService().installFeature(featureName.split("/")[0], featureName.split("/")[1]);
+      waitForRequiredBundles("");
+      LOGGER.info(
+          "{} feature installed in {} ms.", featureName, (System.currentTimeMillis() - startTime));
+    } catch (Exception e) {
+      LOGGER.error("Installation of feature {} failed.", featureName, e);
+      throw e;
+    }
   }
 
   /**
    * Installs and uninstalls the specified feature. Ensures all bundles move into the Active state
    * before uninstalling.
    *
-   * @param featuresService
    * @param featureName
    * @throws Exception
    */
-  public void installAndUninstallFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
-    installFeature(featuresService, featureName);
-    uninstallFeature(featuresService, featureName);
+  public void installAndUninstallFeature(String featureName) throws Exception {
+    installFeature(featureName);
+    uninstallFeature(featureName);
   }
 
   private void printInactiveBundles() {
@@ -217,8 +225,9 @@ public class FeatureUtilities {
     Bundle bundle = FrameworkUtil.getBundle(FeatureUtilities.class);
     if (bundle != null) {
       return bundle.getBundleContext();
+    } else {
+      throw new IllegalStateException("Unable to get the bundle context.");
     }
-    return null;
   }
 
   private void printInactiveBundles(
@@ -253,7 +262,84 @@ public class FeatureUtilities {
     }
   }
 
-  private void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
+  private void printRepositories() throws Exception {
+    Repository[] repositories = getFeaturesService().listRepositories();
+    LOGGER.info("Listing all {} repositories...", repositories.length);
+    for (Repository repository : repositories) {
+      LOGGER.info(
+          "Repository Name: {}; Repository URI: {}", repository.getName(), repository.getURI());
+    }
+    LOGGER.info("Finished listing all repositories.");
+  }
+
+  private void printFeatures(FeaturesService featuresService) {
+    try {
+      org.apache.karaf.features.Feature[] features = featuresService.listFeatures();
+      LOGGER.info("Listing all {} feature(s) for: {}", features.length, featuresService);
+      for (org.apache.karaf.features.Feature feature : features) {
+        LOGGER.info(
+            "Feature id: {}; Feature Name: {}; Feature version: {}",
+            feature.getId(),
+            feature.getName(),
+            feature.getVersion());
+      }
+      LOGGER.info("Finished listing all features.");
+    } catch (Exception e) {
+      LOGGER.error("Error listing features for: {}.", featuresService);
+    }
+  }
+
+  private FeaturesService getFeaturesService() throws Exception {
+    Collection<ServiceReference<FeaturesService>> serviceReferences =
+        getBundleContext().getServiceReferences(FeaturesService.class, null);
+    LOGGER.info(
+        "Found {} service reference(s) for interface {}.",
+        serviceReferences.size(),
+        FeaturesService.class.getName());
+    serviceReferences
+        .stream()
+        .forEach(r -> LOGGER.info("service: {}", getBundleContext().getService(r)));
+    if (serviceReferences.isEmpty()) {
+      LOGGER.error("Unable to find a service reference for {}.", FeaturesService.class.getName());
+      throw new RuntimeException(
+          "Unable to find a service reference for " + FeaturesService.class.getName() + ".");
+    } else if (serviceReferences.size() > 1) {
+      FeaturesService fs =
+          getBundleContext().getService(serviceReferences.stream().findFirst().get());
+      LOGGER.info(
+          "Found {} service references for {} when there should only be 1. Returning: {}.",
+          serviceReferences.size(),
+          FeaturesService.class.getName(),
+          fs);
+      LOGGER.info("Printing features for {} features services.", serviceReferences.size());
+      serviceReferences.stream().forEach(r -> printFeatures(getBundleContext().getService(r)));
+      return fs;
+    } else {
+      FeaturesService fs =
+          getBundleContext().getService(serviceReferences.stream().findFirst().get());
+      LOGGER.info(
+          "Found only 1 service reference for {}. Returning: {}.",
+          FeaturesService.class.getName(),
+          fs);
+      return fs;
+    }
+  }
+
+  private void printBundles() {
+    Bundle[] bundles = getBundleContext().getBundles();
+    LOGGER.info("Listing all {} bundles(s)...", bundles.length);
+    for (Bundle bundle : bundles) {
+      LOGGER.info(
+          "Bundle id: {}; Bundle Name: {}; Bundle version: {}; Bundle state: {}",
+          bundle.getBundleId(),
+          bundle.getSymbolicName(),
+          bundle.getVersion(),
+          BUNDLE_STATES.get(bundle.getState()));
+    }
+    LOGGER.info("Finished listing all bundles.");
+  }
+
+  public void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
     boolean ready = false;
 
     if (bundleService == null) {

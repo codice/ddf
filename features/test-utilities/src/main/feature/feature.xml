@@ -18,6 +18,12 @@
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
 
+    <feature name="hamcrest-all" version="${project.version}"
+             description="Hamcrest bundles for asserting test cases.">
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/1.3_1
+        </bundle>
+    </feature>
+
     <feature name="test-common" version="${project.version}"
              description="Common utilities for testing">
         <feature>guava</feature>
@@ -28,9 +34,4 @@
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
     </feature>
 
-    <feature name="hamcrest-all" version="${project.version}"
-             description="Hamcrest bundles for asserting test cases.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/1.3_1
-        </bundle>
-    </feature>
 </features>
