@@ -148,7 +148,7 @@ module.exports = Marionette.LayoutView.extend({
     for (const [index, metacard] of metacards.entries()) {
       queryParts.push(`(("id" ILIKE '${metacard.metacard.id}'))`)
     }
-    return `('${queryParts.join(' OR ')}')`
+    return `(${queryParts.join(' OR ')})`
   },
   saveExport: (data, status, xhr) => {
     if (status === 200) {
