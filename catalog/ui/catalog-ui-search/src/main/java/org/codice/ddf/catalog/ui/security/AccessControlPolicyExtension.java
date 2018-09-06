@@ -27,12 +27,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.shiro.authz.Permission;
 
 public class AccessControlPolicyExtension implements PolicyExtension {
+
+  // Marker interface to clean up method signature for predicate
+  public interface SecurityPredicate
+      extends BiFunction<Map<String, Set<String>>, Map<String, Set<String>>, Boolean> {}
 
   private static final Set<String> ACCESS_CONTROL_IMPLIED =
       new ImmutableSet.Builder<String>()
@@ -43,93 +50,75 @@ public class AccessControlPolicyExtension implements PolicyExtension {
               SecurityAttributes.ACCESS_GROUPS)
           .build();
 
-  private AccessControlSecurityConfiguration config;
+  private final SecurityPredicate isOwner;
 
-  private SubjectIdentity subjectIdentity;
+  private final SecurityPredicate hasAccessAdministrators;
+
+  private final SecurityPredicate hasAccessGroups;
+
+  private final SecurityPredicate hasAccessIndividuals;
+
+  private final Predicate<Map<String, Set<String>>> isSystem;
 
   public AccessControlPolicyExtension(
       AccessControlSecurityConfiguration config, SubjectIdentity subjectIdentity) {
-    this.config = config;
-    this.subjectIdentity = subjectIdentity;
+    isOwner = predicate(subjectIdentity.getIdentityAttribute(), Core.METACARD_OWNER);
+
+    isSystem =
+        (s) -> {
+          Set<String> subject =
+              s.getOrDefault(config.getSystemUserAttribute(), Collections.emptySet());
+          return subject.contains(config.getSystemUserAttributeValue());
+        };
+
+    hasAccessAdministrators =
+        predicate(subjectIdentity.getIdentityAttribute(), Security.ACCESS_ADMINISTRATORS);
+
+    hasAccessGroups = predicate(Constants.ROLES_CLAIM_URI, SecurityAttributes.ACCESS_GROUPS);
+
+    hasAccessIndividuals =
+        predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_INDIVIDUALS);
   }
 
-  private List<KeyValuePermission> getPermissions(KeyValueCollectionPermission collection) {
-    return collection
-        .getPermissionList()
+  private Map<String, Set<String>> getPermissions(List<Permission> permissions) {
+    return permissions
         .stream()
         .filter(p -> p instanceof KeyValuePermission)
         .map(p -> (KeyValuePermission) p)
-        .collect(Collectors.toList());
-  }
-
-  private Map<String, Set<String>> groupPermissionsByKey(List<KeyValuePermission> permissions) {
-    return permissions
-        .stream()
         .collect(
             Collectors.toMap(
                 KeyValuePermission::getKey, KeyValuePermission::getValues, Sets::union));
   }
 
-  private Predicate<CollectionPermission> system() {
-    Set<String> values = ImmutableSet.of(config.getSystemUserAttributeValue());
-    KeyValuePermission perm = new KeyValuePermission(config.getSystemUserAttribute(), values);
-    return (subject) -> subject.implies(perm);
-  }
-
-  private Predicate<CollectionPermission> predicate(
-      Map<String, Set<String>> permissions, String k1, String k2) {
-    if (!permissions.containsKey(k1)) {
-      return (subject) -> false;
-    }
-    return (subject) -> subject.implies(new KeyValuePermission(k2, permissions.get(k1)));
-  }
-
-  private Predicate<CollectionPermission> owner(Map<String, Set<String>> permissions) {
-    return predicate(permissions, Core.METACARD_OWNER, subjectIdentity.getIdentityAttribute());
-  }
-
-  private Predicate<CollectionPermission> accessAdministrators(
-      Map<String, Set<String>> permissions) {
-    return predicate(
-        permissions, Security.ACCESS_ADMINISTRATORS, subjectIdentity.getIdentityAttribute());
-  }
-
-  private Predicate<CollectionPermission> individuals(Map<String, Set<String>> permissions) {
-    return predicate(
-        permissions, SecurityAttributes.ACCESS_INDIVIDUALS, subjectIdentity.getIdentityAttribute());
-  }
-
-  private Predicate<CollectionPermission> groups(Map<String, Set<String>> permissions) {
-    return predicate(permissions, SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
+  private SecurityPredicate predicate(String subjectAttribute, String metacardAttribute) {
+    return (s, m) -> {
+      Set<String> subject = s.getOrDefault(subjectAttribute, Collections.emptySet());
+      Set<String> metacard = m.getOrDefault(metacardAttribute, Collections.emptySet());
+      return !SetUtils.intersection(metacard, subject).isEmpty();
+    };
   }
 
   private KeyValueCollectionPermission isPermitted(
-      CollectionPermission subject,
+      CollectionPermission s,
       KeyValueCollectionPermission match,
       KeyValueCollectionPermission allPerms) {
-    List<KeyValuePermission> permissions = getPermissions(allPerms);
-    Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
+    Map<String, Set<String>> subject = getPermissions(s.getPermissionList());
+    Map<String, Set<String>> metacard = getPermissions(allPerms.getPermissionList());
 
     // There is nothing to imply if the incoming permission set doesn't contain _ALL_ ACL attributes
-    if (Collections.disjoint(grouped.keySet(), ACCESS_CONTROL_IMPLIED)) {
+    if (Collections.disjoint(metacard.keySet(), ACCESS_CONTROL_IMPLIED)) {
       return match; // Simply imply nothing early on (essentially a no-op in this extension)
     }
-
-    Predicate<CollectionPermission> isSystem = system();
-    Predicate<CollectionPermission> isOwner = owner(grouped);
-    Predicate<CollectionPermission> hasAccessAdministrators = accessAdministrators(grouped);
-    Predicate<CollectionPermission> hasAccessIndividuals = individuals(grouped);
-    Predicate<CollectionPermission> hasAccessGroups = groups(grouped);
 
     // get all permissions implied by the subject, this function returns what permissions
     // to filter from the key-value permission collection
     Supplier<Set<String>> impliedPermissions =
         () -> {
-          if (isSystem.test(subject) || isOwner.test(subject)) {
-            return grouped.keySet(); // all permissions are implied
-          } else if (hasAccessAdministrators.test(subject)
-              || hasAccessIndividuals.test(subject)
-              || hasAccessGroups.test(subject)) {
+          if (isSystem.test(subject) || isOwner.apply(subject, metacard)) {
+            return metacard.keySet(); // all permissions are implied
+          } else if (hasAccessAdministrators.apply(subject, metacard)
+              || hasAccessIndividuals.apply(subject, metacard)
+              || hasAccessGroups.apply(subject, metacard)) {
             return ACCESS_CONTROL_IMPLIED; // access control perms implied
           } else {
             return Collections.emptySet(); // nothing is implied
@@ -140,9 +129,11 @@ public class AccessControlPolicyExtension implements PolicyExtension {
     Function<Set<String>, KeyValueCollectionPermission> filterPermissions =
         (implied) -> {
           List<KeyValuePermission> values =
-              permissions
+              match
+                  .getPermissionList()
                   .stream()
-                  .filter((permission) -> !implied.contains(permission.getKey()))
+                  .map(p -> (KeyValuePermission) p)
+                  .filter((permission) -> !implied.contains((permission).getKey()))
                   .collect(Collectors.toList());
 
           return new KeyValueCollectionPermission(match.getAction(), values);

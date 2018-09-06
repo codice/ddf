@@ -18,7 +18,6 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
@@ -488,40 +487,6 @@ public class MetacardApplication implements SparkApplication {
           return util.getJson(response);
         });
 
-    // TODO: There should be almost 0 logic in this
-    //    put(
-    //        "/sharing/:id",
-    //        (req, res) -> {
-    //          String id = req.params(":id");
-    //
-    //          Map<String, Object> inputMetacard =
-    //              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
-    //
-    //          Metacard metacard = util.getMetacard(id);
-    //
-    //          if (canShare(metacard) && !isSystemTemplate(metacard)) {
-    //            metacard.setAttribute(
-    //                new AttributeImpl(
-    //                    SecurityAttributes.ACCESS_INDIVIDUALS,
-    //                    getSecurityAttributes(inputMetacard,
-    // SecurityAttributes.ACCESS_INDIVIDUALS)));
-    //
-    //            metacard.setAttribute(
-    //                new AttributeImpl(
-    //                    SecurityAttributes.ACCESS_GROUPS,
-    //                    getSecurityAttributes(inputMetacard, SecurityAttributes.ACCESS_GROUPS)));
-    //
-    //            updateMetacard(id, metacard);
-    //            return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, "Metacard Updated
-    // Successfully!");
-    //
-    //          } else {
-    //            res.status(401);
-    //            return util.getResponseWrapper(
-    //                ERROR_RESPONSE_TYPE, "Could not share or update this item.");
-    //          }
-    //        });
-
     put(
         "/workspaces/:id",
         APPLICATION_JSON,
@@ -902,10 +867,6 @@ public class MetacardApplication implements SparkApplication {
     revertMetacard(versionMetacard, id, alreadyCreated);
   }
 
-  private boolean isSystemTemplate(Metacard metacard) {
-    return metacard.getTags().contains(SYSTEM_TEMPLATE);
-  }
-
   private void trySleep(long millis) {
     try {
       Thread.sleep(millis);
@@ -959,18 +920,6 @@ public class MetacardApplication implements SparkApplication {
       LOGGER.debug("Could not delete the deleted metacard marker", e);
     }
     LOGGER.trace("Deleted delete marker metacard successfully");
-  }
-
-  private List<Serializable> getSecurityAttributes(
-      Map<String, Object> inputMetacard, String securityAccess) {
-    return (List<Serializable>)
-        inputMetacard
-            .entrySet()
-            .stream()
-            .filter(obj -> obj.getKey().contains(securityAccess))
-            .flatMap(e -> ((List) e.getValue()).stream())
-            .map(Object::toString)
-            .collect(Collectors.toList());
   }
 
   /**

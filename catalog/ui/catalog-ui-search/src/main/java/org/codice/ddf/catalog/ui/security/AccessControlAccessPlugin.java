@@ -19,8 +19,8 @@ import static org.codice.ddf.catalog.ui.security.AccessControlUtil.accessIndivid
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.attributeToSet;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.isAnyObjectNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -38,23 +38,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 
 public class AccessControlAccessPlugin implements AccessPlugin {
 
-  private final SubjectIdentity subjectIdentity;
+  private Supplier<String> subjectSupplier;
 
   public AccessControlAccessPlugin(SubjectIdentity subjectIdentity) {
-    this.subjectIdentity = subjectIdentity;
-  }
-
-  protected Subject getSubject() {
-    return SecurityUtils.getSubject();
-  }
-
-  private String getSubjectIdentifier() {
-    return subjectIdentity.getUniqueIdentifier(getSubject());
+    this.subjectSupplier = () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
   }
 
   // Equivalent to doing a set intersection of the subject with the access-admin list
@@ -62,14 +54,17 @@ public class AccessControlAccessPlugin implements AccessPlugin {
       (newMetacard) ->
           attributeToSet
               .apply(newMetacard, Security.ACCESS_ADMINISTRATORS)
-              .contains(getSubjectIdentifier());
+              .contains(subjectSupplier.get());
 
-  @VisibleForTesting
-  public boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
+  private final Predicate<Metacard> subjectIsOwner =
+      (newMetacard) ->
+          attributeToSet.apply(newMetacard, Core.METACARD_OWNER).contains(subjectSupplier.get());
+
+  private boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated)
-        && accessAdminHasChanged.apply(prev, updated)
-        && accessIndividualsHasChanged.apply(prev, updated)
-        && accessGroupsHasChanged.apply(prev, updated);
+        && (accessAdminHasChanged.apply(prev, updated)
+            || accessIndividualsHasChanged.apply(prev, updated)
+            || accessGroupsHasChanged.apply(prev, updated));
   }
 
   @Override
@@ -82,7 +77,14 @@ public class AccessControlAccessPlugin implements AccessPlugin {
       UpdateRequest input, Map<String, Metacard> existingMetacards) throws StopProcessingException {
 
     Function<Metacard, Metacard> oldVersionOfMetacard =
-        (update) -> Optional.of(existingMetacards.get(update.getId())).orElse(null);
+        (update) -> {
+          Optional<Metacard> oldMetacard =
+              Optional.ofNullable(existingMetacards.get(update.getId()));
+          if (oldMetacard.isPresent()) {
+            return oldMetacard.get();
+          }
+          return null;
+        };
 
     boolean foundInaccessibleMetacard =
         input
@@ -94,13 +96,13 @@ public class AccessControlAccessPlugin implements AccessPlugin {
                     isAccessControlUpdated(
                         oldVersionOfMetacard.apply(newVersionOfMetacard), newVersionOfMetacard))
             .filter(Objects::nonNull)
-            .filter(subjectIsAccessAdmin.negate())
+            .filter(mc -> !subjectIsAccessAdmin.test(mc) && !subjectIsOwner.test(mc))
             .findFirst()
             .isPresent();
 
     if (foundInaccessibleMetacard) {
       throw new StopProcessingException(
-          "Cannot update metacard(s). Subject cannot change sharing permissions because they are not in the assigned access-administrators list.");
+          "Cannot update metacard(s). Subject cannot change access control permissions because they are not in the assigned access-administrators list.");
     }
 
     return input;

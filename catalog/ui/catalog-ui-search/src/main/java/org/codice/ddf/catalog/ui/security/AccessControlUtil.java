@@ -13,11 +13,16 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
 import java.io.Serializable;
@@ -38,22 +43,18 @@ public class AccessControlUtil {
   public static BiFunction<Metacard, String, Set<String>> attributeToSet =
       (metacard, attr) -> new HashSet<>(getValuesOrEmpty(metacard, attr));
 
+  private static BiFunction<Metacard, String, Boolean> metacardDescriptorsContain =
+      (metacard, attr) -> metacard.getAttribute(attr) != null;
+
   /**
    * It will be a pre-condition contain the full set of security attributes to enable access
    * control.
    */
   public static Predicate<Metacard> containsACLAttributes =
       (metacard) ->
-          !isAnyObjectNull(
-              metacard
-                  .getMetacardType()
-                  .getAttributeDescriptors()
-                  .contains(Security.ACCESS_INDIVIDUALS),
-              metacard.getMetacardType().getAttributeDescriptors().contains(Security.ACCESS_GROUPS),
-              metacard
-                  .getMetacardType()
-                  .getAttributeDescriptors()
-                  .contains(Security.ACCESS_ADMINISTRATORS));
+          metacardDescriptorsContain.apply(metacard, Security.ACCESS_ADMINISTRATORS)
+              || metacardDescriptorsContain.apply(metacard, Security.ACCESS_GROUPS)
+              || metacardDescriptorsContain.apply(metacard, Security.ACCESS_INDIVIDUALS);
 
   /**
    * Does a diff between the old set of {@link Metacard} access-administrators with the set to see
@@ -128,8 +129,14 @@ public class AccessControlUtil {
   }
 
   /** Sets owner value associated with a particular {@link Metacard} */
-  public static Metacard setOwner(Metacard metacard, String email) {
-    metacard.setAttribute(new AttributeImpl(Core.METACARD_OWNER, email));
+  public static Metacard setOwner(Metacard metacard, String subjectIdentity) {
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_OWNER, subjectIdentity));
+    return metacard;
+  }
+
+  public static Metacard setAccessAdministrator(Metacard metacard, String subjectIdentity) {
+    metacard.setAttribute(
+        new AttributeImpl(Security.ACCESS_ADMINISTRATORS, ImmutableSet.of(subjectIdentity)));
     return metacard;
   }
 
@@ -142,9 +149,25 @@ public class AccessControlUtil {
     return null;
   }
 
-  /** Creates a metacard from a map of desired attributes */
+  /** Retrieves owner value associated with a particular {@link Metacard} */
+  public static Set<String> getOwnerOrEmptySet(Metacard metacard) {
+    List<String> values = getValuesOrEmpty(metacard, Core.METACARD_OWNER);
+    if (!values.isEmpty()) {
+      return ImmutableSet.of(values.get(0));
+    }
+    return Collections.emptySet();
+  }
+
+  /** Creates a metacard from a map of desired attributes - used for testing */
+  @VisibleForTesting
   public static Metacard metacardFromAttributes(Map<String, Serializable> attributes) {
-    Metacard metacard = new MetacardImpl();
+    Metacard metacard =
+        new MetacardImpl(
+            new MetacardTypeImpl(
+                "type",
+                ImmutableSet.<AttributeDescriptor>builder()
+                    .addAll(new SecurityAttributes().getAttributeDescriptors())
+                    .build()));
     attributes
         .entrySet()
         .stream()

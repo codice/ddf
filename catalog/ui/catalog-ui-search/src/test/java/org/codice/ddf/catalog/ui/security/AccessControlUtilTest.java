@@ -13,26 +13,66 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
 import org.junit.Test;
 
 public class AccessControlUtilTest {
 
   @Test
-  public void getValuesOrEmpty() {}
+  public void getAccessIndividuals() {
+    Metacard metacard =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                "123",
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableList.of("person1", "person2")));
+    assertThat(
+        AccessControlUtil.getAccessIndividuals(metacard),
+        is(ImmutableSet.of("person1", "person2")));
+  }
 
   @Test
-  public void getAccessIndividuals() {}
+  public void getAccessGroups() {
+    Metacard metacard =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                "123",
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("person1", "person2")));
+    assertThat(
+        AccessControlUtil.getAccessGroups(metacard), is(ImmutableSet.of("person1", "person2")));
+  }
 
   @Test
-  public void getAccessGroups() {}
-
-  @Test
-  public void getAccessAdministrators() {}
+  public void getAccessAdministrators() {
+    Metacard metacard =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                "123",
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                ImmutableList.of("person1", "person2")));
+    assertThat(
+        AccessControlUtil.getAccessAdministrators(metacard),
+        is(ImmutableSet.of("person1", "person2")));
+  }
 
   @Test
   public void setOwner() {
@@ -48,23 +88,47 @@ public class AccessControlUtilTest {
                 SecurityAttributes.ACCESS_GROUPS,
                 ImmutableSet.of("admin")));
 
-    Metacard after =
-        AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(
-                Core.ID,
-                id,
-                Core.METACARD_OWNER,
-                "before",
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableSet.of("admin", "guest")));
+    assertThat(before.getAttribute(Core.METACARD_OWNER).getValue(), is("before"));
+    AccessControlUtil.setOwner(before, "newowner");
+    assertThat(before.getAttribute(Core.METACARD_OWNER).getValue(), is("newowner"));
   }
 
   @Test
-  public void getOwner() {}
+  public void getOwner() {
+    Metacard metacard =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                "123",
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                "owner"));
+    assertThat(metacard.getAttribute(Core.METACARD_OWNER).getValue(), is("owner"));
+  }
 
   @Test
-  public void metacardFromAttributes() {}
+  public void metacardFromAttributes() {
+    Metacard metacard =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                "123",
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                "owner"));
+
+    assertThat(metacard.getAttribute(Core.ID).getValue(), is("123"));
+    assertThat(metacard.getAttribute(Core.METACARD_OWNER).getValue(), is("owner"));
+    assertThat(
+        metacard.getAttribute(Security.ACCESS_ADMINISTRATORS).getValues(),
+        is(ImmutableList.of("owner")));
+  }
 
   @Test
-  public void isAnyObjectNull() {}
+  public void isAnyObjectNull() {
+    assertThat(AccessControlUtil.isAnyObjectNull(null, 1, 4, "test"), is(true));
+    assertThat(AccessControlUtil.isAnyObjectNull(3, 1, 4, "test"), is(false));
+  }
 }

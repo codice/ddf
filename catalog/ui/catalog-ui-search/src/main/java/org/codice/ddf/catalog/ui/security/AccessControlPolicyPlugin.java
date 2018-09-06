@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.ui.security;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.containsACLAttributes;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -55,8 +54,7 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
   }
 
   private Map<String, Set<String>> getOwner(Metacard metacard) {
-    return ImmutableMap.of(
-        Core.METACARD_OWNER, ImmutableSet.of(AccessControlUtil.getOwner(metacard)));
+    return ImmutableMap.of(Core.METACARD_OWNER, AccessControlUtil.getOwnerOrEmptySet(metacard));
   }
 
   private Map<String, Set<String>> getPolicyForMetacard(Metacard metacard) {

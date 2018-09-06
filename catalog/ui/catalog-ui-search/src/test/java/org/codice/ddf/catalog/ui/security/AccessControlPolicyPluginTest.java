@@ -65,23 +65,24 @@ public class AccessControlPolicyPluginTest {
                 Core.METACARD_OWNER,
                 "owner",
                 SecurityAttributes.ACCESS_ADMINISTRATORS,
-                ImmutableList.of("owner"),
+                ImmutableList.of("owner@owner.com"),
                 SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
+                ImmutableList.of("group"),
                 SecurityAttributes.ACCESS_INDIVIDUALS,
-                ImmutableList.of("")));
+                ImmutableList.of("owner@owner.com")));
 
     PolicyResponse response = plugin.processPreUpdate(metacard, properties);
+
     assertThat(
         response.itemPolicy(),
         is(
             ImmutableMap.of(
                 SecurityAttributes.ACCESS_GROUPS,
-                Collections.singleton(""),
+                Collections.singleton("group"),
                 SecurityAttributes.ACCESS_ADMINISTRATORS,
-                Collections.singleton("owner"),
+                Collections.singleton("owner@owner.com"),
                 SecurityAttributes.ACCESS_INDIVIDUALS,
-                Collections.singleton(""),
+                Collections.singleton("owner@owner.com"),
                 Core.METACARD_OWNER,
                 Collections.singleton("owner"))));
   }

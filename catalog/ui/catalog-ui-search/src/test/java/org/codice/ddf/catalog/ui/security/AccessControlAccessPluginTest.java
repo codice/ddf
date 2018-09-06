@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -62,17 +63,9 @@ public class AccessControlAccessPluginTest {
     when(subjectIdentity.getUniqueIdentifier(subject)).thenReturn(MOCK_IDENTITY_ATTR);
     when(mockMetacard.getAttribute(Security.ACCESS_ADMINISTRATORS)).thenReturn(mockAttribute);
     when(mockAttribute.getValues()).thenReturn(Collections.singletonList(MOCK_IDENTITY_ATTR));
+    ThreadContext.bind(subject);
 
-    accessPlugin =
-        new AccessControlAccessPlugin(subjectIdentity) {
-          public boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
-            return true;
-          }
-
-          public Subject getSubject() {
-            return subject;
-          }
-        };
+    accessPlugin = new AccessControlAccessPlugin(subjectIdentity);
   }
 
   private UpdateRequest mockUpdateRequest(Map<String, Metacard> updates) {
@@ -93,27 +86,55 @@ public class AccessControlAccessPluginTest {
 
   @Test(expected = StopProcessingException.class)
   public void testUnauthorizedUserFailsUpdate() throws Exception {
-    // Represents current list of those in access-administrators list
-    when(mockAttribute.getValues()).thenReturn(Collections.emptyList());
 
-    Map<String, Metacard> updates = ImmutableMap.of(MOCK_METACARD_ID, mockMetacard);
-    UpdateRequest update = mockUpdateRequest(updates);
+    Metacard before =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableSet.of("admin")));
 
-    // User not in ACL attempted to modify metacard perms, which will throw exception
-    accessPlugin.processPreUpdate(update, updates);
+    Metacard after =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableSet.of("admin", "guest")));
+
+    UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
+    accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
   }
 
   @Test(expected = StopProcessingException.class)
   public void testBasicUpdateFailsWithMissingAdmin() throws Exception {
-    Metacard testMetacard =
+    Metacard before =
         AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(Core.ID, MOCK_METACARD_ID, Core.METACARD_OWNER, "guest"));
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableSet.of("admin")));
 
-    Map<String, Metacard> updates = ImmutableMap.of(MOCK_METACARD_ID, testMetacard);
-    UpdateRequest update = mockUpdateRequest(updates);
+    Metacard after =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableSet.of("admin", "guest")));
 
-    // admin not in ACL, so update fails
-    accessPlugin.processPreUpdate(update, updates);
+    UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
+    accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
   }
 
   @Test(expected = StopProcessingException.class)

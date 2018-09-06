@@ -27,10 +27,10 @@ import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.MatchOneCollectionPermission;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import org.apache.shiro.authz.Permission;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,19 +72,8 @@ public class AccessControlPolicyExtensionTest {
     extension = new AccessControlPolicyExtension(config, subjectIdentity);
   }
 
-  private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
-    return new CollectionPermission() {
-      @Override
-      public boolean implies(Permission p) {
-        return fn.test((KeyValuePermission) p);
-      }
-    };
-  }
-
   private static CollectionPermission subjectFrom(List<Permission> ps) {
-    return makeSubject(
-        (KeyValuePermission p2) ->
-            ps.stream().filter((p1) -> p2.implies(p1)).findFirst().isPresent());
+    return new MatchOneCollectionPermission(ps);
   }
 
   private static CollectionPermission subjectFrom(Permission p) {
@@ -114,7 +103,7 @@ public class AccessControlPolicyExtensionTest {
   }
 
   @Test
-  public void testOwnerOfACLAlwaysImpliesAll() {
+  public void testOwnerOfMetacardImpliesAll() {
     List<Permission> before = ImmutableList.of(OWNER, INDIVIDUALS, ROLES, RANDOM);
 
     CollectionPermission subject =
@@ -127,7 +116,7 @@ public class AccessControlPolicyExtensionTest {
   }
 
   @Test
-  public void testAccessAdminOfACLAlwaysImplied() {
+  public void testAccessAdminOfAclAlwaysImplied() {
     List<Permission> before = ImmutableList.of(ADMINISTRATORS, INDIVIDUALS, ROLES);
 
     CollectionPermission subject =
@@ -142,7 +131,7 @@ public class AccessControlPolicyExtensionTest {
   }
 
   @Test
-  public void testNonACLMetacardsIgnored() {
+  public void testNonAclMetacardsIgnored() {
     List<Permission> before = ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM);
 
     CollectionPermission subject = subjectFrom(OWNER);
@@ -176,7 +165,7 @@ public class AccessControlPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(RANDOM)));
+    assertThat(after, is(before));
   }
 
   @Test
@@ -223,7 +212,7 @@ public class AccessControlPolicyExtensionTest {
 
   @Test
   public void testOverrideSystemRoleShouldImplyAll() {
-    String role = "system";
+    String role = "system-user";
     List<Permission> before = ImmutableList.of(OWNER, ROLES, ADMINISTRATORS, INDIVIDUALS, RANDOM);
 
     config.setSystemUserAttribute(Constants.ROLES_CLAIM_URI);
@@ -240,6 +229,8 @@ public class AccessControlPolicyExtensionTest {
 
   @Test
   public void testOverrideOwnerShouldImplyAll() {
+    when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
+    extension = new AccessControlPolicyExtension(config, subjectIdentity);
     String attr = "another";
     when(subjectIdentity.getIdentityAttribute()).thenReturn(attr);
 
@@ -255,6 +246,8 @@ public class AccessControlPolicyExtensionTest {
 
   @Test
   public void testOverrideOwnerShouldImplyNone() {
+    when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
+    extension = new AccessControlPolicyExtension(config, subjectIdentity);
     List<Permission> before = ImmutableList.of(OWNER, ADMINISTRATORS, ROLES, INDIVIDUALS, RANDOM);
 
     when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
@@ -265,6 +258,6 @@ public class AccessControlPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM)));
+    assertThat(after, is(ImmutableList.of(OWNER, ADMINISTRATORS, ROLES, INDIVIDUALS, RANDOM)));
   }
 }

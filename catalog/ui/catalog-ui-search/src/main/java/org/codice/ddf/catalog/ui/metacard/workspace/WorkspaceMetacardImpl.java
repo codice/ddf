@@ -17,7 +17,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Associations;
-import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,12 +58,6 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     return workspace;
   }
 
-  public Metacard setOwner(String email) {
-    setAttribute(Core.METACARD_OWNER, email);
-    return this;
-  }
-
-  /** Check if a given metacard is a workspace metacard by checking the tags metacard attribute. */
   public static boolean isWorkspaceMetacard(Metacard metacard) {
     return metacard != null && metacard.getTags().contains(WorkspaceConstants.WORKSPACE_TAG);
   }

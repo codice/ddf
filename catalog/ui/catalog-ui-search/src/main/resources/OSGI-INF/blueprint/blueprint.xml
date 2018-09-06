@@ -111,8 +111,8 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
     </service>
 
-    <bean id="accessControlPregIngestPlugin"
-          class="org.codice.ddf.catalog.ui.security.AccessControlPregIngestPlugin">
+    <bean id="accessControlPreIngestPlugin"
+          class="org.codice.ddf.catalog.ui.security.AccessControlPreIngestPlugin">
         <argument ref="subjectIdentity"/>
     </bean>
 
@@ -126,7 +126,7 @@
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <ref component-id="accessControlPregIngestPlugin"/>
+        <ref component-id="accessControlPreIngestPlugin"/>
     </service>
 
     <bean id="accessControlAccessPlugin"
