@@ -225,11 +225,9 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   updateUserPermissions: function(templatePerms) {
-    this.model.set(
-      'accessIndividuals',
-      templatePerms['security.access-individuals']
-    )
-    this.model.set('accessGroups', templatePerms['security.access-groups'])
+    debugger
+    this.model.set('accessIndividuals', templatePerms[0].attributes[0].values)
+    this.model.set('accessGroups', templatePerms[0].attributes[1].values)
   },
   cleanup: function() {
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
