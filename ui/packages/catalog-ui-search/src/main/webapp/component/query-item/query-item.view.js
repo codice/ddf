@@ -125,8 +125,7 @@ define([
             this.listenTo(this.model.get('result'), 'sync request error', this.handleStatus);
         },
         runQuery: function(e){
-            this.model.handleChangeResultCount();
-            this.model.startSearch();
+            this.model.startSearchFromFirstPage();
             e.stopPropagation();
         },
         stopQuery: function(e){
