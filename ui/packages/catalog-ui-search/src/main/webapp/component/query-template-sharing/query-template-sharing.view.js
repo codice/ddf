@@ -225,7 +225,6 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   updateUserPermissions: function(templatePerms) {
-    debugger
     this.model.set('accessIndividuals', templatePerms[0].attributes[0].values)
     this.model.set('accessGroups', templatePerms[0].attributes[1].values)
   },
