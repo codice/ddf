@@ -22,9 +22,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
@@ -35,6 +39,7 @@ import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
+import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -141,6 +146,10 @@ public class CqlTransformHandler implements Route {
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
+    if (queryResponseTransformer.getProperty("mime-type").toString().equals("[text/csv]")) {
+      arguments = csvTransformArgumentsAdapter(arguments);
+    }
+
     attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
 
     return "";
@@ -216,5 +225,41 @@ public class CqlTransformHandler implements Route {
     LOGGER.trace(
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
+  }
+
+  private Map<String, Serializable> csvTransformArgumentsAdapter(
+      Map<String, Serializable> arguments) {
+    String columnOrder = "\"columnOrder\":" + (String) mapper.toJson(arguments.get("columnOrder"));
+    String hiddenFields =
+        "\"hiddenFields\":" + (String) mapper.toJson(arguments.get("hiddenFields"));
+    String columnAliasMap =
+        "\"columnAliasMap\":" + (String) mapper.toJson(arguments.get("columnAliasMap"));
+    String csvBody = "{" + columnOrder + "," + columnAliasMap + "," + hiddenFields + "}";
+
+    CsvTransform queryTransform = mapper.readValue(csvBody, CsvTransform.class);
+
+    Set<String> hiddenFieldsSet =
+        queryTransform.getHiddenFields() != null
+            ? queryTransform.getHiddenFields()
+            : Collections.emptySet();
+
+    List<String> columnOrderList =
+        queryTransform.getColumnOrder() != null
+            ? queryTransform.getColumnOrder()
+            : Collections.emptyList();
+
+    Map<String, String> aliasMap =
+        queryTransform.getColumnAliasMap() != null
+            ? queryTransform.getColumnAliasMap()
+            : Collections.emptyMap();
+
+    Map<String, Serializable> args =
+        ImmutableMap.<String, Serializable>builder()
+            .put("hiddenFields", new HashSet<>(hiddenFieldsSet))
+            .put("columnOrder", new ArrayList<>(columnOrderList))
+            .put("aliases", new HashMap<>(aliasMap))
+            .build();
+
+    return args;
   }
 }
