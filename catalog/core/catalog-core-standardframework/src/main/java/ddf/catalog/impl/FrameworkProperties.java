@@ -13,7 +13,6 @@
  */
 package ddf.catalog.impl;
 
-import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
@@ -113,8 +112,6 @@ public class FrameworkProperties {
   private List<PreUpdateStoragePlugin> preUpdateStoragePlugins = new ArrayList<>();
 
   private List<PostUpdateStoragePlugin> postUpdateStoragePlugins = new ArrayList<>();
-
-  private ValidationQueryFactory validationQueryFactory;
 
   private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
@@ -355,14 +352,6 @@ public class FrameworkProperties {
 
   public void setPostUpdateStoragePlugins(List<PostUpdateStoragePlugin> postUpdateStoragePlugins) {
     this.postUpdateStoragePlugins = postUpdateStoragePlugins;
-  }
-
-  public void setValidationQueryFactory(ValidationQueryFactory validationQueryFactory) {
-    this.validationQueryFactory = validationQueryFactory;
-  }
-
-  public ValidationQueryFactory getValidationQueryFactory() {
-    return this.validationQueryFactory;
   }
 
   public void setDefaultAttributeValueRegistry(

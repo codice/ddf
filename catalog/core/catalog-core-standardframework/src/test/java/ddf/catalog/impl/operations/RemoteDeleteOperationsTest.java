@@ -24,12 +24,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.action.ActionRegistry;
-import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.impl.QueryResponsePostProcessor;
@@ -284,8 +282,6 @@ public class RemoteDeleteOperationsTest {
     frameworkProperties.setMimeTypeMapper(
         new MimeTypeMapperImpl(Collections.singletonList(mimeTypeResolver)));
     frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
-    frameworkProperties.setValidationQueryFactory(
-        new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(), new GeotoolsFilterBuilder()));
   }
 
   private void setUpMocks() throws IOException, CatalogTransformerException {
