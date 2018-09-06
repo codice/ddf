@@ -75,6 +75,7 @@ define([
             this.listenToOnce(this.model.get('result'), 'sync error', this.handleResult);
         },
         handleRun: function(){
+            this.model.handleChangeResultCount();
             this.model.startSearch();
         },
         handleRefreshResultCount: function(){
