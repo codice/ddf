@@ -34,7 +34,7 @@ class OpenSearchEndpointSpec extends Specification {
     private static final SortOrder DEFAULT_SORT_ORDER = SortOrder.DESCENDING
 
     @Unroll
-    def 'test parsing sort parameter'() {
+    def 'test parsing sort parameter "#sort"'() {
         given:
         final sortBy
         final catalogFramework = Mock(CatalogFramework)
@@ -83,8 +83,8 @@ class OpenSearchEndpointSpec extends Specification {
         1 * catalogFramework.transform({
             sortBy = it.getRequest().getQuery().getSortBy()
         }, _, _)
-        sortBy.getPropertyName().getPropertyName() equals expectedSortField
-        sortBy.getSortOrder() equals expectedSortOrder
+        sortBy.getPropertyName().getPropertyName() == expectedSortField
+        sortBy.getSortOrder() == expectedSortOrder
 
         where:
         sort                                             || expectedSortField  | expectedSortOrder
