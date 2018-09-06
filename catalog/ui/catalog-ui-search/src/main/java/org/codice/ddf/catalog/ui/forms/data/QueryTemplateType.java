@@ -21,7 +21,8 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
+import org.codice.ddf.catalog.ui.filter.impl.visit.TransformVisitor;
+import org.codice.ddf.catalog.ui.forms.model.FormTemplate;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
 
 /**
@@ -33,7 +34,7 @@ import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
  * in a future version of the library.</i>
  *
  * @see <a href="http://schemas.opengis.net/filter/2.0/">schemas.opengis.net/filter/2.0/</a>
- * @see org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate
+ * @see FormTemplate
  * @see org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode
  * @see TransformVisitor
  */

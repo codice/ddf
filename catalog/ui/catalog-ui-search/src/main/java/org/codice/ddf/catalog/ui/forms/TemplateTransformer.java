@@ -14,36 +14,37 @@
 package org.codice.ddf.catalog.ui.forms;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
-import ddf.catalog.filter.FilterBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.opengis.filter.v_2_0.FilterType;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
-import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
-import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
+import org.codice.ddf.catalog.ui.filter.impl.FilterNodeMapImpl;
+import org.codice.ddf.catalog.ui.filter.impl.FilterProcessingException;
+import org.codice.ddf.catalog.ui.filter.impl.FilterReader;
+import org.codice.ddf.catalog.ui.filter.impl.FilterWriter;
+import org.codice.ddf.catalog.ui.filter.impl.builder.JsonModelBuilder;
+import org.codice.ddf.catalog.ui.filter.impl.builder.XmlModelBuilder;
+import org.codice.ddf.catalog.ui.filter.impl.json.JsonFunctionRegistry;
+import org.codice.ddf.catalog.ui.filter.impl.visit.TransformVisitor;
+import org.codice.ddf.catalog.ui.filter.impl.visit.VisitableJsonElementImpl;
+import org.codice.ddf.catalog.ui.filter.impl.visit.VisitableXmlElementImpl;
+import org.codice.ddf.catalog.ui.filter.json.JsonFunctionTransform;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
-import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
-import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
-import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
-import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableJsonElementImpl;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
+import org.codice.ddf.catalog.ui.forms.model.FieldFilter;
+import org.codice.ddf.catalog.ui.forms.model.FormTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,17 +57,14 @@ import org.slf4j.LoggerFactory;
 public class TemplateTransformer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateTransformer.class);
 
+  private static final JsonFunctionRegistry REGISTRY = new JsonFunctionRegistry();
+
+  private static final FilterReader READER = new FilterReader();
+
   private final FilterWriter writer;
 
-  private final CatalogFramework catalogFramework;
-
-  private final FilterBuilder filterBuilder;
-
-  public TemplateTransformer(
-      FilterBuilder filterBuilder, CatalogFramework catalogFramework, FilterWriter writer) {
-    this.filterBuilder = filterBuilder;
+  public TemplateTransformer(FilterWriter writer) {
     this.writer = writer;
-    this.catalogFramework = catalogFramework;
   }
 
   public static boolean invalidFormTemplate(Metacard metacard) {
@@ -110,11 +108,13 @@ public class TemplateTransformer {
       }
 
       return metacard;
+
     } catch (JAXBException e) {
       LOGGER.error("XML generation failed for query template metacard's filter", e);
     } catch (FilterProcessingException e) {
-      LOGGER.error("Could not use filter JSON for template - {}", e.getMessage());
+      LOGGER.debug("Could not use filter JSON for template", e);
     }
+
     return null;
   }
 
@@ -127,13 +127,12 @@ public class TemplateTransformer {
     }
 
     QueryTemplateMetacard wrapped = new QueryTemplateMetacard(metacard);
-    TransformVisitor<FilterNode> visitor = new TransformVisitor<>(new JsonModelBuilder());
+    TransformVisitor<Map<String, Object>> visitor = new TransformVisitor<>(new JsonModelBuilder());
 
     String metacardOwner = retrieveOwnerIfPresent(metacard);
     Map<String, List<Serializable>> securityAttributes = retrieveSecurityIfPresent(metacard);
 
     try {
-      FilterReader reader = new FilterReader();
       String formsFilter = wrapped.getFormsFilter();
       if (formsFilter == null) {
         LOGGER.debug(
@@ -142,15 +141,16 @@ public class TemplateTransformer {
         return null;
       }
       JAXBElement<FilterType> root =
-          reader.unmarshalFilter(new ByteArrayInputStream(formsFilter.getBytes("UTF-8")));
+          READER.unmarshalFilter(
+              new ByteArrayInputStream(formsFilter.getBytes(StandardCharsets.UTF_8)));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return new FormTemplate(
           wrapped,
-          visitor.getResult(),
+          collapseFilterFunctions(visitor.getResult()),
           securityAttributes,
           metacardOwner,
           wrapped.getQuerySettings());
-    } catch (JAXBException | UnsupportedEncodingException e) {
+    } catch (JAXBException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "
               + metacard.getId(),
@@ -232,5 +232,48 @@ public class TemplateTransformer {
 
     return ImmutableMap.of(
         Security.ACCESS_INDIVIDUALS, accessIndividuals, Security.ACCESS_GROUPS, accessGroups);
+  }
+
+  private static Map<String, Object> collapseFilterFunctions(Map<String, Object> filter) {
+    return transformFilterFunctions(
+        filter, JsonFunctionTransform::canApplyFromFunction, JsonFunctionTransform::fromFunction);
+  }
+
+  /**
+   * Transform a filter JSON structure based upon the invocations provided.
+   *
+   * @param filter original filter JSON map.
+   * @param shouldDoTransform invocation on transform; calls appropriate boolean check.
+   * @param howToDoTransform invocation on transform; calls the actual transform itself.
+   * @return transformed filter JSON map.
+   */
+  private static Map<String, Object> transformFilterFunctions(
+      Map<String, Object> filter,
+      BiFunction<JsonFunctionTransform, Map<String, Object>, Boolean> shouldDoTransform,
+      BiFunction<JsonFunctionTransform, Map<String, Object>, Map<String, Object>>
+          howToDoTransform) {
+    if ("AND".equals(filter.get("type")) || "OR".equals(filter.get("type"))) {
+      return ImmutableMap.<String, Object>builder()
+          .put("type", filter.get("type"))
+          .put(
+              "filters",
+              ((List<Map<String, Object>>) filter.get("filters"))
+                  .stream()
+                  // This will also be a BiFunction param when filter func expansions are needed
+                  // Hard-coded to "collapseFilterFunctions" for now
+                  .map(TemplateTransformer::collapseFilterFunctions)
+                  .collect(Collectors.toList()))
+          .build();
+    }
+    // Note that, depending upon the context:
+    // shouldDoTransform.apply is calling either "canApplyFromFunction" or "canApplyToFunction"
+    // howToDoTransform.apply is calling either "fromFunction" or "toFunction"
+    return REGISTRY
+        .getTransforms()
+        .stream()
+        .filter(t -> shouldDoTransform.apply(t, filter))
+        .findFirst()
+        .map(t -> howToDoTransform.apply(t, filter))
+        .orElse(filter);
   }
 }

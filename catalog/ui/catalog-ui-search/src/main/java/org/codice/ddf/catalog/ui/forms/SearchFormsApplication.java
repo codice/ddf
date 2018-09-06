@@ -54,8 +54,7 @@ import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
-import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
+import org.codice.ddf.catalog.ui.forms.model.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -66,41 +65,41 @@ import spark.servlet.SparkApplication;
 
 /** Provides an internal REST interface for working with custom form data for Intrigue. */
 public class SearchFormsApplication implements SparkApplication {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
+
   private static final ObjectMapper MAPPER =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
           new JsonSerializerFactory()
-              .addPropertySerializer(new FilterNodeValueSerializer())
               .useAnnotations()
               .includeEmpty()
               .includeDefaultValues()
               .setJsonFormatForDates(false));
 
+  private static final String RESP_MSG = "message";
+
+  private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
+
   private final CatalogFramework catalogFramework;
+
+  private final FilterBuilder filterBuilder;
 
   private final TemplateTransformer transformer;
 
   private final EndpointUtil util;
 
-  private final FilterBuilder filterBuilder;
-
   private final boolean readOnly;
 
-  private static final String RESP_MSG = "message";
-
-  private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
-
   public SearchFormsApplication(
-      FilterBuilder filterBuilder,
       CatalogFramework catalogFramework,
+      FilterBuilder filterBuilder,
       TemplateTransformer transformer,
       EndpointUtil util) {
     this.catalogFramework = catalogFramework;
+    this.filterBuilder = filterBuilder;
     this.transformer = transformer;
     this.util = util;
-    this.filterBuilder = filterBuilder;
+
     this.readOnly = !SearchFormsLoader.enabled();
   }
 
@@ -210,6 +209,15 @@ public class SearchFormsApplication implements SparkApplication {
         IllegalArgumentException.class,
         (e, req, res) -> {
           LOGGER.debug("Template input was not valid", e);
+          res.status(400);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid.")));
+        });
+
+    exception(
+        IllegalStateException.class,
+        (e, req, res) -> {
+          LOGGER.debug("Template input was not valid, {}", e);
           res.status(400);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid.")));
