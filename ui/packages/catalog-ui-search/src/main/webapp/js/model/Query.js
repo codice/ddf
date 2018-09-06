@@ -183,6 +183,10 @@ define([
         this.startSearch()
       }
     },
+    startSearchFromFirstPage: function(options) {
+      this.handleChangeResultCount()
+      this.startSearch(options)
+    },
     startSearch: function(options) {
       this.set('isOutdated', false)
       if (this.get('cql') === '') {
