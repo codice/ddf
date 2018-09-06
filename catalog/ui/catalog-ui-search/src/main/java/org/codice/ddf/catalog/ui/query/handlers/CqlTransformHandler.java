@@ -250,7 +250,7 @@ public class CqlTransformHandler implements Route {
         "\"hiddenFields\":" + (String) mapper.toJson(arguments.get("hiddenFields"));
     String columnAliasMap =
         "\"columnAliasMap\":" + (String) mapper.toJson(arguments.get("columnAliasMap"));
-    String csvBody = "{" + columnOrder + "," + columnAliasMap + "," + hiddenFields + "}";
+    String csvBody = String.format("{%s,%s,%s}", columnOrder, columnAliasMap, hiddenFields);
 
     CsvTransform queryTransform = mapper.readValue(csvBody, CsvTransform.class);
 
