@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.collect.ImmutableList;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.types.Core;
@@ -141,6 +142,7 @@ public class CqlTransformHandlerTest {
     queryResponseTransformers = new ArrayList<>();
 
     when(mockServiceReference.getProperty(Core.ID)).thenReturn(RETURN_ID);
+    when(mockServiceReference.getProperty("mime-type")).thenReturn(ImmutableList.of(MIME_TYPE));
 
     MimeType mimeType = new MimeType(MIME_TYPE);
     binaryContent = new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
