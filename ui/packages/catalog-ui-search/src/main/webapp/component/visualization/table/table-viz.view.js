@@ -144,17 +144,11 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   buildCqlQueryFromMetacards: function(metacards) {
-    let cqlQuery = ''
+    const queryParts = []
     for (const [index, metacard] of metacards.entries()) {
-      cqlQuery +=
-        '(("id" ILIKE \'' +
-        metacard.metacard.id +
-        '\'))'
-      if (index !== metacards.length - 1) {
-        cqlQuery += ' OR '
-      }
+      queryParts.push(`(("id" ILIKE '${metacard.metacard.id}'))`)
     }
-    return '(' + cqlQuery + ')'
+    return `('${queryParts.join(' OR ')}')`
   },
   saveExport: (data, status, xhr) => {
     if (status === 200) {

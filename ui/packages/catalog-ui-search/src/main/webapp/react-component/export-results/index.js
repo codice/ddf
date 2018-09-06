@@ -44,25 +44,31 @@ class ExportResults extends React.Component {
     this.setState({ exportFormats: jsonData })
   }
 
+  logSuccess = response =>
+    (this.state.onDownloadSuccess && this.state.onDownloadSuccess(response)) ||
+    console.log(response)
+
+  logError = error =>
+    (this.state.onDownloadError && this.state.onDownloadError(error)) ||
+    console.error(error)
+
   onDownloadClick = async () => {
     const forExport = this.state.export[this.state.exportSizeValue]
+    const exportFormat =
+      (this.state.exportFormatValue &&
+        encodeURIComponent(this.state.exportFormatValue)) ||
+      encodeURIComponent(this.state.defaultExportFormat)
     try {
-      const url =
-        forExport.url +
-        (this.state.exportFormatValue === undefined
-          ? encodeURIComponent(this.state.defaultExportFormat)
-          : encodeURIComponent(this.state.exportFormatValue))
+      const url = `${forExport.url}${exportFormat}`
       const response = await exportDataAs(
         url,
         forExport.data(),
         this.state.contentType
       )
-      ;(this.state.onDownloadSuccess &&
-        this.state.onDownloadSuccess(response)) ||
-        console.log(response)
+
+      this.logSuccess(response)
     } catch (error) {
-      ;(this.state.onDownloadError && this.state.onDownloadError(error)) ||
-        console.error(error)
+      this.logError(error)
     }
   }
 
