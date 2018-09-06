@@ -59,8 +59,6 @@ public class CqlTransformHandler implements Route {
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlTransformHandler.class);
   private static final String GZIP = "gzip";
 
-  private static final String CSW_SCHEMA_VALUE = "http://www.opengis.net/cat/csw/2.0.2";
-
   private EndpointUtil util;
   private List<ServiceReference> queryResponseTransformers;
   private BundleContext bundleContext;
@@ -158,7 +156,7 @@ public class CqlTransformHandler implements Route {
 
     if (mimeTypeServiceProperty.contains("text/csv")) {
       arguments = csvTransformArgumentsAdapter(arguments);
-    } else if (schema != null && schema.toString().equals(CSW_SCHEMA_VALUE)) {
+    } else if (schema != null && schema.toString().equals(CswConstants.CSW_NAMESPACE_URI)) {
       arguments = cswTransformArgumentsAdapter();
     }
 
