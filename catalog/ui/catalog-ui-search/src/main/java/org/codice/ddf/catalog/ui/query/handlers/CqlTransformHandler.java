@@ -43,6 +43,7 @@ import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.eclipse.jetty.http.HttpStatus;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -146,8 +147,12 @@ public class CqlTransformHandler implements Route {
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
+    Object schema = queryResponseTransformer.getProperty("schema");
+
     if (queryResponseTransformer.getProperty("mime-type").toString().equals("[text/csv]")) {
       arguments = csvTransformArgumentsAdapter(arguments);
+    } else if (schema != null && schema.toString().equals("http://www.opengis.net/cat/csw/2.0.2")) {
+      arguments = cswTransformArgumentsAdapter();
     }
 
     attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
@@ -225,6 +230,12 @@ public class CqlTransformHandler implements Route {
     LOGGER.trace(
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
+  }
+
+  private Map<String, Serializable> cswTransformArgumentsAdapter() {
+    Map<String, Serializable> args = new HashMap<>();
+    args.put(CswConstants.IS_BY_ID_QUERY, true);
+    return args;
   }
 
   private Map<String, Serializable> csvTransformArgumentsAdapter(
