@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,11 @@ public class CqlTransformHandler implements Route {
         return this.args
             .entrySet()
             .stream()
+            .map(
+                entry ->
+                    entry.getValue() instanceof CharSequence
+                        ? new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().toString())
+                        : entry)
             .filter(entry -> entry.getValue() instanceof Serializable)
             .collect(Collectors.toMap(Map.Entry::getKey, e -> (Serializable) e.getValue()));
       }
