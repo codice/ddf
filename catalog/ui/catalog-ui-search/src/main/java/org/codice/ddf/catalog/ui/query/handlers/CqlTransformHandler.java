@@ -23,8 +23,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
@@ -35,9 +37,11 @@ import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
+import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.eclipse.jetty.http.HttpStatus;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -141,6 +145,19 @@ public class CqlTransformHandler implements Route {
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
+    Object schema = queryResponseTransformer.getProperty("schema");
+
+    List<String> mimeTypeServiceProperty =
+        queryResponseTransformer.getProperty("mime-type") instanceof List
+            ? (List) queryResponseTransformer.getProperty("mime-type")
+            : Collections.emptyList();
+
+    if (mimeTypeServiceProperty.contains("text/csv")) {
+      arguments = csvTransformArgumentsAdapter(arguments);
+    } else if (schema != null && schema.toString().equals(CswConstants.CSW_NAMESPACE_URI)) {
+      arguments = cswTransformArgumentsAdapter();
+    }
+
     attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
 
     return "";
@@ -216,5 +233,47 @@ public class CqlTransformHandler implements Route {
     LOGGER.trace(
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
+  }
+
+  private Map<String, Serializable> cswTransformArgumentsAdapter() {
+    Map<String, Serializable> args = new HashMap<>();
+    args.put(CswConstants.IS_BY_ID_QUERY, true);
+    return args;
+  }
+
+  private Map<String, Serializable> csvTransformArgumentsAdapter(
+      Map<String, Serializable> arguments) {
+    String columnOrder = "\"columnOrder\":" + (String) mapper.toJson(arguments.get("columnOrder"));
+    String hiddenFields =
+        "\"hiddenFields\":" + (String) mapper.toJson(arguments.get("hiddenFields"));
+    String columnAliasMap =
+        "\"columnAliasMap\":" + (String) mapper.toJson(arguments.get("columnAliasMap"));
+    String csvBody = String.format("{%s,%s,%s}", columnOrder, columnAliasMap, hiddenFields);
+
+    CsvTransform queryTransform = mapper.readValue(csvBody, CsvTransform.class);
+
+    Set<String> hiddenFieldsSet =
+        queryTransform.getHiddenFields() != null
+            ? queryTransform.getHiddenFields()
+            : Collections.emptySet();
+
+    List<String> columnOrderList =
+        queryTransform.getColumnOrder() != null
+            ? queryTransform.getColumnOrder()
+            : Collections.emptyList();
+
+    Map<String, String> aliasMap =
+        queryTransform.getColumnAliasMap() != null
+            ? queryTransform.getColumnAliasMap()
+            : Collections.emptyMap();
+
+    Map<String, Serializable> args =
+        ImmutableMap.<String, Serializable>builder()
+            .put("hiddenFields", (Serializable) hiddenFieldsSet)
+            .put("columnOrder", (Serializable) columnOrderList)
+            .put("aliases", (Serializable) aliasMap)
+            .build();
+
+    return args;
   }
 }
