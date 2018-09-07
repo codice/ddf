@@ -92,7 +92,7 @@ define([
       this.listenTo(
         ConfirmationView.generateConfirmation({
           prompt:
-            'Are you sure you want to archive?  Doing so will remove the item(s) future search results.',
+            'Are you sure you want to archive?  Doing so will remove the item(s) from future search results.',
           no: 'Cancel',
           yes: 'Archive',
         }),
