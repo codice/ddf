@@ -185,6 +185,16 @@ public class AssertionConsumerServiceTest {
   }
 
   @Test
+  public void testGetSamlResponseNullSamlResponse() throws Exception {
+    Response response =
+        assertionConsumerService.getSamlResponse(null, RELAY_STATE_VAL, SIG_ALG_VAL, SIGNATURE_VAL);
+    assertThat(
+        "The http response was not 500 SERVER ERROR",
+        response.getStatus(),
+        is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+  }
+
+  @Test
   public void testGetSamlResponseInvalidSignature() throws Exception {
     Response response =
         assertionConsumerService.getSamlResponse(
