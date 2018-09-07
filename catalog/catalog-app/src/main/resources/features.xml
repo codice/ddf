@@ -407,6 +407,12 @@
         </bundle>
     </feature>
 
+    <feature name="catalog-core-validationfilterplugin" version="${project.version}"
+            description="Validation Prefederation Filter Plugins">
+        <bundle>mvn:ddf.catalog.core/catalog-core-validationfilterplugin/${project.version}
+        </bundle>
+    </feature>
+
     <feature name="catalog-plugin-metacard-validation" version="${project.version}"
              description="Metacard Validator Plugins">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
