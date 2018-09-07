@@ -127,6 +127,8 @@ class RelationshipValidatorSpec extends Specification {
         true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | [null]
         false           | "source.def"    | null        | CANNOT_HAVE       | "target.undef"       | null
         false           | "source.def"    | null        | CANNOT_HAVE       | "target.multivalued" | ["five"]
+        false           | "source.def"    | null        | CANNOT_HAVE       | "target.undef"       | ["five"]
+        false           | "source.def"    | null        | CANNOT_HAVE       | "target.null"        | ["five"]
         false           | "source.def"    | null        | CAN_ONLY_HAVE     | "target.multivalued" | ["one", "two", "three", "four"]
         true            | "source.def"    | null        | CAN_ONLY_HAVE     | "target.multivalued" | ["one", "two", "five"]
         true            | "source.def"    | null        | CAN_ONLY_HAVE     | "target.def"         | null

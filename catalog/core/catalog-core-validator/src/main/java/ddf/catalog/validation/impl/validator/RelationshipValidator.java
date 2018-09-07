@@ -136,8 +136,9 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
   private Optional<ValidationViolation> canOnlyHave(Attribute attribute) {
     return getValidationViolation(
         "can only have",
-        attribute == null
-            || !attribute
+        attribute != null
+            && !CollectionUtils.isEmpty(attribute.getValues())
+            && !attribute
                 .getValues()
                 .stream()
                 .map(Objects::toString)
@@ -160,8 +161,7 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
         + targetAttribute
         + " "
         + relationship
-        + " "
-        + (hasTargetValues ? ": [" + getValuesAsString() + "]." : "a value.");
+        + (hasTargetValues ? ": [" + getValuesAsString() + "]." : " a value.");
   }
 
   private Optional<ValidationViolation> getValidationViolation(
