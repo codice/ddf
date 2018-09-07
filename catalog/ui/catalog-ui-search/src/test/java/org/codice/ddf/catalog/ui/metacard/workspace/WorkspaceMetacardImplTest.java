@@ -19,6 +19,7 @@ import static org.hamcrest.core.Is.is;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.Arrays;
 import java.util.List;
+import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,7 +43,8 @@ public class WorkspaceMetacardImplTest {
   @Test
   public void testOwner() {
     String owner = "owner@localhost";
-    assertThat(workspace.setOwner(owner).getOwner(), is(owner));
+    workspace = (WorkspaceMetacardImpl) AccessControlUtil.setOwner(workspace, owner);
+    assertThat(AccessControlUtil.getOwner(workspace), is(owner));
   }
 
   @Test

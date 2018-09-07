@@ -1519,6 +1519,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("Until DDF-4117 is addressed")
   public void testMetacardIngestNetworkPlugin() throws Exception {
 
     /* MATCHERS

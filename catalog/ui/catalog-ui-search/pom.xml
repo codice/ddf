@@ -330,11 +330,6 @@
             <artifactId>platform-configuration-service</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-metacard-sharing-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -395,8 +390,7 @@
                             versioning-common,
                             filter-v_2_0,
                             ows-v_1_1_0-schema,
-                            jaxb2-basics-runtime,
-                            catalog-ui-metacard-sharing-impl
+                            jaxb2-basics-runtime
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>

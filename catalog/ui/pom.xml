@@ -33,7 +33,6 @@
         <module>catalog-ui-search</module>
         <module>search-ui-app</module>
         <module>zip-splitter</module>
-        <module>catalog-ui-metacard-sharing-impl</module>
     </modules>
     <dependencyManagement>
         <dependencies>

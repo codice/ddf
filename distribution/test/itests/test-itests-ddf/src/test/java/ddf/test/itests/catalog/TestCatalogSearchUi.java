@@ -158,7 +158,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testGuestCantCreateWorkspace() throws Exception {
+  public void testGuestCantCreateWorkspace() {
     Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
     expect(asGuest().header("Origin", workspacesApi()).body(stringify(workspace)), 404)
         .post(workspacesApi());

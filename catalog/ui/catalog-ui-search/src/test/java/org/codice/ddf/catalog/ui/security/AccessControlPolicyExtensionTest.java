@@ -27,33 +27,40 @@ import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.MatchOneCollectionPermission;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import org.apache.shiro.authz.Permission;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ShareableMetacardPolicyExtensionTest {
+public class AccessControlPolicyExtensionTest {
 
   private static final Permission SYSTEM_ROLE =
       makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("system-user"));
 
-  private static final Set<String> VALUES = ImmutableSet.of("value1", "value2", "value3");
+  private static final Set<String> VALUES = ImmutableSet.of("owner", "value1", "value2", "value3");
+
+  private static final Set<String> EMAILS =
+      ImmutableSet.of("owner@connexta.com", "owner2@connexta.com");
 
   private static final Permission RANDOM = makePermission("random", VALUES);
 
   private static final Permission ROLES = makePermission(SecurityAttributes.ACCESS_GROUPS, VALUES);
 
-  private static final Permission EMAILS =
-      makePermission(SecurityAttributes.ACCESS_INDIVIDUALS, VALUES);
+  private static final Permission ADMINISTRATORS =
+      makePermission(SecurityAttributes.ACCESS_ADMINISTRATORS, EMAILS);
+
+  private static final Permission INDIVIDUALS =
+      makePermission(SecurityAttributes.ACCESS_INDIVIDUALS, EMAILS);
 
   private static final Permission OWNER =
       makePermission(Core.METACARD_OWNER, ImmutableSet.of("owner"));
 
-  private ShareableMetacardPolicyExtension extension;
+  private AccessControlPolicyExtension extension;
 
-  private ShareableMetacardSecurityConfiguration config;
+  private AccessControlSecurityConfiguration config;
 
   private SubjectIdentity subjectIdentity;
 
@@ -61,23 +68,12 @@ public class ShareableMetacardPolicyExtensionTest {
   public void setUp() {
     subjectIdentity = mock(SubjectIdentity.class);
     when(subjectIdentity.getIdentityAttribute()).thenReturn(Constants.EMAIL_ADDRESS_CLAIM_URI);
-    config = new ShareableMetacardSecurityConfiguration();
-    extension = new ShareableMetacardPolicyExtension(config, subjectIdentity);
-  }
-
-  private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
-    return new CollectionPermission() {
-      @Override
-      public boolean implies(Permission p) {
-        return fn.test((KeyValuePermission) p);
-      }
-    };
+    config = new AccessControlSecurityConfiguration();
+    extension = new AccessControlPolicyExtension(config, subjectIdentity);
   }
 
   private static CollectionPermission subjectFrom(List<Permission> ps) {
-    return makeSubject(
-        (KeyValuePermission p2) ->
-            ps.stream().filter((p1) -> p1.equals(p2)).findFirst().isPresent());
+    return new MatchOneCollectionPermission(ps);
   }
 
   private static CollectionPermission subjectFrom(Permission p) {
@@ -107,20 +103,36 @@ public class ShareableMetacardPolicyExtensionTest {
   }
 
   @Test
-  public void testSharedMetacardTagShouldAlwaysBeImplied() {
-    List<Permission> before = ImmutableList.of(RANDOM);
+  public void testOwnerOfMetacardImpliesAll() {
+    List<Permission> before = ImmutableList.of(OWNER, INDIVIDUALS, ROLES, RANDOM);
 
-    CollectionPermission subject = makeSubject((p) -> false);
+    CollectionPermission subject =
+        subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
 
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(RANDOM)));
+    assertThat(after, is(Collections.emptyList()));
   }
 
   @Test
-  public void testShouldIgnoreNonSharedMetacards() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+  public void testAccessAdminOfAclAlwaysImplied() {
+    List<Permission> before = ImmutableList.of(ADMINISTRATORS, INDIVIDUALS, ROLES);
+
+    CollectionPermission subject =
+        subjectFrom(
+            makePermission(
+                Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner@connexta.com")));
+
+    List<Permission> after =
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+
+    assertThat(after, is(Collections.emptyList()));
+  }
+
+  @Test
+  public void testNonAclMetacardsIgnored() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM);
 
     CollectionPermission subject = subjectFrom(OWNER);
 
@@ -131,20 +143,8 @@ public class ShareableMetacardPolicyExtensionTest {
   }
 
   @Test
-  public void testAccessGroupShouldImplySharable() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
-
-    CollectionPermission subject = subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, VALUES));
-
-    List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
-
-    assertThat(after, is(ImmutableList.of(RANDOM)));
-  }
-
-  @Test
-  public void testAccessGroupShouldImplyNone() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+  public void testMissingAccessGroupShouldImplyNone() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM);
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of()));
@@ -152,25 +152,12 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
+    assertThat(after, is(ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM)));
   }
 
   @Test
-  public void testAccessIndividualShouldImplyShareable() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
-
-    CollectionPermission subject =
-        subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, VALUES));
-
-    List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
-
-    assertThat(after, is(ImmutableList.of(RANDOM)));
-  }
-
-  @Test
-  public void testAccessIndividualShouldImplyNone() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+  public void testMissingAccessIndividualShouldImplyNone() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM);
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of()));
@@ -178,12 +165,25 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
+    assertThat(after, is(before));
+  }
+
+  @Test
+  public void testAccessIndividualShouldImplyNone() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM);
+
+    CollectionPermission subject =
+        subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of()));
+
+    List<Permission> after =
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+
+    assertThat(after, is(ImmutableList.of(OWNER, ROLES, INDIVIDUALS, RANDOM)));
   }
 
   @Test
   public void testSystemShouldImplyAll() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, ADMINISTRATORS, INDIVIDUALS, RANDOM);
 
     CollectionPermission subject = subjectFrom(SYSTEM_ROLE);
 
@@ -194,22 +194,9 @@ public class ShareableMetacardPolicyExtensionTest {
   }
 
   @Test
-  public void testOwnerShouldImplAll() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
-
-    CollectionPermission subject =
-        subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
-
-    List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
-
-    assertThat(after, is(ImmutableList.of()));
-  }
-
-  @Test
   public void testOverrideSystemUserShouldImplyAll() {
     String email = "admin@localhost";
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, ADMINISTRATORS, INDIVIDUALS, RANDOM);
 
     config.setSystemUserAttribute(Constants.EMAIL_ADDRESS_CLAIM_URI);
     config.setSystemUserAttributeValue(email);
@@ -225,8 +212,8 @@ public class ShareableMetacardPolicyExtensionTest {
 
   @Test
   public void testOverrideSystemRoleShouldImplyAll() {
-    String role = "system";
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+    String role = "system-user";
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, ADMINISTRATORS, INDIVIDUALS, RANDOM);
 
     config.setSystemUserAttribute(Constants.ROLES_CLAIM_URI);
     config.setSystemUserAttributeValue(role);
@@ -242,10 +229,12 @@ public class ShareableMetacardPolicyExtensionTest {
 
   @Test
   public void testOverrideOwnerShouldImplyAll() {
+    when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
+    extension = new AccessControlPolicyExtension(config, subjectIdentity);
     String attr = "another";
     when(subjectIdentity.getIdentityAttribute()).thenReturn(attr);
 
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ADMINISTRATORS, ROLES, INDIVIDUALS, RANDOM);
 
     CollectionPermission subject = subjectFrom(makePermission(attr, ImmutableSet.of("owner")));
 
@@ -257,7 +246,9 @@ public class ShareableMetacardPolicyExtensionTest {
 
   @Test
   public void testOverrideOwnerShouldImplyNone() {
-    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+    when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
+    extension = new AccessControlPolicyExtension(config, subjectIdentity);
+    List<Permission> before = ImmutableList.of(OWNER, ADMINISTRATORS, ROLES, INDIVIDUALS, RANDOM);
 
     when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
 
@@ -267,6 +258,6 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
+    assertThat(after, is(ImmutableList.of(OWNER, ADMINISTRATORS, ROLES, INDIVIDUALS, RANDOM)));
   }
 }

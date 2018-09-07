@@ -111,8 +111,8 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
     </service>
 
-    <bean id="shareableMetacardPreIngestPlugin"
-          class="org.codice.ddf.catalog.ui.security.ShareableMetacardPreIngestPlugin">
+    <bean id="accessControlPreIngestPlugin"
+          class="org.codice.ddf.catalog.ui.security.AccessControlPreIngestPlugin">
         <argument ref="subjectIdentity"/>
     </bean>
 
@@ -126,19 +126,20 @@
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <ref component-id="shareableMetacardPreIngestPlugin"/>
+        <ref component-id="accessControlPreIngestPlugin"/>
     </service>
 
-    <bean id="shareableMetacardAccessPlugin"
-          class="org.codice.ddf.catalog.ui.security.ShareableMetacardAccessPlugin">
+    <bean id="accessControlAccessPlugin"
+          class="org.codice.ddf.catalog.ui.security.AccessControlAccessPlugin">
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
-        <ref component-id="shareableMetacardAccessPlugin"/>
+        <ref component-id="accessControlAccessPlugin"/>
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.ShareableMetacardSharingPolicyPlugin"/>
+        <bean class="org.codice.ddf.catalog.ui.security.AccessControlPolicyPlugin"/>
     </service>
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
@@ -147,12 +148,12 @@
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
         <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplatePolicyPlugin">
-            <argument ref="shareableMetacardSecurityConfiguration"/>
+            <argument ref="accessControlSecurityConfiguration"/>
         </bean>
     </service>
 
-    <bean id="shareableMetacardSecurityConfiguration"
-          class="org.codice.ddf.catalog.ui.security.ShareableMetacardSecurityConfiguration">
+    <bean id="accessControlSecurityConfiguration"
+          class="org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration">
         <cm:managed-properties
             persistent-id="org.codice.ddf.catalog.ui.security"
             update-strategy="container-managed"/>
@@ -160,15 +161,15 @@
 
     <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
 
-    <bean id="shareableMetacardPolicyExtension"
-          class="org.codice.ddf.catalog.ui.security.ShareableMetacardPolicyExtension">
-        <argument ref="shareableMetacardSecurityConfiguration"/>
+    <bean id="accessControlPolicyExtension"
+          class="org.codice.ddf.catalog.ui.security.AccessControlPolicyExtension">
+        <argument ref="accessControlSecurityConfiguration"/>
         <argument ref="subjectIdentity"/>
     </bean>
 
 
     <service interface="ddf.security.policy.extension.PolicyExtension">
-        <ref component-id="shareableMetacardPolicyExtension"/>
+        <ref component-id="accessControlPolicyExtension"/>
     </service>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>

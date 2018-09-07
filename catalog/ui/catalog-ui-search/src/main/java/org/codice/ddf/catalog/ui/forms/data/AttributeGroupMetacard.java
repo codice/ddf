@@ -17,12 +17,13 @@ import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
+import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 
 /**
  * Metacard used for storing sharing attribute groups in the catalog. Should not be used as a
@@ -43,7 +44,7 @@ import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class AttributeGroupMetacard extends ShareableMetacardImpl {
+public class AttributeGroupMetacard extends MetacardImpl {
   public AttributeGroupMetacard(String title, String description) {
     super(new AttributeGroupType());
     setAttribute(Core.TITLE, title);
@@ -72,7 +73,7 @@ public class AttributeGroupMetacard extends ShareableMetacardImpl {
   }
 
   public Set<String> getGroupDescriptors() {
-    return new HashSet<>(getValuesOrEmpty(ATTRIBUTE_GROUP_LIST));
+    return new HashSet<>(AccessControlUtil.getValuesOrEmpty(this, ATTRIBUTE_GROUP_LIST));
   }
 
   public void setGroupDescriptors(Set<String> resultDescriptors) {

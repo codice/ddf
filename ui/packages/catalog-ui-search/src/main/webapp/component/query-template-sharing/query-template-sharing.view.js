@@ -187,23 +187,36 @@ module.exports = Marionette.LayoutView.extend({
       })
       .value()
 
-    let templatePerms = {
-      'security.access-individuals': emailList,
-      'security.access-groups': roleList,
-    }
+    let templatePerms = [
+      {
+        ids: [this.model.get('id')],
+        attributes: [
+          {
+            attribute: 'security.access-individuals',
+            values: emailList,
+          },
+          {
+            attribute: 'security.access-groups',
+            values: roleList,
+          },
+          {
+            attribute: 'security.access-administrators',
+            values: [],
+          },
+        ],
+      },
+    ]
 
     this.updateSharingPermissions(templatePerms)
   },
   updateSharingPermissions: function(templatePerms) {
-    let sharingEndpoint = `/search/catalog/internal/sharing/${this.model.get(
-      'id'
-    )}`
+    let sharingEndpoint = `/search/catalog/internal/metacards`
     this.updateUserPermissions(templatePerms)
     $.ajax({
       url: sharingEndpoint,
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
-      type: 'PUT',
+      type: 'PATCH',
       data: JSON.stringify(templatePerms),
       context: this,
       success: function(data) {
@@ -212,11 +225,8 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   updateUserPermissions: function(templatePerms) {
-    this.model.set(
-      'accessIndividuals',
-      templatePerms['security.access-individuals']
-    )
-    this.model.set('accessGroups', templatePerms['security.access-groups'])
+    this.model.set('accessIndividuals', templatePerms[0].attributes[0].values)
+    this.model.set('accessGroups', templatePerms[0].attributes[1].values)
   },
   cleanup: function() {
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')

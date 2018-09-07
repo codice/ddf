@@ -27,4 +27,10 @@ public interface Security {
    * access controls upon
    */
   String ACCESS_INDIVIDUALS = "security.access-individuals";
+
+  /**
+   * {@link ddf.catalog.data.Attribute} name for storing list of individuals who have the ability to
+   * modify the list of permissions for a particular metacard
+   */
+  String ACCESS_ADMINISTRATORS = "security.access-administrators";
 }
