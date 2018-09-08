@@ -164,7 +164,8 @@ define([
             }
         },
         concatMessages: function (totalMessage, currentMessage) {
-            return totalMessage.push(currentMessage);
+            totalMessage.push(currentMessage);
+            return totalMessage;
         },
         updateValidation: function(validationReport){
             this._validationReport = validationReport;
