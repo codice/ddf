@@ -164,7 +164,7 @@ define([
             }
         },
         concatMessages: function (totalMessage, currentMessage) {
-            return totalMessage + ' ' + currentMessage;
+            return totalMessage.push(currentMessage);
         },
         updateValidation: function(validationReport){
             this._validationReport = validationReport;
@@ -172,12 +172,12 @@ define([
             if (validationReport.errors.length > 0){
                 this.$el.removeClass('has-warning').addClass('has-error');
                 $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error');
-                var validationMessage = validationReport.errors.reduce(this.concatMessages, '');
+                var validationMessage = validationReport.errors.reduce(this.concatMessages, []);
                 this.setMessage($validationElement, validationMessage);
             } else if (validationReport.warnings.length > 0) {
                 this.$el.addClass('has-warning').removeClass('has-error');
                 $validationElement.removeClass('is-hidden').removeClass('is-error').addClass('is-warning');
-                var validationMessage = validationReport.warnings.reduce(this.concatMessages, '');
+                var validationMessage = validationReport.warnings.reduce(this.concatMessages, []);
                 this.setMessage($validationElement, validationMessage);
             }
             this.handleBulkValidation(validationReport);
@@ -189,11 +189,11 @@ define([
                      var $validationElement = $(element).find('.cell-validation');
                      if (validationReport.errors.length > 0){
                          $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error');
-                         var validationMessage = validationReport.errors.reduce(this.concatMessages, '');
+                         var validationMessage = validationReport.errors.reduce(this.concatMessages, []);
                          this.setMessage($validationElement, validationMessage);
                      } else if (validationReport.warnings.length > 0){
                          $validationElement.removeClass('is-hidden').removeClass('is-error').addClass('is-warning');
-                         var validationMessage = validationReport.warnings.reduce(this.concatMessages, '');
+                         var validationMessage = validationReport.warnings.reduce(this.concatMessages, []);
                          this.setMessage($validationElement, validationMessage);
                      }
                  }
@@ -203,9 +203,13 @@ define([
             _.forEach(elements, (function(el){
                 var element = $(el);
                 if(element.is('div')){
-                    element.find('.validation-message').text(message);
+                    var body = '';
+                    message.forEach(element => {
+                        body += "<div><span class='fa fa-exclamation-triangle'></span> <span class='validation-message'>"+element+"</div>";
+                    });
+                    element.html(body);
                 } else {
-                    element.attr('title', message);
+                    element.attr('title', message.join(' '));
                 }
             }));
         },
