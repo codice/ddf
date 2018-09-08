@@ -54,6 +54,8 @@ import spark.utils.IOUtils;
 
 public class CqlTransformHandler implements Route {
 
+  public static final String TRANSFORMER_ID_PROPERTY = "id";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlTransformHandler.class);
   private static final String GZIP = "gzip";
 
@@ -133,7 +135,9 @@ public class CqlTransformHandler implements Route {
     ServiceReference<QueryResponseTransformer> queryResponseTransformer =
         queryResponseTransformers
             .stream()
-            .filter(transformer -> transformerId.equals(transformer.getProperty("id")))
+            .filter(
+                transformer ->
+                    transformerId.equals(transformer.getProperty(TRANSFORMER_ID_PROPERTY)))
             .findFirst()
             .orElse(null);
 
@@ -161,6 +165,10 @@ public class CqlTransformHandler implements Route {
     attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
 
     return "";
+  }
+
+  public List<ServiceReference> getQueryResponseTransformers() {
+    return queryResponseTransformers;
   }
 
   private void setHttpHeaders(Request request, Response response, BinaryContent content)

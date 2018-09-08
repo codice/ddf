@@ -13,21 +13,22 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
-var _ = require('underscore')
-var template = require('./table-viz.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var store = require('js/store')
-var $ = require('jquery')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-var Common = require('js/Common')
-var TableVisibility = require('./table-visibility.view')
-var TableRearrange = require('./table-rearrange.view')
-var ResultsTableView = require('component/table/results/table-results.view')
-var user = require('component/singletons/user-instance')
-var properties = require('properties')
-var store = require('js/store')
+
+const { reactToMarionette } = require('component/transmute')
+const ExportResults = reactToMarionette(
+  require('react-component/export-results')
+)
+
+const template = require('./table-viz.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('js/CustomElements')
+const $ = require('jquery')
+const TableVisibility = require('./table-visibility.view')
+const TableRearrange = require('./table-rearrange.view')
+const ResultsTableView = require('component/table/results/table-results.view')
+const user = require('component/singletons/user-instance')
+const properties = require('properties')
+const announcement = require('component/announcement')
 
 function saveFile(name, type, data) {
   if (data != null && navigator.msSaveBlob)
@@ -55,14 +56,29 @@ function getFilenameFromContentDisposition(header) {
   return parts[1]
 }
 
+const adaptFetchData = async response => ({
+  data: await response.text(),
+  status: response.status,
+  getFirstResponseHeader: requestedHeader => {
+    for (const header of response.headers.entries()) {
+      if (!Array.isArray(header)) {
+        continue
+      }
+      if (
+        (header[0] || '').toLowerCase() ===
+        (requestedHeader || '').toLowerCase()
+      )
+        return header[1]
+    }
+  },
+})
+
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('table-viz'),
   template: template,
   events: {
     'click .options-rearrange': 'startRearrange',
     'click .options-visibility': 'startVisibility',
-    'click .options-export-all': 'exportAll',
-    'click .options-export-visible': 'exportVisible',
   },
   regions: {
     table: {
@@ -76,6 +92,7 @@ module.exports = Marionette.LayoutView.extend({
       selector: '.table-rearrange',
       replaceElement: true,
     },
+    tableExportAs: '.options-export-as',
   },
   initialize: function(options) {
     if (!options.selectionInterface) {
@@ -100,6 +117,9 @@ module.exports = Marionette.LayoutView.extend({
         selectionInterface: this.options.selectionInterface,
       })
     )
+    this.tableExportAs.show(this.setupExportResults(), {
+      replaceElement: true,
+    })
   },
   startRearrange: function() {
     this.$el.toggleClass('is-rearranging')
@@ -123,58 +143,94 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
+  buildCqlQueryFromMetacards: function(metacards) {
+    const queryParts = []
+    for (const [index, metacard] of metacards.entries()) {
+      queryParts.push(`(("id" ILIKE '${metacard.metacard.id}'))`)
+    }
+    return `(${queryParts.join(' OR ')})`
+  },
   saveExport: (data, status, xhr) => {
-    var filename = getFilenameFromContentDisposition(
-      xhr.getResponseHeader('Content-Disposition')
-    )
-    if (filename === null) {
-      filename = 'export' + Date.now() + '.csv'
+    if (status === 200) {
+      var filename = getFilenameFromContentDisposition(
+        xhr.getFirstResponseHeader('Content-Disposition')
+      )
+      if (filename === null) {
+        filename = 'export' + Date.now()
+      }
+      saveFile(
+        filename,
+        'data:' + xhr.getFirstResponseHeader('Content-Type'),
+        data
+      )
+    } else {
+      announcement.announce({
+        title: 'Error!',
+        message: 'Could not export results.',
+        type: 'error',
+      })
+      console.error('Export failed with http status ' + status)
     }
-    saveFile(filename, 'data:attachment/csv', data)
   },
-  exportAll: function() {
-    let data = {
-      hiddenFields: [],
-      columnOrder: user
-        .get('user')
-        .get('preferences')
-        .get('columnOrder'),
-      columnAliasMap: properties.attributeAliases,
-      metacards: this.options.selectionInterface
-        .getCurrentQuery()
-        .get('result')
-        .get('results').fullCollection,
-    }
-    $.ajax({
-      type: 'POST',
-      url: './internal/transform/csv?_=' + Date.now(),
-      data: JSON.stringify(data),
-      contentType: 'application/json',
-      success: this.saveExport,
+  setupExportResults() {
+    const hiddenFieldsValue = user
+      .get('user')
+      .get('preferences')
+      .get('columnHide')
+    const hasHiddenFields = Object.keys(hiddenFieldsValue).length !== 0
+
+    const columnOrderValue = user
+      .get('user')
+      .get('preferences')
+      .get('columnOrder')
+    const hasColumnOrder = Object.keys(columnOrderValue).length !== 0
+
+    const visibleData = () => ({
+      arguments: {
+        hiddenFields: hasHiddenFields ? hiddenFieldsValue : {},
+        columnOrder: hasColumnOrder ? columnOrderValue : {},
+        columnAliasMap: properties.attributeAliases,
+      },
+      cql: this.buildCqlQueryFromMetacards(
+        this.options.selectionInterface.getActiveSearchResults().toJSON()
+      ),
     })
-  },
-  exportVisible: function() {
-    let data = {
-      applyGlobalHidden: true,
-      hiddenFields: user
-        .get('user')
-        .get('preferences')
-        .get('columnHide'),
-      columnOrder: user
-        .get('user')
-        .get('preferences')
-        .get('columnOrder'),
-      columnAliasMap: properties.attributeAliases,
-      metacards: this.options.selectionInterface
-        .getActiveSearchResults()
-        .toJSON(),
-    }
-    $.ajax({
-      type: 'POST',
-      url: './internal/transform/csv?_=' + Date.now(),
-      data: JSON.stringify(data),
-      contentType: 'application/json',
-      success: this.saveExport,
+
+    const allData = () => ({
+      arguments: {
+        hiddenFields: hasHiddenFields ? hiddenFieldsValue : {},
+        columnOrder: hasColumnOrder ? columnOrderValue : {},
+        columnAliasMap: properties.attributeAliases,
+      },
+      cql: this.options.selectionInterface.getCurrentQuery().get('cql'),
     })
+
+    const dataModel = {
+      model: this.options.selectionInterface,
+      props: {
+        export: {
+          visible: {
+            url: `./internal/cql/transform/`,
+            data: visibleData,
+          },
+          all: {
+            url: `./internal/cql/transform/`,
+            data: allData,
+          },
+        },
+        defaultExportFormat: 'csv',
+        contentType: 'application/json',
+        onDownloadSuccess: async response => {
+          const formattedResponse = await adaptFetchData(response)
+          this.saveExport(
+            formattedResponse.data,
+            formattedResponse.status,
+            formattedResponse
+          )
+        },
+      },
+    }
+
+    return new ExportResults({ ...dataModel })
   },
 })

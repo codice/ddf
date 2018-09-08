@@ -23,8 +23,12 @@ import static spark.Spark.post;
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -89,6 +93,24 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql",
         (req, res) -> {
           res.header("Content-Encoding", "gzip");
+        });
+
+    get(
+        "/cql/transforms",
+        (req, res) -> {
+          List<String> transformers =
+              Optional.ofNullable(cqlTransformHandler)
+                  .map(CqlTransformHandler::getQueryResponseTransformers)
+                  .orElse(Collections.emptyList())
+                  .stream()
+                  .map(
+                      serviceReference ->
+                          serviceReference.getProperty(CqlTransformHandler.TRANSFORMER_ID_PROPERTY))
+                  .map(Object::toString)
+                  .filter(StringUtils::isNotBlank)
+                  .collect(Collectors.toList());
+
+          return mapper.toJson(transformers);
         });
 
     post("/cql/transform/:transformerId", cqlTransformHandler, mapper::toJson);
