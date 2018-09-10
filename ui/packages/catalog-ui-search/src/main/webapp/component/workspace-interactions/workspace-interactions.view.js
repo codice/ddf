@@ -66,9 +66,22 @@ define([
     onRender: function() {
       this.checkIfSubscribed()
       this.handleLocal()
+      this.handleShareable()
     },
     handleLocal: function() {
       this.$el.toggleClass('is-local', this.model.isLocal())
+    },
+    handleShareable: function() {
+      const notShareable = function(that) {
+        const userLogin = user.get('user').get('email')
+        if (that.model.get('metacard.owner') === userLogin) {
+          return false
+        }
+        const accessAdministrators =
+          that.model.get('security.access-administrators') || []
+        return !accessAdministrators.includes(userLogin)
+      }
+      this.$el.toggleClass('is-not-shareable', notShareable(this))
     },
     checkIfSubscribed: function() {
       this.$el.toggleClass(

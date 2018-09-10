@@ -26,6 +26,7 @@ module.exports = Backbone.Model.extend({
     descriptors: [],
     accessIndividuals: [],
     accessGroups: [],
+    accessAdministrators: [],
     querySettings: {},
   },
 })

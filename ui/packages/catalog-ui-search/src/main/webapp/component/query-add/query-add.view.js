@@ -254,6 +254,7 @@ module.exports = Marionette.LayoutView.extend({
       filterTemplate: filterTree,
       accessIndividuals: formModel.get('accessIndividuals'),
       accessGroups: formModel.get('accessGroups'),
+      accessAdministrators: formModel.get('accessAdministrators'),
       creator: formModel.get('createdBy'),
       id: formModel.get('id'),
       title: this.model.get('title'),

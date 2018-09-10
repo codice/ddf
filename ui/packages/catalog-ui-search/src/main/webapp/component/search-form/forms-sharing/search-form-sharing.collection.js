@@ -77,6 +77,7 @@ module.exports = Backbone.AssociatedModel.extend({
                 filterTemplate: JSON.stringify(value.filterTemplate),
                 accessIndividuals: value.accessIndividuals,
                 accessGroups: value.accessGroups,
+                accessAdministrators: value.accessAdministrators,
                 createdBy: value.creator,
                 owner: value.owner,
                 querySettings: value.querySettings,
@@ -89,13 +90,12 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   checkIfShareable: function(template) {
-    if (
-      (this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) &&
-      !this.checkIfOwner(template)
-    ) {
-      return true
-    }
-    return false
+    return (
+      !this.checkIfOwner(template) &&
+      (this.checkIfInGroup(template) ||
+        this.checkIfInIndividuals(template) ||
+        this.checkIfInAdministrators(template))
+    )
   },
   checkIfOwner: function(template) {
     return user.get('user').get('userid') === template.owner
@@ -108,13 +108,21 @@ module.exports = Backbone.AssociatedModel.extend({
 
     return !_.isEmpty(roleIntersection)
   },
-  checkIfInIndividiuals: function(template) {
+  checkIfInIndividuals: function(template) {
     let myEmail = [user.get('user').get('email')]
     let accessIndividualIntersection = myEmail.filter(function(n) {
       return template.accessIndividuals.indexOf(n) !== -1
     })
 
     return !_.isEmpty(accessIndividualIntersection)
+  },
+  checkIfInAdministrators: function(template) {
+    let myEmail = [user.get('user').get('email')]
+    let accessAdministratorsIntersection = myEmail.filter(function(n) {
+      return template.accessAdministrators.indexOf(n) !== -1
+    })
+
+    return !_.isEmpty(accessAdministratorsIntersection)
   },
   addSearchForm: function(searchForm) {
     this.get('sharedSearchForms').add(searchForm)

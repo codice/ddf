@@ -70,6 +70,23 @@ let EmailSharingEditor = EditableRows.extend({
   },
 })
 
+let SharingByAdminView = Marionette.LayoutView.extend({
+  template: '<div class="admin"></div>' + '<div class="action"></div>',
+  regions: {
+    admin: '.admin',
+    action: '.action',
+  },
+  onRender: function() {
+    this.admin.show(new Input({ model: this.model }))
+  },
+})
+
+let AdminSharingEditor = EditableRows.extend({
+  embed: function(model) {
+    return new SharingByAdminView({ model: model })
+  },
+})
+
 let SharingByRoleView = Marionette.LayoutView.extend({
   className: 'row',
   template: '<div class="role">{{value}}</div>' + '<div class="action"></div>',
@@ -114,6 +131,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     byEmail: '.template-sharing-by-email',
     byRole: '.template-sharing-by-role',
+    byAdmin: '.template-sharing-by-admin',
   },
   events: {
     'click .save': 'save',
@@ -128,6 +146,13 @@ module.exports = Marionette.LayoutView.extend({
     return this.model.get('accessIndividuals') != undefined
       ? this.model.get('accessIndividuals').map(function(email) {
           return { value: email }
+        })
+      : []
+  },
+  getSharingByAdmin: function() {
+    return this.model.get('accessAdministrators') != undefined
+      ? this.model.get('accessAdministrators').map(function(admin) {
+          return { value: admin }
         })
       : []
   },
@@ -155,10 +180,17 @@ module.exports = Marionette.LayoutView.extend({
   onRender: function() {
     this.collection = new Backbone.Collection(this.getSharingByRole())
     this.emailCollection = new Backbone.Collection(this.getSharingByEmail())
+    this.adminCollection = new Backbone.Collection(this.getSharingByAdmin())
 
     this.byEmail.show(
       new EmailSharingEditor({
         collection: this.emailCollection,
+      })
+    )
+
+    this.byAdmin.show(
+      new AdminSharingEditor({
+        collection: this.adminCollection,
       })
     )
 
@@ -175,6 +207,10 @@ module.exports = Marionette.LayoutView.extend({
 
     let emailList = this.emailCollection.map(function(email) {
       return email.get('value')
+    })
+
+    let adminList = this.adminCollection.map(function(admin) {
+      return admin.get('value')
     })
 
     let roleList = this.collection
@@ -201,7 +237,7 @@ module.exports = Marionette.LayoutView.extend({
           },
           {
             attribute: 'security.access-administrators',
-            values: [],
+            values: adminList,
           },
         ],
       },
@@ -227,6 +263,10 @@ module.exports = Marionette.LayoutView.extend({
   updateUserPermissions: function(templatePerms) {
     this.model.set('accessIndividuals', templatePerms[0].attributes[0].values)
     this.model.set('accessGroups', templatePerms[0].attributes[1].values)
+    this.model.set(
+      'accessAdministrators',
+      templatePerms[0].attributes[2].values
+    )
   },
   cleanup: function() {
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
