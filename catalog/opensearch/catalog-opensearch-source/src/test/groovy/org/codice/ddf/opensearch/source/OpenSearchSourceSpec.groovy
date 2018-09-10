@@ -151,6 +151,7 @@ class OpenSearchSourceSpec extends Specification {
         where:
         filter << [
                 PROPERTY_IS_LIKE_FILTER,
+                (PropertyIsLike) filterBuilder.attribute("this attribute name is ignored").is().like().text("some search phrase"), // the search phrase contains spaces
                 DURING_FILTER,
                 INTERSECTS_FILTER, // polygon filter
                 D_WITHIN_FILTER, // point-radius filter
@@ -170,6 +171,7 @@ class OpenSearchSourceSpec extends Specification {
         ]
         expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["some search phrase"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], geometry:["POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2))"] , src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],

@@ -23,8 +23,6 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -117,13 +115,8 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     if (searchPhraseMap != null) {
       String queryStr = searchPhraseMap.get(OpenSearchConstants.SEARCH_TERMS);
       if (queryStr != null) {
-        try {
-          queryStr = URLEncoder.encode(queryStr, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-          LOGGER.debug("Could not encode contextual string", uee);
-        }
+        checkAndReplace(client, queryStr, OpenSearchConstants.SEARCH_TERMS, parameters);
       }
-      checkAndReplace(client, queryStr, OpenSearchConstants.SEARCH_TERMS, parameters);
     }
   }
 
