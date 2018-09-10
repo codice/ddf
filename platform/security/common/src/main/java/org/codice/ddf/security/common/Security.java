@@ -196,7 +196,7 @@ public class Security {
    *     authorized
    */
   @Nullable
-  public synchronized Subject getSystemSubject() {
+  public final synchronized Subject getSystemSubject() {
     final java.lang.SecurityManager security = System.getSecurityManager();
 
     if (security != null) {
