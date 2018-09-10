@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.async.data.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.google.common.io.Closer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -23,6 +24,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 
 public class ProcessResourceImpl implements ProcessResource {
 
@@ -31,6 +33,8 @@ public class ProcessResourceImpl implements ProcessResource {
   public static final String DEFAULT_NAME = "content_store_file.bin";
 
   public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
+  private static final int FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 32 * 1024; // 32 kilobytes
 
   private URI uri;
 
@@ -42,6 +46,10 @@ public class ProcessResourceImpl implements ProcessResource {
 
   private InputStream inputStream;
 
+  private TemporaryFileBackedOutputStream resourceDataCache;
+
+  private Closer streamCloser;
+
   private String qualifier;
 
   private boolean isModified;
@@ -52,7 +60,8 @@ public class ProcessResourceImpl implements ProcessResource {
    *
    * @param metacardId schema specific part of {@link URI}, throws {@link IllegalArgumentException}
    *     if empty or null
-   * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+   * @param inputStream {@link InputStream} of the {@link ProcessResource}, throws {@link
+   *     IllegalArgumentException} if null
    * @param mimeType mime type of the {@link ProcessResource}, defaults to {@link
    *     #DEFAULT_MIME_TYPE}
    * @param name name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
@@ -71,7 +80,8 @@ public class ProcessResourceImpl implements ProcessResource {
    *
    * @param metacardId schema specific part of {@link URI}, throws {@link IllegalArgumentException}
    *     if empty or null
-   * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+   * @param inputStream {@link InputStream} of the {@link ProcessResource}, throws {@link
+   *     IllegalArgumentException} if null
    * @param mimeType mime type of the {@link ProcessResource}, defaults to {@link
    *     #DEFAULT_MIME_TYPE}
    * @param name name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
@@ -92,7 +102,8 @@ public class ProcessResourceImpl implements ProcessResource {
    *
    * @param metacardId schema specific part of {@link URI}, throws {@link IllegalArgumentException}
    *     if empty or null
-   * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+   * @param inputStream {@link InputStream} of the {@link ProcessResource}, throws {@link
+   *     IllegalArgumentException} if null
    * @param mimeType mime type of the {@link ProcessResource}, defaults to {@link
    *     #DEFAULT_MIME_TYPE}
    * @param name name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
@@ -122,6 +133,8 @@ public class ProcessResourceImpl implements ProcessResource {
     this.qualifier = qualifier == null ? "" : qualifier;
     this.inputStream = inputStream;
     this.size = size;
+    this.streamCloser = Closer.create();
+    this.streamCloser.register(inputStream);
 
     if (StringUtils.isNotBlank(name)) {
       this.name = name;
@@ -168,8 +181,17 @@ public class ProcessResourceImpl implements ProcessResource {
   }
 
   @Override
-  public InputStream getInputStream() throws IOException {
-    return inputStream;
+  public synchronized InputStream getInputStream() throws IOException {
+    if (resourceDataCache == null) {
+      resourceDataCache = new TemporaryFileBackedOutputStream(FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
+      IOUtils.copyLarge(inputStream, resourceDataCache);
+      IOUtils.closeQuietly(inputStream);
+      streamCloser.register(resourceDataCache);
+    }
+    InputStream newInputStream = resourceDataCache.asByteSource().openStream();
+    streamCloser.register(newInputStream);
+
+    return newInputStream;
   }
 
   @Override
@@ -183,8 +205,8 @@ public class ProcessResourceImpl implements ProcessResource {
   }
 
   @Override
-  public void close() {
-    IOUtils.closeQuietly(inputStream);
+  public synchronized void close() {
+    IOUtils.closeQuietly(streamCloser);
   }
 
   public void markAsModified() {
