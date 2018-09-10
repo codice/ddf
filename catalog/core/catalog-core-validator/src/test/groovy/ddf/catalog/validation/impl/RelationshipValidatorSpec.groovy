@@ -117,18 +117,19 @@ class RelationshipValidatorSpec extends Specification {
         false           | "source.def"    | null        | MUST_HAVE         | "target.def"         | [null]
         false           | "source.undef"  | null        | MUST_HAVE         | "target.def"         | null
         false           | "source.undef"  | null        | MUST_HAVE         | "target.def"         | [null]
-        true            | "source.def"    | null        | MUST_HAVE         | "target.undef"       | null
         false           | "source.def"    | null        | MUST_HAVE         | "target.def"         | ["blah blah"]
         false           | "source.def"    | "blah"      | MUST_HAVE         | "target.undef"       | null
+        true            | "source.def"    | null        | MUST_HAVE         | "target.undef"       | null
+        true            | "source.def"    | null        | MUST_HAVE         | "target.def"         | ["blah"]
         true            | "source.def"    | "blah blah" | MUST_HAVE         | "target.undef"       | null
-        true            | "source.def"    | null        | CANNOT_HAVE       | "target.multivalued" | ["two"]
-        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | ["blah blah"]
-        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | null
-        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | [null]
         false           | "source.def"    | null        | CANNOT_HAVE       | "target.undef"       | null
         false           | "source.def"    | null        | CANNOT_HAVE       | "target.multivalued" | ["five"]
         false           | "source.def"    | null        | CANNOT_HAVE       | "target.undef"       | ["five"]
         false           | "source.def"    | null        | CANNOT_HAVE       | "target.null"        | ["five"]
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.multivalued" | ["two"]
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | ["blah blah"]
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | null
+        true            | "source.def"    | null        | CANNOT_HAVE       | "target.def"         | [null]
         false           | "source.def"    | null        | CAN_ONLY_HAVE     | "target.multivalued" | ["one", "two", "three", "four"]
         true            | "source.def"    | null        | CAN_ONLY_HAVE     | "target.multivalued" | ["one", "two", "five"]
         true            | "source.def"    | null        | CAN_ONLY_HAVE     | "target.def"         | null

@@ -23,8 +23,8 @@ import ddf.catalog.validation.impl.report.MetacardValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +40,8 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
   private static final String MUST_HAVE = "mustHave";
   private static final String CANNOT_HAVE = "cannotHave";
   private static final String CAN_ONLY_HAVE = "canOnlyHave";
-  private final Map<String, Function<Attribute, Optional<ValidationViolation>>> relationships =
-      new HashMap<>();
+  private final Map<String, Function<Collection<String>, Optional<ValidationViolation>>>
+      relationships = new HashMap<>();
   private final String sourceAttribute;
   private final String sourceValue;
   private final String relationship;
@@ -87,8 +87,17 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
         && attribute.getValues().stream().anyMatch(Objects::nonNull)
         && (StringUtils.isEmpty(sourceValue) || attribute.getValues().contains(sourceValue))) {
       MetacardValidationReportImpl report = new MetacardValidationReportImpl();
-      Optional<ValidationViolation> violation =
-          relationships.get(relationship).apply(metacard.getAttribute(targetAttribute));
+      Attribute actualAttribute = metacard.getAttribute(targetAttribute);
+      Collection<String> actualValues =
+          actualAttribute == null
+              ? Collections.emptyList()
+              : actualAttribute
+                  .getValues()
+                  .stream()
+                  .map(Objects::toString)
+                  .filter(StringUtils::isNotEmpty)
+                  .collect(Collectors.toList());
+      Optional<ValidationViolation> violation = relationships.get(relationship).apply(actualValues);
       violation.ifPresent(report::addAttributeViolation);
       if (violation.isPresent()) {
         return Optional.of(report);
@@ -100,54 +109,38 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     }
   }
 
-  private Optional<ValidationViolation> mustHave(Attribute attribute) {
-    return getValidationViolation(
-        "must have",
-        attribute == null
-            || (targetValues.isEmpty()
-                ? attribute
-                        .getValues()
-                        .stream()
-                        .map(Objects::toString)
-                        .filter(StringUtils::isNotEmpty)
-                        .count()
-                    < 1
-                : !attribute
-                    .getValues()
-                    .stream()
-                    .map(Objects::toString)
-                    .filter(StringUtils::isNotEmpty)
-                    .collect(Collectors.toCollection(ArrayList::new))
-                    .containsAll(targetValues)));
+  private Optional<ValidationViolation> mustHave(Collection<String> actualValues) {
+    boolean isViolated;
+    if (targetValues.isEmpty()) {
+      isViolated = actualValues.isEmpty();
+    } else {
+      isViolated = !actualValues.containsAll(targetValues);
+    }
+    return getValidationViolation("must have", isViolated);
   }
 
-  private Optional<ValidationViolation> cannotHave(Attribute attribute) {
-    return getValidationViolation(
-        "cannot have",
-        attribute != null
-            && attribute
-                .getValues()
-                .stream()
-                .map(Objects::toString)
-                .filter(StringUtils::isNotEmpty)
-                .anyMatch(v -> targetValues.isEmpty() || targetValues.contains(v)));
+  private Optional<ValidationViolation> cannotHave(Collection<String> actualValues) {
+    boolean isViolated;
+    if (targetValues.isEmpty()) {
+      isViolated = !actualValues.isEmpty();
+    } else {
+      isViolated = actualValues.stream().anyMatch(targetValues::contains);
+    }
+    return getValidationViolation("cannot have", isViolated);
   }
 
-  private Optional<ValidationViolation> canOnlyHave(Attribute attribute) {
-    return getValidationViolation(
-        "can only have",
-        attribute != null
-            && !CollectionUtils.isEmpty(attribute.getValues())
-            && !attribute
-                .getValues()
-                .stream()
-                .map(Objects::toString)
-                .filter(StringUtils::isNotEmpty)
-                .allMatch(targetValues::contains));
+  private Optional<ValidationViolation> canOnlyHave(Collection<String> actualValues) {
+    boolean isViolated;
+    if (actualValues.isEmpty()) {
+      isViolated = false;
+    } else {
+      isViolated = !targetValues.containsAll(actualValues);
+    }
+    return getValidationViolation("can only have", isViolated);
   }
 
   private String getValuesAsString() {
-    return targetValues.stream().map(Object::toString).collect(Collectors.joining(", "));
+    return String.join(", ", targetValues);
   }
 
   private String getValidationMessage(String relationship) {
