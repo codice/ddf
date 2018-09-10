@@ -100,7 +100,7 @@ define([
       )
     },
     handleRun: function() {
-      this.model.startSearch()
+      this.model.startSearchFromFirstPage()
     },
     handleRefreshResultCount: function() {
       this.model.startSearch({ resultCountOnly: true })

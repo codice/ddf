@@ -144,7 +144,7 @@ define([
       )
     },
     runQuery: function(e) {
-      this.model.startSearch()
+      this.model.startSearchFromFirstPage()
       e.stopPropagation()
     },
     stopQuery: function(e) {
