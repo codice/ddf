@@ -42,22 +42,22 @@ define([
       'click .editor-save': 'save',
     },
     regions: {
-      propertyPersistance: '.property-persistance',
+      propertyPersistence: '.property-persistence',
       propertyExpiration: '.property-expiration',
     },
     ui: {},
     onBeforeShow: function() {
-      this.setupPersistance()
+      this.setupPersistence()
       this.setupExpiration()
-      this.handlePeristance()
+      this.handlePersistence()
       this.startListeningToRegions()
       this.turnOnEditing()
     },
     startListeningToRegions: function() {
       this.listenTo(
-        this.propertyPersistance.currentView.model,
+        this.propertyPersistence.currentView.model,
         'change:value',
-        this.handlePeristance
+        this.handlePersistence
       )
       this.listenTo(
         this.propertyExpiration.currentView.model,
@@ -65,24 +65,24 @@ define([
         this.save
       )
       this.listenTo(
-        this.propertyPersistance.currentView.model,
+        this.propertyPersistence.currentView.model,
         'change:value',
         this.save
       )
     },
     stopListeningToRegions: function() {
-      this.stopListening(this.propertyPersistance.currentView.model)
+      this.stopListening(this.propertyPersistence.currentView.model)
     },
-    handlePeristance: function() {
-      var persistance = this.propertyPersistance.currentView.model.getValue()[0]
-      this.$el.toggleClass('is-persisted', persistance)
+    handlePersistence: function() {
+      const persistence = this.propertyPersistence.currentView.model.getValue()[0]
+      this.$el.toggleClass('is-persisted', persistence)
     },
-    setupPersistance: function() {
-      var persistance = user
+    setupPersistence: function() {
+      const persistence = user
         .get('user')
         .get('preferences')
-        .get('alertPersistance')
-      this.propertyPersistance.show(
+        .get('alertPersistence')
+      this.propertyPersistence.show(
         new PropertyView({
           model: new Property({
             id: 'Keep notifications after logging out',
@@ -96,17 +96,17 @@ define([
                 value: false,
               },
             ],
-            value: [persistance],
+            value: [persistence],
           }),
         })
       )
     },
     setupExpiration: function() {
-      var expiration = user
+      const expiration = user
         .get('user')
         .get('preferences')
         .get('alertExpiration')
-      var millisecondsInDay = 24 * 60 * 60 * 1000
+      const millisecondsInDay = 24 * 60 * 60 * 1000
       this.propertyExpiration.show(
         new PropertyView({
           model: new Property({
@@ -114,7 +114,7 @@ define([
             enum: [
               {
                 label: '1 Day',
-                value: 1 * millisecondsInDay,
+                value: millisecondsInDay,
               },
               {
                 label: '2 Days',
@@ -167,9 +167,9 @@ define([
       })
     },
     save: function() {
-      var preferences = user.get('user').get('preferences')
+      const preferences = user.get('user').get('preferences')
       preferences.set({
-        alertPersistance: this.propertyPersistance.currentView.model.get(
+        alertPersistence: this.propertyPersistence.currentView.model.get(
           'value'
         )[0],
         alertExpiration: this.propertyExpiration.currentView.model.get(

@@ -143,8 +143,8 @@ define([
         homeSort: 'Last modified',
         homeDisplay: 'Grid',
         alerts: [],
-        alertPersistance: false, // don't persist across sessions by default
-        alertExpiration: 86400000, // 1 day
+        alertPersistence: true, // persist across sessions by default
+        alertExpiration: 2592000000, // 1 month in milliseconds
         resultBlacklist: [],
         visualization: '3dmap',
         columnHide: [],
@@ -201,7 +201,7 @@ define([
       },
     ],
     initialize: function() {
-      this.handleAlertPersistance()
+      this.handleAlertPersistence()
       this.handleResultCount()
       this.listenTo(wreqr.vent, 'alerts:add', this.addAlert)
       this.listenTo(wreqr.vent, 'uploads:add', this.addUpload)
@@ -257,8 +257,8 @@ define([
         Math.min(properties.resultCount, this.get('resultCount'))
       )
     },
-    handleAlertPersistance: function() {
-      if (!this.get('alertPersistance')) {
+    handleAlertPersistence: function() {
+      if (!this.get('alertPersistence')) {
         this.get('alerts').reset()
         this.get('uploads').reset()
       } else {
@@ -359,7 +359,7 @@ define([
       this.fetched = true
       this.get('user')
         .get('preferences')
-        .handleAlertPersistance()
+        .handleAlertPersistence()
       this.get('user')
         .get('preferences')
         .handleResultCount()
