@@ -54,6 +54,8 @@
         <project.scm.id>github</project.scm.id>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.14</ddf.support.version>
+        <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
+        <acdebugger.version>1.4</acdebugger.version>
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -250,10 +252,10 @@
         <ddf-spatial>Spatial</ddf-spatial>
         <ddf-ui>Search UI</ddf-ui>
         <deprecated>
-[IMPORTANT]
-====
-This Feature has been *DEPRECATED* and will be removed in a future version.
-====
+            [IMPORTANT]
+            ====
+            This Feature has been *DEPRECATED* and will be removed in a future version.
+            ====
         </deprecated>
 
         <asciidoctor.maven.plugin.version>1.5.6</asciidoctor.maven.plugin.version>
@@ -854,17 +856,20 @@ are essentially embedding a slightly modified version of felix -->
                                                 will be set to 0 not 0.75
                                                 -->
                                                 <limits>
-                                                    <limit implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit
+                                                        implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>INSTRUCTION</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
                                                     </limit>
-                                                    <limit implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit
+                                                        implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>BRANCH</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
                                                     </limit>
-                                                    <limit implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit
+                                                        implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>COMPLEXITY</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>

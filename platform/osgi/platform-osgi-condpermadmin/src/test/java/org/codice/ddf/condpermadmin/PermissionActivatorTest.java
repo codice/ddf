@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.condpermadmin;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.osgi.internal.permadmin.EquinoxSecurityManager;
 import org.eclipse.osgi.internal.permadmin.SecurityAdmin;
 import org.eclipse.osgi.storage.PermissionData;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +37,13 @@ import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
 
 public class PermissionActivatorTest {
+  private static final String BUNDLE_1 = "bundle-1";
+  private static final String BUNDLE_2 = "bundle-2";
+  private static final String PERMISSION_1_TYPE = "org.osgi.framework.ServicePermission";
+  private static final String PERMISSION_1_NAME = "*";
+  private static final String PERMISSION_1_ACTIONS = "GET";
+  private static final String PERMISSION_1 =
+      PERMISSION_1_TYPE + " \"" + PERMISSION_1_NAME + "\", \"" + PERMISSION_1_ACTIONS + "\"";
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -47,15 +55,8 @@ public class PermissionActivatorTest {
 
   @Test
   public void testStartGrant() throws Exception {
-    File grantPolicy = temporaryFolder.newFile("security/grant.policy");
-    FileOutputStream grantOutStream = new FileOutputStream(grantPolicy);
-    InputStream grantStream = PermissionActivatorTest.class.getResourceAsStream("/grant.policy");
-    IOUtils.copy(grantStream, grantOutStream);
-    IOUtils.closeQuietly(grantOutStream);
-    IOUtils.closeQuietly(grantStream);
+    final PermissionActivator permissionActivator = createPermissionActivator("/grant.policy");
 
-    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
-    permissionActivator.start(mock(BundleContext.class));
     ConditionalPermissionAdmin conditionalPermissionAdmin =
         permissionActivator.getConditionalPermissionAdmin(null);
     List<ConditionalPermissionInfo> conditionalPermissionInfos =
@@ -77,15 +78,8 @@ public class PermissionActivatorTest {
 
   @Test
   public void testStartDeny() throws Exception {
-    File denyPolicy = temporaryFolder.newFile("security/deny.policy");
-    FileOutputStream denyOutStream = new FileOutputStream(denyPolicy);
-    InputStream denyStream = PermissionActivatorTest.class.getResourceAsStream("/deny.policy");
-    IOUtils.copy(denyStream, denyOutStream);
-    IOUtils.closeQuietly(denyOutStream);
-    IOUtils.closeQuietly(denyStream);
+    final PermissionActivator permissionActivator = createPermissionActivator("/deny.policy");
 
-    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
-    permissionActivator.start(mock(BundleContext.class));
     ConditionalPermissionAdmin conditionalPermissionAdmin =
         permissionActivator.getConditionalPermissionAdmin(null);
     List<ConditionalPermissionInfo> conditionalPermissionInfos =
@@ -107,15 +101,8 @@ public class PermissionActivatorTest {
 
   @Test
   public void testStartNone() throws Exception {
-    File nonePolicy = temporaryFolder.newFile("security/none.policy");
-    FileOutputStream noneOutStream = new FileOutputStream(nonePolicy);
-    InputStream noneStream = PermissionActivatorTest.class.getResourceAsStream("/none.policy");
-    IOUtils.copy(noneStream, noneOutStream);
-    IOUtils.closeQuietly(noneOutStream);
-    IOUtils.closeQuietly(noneStream);
+    final PermissionActivator permissionActivator = createPermissionActivator("/none.policy");
 
-    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
-    permissionActivator.start(mock(BundleContext.class));
     ConditionalPermissionAdmin conditionalPermissionAdmin =
         permissionActivator.getConditionalPermissionAdmin(null);
     List<ConditionalPermissionInfo> conditionalPermissionInfos =
@@ -148,63 +135,135 @@ public class PermissionActivatorTest {
 
   @Test
   public void testStartAll() throws Exception {
-    File denyPolicy = temporaryFolder.newFile("security/deny.policy");
-    FileOutputStream denyOutStream = new FileOutputStream(denyPolicy);
-    InputStream denyStream = PermissionActivatorTest.class.getResourceAsStream("/deny.policy");
-    IOUtils.copy(denyStream, denyOutStream);
-
-    File grantPolicy = temporaryFolder.newFile("security/grant.policy");
-    FileOutputStream grantOutStream = new FileOutputStream(grantPolicy);
-    InputStream grantStream = PermissionActivatorTest.class.getResourceAsStream("/grant.policy");
-    IOUtils.copy(grantStream, grantOutStream);
-
-    File nonePolicy = temporaryFolder.newFile("security/none.policy");
-    FileOutputStream noneOutStream = new FileOutputStream(nonePolicy);
-    InputStream noneStream = PermissionActivatorTest.class.getResourceAsStream("/none.policy");
-    IOUtils.copy(noneStream, noneOutStream);
-    IOUtils.closeQuietly(noneOutStream);
-    IOUtils.closeQuietly(noneStream);
-    IOUtils.closeQuietly(denyOutStream);
-    IOUtils.closeQuietly(denyStream);
-    IOUtils.closeQuietly(grantOutStream);
-    IOUtils.closeQuietly(grantStream);
-
-    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
-    permissionActivator.start(mock(BundleContext.class));
+    createPermissionActivator("/deny.policy", "/grant.policy", "/none.policy");
   }
 
   @Test
   public void policyEntryWithNoPermissionsIsValid() throws Exception {
-    File emptyEntryPolicy = temporaryFolder.newFile("security/emptyEntry.policy");
-    FileOutputStream emptyEntryOutStream = new FileOutputStream(emptyEntryPolicy);
-    InputStream emptyEntryStream =
-        PermissionActivatorTest.class.getResourceAsStream("/emptyEntry.policy");
-    IOUtils.copy(emptyEntryStream, emptyEntryOutStream);
-
-    IOUtils.closeQuietly(emptyEntryOutStream);
-    IOUtils.closeQuietly(emptyEntryStream);
-
-    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
-    permissionActivator.start(mock(BundleContext.class));
+    createPermissionActivator("/emptyEntry.policy");
   }
 
   @Test(expected = RuntimeException.class)
   public void malformedPolicyFile() throws Exception {
-    File malformedPolicy = temporaryFolder.newFile("security/badformat.policy");
-    FileOutputStream malformedOutStream = new FileOutputStream(malformedPolicy);
-    InputStream malformedStream =
-        PermissionActivatorTest.class.getResourceAsStream("/badformat.policy");
-    IOUtils.copy(malformedStream, malformedOutStream);
-    IOUtils.closeQuietly(malformedOutStream);
-    IOUtils.closeQuietly(malformedStream);
+    createPermissionActivator("/badformat.policy");
+  }
 
+  @Test
+  public void testGrantPermissionWithStartGrant() throws Exception {
+    final PermissionActivator permissionActivator = createPermissionActivator("/grant.policy");
+    final ConditionalPermissionAdmin conditionalPermissionAdmin =
+        permissionActivator.getConditionalPermissionAdmin(null);
+    final List<ConditionalPermissionInfo> initialConditionalPermissionInfos =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate().getConditionalPermissionInfos();
+
+    permissionActivator.grantPermission(BUNDLE_1, PERMISSION_1);
+
+    final List<ConditionalPermissionInfo> conditionalPermissionInfos =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate().getConditionalPermissionInfos();
+
+    // the new permission should be at the top and the rest identical to the initial ones
+    assertThat(conditionalPermissionInfos.size(), is(initialConditionalPermissionInfos.size() + 1));
+    for (int i = 1; i < conditionalPermissionInfos.size(); i++) {
+      assertThat(
+          conditionalPermissionInfos.get(i), is(initialConditionalPermissionInfos.get(i - 1)));
+    }
+    final ConditionalPermissionInfo newInfo = conditionalPermissionInfos.get(0);
+
+    assertThat(newInfo.getPermissionInfos().length, is(1));
+    assertThat(newInfo.getPermissionInfos()[0].getType(), is(PERMISSION_1_TYPE));
+    assertThat(newInfo.getPermissionInfos()[0].getName(), is(PERMISSION_1_NAME));
+    assertThat(newInfo.getPermissionInfos()[0].getActions(), is(PERMISSION_1_ACTIONS));
+    assertThat(newInfo.getConditionInfos().length, is(1));
+    assertThat(newInfo.getConditionInfos()[0].getArgs(), Matchers.arrayContaining(BUNDLE_1));
+    assertThat(newInfo.getAccessDecision(), is("allow"));
+  }
+
+  @Test
+  public void testGrantPermissionWithStartDeny() throws Exception {
+    final PermissionActivator permissionActivator = createPermissionActivator("/deny.policy");
+    final ConditionalPermissionAdmin conditionalPermissionAdmin =
+        permissionActivator.getConditionalPermissionAdmin(null);
+    final List<ConditionalPermissionInfo> initialConditionalPermissionInfos =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate().getConditionalPermissionInfos();
+
+    permissionActivator.grantPermission(BUNDLE_1, PERMISSION_1);
+
+    final List<ConditionalPermissionInfo> conditionalPermissionInfos =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate().getConditionalPermissionInfos();
+
+    // the new permission should be before the last one and the beginning ones identical to the
+    // initial one
+    assertThat(conditionalPermissionInfos.size(), is(initialConditionalPermissionInfos.size() + 1));
+    for (int i = 0; i < conditionalPermissionInfos.size() - 2; i++) {
+      assertThat(conditionalPermissionInfos.get(i), is(initialConditionalPermissionInfos.get(i)));
+    }
+    assertThat(
+        conditionalPermissionInfos.get(conditionalPermissionInfos.size() - 1),
+        is(initialConditionalPermissionInfos.get(initialConditionalPermissionInfos.size() - 1)));
+    final ConditionalPermissionInfo newInfo =
+        conditionalPermissionInfos.get(conditionalPermissionInfos.size() - 2);
+
+    assertThat(newInfo.getPermissionInfos().length, is(1));
+    assertThat(newInfo.getPermissionInfos()[0].getType(), is(PERMISSION_1_TYPE));
+    assertThat(newInfo.getPermissionInfos()[0].getName(), is(PERMISSION_1_NAME));
+    assertThat(newInfo.getPermissionInfos()[0].getActions(), is(PERMISSION_1_ACTIONS));
+    assertThat(newInfo.getConditionInfos().length, is(1));
+    assertThat(newInfo.getConditionInfos()[0].getArgs(), Matchers.arrayContaining(BUNDLE_1));
+    assertThat(newInfo.getAccessDecision(), is("allow"));
+  }
+
+  @Test
+  public void testGrantPermissionWhenConditionalPermissionAlreadyExist() throws Exception {
+    final PermissionActivator permissionActivator = createPermissionActivator("/grant.policy");
+    final ConditionalPermissionAdmin conditionalPermissionAdmin =
+        permissionActivator.getConditionalPermissionAdmin(null);
+    final List<ConditionalPermissionInfo> initialConditionalPermissionInfos =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate().getConditionalPermissionInfos();
+
+    permissionActivator.grantPermission(BUNDLE_1, PERMISSION_1);
+
+    permissionActivator.grantPermission(BUNDLE_2, PERMISSION_1);
+
+    final List<ConditionalPermissionInfo> conditionalPermissionInfos =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate().getConditionalPermissionInfos();
+
+    // the new permission should be at the top and the rest identical to the initial ones
+    assertThat(conditionalPermissionInfos.size(), is(initialConditionalPermissionInfos.size() + 1));
+    for (int i = 1; i < conditionalPermissionInfos.size(); i++) {
+      assertThat(
+          conditionalPermissionInfos.get(i), is(initialConditionalPermissionInfos.get(i - 1)));
+    }
+    final ConditionalPermissionInfo newInfo = conditionalPermissionInfos.get(0);
+
+    assertThat(newInfo.getPermissionInfos().length, is(1));
+    assertThat(newInfo.getPermissionInfos()[0].getType(), is(PERMISSION_1_TYPE));
+    assertThat(newInfo.getPermissionInfos()[0].getName(), is(PERMISSION_1_NAME));
+    assertThat(newInfo.getPermissionInfos()[0].getActions(), is(PERMISSION_1_ACTIONS));
+    assertThat(newInfo.getConditionInfos().length, is(1));
+    assertThat(
+        newInfo.getConditionInfos()[0].getArgs(), Matchers.arrayContaining(BUNDLE_1, BUNDLE_2));
+    assertThat(newInfo.getAccessDecision(), is("allow"));
+  }
+
+  private PermissionActivator createPermissionActivator(String... names) throws Exception {
+    for (final String name : names) {
+      File grantPolicy = temporaryFolder.newFile("security" + name);
+      FileOutputStream grantOutStream = new FileOutputStream(grantPolicy);
+      InputStream grantStream = PermissionActivatorTest.class.getResourceAsStream(name);
+
+      IOUtils.copy(grantStream, grantOutStream);
+      IOUtils.closeQuietly(grantOutStream);
+      IOUtils.closeQuietly(grantStream);
+    }
     PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
     permissionActivator.start(mock(BundleContext.class));
+    return permissionActivator;
   }
 
   private class PermissionActivatorForTest extends PermissionActivator {
     SecurityAdmin securityAdmin;
 
+    @Override
     ConditionalPermissionAdmin getConditionalPermissionAdmin(BundleContext bundleContext) {
       if (securityAdmin == null) {
         EquinoxSecurityManager equinoxSecurityManager = mock(EquinoxSecurityManager.class);
