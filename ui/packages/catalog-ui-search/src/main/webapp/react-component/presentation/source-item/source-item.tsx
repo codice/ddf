@@ -118,7 +118,7 @@ export default hot(module)(({ id, sourceActions, available }: Props) => {
                     onClick={() => {
                       lightboxInstance.model.updateTitle(sourceAction.title)
                       lightboxInstance.model.open()
-                      lightboxInstance.lightboxContent.show(
+                      lightboxInstance.showContent(
                         new SourceAppView({ url: sourceAction.url })
                       )
                     }}

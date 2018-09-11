@@ -34,7 +34,7 @@ module.exports = SearchFormViews.extend({
         this.model.get('type') === 'new-result' ? '' : this.model.get('name')
       )
       lightboxInstance.model.open()
-      lightboxInstance.lightboxContent.show(
+      lightboxInstance.showContent(
         new QueryResult({
           model:
             this.model.get('type') === 'new-result'

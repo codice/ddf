@@ -59,7 +59,7 @@
     "style-loader": "0.20.3",
     "stylelint-custom-processor-loader": "0.5.0",
     "ts-loader": "4.4.2",
-    "typescript": "2.8.1",
+    "typescript": "3.0.3",
     "url-loader": "1.0.1",
     "username": "3.0.0",
     "vkbeautify": "0.99.3",
@@ -73,7 +73,6 @@
   },
   "devDependencies": {
     "@types/webpack-env": "1.13.6",
-    "eslint-plugin-codice-linter": "*",
-    "typescript": "3.0.1"
+    "eslint-plugin-codice-linter": "*"
   }
 }

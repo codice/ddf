@@ -9,22 +9,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
-var sessionTimeoutModel = require('component/singletons/session-timeout')
-var BlockingLightbox = require('component/lightbox/blocking/lightbox.blocking.view')
-var SessionTimeoutView = require('component/session-timeout/session-timeout.view')
-var blockingLightbox = BlockingLightbox.generateNewLightbox()
 
-function showPrompt() {
-  return sessionTimeoutModel.get('showPrompt')
+type Param2 = {
+  headers?: object
+  [key: string]: unknown
 }
 
-sessionTimeoutModel.on('change:showPrompt', () => {
-  if (showPrompt()) {
-    blockingLightbox.model.updateTitle('Session Expiring')
-    blockingLightbox.model.open()
-    blockingLightbox.showContent(new SessionTimeoutView())
-  } else {
-    blockingLightbox.model.close()
-  }
-})
+export default function(url: string, { headers, ...opts }: Param2 = {}) {
+  return window.fetch(url, {
+    credentials: 'same-origin',
+    ...opts,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      ...headers,
+    },
+  })
+}

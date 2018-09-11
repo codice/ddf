@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
   triggerHistogram: function() {
     lightboxInstance.model.updateTitle('Histogram')
     lightboxInstance.model.open()
-    lightboxInstance.lightboxContent.show(
+    lightboxInstance.showContent(
       new HistogramView({
         selectionInterface: this.options.selectionInterface,
       })
@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     lightboxInstance.model.updateTitle('Histogram')
     lightboxInstance.model.open()
-    lightboxInstance.lightboxContent.show(
+    lightboxInstance.showContent(
       new HistogramView({
         selectionInterface: this.selectionInterface,
       })
@@ -131,7 +131,7 @@ module.exports = Marionette.LayoutView.extend({
   triggerViewDetailsSelection: function() {
     lightboxInstance.model.updateTitle('Inspector')
     lightboxInstance.model.open()
-    lightboxInstance.lightboxContent.show(
+    lightboxInstance.showContent(
       new InspectorView({
         selectionInterface: this.options.selectionInterface,
       })
@@ -150,7 +150,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     lightboxInstance.model.updateTitle('Inspector')
     lightboxInstance.model.open()
-    lightboxInstance.lightboxContent.show(
+    lightboxInstance.showContent(
       new InspectorView({
         selectionInterface: this.selectionInterface,
       })

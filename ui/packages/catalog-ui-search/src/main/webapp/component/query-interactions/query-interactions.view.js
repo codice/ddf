@@ -161,7 +161,7 @@ define([
     handleFeedback: function() {
       lightboxInstance.model.updateTitle('Search Quality Feedback')
       lightboxInstance.model.open()
-      lightboxInstance.lightboxContent.show(
+      lightboxInstance.showContent(
         new QueryFeedbackView({
           model: this.model,
         })
@@ -170,7 +170,7 @@ define([
     handleAnnotations: function() {
       lightboxInstance.model.updateTitle('Search Notes')
       lightboxInstance.model.open()
-      lightboxInstance.lightboxContent.show(
+      lightboxInstance.showContent(
         new QueryAnnotationsView({
           model: this.model,
         })

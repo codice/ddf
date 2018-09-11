@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,25 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="table-empty">
-    <h3>Please select a result set to display the table.</h3>
-</div>
-<div class="table-visibility">
-</div>
-<div class="table-rearrange">
-</div>
-<div class="table-options">
-    <button class="options-rearrange is-button">
-        Rearrange Columns
-        <span class="fa fa-columns"></span>
-    </button>
-    <button class="options-visibility is-button">
-        Hide/Show Columns
-        <span class="fa fa-eye"></span>
-    </button>
-    <div class="options-export-as">
-    </div>
-</div>
-<div class="tables-container">
-</div>
+export { retrieveExportOptions, exportDataAs } from './export'
