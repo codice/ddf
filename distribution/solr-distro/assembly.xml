@@ -46,14 +46,6 @@
             <directory>src/main/resources
             </directory>
             <outputDirectory>/</outputDirectory>
-            <!--These changes are included to turn on Pro-Grade Security Manager for Solr-->
-            <includes>
-                <include>security/solr-default.policy</include>
-                <include>bin/solr</include>
-                <!--This can be changed once Solr is upgraded to 7.5/8.0-->
-                <!--https://issues.apache.org/jira/browse/SOLR-12538-->
-                <include>bin/solr.cmd</include>
-            </includes>
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
