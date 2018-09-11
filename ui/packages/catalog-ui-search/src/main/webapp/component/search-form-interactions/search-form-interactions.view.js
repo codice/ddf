@@ -177,7 +177,7 @@ module.exports = Marionette.ItemView.extend({
   handleShare: function() {
     lightboxInstance.model.updateTitle(this.options.sharingLightboxTitle)
     lightboxInstance.model.open()
-    lightboxInstance.lightboxContent.show(
+    lightboxInstance.showContent(
       new QueryTemplateSharing({
         model: this.options.modelForComponent,
       })

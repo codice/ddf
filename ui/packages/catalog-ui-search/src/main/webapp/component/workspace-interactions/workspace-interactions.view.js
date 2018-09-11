@@ -115,7 +115,7 @@ define([
     handleShare: function() {
       lightboxInstance.model.updateTitle('Workspace Sharing')
       lightboxInstance.model.open()
-      lightboxInstance.lightboxContent.show(
+      lightboxInstance.showContent(
         new WorkspaceSharing({
           model: this.model,
         })

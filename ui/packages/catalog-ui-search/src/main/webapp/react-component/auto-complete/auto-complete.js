@@ -1,7 +1,7 @@
 const React = require('react')
 
 const _debounce = require('lodash/debounce')
-const fetch = require('js/fetch')
+import fetch from '../../react-component/utils/fetch'
 
 const Dropdown = require('../dropdown')
 const TextField = require('../text-field')

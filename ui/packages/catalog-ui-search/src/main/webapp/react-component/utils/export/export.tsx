@@ -9,22 +9,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
-var sessionTimeoutModel = require('component/singletons/session-timeout')
-var BlockingLightbox = require('component/lightbox/blocking/lightbox.blocking.view')
-var SessionTimeoutView = require('component/session-timeout/session-timeout.view')
-var blockingLightbox = BlockingLightbox.generateNewLightbox()
+import fetch from '../fetch'
 
-function showPrompt() {
-  return sessionTimeoutModel.get('showPrompt')
+export const exportDataAs = async (
+  url: string,
+  data: Object,
+  contentType: string
+) => {
+  return await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': contentType,
+    },
+  })
 }
 
-sessionTimeoutModel.on('change:showPrompt', () => {
-  if (showPrompt()) {
-    blockingLightbox.model.updateTitle('Session Expiring')
-    blockingLightbox.model.open()
-    blockingLightbox.showContent(new SessionTimeoutView())
-  } else {
-    blockingLightbox.model.close()
-  }
-})
+export const retrieveExportOptions: () => Promise<Response> = async () => {
+  return await fetch('./internal/cql/transforms')
+}

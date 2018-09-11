@@ -141,7 +141,7 @@ module.exports = Marionette.LayoutView.extend({
   triggerAdd(e) {
     lightboxInstance.model.updateTitle('Add List Items')
     lightboxInstance.model.open()
-    lightboxInstance.lightboxContent.show(
+    lightboxInstance.showContent(
       new ListAddTabsView({
         extraHeaders: {
           'List-ID': this.model.attributes.id,

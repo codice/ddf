@@ -52,7 +52,7 @@ function displayMessage() {
     var blockingLightbox = BlockingLightbox.generateNewLightbox()
     blockingLightbox.model.updateTitle(properties.ui.systemUsageTitle)
     blockingLightbox.model.open()
-    blockingLightbox.lightboxContent.show(new SystemUsageView())
+    blockingLightbox.showContent(new SystemUsageView())
   }
 }
 

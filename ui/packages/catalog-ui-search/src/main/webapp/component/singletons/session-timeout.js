@@ -16,7 +16,7 @@ var Backbone = require('backbone')
 var $ = require('jquery')
 var _ = require('underscore')
 var properties = require('properties')
-var fetch = require('js/fetch')
+import fetch from '../../react-component/utils/fetch'
 const featureDetection = require('./feature-detection')
 
 var invalidateUrl = './internal/session/invalidate?prevurl='

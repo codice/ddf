@@ -4,7 +4,7 @@ const Announcement = require('component/announcement')
 const AutoComplete = require('../auto-complete')
 const Polygon = require('./polygon')
 
-const fetch = require('js/fetch')
+import fetch from '../../react-component/utils/fetch'
 
 class Keyword extends React.Component {
   constructor(props) {
