@@ -70,8 +70,6 @@ catalog/spatial/registry/       @clockard
 
 catalog/ui/catalog-ui-search/                   @andrewkfiedler
 catalog/ui/catalog-ui-search/pom.xml            @andrewkfiedler @rzwiefel
-catalog/ui/catalog-ui-search/src/**/java/       @rzwiefel
-catalog/ui/catalog-ui-search/src/**/resources/  @rzwiefel
 
 catalog/ui/search-ui/standard/	@stustison
 
