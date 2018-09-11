@@ -31,10 +31,14 @@ import java.util.List;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -120,19 +124,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   SolrClient createSolrHttpClient(String url, String coreName, String coreUrl)
       throws IOException, SolrServerException {
     final HttpClientBuilder builder =
-        HttpClients.custom()
-            .setDefaultCookieStore(new BasicCookieStore())
-            .setMaxConnTotal(128)
-            .setMaxConnPerRoute(32);
-
-    if (StringUtils.startsWithIgnoreCase(url, "https")) {
-      builder.setSSLSocketFactory(
-          new SSLConnectionSocketFactory(
-              getSslContext(),
-              getProtocols(),
-              getCipherSuites(),
-              SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
-    }
+        createHttpBuilder(StringUtils.startsWithIgnoreCase(url, "https"));
     createSolrCore(url, coreName, null, builder.build());
     try (final Closer closer = new Closer()) {
       final HttpSolrClient noRetryClient =
@@ -313,5 +305,40 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
       throws IOException, SolrServerException {
     CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
     return response.getCoreStatus(coreName).get("instanceDir") != null;
+  }
+
+  private HttpClientBuilder createHttpBuilder(boolean tls) {
+    HttpClientBuilder httpClientBuilder =
+        HttpClients.custom()
+            .setDefaultCookieStore(new BasicCookieStore())
+            .setMaxConnTotal(128)
+            .setMaxConnPerRoute(32);
+    if (tls) {
+      httpClientBuilder.setSSLSocketFactory(
+          new SSLConnectionSocketFactory(
+              getSslContext(),
+              getProtocols(),
+              getCipherSuites(),
+              SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
+
+      if (useBasicAuth()) {
+        httpClientBuilder.setDefaultCredentialsProvider(getCredentialProvider());
+      }
+    }
+
+    return httpClientBuilder;
+  }
+
+  private boolean useBasicAuth() {
+    return Boolean.getBoolean(System.getProperty("solr.basicauth"));
+  }
+
+  private CredentialsProvider getCredentialProvider() {
+    CredentialsProvider provider = new BasicCredentialsProvider();
+    UsernamePasswordCredentials credentials =
+        new UsernamePasswordCredentials(
+            System.getProperty("solr.username"), System.getProperty("solr.credentials"));
+    provider.setCredentials(AuthScope.ANY, credentials);
+    return provider;
   }
 }

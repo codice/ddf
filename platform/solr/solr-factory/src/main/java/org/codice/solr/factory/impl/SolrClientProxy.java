@@ -465,18 +465,6 @@ public abstract class SolrClientProxy extends SolrClient {
   @Override
   public NamedList<Object> request(SolrRequest request, String collection)
       throws SolrServerException, IOException {
-    if (useBasicAuth()) {
-      setBasicAuthCredentials(request);
-    }
     return handle(c -> c.request(request, collection));
-  }
-
-  private boolean useBasicAuth() {
-    return Boolean.getBoolean(System.getProperty("solr.basicauth"));
-  }
-
-  private void setBasicAuthCredentials(SolrRequest request) {
-    request.setBasicAuthCredentials(
-        System.getProperty("solr.username"), System.getProperty("solr.credentials"));
   }
 }
