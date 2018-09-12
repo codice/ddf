@@ -488,7 +488,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Search for all metacards that have validation-warnings
     query =
         new CswQueryBuilder()
-            .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_WARNINGS, "*")
+            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+            .addLogicalOperator("Not")
             .getQuery();
 
     response =
@@ -874,7 +875,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     // Search for all metacards that have validation-warnings
     query =
         new CswQueryBuilder()
-            .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_WARNINGS, "*")
+            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+            .addLogicalOperator("Not")
             .getQuery();
 
     response =
@@ -883,11 +885,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .body(query)
             .post(CSW_PATH.getUrl())
             .then();
-    // Assert Metacard1 and metacard2 are NOT in results
+    // Assert Metacard2 and NOT metacard1 is in results
     response.body(
         not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
     response.body(
-        not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
+        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
   }
 
   /**
