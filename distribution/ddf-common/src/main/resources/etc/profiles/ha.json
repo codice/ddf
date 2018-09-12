@@ -56,7 +56,6 @@
     "platform-commands",
     "platform-scheduler",
     "metrics-reporting",
-    "metrics-interceptor",
-    "platform-solr-server-standalone"
+    "metrics-interceptor"
   ]
 }
