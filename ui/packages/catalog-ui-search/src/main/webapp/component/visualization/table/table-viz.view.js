@@ -173,8 +173,6 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   setupExportResults() {
-    console.log(this.options.selectionInterface.getCurrentQuery())
-
     const hiddenFieldsValue = user
       .get('user')
       .get('preferences')
