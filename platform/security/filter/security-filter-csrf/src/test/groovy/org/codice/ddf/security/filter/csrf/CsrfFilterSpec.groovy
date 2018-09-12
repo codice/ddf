@@ -207,8 +207,8 @@ class CsrfFilterSpec extends Specification {
     }
 
     @Unroll
-    def "CSRF System Protection Allowed: context: #requestContext, agent: #userAgent, httpVerb: #method"(
-            String requestContext, String userAgent, String method) {
+    def "CSRF System Protection Allowed: context: #requestContext, agent: #userAgent, httpVerb: #method, parameter: #param"(
+            String requestContext, String userAgent, String method, String param) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
         csrfFilter.init()
@@ -220,6 +220,7 @@ class CsrfFilterSpec extends Specification {
         request.getRequestURI() >> requestContext
         request.getHeader(HttpHeaders.USER_AGENT) >> userAgent
         request.getMethod() >> method
+        request.getQueryString() >> param
 
         csrfFilter.setWhiteListContexts(ImmutableList.of('/services/admin/config[/]?$=GET',
                 '/services/content[/]?$=GET',
@@ -241,32 +242,42 @@ class CsrfFilterSpec extends Specification {
         1 * chain.doFilter(_, _)
 
         where:
-        [requestContext, userAgent, method] << [
+        [requestContext, userAgent, method, param] << [
                 // Non-protected contexts
                 ["/", "/subdirectory"],
                 [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
-                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()],
+                [null]
         ].combinations() + [
                 // Whitelisted paths with GET
                 ["/services/admin/config", "/services/admin/config/", "/services/content", "/services/catalog/query", "/services/catalog/sources", "/services/catalog/sources/ddf.distribution"],
                 [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
-                [HttpMethod.GET.asString()]
+                [HttpMethod.GET.asString()],
+                [null]
         ].combinations() + [
                 // Whitelisted paths with POST
                 ["/services/idp/login", "/services/idp/login/", "/services/saml/sso"],
                 [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
-                [HttpMethod.POST.asString()]
+                [HttpMethod.POST.asString()],
+                [null]
+        ].combinations() + [
+                // GETs to wsdl URLs
+                ["services/csw/", "/services/csw"],
+                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [HttpMethod.GET.asString()],
+                ["wsdl", "WSDL"]
         ].combinations() + [
                 // Not whitelisted path with whitelisted user-agents or no user agent
                 ["/services/catalog/", "/services/catalog/subdirectory"],
                 [null, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
-                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()],
+                [null]
         ].combinations()
     }
 
     @Unroll
-    def "CSRF System Protection Forbidden: context: #requestContext, agent: #userAgent, httpVerb: #method"(
-            String requestContext, String userAgent, String method) {
+    def "CSRF System Protection Forbidden: context: #requestContext, agent: #userAgent, httpVerb: #method, parameter: #param"(
+            String requestContext, String userAgent, String method, String param) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
         csrfFilter.init()
@@ -278,6 +289,7 @@ class CsrfFilterSpec extends Specification {
         request.getRequestURI() >> requestContext
         request.getHeader(HttpHeaders.USER_AGENT) >> userAgent
         request.getMethod() >> method
+        request.getQueryString() >> param
 
         csrfFilter.setWhiteListContexts(ImmutableList.of('/services/admin/config[/]?$=GET',
                 '/services/content[/]?$=GET',
@@ -299,21 +311,24 @@ class CsrfFilterSpec extends Specification {
         0 * chain.doFilter(_, _)
 
         where:
-        [requestContext, userAgent, method] << [
+        [requestContext, userAgent, method, param] << [
                 // Whitelisted paths with incorrect method
                 ["/services/admin/config", "/services/content", "/services/catalog/query", "/services/catalog/sources", "/services/catalog/sources/ddf.distribution"],
                 ["", CHROME_USER_AGENT],
-                [HttpMethod.POST.asString()]
+                [HttpMethod.POST.asString()],
+                [null]
         ].combinations() + [
                 // Whitelisted paths with incorrect method
                 ["/services/idp/login", "/services/saml/sso"],
                 ["", CHROME_USER_AGENT],
-                [HttpMethod.GET.asString()]
+                [HttpMethod.GET.asString()],
+                [null]
         ].combinations() + [
                 // Not whitelisted path with not whitelisted user-agents
                 ["/services/catalog/", "/services/catalog/subdirectory"],
                 ["", CHROME_USER_AGENT],
-                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()],
+                [null]
         ].combinations()
     }
 }

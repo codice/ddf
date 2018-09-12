@@ -138,7 +138,7 @@ public class CsrfFilter implements SecurityFilter {
     // Execute CSRF check if user is accessing /services
     if (targetContextPath.startsWith(SERVICE_CONTEXT)
         && doSystemProtectionFilter(
-            httpResponse, targetContextPath, requestMethod, userAgentHeader)) {
+            httpRequest, httpResponse, targetContextPath, requestMethod, userAgentHeader)) {
       return;
     }
 
@@ -196,10 +196,19 @@ public class CsrfFilter implements SecurityFilter {
   }
 
   private boolean doSystemProtectionFilter(
+      HttpServletRequest httpRequest,
       HttpServletResponse httpResponse,
       String targetContextPath,
       String requestMethod,
       String userAgentHeader) {
+
+    // Allow GETs to wsdl urls
+    String queryString = httpRequest.getQueryString();
+    if (queryString != null
+        && queryString.equalsIgnoreCase("wsdl")
+        && requestMethod.equals(HttpMethod.GET.asString())) {
+      return false;
+    }
 
     // Check if the user-agent is whitelisted
     Pattern whitelistUserAgent = null;
