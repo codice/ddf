@@ -163,8 +163,12 @@ module.exports = Marionette.LayoutView.extend({
     this.uploadBatchModel.clear()
   },
   startUpload: function() {
-    if (!this.options.preIngestValidator || this.options.preIngestValidator()) {
-      this.uploadBatchModel.start()
+    if (this.options.preIngestValidator) {
+      this.options.preIngestValidator(
+        _.bind(this.uploadBatchModel.start, this.uploadBatchModel)
+      );
+    } else {
+      this.uploadBatchModel.start();
     }
   },
   cancelUpload: function() {

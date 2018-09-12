@@ -66,25 +66,44 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  validateAttributes: function() {
-    var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView()
-    if (
-      propertyCollectionView.hasBlankRequiredAttributes() ||
-      !propertyCollectionView.isValid()
-    ) {
-      announcement.announce({
-        title: 'Some fields need attention',
-        message: 'Please address validation issues before uploading',
-        type: 'error',
-      })
-      propertyCollectionView.showRequiredWarnings()
-      return false
-    } else {
-      this.ingestDetails.currentView.setOverrides(
-        this.ingestEditor.currentView.getAttributeOverrides()
-      )
-      propertyCollectionView.hideRequiredWarnings()
-      return true
-    }
+  filterMessage: function (message) {
+    return message.split(' ').map(word => properties.attributeAliases[word] || word).join(' ');
   },
-})
+  validateAttributes: function(callback) {
+    var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView();
+    propertyCollectionView.clearValidation();
+    return $.ajax({
+      url: "./internal/prevalidate",
+      type: "POST",
+      data: JSON.stringify(propertyCollectionView.toPropertyJSON().properties),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json"
+    }).then(
+      _.bind(function(response) {
+        response.forEach(attribute => {
+          attribute.errors = attribute.errors.map(this.filterMessage);
+          attribute.warnings = attribute.warnings.map(this.filterMessage);
+        });
+        propertyCollectionView.updateValidation(response);
+        if (
+          response.length > 0 ||
+          propertyCollectionView.hasBlankRequiredAttributes() ||
+          !propertyCollectionView.isValid()
+        ) {
+          announcement.announce({
+            title: "Some fields need attention",
+            message: "Please address validation issues before uploading",
+            type: "error"
+          });
+          propertyCollectionView.showRequiredWarnings();
+        } else {
+          this.ingestDetails.currentView.setOverrides(
+            this.ingestEditor.currentView.getAttributeOverrides()
+          );
+          propertyCollectionView.hideRequiredWarnings();
+          callback();
+        }
+      }, this)
+    );
+  }
+});

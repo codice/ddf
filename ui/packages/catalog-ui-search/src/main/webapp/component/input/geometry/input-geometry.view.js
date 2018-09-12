@@ -62,7 +62,11 @@ module.exports = InputView.extend({
   getCurrentValue() {
     return this.locationRegion.currentView.getCurrentValue()
   },
-  triggerChange() {
-    this.model.set('value', this.getCurrentValue())
+  isValid() {
+    return this.locationRegion.currentView.isValid();
   },
-})
+  triggerChange() {
+    this.model.set('value', this.getCurrentValue());
+    this.model.set('isValid', this.isValid());
+  }
+});
