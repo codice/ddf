@@ -173,6 +173,8 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   setupExportResults() {
+    console.log(this.options.selectionInterface.getCurrentQuery())
+
     const hiddenFieldsValue = user
       .get('user')
       .get('preferences')
@@ -194,6 +196,10 @@ module.exports = Marionette.LayoutView.extend({
       cql: this.buildCqlQueryFromMetacards(
         this.options.selectionInterface.getActiveSearchResults().toJSON()
       ),
+      count: this.options.selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('results').length,
     })
 
     const allData = () => ({
@@ -203,6 +209,10 @@ module.exports = Marionette.LayoutView.extend({
         columnAliasMap: properties.attributeAliases,
       },
       cql: this.options.selectionInterface.getCurrentQuery().get('cql'),
+      count: this.options.selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('results').fullCollection.length,
     })
 
     const dataModel = {
@@ -213,10 +223,10 @@ module.exports = Marionette.LayoutView.extend({
             url: `./internal/cql/transform/`,
             data: visibleData,
           },
-          all: {
-            url: `./internal/cql/transform/`,
-            data: allData,
-          },
+          //all: {
+          //  url: `./internal/cql/transform/`,
+          //  data: allData,
+          //}
         },
         defaultExportFormat: 'csv',
         contentType: 'application/json',
