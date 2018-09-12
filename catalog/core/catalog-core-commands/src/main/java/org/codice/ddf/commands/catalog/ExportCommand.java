@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -120,6 +121,12 @@ public class ExportCommand extends CqlCommands {
   private Filter revisionFilter;
 
   private JarSigner jarSigner = new JarSigner();
+
+  private static final String SECURITY_AUDIT_DELIMITER = ", ";
+
+  //  Number of bytes that can be sent is 65,507 (due to udp constraints). This gives a
+  //  2002 byte buffer to account for anything the security log prefaces our message with
+  private static final int LOG4J_MAX_BUF_SIZE = 63505;
 
   @Reference protected StorageProvider storageProvider;
 
@@ -256,13 +263,7 @@ public class ExportCommand extends CqlCommands {
     console.println("Number of metacards exported: " + exportedItems.size());
     console.println();
 
-    SecurityLogger.audit(
-        "Ids of exported metacards and content:\n{}",
-        exportedItems
-            .stream()
-            .map(ExportItem::getId)
-            .distinct()
-            .collect(Collectors.joining(", ", "[", "]")));
+    auditRecords(exportedItems);
 
     console.println("Starting content export...");
     start = Instant.now();
@@ -311,6 +312,27 @@ public class ExportCommand extends CqlCommands {
       return;
     }
     console.println("zip file signed in: " + getFormattedDuration(start));
+  }
+
+  private void auditRecords(List<ExportItem> exportedItems) {
+    AtomicInteger counter = new AtomicInteger();
+    exportedItems
+        .stream()
+        .map(ExportItem::getId)
+        .distinct()
+        .collect(Collectors.groupingBy(e -> logPartition(e, counter)))
+        .values()
+        .forEach(this::writePartitionToLog);
+  }
+
+  private int logPartition(String e, AtomicInteger counter) {
+    return counter.getAndAdd(e.length() + SECURITY_AUDIT_DELIMITER.length()) / LOG4J_MAX_BUF_SIZE;
+  }
+
+  private void writePartitionToLog(List<String> idList) {
+    SecurityLogger.audit(
+        "Ids of exported metacards and content:\n{}",
+        idList.stream().collect(Collectors.joining(SECURITY_AUDIT_DELIMITER, "[", "]")));
   }
 
   private List<ExportItem> doMetacardExport(
