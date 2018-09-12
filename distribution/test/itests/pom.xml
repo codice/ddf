@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
-                <version>1</version>
+                <version>${javax.inject.version}</version>
             </dependency>
             <!-- End of pax exam dependencies -->
         </dependencies>

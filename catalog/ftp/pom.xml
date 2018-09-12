@@ -26,10 +26,6 @@
     <name>DDF :: Catalog :: Ftp</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <ftpserver-version>1.0.6</ftpserver-version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.mina</groupId>

@@ -27,15 +27,11 @@
     <name>DDF :: Libs :: Test Common</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <osgi.version>5.0.0</osgi.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <version>${javax.inject.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -95,7 +91,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
+            <version>${mockito-all.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objenesis</groupId>
@@ -105,7 +101,7 @@
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-matchers</artifactId>
-            <version>${xmlunit.version}</version>
+            <version>${xmlunit-matchers.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
