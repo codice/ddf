@@ -33,6 +33,7 @@
         <module>security-idp-plugin-audiencerestriction</module>
         <module>security-idp-plugin-nameidpolicy</module>
         <module>security-idp-plugin-namequalifier</module>
+        <module>security-idp-plugin-requestsubjectvalidator</module>
     </modules>
 
 </project>

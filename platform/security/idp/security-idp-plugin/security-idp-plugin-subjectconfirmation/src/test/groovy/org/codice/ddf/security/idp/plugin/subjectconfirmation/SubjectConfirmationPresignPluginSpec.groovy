@@ -32,7 +32,7 @@ class SubjectConfirmationPresignPluginSpec extends Specification {
     Issuer issuer
 
     def setupSpec() {
-        OpenSAMLUtil.initSamlEngine();
+        OpenSAMLUtil.initSamlEngine()
     }
 
     def setup() {

@@ -560,6 +560,7 @@
         <feature>security-handler-api</feature>
         <feature>javax-validation</feature>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-subjectconfirmation/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-requestsubjectvalidator/${project.version}</bundle>
         <feature>action-core-impl</feature>
         <feature>cxf-rs-security-sso-saml</feature>
         <feature>platform-filter-delegate</feature>
