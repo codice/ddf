@@ -24,6 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
+import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
@@ -52,8 +53,9 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
       GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<File> operations) {
-    super(endpoint, remaining, processor, operations);
+      GenericFileOperations<File> operations,
+      GenericFileProcessStrategy<File> processStrategy) {
+    super(endpoint, remaining, processor, operations, processStrategy);
     init();
   }
 
