@@ -60,6 +60,10 @@ class CachedResourceMetacardComparator {
           Metacard::getExpirationDate,
           Metacard::getContentTypeName);
 
+  /**
+   * These are attributes we are going to ignore because they are already being compared or extra
+   * ones that are to be ignored
+   */
   private static final Set<String> ATTRIBUTES_TO_IGNORE =
       ImmutableSet.of(
           Metacard.CHECKSUM,

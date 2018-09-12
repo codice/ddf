@@ -161,9 +161,7 @@ public class CqlRequest {
     }
 
     if (excludeUnnecessaryAttributes) {
-      queryRequest
-          .getProperties()
-          .put("excludeAttributes", Sets.newHashSet(Metacard.METADATA, "lux"));
+      queryRequest.getProperties().put("excludeAttributes", Sets.newHashSet("lux"));
     }
 
     if (sortBys.size() > 1) {
