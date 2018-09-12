@@ -160,7 +160,7 @@ public class CqlRequest {
       queryRequest.getProperties().put("mode", "update");
     }
 
-    queryRequest.getProperties().put("id", this.getId());
+    queryRequest.getProperties().put("id", getId());
 
     if (excludeUnnecessaryAttributes) {
       queryRequest

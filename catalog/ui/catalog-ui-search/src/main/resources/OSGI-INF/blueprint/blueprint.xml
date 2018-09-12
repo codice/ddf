@@ -652,10 +652,10 @@
     </service>
 
     <bean id="subscribedWorkspaceNotifier" class="org.codice.ddf.catalog.ui.query.monitor.email.SubscribedWorkspaceNotifier">
-        <property name="subjectIdentity" ref="subjectIdentity"/>
-        <property name="emailNotifierService" ref="emailNotifierService"/>
-        <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="catalogFramework" ref="catalogFramework"/>
+        <argument ref="subjectIdentity"/>
+        <argument ref="emailNotifierService"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="catalogFramework"/>
     </bean>
 
     <service ref="subscribedWorkspaceNotifier">
