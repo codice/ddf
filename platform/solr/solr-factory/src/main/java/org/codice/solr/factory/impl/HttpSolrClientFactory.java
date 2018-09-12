@@ -320,17 +320,17 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
               getProtocols(),
               getCipherSuites(),
               SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
+    }
 
-      if (useBasicAuth()) {
-        httpClientBuilder.setDefaultCredentialsProvider(getCredentialProvider());
-      }
+    if (useBasicAuth()) {
+      httpClientBuilder.setDefaultCredentialsProvider(getCredentialProvider());
     }
 
     return httpClientBuilder;
   }
 
   private boolean useBasicAuth() {
-    return Boolean.getBoolean(System.getProperty("solr.basicauth"));
+    return Boolean.getBoolean("solr.basicauth");
   }
 
   private CredentialsProvider getCredentialProvider() {
