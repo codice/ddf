@@ -166,9 +166,9 @@ module.exports = Marionette.LayoutView.extend({
     if (this.options.preIngestValidator) {
       this.options.preIngestValidator(
         _.bind(this.uploadBatchModel.start, this.uploadBatchModel)
-      );
+      )
     } else {
-      this.uploadBatchModel.start();
+      this.uploadBatchModel.start()
     }
   },
   cancelUpload: function() {

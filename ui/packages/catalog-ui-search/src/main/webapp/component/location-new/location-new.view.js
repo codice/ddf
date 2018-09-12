@@ -45,6 +45,6 @@ module.exports = Marionette.LayoutView.extend({
     return this.model.getValue()
   },
   isValid() {
-    return this.model.isValid();
-  }
+    return this.model.isValid()
+  },
 })
