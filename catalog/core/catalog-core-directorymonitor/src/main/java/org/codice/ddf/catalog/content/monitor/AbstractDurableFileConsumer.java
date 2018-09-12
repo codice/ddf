@@ -25,6 +25,7 @@ import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileConsumer;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
+import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.camel.spi.Synchronization;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -42,8 +43,9 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
       GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<File> operations) {
-    super(endpoint, processor, operations);
+      GenericFileOperations<File> operations,
+      GenericFileProcessStrategy<File> processStrategy) {
+    super(endpoint, processor, operations, processStrategy);
     this.remaining = remaining;
   }
 

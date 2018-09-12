@@ -36,7 +36,7 @@ public class TopicLogger extends RouteBuilder {
   @Override
   public void configure() throws Exception {
 
-    fromF("sjms:topic:%s", name)
+    fromF("sjms2:topic:%s", name)
         .routeId(name + " period=" + samplePeriod + " headers=" + showHeaders)
         .toF("log:topic-logger?groupInterval=%d", samplePeriod * 1000)
         .sample(samplePeriod, TimeUnit.SECONDS)

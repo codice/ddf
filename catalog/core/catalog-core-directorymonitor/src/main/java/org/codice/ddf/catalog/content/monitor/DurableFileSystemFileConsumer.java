@@ -17,6 +17,7 @@ import java.io.File;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
+import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
@@ -28,8 +29,9 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<File> operations) {
-    super(endpoint, remaining, processor, operations);
+      GenericFileOperations<File> operations,
+      GenericFileProcessStrategy<File> processStrategy) {
+    super(endpoint, remaining, processor, operations, processStrategy);
     listener = new DurableFileAlterationListener(this);
   }
 

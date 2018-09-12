@@ -19,8 +19,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.sjms.SjmsComponent;
 import org.apache.camel.component.sjms.jms.ConnectionFactoryResource;
+import org.apache.camel.component.sjms2.Sjms2Component;
 import org.apache.camel.main.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +53,9 @@ public class CoreProducerConsumerExample extends RouteBuilder {
 
     from("timer:simple?PERIOD=" + PERIOD)
         .process(new CoreProducerConsumerExample.MessageProducerProcessor("core"))
-        .to("sjms:core.example");
+        .to("sjms2:core.example");
 
-    from("sjms:core.example?consumer.bridgeErrorHandler=true").to("stream:out");
+    from("sjms2:core.example?consumer.bridgeErrorHandler=true").to("stream:out");
   }
 
   private void createCamelContext() throws Exception {
@@ -69,11 +69,11 @@ public class CoreProducerConsumerExample extends RouteBuilder {
     factory.setRetryIntervalMultiplier(1.0);
     factory.setReconnectAttempts(-1);
 
-    SjmsComponent sjms = new SjmsComponent();
+    Sjms2Component sjms2 = new Sjms2Component();
     ConnectionFactoryResource connectionResource =
         new ConnectionFactoryResource(1, factory, "admin", "admin");
-    sjms.setConnectionResource(connectionResource);
-    camelContext.addComponent("sjms", sjms);
+    sjms2.setConnectionResource(connectionResource);
+    camelContext.addComponent("sjms2", sjms2);
   }
 
   public static class MessageProducerProcessor implements Processor {

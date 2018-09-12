@@ -26,6 +26,7 @@ import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProducer;
+import org.apache.camel.component.file.strategy.GenericFileNoOpProcessStrategy;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriPath;
@@ -66,10 +67,18 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
 
     if (isDav) {
       return new DurableWebDavFileConsumer(
-          this, remaining, processor, new EventfulFileWrapperGenericFileOperations());
+          this,
+          remaining,
+          processor,
+          new EventfulFileWrapperGenericFileOperations(),
+          new GenericFileNoOpProcessStrategy());
     } else {
       return new DurableFileSystemFileConsumer(
-          this, remaining, processor, new EventfulFileWrapperGenericFileOperations());
+          this,
+          remaining,
+          processor,
+          new EventfulFileWrapperGenericFileOperations(),
+          new GenericFileNoOpProcessStrategy());
     }
   }
 
@@ -159,20 +168,20 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
     }
 
     @Override
-    public boolean retrieveFile(String name, Exchange exchange)
+    public boolean retrieveFile(String name, Exchange exchange, long size)
         throws GenericFileOperationFailedException {
       exchange.setOut(exchange.getIn());
       return true;
     }
 
     @Override
-    public void releaseRetreivedFileResources(Exchange exchange)
+    public void releaseRetrievedFileResources(Exchange exchange)
         throws GenericFileOperationFailedException {
       // do nothing
     }
 
     @Override
-    public boolean storeFile(String name, Exchange exchange)
+    public boolean storeFile(String name, Exchange exchange, long size)
         throws GenericFileOperationFailedException {
       return false;
     }
