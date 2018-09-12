@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="RTF Export Categories"
+         description="The categories, matching metacard attributes, that will be exported to RTF"
+         id="ddf.catalog.transformer.output.rtf.categories">
+
+        <AD description="The title of the category in an RTF export"
+            name="Category Title"
+            id="title"
+            type="String"
+            default=""/>
+        <AD description="All of the attributes that will be in this category of the metacard export"
+            name="Attributes"
+            id="attributes"
+            type="String"
+            cardinality="10000"
+            default=""/>
+    </OCD>
+
+    <Designate pid="ddf.catalog.transformer.output.rtf.categories" factoryPid="ddf.catalog.transformer.output.rtf.categories">
+        <Object ocdref="ddf.catalog.transformer.output.rtf.categories"/>
+    </Designate>
+
+</metatype:MetaData>

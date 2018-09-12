@@ -41,8 +41,6 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.opensearch.OpenSearchConstants;
@@ -75,64 +73,6 @@ public class OpenSearchParserImplTest {
   public void setUp() {
     openSearchParser = new OpenSearchParserImpl();
     webClient = mock(WebClient.class);
-  }
-
-  // {@link OpenSearchParser#populateContextual(WebClient, Map, List)} tests
-
-  @Test
-  public void populateContextual() {
-    Map<String, String> searchPhraseMap = new HashMap<>();
-    searchPhraseMap.put("q", "TestQuery123");
-
-    openSearchParser.populateContextual(
-        webClient,
-        searchPhraseMap,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    assertQueryParameterPopulated(OpenSearchConstants.SEARCH_TERMS, searchPhraseMap.get("q"));
-  }
-
-  @Test
-  public void populateContextualUnrecognizedParameter() {
-    Map<String, String> searchPhraseMap = new HashMap<>();
-    searchPhraseMap.put("z", "TestQuery123");
-
-    openSearchParser.populateContextual(
-        webClient,
-        searchPhraseMap,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    assertNoQueryParametersPopulated();
-  }
-
-  @Test
-  public void populateEmptyContextual() {
-    Map<String, String> searchPhraseMap = new HashMap<>();
-
-    openSearchParser.populateContextual(
-        webClient,
-        searchPhraseMap,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    assertNoQueryParametersPopulated();
-  }
-
-  @Test
-  public void populateNullContextual() {
-    openSearchParser.populateContextual(
-        webClient,
-        null,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    assertNoQueryParametersPopulated();
   }
 
   // {@link OpenSearchParser#populateTemporal(WebClient, TemporalFilter, List)} tests
