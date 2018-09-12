@@ -19,6 +19,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.filter.FilterAdapter;
@@ -66,7 +67,17 @@ public class ValidationFilterPluginTest {
   public void setup() {
 
     source = mock(CatalogProvider.class);
-    when(source.getId()).thenReturn("cat1");
+    when(source.getId()).thenReturn("source1");
+
+    CatalogProvider catProvider1 = mock(CatalogProvider.class);
+    CatalogProvider catProvider2 = mock(CatalogProvider.class);
+    CatalogProvider catProvider3 = mock(CatalogProvider.class);
+    when(catProvider1.getId()).thenReturn("cat1");
+    when(catProvider2.getId()).thenReturn("cat2");
+    when(catProvider3.getId()).thenReturn("cat3");
+
+    ImmutableList<CatalogProvider> catalogProviders =
+        ImmutableList.of(catProvider1, catProvider2, catProvider3);
 
     subject = mock(Subject.class);
     properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
@@ -78,7 +89,7 @@ public class ValidationFilterPluginTest {
         new ValidationQueryDelegate(Validation.VALIDATION_WARNINGS);
     testValidationErrorQueryDelegate = new ValidationQueryDelegate(Validation.VALIDATION_ERRORS);
 
-    plugin = new ValidationFilterPlugin(filterBuilder);
+    plugin = new ValidationFilterPlugin(filterBuilder, catalogProviders);
 
     List<String> attributeMapping = new ArrayList<>();
     attributeMapping.add("invalid-state=data-manager,system-admin");
