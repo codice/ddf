@@ -15,6 +15,7 @@ package ddf.catalog.cache.impl;
 
 import com.google.common.collect.ImmutableList;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,16 +47,20 @@ class CachedResourceMetacardComparator {
       LoggerFactory.getLogger(CachedResourceMetacardComparator.class);
 
   private static final List<Function<Metacard, ?>> METACARD_METHODS =
-      ImmutableList.of(Metacard::getModifiedDate, Metacard::getCreatedDate);
+      ImmutableList.of(
+          Metacard::getModifiedDate,
+          Metacard::getCreatedDate,
+          (m) -> m.getAttribute(Core.METACARD_MODIFIED),
+          (m) -> m.getAttribute(Core.METACARD_CREATED));
 
   private CachedResourceMetacardComparator() {}
 
   /**
    * Indicates whether the resource associated with the provided metacard has changed by comparing
    * the state of the metacard when it was cached with the state of the metacard when it was last
-   * retrieved. Since there is no single attribute that clearly indicates whether the resource has
-   * changed or not, this class compares as many attributes as possible and if it find a difference,
-   * it will return {@code false}.
+   * retrieved. The main attributes to be compared to indicate whether a resource has changed or not
+   * are checksum, modified date, and created date. If this finds a difference in these values it
+   * will return {@code false}.
    *
    * @param cachedMetacard version of the metacard when the product was added to the cache
    * @param updatedMetacard current version of the metacard
@@ -77,9 +82,10 @@ class CachedResourceMetacardComparator {
       return false;
     }
 
+    /*The checksum algorithm that can be picked has potential to be poor - we still check modified and created
+    dates if checksums are equal*/
     if (!Objects.equals(
-        cachedMetacard.getAttribute(Metacard.CHECKSUM),
-        updatedMetacard.getAttribute(Metacard.CHECKSUM))) {
+        cachedMetacard.getAttribute(Core.CHECKSUM), updatedMetacard.getAttribute(Core.CHECKSUM))) {
       return false;
     }
 
