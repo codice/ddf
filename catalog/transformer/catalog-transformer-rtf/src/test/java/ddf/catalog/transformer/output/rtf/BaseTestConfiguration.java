@@ -34,6 +34,8 @@ public abstract class BaseTestConfiguration {
 
   static final String REFERENCE_IMAGE_STRING_FILE = "test-image-string.txt";
   static final String REFERENCE_METACARD_RTF_FILE = "reference-metacard.rtf";
+  static final String REFERENCE_METACARD_RTF_WITH_EMPTY_THUMBNAIL_FILE =
+      "reference-metacard-with-empty-thumbnail.rtf";
   static final String REFERENCE_SOURCE_RESPONSE_RTF_FILE = "reference-source-response.rtf";
 
   static final String EMPTY_ATTRIBUTE = "Empty";
@@ -63,6 +65,13 @@ public abstract class BaseTestConfiguration {
         getClass().getClassLoader().getResourceAsStream(REFERENCE_METACARD_RTF_FILE));
   }
 
+  String getReferenceMetacardRtfWithEmptyThumbnailFile() throws IOException {
+    return inputStreamToString(
+        getClass()
+            .getClassLoader()
+            .getResourceAsStream(REFERENCE_METACARD_RTF_WITH_EMPTY_THUMBNAIL_FILE));
+  }
+
   String getReferenceSourceResponseRtfFile() throws IOException {
     return inputStreamToString(
         getClass().getClassLoader().getResourceAsStream(REFERENCE_SOURCE_RESPONSE_RTF_FILE));
@@ -77,18 +86,31 @@ public abstract class BaseTestConfiguration {
     return IOUtils.toString(inputStream, Charset.forName("UTF-8"));
   }
 
+  Metacard createMockMetacardWithBadImageData(String title) {
+    try {
+      return createMockMetacard(title, createInvalidMediaAttribute());
+    } catch (IOException e) {
+      // Will be caught in the test as missing attribute
+      return null;
+    }
+  }
+
   Metacard createMockMetacard(String title) {
+    try {
+      return createMockMetacard(title, createMediaAttribute());
+    } catch (IOException e) {
+      // Will be caught in the test as missing attribute
+      return null;
+    }
+  }
+
+  Metacard createMockMetacard(String title, Attribute mediaAttribute) {
     Metacard metacard = mock(Metacard.class);
     when(metacard.getTitle()).thenReturn(title);
 
-    Attribute mockMediaAttribute = null;
-    try {
-      mockMediaAttribute = createMediaAttribute();
-    } catch (IOException e) {
-      // Will be caught in the test as missing attribute
-    }
+    when(metacard.getId()).thenReturn("mock-id");
 
-    when(metacard.getAttribute(Core.THUMBNAIL)).thenReturn(mockMediaAttribute);
+    when(metacard.getAttribute(Core.THUMBNAIL)).thenReturn(mediaAttribute);
 
     Attribute mockEmptyAttribute = mock(Attribute.class);
     when(metacard.getAttribute(EMPTY_ATTRIBUTE)).thenReturn(mockEmptyAttribute);
@@ -102,6 +124,14 @@ public abstract class BaseTestConfiguration {
   Attribute createMediaAttribute() throws IOException {
     Attribute mockAttribute = mock(Attribute.class);
     byte[] image = Base64.getDecoder().decode(getReferenceImageString());
+    when(mockAttribute.getValue()).thenReturn(image);
+
+    return mockAttribute;
+  }
+
+  Attribute createInvalidMediaAttribute() throws IOException {
+    Attribute mockAttribute = mock(Attribute.class);
+    byte[] image = Base64.getDecoder().decode(getReferenceImageString().substring(0, 12));
     when(mockAttribute.getValue()).thenReturn(image);
 
     return mockAttribute;
