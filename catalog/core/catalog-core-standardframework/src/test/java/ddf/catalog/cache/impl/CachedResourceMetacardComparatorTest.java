@@ -65,14 +65,6 @@ public class CachedResourceMetacardComparatorTest {
     assertThat(isSame(cachedMetacard, updatedMetacard), is(true));
   }
 
-  @Test
-  public void isSameWhenBothMetacardTypesNull() {
-    cachedMetacard.setType(null);
-    updatedMetacard.setType(null);
-
-    assertThat(isSame(cachedMetacard, updatedMetacard), is(true));
-  }
-
   /**
    * See the {@link CachedResourceMetacardComparator} class for more information on why {@link
    * CachedResourceMetacardComparator#isSame(Metacard, Metacard)} will return {@code true} even when
@@ -162,6 +154,48 @@ public class CachedResourceMetacardComparatorTest {
     updatedMetacard.setAttribute(Metacard.CHECKSUM, "2");
 
     assertThat(isSame(cachedMetacard, updatedMetacard), is(false));
+  }
+
+  /**
+   * See the {@link CachedResourceMetacardComparator} class for more information on why {@link
+   * CachedResourceMetacardComparator#isSame(Metacard, Metacard)} will return {@code true} even when
+   * these attributes are different
+   */
+  @Test
+  public void isSameWhenCoreAttributesNotModCreatedChecksumChanged() {
+    cachedMetacard.setAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL, "testDerivedURLCached");
+    cachedMetacard.setAttribute(Core.DATATYPE, "testDatatypeCached");
+    cachedMetacard.setAttribute(Core.DERIVED_RESOURCE_URI, "testDerivedURICached");
+    cachedMetacard.setAttribute(Core.DESCRIPTION, "testDescriptionCached");
+    cachedMetacard.setAttribute(Core.EXPIRATION, "testExpirationCached");
+    cachedMetacard.setAttribute(Core.LANGUAGE, "testLanguageCached");
+    cachedMetacard.setAttribute(Core.LOCATION, "testLocationCached");
+    cachedMetacard.setAttribute(Core.METACARD_OWNER, "testMetaOwnerCached");
+    cachedMetacard.setAttribute(Core.METACARD_TAGS, "testMetaTagsCached");
+    cachedMetacard.setAttribute(Core.METADATA, "testMetaCached");
+    cachedMetacard.setAttribute(Core.RESOURCE_DOWNLOAD_URL, "testURLCached");
+    cachedMetacard.setAttribute(Core.RESOURCE_SIZE, "1");
+    cachedMetacard.setAttribute(Core.RESOURCE_URI, "testURICached");
+    cachedMetacard.setAttribute(Core.THUMBNAIL, "testThumbnailCached");
+    cachedMetacard.setAttribute(Core.TITLE, "testTitleCached");
+
+    updatedMetacard.setAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL, "testDerivedURLUpdated");
+    updatedMetacard.setAttribute(Core.DATATYPE, "testDatatypeUpdated");
+    updatedMetacard.setAttribute(Core.DERIVED_RESOURCE_URI, "testDerivedURIUpdated");
+    updatedMetacard.setAttribute(Core.DESCRIPTION, "testDescriptionUpdated");
+    updatedMetacard.setAttribute(Core.EXPIRATION, "testExpirationUpdated");
+    updatedMetacard.setAttribute(Core.LANGUAGE, "testLanguageUpdated");
+    updatedMetacard.setAttribute(Core.LOCATION, "testLocationUpdated");
+    updatedMetacard.setAttribute(Core.METACARD_OWNER, "testMetaOwnerUpdated");
+    updatedMetacard.setAttribute(Core.METACARD_TAGS, "testMetaTagsUpdated");
+    updatedMetacard.setAttribute(Core.METADATA, "testMetaUpdated");
+    updatedMetacard.setAttribute(Core.RESOURCE_DOWNLOAD_URL, "testURLUpdated");
+    updatedMetacard.setAttribute(Core.RESOURCE_SIZE, "2");
+    updatedMetacard.setAttribute(Core.RESOURCE_URI, "testURIUpdated");
+    updatedMetacard.setAttribute(Core.THUMBNAIL, "testThumbnailUpdated");
+    updatedMetacard.setAttribute(Core.TITLE, "testTitleUpdated");
+
+    assertThat(isSame(cachedMetacard, updatedMetacard), is(true));
   }
 
   private MetacardImpl createMetacard(
