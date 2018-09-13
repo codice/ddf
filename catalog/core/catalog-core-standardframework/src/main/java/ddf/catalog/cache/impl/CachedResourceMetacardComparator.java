@@ -103,7 +103,7 @@ class CachedResourceMetacardComparator {
     if (LOGGER.isDebugEnabled() && difference.isPresent()) {
       String attributeName = difference.get();
       LOGGER.debug(
-          "Metacard updated. Attribute changed: (), Cached value: {}. Updated value: {}",
+          "Metacard updated. Attribute changed: {}, Cached value: {}. Updated value: {}",
           attributeName,
           cachedMetacard.getAttribute(attributeName),
           updatedMetacard.getAttribute(attributeName));
