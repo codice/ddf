@@ -16,6 +16,7 @@ package org.codice.ddf.security.claims.guest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import com.google.common.collect.ImmutableMap;
 import ddf.security.principal.GuestPrincipal;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -109,6 +110,69 @@ public class GuestClaimsHandlerTest {
     ProcessedClaimCollection claimsCollection =
         claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
 
+    assertEquals(2, claimsCollection.size());
+
+    for (ProcessedClaim claim : claimsCollection) {
+      if (claim.getClaimType().equals(nameURI)) {
+        assertEquals(1, claim.getValues().size());
+        assertEquals("Guest", claim.getValues().get(0));
+      } else if (claim.getClaimType().equals(emailURI)) {
+        assertEquals(3, claim.getValues().size());
+        List<Object> values = claim.getValues();
+        assertEquals("Guest@guest.com", values.get(0));
+        assertEquals("someguy@somesite.com", values.get(1));
+        assertEquals("somedude@cool.com", values.get(2));
+      }
+      assertFalse(claim.getClaimType().equals(fooURI));
+    }
+
+    claimsParameters = new ClaimsParameters();
+    claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
+
+    assertEquals(2, claimsCollection.size());
+
+    claimsParameters = new ClaimsParameters();
+    claimsParameters.setPrincipal(new CustomTokenPrincipal("SomeValue"));
+    claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
+
+    assertEquals(2, claimsCollection.size());
+  }
+
+  @Test
+  public void testRetrieveClaimsWithAdditionalPropertyClaim() throws URISyntaxException {
+    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
+    claimsHandler.setAttributes(
+        Arrays.asList(
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Guest",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Guest@guest.com|someguy@somesite.com|somedude@cool.com",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Guest"));
+
+    ClaimCollection requestClaims = new ClaimCollection();
+    Claim requestClaim = new Claim();
+    URI nameURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+    requestClaim.setClaimType(nameURI);
+    requestClaims.add(requestClaim);
+    requestClaim = new Claim();
+    URI emailURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+    requestClaim.setClaimType(emailURI);
+    requestClaims.add(requestClaim);
+    requestClaim = new Claim();
+    URI fooURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/foobar");
+    requestClaim.setClaimType(fooURI);
+    requestClaim.setOptional(true);
+    requestClaims.add(requestClaim);
+
+    ClaimsParameters claimsParameters = new ClaimsParameters();
+    claimsParameters.setPrincipal(new GuestPrincipal("127.0.0.1"));
+    claimsParameters.setAdditionalProperties(ImmutableMap.of("IpAddress", "127.0.0.1"));
+
+    List<URI> supportedClaims = claimsHandler.getSupportedClaimTypes();
+
+    assertEquals(3, supportedClaims.size());
+
+    ProcessedClaimCollection claimsCollection =
+        claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
+
     assertEquals(3, claimsCollection.size());
 
     for (ProcessedClaim claim : claimsCollection) {
@@ -121,7 +185,7 @@ public class GuestClaimsHandlerTest {
         assertEquals("Guest@guest.com", values.get(0));
         assertEquals("someguy@somesite.com", values.get(1));
         assertEquals("somedude@cool.com", values.get(2));
-      } else if (claim.getClaimType().equals("IpAddress")) {
+      } else if (claim.getClaimType().equals(new URI("IpAddress"))) {
         assertEquals("127.0.0.1", claim.getValues().get(0));
       }
       assertFalse(claim.getClaimType().equals(fooURI));
