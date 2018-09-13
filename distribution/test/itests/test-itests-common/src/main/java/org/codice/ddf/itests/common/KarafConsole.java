@@ -35,7 +35,8 @@ public class KarafConsole extends KarafTestSupport {
     new RolePrincipal("manager"),
     new RolePrincipal("viewer"),
     new RolePrincipal("system-admin"),
-    new RolePrincipal("systembundles")
+    new RolePrincipal("systembundles"),
+    new RolePrincipal("system-user")
   };
 
   /**
