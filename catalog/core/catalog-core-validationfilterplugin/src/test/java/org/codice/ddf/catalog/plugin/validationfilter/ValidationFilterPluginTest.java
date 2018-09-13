@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.plugin.validationfilter;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -52,7 +53,7 @@ public class ValidationFilterPluginTest {
 
   private FilterBuilder filterBuilder;
 
-  private Source source;
+  private Source localSource;
 
   private Subject subject;
 
@@ -67,8 +68,8 @@ public class ValidationFilterPluginTest {
   @Before
   public void setup() {
 
-    source = mock(SourceCache.class);
-    when(source.getId()).thenReturn("source1");
+    localSource = mock(SourceCache.class);
+    when(localSource.getId()).thenReturn("source1");
 
     CatalogProvider catProvider1 = mock(CatalogProvider.class);
     CatalogProvider catProvider2 = mock(CatalogProvider.class);
@@ -131,6 +132,59 @@ public class ValidationFilterPluginTest {
   }
 
   @Test
+  public void testNotLocalProvider() throws StopProcessingException {
+    Source federatedSource = mock(Source.class);
+
+    QueryImpl query =
+        new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
+
+    QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
+    QueryRequest returnQuery = plugin.process(federatedSource, queryRequest);
+
+    assertEquals(returnQuery, queryRequest);
+  }
+
+  @Test
+  public void testCatalogProvider() throws StopProcessingException {
+    Source catalogProvider = mock(CatalogProvider.class);
+    when(catalogProvider.getId()).thenReturn("catalogProvider");
+
+    QueryImpl query =
+        new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
+
+    QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
+    QueryRequest returnQuery = plugin.process(catalogProvider, queryRequest);
+
+    assertEquals(returnQuery, queryRequest);
+  }
+
+  @Test
+  public void testlocalCatalogProvider() throws StopProcessingException, UnsupportedQueryException {
+    Source catalogProvider = mock(CatalogProvider.class);
+    when(catalogProvider.getId()).thenReturn("cat1");
+
+    when(subject.isPermitted(any(KeyValueCollectionPermission.class)))
+        .thenReturn(canViewInvalidData);
+
+    QueryImpl query =
+        new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
+
+    QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
+
+    plugin.setShowErrors(false);
+    plugin.setShowWarnings(false);
+
+    QueryRequest returnQuery = plugin.process(catalogProvider, queryRequest);
+
+    assertThat(
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
+    assertThat(
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
+    assertThat(plugin.isShowErrors(), is(false));
+    assertThat(plugin.isShowWarnings(), is(false));
+  }
+
+  @Test
   public void testEmptyAttributeMap() throws StopProcessingException, UnsupportedQueryException {
     Map<String, List<String>> attributeMapping = new HashMap<>();
 
@@ -146,7 +200,7 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(true);
     plugin.setShowWarnings(true);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
@@ -168,14 +222,12 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(false);
     plugin.setShowWarnings(false);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
-    assertThat(plugin.isShowErrors(), is(false));
-    assertThat(plugin.isShowWarnings(), is(false));
   }
 
   @Test
@@ -191,7 +243,7 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(false);
     plugin.setShowWarnings(false);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
@@ -212,7 +264,7 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(true);
     plugin.setShowWarnings(true);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
@@ -233,7 +285,7 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(true);
     plugin.setShowWarnings(true);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(false));
@@ -254,7 +306,7 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(true);
     plugin.setShowWarnings(false);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(false));
@@ -275,7 +327,7 @@ public class ValidationFilterPluginTest {
     plugin.setShowErrors(false);
     plugin.setShowWarnings(true);
 
-    QueryRequest returnQuery = plugin.process(source, queryRequest);
+    QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
@@ -296,6 +348,6 @@ public class ValidationFilterPluginTest {
 
     QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
 
-    plugin.process(source, queryRequest);
+    plugin.process(localSource, queryRequest);
   }
 }
