@@ -48,6 +48,8 @@
                 <exclude>**/jetty/**/9.3.14.v20161028/*</exclude>
                 <exclude>**/jetty/**/8.1.14.v20131031/*</exclude>
                 <exclude>**/pax/web/**/6.0.6/*</exclude>
+                <exclude>**/netty/**/4.0.33.Final/*</exclude>
+                <exclude>**/netty/**/4.0.33.Final</exclude>
                 <!--
                 Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
                 when running client script it logs in as "karaf" user without requiring a password.
