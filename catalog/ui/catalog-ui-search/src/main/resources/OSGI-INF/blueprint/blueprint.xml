@@ -658,11 +658,6 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <service ref="subscribedWorkspaceNotifier">
-        <interfaces>
-            <value>ddf.catalog.plugin.PostQueryPlugin</value>
-            <value>ddf.catalog.plugin.PostFederatedQueryPlugin</value>
-        </interfaces>
-    </service>
+    <service ref="subscribedWorkspaceNotifier" interface="ddf.catalog.plugin.PostQueryPlugin"/>
 
 </blueprint>

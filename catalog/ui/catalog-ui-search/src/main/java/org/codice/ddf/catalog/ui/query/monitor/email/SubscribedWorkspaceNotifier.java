@@ -38,6 +38,7 @@ import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.utils.StringUtils;
 
 public class SubscribedWorkspaceNotifier implements PostQueryPlugin, PostFederatedQueryPlugin {
 
@@ -71,23 +72,21 @@ public class SubscribedWorkspaceNotifier implements PostQueryPlugin, PostFederat
       return queryResponse;
     }
     String queryId = (String) queryResponse.getRequest().getProperties().get("id");
-    if (queryId == null | queryId.isEmpty()) {
-      LOGGER.debug("Null or empty query ID.");
-      return queryResponse;
+    if (!StringUtils.isEmpty(queryId)) {
+      Metacard metacard = getWorkspaceMetacard(queryId);
+      if (metacard == null) {
+        LOGGER.debug("Could not retrieve workspace metacard.");
+        return queryResponse;
+      }
+      WorkspaceMetacardImpl workspaceMetacard = WorkspaceMetacardImpl.from(metacard);
+      String queryIssuerEmail = subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+      String workspaceOwnerEmail = AccessControlUtil.getOwner(workspaceMetacard);
+      if (!queryIssuerEmail.equals(workspaceOwnerEmail)) {
+        LOGGER.debug("Query was not issued by the owner of the workspace.");
+        return queryResponse;
+      }
+      emailNotifierService.sendEmailsForWorkspace(workspaceMetacard, queryResponse.getHits());
     }
-    Metacard metacard = getWorkspaceMetacard(queryId);
-    if (metacard == null) {
-      LOGGER.debug("Could not retrieve workspace metacard.");
-      return queryResponse;
-    }
-    WorkspaceMetacardImpl workspaceMetacard = WorkspaceMetacardImpl.from(metacard);
-    String queryIssuerEmail = subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
-    String workspaceOwnerEmail = AccessControlUtil.getOwner(workspaceMetacard);
-    if (!queryIssuerEmail.equals(workspaceOwnerEmail)) {
-      LOGGER.debug("Query was not issued by the owner of the workspace.");
-      return queryResponse;
-    }
-    emailNotifierService.sendEmailsForWorkspace(workspaceMetacard, queryResponse.getHits());
     return queryResponse;
   }
 
