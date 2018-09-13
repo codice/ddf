@@ -66,9 +66,35 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  validateAttributes: function() {
+  substituteAttributeAliases: function(message) {
+    return message
+      .split(' ')
+      .map(word => properties.attributeAliases[word] || word)
+      .join(' ')
+  },
+  validateAttributes: function(callback) {
+    $.ajax({
+      url: './internal/prevalidate',
+      type: 'POST',
+      data: JSON.stringify(propertyCollectionView.toPropertyJSON().properties),
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+    }).then(this.updateValidationWarnings.bind(this, callback))
+  },
+  updateValidationWarnings: function(callback, validationReport) {
     var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView()
+    propertyCollectionView.clearValidation()
+
+    validationReport.forEach(attribute => {
+      attribute.errors = attribute.errors.map(this.substituteAttributeAliases)
+      attribute.warnings = attribute.warnings.map(
+        this.substituteAttributeAliases
+      )
+    })
+    propertyCollectionView.updateValidation(validationReport)
+
     if (
+      validationReport.length > 0 ||
       propertyCollectionView.hasBlankRequiredAttributes() ||
       !propertyCollectionView.isValid()
     ) {
@@ -78,13 +104,12 @@ module.exports = Marionette.LayoutView.extend({
         type: 'error',
       })
       propertyCollectionView.showRequiredWarnings()
-      return false
     } else {
       this.ingestDetails.currentView.setOverrides(
         this.ingestEditor.currentView.getAttributeOverrides()
       )
       propertyCollectionView.hideRequiredWarnings()
-      return true
+      callback()
     }
   },
 })

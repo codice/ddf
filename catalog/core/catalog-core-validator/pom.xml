@@ -52,6 +52,13 @@
             <artifactId>converter</artifactId>
             <version>${countryconverter.version}</version>
         </dependency>
+        <!--Spock dependencies-->
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -99,9 +106,9 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.82</minimum>
+                                            <minimum>0.79</minimum>
                                         </limit>
-                                        
+
                                     </limits>
                                 </rule>
                             </rules>

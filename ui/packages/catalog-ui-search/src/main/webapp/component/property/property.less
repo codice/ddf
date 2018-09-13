@@ -87,17 +87,28 @@
     z-index: 0;
   }
 
-  .for-error {
+  .for-error.for-error-validation {
     color: contrast(@negative-color);
-    display: none;
     line-height: @minimumLineSize;
     padding-left: @minimumSpacing;
     background: @negative-color;
     height: auto;
+
+    .error-required {
+      display: none;
+    }
+
+    .error-validation {
+      display: block;
+      color: contrast(@negative-color);
+      .is-hidden {
+        display: none;
+      }
+    }
   }
 
   &.failed-required-check.show-required-warning {
-    .for-error {
+    .for-error.for-error-validation .error-required {
       display: block;
     }
   }
