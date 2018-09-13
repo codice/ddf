@@ -44,15 +44,6 @@
                 <value>/services/store/config[/]?$=GET</value>
             </array>
         </property>
-        <property name="userAgentWhitelist">
-            <array value-type="java.lang.String">
-                <value>Apache-HttpClient/.*</value>
-                <value>Apache-CXF/.*</value>
-                <value>Google-HTTP-Java-Client/.*</value>
-                <value>Java/.*</value>
-                <value>Jetty/.*</value>
-            </array>
-        </property>
     </bean>
 
     <service ref="filter"

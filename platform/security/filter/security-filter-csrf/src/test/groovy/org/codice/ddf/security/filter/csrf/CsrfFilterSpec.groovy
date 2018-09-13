@@ -49,8 +49,8 @@ class CsrfFilterSpec extends Specification {
     static final String DDF_BADPORT = "https://" + DDF_HOST + ":9999"
     static final String PROXY_BADPORT = "https://" + PROXY_HOST + ":" + "9999"
 
-    static
-    final String CHROME_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+    static final String MOZILLA_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+    static final String CHROME_USER_AGENT = "Chrome/60.0.3112.113 Safari/537.36"
     static final String APACHE_USER_AGENT = "Apache-CXF/3.2.5"
     static final String JAVA_CLIENT_USER_AGENT = "Google-HTTP-Java-Client/1.22.0 (gzip)"
     static final String JAVA_USER_AGENT = "Java/1.8.0_131"
@@ -229,10 +229,6 @@ class CsrfFilterSpec extends Specification {
                 '/services/idp/login[/]?$=POST',
                 '/services/saml/sso[/]?$=POST'))
 
-        csrfFilter.setUserAgentWhitelist(ImmutableList.of("Apache-CXF/.*",
-                "Google-HTTP-Java-Client/.*",
-                "Java/.*"))
-
         csrfFilter.doFilter(request, response, chain)
 
         then:
@@ -245,31 +241,31 @@ class CsrfFilterSpec extends Specification {
         [requestContext, userAgent, method, param] << [
                 // Non-protected contexts
                 ["/", "/subdirectory"],
-                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [null, "", CHROME_USER_AGENT, MOZILLA_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
                 [HttpMethod.GET.asString(), HttpMethod.POST.asString()],
                 [null]
         ].combinations() + [
                 // Whitelisted paths with GET
                 ["/services/admin/config", "/services/admin/config/", "/services/content", "/services/catalog/query", "/services/catalog/sources", "/services/catalog/sources/ddf.distribution"],
-                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [null, "", CHROME_USER_AGENT, MOZILLA_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
                 [HttpMethod.GET.asString()],
                 [null]
         ].combinations() + [
                 // Whitelisted paths with POST
                 ["/services/idp/login", "/services/idp/login/", "/services/saml/sso"],
-                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [null, "", CHROME_USER_AGENT, MOZILLA_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
                 [HttpMethod.POST.asString()],
                 [null]
         ].combinations() + [
                 // GETs to wsdl URLs
                 ["services/csw/", "/services/csw"],
-                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [null, "", CHROME_USER_AGENT, MOZILLA_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
                 [HttpMethod.GET.asString()],
                 ["wsdl", "WSDL"]
         ].combinations() + [
-                // Not whitelisted path with whitelisted user-agents or no user agent
+                // Not whitelisted path with not blacklisted user-agents
                 ["/services/catalog/", "/services/catalog/subdirectory"],
-                [null, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [null, "", APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
                 [HttpMethod.GET.asString(), HttpMethod.POST.asString()],
                 [null]
         ].combinations()
@@ -298,10 +294,6 @@ class CsrfFilterSpec extends Specification {
                 '/services/idp/login[/]?$=POST',
                 '/services/saml/sso[/]?$=POST'))
 
-        csrfFilter.setUserAgentWhitelist(ImmutableList.of("Apache-CXF/.*",
-                "Google-HTTP-Java-Client/.*",
-                "Java/.*"))
-
         csrfFilter.doFilter(request, response, chain)
 
         then:
@@ -314,19 +306,19 @@ class CsrfFilterSpec extends Specification {
         [requestContext, userAgent, method, param] << [
                 // Whitelisted paths with incorrect method
                 ["/services/admin/config", "/services/content", "/services/catalog/query", "/services/catalog/sources", "/services/catalog/sources/ddf.distribution"],
-                ["", CHROME_USER_AGENT],
+                [CHROME_USER_AGENT, MOZILLA_USER_AGENT],
                 [HttpMethod.POST.asString()],
                 [null]
         ].combinations() + [
                 // Whitelisted paths with incorrect method
                 ["/services/idp/login", "/services/saml/sso"],
-                ["", CHROME_USER_AGENT],
+                [CHROME_USER_AGENT, MOZILLA_USER_AGENT],
                 [HttpMethod.GET.asString()],
                 [null]
         ].combinations() + [
-                // Not whitelisted path with not whitelisted user-agents
+                // Not whitelisted path with blacklisted user-agents
                 ["/services/catalog/", "/services/catalog/subdirectory"],
-                ["", CHROME_USER_AGENT],
+                [CHROME_USER_AGENT, MOZILLA_USER_AGENT],
                 [HttpMethod.GET.asString(), HttpMethod.POST.asString()],
                 [null]
         ].combinations()
