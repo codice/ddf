@@ -25,7 +25,9 @@
           persistent-id="org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin"
           update-strategy="container-managed"/>
         <property name="attributeMap">
-            <list/>
+            <list>
+                <value>invalid-state=data-manager,system-user</value>
+            </list>
         </property>
         <property name="showErrors" value="false"/>
         <property name="showWarnings" value="true"/>
