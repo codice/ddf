@@ -387,7 +387,7 @@ public class ClaimsHandlerManager {
     return null;
   }
 
-  public void setUrl(String url) {
+  public void setUrl(String... url) {
     LOGGER.trace("Setting url: {}", url);
     ldapProperties.put(URL, url);
   }
