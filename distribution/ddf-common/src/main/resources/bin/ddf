@@ -51,6 +51,14 @@ managing_solr() {
     return $RC
 }
 
+shutdown_no_java_home() {
+    # Shutdown if JAVA_HOME is not set
+    if [ -z $JAVA_HOME ]; then
+        echo "JAVA_HOME not set. Set JAVA_HOME to proceed - exiting."
+        exit $KARAF_EXEC_RC
+    fi
+}
+
 attempt_startup() {
     if managing_solr; then
         $SOLR_EXEC restart
@@ -78,6 +86,7 @@ attempt_shutdown() {
 while true; do
     clear_restart_flag
     refresh_properties
+    shutdown_no_java_home
     attempt_startup
     attempt_shutdown
 done
