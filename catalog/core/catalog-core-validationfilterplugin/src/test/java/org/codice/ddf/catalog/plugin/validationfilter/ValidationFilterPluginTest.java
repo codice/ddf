@@ -32,6 +32,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCache;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -66,7 +67,7 @@ public class ValidationFilterPluginTest {
   @Before
   public void setup() {
 
-    source = mock(CatalogProvider.class);
+    source = mock(SourceCache.class);
     when(source.getId()).thenReturn("source1");
 
     CatalogProvider catProvider1 = mock(CatalogProvider.class);
