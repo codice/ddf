@@ -45,6 +45,14 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     return attributeMap;
   }
 
+  /**
+   * Even though Blueprint uses the other setter, at least one Setter method has to match the type
+   * of the Getter method for property attributeMap or an exception will be thrown.
+   */
+  public void setAttributeMap(Map<String, List<String>> attributeMap) {
+    this.attributeMap = attributeMap;
+  }
+
   public void setAttributeMap(List<String> attributeMappings) {
     if (CollectionUtils.isEmpty(attributeMappings)
         || (attributeMappings.size() == 1 && attributeMappings.get(0).isEmpty())) {
@@ -60,10 +68,6 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
               .map(String::trim)
               .collect(Collectors.toList()));
     }
-  }
-
-  public void setAttributeMap(Map<String, List<String>> attributeMap) {
-    MetacardValidityFilterPlugin.attributeMap = attributeMap;
   }
 
   @Override
