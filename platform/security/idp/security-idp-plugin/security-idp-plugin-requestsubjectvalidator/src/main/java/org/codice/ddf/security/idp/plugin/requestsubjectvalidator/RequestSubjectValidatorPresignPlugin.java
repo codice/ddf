@@ -57,7 +57,7 @@ public class RequestSubjectValidatorPresignPlugin implements SamlPresignPlugin {
     }
 
     String authnRequestId = authnRequestNameId.getValue();
-    if (StringUtils.isBlank(authnRequestNameId.getValue())) {
+    if (StringUtils.isBlank(authnRequestId)) {
       return;
     }
 
@@ -66,35 +66,38 @@ public class RequestSubjectValidatorPresignPlugin implements SamlPresignPlugin {
           String.format(
               "The AuthnRequest's Subject (with the NameID of %s) could not be matched against any "
                   + "identifiers in the resulting Response (with the primary NameID of %s).",
-              authnRequestId, getIdsFromResponseAsStream(response).findFirst().orElse(null)));
+              authnRequestId, getNameIdsFromResponseAsStream(response).findFirst().orElse(null)));
     }
   }
 
   /** Returns all the identifiers that were returned on the response, i.e. username, email, ect. */
   private Stream<String> getIdsFromResponseAsStream(Response response) {
-    Stream<String> nameIds =
-        response
-            .getAssertions()
-            .stream()
-            .map(Assertion::getSubject)
-            .map(Subject::getNameID)
-            .filter(Objects::nonNull)
-            .map(NameID::getValue)
-            .filter(Objects::nonNull)
-            .filter(StringUtils::isNotBlank);
+    return Stream.concat(
+        getNameIdsFromResponseAsStream(response), getAttributeIdsFromResponseAsStream(response));
+  }
 
-    Stream<String> attributeIds =
-        response
-            .getAssertions()
-            .stream()
-            .flatMap(assertion -> assertion.getAttributeStatements().stream())
-            .flatMap(statement -> statement.getAttributes().stream())
-            .flatMap(attribute -> attribute.getAttributeValues().stream())
-            .filter(attributeValue -> attributeValue instanceof XSString)
-            .map(attributeValue -> (XSString) attributeValue)
-            .map(XSString::getValue)
-            .filter(StringUtils::isNotBlank);
+  private Stream<String> getNameIdsFromResponseAsStream(Response response) {
+    return response
+        .getAssertions()
+        .stream()
+        .map(Assertion::getSubject)
+        .map(Subject::getNameID)
+        .filter(Objects::nonNull)
+        .map(NameID::getValue)
+        .filter(Objects::nonNull)
+        .filter(StringUtils::isNotBlank);
+  }
 
-    return Stream.concat(nameIds, attributeIds);
+  private Stream<String> getAttributeIdsFromResponseAsStream(Response response) {
+    return response
+        .getAssertions()
+        .stream()
+        .flatMap(assertion -> assertion.getAttributeStatements().stream())
+        .flatMap(statement -> statement.getAttributes().stream())
+        .flatMap(attribute -> attribute.getAttributeValues().stream())
+        .filter(attributeValue -> attributeValue instanceof XSString)
+        .map(attributeValue -> (XSString) attributeValue)
+        .map(XSString::getValue)
+        .filter(StringUtils::isNotBlank);
   }
 }
