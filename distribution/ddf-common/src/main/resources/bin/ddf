@@ -55,7 +55,7 @@ shutdown_no_java_home() {
     # Shutdown if JAVA_HOME is not set
     if [ -z $JAVA_HOME ]; then
         echo "JAVA_HOME not set. Set JAVA_HOME to proceed - exiting."
-        exit $KARAF_EXEC_RC
+        exit 1
     fi
 }
 
