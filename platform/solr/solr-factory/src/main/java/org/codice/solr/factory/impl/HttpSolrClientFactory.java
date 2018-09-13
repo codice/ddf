@@ -49,6 +49,7 @@ import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.AuthHttpSolrClient.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,8 +128,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
         createHttpBuilder(StringUtils.startsWithIgnoreCase(url, "https"));
     createSolrCore(url, coreName, null, builder.build());
     try (final Closer closer = new Closer()) {
-      final HttpSolrClient noRetryClient =
-          closer.with(new HttpSolrClient.Builder(coreUrl).withHttpClient(builder.build()).build());
+      CloseableHttpClient httpClient = builder.build();
+      AuthHttpSolrClient httpSolrClient = (AuthHttpSolrClient) new AuthHttpSolrClient.Builder(coreUrl).withHttpClient(httpClient).build();
+      final AuthHttpSolrClient noRetryClient =
+          closer.with(httpSolrClient);
       final HttpSolrClient retryClient =
           closer.with(
               new HttpSolrClient.Builder(coreUrl)
