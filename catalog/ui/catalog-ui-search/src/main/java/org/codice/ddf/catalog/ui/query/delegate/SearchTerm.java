@@ -14,8 +14,12 @@
 package org.codice.ddf.catalog.ui.query.delegate;
 
 import java.util.regex.Pattern;
+import org.codice.util.tlmatcher.TimeLimitedMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SearchTerm {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchTerm.class);
 
   private final String term;
 
@@ -47,7 +51,12 @@ public class SearchTerm {
       return true;
     }
     if (pattern != null) {
-      return pattern.matcher(other).matches();
+      try {
+        return TimeLimitedMatcher.create(pattern, other).matches();
+      } catch (TimeLimitedMatcher.TimeoutException e) {
+        LOGGER.warn("Timeout performing RegEx match for {} against string {}", term, other);
+        return false;
+      }
     } else {
       return term.equals(other);
     }
