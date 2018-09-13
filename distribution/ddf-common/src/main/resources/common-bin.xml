@@ -279,15 +279,6 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${setup.folder}/libraryOverrides</directory>
-            <outputDirectory>
-                /system/org/eclipse/platform/org.eclipse.osgi/3.12.50
-            </outputDirectory>
-            <includes>
-                <include>org.eclipse.osgi-3.12.50.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
             <directory>${setup.folder}/solr</directory>
             <outputDirectory>/solr</outputDirectory>
             <excludes>
@@ -328,6 +319,13 @@
             </outputDirectory>
             <includes>
                 <include>ddf.platform.osgi:platform-osgi-conditions:jar:${project.version}</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>system/org/eclipse/platform/org.eclipse.osgi/${equinox.version}
+            </outputDirectory>
+            <includes>
+                <include>org.eclipse.platform:org.eclipse.osgi:jar:${equinox.version}</include>
             </includes>
         </dependencySet>
         <dependencySet>

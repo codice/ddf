@@ -187,6 +187,17 @@
                                     </destFileName>
                                 </artifactItem>
                                 <artifactItem>
+                                    <groupId>org.eclipse.platform</groupId>
+                                    <artifactId>org.eclipse.osgi</artifactId>
+                                    <version>${equinox.version}</version>
+                                    <outputDirectory>
+                                        ${setup.folder}/system/org/eclipse/platform/org.eclipse.osgi/${equinox.version}
+                                    </outputDirectory>
+                                    <destFileName>
+                                        org.eclipse.osgi-${equinox.version}.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>org.codice.acdebugger</groupId>
                                     <artifactId>acdebugger-api</artifactId>
                                     <version>${acdebugger.version}</version>
@@ -370,6 +381,11 @@
             <groupId>ddf.platform.osgi</groupId>
             <artifactId>platform-osgi-condpermadmin</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <version>${equinox.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.acdebugger</groupId>
