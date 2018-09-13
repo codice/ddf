@@ -17,7 +17,7 @@ To use the ${ddf-solr} Application, the following apps/features must be installe
 
 === Installing ${ddf-solr}
 
-Install ${ddf-solr} through the ${admin-console}.
+Install the ${ddf-solr} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.
