@@ -262,6 +262,7 @@ grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apach
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis.xml", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis-backup.xml", "read";
 }
 
 grant codeBase "file:/admin-core-insecuredefaults/org.apache.karaf.decanter.scheduler.simple/org.apache.felix.scr" {

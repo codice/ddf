@@ -30,7 +30,7 @@ import javax.jms.ConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.component.sjms.SjmsComponent;
+import org.apache.camel.component.sjms2.Sjms2Component;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -52,10 +52,10 @@ public class TestMessageBroker extends AbstractIntegrationTest {
   private static final String EXAMPLE_TEST_ROUTE = "sdk.example";
 
   private static final String SJMS_EXAMPLE_TEST_QUEUE =
-      String.format("sjms:%s", EXAMPLE_TEST_ROUTE);
+      String.format("sjms2:%s", EXAMPLE_TEST_ROUTE);
 
   private static final String SJMS_EXAMPLE_TEST_TOPIC =
-      String.format("sjms:topic:%s", EXAMPLE_TEST_ROUTE);
+      String.format("sjms2:topic:%s", EXAMPLE_TEST_ROUTE);
 
   private static final String MOCK_EXAMPLE_TEST_ROUTE =
       String.format("mock:%s", EXAMPLE_TEST_ROUTE);
@@ -63,7 +63,7 @@ public class TestMessageBroker extends AbstractIntegrationTest {
   private static final String UNDELIVERED_TEST_QUEUE = "undelivered.test";
 
   private static final String SJMS_UNDELIVERED_TEST_QUEUE =
-      String.format("sjms:%s?transacted=true", UNDELIVERED_TEST_QUEUE);
+      String.format("sjms2:%s?transacted=true", UNDELIVERED_TEST_QUEUE);
 
   private static final String MOCK_UNDELIVERED_TEST_ENDPOINT =
       String.format("mock:%s.end", UNDELIVERED_TEST_QUEUE);
@@ -287,9 +287,9 @@ public class TestMessageBroker extends AbstractIntegrationTest {
   private void setupCamelContext() throws Exception {
     camelContext = new DefaultCamelContext();
     ConnectionFactory factory = getServiceManager().getService(ConnectionFactory.class);
-    SjmsComponent sjms = new SjmsComponent();
-    sjms.setConnectionFactory(factory);
-    camelContext.addComponent("sjms", sjms);
+    Sjms2Component sjms2 = new Sjms2Component();
+    sjms2.setConnectionFactory(factory);
+    camelContext.addComponent("sjms2", sjms2);
     camelContext.addRoutes(
         new RouteBuilder() {
           @Override
