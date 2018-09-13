@@ -13,13 +13,12 @@
  */
 package ddf.catalog.cache.impl;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,21 +45,17 @@ class CachedResourceMetacardComparator {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(CachedResourceMetacardComparator.class);
 
-  private static final List<Function<Metacard, ?>> METACARD_METHODS =
-      ImmutableList.of(
-          Metacard::getModifiedDate,
-          Metacard::getCreatedDate,
-          (m) -> m.getAttribute(Core.METACARD_MODIFIED),
-          (m) -> m.getAttribute(Core.METACARD_CREATED));
+  private static final Set<String> METACARD_ATTRIBUTES =
+      ImmutableSet.of(Core.MODIFIED, Core.CREATED, Core.METACARD_MODIFIED, Core.METACARD_CREATED);
 
   private CachedResourceMetacardComparator() {}
 
   /**
    * Indicates whether the resource associated with the provided metacard has changed by comparing
    * the state of the metacard when it was cached with the state of the metacard when it was last
-   * retrieved. The main attributes to be compared to indicate whether a resource has changed or not
-   * are checksum, modified date, and created date. If this finds a difference in these values it
-   * will return {@code false}.
+   * retrieved. The attributes compared to indicate whether a resource has changed or not are ID,
+   * checksum, metacard modified date, resource modified date, metacard created date, and resource
+   * created date. If this finds a difference in these values it will return {@code false}.
    *
    * @param cachedMetacard version of the metacard when the product was added to the cache
    * @param updatedMetacard current version of the metacard
@@ -94,21 +89,24 @@ class CachedResourceMetacardComparator {
 
   private static boolean allMetacardMethodsReturnMatchingAttributes(
       Metacard cachedMetacard, Metacard updatedMetacard) {
-    Optional<Function<Metacard, ?>> difference =
-        METACARD_METHODS
+
+    Optional<String> difference =
+        METACARD_ATTRIBUTES
             .stream()
             .filter(
-                method ->
-                    !Objects.deepEquals(
-                        method.apply(cachedMetacard), method.apply(updatedMetacard)))
+                attributeName ->
+                    !Objects.equals(
+                        cachedMetacard.getAttribute(attributeName),
+                        updatedMetacard.getAttribute(attributeName)))
             .findFirst();
 
     if (LOGGER.isDebugEnabled() && difference.isPresent()) {
-      Function<Metacard, ?> metacardFunction = difference.get();
+      String attributeName = difference.get();
       LOGGER.debug(
-          "Metacard updated. Cached value: {}. Updated value: {}",
-          metacardFunction.apply(cachedMetacard),
-          metacardFunction.apply(updatedMetacard));
+          "Metacard updated. Attribute changed: (), Cached value: {}. Updated value: {}",
+          attributeName,
+          cachedMetacard.getAttribute(attributeName),
+          updatedMetacard.getAttribute(attributeName));
     }
 
     return !difference.isPresent();
