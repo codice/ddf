@@ -43,8 +43,6 @@ class HttpSolrClientFactorySpec extends Specification {
   static final String SOLR_URL2 = "https://$SOLR_HOST2:$SOLR_PORT/$SOLR_CONTEXT"
   static final String CORE_URL2 = "$SOLR_URL2/$CORE"
 
-  static final String CONFIG_XML = "solrconfig.xml"
-  static final String SCHEMA_XML = "schema.xml"
   static final int AVAILABLE_TIMEOUT_IN_SECS = 25
 
   def cleanup() {
@@ -70,7 +68,7 @@ class HttpSolrClientFactorySpec extends Specification {
         // verify an actual Http Solr client will be created
         // must be done in 'given' because it will be called from a different thread and if
         // declared in 'then', it will be out of scope and not matched
-        1 * createSolrHttpClient(solr_url, CORE, core_url) >> httpClient
+        1 * createSolrHttpClient(CORE) >> httpClient
       }
 
     and:
@@ -113,9 +111,8 @@ class HttpSolrClientFactorySpec extends Specification {
       'blank'       || ''            | SOLR_HOST2  | SOLR_PORT   | SOLR_CONTEXT   || SOLR_URL2 | CORE_URL2
   }
 
-  @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
-  @Unroll
-  def 'test new client becoming available when system property solr.data.dir is #data_dir_is'() {
+//  @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
+  def 'test new client becoming available when system property solr.data.dir is defined'() {
     given:
       def httpClient = Mock(SolrClient) {
         ping() >> Mock(SolrPingResponse) {
@@ -131,14 +128,12 @@ class HttpSolrClientFactorySpec extends Specification {
         // verify an actual Http Solr client will be created
         // must be done in 'given' because it will be called from a different thread and if
         // declared in 'then', it will be out of scope and not matched
-        1 * createSolrHttpClient(SOLR_URL, CORE, CORE_URL) >> httpClient
+        1 * createSolrHttpClient(CORE) >> httpClient
       }
 
     and:
       System.setProperty("solr.http.url", SOLR_URL)
-
-    and:
-      System.setPropertyIfNotNull("solr.data.dir", solr_data_dir)
+      System.setProperty("solr.data.dir", DATA_DIR)
 
     when:
       def client = factory.newClient(CORE)
@@ -162,13 +157,26 @@ class HttpSolrClientFactorySpec extends Specification {
       0 * httpClient.close()
 
     and: "the config store is initialized and its data directory was or wasn't updated"
-      ConfigurationStore.instance.dataDirectoryPath == data_dir
+      ConfigurationStore.instance.dataDirectoryPath == DATA_DIR
 
-    where:
-      data_dir_is   || solr_data_dir || data_dir
-      'defined'     || DATA_DIR      || DATA_DIR
-      'not defined' || null          || null
   }
+
+
+  def 'test missing data directory'() {
+    given:
+      def factory = new HttpSolrClientFactory();
+
+    and:
+      System.setProperty("solr.http.url", SOLR_URL)
+
+    when:
+      factory.newClient(CORE)
+
+    then:
+      thrown(MissingResourceException)
+  }
+
+
 
   def 'test new client with a null core'() {
     given:
@@ -178,8 +186,6 @@ class HttpSolrClientFactorySpec extends Specification {
       factory.newClient(null)
 
     then:
-      def e = thrown(IllegalArgumentException)
-
-      e.message.contains("invalid null Solr core")
+      thrown(IllegalArgumentException)
   }
 }

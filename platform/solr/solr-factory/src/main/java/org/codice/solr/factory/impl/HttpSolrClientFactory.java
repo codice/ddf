@@ -28,6 +28,7 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.MissingResourceException;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -43,13 +44,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.Args;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,12 +66,13 @@ import org.slf4j.LoggerFactory;
  *   <li>https.protocols: Secure protocols supported by the Solr server
  *   <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
+ *
+ * @deprecated This class may be removed in the future
  */
 @Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String HTTPS_PROTOCOLS = "https.protocols";
   private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
-  private static final String SOLR_CONTEXT = "/solr";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
   private static final String SOLR_HTTP_URL = "solr.http.url";
   private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
@@ -105,9 +107,9 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
-
-    if (getSolrDataDir() != null) {
-      ConfigurationStore.getInstance().setDataDirectoryPath(getSolrDataDir());
+    Args.notEmpty(coreName, "Cannot create Solr client. Missing core name.");
+    if (getSolrDir() != null) {
+      ConfigurationStore.getInstance().setDataDirectoryPath(getSolrDir());
     }
     LOGGER.debug(
         "Solr({}): Creating an HTTP Solr client using url [{}]", coreName, getCoreUrl(coreName));
@@ -116,30 +118,29 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   @VisibleForTesting
   SolrClient createSolrHttpClient(String coreName) throws IOException, SolrServerException {
-    String coreUrl = getCoreUrl(coreName);
-    String url = getSolrUrl();
     final HttpClientBuilder httpClientBuilder = createHttpBuilder();
-    final HttpSolrClient.Builder solrClientBuilder = new HttpSolrClient.Builder(coreUrl);
-
-    createSolrCore(url, coreName, null, httpClientBuilder.build());
+    final HttpSolrClient.Builder solrClientBuilder =
+        new HttpSolrClient.Builder(getCoreUrl(coreName));
 
     try (final Closer closer = new Closer()) {
 
+      createSolrCore(coreName, null, httpClientBuilder.build());
+
       CloseableHttpClient noRetryHttpClient = httpClientBuilder.build();
-      final HttpSolrClient noRetryClient =
+      final HttpSolrClient noRetrySolrClient =
           closer.with(solrClientBuilder.withHttpClient(noRetryHttpClient).build());
 
       CloseableHttpClient yesRetryHttpClient =
           httpClientBuilder.setRetryHandler(new SolrHttpRequestRetryHandler(coreName)).build();
-      final HttpSolrClient retryClient =
+      final HttpSolrClient retrySolrClient =
           closer.with(solrClientBuilder.withHttpClient(yesRetryHttpClient).build());
 
-      return closer.returning(new PingAwareSolrClientProxy(retryClient, noRetryClient));
+      return closer.returning(new PingAwareSolrClientProxy(retrySolrClient, noRetrySolrClient));
     }
   }
 
-  private boolean useTls(String url) {
-    return StringUtils.startsWithIgnoreCase(url, "https");
+  private boolean useTls() {
+    return StringUtils.startsWithIgnoreCase(getSolrUrl(), "https");
   }
 
   /**
@@ -148,7 +149,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server secure HTTP address
    */
   public static String getDefaultHttpsAddress() {
-    return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
+    return getSolrUrl();
   }
 
   private static String[] getProtocols() {
@@ -177,7 +178,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     }
   }
 
-  private static SSLContext getSslContext() {
+  static SSLContext getSslContext() {
     final Boolean check =
         AccessController.doPrivileged(
             (PrivilegedAction<Boolean>)
@@ -251,8 +252,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private static void createSolrCore(
-      String url, String coreName, String configFileName, CloseableHttpClient httpClient)
+      String coreName, String configFileName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
+
+    String url = getSolrUrl();
 
     try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
         HttpSolrClient client =
@@ -270,9 +273,9 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
           String configFile = getConfigFile(configFileName);
 
-          String instanceDir = getCoreDataPath(getSolrDir(), coreName);
+          String instanceDir = getCoreDir(coreName);
 
-          String dataDir = getCoreDataPath(instanceDir, "data");
+          String dataDir = getCoreDataDir(instanceDir);
 
           CoreAdminRequest.createCore(
               coreName, instanceDir, client, configFile, DEFAULT_SCHEMA_XML, dataDir, dataDir);
@@ -287,43 +290,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     }
   }
 
-  private static String getCoreDataPath(String instanceDir, String data) {
-    return getCorePath(data, instanceDir);
-  }
-
-  private static String getCorePath(String coreName, String solrDir) {
-    return Paths.get(solrDir, coreName).toString();
-  }
-
-  private static String getConfigFile(String configFileName) {
-    return StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
-  }
-
-  private static String getSolrDir() {
-    String solrDir;
-    if (AccessController.doPrivileged(
-        (PrivilegedAction<Boolean>) () -> System.getProperty(SOLR_DATA_DIR) != null)) {
-      solrDir =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
-    } else {
-      solrDir =
-          Paths.get(
-                  AccessController.doPrivileged(
-                      (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
-                  "data",
-                  "solr")
-              .toString();
-    }
-    return solrDir;
-  }
-
-  private static boolean solrCoreExists(SolrClient client, String coreName)
-      throws IOException, SolrServerException {
-    CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
-    return response.getCoreStatus(coreName).get("instanceDir") != null;
-  }
-
   private HttpClientBuilder createHttpBuilder() {
 
     HttpClientBuilder httpClientBuilder =
@@ -331,7 +297,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
             .setDefaultCookieStore(new BasicCookieStore())
             .setMaxConnTotal(128)
             .setMaxConnPerRoute(32);
-    if (useTls(getSolrUrl())) {
+
+    if (useTls()) {
       httpClientBuilder.setSSLSocketFactory(
           new SSLConnectionSocketFactory(
               getSslContext(),
@@ -341,7 +308,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     }
 
     if (useBasicAuth()) {
-      httpClientBuilder.setDefaultCredentialsProvider(getCredentialProvider());
+      httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());
       httpClientBuilder.addInterceptorFirst(new PreemptiveAuth(new BasicScheme()));
     }
 
@@ -349,31 +316,59 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private boolean useBasicAuth() {
-    return Boolean.getBoolean("solr.basicauth");
-  }
-
-  private String getSolrDataDir() {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
+    return Boolean.getBoolean("solr.useBasicAuth");
   }
 
   private String getCoreUrl(String coreName) {
     return getSolrUrl() + "/" + coreName;
   }
 
-  private String getSolrUrl() {
-    return StringUtils.defaultIfBlank(
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
-        getDefaultHttpsAddress());
+  private static String getSolrUrl() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL));
   }
 
-  private CredentialsProvider getCredentialProvider() {
+  private CredentialsProvider getCredentialsProvider() {
     CredentialsProvider provider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials =
         new UsernamePasswordCredentials(
             System.getProperty("solr.username"), System.getProperty("solr.credentials"));
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
+  }
+
+  private static String getCoreDataDir(String instanceDir) {
+    return concatenatePaths(instanceDir, "data");
+  }
+
+  private static String getCoreDir(String coreName) {
+    return concatenatePaths(getSolrDir(), coreName);
+  }
+
+  private static String concatenatePaths(String first, String more) {
+    return Paths.get(first, more).toString();
+  }
+
+  private static String getConfigFile(String configFileName) {
+    return StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
+  }
+
+  private static String getSolrDir() {
+    String solrDir =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
+
+    if (StringUtils.isEmpty(solrDir)) {
+      throw new MissingResourceException(
+          "Cannot create Solr client. Missing data directory", "System", SOLR_DATA_DIR);
+    }
+
+    return solrDir;
+  }
+
+  private static boolean solrCoreExists(SolrClient client, String coreName)
+      throws IOException, SolrServerException {
+    CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
+    return response.getCoreStatus(coreName).get("instanceDir") != null;
   }
 }
