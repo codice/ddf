@@ -61,22 +61,22 @@ public class RequestSubjectValidatorPresignPlugin implements SamlPresignPlugin {
       return;
     }
 
-    if (getIdsFromResponseAsStream(response).noneMatch(authnRequestId::equals)) {
+    if (idsFromResponseAsStream(response).noneMatch(authnRequestId::equals)) {
       throw new SAMLRuntimeException(
           String.format(
               "The AuthnRequest's Subject (with the NameID of %s) could not be matched against any "
                   + "identifiers in the resulting Response (with the primary NameID of %s).",
-              authnRequestId, getNameIdsFromResponseAsStream(response).findFirst().orElse(null)));
+              authnRequestId, nameIdsFromResponseAsStream(response).findFirst().orElse(null)));
     }
   }
 
   /** Returns all the identifiers that were returned on the response, i.e. username, email, ect. */
-  private Stream<String> getIdsFromResponseAsStream(Response response) {
+  private Stream<String> idsFromResponseAsStream(Response response) {
     return Stream.concat(
-        getNameIdsFromResponseAsStream(response), getAttributeIdsFromResponseAsStream(response));
+        nameIdsFromResponseAsStream(response), attributeIdsFromResponseAsStream(response));
   }
 
-  private Stream<String> getNameIdsFromResponseAsStream(Response response) {
+  private Stream<String> nameIdsFromResponseAsStream(Response response) {
     return response
         .getAssertions()
         .stream()
@@ -88,7 +88,7 @@ public class RequestSubjectValidatorPresignPlugin implements SamlPresignPlugin {
         .filter(StringUtils::isNotBlank);
   }
 
-  private Stream<String> getAttributeIdsFromResponseAsStream(Response response) {
+  private Stream<String> attributeIdsFromResponseAsStream(Response response) {
     return response
         .getAssertions()
         .stream()
