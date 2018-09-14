@@ -465,7 +465,6 @@ public abstract class SolrClientProxy extends SolrClient {
   @Override
   public NamedList<Object> request(SolrRequest request, String collection)
       throws SolrServerException, IOException {
-    request.setBasicAuthCredentials("ddf", "changeit");
     return handle(c -> c.request(request, collection));
   }
 }
