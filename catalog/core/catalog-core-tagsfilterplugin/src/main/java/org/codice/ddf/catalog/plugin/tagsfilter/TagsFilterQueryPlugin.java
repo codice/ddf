@@ -21,12 +21,9 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PreFederatedQueryPlugin;
-import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.plugin.PreFederatedLocalProviderQueryPlugin;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceCache;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +36,8 @@ import org.slf4j.LoggerFactory;
  * filter will also be added to include metacards without any tags attribute to support backwards
  * compatibility.
  */
-public class TagsFilterQueryPlugin implements PreFederatedQueryPlugin {
+public class TagsFilterQueryPlugin extends PreFederatedLocalProviderQueryPlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(TagsFilterQueryPlugin.class);
-
-  private final List<CatalogProvider> catalogProviders;
 
   private final FilterAdapter filterAdapter;
 
@@ -52,28 +47,13 @@ public class TagsFilterQueryPlugin implements PreFederatedQueryPlugin {
       List<CatalogProvider> catalogProviders,
       FilterAdapter filterAdapter,
       FilterBuilder filterBuilder) {
-    this.catalogProviders = catalogProviders;
+    super(catalogProviders);
     this.filterAdapter = filterAdapter;
     this.filterBuilder = filterBuilder;
   }
 
-  private boolean isCacheSource(Source source) {
-    return source instanceof SourceCache;
-  }
-
-  private boolean isCatalogProvider(Source source) {
-    return source instanceof CatalogProvider
-        && catalogProviders.stream().map(CatalogProvider::getId).anyMatch(source.getId()::equals);
-  }
-
-  /** Given a source, determine if it is a registered catalog provider or a cache. */
-  private boolean isLocalSource(Source source) {
-    return isCacheSource(source) || isCatalogProvider(source);
-  }
-
   @Override
-  public QueryRequest process(Source source, QueryRequest input)
-      throws PluginExecutionException, StopProcessingException {
+  public QueryRequest process(Source source, QueryRequest input) {
     if (!isLocalSource(source)) {
       return input;
     }
