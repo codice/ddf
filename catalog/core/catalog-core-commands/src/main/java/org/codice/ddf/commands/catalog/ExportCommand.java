@@ -37,6 +37,8 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -55,13 +57,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.ZipParameters;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -115,6 +117,12 @@ public class ExportCommand extends CqlCommands {
   private Filter revisionFilter;
 
   private JarSigner jarSigner = new JarSigner();
+
+  private static final String SECURITY_AUDIT_DELIMITER = ", ";
+
+  //  Number of bytes that can be sent is 65,507 (due to udp constraints). This gives a
+  //  2002 byte buffer to account for anything the security log prefaces our message with
+  private static final int LOG4J_MAX_BUF_SIZE = 63505;
 
   @Reference protected StorageProvider storageProvider;
 
@@ -176,6 +184,47 @@ public class ExportCommand extends CqlCommands {
     revisionFilter = initRevisionFilter();
 
     final File outputFile = initOutputFile(output);
+    checkFile(outputFile);
+
+    if (delete && !force) {
+      final String input =
+          session.readLine(
+              "This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):",
+              null);
+      if (input.length() == 0 || Character.toLowerCase(input.charAt(0)) != 'y') {
+        console.println("ABORTED EXPORT.");
+        return null;
+      }
+    }
+
+    SecurityLogger.audit("Called catalog:export command with path : {}", output);
+
+    try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+
+      return doExport(outputFile, zipOutputStream, filter);
+
+    } catch (FileNotFoundException e) {
+      throw new FileNotFoundException(
+          String.format(
+              "ZipOutputStream could not be created for the path %s", outputFile.getPath()));
+    }
+  }
+
+  private File initOutputFile(String output) {
+    String resolvedOutput;
+    File initialOutputFile = new File(output);
+    if (initialOutputFile.isDirectory()) {
+      // If directory was specified, auto generate file name
+      resolvedOutput = Paths.get(initialOutputFile.getPath(), FILE_NAMER.get()).toString();
+    } else {
+      resolvedOutput = output;
+    }
+
+    return new File(resolvedOutput);
+  }
+
+  private void checkFile(File outputFile) {
     if (outputFile.exists()) {
       printErrorMessage(String.format("File [%s] already exists!", outputFile.getPath()));
       throw new IllegalStateException("File already exists");
@@ -193,28 +242,16 @@ public class ExportCommand extends CqlCommands {
       console.println("Filename must end with '.zip' and not be blank");
       throw new IllegalStateException("Filename must not be blank and must end with '.zip'");
     }
+  }
 
-    if (delete && !force) {
-      final String input =
-          session.readLine(
-              "This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):",
-              null);
-      if (!input.matches("^[yY][eE]?[sS]?$")) {
-        console.println("ABORTED EXPORT.");
-        return null;
-      }
-    }
-
-    SecurityLogger.audit("Called catalog:export command with path : {}", output);
-
-    ZipFile zipFile = new ZipFile(outputFile);
-
+  private Object doExport(File outputFile, ZipOutputStream zipOutputStream, Filter filter)
+      throws IOException {
     console.println("Starting metacard export...");
     Instant start = Instant.now();
-    List<ExportItem> exportedItems = doMetacardExport(zipFile, filter);
+    List<ExportItem> exportedItems = doMetacardExport(zipOutputStream, filter);
     if (exportedItems.isEmpty()) {
       console.println("No metacards found to export, exiting.");
-      FileUtils.deleteQuietly(zipFile.getFile());
+      FileUtils.deleteQuietly(outputFile);
       return null;
     }
 
@@ -222,20 +259,13 @@ public class ExportCommand extends CqlCommands {
     console.println("Number of metacards exported: " + exportedItems.size());
     console.println();
 
-    SecurityLogger.audit(
-        "Ids of exported metacards and content:\n{}",
-        exportedItems
-            .stream()
-            .map(ExportItem::getId)
-            .distinct()
-            .collect(Collectors.joining(", ", "[", "]")));
+    auditRecords(exportedItems);
 
     console.println("Starting content export...");
     start = Instant.now();
-    List<ExportItem> exportedContentItems = doContentExport(zipFile, exportedItems);
+    List<ExportItem> exportedContentItems = doContentExport(zipOutputStream, exportedItems);
     console.println("Content exported in: " + getFormattedDuration(start));
     console.println("Number of content exported: " + exportedContentItems.size());
-
     console.println();
 
     if (delete) {
@@ -243,11 +273,14 @@ public class ExportCommand extends CqlCommands {
     }
 
     if (!unsafe) {
-      SecurityLogger.audit("Signing exported data. file: [{}]", zipFile.getFile().getName());
+      //  close the stream here to allow the jar writer to certify the full zip.
+      //  Try with resources will close the stream if this is not the case.
+      zipOutputStream.close();
+      SecurityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
       console.println("Signing zip file...");
       start = Instant.now();
       jarSigner.signJar(
-          zipFile.getFile(),
+          outputFile,
           System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
           System.getProperty("javax.net.ssl.keyStorePassword"),
           System.getProperty("javax.net.ssl.keyStore"),
@@ -256,24 +289,33 @@ public class ExportCommand extends CqlCommands {
     }
 
     console.println("Export complete.");
-    console.println("Exported to: " + zipFile.getFile().getCanonicalPath());
+    console.println("Exported to: " + outputFile.getCanonicalPath());
     return null;
   }
 
-  private File initOutputFile(String output) {
-    String resolvedOutput;
-    File initialOutputFile = new File(output);
-    if (initialOutputFile.isDirectory()) {
-      // If directory was specified, auto generate file name
-      resolvedOutput = Paths.get(initialOutputFile.getPath(), FILE_NAMER.get()).toString();
-    } else {
-      resolvedOutput = output;
-    }
-
-    return new File(resolvedOutput);
+  private void auditRecords(List<ExportItem> exportedItems) {
+    AtomicInteger counter = new AtomicInteger();
+    exportedItems
+        .stream()
+        .map(ExportItem::getId)
+        .distinct()
+        .collect(Collectors.groupingBy(e -> logPartition(e, counter)))
+        .values()
+        .forEach(this::writePartitionToLog);
   }
 
-  private List<ExportItem> doMetacardExport(/*Mutable,IO*/ ZipFile zipFile, Filter filter) {
+  private int logPartition(String e, AtomicInteger counter) {
+    return counter.getAndAdd(e.length() + SECURITY_AUDIT_DELIMITER.length()) / LOG4J_MAX_BUF_SIZE;
+  }
+
+  private void writePartitionToLog(List<String> idList) {
+    SecurityLogger.audit(
+        "Ids of exported metacards and content:\n{}",
+        idList.stream().collect(Collectors.joining(SECURITY_AUDIT_DELIMITER, "[", "]")));
+  }
+
+  private List<ExportItem> doMetacardExport(
+      /*Mutable,IO*/ ZipOutputStream zipOutputStream, Filter filter) {
     Set<String> seenIds = new HashSet<>(1024);
     List<ExportItem> exportedItems = new ArrayList<>();
 
@@ -284,7 +326,7 @@ public class ExportCommand extends CqlCommands {
 
     for (Result result : resultIterable(catalogFramework, queryRequest)) {
       if (!seenIds.contains(result.getMetacard().getId())) {
-        writeToZip(zipFile, result);
+        writeResultToZip(zipOutputStream, result);
         exportedItems.add(
             new ExportItem(
                 result.getMetacard().getId(),
@@ -304,7 +346,7 @@ public class ExportCommand extends CqlCommands {
         if (seenIds.contains(revision.getMetacard().getId())) {
           continue;
         }
-        writeToZip(zipFile, revision);
+        writeResultToZip(zipOutputStream, revision);
         exportedItems.add(
             new ExportItem(
                 revision.getMetacard().getId(),
@@ -334,7 +376,7 @@ public class ExportCommand extends CqlCommands {
 
   @SuppressWarnings("squid:S3776")
   private List<ExportItem> doContentExport(
-      /*Mutable,IO*/ ZipFile zipFile, List<ExportItem> exportedItems) throws ZipException {
+      ZipOutputStream zipOutputStream, List<ExportItem> exportedItems) {
     List<ExportItem> contentItemsToExport =
         exportedItems
             .stream()
@@ -366,7 +408,7 @@ public class ExportCommand extends CqlCommands {
       } catch (ResourceNotFoundException e) {
         continue;
       }
-      writeToZip(zipFile, contentItem, resource);
+      writeResourceToZip(zipOutputStream, contentItem, resource);
       exportedContentItems.add(contentItem);
       if (!contentItem.getMetacardTag().equals(REVISION_METACARD)) {
         for (String derivedUri : contentItem.getDerivedUris()) {
@@ -394,7 +436,7 @@ public class ExportCommand extends CqlCommands {
                 Ansi.ansi().fg(Ansi.Color.RED).toString(), uri, Ansi.ansi().reset().toString());
             continue;
           }
-          writeToZip(zipFile, contentItem, derivedResource);
+          writeResourceToZip(zipOutputStream, contentItem, derivedResource);
         }
       }
     }
@@ -448,16 +490,17 @@ public class ExportCommand extends CqlCommands {
     console.println("Number of content deleted: " + exportedContentItems.size());
   }
 
-  private void writeToZip(
-      /*Mutable,IO*/ ZipFile zipFile, ExportItem exportItem, ResourceResponse resource)
-      throws ZipException {
-    ZipParameters parameters = new ZipParameters();
-    parameters.setSourceExternalStream(true);
+  private void writeResourceToZip(
+      /*Mutable,IO*/ ZipOutputStream zipOutputStream,
+      ExportItem exportItem,
+      ResourceResponse resource) {
     String id = exportItem.getId();
     String path = getContentPath(id, resource);
-    parameters.setFileNameInZip(path);
+    ZipEntry zipEntry = new ZipEntry(path);
+
     try (InputStream resourceStream = resource.getResource().getInputStream()) {
-      zipFile.addStream(resourceStream, parameters);
+      zipOutputStream.putNextEntry(zipEntry);
+      writeDataToZip(zipOutputStream, resourceStream);
     } catch (IOException e) {
       LOGGER.warn(
           "Could not get content. Content will not be included in export [{}]", exportItem.getId());
@@ -482,22 +525,19 @@ public class ExportCommand extends CqlCommands {
     return path;
   }
 
-  private void writeToZip(/*Mutable,IO*/ ZipFile zipFile, Result result) {
-    ZipParameters parameters = new ZipParameters();
-    parameters.setSourceExternalStream(true);
+  private void writeResultToZip(/*Mutable,IO*/ ZipOutputStream zipOutputStream, Result result) {
     String id = result.getMetacard().getId();
-    parameters.setFileNameInZip(
-        Paths.get("metacards", id.substring(0, 3), id, "metacard", id + ".xml").toString());
+    ZipEntry zipEntry =
+        new ZipEntry(
+            Paths.get("metacards", id.substring(0, 3), id, "metacard", id + ".xml").toString());
 
     try {
       BinaryContent binaryMetacard =
           transformer.transform(result.getMetacard(), Collections.emptyMap());
-      try (InputStream metacard = binaryMetacard.getInputStream()) {
-        zipFile.addStream(metacard, parameters);
+      try (InputStream metacardStream = binaryMetacard.getInputStream()) {
+        zipOutputStream.putNextEntry(zipEntry);
+        writeDataToZip(zipOutputStream, metacardStream);
       }
-    } catch (ZipException e) {
-      LOGGER.error("Error processing result and adding to ZIP", e);
-      throw new CatalogCommandRuntimeException(e);
     } catch (CatalogTransformerException | IOException e) {
       LOGGER.warn(
           "Could not transform metacard. Metacard will not be added to zip [{}]",
@@ -508,6 +548,15 @@ public class ExportCommand extends CqlCommands {
           result.getMetacard().getId(),
           result.getMetacard().getTitle(),
           Ansi.ansi().reset().toString());
+    }
+  }
+
+  private void writeDataToZip(ZipOutputStream zipOutputStream, InputStream inputStream)
+      throws IOException {
+    final byte[] bytes = new byte[1024];
+    int length;
+    while ((length = inputStream.read(bytes)) >= 0) {
+      zipOutputStream.write(bytes, 0, length);
     }
   }
 

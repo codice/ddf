@@ -46,11 +46,6 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.lingala.zip4j</groupId>
-            <artifactId>zip4j</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
@@ -78,8 +73,7 @@
                             ant,
                             ant-launcher,
                             catalog-core-api-impl,
-                            platform-util,
-                            zip4j
+                            platform-util
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>
