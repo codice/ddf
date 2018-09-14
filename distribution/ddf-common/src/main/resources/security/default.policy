@@ -194,7 +194,7 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.net.SocketPermission "*", "listen,resolve";
 }
 
-grant codeBase "file:/woodstox-core/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication" {
+grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -346,7 +346,7 @@ grant codeBase "file:/admin-configuration-configupdater" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write,delete";
 }
 
-grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standalone" {
+grant codeBase "file:/catalog-core-standardframework" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
