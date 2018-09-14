@@ -37,6 +37,7 @@ import ddf.security.Subject;
 import ddf.security.permission.KeyValueCollectionPermission;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,13 +104,7 @@ public class ValidationFilterPluginTest {
 
   @Test
   public void testAttributeMap() {
-    Map<String, List<String>> attributeMapping = new HashMap<>();
-    List<String> attributes = new ArrayList<>();
-    attributes.add("data-manager");
-    attributes.add("system-admin");
-    attributeMapping.put("invalid-state", attributes);
-
-    plugin.setAttributeMap(attributeMapping);
+    plugin.setAttributeMap(Collections.singletonList("invalid-state=data-manager,system-admin"));
     Map<String, List<String>> attributeMap = plugin.getAttributeMap();
 
     assertThat(attributeMap.containsKey("invalid-state"), is(true));
@@ -120,8 +115,6 @@ public class ValidationFilterPluginTest {
 
   @Test
   public void testEmptyAttributeMap() throws StopProcessingException, UnsupportedQueryException {
-    Map<String, List<String>> attributeMapping = new HashMap<>();
-
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -130,7 +123,7 @@ public class ValidationFilterPluginTest {
 
     QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
 
-    plugin.setAttributeMap(attributeMapping);
+    plugin.setAttributeMap(Collections.emptyList());
     plugin.setShowErrors(true);
     plugin.setShowWarnings(true);
 

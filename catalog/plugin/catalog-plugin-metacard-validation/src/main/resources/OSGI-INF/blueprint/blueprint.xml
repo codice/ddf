@@ -53,7 +53,9 @@
                 persistent-id="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"
                 update-strategy="container-managed"/>
         <property name="attributeMap">
-            <list/>
+            <list>
+                <value>invalid-state=data-manager,system-user</value>
+            </list>
         </property>
         <property name="filterErrors" value="true"/>
         <property name="filterWarnings" value="false"/>
