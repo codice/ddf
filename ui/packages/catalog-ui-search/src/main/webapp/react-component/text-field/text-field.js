@@ -60,7 +60,7 @@ class TextField extends React.Component {
           ) : null}
           <input
             ref={ref => (this.ref = ref)}
-            value={this.state.value || ''}
+            value={this.state.value !== undefined ? this.state.value : ''}
             type={type}
             onChange={e => {
               this.onChange(e.target.value)
