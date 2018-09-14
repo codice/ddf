@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.plugin.validationfilter;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -141,7 +140,7 @@ public class ValidationFilterPluginTest {
     QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
     QueryRequest returnQuery = plugin.process(federatedSource, queryRequest);
 
-    assertEquals(returnQuery, queryRequest);
+    assertThat(returnQuery.equals(queryRequest), is(true));
   }
 
   @Test
@@ -155,7 +154,7 @@ public class ValidationFilterPluginTest {
     QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
     QueryRequest returnQuery = plugin.process(catalogProvider, queryRequest);
 
-    assertEquals(returnQuery, queryRequest);
+    assertThat(returnQuery.equals(queryRequest), is(true));
   }
 
   @Test

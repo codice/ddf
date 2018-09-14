@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package ddf.catalog.plugin;
 
 import ddf.catalog.operation.QueryRequest;
@@ -6,6 +19,14 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceCache;
 import java.util.List;
 
+/**
+ * A {@link PreFederatedLocalProviderQueryPlugin} is an abstract class implementing the {@link
+ * PreFederatedQueryPlugin}. {@link PreFederatedQueryPlugin} that only apply for local source should
+ * extend {@link PreFederatedLocalProviderQueryPlugin} This abstract class provide isLocalSource
+ * method to check if a given source is a local source.
+ *
+ * @author lamhuy
+ */
 public abstract class PreFederatedLocalProviderQueryPlugin implements PreFederatedQueryPlugin {
 
   protected final List<CatalogProvider> catalogProviders;
@@ -14,11 +35,11 @@ public abstract class PreFederatedLocalProviderQueryPlugin implements PreFederat
     this.catalogProviders = catalogProviders;
   }
 
-  protected boolean isCacheSource(Source source) {
+  private boolean isCacheSource(Source source) {
     return source instanceof SourceCache;
   }
 
-  protected boolean isCatalogProvider(Source source) {
+  private boolean isCatalogProvider(Source source) {
     return source instanceof CatalogProvider
         && catalogProviders.stream().map(CatalogProvider::getId).anyMatch(source.getId()::equals);
   }
