@@ -111,7 +111,7 @@ class HttpSolrClientFactorySpec extends Specification {
       'blank'       || ''            | SOLR_HOST2  | SOLR_PORT   | SOLR_CONTEXT   || SOLR_URL2 | CORE_URL2
   }
 
-//  @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
+  @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
   def 'test new client becoming available when system property solr.data.dir is defined'() {
     given:
       def httpClient = Mock(SolrClient) {

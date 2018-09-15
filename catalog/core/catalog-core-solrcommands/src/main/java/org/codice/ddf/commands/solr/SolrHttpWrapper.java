@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.net.ssl.SSLContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -77,11 +76,8 @@ public class SolrHttpWrapper implements HttpWrapper {
   }
 
   private static String[] getCipherSuites() {
-    if (System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES) != null) {
-      return StringUtils.split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES), ",");
-    }
-    return HttpSolrClientFactory.DEFAULT_CIPHER_SUITES.toArray(
-        new String[HttpSolrClientFactory.DEFAULT_CIPHER_SUITES.size()]);
+
+    return HttpSolrClientFactory.getSupportedCipherSuites();
   }
 
   @Override
@@ -141,10 +137,7 @@ public class SolrHttpWrapper implements HttpWrapper {
   }
 
   private String[] getProtocols() {
-    if (System.getProperty("https.protocols") != null) {
-      return StringUtils.split(System.getProperty("https.protocols"), ",");
-    }
-    return HttpSolrClientFactory.DEFAULT_PROTOCOLS.toArray(
-        new String[HttpSolrClientFactory.DEFAULT_PROTOCOLS.size()]);
+
+    return HttpSolrClientFactory.getSupportedProtocols();
   }
 }
