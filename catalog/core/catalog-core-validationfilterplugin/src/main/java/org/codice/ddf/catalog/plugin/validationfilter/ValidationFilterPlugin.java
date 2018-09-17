@@ -23,8 +23,9 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PreFederatedQueryPlugin;
+import ddf.catalog.plugin.PreFederatedLocalProviderQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -44,14 +45,12 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
+public class ValidationFilterPlugin extends PreFederatedLocalProviderQueryPlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(ValidationFilterPlugin.class);
 
   private static final String ENTERING = "ENTERING {}";
 
   private static final String EXITING = "EXITING {}";
-
-  private FilterBuilder filterBuilder;
 
   private Map<String, List<String>> attributeMap = new HashMap<>();
 
@@ -59,9 +58,13 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
 
   private boolean showWarnings = true;
 
-  public ValidationFilterPlugin(FilterBuilder filterBuilder) {
-    LOGGER.trace("INSIDE: ValidationFilterPlugin constructor");
+  private final FilterBuilder filterBuilder;
+
+  public ValidationFilterPlugin(
+      FilterBuilder filterBuilder, List<CatalogProvider> catalogProviders) {
+    super(catalogProviders);
     this.filterBuilder = filterBuilder;
+    LOGGER.trace("INSIDE: ValidationFilterPlugin constructor");
   }
 
   public Map<String, List<String>> getAttributeMap() {
@@ -91,6 +94,10 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
     String methodName = "process";
     LOGGER.trace(ENTERING, methodName);
     QueryRequest newQueryRequest = input;
+
+    if (!isLocalSource(source)) {
+      return input;
+    }
 
     if (input != null) {
       Query query = input.getQuery();
