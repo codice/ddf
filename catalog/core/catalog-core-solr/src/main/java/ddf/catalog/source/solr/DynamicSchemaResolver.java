@@ -51,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.stream.XMLInputFactory;
@@ -127,6 +128,8 @@ public class DynamicSchemaResolver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
+  private Function<TinyTree, TinyBinary> tinyBinaryFunction;
+
   static {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     try {
@@ -159,9 +162,15 @@ public class DynamicSchemaResolver {
 
   private Processor processor = new Processor(new Config());
 
-  public DynamicSchemaResolver(List<String> additionalFields) {
-    this.schemaFields = new SchemaFields();
+  public DynamicSchemaResolver(
+      List<String> additionalFields, Function<TinyTree, TinyBinary> tinyBinaryFunction) {
+    this(additionalFields);
+    this.tinyBinaryFunction = tinyBinaryFunction;
+  }
 
+  public DynamicSchemaResolver(List<String> additionalFields) {
+    this.tinyBinaryFunction = this::newTinyBinary;
+    this.schemaFields = new SchemaFields();
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
@@ -339,7 +348,7 @@ public class DynamicSchemaResolver {
       try {
         byte[] luxXml = createTinyBinary(metacard.getMetadata());
         solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
-      } catch (Exception e) {
+      } catch (XMLStreamException | SaxonApiException | IOException | RuntimeException e) {
         LOGGER.debug(
             "Unable to parse metadata field.  XPath support unavailable for metacard {}",
             metacard.getId(),
@@ -438,7 +447,7 @@ public class DynamicSchemaResolver {
     return centerPoint.getY() + "," + centerPoint.getX();
   }
 
-  protected byte[] createTinyBinary(String xml)
+  private byte[] createTinyBinary(String xml)
       throws XMLStreamException, SaxonApiException, IOException {
     SaxonDocBuilder builder = new SaxonDocBuilder(processor);
 
@@ -450,9 +459,13 @@ public class DynamicSchemaResolver {
     XdmNode node = builder.getDocument();
 
     TinyTree tinyTree = ((TinyDocumentImpl) node.getUnderlyingNode()).getTree();
-    TinyBinary tinyBinary = new TinyBinary(tinyTree, StandardCharsets.UTF_8);
+    TinyBinary tinyBinary = tinyBinaryFunction.apply(tinyTree);
 
     return tinyBinary.getBytes();
+  }
+
+  private TinyBinary newTinyBinary(TinyTree tinyTree) {
+    return new TinyBinary(tinyTree, StandardCharsets.UTF_8);
   }
 
   /**

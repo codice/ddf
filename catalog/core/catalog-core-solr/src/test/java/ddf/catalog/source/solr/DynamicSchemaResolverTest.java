@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,12 +43,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.stream.XMLStreamException;
-import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 public class DynamicSchemaResolverTest {
 
@@ -108,8 +108,6 @@ public class DynamicSchemaResolverTest {
     Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
     String attributeName = Metacard.METADATA;
     attributeDescriptors.add(new CoreAttributes().getAttributeDescriptor(attributeName));
-    //    char[] metadata = new char[100000000];
-    //    Arrays.fill(metadata, 'a');
     StringBuilder mockValue = new StringBuilder();
     mockValue.append("<?xml version=\"1.1\" encoding=\"UTF-32\"?><metadata></metadata>");
     Attribute mockAttribute = new AttributeImpl(Metacard.METADATA, mockValue.toString());
@@ -120,13 +118,11 @@ public class DynamicSchemaResolverTest {
     when(mockMetacard.getMetadata()).thenReturn(mockValue.toString());
     SolrInputDocument mockSolrInputDocument = mock(SolrInputDocument.class);
     DynamicSchemaResolver resolver =
-        new DynamicSchemaResolver() {
-          @Override
-          protected byte[] createTinyBinary(String xml)
-              throws XMLStreamException, SaxonApiException, IOException {
-            throw new BufferOverflowException();
-          }
-        };
+        new DynamicSchemaResolver(
+            Collections.EMPTY_LIST,
+            tinyTree -> {
+              throw new BufferOverflowException();
+            });
 
     // Perform Test
     resolver.addFields(mockMetacard, mockSolrInputDocument);
@@ -134,6 +130,9 @@ public class DynamicSchemaResolverTest {
     // Verify: Verify that no exception was thrown
     // called from inside catch block, indicating safe error handling
     verify(mockMetacard).getId();
+    verify(mockSolrInputDocument)
+        .addField(eq(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME), Matchers.any());
+    verify(mockSolrInputDocument, times(0)).addField(eq("lux_xml"), Matchers.any());
   }
 
   @Test
