@@ -167,7 +167,7 @@ Transforms also work on read operations for metacards in federated sources.
 \${secure_url}/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
 ====
 
-See <<_available_metacard_transformers,Metacard Transformers>> for details on metacard transformers.
+See <<{architecture-prefix}available_metacard_transformers,Metacard Transformers>> for details on metacard transformers.
 
 ====== POST Metadata
 The following is a successful post of well-formed XML data sent to the Catalog ReST endpoint.

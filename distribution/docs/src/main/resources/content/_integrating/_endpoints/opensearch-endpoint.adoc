@@ -75,7 +75,7 @@ default: `1`
 |`format`
 |Requires a transformer shortname as a string, possible values include, when available, `atom`, `html`, and `kml`.
 
-See <<_available_query_response_transformers,Query Response transformers>> for more possible values.
+See <<{architecture-prefix}available_query_response_transformers,Query Response transformers>> for more possible values.
 |Defines the format that the return type should be in.
 
 default: `atom`

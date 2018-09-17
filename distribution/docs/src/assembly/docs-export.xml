@@ -31,6 +31,13 @@
                 <include>documentation.html</include>
                 <include>introduction.html</include>
                 <include>quickstart.html</include>
+                <include>managing.html</include>
+                <include>using.html</include>
+                <include>integrating.html</include>
+                <include>architecture.html</include>
+                <include>developing.html</include>
+                <include>reference.html</include>
+                <include>metadata.html</include>
             </includes>
             <outputDirectory>html</outputDirectory>
         </fileSet>
@@ -42,6 +49,13 @@
                 <include>documentation.pdf</include>
                 <include>introduction.pdf</include>
                 <include>quickstart.pdf</include>
+                <include>managing.pdf</include>
+                <include>using.pdf</include>
+                <include>integrating.pdf</include>
+                <include>architecture.pdf</include>
+                <include>developing.pdf</include>
+                <include>reference.pdf</include>
+                <include>metadata.pdf</include>
             </includes>
             <outputDirectory>pdf</outputDirectory>
         </fileSet>

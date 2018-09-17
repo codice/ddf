@@ -41,7 +41,7 @@ The key components of ${branding} Eventing include:
 
 * Subscription
 * Delivery Method
-* <<_event_processor,Event Processor>>
+* <<{architecture-prefix}event_processor,Event Processor>>
 
 After reading this section, you will be able to:
 
