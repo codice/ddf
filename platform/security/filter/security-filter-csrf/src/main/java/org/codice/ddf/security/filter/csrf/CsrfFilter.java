@@ -58,8 +58,6 @@ public class CsrfFilter implements SecurityFilter {
   private static final MultivaluedMap<Pattern, String> SYSTEM_PROTECTION_WHITELIST =
       new MultivaluedHashMap<>();
 
-  // List of user agents that are white listed
-  private List<Pattern> userAgentWhitelist = new ArrayList<>();
   // List of context paths that require cross-site protections
   private List<String> protectedContexts;
   // List of authorities that are treated as same-origin as the system
@@ -210,18 +208,6 @@ public class CsrfFilter implements SecurityFilter {
       return false;
     }
 
-    // Check if the user-agent is whitelisted
-    Pattern whitelistUserAgent = null;
-
-    if (userAgentHeader != null) {
-      whitelistUserAgent =
-          userAgentWhitelist
-              .stream()
-              .filter(regex -> regex.matcher(userAgentHeader).matches())
-              .findFirst()
-              .orElse(null);
-    }
-
     // Check if the context path is whitelisted
     boolean contextPathIsWhitelisted = false;
     Pattern whitelistKey = getMultivaluedMapKey(SYSTEM_PROTECTION_WHITELIST, targetContextPath);
@@ -236,7 +222,7 @@ public class CsrfFilter implements SecurityFilter {
       }
     }
 
-    if (userAgentHeader != null && whitelistUserAgent == null && !contextPathIsWhitelisted) {
+    if (!isNotBrowser(userAgentHeader) && !contextPathIsWhitelisted) {
       respondForbidden(httpResponse, "Cross-site check failure: Request was made from a browser.");
       return true;
     }
@@ -299,17 +285,14 @@ public class CsrfFilter implements SecurityFilter {
     }
   }
 
-  public void setUserAgentWhitelist(List<String> userAgentWhitelist) {
-    if (userAgentWhitelist == null) {
-      return;
-    }
-
-    this.userAgentWhitelist.clear();
-
-    for (String agent : userAgentWhitelist) {
-      Pattern userAgentPattern = Pattern.compile(agent);
-      this.userAgentWhitelist.add(userAgentPattern);
-    }
+  private boolean isNotBrowser(String userAgentHeader) {
+    return userAgentHeader == null
+        || !(userAgentHeader.contains("Mozilla")
+            || userAgentHeader.contains("Safari")
+            || userAgentHeader.contains("OPR")
+            || userAgentHeader.contains("MSIE")
+            || userAgentHeader.contains("Edge")
+            || userAgentHeader.contains("Chrome"));
   }
 
   public void setWhiteListContexts(List<String> whiteListContexts) {
