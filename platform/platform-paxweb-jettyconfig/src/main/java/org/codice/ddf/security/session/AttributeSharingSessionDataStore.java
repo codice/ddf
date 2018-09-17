@@ -49,17 +49,14 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
    * @param sessionAttributes the session's attributes
    */
   public void updateSessionAttributes(String id, Map<String, Object> sessionAttributes) {
-    SessionData sessionData;
     synchronized (sessionDataMap) {
-      sessionData = sessionDataMap.get(id);
-    }
+      SessionData sessionData = sessionDataMap.get(id);
 
-    if (sessionData != null && !sessionData.getAllAttributes().equals(sessionAttributes)) {
-      LOGGER.trace(
-          "Storing new attributes for session {} at context {}",
-          id,
-          _context.getCanonicalContextPath());
-      synchronized (sessionDataMap) {
+      if (sessionData != null && !sessionData.getAllAttributes().equals(sessionAttributes)) {
+        LOGGER.trace(
+            "Storing new attributes for session {} at context {}",
+            id,
+            _context.getCanonicalContextPath());
         sessionData.clearAllAttributes();
         sessionData.putAllAttributes(sessionAttributes);
       }
@@ -118,14 +115,16 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
 
   @Override
   public boolean exists(String id) {
-    return sessionDataMap.containsKey(id);
+    synchronized (sessionDataMap) {
+      return sessionDataMap.containsKey(id);
+    }
   }
 
   @Override
   public SessionData load(String id) {
-    SessionData sessionData = sessionDataMap.get(id);
-
-    return sessionData;
+    synchronized (sessionDataMap) {
+      return sessionDataMap.get(id);
+    }
   }
 
   @Override
