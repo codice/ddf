@@ -249,7 +249,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedCipherSuites() {
-    return commaSeparatedToArray(HTTPS_CIPHER_SUITES);
+    return commaSeparatedToArray(getProperty(HTTPS_CIPHER_SUITES));
   }
 
   /**
@@ -260,7 +260,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedProtocols() {
-    return commaSeparatedToArray(HTTPS_PROTOCOLS);
+    return commaSeparatedToArray(getProperty(HTTPS_PROTOCOLS));
   }
 
   private boolean useBasicAuth() {
@@ -317,7 +317,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static String[] commaSeparatedToArray(String commaDelimitedString) {
     // Consume whitespace
-    return Optional.of(getProperty(commaDelimitedString))
+    return Optional.of(commaDelimitedString)
         .map((x) -> (x.split("\\s*,\\s*")))
         .orElse(new String[0]);
   }
