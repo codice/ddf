@@ -88,6 +88,7 @@ class RequestSubjectValidatorPresignPluginSpec extends Specification {
 
     def 'no Subject on AuthnRequest'() {
         setup:
+        authnRequestMock = Mock()
         authnRequestMock.getSubject() >> null
 
         when:
@@ -112,6 +113,18 @@ class RequestSubjectValidatorPresignPluginSpec extends Specification {
         _nameId << [null, blankNameIdMock]
     }
 
+    def 'Subject with SubjectConfirmations on AuthnRequest'() {
+        setup:
+        subjectMock.getNameID() >> null
+        subjectMock.getSubjectConfirmations() >> populatedSubjectConfirmationsList
+
+        when:
+        plugin.processPresign(response, authnRequestMock, spMetadata, bindings)
+
+        then:
+        thrown (SAMLRuntimeException)
+    }
+
     def 'Subject with both NameID and SubjectConfirmations on AuthnRequest'() {
         setup:
         subjectMock.getNameID() >> unameNameIdMock
@@ -125,26 +138,20 @@ class RequestSubjectValidatorPresignPluginSpec extends Specification {
     }
 
     @Unroll
-    def 'valid Subject with NameID of #_nameId?.getValue() and SubjectConfirmations of length #_subjectConfirmationsList.size() on AuthnRequest'() {
+    def 'Subject with no NameID and empty SubjectConfirmations on AuthnRequest'() {
         setup:
-        subjectMock.getNameID() >> _nameId
-        subjectMock.getSubjectConfirmations() >> _subjectConfirmationsList
+        subjectMock.getNameID() >> null
+        subjectMock.getSubjectConfirmations() >> emptySubjectConfirmationsList
 
         when:
         plugin.processPresign(response, authnRequestMock, spMetadata, bindings)
 
         then:
         noExceptionThrown()
-
-        where:
-        _nameId         | _subjectConfirmationsList
-        null            | emptySubjectConfirmationsList
-        unameNameIdMock | emptySubjectConfirmationsList
-        null            | populatedSubjectConfirmationsList
     }
 
     @Unroll
-    def 'invalid Subject with NameID on AuthnRequest'() {
+    def 'Subject with invalid NameID on AuthnRequest'() {
         setup:
         subjectMock.getNameID() >> invalidNameIdMock
         subjectMock.getSubjectConfirmations() >> emptySubjectConfirmationsList
@@ -157,7 +164,7 @@ class RequestSubjectValidatorPresignPluginSpec extends Specification {
     }
 
     @Unroll
-    def 'valid Subject with NameID of #_nameId.getValue() and empty SubjectConfirmations on AuthnRequest'() {
+    def 'Subject with NameID of #_nameId.getValue() on AuthnRequest'() {
         setup:
         subjectMock.getNameID() >> _nameId
         subjectMock.getSubjectConfirmations() >> emptySubjectConfirmationsList

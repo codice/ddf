@@ -95,8 +95,8 @@ public class RequestSubjectValidatorPresignPlugin implements SamlPresignPlugin {
         .flatMap(assertion -> assertion.getAttributeStatements().stream())
         .flatMap(statement -> statement.getAttributes().stream())
         .flatMap(attribute -> attribute.getAttributeValues().stream())
-        .filter(attributeValue -> attributeValue instanceof XSString)
-        .map(attributeValue -> (XSString) attributeValue)
+        .filter(XSString.class::isInstance)
+        .map(XSString.class::cast)
         .map(XSString::getValue)
         .filter(StringUtils::isNotBlank);
   }

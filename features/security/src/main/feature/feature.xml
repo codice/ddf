@@ -557,7 +557,6 @@
              description="IDP server and client">
         <feature>security-core-api</feature>
         <feature>security-handler-api</feature>
-        <feature>security-idp-plugin</feature>
         <feature>javax-validation</feature>
         <feature>action-core-impl</feature>
         <feature>cxf-rs-security-sso-saml</feature>
@@ -574,12 +573,18 @@
         <feature>util-uuidgenerator</feature>
         <feature>security-handler-basic</feature>
         <feature>security-filter-login</feature>
+        <feature>security-idp-plugin</feature>
         <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
         <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="security-idp-plugin" version="${project.version}"
             description="IDP plugin api and implementations">
+        <feature>security-core-api</feature>
+        <feature>security-expansion</feature>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-subjectconfirmation/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-requestsubjectvalidator/${project.version}</bundle>
