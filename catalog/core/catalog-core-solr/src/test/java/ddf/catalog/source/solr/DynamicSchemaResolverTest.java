@@ -132,6 +132,8 @@ public class DynamicSchemaResolverTest {
     resolver.addFields(mockMetacard, mockSolrInputDocument);
 
     // Verify: Verify that no exception was thrown
+    // called from inside catch block, indicating safe error handling
+    verify(mockMetacard).getId();
   }
 
   @Test
