@@ -173,7 +173,9 @@ class HttpSolrClientFactorySpec extends Specification {
       factory.newClient(CORE)
 
     then:
-      thrown(MissingResourceException)
+      def e = thrown(IllegalArgumentException)
+
+      e.message.contains("Data directory is not configured")
   }
 
 
@@ -186,6 +188,8 @@ class HttpSolrClientFactorySpec extends Specification {
       factory.newClient(null)
 
     then:
-      thrown(IllegalArgumentException)
+      def e = thrown(IllegalArgumentException)
+
+      e.message.contains("Missing core name")
   }
 }

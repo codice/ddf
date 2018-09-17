@@ -85,12 +85,9 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
     Args.notEmpty(coreName, "Cannot create Solr client. Missing core name.");
-    String solrDir = getProperty(SOLR_DATA_DIR);
 
-    if (StringUtils.isEmpty(solrDir)) {
-      throw new MissingResourceException(
-          "Cannot create Solr client. Missing data directory", "System", SOLR_DATA_DIR);
-    }
+    String solrDir = getProperty(SOLR_DATA_DIR);
+    Args.notEmpty(solrDir, "Cannot create Solr client. Data directory is not configured");
 
     ConfigurationStore.getInstance().setDataDirectoryPath(solrDir);
     LOGGER.debug(
