@@ -45,8 +45,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
+import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -292,25 +291,16 @@ public class ExportCommand extends CqlCommands {
     SecurityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
     console.println("Signing zip file...");
     Instant start = Instant.now();
+    jarSigner.signJar(
+        outputFile,
+        System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")));
 
-    try {
-      AccessController.doPrivileged(
-          (PrivilegedExceptionAction<Void>)
-              () -> {
-                jarSigner.signJar(
-                    outputFile,
-                    System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
-                    System.getProperty("javax.net.ssl.keyStorePassword"),
-                    System.getProperty("javax.net.ssl.keyStore"),
-                    System.getProperty("javax.net.ssl.keyStorePassword"));
-                return null;
-              });
-    } catch (PrivilegedActionException e) {
-      LOGGER.warn("Error signing the zip file, {}", e.getException());
-      console.println(
-          "There was a problem signing the zip file. Check the logs for more information.");
-      return;
-    }
     console.println("zip file signed in: " + getFormattedDuration(start));
   }
 

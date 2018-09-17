@@ -42,6 +42,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +52,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,19 +241,24 @@ public class ZipCompression implements QueryResponseTransformer {
   private BinaryContent getBinaryContentFromZip(String filePath)
       throws CatalogTransformerException {
     BinaryContent binaryContent;
+    InputStream fileInputStream;
+    File zipFile = new File(filePath);
     try {
-      File zipFile = new File(filePath);
-      InputStream fileInputStream = new ZipInputStream(new FileInputStream(zipFile));
+      fileInputStream = new ZipInputStream(new FileInputStream(zipFile));
       binaryContent = new BinaryContentImpl(fileInputStream);
-      jarSigner.signJar(
-          zipFile,
-          System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
-          System.getProperty("javax.net.ssl.keyStorePassword"),
-          System.getProperty("javax.net.ssl.keyStore"),
-          System.getProperty("javax.net.ssl.keyStorePassword"));
     } catch (FileNotFoundException e) {
       throw new CatalogTransformerException("Unable to get ZIP file from ZipInputStream.", e);
     }
+
+    jarSigner.signJar(
+        zipFile,
+        System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")));
     return binaryContent;
   }
 
