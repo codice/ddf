@@ -17,7 +17,7 @@ public class SystemProperties {
 
   private SystemProperties() {}
 
-  public static final String SYSTEM_PROPERTIES_FILE_PATH = "etc/system.properties";
+  public static final String SYSTEM_PROPERTIES_FILE_PATH = "etc/custom.system.properties";
 
   public static final String HTTPS_PORT_PROPERTY = "org.codice.ddf.system.httpsPort";
 

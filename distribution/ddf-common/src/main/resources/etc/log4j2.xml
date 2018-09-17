@@ -14,7 +14,14 @@
 -->
 <Configuration status="FATAL">
     <Properties>
+        <Property name="color.fatal">bright red</Property>
+        <Property name="color.error">bright red</Property>
+        <Property name="color.warn">bright yellow</Property>
+        <Property name="color.info">bright green</Property>
+        <Property name="color.debug">cyan</Property>
+        <Property name="color.trace">cyan</Property>
         <Property name="log-pattern">%-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id} - %X{bundle.name} - %X{bundle.version} | %m%n</Property>
+        <Property name="log-out-pattern">\u001b[90m%d{HH:mm:ss\.SSS}\u001b[0m %highlight{%-5level}{FATAL=${color.fatal}, ERROR=${color.error}, WARN=${color.warn}, INFO=${color.info}, DEBUG=${color.debug}, TRACE=${color.trace}} \u001b[90m[%t]\u001b[0m %msg%n%throwable</Property>
     </Properties>
 
     <Appenders>
@@ -35,7 +42,7 @@
         <RollingFile name="out" append="true"
                      fileName="${sys:karaf.data}/log/${sys:org.codice.ddf.system.branding}.log"
                      filePattern="${sys:karaf.data}/log/${sys:org.codice.ddf.system.branding}.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="%d{ISO8601} | ${log-pattern}"/>
+            <PatternLayout pattern="%d{ISO8601} | ${log-out-pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
@@ -107,6 +114,7 @@
             <AppenderRef ref="osgi-karafConsole"/>
             <AppenderRef ref="osgi-platformLogging"/>
         </Root>
+
         <Logger name="securityLogger" level="info" additivity="false">
             <AppenderRef ref="securityFailover"/>
             <AppenderRef ref="syslog"/>
@@ -142,6 +150,8 @@
             <AppenderRef ref="syslog"/>
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
+
+        <Logger name="org.apache.sshd" level="INFO"/>
 
         <!--START Suppress logging for miscellaneous packages-->
         <!--GraphqQL tends to log at warn/error level. This is not needed since we provide our own

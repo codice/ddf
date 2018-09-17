@@ -67,6 +67,7 @@ public class ITTestUtilitiesFeatures {
   }
 
   @Inject private FeaturesService featuresService;
+
   @Inject private FeatureUtilities featureUtilities;
 
   private String featureName;

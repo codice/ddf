@@ -67,6 +67,7 @@ public class ITInstallProfilesFeatures {
   }
 
   @Inject private FeaturesService featuresService;
+
   @Inject private FeatureUtilities featureUtilities;
 
   private String featureName;

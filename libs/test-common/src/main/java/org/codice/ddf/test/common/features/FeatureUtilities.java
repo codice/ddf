@@ -151,23 +151,69 @@ public class FeatureUtilities {
           .put(Bundle.ACTIVE, "ACTIVE")
           .build();
 
-  public void printInactiveBundles() {
+  /**
+   * Uninstalls the specified feature.
+   *
+   * @param featuresService
+   * @param featureName
+   * @throws Exception
+   */
+  public void uninstallFeature(FeaturesService featuresService, String featureName)
+      throws Exception {
+    long startTime = System.currentTimeMillis();
+    LOGGER.info("{} feature uninstalling", featureName);
+    featuresService.uninstallFeature(featureName);
+    LOGGER.info(
+        "{} feature uninstalled in {} ms.", featureName, (System.currentTimeMillis() - startTime));
+  }
+
+  /**
+   * Installs the specified feature. Waits for all bundles to move into the Active state.
+   *
+   * @param featuresService
+   * @param featureName
+   * @throws Exception
+   */
+  public void installFeature(FeaturesService featuresService, String featureName) throws Exception {
+    long startTime = System.currentTimeMillis();
+    LOGGER.info("{} feature installing", featureName);
+    featuresService.installFeature(featureName);
+    waitForRequiredBundles("");
+    LOGGER.info(
+        "{} feature installed in {} ms.", featureName, (System.currentTimeMillis() - startTime));
+  }
+
+  /**
+   * Installs and uninstalls the specified feature. Ensures all bundles move into the Active state
+   * before uninstalling.
+   *
+   * @param featuresService
+   * @param featureName
+   * @throws Exception
+   */
+  public void installAndUninstallFeature(FeaturesService featuresService, String featureName)
+      throws Exception {
+    installFeature(featuresService, featureName);
+    uninstallFeature(featuresService, featureName);
+  }
+
+  private void printInactiveBundles() {
     printInactiveBundles(LOGGER::error, LOGGER::error);
   }
 
-  public <S> S getService(Class<S> aClass) {
+  private <S> S getService(Class<S> aClass) {
     return getService(getBundleContext().getServiceReference(aClass));
   }
 
-  public <S> S getService(ServiceReference<S> serviceReference) {
+  private <S> S getService(ServiceReference<S> serviceReference) {
     return getBundleContext().getService(serviceReference);
   }
 
-  public <S> ServiceReference<S> getServiceReference(Class<S> aClass) {
+  private <S> ServiceReference<S> getServiceReference(Class<S> aClass) {
     return getBundleContext().getServiceReference(aClass);
   }
 
-  public BundleContext getBundleContext() {
+  private BundleContext getBundleContext() {
     Bundle bundle = FrameworkUtil.getBundle(FeatureUtilities.class);
     if (bundle != null) {
       return bundle.getBundleContext();
@@ -207,7 +253,7 @@ public class FeatureUtilities {
     }
   }
 
-  public void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
+  private void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
     boolean ready = false;
 
     if (bundleService == null) {
@@ -257,51 +303,5 @@ public class FeatureUtilities {
         Thread.sleep(1000);
       }
     }
-  }
-
-  /**
-   * Uninstalls the specified feature.
-   *
-   * @param featuresService
-   * @param featureName
-   * @throws Exception
-   */
-  public void uninstallFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
-    long startTime = System.currentTimeMillis();
-    LOGGER.info("{} feature uninstalling", featureName);
-    featuresService.uninstallFeature(featureName);
-    LOGGER.info(
-        "{} feature uninstalled in {} ms.", featureName, (System.currentTimeMillis() - startTime));
-  }
-
-  /**
-   * Installs the specified feature. Waits for all bundles to move into the Active state.
-   *
-   * @param featuresService
-   * @param featureName
-   * @throws Exception
-   */
-  public void installFeature(FeaturesService featuresService, String featureName) throws Exception {
-    long startTime = System.currentTimeMillis();
-    LOGGER.info("{} feature installing", featureName);
-    featuresService.installFeature(featureName);
-    waitForRequiredBundles("");
-    LOGGER.info(
-        "{} feature installed in {} ms.", featureName, (System.currentTimeMillis() - startTime));
-  }
-
-  /**
-   * Installs and uninstalls the specified feature. Ensures all bundles move into the Active state
-   * before uninstalling.
-   *
-   * @param featuresService
-   * @param featureName
-   * @throws Exception
-   */
-  public void installAndUninstallFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
-    installFeature(featuresService, featureName);
-    uninstallFeature(featuresService, featureName);
   }
 }

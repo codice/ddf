@@ -63,6 +63,7 @@ public class ITAppsFeatures {
   }
 
   @Inject private FeaturesService featuresService;
+
   @Inject private FeatureUtilities featureUtilities;
 
   private String featureName;

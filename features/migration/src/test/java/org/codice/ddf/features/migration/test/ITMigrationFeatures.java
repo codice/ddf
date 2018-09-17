@@ -63,6 +63,7 @@ public class ITMigrationFeatures {
   }
 
   @Inject private FeaturesService featuresService;
+
   @Inject private FeatureUtilities featureUtilities;
 
   private String featureName;

@@ -20,7 +20,6 @@ import org.eclipse.jetty.server.session.SessionHandler;
 public class AttributeSharingSessionDataStoreFactory implements SessionDataStoreFactory {
   @Override
   public SessionDataStore getSessionDataStore(SessionHandler handler) {
-    AttributeSharingSessionDataStore dataStore = new AttributeSharingSessionDataStore();
-    return dataStore;
+    return new AttributeSharingSessionDataStore();
   }
 }

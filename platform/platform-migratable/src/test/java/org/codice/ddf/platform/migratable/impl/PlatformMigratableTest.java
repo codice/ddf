@@ -66,7 +66,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * ./ddfExport/etc/log4j2.xml ./ddfExport/etc/org.codice.ddf.admin.applicationlist.properties
  * ./ddfExport/etc/pdp ./ddfExport/etc/pdp/ddf-metacard-attribute-ruleset.cfg
  * ./ddfExport/etc/pdp/ddf-user-attribute-ruleset.cfg ./ddfExport/etc/startup.properties
- * ./ddfExport/etc/system.properties ./ddfExport/etc/users.attributes
+ * ./ddfExport/etc/custom.system.properties ./ddfExport/etc/users.attributes
  * ./ddfExport/etc/users.properties ./ddfExport/etc/ws-security ./ddfExport/etc/ws-security/issuer
  * ./ddfExport/etc/ws-security/issuer/encryption.properties
  * ./ddfExport/etc/ws-security/issuer/signature.properties ./ddfExport/etc/ws-security/server
@@ -81,7 +81,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * ./ddfImport/etc/log4j2.xml ./ddfImport/etc/org.codice.ddf.admin.applicationlist.properties
  * ./ddfImport/etc/pdp ./ddfImport/etc/pdp/ddf-metacard-attribute-ruleset.cfg
  * ./ddfImport/etc/pdp/ddf-user-attribute-ruleset.cfg ./ddfImport/etc/startup.properties
- * ./ddfImport/etc/system.properties ./ddfImport/etc/users.attributes
+ * ./ddfImport/etc/custom.system.properties ./ddfImport/etc/users.attributes
  * ./ddfImport/etc/users.properties ./ddfImport/etc/ws-security ./ddfImport/etc/ws-security/issuer
  * ./ddfImport/etc/ws-security/issuer/encryption.properties
  * ./ddfImport/etc/ws-security/issuer/signature.properties ./ddfImport/etc/ws-security/server
@@ -123,6 +123,7 @@ public class PlatformMigratableTest {
 
   private static final List<Path> REQUIRED_SYSTEM_FILES =
       ImmutableList.of(
+          Paths.get("etc", "custom.system.properties"),
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),
@@ -313,7 +314,7 @@ public class PlatformMigratableTest {
 
     // Delete etc/system.properties. This file is required, so we should
     // should get an export error.
-    Files.delete(ddfHome.resolve("etc").resolve("system.properties").toRealPath());
+    Files.delete(ddfHome.resolve("etc").resolve("custom.system.properties").toRealPath());
 
     PlatformMigratable platformMigratable = new PlatformMigratable();
     List<Migratable> configMigratables = Arrays.asList(platformMigratable);

@@ -31,20 +31,20 @@
 package org.codice.ddf.security.session;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.session.DefaultSessionIdManager;
+import org.eclipse.jetty.server.session.Session;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -81,18 +81,15 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
         String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
 
       final Optional<String> sessionIdOptional =
-          getSessionAttributeMapsStream()
+          idManager
+              .latestSessionAttributes
+              .entrySet()
+              .stream()
               .filter(e -> subjectName.equals(sessionSubjectExtractor.apply(e.getValue())))
-              .map(e -> e.getKey())
+              .map(Map.Entry::getKey)
               .findFirst();
 
-      if (sessionIdOptional.isPresent()) {
-        idManager.invalidateSession(sessionIdOptional.get());
-      }
-    }
-
-    private Stream<Entry<String, Map<String, Object>>> getSessionAttributeMapsStream() {
-      return Collections.unmodifiableMap(idManager.latestSessionAttributes).entrySet().stream();
+      sessionIdOptional.ifPresent(idManager::invalidateSession);
     }
   }
 
@@ -134,11 +131,11 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   /** @see org.eclipse.jetty.server.SessionIdManager#invalidateAll(String) */
   @Override
   public void invalidateAll(String id) {
-    synchronized (this) {
-      latestSessionAttributes.remove(id);
-    }
+    Map sessionAttributes = latestSessionAttributes.remove(id);
 
-    super.invalidateAll(id);
+    if (sessionAttributes != null) {
+      super.invalidateAll(id);
+    }
   }
 
   /**
@@ -147,9 +144,15 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
    * @param id the session id
    */
   private void invalidateSession(String id) {
-    SessionHandler[] tmp = (SessionHandler[]) _server.getChildHandlersByClass(SessionHandler.class);
-    if (tmp != null && tmp.length > 0) {
-      tmp[0].getSession(id).invalidate();
+    Iterator handlerIterator = this.getSessionHandlers().iterator();
+
+    while (handlerIterator.hasNext()) {
+      SessionHandler currSessionHandler = (SessionHandler) handlerIterator.next();
+      Session session = currSessionHandler.getSession(id);
+      if (session != null && session.isValid()) {
+        session.invalidate();
+        break;
+      }
     }
   }
 
@@ -172,15 +175,13 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
       String id,
       Map<String, Object> sessionAttributes) {
     // Make sure these attributes are different than the latest.
-    if (!sessionAttributes.equals(getLatestSessionAttributes(id))) {
-      LOGGER.debug("Pushing new session attributes to all web contexts for session {}", id);
+    if (sessionAttributes != null && !sessionAttributes.equals(getLatestSessionAttributes(id))) {
+      LOGGER.trace("Pushing new session attributes to all web contexts for session {}", id);
       latestSessionAttributes.put(id, sessionAttributes);
-      dataStores.forEach(
-          ds -> {
-            if (ds != callingDataStore) {
-              ds.updateSessionAttributes(id, sessionAttributes);
-            }
-          });
+      dataStores
+          .stream()
+          .filter(ds -> ds != callingDataStore)
+          .forEach(ds -> ds.updateSessionAttributes(id, sessionAttributes));
     }
   }
 
@@ -191,6 +192,7 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
    * @param id the session id
    * @return the session attributes
    */
+  @Nullable
   protected Map<String, Object> getLatestSessionAttributes(String id) {
     return latestSessionAttributes.get(id);
   }

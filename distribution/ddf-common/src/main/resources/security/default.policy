@@ -145,7 +145,7 @@ grant codeBase "file:/catalog-transformer-csw-profile/persistence-core-impl/pers
 grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
 }
 
 grant codeBase "file:/org.apache.karaf.shell.ssh/org.apache.sshd.core" {
@@ -192,6 +192,10 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read";
     permission java.io.FilePermission "pax-logging.properties", "read";
     permission java.net.SocketPermission "*", "listen,resolve";
+}
+
+grant codebase "file:/org.apache.karaf.log.core" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read,write";
 }
 
 grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication" {
@@ -273,14 +277,14 @@ grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jo
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
 grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core/org.eclipse.jetty.io/org.eclipse.jetty.security/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-runtime/org.apache.cxf.cxf-rt-transports-http/org.eclipse.jetty.servlet/org.eclipse.jetty.util/platform-filter-clientinfo/platform-filter-delegate/platform-filter-response/security-certificate-generator/security-filter-authorization/security-filter-login/security-filter-web-sso/org.eclipse.jetty.websocket.server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
@@ -306,7 +310,7 @@ grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pa
     permission java.io.FilePermission "etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
@@ -386,7 +390,7 @@ grant codeBase "file:/platform-country-converter-local" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
 }
 
-grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/session-management-impl/security-sts-realm/security-core-impl/security-sts-server/org.eclipse.jetty.websocket.server" {
+grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/session-management-impl/security-sts-realm/security-core-impl/security-sts-server/org.eclipse.jetty.websocket.server/security-command-sessionmanager" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
 }

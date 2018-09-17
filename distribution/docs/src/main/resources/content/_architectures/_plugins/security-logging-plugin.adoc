@@ -13,4 +13,4 @@ The Security Logging Plugin is installed by default in a standard installation i
 
 ===== Enhancing the Security Log
 
-The security log contains attributes related to the subject acting on the system. To add additional attributes related to the subject to the logs, append the attribute's key to the comma separated values assigned to `security.logger.extra_attributes` in `/etc/system.properties`.
+The security log contains attributes related to the subject acting on the system. To add additional attributes related to the subject to the logs, append the attribute's key to the comma separated values assigned to `security.logger.extra_attributes` in `/etc/custom.system.properties`.

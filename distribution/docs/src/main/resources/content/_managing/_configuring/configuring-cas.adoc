@@ -91,8 +91,8 @@ active state. Additionally, it should respond to LDAP requests on the default po
 1389 and 1636.
 . Copy the assigned LDAP keystore and truststore files into the `<DISTRIBUTION>/etc/keystores`
 folder, making sure they overwrite the existing serverKeystore.jks and serverTruststore.jks files.
-. Open the `<DISTRIBUTION>/etc/system.properties file` and make sure the keystore passwords are set
-correctly.
+. Open the `<DISTRIBUTION>/etc/custom.system.properties file` and make sure the keystore passwords
+are set correctly.
 
 TIP: The LDAP truststore file must contain the CAS server certificate. Otherwise, authentication
 will fail.
@@ -123,8 +123,8 @@ the STS page.
 folder, making sure they overwrite the existing serverKeystore.jks and serverTruststore.jks files.
 +
 TIP: The STS truststore must contain certificates for ${branding} and the CAS server.
-. Open the `<DISTRIBUTION>/etc/system.properties file` and make sure the keystore passwords are set
-correctly.
+. Open the `<DISTRIBUTION>/etc/custom.system.properties file` and make sure the keystore passwords
+are set correctly.
 . Start the distribution
 . Enter the following commands to install the features used by the STS server:
 +
@@ -157,8 +157,8 @@ authentication scheme is performed by setting a few configuration properties.
 folder, making sure they overwrite the existing serverKeystore.jks and serverTruststore.jks files.
 +
 TIP: The ${branding} truststore must contain certificates for the STS and CAS servers.
-. Open the `<DISTRIBUTION>/etc/system.properties file` and make sure the keystore passwords are set
-correctly.
+. Open the `<DISTRIBUTION>/etc/custom.system.properties file` and make sure the keystore passwords
+are set correctly.
 . Start the distribution.
 . Install the CAS client
 +

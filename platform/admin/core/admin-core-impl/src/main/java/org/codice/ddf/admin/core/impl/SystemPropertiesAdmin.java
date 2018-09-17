@@ -50,7 +50,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private static final String DEFAULT_LOCALHOST_DN = "localhost.local";
   private static final String KARAF_ETC = "karaf.etc";
   private static final String LOCAL_HOST = "localhost";
-  private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
+  private static final String SYSTEM_PROPERTIES_FILE = "custom.system.properties";
   private static final String USERS_PROPERTIES_FILE = "users.properties";
   private static final String USERS_ATTRIBUTES_FILE = "users.attributes";
   private static final String HOST_TITLE = "Host";
@@ -126,7 +126,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     if (updatedSystemProperties == null) {
       return;
     }
-    // Get system.properties file
+    // Get custom.system.properties file
     // save off the current/old hostname before we make any changes
     oldHostName = SystemBaseUrl.EXTERNAL.getHost();
 

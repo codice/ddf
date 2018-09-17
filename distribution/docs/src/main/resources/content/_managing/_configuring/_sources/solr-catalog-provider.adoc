@@ -114,7 +114,7 @@ The two shards enables the document mapping to be restored if one shard becomes 
 ====
 
 .Configuring Solr Cloud
-. On the ${branding} server, edit `${home_directory}/etc/system.properties`:
+. On the ${branding} server, edit `${home_directory}/etc/custom.system.properties`:
 .. Comment out the Solr Client Configuration for *Http Solr Client* section.
 .. Uncomment the section for the *Cloud Solr Client*:
 .. Set `solr.cloud.zookeeper` to `<ZOOKEEPER_1_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_2_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_n_HOSTNAME>:<PORT_NUMBER>`

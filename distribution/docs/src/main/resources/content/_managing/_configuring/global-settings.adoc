@@ -1,13 +1,13 @@
-:title: Configuring Global Settings with system.properties
+:title: Configuring Global Settings with custom.system.properties
 :type: configuration
 :status: published
 :parent: Configuration Files
-:summary: Configure Global Settings with the system.properties file.
+:summary: Configure Global Settings with the custom.system.properties file.
 :order: 00
 
 == {title}
 
-Global configuration settings are configured via the properties file `system.properties`.
+Global configuration settings are configured via the properties file `custom.system.properties`.
 These properties can be manually set by editing this file or set via the initial configuration from the ${admin-console}.
 
 [NOTE]

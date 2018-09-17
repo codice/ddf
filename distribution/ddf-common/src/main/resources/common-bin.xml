@@ -37,7 +37,6 @@
                 <exclude>etc/org.ops4j.pax.web.cfg</exclude>
                 <exclude>etc/startup.properties</exclude>
                 <exclude>etc/users.properties</exclude>
-                <exclude>etc/system.properties</exclude>
                 <exclude>etc/shell.init.script</exclude>
                 <exclude>etc/org.apache.karaf.kar.cfg</exclude>
                 <exclude>system/**/org.ops4j.pax.tipi.tomcat*</exclude>

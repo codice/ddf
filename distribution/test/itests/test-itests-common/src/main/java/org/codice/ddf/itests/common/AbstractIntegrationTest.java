@@ -190,7 +190,7 @@ public abstract class AbstractIntegrationTest {
 
   private static final String PAX_URL_MVN_LOCAL_REPO = "org.ops4j.pax.url.mvn.localRepository";
 
-  private static final String SYSTEM_PROPERTIES_REL_PATH = "etc/system.properties";
+  private static final String SYSTEM_PROPERTIES_REL_PATH = "etc/custom.system.properties";
 
   private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 
@@ -587,8 +587,9 @@ public abstract class AbstractIntegrationTest {
         when(StringUtils.isNotEmpty(logLevel))
             .useOptions(
                 combineOptions(
-                    createSetLogLevelOption("ddf", logLevel),
-                    createSetLogLevelOption("org.codice", logLevel))),
+                    createSetLogLevelOption(
+                        "org.codice.ddf.spatial.ogc.csw.catalog.endpoint", "DEBUG"),
+                    createSetLogLevelOption("org.codice.ddf.itests.common", "DEBUG"))),
         when(StringUtils.isNotEmpty(securityLogLevel))
             .useOptions(
                 combineOptions(

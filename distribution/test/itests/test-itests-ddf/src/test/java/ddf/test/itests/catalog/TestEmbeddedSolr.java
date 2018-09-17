@@ -109,11 +109,12 @@ public class TestEmbeddedSolr extends AbstractIntegrationTest {
   @Override
   protected Option[] configureCustom() {
     return options(
-        editConfigurationFilePut("etc/system.properties", "solr.client", "EmbeddedSolrServer"),
-        editConfigurationFilePut("etc/system.properties", "solr.http.url", ""),
         editConfigurationFilePut(
-            "etc/system.properties", "solr.data.dir", "${karaf.home}/data/solr"),
-        editConfigurationFilePut("etc/system.properties", "solr.cloud.zookeeper", ""));
+            "etc/custom.system.properties", "solr.client", "EmbeddedSolrServer"),
+        editConfigurationFilePut("etc/custom.system.properties", "solr.http.url", ""),
+        editConfigurationFilePut(
+            "etc/custom.system.properties", "solr.data.dir", "${karaf.home}/data/solr"),
+        editConfigurationFilePut("etc/custom.system.properties", "solr.cloud.zookeeper", ""));
   }
 
   private Response ingestCswRecord() {

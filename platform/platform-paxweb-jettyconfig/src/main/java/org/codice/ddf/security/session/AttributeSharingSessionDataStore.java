@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.security.session;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.session.AbstractSessionDataStore;
 import org.eclipse.jetty.server.session.SessionContext;
@@ -38,7 +38,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(AttributeSharingSessionDataStore.class);
 
-  private final Map<String, SessionData> sessionDataMap = new ConcurrentHashMap<>();
+  private final Map<String, SessionData> sessionDataMap = new HashMap<>();
   private AttributeSharingHashSessionIdManager attributeSharingHashSessionIdManager;
 
   /**
@@ -55,7 +55,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
           "Storing new attributes for session {} at context {}",
           id,
           _context.getCanonicalContextPath());
-      synchronized (this) {
+      synchronized (sessionDataMap) {
         sessionData.clearAllAttributes();
         sessionData.putAllAttributes(sessionAttributes);
       }
@@ -104,14 +104,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
   public Set<String> doGetExpired(Set<String> candidates) {
     final long now = System.currentTimeMillis();
 
-    return candidates
-        .stream()
-        .filter(
-            c -> {
-              SessionData sessionData = sessionDataMap.get(c);
-              return sessionData != null && sessionData.getExpiry() > now;
-            })
-        .collect(Collectors.toSet());
+    return candidates.stream().filter(c -> isExpired(c, now)).collect(Collectors.toSet());
   }
 
   @Override
@@ -139,5 +132,10 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
     }
 
     return sessionData != null;
+  }
+
+  private boolean isExpired(String candidateId, long now) {
+    SessionData sessionData = sessionDataMap.get(candidateId);
+    return sessionData != null && sessionData.getExpiry() < now;
   }
 }

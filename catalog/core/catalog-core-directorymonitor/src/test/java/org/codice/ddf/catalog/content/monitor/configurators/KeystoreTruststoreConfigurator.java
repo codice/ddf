@@ -48,11 +48,13 @@ public class KeystoreTruststoreConfigurator {
 
   private static Option setupSystemProperties() {
     return composite(
-        editConfigurationFilePut("etc/system.properties", KEYSTORE_TYPE, "jks"),
-        editConfigurationFilePut("etc/system.properties", KEYSTORE_PASSWORD, PASSWORD),
-        editConfigurationFilePut("etc/system.properties", KEYSTORE_PATH, KEYSTORE_PATH_VALUE),
-        editConfigurationFilePut("etc/system.properties", TRUSTSTORE_TYPE, "jks"),
-        editConfigurationFilePut("etc/system.properties", TRUSTSTORE_PASSWORD, PASSWORD),
-        editConfigurationFilePut("etc/system.properties", TRUSTSTORE_PATH, TRUSTSTORE_PATH_VALUE));
+        editConfigurationFilePut("etc/custom.system.properties", KEYSTORE_TYPE, "jks"),
+        editConfigurationFilePut("etc/custom.system.properties", KEYSTORE_PASSWORD, PASSWORD),
+        editConfigurationFilePut(
+            "etc/custom.system.properties", KEYSTORE_PATH, KEYSTORE_PATH_VALUE),
+        editConfigurationFilePut("etc/custom.system.properties", TRUSTSTORE_TYPE, "jks"),
+        editConfigurationFilePut("etc/custom.system.properties", TRUSTSTORE_PASSWORD, PASSWORD),
+        editConfigurationFilePut(
+            "etc/custom.system.properties", TRUSTSTORE_PATH, TRUSTSTORE_PATH_VALUE));
   }
 }

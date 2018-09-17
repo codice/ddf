@@ -9,7 +9,7 @@ PUSHD %SCRIPTDIR%..
 SET HOME_DIR=%CD%
 POPD
 
-SET PROPERTIES_FILE=%HOME_DIR%\etc\system.properties
+SET PROPERTIES_FILE=%HOME_DIR%\etc\custom.system.properties
 
 REM Check file exists
 IF NOT EXIST "%PROPERTIES_FILE%" (

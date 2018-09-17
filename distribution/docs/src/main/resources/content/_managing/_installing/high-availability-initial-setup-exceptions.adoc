@@ -11,7 +11,7 @@ These steps are handled differently for the initial setup of a Highly Available 
 
 ===== Failover Proxy Integration
 
-In order to integrate with a failover proxy, the ${branding} node's system properties (in `${home_directory}/etc/system.properties`) must be changed to publish the correct port to external systems and users.
+In order to integrate with a failover proxy, the ${branding} node's system properties (in `${home_directory}/etc/custom.system.properties`) must be changed to publish the correct port to external systems and users.
 This must be done before installing the first ${branding} node. See <<{managing-prefix}high_availability_initial_setup, High Availability Initial Setup>>.
 
 There are two internal port properties that must be changed to whatever ports the ${branding} will use on its system.

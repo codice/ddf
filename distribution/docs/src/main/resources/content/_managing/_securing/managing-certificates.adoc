@@ -35,7 +35,8 @@ To ensure proper configuration of keystore, truststore, and certificates, follow
       |                            |       | the server?                |------->|   are required             |
       | Replace default keystore   |       |                 cDEF       |        |                  cF00      |
       | with provided file and     |       \------------+---------------/        \----------------------------/
-      | edit system.properties     |        +--+        |
+      | edit                       |        +--+        |
+      | custom.system.properties   |        |  |        |
       | file with filenames,       |        |2 |     Yes|
       | passwords, file types      |        +--+        v
       |                            |       /----------------------------\
