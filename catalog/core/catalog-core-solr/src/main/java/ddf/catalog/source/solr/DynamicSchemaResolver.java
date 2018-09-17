@@ -339,10 +339,11 @@ public class DynamicSchemaResolver {
       try {
         byte[] luxXml = createTinyBinary(metacard.getMetadata());
         solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
-      } catch (XMLStreamException | SaxonApiException | IOException e) {
+      } catch (Exception e) {
         LOGGER.debug(
             "Unable to parse metadata field.  XPath support unavailable for metacard {}",
-            metacard.getId());
+            metacard.getId(),
+            e);
       }
     }
 
@@ -437,7 +438,7 @@ public class DynamicSchemaResolver {
     return centerPoint.getY() + "," + centerPoint.getX();
   }
 
-  private byte[] createTinyBinary(String xml)
+  protected byte[] createTinyBinary(String xml)
       throws XMLStreamException, SaxonApiException, IOException {
     SaxonDocBuilder builder = new SaxonDocBuilder(processor);
 
