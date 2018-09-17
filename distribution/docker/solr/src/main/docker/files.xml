@@ -16,16 +16,7 @@
   <dependencySets>
     <dependencySet>
       <includes>
-        <include>*:*:txt:*</include>
-        <include>*:*:xml:*</include>
-      </includes>
-      <outputDirectory>.</outputDirectory>
-      <outputFileNameMapping>${artifact.classifier}.${artifact.extension}</outputFileNameMapping>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>*:jts-core</include>
-        <include>*:solr-xpath</include>
+        <include>*</include>
       </includes>
       <outputDirectory>.</outputDirectory>
     </dependencySet>

@@ -1,5 +1,12 @@
-FROM solr:${solr.version}
 
+FROM alpine as prep
+
+RUN apk add --no-cache unzip
+RUN mkdir /prep jars
+COPY maven/solr-schema-${project.version}.jar /jars
+RUN unzip /jars/solr-schema-${project.version}.jar -d /prep
+
+FROM solr:${solr.version}
 # Copy solr libs
 COPY maven/jts-core-1.15.0.jar /opt/solr/server/lib/
 
@@ -9,14 +16,7 @@ COPY maven/solr-xpath-${project.version}.jar /opt/solr/plugins/
 # Copy all solr core configurations to /seed directory
 USER root
 RUN mkdir /seed
-COPY maven/protwords.txt /seed/protwords.txt
-COPY maven/schema.xml /seed/schema.xml
-COPY maven/solrconfig-inmemory.xml /seed/solrconfig-inmemory.xml
-COPY maven/solrconfig.xml /seed/solrconfig.xml
-COPY maven/solr.xml /seed/solr.xml
-COPY maven/stopwords.txt /seed/stopwords.txt
-COPY maven/stopwords_en.txt /seed/stopwords_en.txt
-COPY maven/synonyms.txt /seed/synonyms.txt
+COPY --from=prep /prep/solr/conf/* /seed/
 COPY maven/createCore.sh /usr/local/bin/create-ddf-core
 RUN chmod 755 /usr/local/bin/create-ddf-core
 RUN chown -R solr:solr /seed
