@@ -49,9 +49,13 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
    * @param sessionAttributes the session's attributes
    */
   public void updateSessionAttributes(String id, Map<String, Object> sessionAttributes) {
-    SessionData sessionData = sessionDataMap.get(id);
+    SessionData sessionData;
+    synchronized (sessionDataMap) {
+      sessionData = sessionDataMap.get(id);
+    }
+
     if (sessionData != null && !sessionData.getAllAttributes().equals(sessionAttributes)) {
-      LOGGER.debug(
+      LOGGER.trace(
           "Storing new attributes for session {} at context {}",
           id,
           _context.getCanonicalContextPath());
@@ -75,7 +79,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
     attributeSharingHashSessionIdManager.provideNewSessionAttributes(
         this, id, data.getAllAttributes());
 
-    synchronized (this) {
+    synchronized (sessionDataMap) {
       sessionDataMap.put(id, data);
     }
   }
@@ -127,7 +131,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
   @Override
   public boolean delete(String id) {
     SessionData sessionData;
-    synchronized (this) {
+    synchronized (sessionDataMap) {
       sessionData = sessionDataMap.remove(id);
     }
 
@@ -135,7 +139,10 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
   }
 
   private boolean isExpired(String candidateId, long now) {
-    SessionData sessionData = sessionDataMap.get(candidateId);
+    SessionData sessionData;
+    synchronized (sessionDataMap) {
+      sessionData = sessionDataMap.get(candidateId);
+    }
     return sessionData != null && sessionData.getExpiry() < now;
   }
 }

@@ -76,7 +76,7 @@ Be sure to limit the hosts that are allowed to connect to the STS:
 
 * *{hardening-step}*
 
-* Open the `<${branding}_HOME>/etc/custom.system.properties` file.
+* Open the `${home_directory}/etc/custom.system.properties` file.
 * Edit the line `ws-security.subject.cert.constraints = .\*CN=<MY_HOST_CN>.*`.
 ** By default this will only allow your hostname. To allow other desired hosts add their CNs to the regular expression within parentheses delimited by `|`:
 *** `ws-security.subject.cert.constraints = .\*CN=(<MY_HOST_CN>|<OTHER_HOST_CN>|<ANOTHER_HOST_CN>).*`

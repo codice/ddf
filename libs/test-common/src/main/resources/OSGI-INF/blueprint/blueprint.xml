@@ -11,7 +11,7 @@
  *
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-  <service interface="org.codice.ddf.test.common.features.FeatureUtilities">
+    <service interface="org.codice.ddf.test.common.features.FeatureUtilities">
       <bean class="org.codice.ddf.test.common.features.FeatureUtilities"/>
     </service>
 

@@ -14,7 +14,7 @@ These instructions are for configuring Solr as a service managed by the operatin
 Windows users can use the *Task Scheduler* to start Solr as a background process.
 
 . If ${branding} is running, stop it.
-. Edit `<${branding}_HOME>/etc/custom.system.properties` and set `start.solr=false`.
+. Edit `${home_directory}/etc/custom.system.properties` and set `start.solr=false`.
   This prevents the ${branding} scripts from attempting to manage Solr's lifecycle.
 . Start the *Windows Task Scheduler* and open the *Task Scheduler Library*.
 . Under the Actions pane, select *Create Basic Task...*.
@@ -52,7 +52,7 @@ These instructions are for unix operating systems running the systemd
 
 
 . If ${branding} is running, stop it.
-. Edit `<${branding}_HOME>/etc/custom.system.properties` and set `start.solr=false`.
+. Edit `${home_directory}/etc/custom.system.properties` and set `start.solr=false`.
 . From the operating system command line, enable a Solr service using a provided configuration file.
 Use the full path to the file.
 +

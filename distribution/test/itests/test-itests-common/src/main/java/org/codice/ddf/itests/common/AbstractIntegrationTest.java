@@ -587,9 +587,8 @@ public abstract class AbstractIntegrationTest {
         when(StringUtils.isNotEmpty(logLevel))
             .useOptions(
                 combineOptions(
-                    createSetLogLevelOption(
-                        "org.codice.ddf.spatial.ogc.csw.catalog.endpoint", "DEBUG"),
-                    createSetLogLevelOption("org.codice.ddf.itests.common", "DEBUG"))),
+                    createSetLogLevelOption("ddf", logLevel),
+                    createSetLogLevelOption("org.codice", logLevel))),
         when(StringUtils.isNotEmpty(securityLogLevel))
             .useOptions(
                 combineOptions(

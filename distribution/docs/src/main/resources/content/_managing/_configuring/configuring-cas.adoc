@@ -85,13 +85,13 @@ them. CAS queries it to determine if a user's credentials are valid, and to retr
 . Obtain and unzip the ${branding} kernel: ${branding}-distribution-kernel-<VERSION>.zip.
 . Start the distribution
 . Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the
-`<DISTRIBUTION>/deploy` directory. Verify that the LDAP server is installed by checking the
+`${home_directory}/deploy` directory. Verify that the LDAP server is installed by checking the
 ${branding} log or by performing an `la` command and verifying that the OpenDJ bundle is in the
 active state. Additionally, it should respond to LDAP requests on the default ports, which are
 1389 and 1636.
-. Copy the assigned LDAP keystore and truststore files into the `<DISTRIBUTION>/etc/keystores`
+. Copy the assigned LDAP keystore and truststore files into the `${home_directory}/etc/keystores`
 folder, making sure they overwrite the existing serverKeystore.jks and serverTruststore.jks files.
-. Open the `<DISTRIBUTION>/etc/custom.system.properties file` and make sure the keystore passwords
+. Open the `${home_directory}/etc/custom.system.properties file` and make sure the keystore passwords
 are set correctly.
 
 TIP: The LDAP truststore file must contain the CAS server certificate. Otherwise, authentication
@@ -119,11 +119,11 @@ of ${branding}. To run an STS-only ${branding} installation, uninstall the catal
 are not being used. This will increase performance. A list of unneeded components can be found on
 the STS page.
 
-. Copy the assigned STS keystore and truststore files into the `<DISTRIBUTION>/etc/keystores`
+. Copy the assigned STS keystore and truststore files into the `${home_directory}/etc/keystores`
 folder, making sure they overwrite the existing serverKeystore.jks and serverTruststore.jks files.
 +
 TIP: The STS truststore must contain certificates for ${branding} and the CAS server.
-. Open the `<DISTRIBUTION>/etc/custom.system.properties file` and make sure the keystore passwords
+. Open the `${home_directory}/etc/custom.system.properties file` and make sure the keystore passwords
 are set correctly.
 . Start the distribution
 . Enter the following commands to install the features used by the STS server:
@@ -153,11 +153,11 @@ The final step is to configure a ${branding} instance to use CAS authentication.
 Once everything is configured and running, hooking up an existing ${branding} instance to the
 authentication scheme is performed by setting a few configuration properties.
 
-. Copy the assigned ${branding} keystore and truststore files into the `<DISTRIBUTION>/etc/keystores`
+. Copy the assigned ${branding} keystore and truststore files into the `${home_directory}/etc/keystores`
 folder, making sure they overwrite the existing serverKeystore.jks and serverTruststore.jks files.
 +
 TIP: The ${branding} truststore must contain certificates for the STS and CAS servers.
-. Open the `<DISTRIBUTION>/etc/custom.system.properties file` and make sure the keystore passwords
+. Open the `${home_directory}/etc/custom.system.properties file` and make sure the keystore passwords
 are set correctly.
 . Start the distribution.
 . Install the CAS client
