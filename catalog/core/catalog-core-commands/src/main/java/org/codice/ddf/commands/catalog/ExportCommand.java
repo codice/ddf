@@ -44,6 +44,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -276,21 +278,29 @@ public class ExportCommand extends CqlCommands {
       //  close the stream here to allow the jar writer to certify the full zip.
       //  Try with resources will close the stream if this is not the case.
       zipOutputStream.close();
-      SecurityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
-      console.println("Signing zip file...");
-      start = Instant.now();
-      jarSigner.signJar(
-          outputFile,
-          System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
-          System.getProperty("javax.net.ssl.keyStorePassword"),
-          System.getProperty("javax.net.ssl.keyStore"),
-          System.getProperty("javax.net.ssl.keyStorePassword"));
-      console.println("zip file signed in: " + getFormattedDuration(start));
+      signJar(outputFile);
     }
 
     console.println("Export complete.");
     console.println("Exported to: " + outputFile.getCanonicalPath());
     return null;
+  }
+
+  private void signJar(File outputFile) {
+    SecurityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
+    console.println("Signing zip file...");
+    Instant start = Instant.now();
+    jarSigner.signJar(
+        outputFile,
+        System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")));
+
+    console.println("zip file signed in: " + getFormattedDuration(start));
   }
 
   private void auditRecords(List<ExportItem> exportedItems) {
