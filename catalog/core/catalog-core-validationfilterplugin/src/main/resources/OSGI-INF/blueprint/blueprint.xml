@@ -14,6 +14,15 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
   xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <bean id="catalogProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <reference-list id="catalogProviders" interface="ddf.catalog.source.CatalogProvider"
+      availability="optional">
+        <reference-listener
+          ref="catalogProviderSortedList"
+          bind-method="bindPlugin"
+          unbind-method="unbindPlugin"/>
+    </reference-list>
 
     <reference id="filterBuilder"
                interface="ddf.catalog.filter.FilterBuilder"/>
@@ -21,6 +30,7 @@
     <bean id="validationPlugin"
       class="org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin">
         <argument ref="filterBuilder"/>
+        <argument ref="catalogProviderSortedList"/>
         <cm:managed-properties
           persistent-id="org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin"
           update-strategy="container-managed"/>
