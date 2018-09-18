@@ -358,6 +358,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.idp</groupId>
+            <artifactId>security-idp-plugin-requestsubjectvalidator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.idp</groupId>
             <artifactId>security-idp-plugin-nameidpolicy</artifactId>
             <version>${project.version}</version>
         </dependency>
