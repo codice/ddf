@@ -168,6 +168,7 @@ class HttpSolrClientFactorySpec extends Specification {
 
     and:
       System.setProperty("solr.http.url", SOLR_URL)
+    System.clearProperty("solr.data.dir")
 
     when:
       factory.newClient(CORE)
@@ -175,14 +176,12 @@ class HttpSolrClientFactorySpec extends Specification {
     then:
       def e = thrown(IllegalArgumentException)
 
-      e.message.contains("Data directory is not configured")
+      e.message.contains("data directory")
   }
-
-
 
   def 'test new client with a null core'() {
     given:
-      def factory = new HttpSolrClientFactory();
+      def factory = new HttpSolrClientFactory()
 
     when:
       factory.newClient(null)
@@ -190,6 +189,6 @@ class HttpSolrClientFactorySpec extends Specification {
     then:
       def e = thrown(IllegalArgumentException)
 
-      e.message.contains("Missing core name")
+      e.message.contains("core name")
   }
 }
