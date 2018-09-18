@@ -25,6 +25,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -70,6 +72,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
+
   private static final String HTTPS_PROTOCOLS = "https.protocols";
   private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
@@ -81,13 +84,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
   public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
+  private final Map<String, String> propertyCache = new HashMap<>();
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
-    Args.notEmpty(coreName, "Cannot create Solr client. Missing core name.");
+    Args.notEmpty(coreName, "Cannot create Solr client. Solr core name");
 
     String solrDir = getProperty(SOLR_DATA_DIR);
-    Args.notEmpty(solrDir, "Cannot create Solr client. Data directory is not configured");
+    Args.notEmpty(solrDir, "Cannot create Solr client. Solr data directory");
 
     ConfigurationStore.getInstance().setDataDirectoryPath(solrDir);
     LOGGER.debug(
@@ -131,7 +135,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return getSolrUrl();
   }
 
-  private static SSLContext getSslContext() {
+  private SSLContext getSslContext() {
 
     if (!isSslConfigured()) {
       throw new IllegalArgumentException("KeyStore and TrustStore system properties must be set.");
@@ -158,12 +162,12 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return sslContext;
   }
 
-  private static boolean isSslConfigured() {
+  private boolean isSslConfigured() {
     return Stream.of(KEY_STORE, KEY_STORE_PASS, TRUST_STORE, TRUST_STORE_PASS)
         .noneMatch(s -> getProperty(s) == null);
   }
 
-  private static KeyStore getKeyStore(String location, String password) {
+  private KeyStore getKeyStore(String location, String password) {
     LOGGER.debug("Loading keystore from {}", location);
     KeyStore keyStore = null;
     try (FileInputStream storeStream = new FileInputStream(location)) {
@@ -176,7 +180,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return keyStore;
   }
 
-  private static void createSolrCore(String coreName, CloseableHttpClient httpClient)
+  private void createSolrCore(String coreName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
 
     String solrUrl = getSolrUrl();
@@ -246,7 +250,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedCipherSuites() {
-    return commaSeparatedToArray(getProperty(HTTPS_CIPHER_SUITES));
+    return commaSeparatedToArray(new HttpSolrClientFactory().getProperty(HTTPS_CIPHER_SUITES));
   }
 
   /**
@@ -257,7 +261,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedProtocols() {
-    return commaSeparatedToArray(getProperty(HTTPS_PROTOCOLS));
+    return commaSeparatedToArray(new HttpSolrClientFactory().getProperty(HTTPS_PROTOCOLS));
   }
 
   private boolean useBasicAuth() {
@@ -282,11 +286,11 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return provider;
   }
 
-  private static String getCoreDataDir(String coreName) {
+  private String getCoreDataDir(String coreName) {
     return concatenatePaths(getCoreDir(coreName), "data");
   }
 
-  private static String getCoreDir(String coreName) {
+  private String getCoreDir(String coreName) {
     String solrDir = getProperty(SOLR_DATA_DIR);
 
     if (StringUtils.isEmpty(solrDir)) {
@@ -301,9 +305,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return Paths.get(first, more).toString();
   }
 
-  private static String getProperty(String propertyName) {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(propertyName));
+  private String getProperty(String propertyName) {
+    return propertyCache.computeIfAbsent(
+        propertyName,
+        p -> AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(p)));
   }
 
   private static boolean solrCoreExists(SolrClient client, String coreName)
