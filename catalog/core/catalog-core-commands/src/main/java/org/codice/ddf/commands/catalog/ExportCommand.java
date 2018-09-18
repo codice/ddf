@@ -293,7 +293,8 @@ public class ExportCommand extends CqlCommands {
     Instant start = Instant.now();
     jarSigner.signJar(
         outputFile,
-        System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST)),
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
         AccessController.doPrivileged(
