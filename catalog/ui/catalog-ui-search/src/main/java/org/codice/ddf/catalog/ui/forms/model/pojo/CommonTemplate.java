@@ -51,6 +51,8 @@ public class CommonTemplate {
 
   private List<Serializable> accessIndividuals;
 
+  private List<Serializable> accessAdministrators;
+
   public CommonTemplate(Metacard metacard) {
     this.id = safeGet(metacard, Core.ID, String.class);
     this.title = safeGet(metacard, Core.TITLE, String.class);
@@ -73,6 +75,8 @@ public class CommonTemplate {
     this.accessIndividuals =
         securityAttributes.getOrDefault(Security.ACCESS_INDIVIDUALS, new ArrayList<>());
     this.accessGroups = securityAttributes.getOrDefault(Security.ACCESS_GROUPS, new ArrayList<>());
+    this.accessAdministrators =
+        securityAttributes.getOrDefault(Security.ACCESS_ADMINISTRATORS, new ArrayList<>());
   }
 
   public CommonTemplate(Map<String, Object> input) {
@@ -117,5 +121,9 @@ public class CommonTemplate {
 
   public List<Serializable> getAccessIndividuals() {
     return accessIndividuals;
+  }
+
+  public List<Serializable> getAccessAdministrators() {
+    return accessAdministrators;
   }
 }

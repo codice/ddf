@@ -20,7 +20,7 @@ module.exports = Tabs.extend({
     tabs: properties.hasExperimentalEnabled()
       ? {
           'My Search Forms': MySearchFormCollectionView,
-          'Shared Templates': MySearchSharingFormCollectionView,
+          'Shared Search Forms': MySearchSharingFormCollectionView,
         }
       : {
           'My Search Forms': MySearchFormCollectionView,

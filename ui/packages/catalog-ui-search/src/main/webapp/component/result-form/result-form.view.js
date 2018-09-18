@@ -180,6 +180,7 @@ module.exports = Marionette.LayoutView.extend({
           description: _this.model.get('description'),
           accessGroups: _this.model.get('accessGroups'),
           accessIndividuals: _this.model.get('accessIndividual'),
+          accessAdministrators: _this.model.get('accessAdministrators'),
         })
         ResultFormCollection.getResultCollection().toggleUpdate()
         _this.cleanup()

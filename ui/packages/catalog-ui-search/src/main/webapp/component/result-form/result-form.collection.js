@@ -80,6 +80,7 @@ module.exports = Backbone.AssociatedModel.extend({
             createdBy: resultForm.creator,
             accessGroups: resultForm.accessGroups,
             accessIndividuals: resultForm.accessIndividuals,
+            accessAdministrators: resultForm.accessAdministrators,
           }
         })
         this.resetResultForm()
@@ -101,6 +102,7 @@ module.exports = Backbone.AssociatedModel.extend({
               type: 'result',
               descriptors: element.descriptors,
               accessIndividuals: element.accessIndividuals,
+              accessAdministrators: element.accessAdministrators,
               accessGroups: element.accessGroups,
               createdBy: element.createdBy,
               description: element.description,

@@ -51,6 +51,7 @@ module.exports = Marionette.ItemView.extend({
     this.checkIfDefaultSearchForm()
     this.checkIfResultForm()
     this.isSystemTemplate()
+    this.isShareableTemplate()
   },
   checkIfSubscribed: function() {
     this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')))
@@ -189,6 +190,17 @@ module.exports = Marionette.ItemView.extend({
       this.model.get('createdBy') === 'system'
     )
   },
+  isShareableTemplate: function() {
+    const notShareable = function(that) {
+      const loginUser = user.get('user')
+      if (loginUser.get('email') === that.model.get('createdBy')) {
+        return false
+      }
+      const accessAdministrators = that.model.get('accessAdministrators') || []
+      return !accessAdministrators.includes(loginUser.get('email'))
+    }
+    this.$el.toggleClass('is-not-shareable-template', notShareable(this))
+  },
   handleEdit: function() {
     if (this.model.get('type') === 'custom') {
       this.model.set({
@@ -198,6 +210,7 @@ module.exports = Marionette.ItemView.extend({
         id: this.model.get('id'),
         accessGroups: this.model.get('accessGroups'),
         accessIndividuals: this.model.get('accessIndividuals'),
+        accessAdministrators: this.model.get('accessAdministrators'),
       })
     } else if (this.model.get('type') === 'result') {
       this.model.set({
@@ -206,6 +219,7 @@ module.exports = Marionette.ItemView.extend({
         formId: this.model.get('id'),
         accessGroups: this.model.get('accessGroups'),
         accessIndividuals: this.model.get('accessIndividuals'),
+        accessAdministrators: this.model.get('accessAdministrators'),
         descriptors: this.model.get('descriptors'),
         description: this.model.get('description'),
       })

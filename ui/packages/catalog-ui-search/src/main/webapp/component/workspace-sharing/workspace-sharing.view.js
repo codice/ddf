@@ -81,6 +81,23 @@ define([
     },
   })
 
+  const SharingByAdminView = Marionette.LayoutView.extend({
+    template: '<div class="admin"></div>' + '<div class="action"></div>',
+    regions: {
+      admin: '.admin',
+      action: '.action',
+    },
+    onRender: function() {
+      this.admin.show(new Input({ model: this.model }))
+    },
+  })
+
+  const AdminSharingEditor = EditableRows.extend({
+    embed: function(model) {
+      return new SharingByAdminView({ model: model })
+    },
+  })
+
   var SharingByRoleView = Marionette.LayoutView.extend({
     className: 'row',
     template:
@@ -126,6 +143,7 @@ define([
     regions: {
       byEmail: '.workspace-sharing-by-email',
       byRole: '.workspace-sharing-by-role',
+      byAdmin: '.workspace-sharing-by-admin',
     },
     events: {
       'click .save': 'save',
@@ -142,6 +160,13 @@ define([
       ) {
         return { value: email }
       })
+    },
+    getSharingByAdmin: function() {
+      return (this.model.get('security.access-administrators') || []).map(
+        function(admin) {
+          return { value: admin }
+        }
+      )
     },
     getSharingByRole: function() {
       var roles = this.model.get('security.access-groups') || []
@@ -161,6 +186,7 @@ define([
     onRender: function() {
       this.collection = new Backbone.Collection(this.getSharingByRole())
       this.emailCollection = new Backbone.Collection(this.getSharingByEmail())
+      this.adminCollection = new Backbone.Collection(this.getSharingByAdmin())
 
       this.byEmail.show(
         new EmailSharingEditor({
@@ -171,6 +197,12 @@ define([
       this.byRole.show(
         new RoleSharingEditor({
           collection: this.collection,
+        })
+      )
+
+      this.byAdmin.show(
+        new AdminSharingEditor({
+          collection: this.adminCollection,
         })
       )
     },
@@ -197,8 +229,17 @@ define([
           return email !== ''
         })
 
+      const admins = this.adminCollection
+        .map(function(admin) {
+          return (admin.get('value') || '').trim()
+        })
+        .filter(function(admin) {
+          return admin !== ''
+        })
+
       this.model.set('security.access-groups', roles)
       this.model.set('security.access-individuals', emails)
+      this.model.set('security.access-administrators', admins)
 
       this.model.save()
     },

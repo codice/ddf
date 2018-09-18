@@ -97,6 +97,7 @@ Workspaces can be shared between users at different levels of access as needed.
 . Select *View Sharing*.
 .. To share by user role, set the drop-down menu to *Can Access* for each desired role. All users with that role will be able to view the workspace.
 .. To share with an individual user, add his/her email to the email list.
+.. To allow another user to share this workspace with others, add the user to the Access Administrators list.
 . Click *Apply*.
 
 .Remove Sharing on a Workspace

@@ -23,7 +23,7 @@ import ddf.catalog.filter.FilterBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -218,19 +218,19 @@ public class TemplateTransformer {
    * response
    */
   private static Map<String, List<Serializable>> retrieveSecurityIfPresent(Metacard inputMetacard) {
-    List<Serializable> accessIndividuals = new ArrayList<>();
-    List<Serializable> accessGroups = new ArrayList<>();
-
-    if (inputMetacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS) != null) {
-      accessIndividuals.addAll(
-          inputMetacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS).getValues());
-    }
-
-    if (inputMetacard.getAttribute(SecurityAttributes.ACCESS_GROUPS) != null) {
-      accessGroups.addAll(inputMetacard.getAttribute(SecurityAttributes.ACCESS_GROUPS).getValues());
-    }
-
     return ImmutableMap.of(
-        Security.ACCESS_INDIVIDUALS, accessIndividuals, Security.ACCESS_GROUPS, accessGroups);
+        Security.ACCESS_INDIVIDUALS,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS),
+        Security.ACCESS_GROUPS,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS),
+        Security.ACCESS_ADMINISTRATORS,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_ADMINISTRATORS));
+  }
+
+  private static List<Serializable> getValues(Metacard inputMetacard, String fieldName) {
+    if (inputMetacard.getAttribute(fieldName) != null) {
+      return inputMetacard.getAttribute(fieldName).getValues();
+    }
+    return Collections.emptyList();
   }
 }
