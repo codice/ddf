@@ -56,15 +56,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class used to create new {@link HttpSolrClient} instances. <br>
- * Uses the following system properties when creating an instance:
+ * Factory class used to create new {@link HttpSolrClient} instances. <br> Uses the following system
+ * properties when creating an instance:
  *
  * <ul>
- *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
- *   <li>solr.http.url: Solr server URL
- *   <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
- *   <li>https.protocols: Secure protocols supported by the Solr server
- *   <li>https.cipherSuites: Cipher suites supported by the Solr server
+ * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
+ * <li>solr.http.url: Solr server URL
+ * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
+ * <li>https.protocols: Secure protocols supported by the Solr server
+ * <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  *
  * @deprecated This class may be removed in the future
@@ -134,7 +134,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server secure HTTP address
    */
   public static String getDefaultHttpsAddress() {
-    return getSolrUrl();
+    return new HttpSolrClientFactory().getSolrUrl();
   }
 
   private SSLContext getSslContext() {
@@ -274,9 +274,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return getSolrUrl() + "/" + coreName;
   }
 
-  private static String getSolrUrl() {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL));
+  private String getSolrUrl() {
+    return getProperty(SOLR_HTTP_URL);
   }
 
   private CredentialsProvider getCredentialsProvider() {
