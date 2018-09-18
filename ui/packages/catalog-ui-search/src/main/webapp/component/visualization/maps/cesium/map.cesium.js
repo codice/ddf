@@ -110,7 +110,9 @@ function createMap(insertionElement) {
     }
   }, Cesium.ScreenSpaceEventType.RIGHT_DOWN)
 
-  setupTerrainProvider(viewer, properties.terrainProvider)
+  if(properties.terrainProvider){
+    setupTerrainProvider(viewer, properties.terrainProvider)
+  }
 
   return viewer
 }
