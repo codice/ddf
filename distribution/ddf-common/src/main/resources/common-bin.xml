@@ -284,6 +284,15 @@
                 <exclude>**/derby*</exclude>
             </excludes>
         </fileSet>
+
+        <!--Empty directory for default ingest location-->
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>ingest</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
     </fileSets>
 
     <!-- We need this because the feature service is not up when we want to provision our

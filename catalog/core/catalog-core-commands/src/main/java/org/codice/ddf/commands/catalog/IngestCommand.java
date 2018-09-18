@@ -46,6 +46,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,7 @@ import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -148,10 +151,7 @@ public class IngestCommand extends CatalogCommands {
     name = "File path or Directory path",
     description =
         "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory."
-            + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply.",
-    index = 0,
-    multiValued = false,
-    required = true
+            + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply."
   )
   @Completion(FileCompleter.class)
   String filePath;
@@ -161,18 +161,14 @@ public class IngestCommand extends CatalogCommands {
     name = "Batch size",
     description =
         "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits. [DEPRECATED: use --batchsize option instead]",
-    index = 1,
-    multiValued = false,
-    required = false
+    index = 1
   )
   int deprecatedBatchSize = DEFAULT_BATCH_SIZE;
 
   // DDF-535: remove "Transformer" alias in ddf-3.0
   @Option(
     name = "--transformer",
-    required = false,
     aliases = {"-t", "Transformer"},
-    multiValued = false,
     description =
         "The metacard transformer ID to use to transform data file(s) into metacard(s). "
             + "The default metacard transformer is the XML transformer."
@@ -182,9 +178,7 @@ public class IngestCommand extends CatalogCommands {
   // DDF-535: Remove "Multithreaded" alias in ddf-3.0
   @Option(
     name = "--multithreaded",
-    required = false,
     aliases = {"-m", "Multithreaded"},
-    multiValued = false,
     description =
         "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation."
   )
@@ -193,9 +187,7 @@ public class IngestCommand extends CatalogCommands {
   // DDF-535: remove "-d" and "Ingest Failure Directory" aliases in ddf-3.0
   @Option(
     name = "--failedDir",
-    required = false,
     aliases = {"-d", "-f", "Ingest Failure Directory"},
-    multiValued = false,
     description =
         "The directory to put file(s) that failed to ingest. Using this option will force a batch size of 1."
   )
@@ -203,9 +195,7 @@ public class IngestCommand extends CatalogCommands {
 
   @Option(
     name = "--batchsize",
-    required = false,
     aliases = {"-b"},
-    multiValued = false,
     description =
         "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits."
   )
@@ -213,7 +203,6 @@ public class IngestCommand extends CatalogCommands {
 
   @Option(
     name = "--ignore",
-    required = false,
     aliases = {"-i"},
     multiValued = true,
     description =
@@ -223,9 +212,6 @@ public class IngestCommand extends CatalogCommands {
 
   @Option(
     name = "--include-content",
-    required = false,
-    aliases = {},
-    multiValued = false,
     description =
         "Ingest a zip file that contains metacards and content using the default transformer. The specified zip must be signed externally using DDF certificates."
   )
@@ -246,7 +232,7 @@ public class IngestCommand extends CatalogCommands {
           String.format("batchsize * multithreaded cannot be larger than %d.", MAX_QUEUE_SIZE));
     }
 
-    final File inputFile = getInputFile();
+    File inputFile = getInputFile();
     if (inputFile == null) {
       return null;
     }
@@ -346,7 +332,20 @@ public class IngestCommand extends CatalogCommands {
   }
 
   private File getInputFile() {
-    final File inputFile = new File(filePath);
+
+    final File inputFile;
+
+    if (StringUtils.isBlank(filePath)) {
+      String home =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> (System.getProperty("karaf.home")));
+      inputFile = new File(home, "ingest");
+      printColor(
+          Color.CYAN, String.format("Ingesting from %s\n", inputFile.toString()));
+
+    } else {
+      inputFile = new File(filePath);
+    }
 
     SecurityLogger.audit("Called catalog:ingest command with path : {}", filePath);
 
@@ -460,7 +459,7 @@ public class IngestCommand extends CatalogCommands {
   }
 
   private Metacard readMetacard(File file) throws IngestException {
-    Metacard result = null;
+    Metacard result;
 
     FileInputStream fis = null;
     ObjectInputStream ois = null;
