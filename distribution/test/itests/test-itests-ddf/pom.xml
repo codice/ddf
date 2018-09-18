@@ -25,9 +25,6 @@
     <artifactId>test-itests-ddf</artifactId>
     <name>DDF :: Integration :: Test</name>
     <properties>
-        <solr.script.dir>
-            ${project.build.directory}/solr/bin/
-        </solr.script.dir>
         <solr.port>9784</solr.port>
     </properties>
     <dependencies>
@@ -275,174 +272,57 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>ddf</groupId>
-            <artifactId>solr-distro</artifactId>
-            <version>${project.version}</version>
-            <classifier>assembly</classifier>
-            <type>zip</type>
-        </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>Windows</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
-            </activation>
-            <properties>
-                <solr.script.file>solr.cmd</solr.script.file>
-                <solr.force></solr.force>
-            </properties>
-        </profile>
-        <profile>
-            <id>Unix</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
-            <properties>
-                <solr.script.file>solr</solr.script.file>
-                <solr.force>-force</solr.force>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <!--Do not run this plugin execution if the we are skipping tests-->
-                            <skip>${skipTests}</skip>
-                            <longModulepath>false</longModulepath>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-solr-executable</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>chmod</executable>
-                                    <arguments>
-                                        <argument>+x</argument>
-                                        <argument>
-                                            ${solr.script.dir}${solr.script.file}
-                                        </argument>
-                                    </arguments>
-                                    <async>true</async>
-                                    <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
-
-            <!--Unpack Solr distribution-->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-solr</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>ddf</groupId>
-                                    <artifactId>solr-distro</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>zip</type>
-                                    <classifier>assembly</classifier>
-                                    <!--FYI: Maven dependency plugin ignores the instruction "destFileName"-->
-                                    <!--if the goal is "unpack"-->
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <!--Do not run this plugin execution if the we are skipping tests-->
+                    <images>
+                        <image>
+                            <name>docker.io/codice/ddf-solr:${project.version}</name>
+                            <run>
+                                <ports>
+                                    <port>${solr.port}:8983</port>
+                                </ports>
+                                <env>
+                                    <CORES>catalog metacard_cache alerts preferences subscriptions notification activity workspace</CORES>
+                                </env>
+                                <log>
+                                    <enabled>true</enabled>
+                                    <file>${project.build.directory}/solr.log</file>
+                                </log>
+                                <wait>
+                                    <tcp>
+                                        <mode>mapped</mode>
+                                        <ports>
+                                            <port>8983</port>
+                                        </ports>
+                                        <host>localhost</host>
+                                    </tcp>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                    <!--Do not run this plugin if we ar skipping tests-->
                     <skip>${skipTests}</skip>
-                    <longModulepath>false</longModulepath>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>ensure-solr-is-stopped</id>
-                        <phase>pre-clean</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${solr.script.dir}${solr.script.file}</executable>
-                            <arguments>
-                                <argument>stop</argument>
-                                <argument>-p</argument>
-                                <argument>${solr.port}</argument>
-                            </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-                            <successCodes>
-                                <successCode>0</successCode>
-                                <successCode>1</successCode>
-                            </successCodes>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>start-solr</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>start</goal>
                         </goals>
-                        <configuration>
-                            <executable>
-                                ${solr.script.dir}${solr.script.file}
-                            </executable>
-                            <arguments>
-                                <argument>start</argument>
-                                <argument>-p</argument>
-                                <argument>${solr.port}</argument>
-                                <argument>-m</argument>
-                                <argument>512m</argument>
-                                <argument>${solr.force}</argument>
-                            </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>stop-solr</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>stop</goal>
                         </goals>
-                        <configuration>
-                            <executable>${solr.script.dir}${solr.script.file}</executable>
-                            <arguments>
-                                <argument>stop</argument>
-                                <argument>-p</argument>
-                                <argument>${solr.port}</argument>
-                            </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

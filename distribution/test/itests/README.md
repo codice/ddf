@@ -1,5 +1,9 @@
 # How to Debug Integration Tests
 
+## Itest Requirements
+
+Running the itests requires a docker installation for deploying and managing external services during tests
+
 ## Remote Debugging
 Use the `isDebugEnabled` property to force the integration test to pause during startup and wait for a debugger to connect to port 5005.
 

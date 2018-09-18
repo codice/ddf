@@ -525,17 +525,7 @@ public abstract class AbstractIntegrationTest {
         KarafDistributionOption.editConfigurationFilePut(
             "etc/ddf.security.sts.client.configuration.config",
             "address",
-            SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
-        installStartupFile(
-            getClass()
-                .getClassLoader()
-                .getResource("ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
-            "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
-        installStartupFile(
-            getClass()
-                .getClassLoader()
-                .getResource("ddf.catalog.solr.provider.SolrCatalogProvider.config"),
-            "/etc/ddf.catalog.solr.provider.SolrCatalogProvider.config"));
+            SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"));
   }
 
   protected Option[] configureMavenRepos() {
@@ -718,10 +708,9 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", "http://localhost:9784/solr"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.port", "9784"),
-        editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH,
-            "solr.data.dir",
-            new File("target/solr/server/solr").getAbsolutePath()),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.data.dir", ""),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "start.solr", "false"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.protocol", "http"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", ""));
   }
 
