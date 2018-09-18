@@ -27,7 +27,6 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.net.ssl.SSLContext;
@@ -73,17 +72,20 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
 
-  private static final String HTTPS_PROTOCOLS = "https.protocols";
-  private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
-  private static final String SOLR_DATA_DIR = "solr.data.dir";
-  private static final String SOLR_HTTP_URL = "solr.http.url";
-  private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
-  private static final String TRUST_STORE = "javax.net.ssl.trustStore";
-  private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
-  private static final String KEY_STORE = "javax.net.ssl.keyStore";
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
   public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
+  private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
+  private static final String HTTPS_PROTOCOLS = "https.protocols";
+  private static final String KEY_STORE = "javax.net.ssl.keyStore";
+  private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
+  public static final String KEY_STORE_TYPE = "javax.net.ssl.keyStoreType";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
+  public static final String SOLR_CREDENTIALS = "solr.credentials";
+  private static final String SOLR_DATA_DIR = "solr.data.dir";
+  private static final String SOLR_HTTP_URL = "solr.http.url";
+  public static final String SOLR_USERNAME = "solr.username";
+  private static final String TRUST_STORE = "javax.net.ssl.trustStore";
+  private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private final Map<String, String> propertyCache = new HashMap<>();
 
   @Override
@@ -171,7 +173,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     LOGGER.debug("Loading keystore from {}", location);
     KeyStore keyStore = null;
     try (FileInputStream storeStream = new FileInputStream(location)) {
-      keyStore = KeyStore.getInstance(getProperty("javax.net.ssl.keyStoreType"));
+      keyStore = KeyStore.getInstance(getProperty(KEY_STORE_TYPE));
       keyStore.load(storeStream, password.toCharArray());
     } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
       LOGGER.warn("Unable to load keystore at {}", location, e);
@@ -280,8 +282,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private CredentialsProvider getCredentialsProvider() {
     CredentialsProvider provider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials =
-        new UsernamePasswordCredentials(
-            getProperty("solr.username"), getProperty("solr.credentials"));
+        new UsernamePasswordCredentials(getProperty(SOLR_USERNAME), getProperty(SOLR_CREDENTIALS));
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }
@@ -291,14 +292,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private String getCoreDir(String coreName) {
-    String solrDir = getProperty(SOLR_DATA_DIR);
-
-    if (StringUtils.isEmpty(solrDir)) {
-      throw new MissingResourceException(
-          "Cannot create Solr client. Missing data directory", "System", SOLR_DATA_DIR);
-    }
-
-    return concatenatePaths(solrDir, coreName);
+    return concatenatePaths(getProperty(SOLR_DATA_DIR), coreName);
   }
 
   private static String concatenatePaths(String first, String more) {
