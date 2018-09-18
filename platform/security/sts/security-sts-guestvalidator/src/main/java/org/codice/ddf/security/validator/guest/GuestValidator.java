@@ -13,10 +13,17 @@
  */
 package org.codice.ddf.security.validator.guest;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.principal.GuestPrincipal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
@@ -32,6 +39,21 @@ public class GuestValidator implements TokenValidator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestValidator.class);
 
+  private static final String IP_ADDRESS_CLAIMS_KEY = "IpAddress";
+
+  LoadingCache<String, String> cache =
+      CacheBuilder.newBuilder()
+          .expireAfterAccess(30, TimeUnit.MINUTES)
+          .build(
+              new CacheLoader<String, String>() {
+                @Override
+                public String load(String ip) throws Exception {
+                  String newId = UUID.randomUUID().toString().replace('-', 'X');
+                  SecurityLogger.audit("Mapping IP Addr [{}] to Internal ID [{}]", ip, newId);
+                  return newId;
+                }
+              });
+
   private List<String> supportedRealm;
 
   private GuestAuthenticationToken getGuestTokenFromTarget(ReceivedToken validateTarget) {
@@ -43,7 +65,8 @@ public class GuestValidator implements TokenValidator {
       try {
         BaseAuthenticationToken base = GuestAuthenticationToken.parse(credential, true);
         return new GuestAuthenticationToken(
-            base.getRealm(), GuestPrincipal.parseAddressFromName(base.getPrincipal().toString()));
+            base.getRealm(),
+            GuestAuthenticationToken.parseAddressFromName(base.getPrincipal().toString()));
       } catch (WSSecurityException e) {
         LOGGER.info(
             "Unable to parse {} from encodedToken.",
@@ -93,6 +116,7 @@ public class GuestValidator implements TokenValidator {
   @Override
   public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
     TokenValidatorResponse response = new TokenValidatorResponse();
+    response.setAdditionalProperties(new HashMap<>());
     ReceivedToken validateTarget = tokenParameters.getToken();
     validateTarget.setState(ReceivedToken.STATE.INVALID);
 
@@ -101,7 +125,8 @@ public class GuestValidator implements TokenValidator {
     response.setToken(validateTarget);
 
     if (guestToken != null) {
-      response.setPrincipal(new GuestPrincipal(guestToken.getIpAddress()));
+      response.getAdditionalProperties().put(IP_ADDRESS_CLAIMS_KEY, guestToken.getIpAddress());
+      response.setPrincipal(new GuestPrincipal(cache.getUnchecked(guestToken.getIpAddress())));
 
       if (guestToken.getRealm() != null) {
         if ((supportedRealm.contains(guestToken.getRealm()) || "*".equals(guestToken.getRealm()))

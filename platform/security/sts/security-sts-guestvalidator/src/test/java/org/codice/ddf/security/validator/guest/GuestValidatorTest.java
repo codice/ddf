@@ -14,13 +14,16 @@
 package org.codice.ddf.security.validator.guest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import ddf.security.principal.GuestPrincipal;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.UUID;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -199,5 +202,15 @@ public class GuestValidatorTest {
     TokenValidatorResponse response = validator.validateToken(parameters);
 
     assertEquals(ReceivedToken.STATE.INVALID, response.getToken().getState());
+  }
+
+  @Test
+  public void reusesId() {
+    String principal1 = validator.validateToken(parameters).getPrincipal().getName();
+    String principal2 = validator.validateToken(parameters).getPrincipal().getName();
+
+    assertEquals(principal1, principal2);
+    assertThat(principal1.length(), is("Guest@".length() + UUID.randomUUID().toString().length()));
+    assertNotEquals(principal1, parameters.getToken().getPrincipal().getName());
   }
 }
