@@ -43,6 +43,7 @@ module.exports = MapView.extend({
         try {
             MapView.prototype.createMap.apply(this, arguments);
         } catch (err){
+            console.error(err);
             this.$el.addClass('not-supported');
             setTimeout(function(){
                 this.switchTo2DMap();
