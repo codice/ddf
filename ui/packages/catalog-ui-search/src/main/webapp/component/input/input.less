@@ -71,7 +71,11 @@
     margin: 0px;
     min-height: @minimumButtonSize;
     overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: initial;
+    overflow-y: auto;
+    max-height: 10rem;
+    margin-bottom: 1rem;
+    line-height: 1.5rem;
   }
 
   &.is-editing {
