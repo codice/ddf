@@ -1,7 +1,7 @@
 :title: File Format-specific Attributes
 :type: metadataReference
 :status: published
-:parent: Metadata Attributes
+:parent: Metadata Reference
 :order: 01
 :summary: File format-specific attribute mappings by data/file format.
 

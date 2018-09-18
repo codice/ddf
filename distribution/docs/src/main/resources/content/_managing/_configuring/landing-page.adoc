@@ -31,4 +31,4 @@ Configure the Landing Page from the ${admin-console}:
 Configure important landing page items such as branding logo, contact information, description,
 and additional links.
 
-See <<{application-prefix}org.codice.ddf.distribution.landingpage.properties,Landing Page configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.distribution.landingpage.properties,Landing Page configurations>> for all possible configurations.

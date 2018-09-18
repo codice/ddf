@@ -28,4 +28,4 @@ The banner has four items to configure:
 . *Text Color*
 . *Background Color*
 
-See the <<{application-prefix}ddf.platform.ui.config,Platform UI>> for all possible configurations of the Platform UI Configuration.
+See the <<{reference-prefix}ddf.platform.ui.config,Platform UI>> for all possible configurations of the Platform UI Configuration.

@@ -39,7 +39,7 @@ Configure an Existing Confluence Federated Source through the ${admin-console}:
 . Select the *Sources* tab.
 . Select the name of the source to edit.
 
-See <<{application-prefix}Confluence_Federated_Source, Confluence Federated Source configurations>> for all possible configurations.
+See <<{reference-prefix}Confluence_Federated_Source, Confluence Federated Source configurations>> for all possible configurations.
 
 [IMPORTANT]
 ====

@@ -21,4 +21,4 @@ Configure the Security STS Client Config from the ${admin-console}:
 . Select *Configuration* tab.
 . Select *Security STS Client*.
 
-See <<{application-prefix}ddf.security.sts.client.configuration,Security STS Client configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.security.sts.client.configuration,Security STS Client configurations>> for all possible configurations.

@@ -192,7 +192,7 @@ To update the username and password:
 === Using the ${message-broker} Application
 
 The ${message-broker} app can be used through the ${admin-console}.
-See the <<{application-prefix}route_manager,Route Manager>> and the <<{application-prefix}undelivered_messages_ui,Undelivered Messages UI>> for more information.
+See the <<{reference-prefix}route_manager,Route Manager>> and the <<{reference-prefix}undelivered_messages_ui,Undelivered Messages UI>> for more information.
 
 ==== Undelivered Messages UI
 

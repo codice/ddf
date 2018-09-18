@@ -65,19 +65,19 @@ The following types of plugins can be created:
 
 |<<{architecture-prefix}pre_create_storage_plugins,Pre-Create Storage>>
 |ddf.catalog.content.plugin.PreCreateStoragePlugin
-|<<{application-prefix}packages_removed_from_whitelist,Experimental >>Before an item is created in the content repository.
+|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>Before an item is created in the content repository.
 
 |<<{architecture-prefix}post_create_storage_plugins,Post-Create Storage>>
 |ddf.catalog.content.plugin.PostCreateStoragePlugin
-|<<{application-prefix}packages_removed_from_whitelist,Experimental >>After an item is created in the content repository.
+|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>After an item is created in the content repository.
 
 |<<{architecture-prefix}pre_update_storage_plugins,Pre-Update Storage>>
 |ddf.catalog.content.plugin.PreUpdateStoragePlugin
-|<<{application-prefix}packages_removed_from_whitelist,Experimental >>Before an item is updated in the content repository.
+|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>Before an item is updated in the content repository.
 
 |<<{architecture-prefix}post_update_storage_plugins,Post-Update Storage>>
 |ddf.catalog.content.plugin.PostUpdateStoragePlugin
-|<<{application-prefix}packages_removed_from_whitelist,Experimental >>After an item is updated in the content repository.
+|<<{reference-prefix}packages_removed_from_whitelist,Experimental >>After an item is updated in the content repository.
 
 |<<{architecture-prefix}pre_subscription_plugins,Pre-Subscription>>
 |ddf.catalog.plugin.PreSubscriptionPlugin

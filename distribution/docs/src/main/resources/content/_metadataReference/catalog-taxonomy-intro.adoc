@@ -1,7 +1,7 @@
 :title: Catalog Taxonomy Definitions
 :type: metadataReference
 :status: published
-:parent: Metadata Attributes
+:parent: Metadata Reference
 :order: 02
 :summary: Introduction to catalog taxonomy appendix.
 

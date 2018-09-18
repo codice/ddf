@@ -25,4 +25,4 @@ To configure the Metacard Backup File Storage Provider
 . Select *Configuration* tab.
 . Select *Metacard Backup File Storage Provider*.
 
-See <<{application-prefix}Metacard_File_Storage_Route,Metacard Backup File Storage Provider configurations>> for all possible configurations.
+See <<{reference-prefix}Metacard_File_Storage_Route,Metacard Backup File Storage Provider configurations>> for all possible configurations.

@@ -41,6 +41,6 @@ The policy plugin could also be used to rename attributes. If there is only one 
 The Metacard Attribute Security Policy Plugin is installed by default with a standard installation
  in the ${ddf-catalog} application.
 
-See <<{application-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard
+See <<{reference-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard
  Attribute Security Policy Plugin configurations>> for all possible configurations.
 

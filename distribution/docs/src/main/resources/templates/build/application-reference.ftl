@@ -38,7 +38,7 @@ To configure the ${applicationReference.title} Application:
 </#if>
 <#list tables as table>
 <#if table.status == "published" && table.application == applicationReference.title>
-|<<{application-prefix}${table.id},${table.title}>>
+|<<{reference-prefix}${table.id},${table.title}>>
 |${table.id}
 |${table.summary}
 

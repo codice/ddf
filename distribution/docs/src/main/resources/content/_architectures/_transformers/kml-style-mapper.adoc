@@ -17,14 +17,14 @@ When a style mapping is configured, the resulting transformed KML contain a `<st
 
 ===== Installing the KML Style Mapper
 
-The KML Style Mapper is installed by default with a standard installation in the <<{application-prefix}spatial_application_reference,${ddf-spatial} Application>> in the `spatial-kml-transformer` feature.
+The KML Style Mapper is installed by default with a standard installation in the <<{reference-prefix}spatial_application_reference,${ddf-spatial} Application>> in the `spatial-kml-transformer` feature.
 
 ===== Configuring the KML Style Mapper
 
 The properties below describe how to configure a style mapping.
 The configuration name is `Spatial KML Style Map Entry`.
 
-See <<{application-prefix}org.codice.ddf.spatial.kml.style,KML Style Mapper configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.spatial.kml.style,KML Style Mapper configurations>> for all possible configurations.
 
 .KML Style Mapper Example Values
 [source,xml,linenums]
