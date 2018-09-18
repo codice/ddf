@@ -150,7 +150,7 @@ fields must be set before uploads will be permitted.
 The Search pane has two tabs: *Search* and *Lists*.
 
 .Search Pane Tabs
-image::catalog-ui-search-tabs.png[]
+image::new-list-options.png[]
 
 ==== Search Tab
 
