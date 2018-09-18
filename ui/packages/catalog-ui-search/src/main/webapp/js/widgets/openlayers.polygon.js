@@ -92,7 +92,7 @@ Draw.PolygonView = Marionette.View.extend({
     if (!_.isEqual(coords[0], coords[coords.length - 1])) {
       coords.push(coords[0])
     }
-    return new ol.geom.LineString(coords)
+    return [coords]
   },
 
   modelToPolygon: function(model) {
@@ -103,15 +103,16 @@ Draw.PolygonView = Marionette.View.extend({
     const isMultiPolygon = ShapeUtils.isArray3D(coords)
     const multiPolygon = isMultiPolygon ? coords : [coords]
 
-    const multiLineString = new ol.geom.MultiLineString([])
+    const polygons = []
+
     _.each(
       multiPolygon,
       function(polygon) {
-        multiLineString.appendLineString(this.coordsToLineString(polygon))
+        polygons.push(this.coordsToLineString(polygon))
       }.bind(this)
     )
 
-    return multiLineString
+    return polygons
   },
 
   updatePrimitive: function(model) {
@@ -135,6 +136,10 @@ Draw.PolygonView = Marionette.View.extend({
       return
     }
 
+    const coordinates = (Array.isArray(rectangle) && rectangle) || [
+      rectangle.getCoordinates(),
+    ]
+
     if (this.vectorLayer) {
       this.map.removeLayer(this.vectorLayer)
     }
@@ -144,14 +149,17 @@ Draw.PolygonView = Marionette.View.extend({
         this.model.get('polygonBufferWidth'),
         this.model.get('polygonBufferUnits')
       ) || 1
-    const line = Turf.lineString(
-      translateFromOpenlayersCoordinates(rectangle.getCoordinates())
-    )
-    const bufferedLine = Turf.buffer(line, bufferWidth, 'meters')
+
+    const segments = coordinates.map(set => {
+      const polySegment = Turf.multiLineString([
+        translateFromOpenlayersCoordinates(set),
+      ])
+      return Turf.buffer(polySegment, bufferWidth, 'meters').geometry
+        .coordinates
+    })
+
     const geometryRepresentation =
-      (bufferedLine &&
-        new ol.geom.Polygon(bufferedLine.geometry.coordinates)) ||
-      rectangle
+      (segments && new ol.geom.MultiPolygon(segments)) || coordinates
 
     this.billboard = new ol.Feature({
       geometry: geometryRepresentation,
