@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.claims.guest;
 
-import ddf.security.principal.GuestPrincipal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
@@ -22,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -35,11 +35,9 @@ import org.slf4j.LoggerFactory;
 /** Provides claims for a guest auth token. */
 public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
 
-  public static final String IP_ADDRESS_CLAIMS_KEY = "IpAddress";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestClaimsHandler.class);
 
-  private Map<URI, List<String>> claimsMap = new HashMap<URI, List<String>>();
+  private Map<URI, List<String>> claimsMap = new HashMap<>();
 
   private List<String> supportedRealms;
 
@@ -53,9 +51,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
     if (attributes != null) {
       LOGGER.debug("Attribute value list was set.");
       List<String> attrs = new ArrayList<>(attributes.size());
-      for (String attr : attributes) {
-        attrs.add(attr);
-      }
+      attrs.addAll(attributes);
       initClaimsMap(attrs);
     } else {
       LOGGER.debug("Set attribute value list was null");
@@ -71,7 +67,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
       String[] claimMapping = attr.split("=");
       if (claimMapping.length == 2) {
         try {
-          List<String> values = new ArrayList<String>();
+          List<String> values = new ArrayList<>();
           if (claimMapping[1].contains("|")) {
             String[] valsArr = claimMapping[1].split("\\|");
             Collections.addAll(values, valsArr);
@@ -93,12 +89,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
 
   @Override
   public List<URI> getSupportedClaimTypes() {
-    List<URI> uriList = new ArrayList<URI>();
-    for (URI uri : claimsMap.keySet()) {
-      uriList.add(uri);
-    }
-
-    return uriList;
+    return new ArrayList<>(claimsMap.keySet());
   }
 
   @Override
@@ -120,20 +111,23 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
       }
     }
 
-    if (principal != null && principal instanceof GuestPrincipal) {
-      String ipAddress = ((GuestPrincipal) principal).getAddress();
-      if (ipAddress != null) {
+    Map<String, Object> additionalProperties = parameters.getAdditionalProperties();
+    if (additionalProperties != null) {
+      for (Entry<String, Object> additionalProperty : additionalProperties.entrySet()) {
         try {
-          ProcessedClaim ipClaim = new ProcessedClaim();
-          ipClaim.setClaimType(new URI(IP_ADDRESS_CLAIMS_KEY));
-          ipClaim.setPrincipal(principal);
-          ipClaim.addValue(ipAddress);
-          claimsColl.add(ipClaim);
+          ProcessedClaim pc = new ProcessedClaim();
+          pc.setClaimType(new URI(additionalProperty.getKey()));
+          pc.setPrincipal(principal);
+          pc.addValue(additionalProperty.getValue());
+          claimsColl.add(pc);
         } catch (URISyntaxException e) {
-          LOGGER.info("Claims mapping cannot be converted to a URI. Ip claim will be excluded", e);
+          LOGGER.info(
+              "Claims mapping cannot be converted to a URI. {} claim will be excluded",
+              additionalProperty.getKey());
         }
       }
     }
+
     return claimsColl;
   }
 
