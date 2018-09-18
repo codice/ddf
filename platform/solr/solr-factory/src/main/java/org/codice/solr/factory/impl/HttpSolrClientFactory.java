@@ -80,13 +80,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String KEY_STORE = "javax.net.ssl.keyStore";
   private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
   public static final String KEY_STORE_TYPE = "javax.net.ssl.keyStoreType";
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   public static final String SOLR_CREDENTIALS = "solr.credentials";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
   private static final String SOLR_HTTP_URL = "solr.http.url";
+  public static final String SOLR_USE_BASIC_AUTH = "solr.useBasicAuth";
   public static final String SOLR_USERNAME = "solr.username";
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private final Map<String, String> propertyCache = new HashMap<>();
 
   @Override
@@ -268,7 +269,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private boolean useBasicAuth() {
-    return Boolean.getBoolean("solr.useBasicAuth");
+    return new Boolean(getProperty(SOLR_USE_BASIC_AUTH));
   }
 
   private String getCoreUrl(String coreName) {
