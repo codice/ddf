@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -56,15 +57,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class used to create new {@link HttpSolrClient} instances. <br> Uses the following system
- * properties when creating an instance:
+ * Factory class used to create new {@link HttpSolrClient} instances. <br>
+ * Uses the following system properties when creating an instance:
  *
  * <ul>
- * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
- * <li>solr.http.url: Solr server URL
- * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
- * <li>https.protocols: Secure protocols supported by the Solr server
- * <li>https.cipherSuites: Cipher suites supported by the Solr server
+ *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
+ *   <li>solr.http.url: Solr server URL
+ *   <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
+ *   <li>https.protocols: Secure protocols supported by the Solr server
+ *   <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  *
  * @deprecated This class may be removed in the future
@@ -310,8 +311,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return response.getCoreStatus(coreName).get("instanceDir") != null;
   }
 
-  private static String[] commaSeparatedToArray(String commaDelimitedString) {
-    return Optional.of(commaDelimitedString)
+  private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
+    return Optional.ofNullable(commaDelimitedString)
         .map((x) -> (x.split("\\s*,\\s*")))
         .orElse(new String[0]);
   }
