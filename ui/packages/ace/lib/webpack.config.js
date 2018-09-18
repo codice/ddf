@@ -49,11 +49,12 @@ const base = ({ alias = {}, env }) => ({
     globalObject: 'this',
   },
   plugins: [
-    new WebpackBundleAnalyzerPlugin({
-      openAnalyzer: false,
-      analyzerMode: 'static',
-      reportFilename: resolve('target/report.html'),
-    }),
+    // Keeps causing out of memory errors, disabling for now
+    // new WebpackBundleAnalyzerPlugin({
+    //   openAnalyzer: false,
+    //   analyzerMode: 'static',
+    //   reportFilename: resolve('target/report.html'),
+    // }),
     new webpack.DefinePlugin(gitEnv()),
     new HtmlWebpackPlugin({
       title: 'My App',
