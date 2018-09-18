@@ -312,7 +312,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private static String[] commaSeparatedToArray(String commaDelimitedString) {
-    // Consume whitespace
     return Optional.of(commaDelimitedString)
         .map((x) -> (x.split("\\s*,\\s*")))
         .orElse(new String[0]);
