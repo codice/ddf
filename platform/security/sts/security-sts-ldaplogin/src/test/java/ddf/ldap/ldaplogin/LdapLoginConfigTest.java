@@ -47,6 +47,10 @@ public class LdapLoginConfigTest {
 
   private ServiceRegistration<JaasRealm> jaasRealm;
 
+  private static final String LDAP_URL_1 = "ldaps://ldap:1636";
+
+  private static final String LDAP_URL_2 = "ldaps://ldap2:1636";
+
   /** Sets up a new context and JaasRealm before each test. */
   @Before
   public void setUp() {
@@ -65,7 +69,7 @@ public class LdapLoginConfigTest {
   public void testLdapLoginConfig() {
     LdapService ldapService = new LdapService(context);
 
-    LdapLoginConfig ldapConfigOne = createLdapConfig(ldapService, "ldaps://ldap:1636");
+    LdapLoginConfig ldapConfigOne = createLdapConfig(ldapService, LDAP_URL_1);
     ldapConfigOne.configure();
     String configIdOne = ldapConfigOne.getId();
 
@@ -74,8 +78,7 @@ public class LdapLoginConfigTest {
         .registerService(
             eq(JaasRealm.class), any(JaasRealm.class), Matchers.<Dictionary<String, Object>>any());
 
-    LdapLoginConfig ldapConfigTwo =
-        createLdapConfig(ldapService, "ldaps://ldap:1636", "ldaps://ldap2:1636");
+    LdapLoginConfig ldapConfigTwo = createLdapConfig(ldapService, LDAP_URL_1, LDAP_URL_2);
     ldapConfigTwo.configure();
     String configIdTwo = ldapConfigTwo.getId();
 
@@ -150,7 +153,7 @@ public class LdapLoginConfigTest {
   @Test
   public void testSetUserNameAttribute() {
     LdapService ldapService = new LdapService(context);
-    LdapLoginConfig config = createLdapConfig(ldapService, "ldaps://ldap:1636");
+    LdapLoginConfig config = createLdapConfig(ldapService, LDAP_URL_1);
     config.setLoginUserAttribute("cn");
 
     config.configure();
@@ -165,7 +168,7 @@ public class LdapLoginConfigTest {
   @Test
   public void testSetMembershipAttribute() {
     LdapService ldapService = new LdapService(context);
-    LdapLoginConfig config = createLdapConfig(ldapService, "ldaps://ldap:1636");
+    LdapLoginConfig config = createLdapConfig(ldapService, LDAP_URL_1);
     config.setMembershipUserAttribute("cn");
 
     config.configure();
@@ -180,7 +183,7 @@ public class LdapLoginConfigTest {
   @Test
   public void testSetMemberNameAttribute() {
     LdapService ldapService = new LdapService(context);
-    LdapLoginConfig config = createLdapConfig(ldapService, "ldaps://ldap:1636");
+    LdapLoginConfig config = createLdapConfig(ldapService, LDAP_URL_1);
     config.setMemberNameAttribute("uniqueMember");
 
     config.configure();

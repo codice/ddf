@@ -23,6 +23,11 @@
             description="LDAP or LDAPS server and port">
 	    </AD>
 
+		<AD name="LDAP Load Balancing:" id="ldapLoadBalancing" required="false" type="String"
+			default="round_robin"
+			description="Load balancing algorithm to use when multiple LDAP urls are provided (round_robin, failover)">
+		</AD>
+
 		<AD name="LDAP Bind Method" id="bindMethod" required="true" type="String"
 			default="Simple">
 			<Option label="Digest MD5 SASL" value="Digest MD5 SASL" />

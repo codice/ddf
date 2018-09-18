@@ -53,6 +53,7 @@
                     <value>ldaps://${org.codice.ddf.system.hostname}:1636</value>
                 </list>
             </property>
+            <property name="loadBalancing" value="round_robin"/>
             <property name="startTls" value="false"/>
             <property name="ldapBindUserDn" value="cn=admin"/>
             <property name="password" value="secret"/>

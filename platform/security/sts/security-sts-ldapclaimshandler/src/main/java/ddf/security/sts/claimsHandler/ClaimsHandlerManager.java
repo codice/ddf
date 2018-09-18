@@ -221,7 +221,7 @@ public class ClaimsHandlerManager {
     }
 
     Options options = Options.defaultOptions();
-    if (loadBalancingAlgorithm != null && loadBalancingAlgorithm.equalsIgnoreCase(FAILOVER)) {
+    if (FAILOVER.equalsIgnoreCase(loadBalancingAlgorithm)) {
       return Connections.newFailoverLoadBalancer(connectionFactories, options);
     } else {
       return Connections.newRoundRobinLoadBalancer(connectionFactories, options);

@@ -33,6 +33,7 @@
                     <value>ldaps://${org.codice.ddf.system.hostname}:1636</value>
                 </list>
             </property>
+            <property name="ldapLoadBalancing" value="round_robin"/>
             <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <property name="startTls" value="false"/>

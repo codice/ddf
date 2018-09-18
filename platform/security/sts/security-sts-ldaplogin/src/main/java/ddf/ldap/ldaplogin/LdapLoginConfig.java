@@ -154,7 +154,7 @@ public class LdapLoginConfig {
 
       String loadBalancingAlgorithm = (String) props.get(LDAP_LOAD_BALANCING);
       Options options = Options.defaultOptions();
-      if (loadBalancingAlgorithm != null && loadBalancingAlgorithm.equalsIgnoreCase(FAILOVER)) {
+      if (FAILOVER.equalsIgnoreCase(loadBalancingAlgorithm)) {
         ldapConnectionFactory = Connections.newFailoverLoadBalancer(connectionFactories, options);
       } else {
         ldapConnectionFactory = Connections.newRoundRobinLoadBalancer(connectionFactories, options);
