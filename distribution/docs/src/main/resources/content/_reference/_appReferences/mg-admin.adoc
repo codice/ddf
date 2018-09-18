@@ -14,7 +14,7 @@ None.
 
 === Installing the ${ddf-admin} Application
 
-Install ${ddf-admin} through the ${admin-console}.
+Install the ${ddf-admin} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

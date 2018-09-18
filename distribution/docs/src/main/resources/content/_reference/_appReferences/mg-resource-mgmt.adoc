@@ -30,7 +30,7 @@ To use the ${ddf-resource-management} Application, the following apps/features m
 
 === Installing ${ddf-resource-management}
 
-Install ${ddf-resource-management} through the ${admin-console}.
+Install the ${ddf-resource-management} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

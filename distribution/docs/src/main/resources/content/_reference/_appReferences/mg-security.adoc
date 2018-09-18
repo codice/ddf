@@ -28,7 +28,7 @@ To use the ${ddf-security} application, the following applications/features must
 
 ===  Installing ${ddf-security}
 
-Install ${ddf-security} through the ${admin-console}.
+Install the ${ddf-security} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

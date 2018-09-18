@@ -15,7 +15,7 @@ None.
 
 === Installing ${message-broker} Application
 
-Install ${broker-app} through the ${admin-console}.
+Install the ${message-broker} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

@@ -50,7 +50,7 @@ To use the ${ddf-spatial} Application, the following apps/features must be insta
 
 ===  Installing ${ddf-spatial}
 
-Install ${ddf-spatial} through the ${admin-console}.
+Install the ${ddf-spatial} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

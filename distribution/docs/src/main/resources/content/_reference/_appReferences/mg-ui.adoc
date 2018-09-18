@@ -17,7 +17,7 @@ To use the ${ddf-ui} application, the following applications/features must be in
 
 ===  Installing ${ddf-ui}
 
-Install ${ddf-ui} through the ${admin-console}.
+Install the ${ddf-ui} application through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.
