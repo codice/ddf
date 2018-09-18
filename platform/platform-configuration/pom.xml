@@ -51,7 +51,7 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>asm</artifactId>
-            <version>1.0.2</version>
+            <version>${net.minidev.asm.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
+            <version>${commons-codec.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>

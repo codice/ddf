@@ -67,7 +67,7 @@
         <dependency>
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
-            <version>${handlebars.version}</version>
+            <version>${jknack.handlebars.version}</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
+            <version>${commons-codec.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>

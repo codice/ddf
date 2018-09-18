@@ -158,7 +158,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.9</version>
+                <version>${xstream.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.jaxb2_commons</groupId>

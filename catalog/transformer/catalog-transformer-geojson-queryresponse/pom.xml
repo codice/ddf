@@ -45,7 +45,7 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>asm</artifactId>
-            <version>1.0.2</version>
+            <version>${net.minidev.asm.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

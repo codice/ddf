@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.9</version>
+                <version>${xstream.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -170,7 +170,7 @@
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <scope>test</scope>
-            <version>1.4</version>
+            <version>${xmlunit.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

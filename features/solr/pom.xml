@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>picocontainer</artifactId>
-            <version>1.3_1</version>
+            <version>${picocontainer.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>

@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.la4j</groupId>
             <artifactId>la4j</artifactId>
-            <version>0.6.0</version>
+            <version>${la4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jhlabs</groupId>

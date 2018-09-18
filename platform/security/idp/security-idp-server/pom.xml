@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.3</version>
+            <version>${antlr.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.abego.treelayout</groupId>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
+            <version>${xml-apis.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -216,7 +216,7 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.2</version>
+                <version>${commons-logging.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

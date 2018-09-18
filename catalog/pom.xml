@@ -26,8 +26,8 @@
     <packaging>pom</packaging>
     <name>DDF Catalog</name>
     <properties>
+        <ant.version>1.9.7</ant.version>
         <commons-weaver-privilizer-api.version>1.1</commons-weaver-privilizer-api.version>
-        <commons-logging.version>1.2</commons-logging.version>
         <cglib.version>3.2.0</cglib.version>
         <logkit.version>1.0.1</logkit.version>
         <cdi-api.version>1.2</cdi-api.version>
@@ -69,7 +69,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.9</version>
+                <version>${xstream.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -167,7 +167,7 @@
             <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
-                <version>1.4.01</version>
+                <version>${xml-apis.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
@@ -292,7 +292,7 @@
             <dependency>
                 <groupId>xmlunit</groupId>
                 <artifactId>xmlunit</artifactId>
-                <version>1.4</version>
+                <version>${xmlunit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
@@ -387,7 +387,7 @@
             <dependency>
                 <groupId>commons-digester</groupId>
                 <artifactId>commons-digester</artifactId>
-                <version>1.8.1</version>
+                <version>${commons-digester.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -427,7 +427,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.1</version>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
@@ -512,7 +512,7 @@
             <dependency>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
-                <version>${handlebars.version}</version>
+                <version>${jknack.handlebars.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>

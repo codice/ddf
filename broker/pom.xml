@@ -27,9 +27,6 @@
     <name>DDF Broker</name>
 
     <packaging>pom</packaging>
-    <properties>
-        <osgi.version>5.0.0</osgi.version>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
