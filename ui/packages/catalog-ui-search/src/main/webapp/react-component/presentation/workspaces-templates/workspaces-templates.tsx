@@ -14,9 +14,8 @@ import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import { ChangeBackground } from '../../styles/mixins'
 import { transparentize, readableColor } from 'polished'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
+import Text from '../../container/input-wrappers/text'
 import WorkspaceTemplate from '../workspace-template'
-const PropertyView = require('component/property/property.view')
 
 type RootProps = {
   hasTemplatesExpanded: boolean
@@ -25,7 +24,9 @@ type RootProps = {
 type Props = {
   startAdhocSearch: () => void
   toggleExpansion: () => void
-  adhocModel: Backbone.Model
+  onChange: () => void
+  value: string
+  placeholder: string
   createWorkspace: () => void
   createLocalWorkspace: () => void
   createAllWorkspace: () => void
@@ -222,13 +223,13 @@ const WorkspacesTemplates = (props: Props & RootProps) => {
         </div>
         <div className="home-templates-adhoc">
           <div className="adhoc-search">
-            <MarionetteRegionContainer
-              view={PropertyView}
-              viewOptions={() => {
-                return {
-                  model: props.adhocModel,
-                }
-              }}
+            <Text
+              value={props.value}
+              label=""
+              showLabel={false}
+              showValidationIssues={false}
+              placeholder={props.placeholder}
+              onChange={props.onChange}
               onKeyUp={event => {
                 switch (event.keyCode) {
                   case 13:

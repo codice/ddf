@@ -11,6 +11,20 @@ const InputGuideView = require('dev/component/input-guide/input-guide.view')
 const JSXGuideView = require('dev/component/jsx-guide/jsx-guide.view')
 const RegionGuideView = require('dev/component/region-guide/region-guide.view')
 import Button from '../button'
+import Checkbox from '../checkbox'
+import Text from '../text'
+import Range from '../range'
+import DateComponent from '../date'
+import Location from '../location'
+import Thumbnail from '../thumbnail'
+import Geometry from '../geometry'
+import NumberComponent from '../number'
+import Color from '../color'
+import Autocomplete from '../autocomplete'
+import Enum from '../enum'
+import InputWithParam from '../input-with-param'
+import Textarea from '../textarea'
+import MultiEnum from '../multi-enum'
 import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
 import React from 'react'
 
@@ -26,11 +40,11 @@ module.exports = Marionette.LayoutView.extend({
       isEditing: true,
       enum: [
         {
-          label: 'Card',
+          label: 'Card (Marionette)',
           value: 'Card',
         },
         {
-          label: 'Button',
+          label: 'Button (Marionette)',
           value: 'Button',
         },
         {
@@ -38,15 +52,71 @@ module.exports = Marionette.LayoutView.extend({
           value: 'ButtonReact',
         },
         {
+          label: 'Checkbox',
+          value: 'checkbox',
+        },
+        {
+          label: 'Text',
+          value: 'text',
+        },
+        {
+          label: 'Range',
+          value: 'range',
+        },
+        {
+          label: 'Date',
+          value: 'date',
+        },
+        {
+          label: 'Location',
+          value: 'location',
+        },
+        {
+          label: 'Thumbnail',
+          value: 'thumbnail',
+        },
+        {
+          label: 'Geometry',
+          value: 'geometry',
+        },
+        {
+          label: 'Number',
+          value: 'number',
+        },
+        {
+          label: 'Autocomplete',
+          value: 'autocomplete',
+        },
+        {
+          label: 'Enum',
+          value: 'enum',
+        },
+        {
+          label: 'MultiEnum',
+          value: 'multienum',
+        },
+        {
+          label: 'Text Area',
+          value: 'textarea',
+        },
+        {
+          label: 'Input with Param',
+          value: 'inputwithparam',
+        },
+        {
+          label: 'Color',
+          value: 'color',
+        },
+        {
           label: 'Static Dropdowns (deprecated)',
           value: 'Static Dropdowns',
         },
         {
-          label: 'Dropdowns',
+          label: 'Dropdowns (Marionette)',
           value: 'Dropdowns',
         },
         {
-          label: 'Inputs',
+          label: 'Inputs (Marionette)',
           value: 'Inputs',
         },
         {
@@ -57,7 +127,7 @@ module.exports = Marionette.LayoutView.extend({
           label: 'Regions (Layout Views)',
           value: 'Regions',
         },
-      ],
+      ].sort((a, b) => a.label.localeCompare(b.label)),
       id: 'component',
     })
     this.listenTo(this.componentGuideModel, 'change:value', this.render)
@@ -103,6 +173,48 @@ module.exports = Marionette.LayoutView.extend({
         break
       case 'ButtonReact':
         componentToShow = Button
+        break
+      case 'checkbox':
+        componentToShow = Checkbox
+        break
+      case 'text':
+        componentToShow = Text
+        break
+      case 'range':
+        componentToShow = Range
+        break
+      case 'date':
+        componentToShow = DateComponent
+        break
+      case 'location':
+        componentToShow = Location
+        break
+      case 'thumbnail':
+        componentToShow = Thumbnail
+        break
+      case 'geometry':
+        componentToShow = Geometry
+        break
+      case 'number':
+        componentToShow = NumberComponent
+        break
+      case 'color':
+        componentToShow = Color
+        break
+      case 'autocomplete':
+        componentToShow = Autocomplete
+        break
+      case 'inputwithparam':
+        componentToShow = InputWithParam
+        break
+      case 'enum':
+        componentToShow = Enum
+        break
+      case 'multienum':
+        componentToShow = MultiEnum
+        break
+      case 'textarea':
+        componentToShow = Textarea
         break
       case 'Dropdowns':
         componentToShow = DropdownGuideView
