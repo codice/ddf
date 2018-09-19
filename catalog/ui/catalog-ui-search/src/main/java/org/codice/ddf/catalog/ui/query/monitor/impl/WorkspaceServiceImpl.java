@@ -14,11 +14,15 @@
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_TAG;
+import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_TAG;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
@@ -39,9 +43,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.ThreadSafe;
+import javax.ws.rs.NotFoundException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
@@ -71,6 +77,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   private final WorkspaceQueryBuilder workspaceQueryBuilder;
 
+  private final FilterBuilder filterBuilder;
+
   /** Use {@code volatile} to make the class thread-safe. */
   private volatile int maxSubscriptions;
 
@@ -80,6 +88,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
    * @param securityService must be non-null
    * @param persistentStore must be non-null
    * @param workspaceQueryBuilder must be non-null
+   * @param filterBuilder must be non-null
    */
   @SuppressWarnings("WeakerAccess" /* Needed by blueprint. */)
   public WorkspaceServiceImpl(
@@ -87,18 +96,21 @@ public class WorkspaceServiceImpl implements WorkspaceService {
       WorkspaceTransformerImpl workspaceTransformer,
       WorkspaceQueryBuilder workspaceQueryBuilder,
       SecurityService securityService,
-      PersistentStore persistentStore) {
+      PersistentStore persistentStore,
+      FilterBuilder filterBuilder) {
     notNull(catalogFramework, "catalogFramework must be non-null");
     notNull(workspaceTransformer, "workspaceTransformer must be non-null");
     notNull(securityService, "securityService must be non-null");
     notNull(persistentStore, "persistentStore must be non-null");
     notNull(workspaceQueryBuilder, "workspaceQueryBuilder must be non-null");
+    notNull(filterBuilder, "filterBuilder must be non-null");
 
     this.catalogFramework = catalogFramework;
     this.workspaceTransformer = workspaceTransformer;
     this.securityService = securityService;
     this.persistentStore = persistentStore;
     this.workspaceQueryBuilder = workspaceQueryBuilder;
+    this.filterBuilder = filterBuilder;
   }
 
   @SuppressWarnings({"unused", "WeakerAccess"} /* Needed by metatype. */)
@@ -118,6 +130,40 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     return createQueryRequestForSubscribedToWorkspaces()
         .map(this::queryRequestToWorkspaceMetacards)
         .orElse(Collections.emptyList());
+  }
+
+  @Override
+  public List<QueryMetacardImpl> getQueryMetacards(WorkspaceMetacardImpl workspaceMetacard) {
+    List<String> queryIds = workspaceMetacard.getQueries();
+
+    if (queryIds.isEmpty()) {
+      LOGGER.trace(
+          "Workspace metacard with id [{}] does not contain any queries",
+          workspaceMetacard.getId());
+      return Collections.emptyList();
+    }
+
+    Query query = new QueryImpl(getQueriesFilter(queryIds));
+    QueryRequest queryRequest = new QueryRequestImpl(query);
+
+    return ResultIterable.resultIterable(catalogFramework::query, queryRequest)
+        .stream()
+        .map(Result::getMetacard)
+        .filter(Objects::nonNull)
+        .map(QueryMetacardImpl::new)
+        .collect(Collectors.toList());
+  }
+
+  private Filter getQueriesFilter(List<String> queryIds) {
+    List<Filter> queryFilters =
+        queryIds
+            .stream()
+            .map(id -> filterBuilder.attribute(Core.ID).is().text(id))
+            .collect(Collectors.toList());
+
+    return filterBuilder.allOf(
+        filterBuilder.attribute(Core.METACARD_TAGS).is().text(QUERY_TAG),
+        filterBuilder.anyOf(queryFilters));
   }
 
   private List<WorkspaceMetacardImpl> queryRequestToWorkspaceMetacards(QueryRequest queryRequest) {
@@ -162,16 +208,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   private Map<String, Serializable> createProperties() {
     return securityService.addSystemSubject(new HashMap<>());
-  }
-
-  @Override
-  public List<QueryMetacardImpl> getQueryMetacards(WorkspaceMetacardImpl workspaceMetacard) {
-    return workspaceMetacard
-        .getQueries()
-        .stream()
-        .map(workspaceTransformer::xmlToMetacard)
-        .map(QueryMetacardImpl::from)
-        .collect(Collectors.toList());
   }
 
   @Override
@@ -258,6 +294,35 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   @Override
   public WorkspaceMetacardImpl getWorkspaceMetacard(String workspaceId) {
-    return getWorkspaceMetacards(Collections.singleton(workspaceId)).get(0);
+    return getWorkspaceMetacards(Collections.singleton(workspaceId))
+        .stream()
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    String.format("Could not find workspace metacard with id [%s].", workspaceId)));
+  }
+
+  @Override
+  public WorkspaceMetacardImpl getWorkspaceFromQueryId(String queryId) {
+    Filter queryFilter =
+        filterBuilder.allOf(
+            filterBuilder.attribute(Core.METACARD_TAGS).like().text(WORKSPACE_TAG),
+            filterBuilder.attribute(WorkspaceConstants.WORKSPACE_QUERIES).like().text(queryId));
+
+    Query query = new QueryImpl(queryFilter);
+    QueryRequest queryRequest = new QueryRequestImpl(query);
+
+    return ResultIterable.resultIterable(catalogFramework::query, queryRequest)
+        .stream()
+        .map(Result::getMetacard)
+        .filter(Objects::nonNull)
+        .map(WorkspaceMetacardImpl::new)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    String.format(
+                        "Could not find workspace metacard that contains query id [%s]", queryId)));
   }
 }
