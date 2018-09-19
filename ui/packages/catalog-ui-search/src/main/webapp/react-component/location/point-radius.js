@@ -12,7 +12,7 @@ const PointRadiusLatLon = (props) => {
             <TextField type="number" label="Latitude" value={lat} onChange={cursor('lat')} addon="°" />
             <TextField type="number" label="Longitude" value={lon} onChange={cursor('lon')} addon="°" />
             <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
-                <TextField type="number" label="Radius" value={radius} onChange={cursor('radius')} />
+                <TextField type="number" min="0" label="Radius" value={radius} onChange={cursor('radius')} />
             </Units>
         </div>
     );
