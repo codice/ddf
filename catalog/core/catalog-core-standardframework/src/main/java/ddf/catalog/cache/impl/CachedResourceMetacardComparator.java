@@ -13,16 +13,12 @@
  */
 package ddf.catalog.cache.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import java.util.List;
+import ddf.catalog.data.types.Core;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,38 +45,17 @@ class CachedResourceMetacardComparator {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(CachedResourceMetacardComparator.class);
 
-  private static final List<Function<Metacard, ?>> METACARD_METHODS =
-      ImmutableList.of(
-          Metacard::getModifiedDate,
-          Metacard::getThumbnail,
-          Metacard::getResourceURI,
-          Metacard::getLocation,
-          Metacard::getEffectiveDate,
-          Metacard::getCreatedDate,
-          Metacard::getExpirationDate,
-          Metacard::getContentTypeName);
-
-  private static final Set<String> ATTRIBUTES_TO_IGNORE =
-      ImmutableSet.of(
-          Metacard.CHECKSUM,
-          Metacard.MODIFIED,
-          Metacard.RESOURCE_SIZE,
-          Metacard.THUMBNAIL,
-          Metacard.RESOURCE_URI,
-          Metacard.GEOGRAPHY,
-          Metacard.EFFECTIVE,
-          Metacard.CREATED,
-          Metacard.EXPIRATION,
-          Metacard.CONTENT_TYPE);
+  private static final Set<String> METACARD_ATTRIBUTES =
+      ImmutableSet.of(Core.MODIFIED, Core.CREATED, Core.METACARD_MODIFIED, Core.METACARD_CREATED);
 
   private CachedResourceMetacardComparator() {}
 
   /**
    * Indicates whether the resource associated with the provided metacard has changed by comparing
    * the state of the metacard when it was cached with the state of the metacard when it was last
-   * retrieved. Since there is no single attribute that clearly indicates whether the resource has
-   * changed or not, this class compares as many attributes as possible and if it find a difference,
-   * it will return {@code false}.
+   * retrieved. The attributes compared to indicate whether a resource has changed or not are ID,
+   * checksum, metacard modified date, resource modified date, metacard created date, and resource
+   * created date. If this finds a difference in these values it will return {@code false}.
    *
    * @param cachedMetacard version of the metacard when the product was added to the cache
    * @param updatedMetacard current version of the metacard
@@ -102,71 +77,22 @@ class CachedResourceMetacardComparator {
       return false;
     }
 
+    /*The checksum algorithm that can be picked has potential to be poor - we still check modified and created
+    dates if checksums are equal*/
     if (!Objects.equals(
-        cachedMetacard.getAttribute(Metacard.CHECKSUM),
-        updatedMetacard.getAttribute(Metacard.CHECKSUM))) {
+        cachedMetacard.getAttribute(Core.CHECKSUM), updatedMetacard.getAttribute(Core.CHECKSUM))) {
       return false;
     }
 
-    if (!allMetacardMethodsReturnMatchingAttributes(cachedMetacard, updatedMetacard)) {
-      return false;
-    }
-
-    return allMetacardAttributesEqual(cachedMetacard, updatedMetacard);
+    return allMetacardMethodsReturnMatchingAttributes(cachedMetacard, updatedMetacard);
   }
 
   private static boolean allMetacardMethodsReturnMatchingAttributes(
       Metacard cachedMetacard, Metacard updatedMetacard) {
-    Optional<Function<Metacard, ?>> difference =
-        METACARD_METHODS
-            .stream()
-            .filter(
-                method ->
-                    !Objects.deepEquals(
-                        method.apply(cachedMetacard), method.apply(updatedMetacard)))
-            .findFirst();
-
-    if (LOGGER.isDebugEnabled() && difference.isPresent()) {
-      Function<Metacard, ?> metacardFunction = difference.get();
-      LOGGER.debug(
-          "Metacard updated. Cached value: {}. Updated value: {}",
-          metacardFunction.apply(cachedMetacard),
-          metacardFunction.apply(updatedMetacard));
-    }
-
-    return !difference.isPresent();
-  }
-
-  private static boolean allMetacardAttributesEqual(
-      Metacard cachedMetacard, Metacard updatedMetacard) {
-    MetacardType cachedMetacardType = cachedMetacard.getMetacardType();
-    MetacardType updatedMetacardType = updatedMetacard.getMetacardType();
-
-    if (!Objects.equals(cachedMetacardType, updatedMetacardType)) {
-      return false;
-    }
-
-    // We know cacheMetacardType and updateMetacardType are equal at this point, so if
-    // cachedMetacardType is null then updatedMetacardType has to be null as well and no
-    // attributes need to be compared so we can return true.
-    if (cachedMetacardType == null) {
-      return true;
-    }
-
-    Set<AttributeDescriptor> cachedDescriptors = cachedMetacardType.getAttributeDescriptors();
-
-    // Since the Objects.equals() above does a deep compare, we know that the two descriptor
-    // sets are equals. If cacheDescriptors is null, then updatedDescriptors has to be null
-    // as well and no attributes need to be compared so we can return true.
-    if (cachedDescriptors == null) {
-      return true;
-    }
 
     Optional<String> difference =
-        cachedDescriptors
+        METACARD_ATTRIBUTES
             .stream()
-            .map(AttributeDescriptor::getName)
-            .filter(attributeName -> !ATTRIBUTES_TO_IGNORE.contains(attributeName))
             .filter(
                 attributeName ->
                     !Objects.equals(
@@ -177,7 +103,7 @@ class CachedResourceMetacardComparator {
     if (LOGGER.isDebugEnabled() && difference.isPresent()) {
       String attributeName = difference.get();
       LOGGER.debug(
-          "Metacard updated. Attribute changed: {}, cached value: {}, updated value: {}",
+          "Metacard updated. Attribute changed: {}, Cached value: {}. Updated value: {}",
           attributeName,
           cachedMetacard.getAttribute(attributeName),
           updatedMetacard.getAttribute(attributeName));
