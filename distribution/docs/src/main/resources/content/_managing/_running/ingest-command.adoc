@@ -35,6 +35,7 @@ Absolute paths are permitted. If the `<file path>` is not absolute, it is treate
 [NOTE]
 ====
 On Windows, put the file path in double quotes: `"path\to\the file"`.
+Some Windows users may need to escape the backslashes as well:  `"path\\to\\the file"`.
 ====
 
 Successful command line ingest operations are accompanied with messaging indicating how many files were ingested and how long the operations took.
