@@ -14,7 +14,9 @@
 package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class QueryMetacardImpl extends MetacardImpl {
-  public static final QueryMetacardTypeImpl TYPE = new QueryMetacardTypeImpl();
+  private static final QueryMetacardTypeImpl TYPE = new QueryMetacardTypeImpl();
 
   public QueryMetacardImpl() {
     super(TYPE);
@@ -37,6 +39,16 @@ public class QueryMetacardImpl extends MetacardImpl {
   public QueryMetacardImpl(Metacard wrappedMetacard) {
     super(wrappedMetacard, TYPE);
     setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
+
+    for (AttributeDescriptor attrDesc : TYPE.getAttributeDescriptors()) {
+      Attribute attr = wrappedMetacard.getAttribute(attrDesc.getName());
+
+      if (attr != null && attrDesc.isMultiValued()) {
+        this.setAttribute(new AttributeImpl(attr.getName(), attr.getValues()));
+      } else if (attr != null && !attrDesc.isMultiValued()) {
+        this.setAttribute(new AttributeImpl(attr.getName(), attr.getValue()));
+      }
+    }
   }
 
   public static QueryMetacardImpl from(Metacard metacard) {
