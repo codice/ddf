@@ -122,6 +122,7 @@ public class IngestCommand extends CatalogCommands {
   private static final String THREAD_NAME = "ingestCommandThread";
 
   private static final String CONTENT_PATH = CONTENT + File.separator;
+  public static final String DDF_INGEST = "ddf.ingest";
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -336,12 +337,8 @@ public class IngestCommand extends CatalogCommands {
     final File inputFile;
 
     if (StringUtils.isBlank(filePath)) {
-      String home =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> (System.getProperty("karaf.home")));
-      inputFile = new File(home, "ingest");
-      printColor(
-          Color.CYAN, String.format("Ingesting from %s\n", inputFile.toString()));
+      inputFile = new File(getDefaultIngestLocation());
+      printColor(Color.CYAN, String.format("Ingesting from %s\n", inputFile.toString()));
 
     } else {
       inputFile = new File(filePath);
@@ -835,5 +832,10 @@ public class IngestCommand extends CatalogCommands {
     } catch (InvalidSyntaxException e) {
       throw new IllegalArgumentException("Invalid transformer transformerId: " + transformerId, e);
     }
+  }
+
+  private String getDefaultIngestLocation() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(DDF_INGEST, ""));
   }
 }

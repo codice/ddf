@@ -42,8 +42,6 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
 }
 
-permission java.io.FilePermission "${ddf.home}${/}ingest", "read";
-permission java.io.FilePermission "${ddf.home}${/}ingest${/}-", "read, write";
 
 
 //                        URL Resource Reader Permissions
