@@ -21,6 +21,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Core;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
@@ -48,7 +49,9 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String SCHEDULES = "schedules";
 
-  private static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
+  public static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
+
+  public static final Set<String> QUERY_ATTRIBUTE_NAMES;
 
   static {
     QUERY_DESCRIPTORS = new HashSet<>();
@@ -146,6 +149,9 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* tokenized */,
             true /* multivalued */,
             BasicTypes.XML_TYPE));
+
+    QUERY_ATTRIBUTE_NAMES =
+        QUERY_DESCRIPTORS.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());
   }
 
   public QueryMetacardTypeImpl() {

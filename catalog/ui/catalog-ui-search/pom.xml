@@ -361,6 +361,22 @@
             <version>${usng4j.version}</version>
             <scope>test</scope>
         </dependency>
+      <dependency>
+        <groupId>ddf.mime.core</groupId>
+        <artifactId>mime-core-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codice.thirdparty</groupId>
+        <artifactId>tika-bundle</artifactId>
+        <version>${tika.thirdparty.bundle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
 
     <build>
@@ -495,12 +511,12 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.36</minimum>
+                                            <minimum>0.37</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.34</minimum>
+                                            <minimum>0.35</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
