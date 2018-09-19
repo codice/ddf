@@ -80,7 +80,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String KEY_STORE = "javax.net.ssl.keyStore";
   private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
   public static final String KEY_STORE_TYPE = "javax.net.ssl.keyStoreType";
-  public static final String SOLR_CREDENTIALS = "solr.credentials";
+  public static final String SOLR_PASSWORD = "solr.password";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
   private static final String SOLR_HTTP_URL = "solr.http.url";
   public static final String SOLR_USE_BASIC_AUTH = "solr.useBasicAuth";
@@ -283,7 +283,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private CredentialsProvider getCredentialsProvider() {
     CredentialsProvider provider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials =
-        new UsernamePasswordCredentials(getProperty(SOLR_USERNAME), getProperty(SOLR_CREDENTIALS));
+        new UsernamePasswordCredentials(getProperty(SOLR_USERNAME), getProperty(SOLR_PASSWORD));
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }
