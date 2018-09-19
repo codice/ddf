@@ -20,19 +20,24 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.types.CoreAttributes;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,6 +47,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 public class DynamicSchemaResolverTest {
 
@@ -55,14 +61,14 @@ public class DynamicSchemaResolverTest {
   public void testAddFields() throws Exception {
     // Setup
     String metacardTypeName = "states";
-    Set<AttributeDescriptor> addtributeDescriptors = new HashSet<AttributeDescriptor>(1);
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<AttributeDescriptor>(1);
     String propertyName = "title";
     String name = metacardTypeName + "." + propertyName;
     boolean indexed = true;
     boolean stored = true;
     boolean tokenized = false;
     boolean multiValued = false;
-    addtributeDescriptors.add(
+    attributeDescriptors.add(
         new TestAttributeDescriptorImpl(
             name, propertyName, indexed, stored, tokenized, multiValued, BasicTypes.OBJECT_TYPE));
     Serializable mockValue = mock(Serializable.class);
@@ -70,8 +76,7 @@ public class DynamicSchemaResolverTest {
     when(mockAttribute.getValue()).thenReturn(mockValue);
     Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
     when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
-    when(mockMetacard.getMetacardType().getAttributeDescriptors())
-        .thenReturn(addtributeDescriptors);
+    when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
     when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
     ArgumentCaptor<byte[]> metacardTypeBytes = ArgumentCaptor.forClass(byte[].class);
     SolrInputDocument mockSolrInputDocument = mock(SolrInputDocument.class);
@@ -90,6 +95,44 @@ public class DynamicSchemaResolverTest {
       assertThat(
           attributeDescriptor.getClass().getName(), is(AttributeDescriptorImpl.class.getName()));
     }
+  }
+
+  /**
+   * Verify that even unchecked exceptions generating xpath support do not prevent a metacard from
+   * being stored.
+   */
+  @Test
+  public void testBufferOverflow() throws MetacardCreationException {
+    // Setup
+    String metacardTypeName = "states";
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
+    String attributeName = Metacard.METADATA;
+    attributeDescriptors.add(new CoreAttributes().getAttributeDescriptor(attributeName));
+    StringBuilder mockValue = new StringBuilder();
+    mockValue.append("<?xml version=\"1.1\" encoding=\"UTF-32\"?><metadata></metadata>");
+    Attribute mockAttribute = new AttributeImpl(Metacard.METADATA, mockValue.toString());
+    Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
+    when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
+    when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
+    when(mockMetacard.getAttribute(attributeName)).thenReturn(mockAttribute);
+    when(mockMetacard.getMetadata()).thenReturn(mockValue.toString());
+    SolrInputDocument mockSolrInputDocument = mock(SolrInputDocument.class);
+    DynamicSchemaResolver resolver =
+        new DynamicSchemaResolver(
+            Collections.EMPTY_LIST,
+            tinyTree -> {
+              throw new BufferOverflowException();
+            });
+
+    // Perform Test
+    resolver.addFields(mockMetacard, mockSolrInputDocument);
+
+    // Verify: Verify that no exception was thrown
+    // called from inside catch block, indicating safe error handling
+    verify(mockMetacard).getId();
+    verify(mockSolrInputDocument)
+        .addField(eq(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME), Matchers.any());
+    verify(mockSolrInputDocument, times(0)).addField(eq("lux_xml"), Matchers.any());
   }
 
   @Test
