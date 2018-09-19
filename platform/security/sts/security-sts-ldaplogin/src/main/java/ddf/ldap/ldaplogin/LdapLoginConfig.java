@@ -27,9 +27,11 @@ import ddf.security.common.audit.SecurityLogger;
 import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -42,6 +44,8 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.karaf.jaas.config.impl.Module;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.forgerock.opendj.ldap.Connection;
+import org.forgerock.opendj.ldap.ConnectionFactory;
+import org.forgerock.opendj.ldap.Connections;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPUrl;
 import org.forgerock.util.Options;
@@ -61,6 +65,10 @@ public class LdapLoginConfig {
 
   public static final String LDAP_URL = "ldapUrl";
 
+  public static final String LDAP_LOAD_BALANCING = "ldapLoadBalancing";
+
+  public static final String FAILOVER = "failover";
+
   public static final String BIND_METHOD = "bindMethod";
 
   public static final String USER_BASE_DN = "userBaseDn";
@@ -75,9 +83,11 @@ public class LdapLoginConfig {
 
   private static final String SUFFICIENT_FLAG = "sufficient";
 
-  private static final String LOGIN_USER_ATTRIBUTE = "loginUserAtttribute";
+  public static final String LOGIN_USER_ATTRIBUTE = "loginUserAtttribute";
 
-  private static final String MEMBER_USER_ATTRIBUTE = "membershipUserAttribute";
+  public static final String MEMBER_USER_ATTRIBUTE = "membershipUserAttribute";
+
+  public static final String MEMBER_NAME_ATTRIBUTE = "memberNameAttribute";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
@@ -121,10 +131,34 @@ public class LdapLoginConfig {
         ldapConnectionPool.close();
       }
 
-      LDAPConnectionFactory ldapConnectionFactory =
-          createLdapConnectionFactory(
-              (String) ldapProperties.get(LDAP_URL),
-              Boolean.parseBoolean((String) ldapProperties.get(START_TLS)));
+      ConnectionFactory ldapConnectionFactory = null;
+
+      List<String> urls = new ArrayList<>();
+      Object urlsObj = props.get(LDAP_URL);
+      if (urlsObj instanceof String[]) {
+        urls.addAll(Arrays.asList((String[]) urlsObj));
+      } else {
+        urls.add(urlsObj.toString());
+      }
+
+      List<ConnectionFactory> connectionFactories = new ArrayList<>();
+
+      Boolean startTls =
+          props.get(START_TLS) == null
+              ? false
+              : Boolean.parseBoolean(props.get(START_TLS).toString());
+
+      for (String url : urls) {
+        connectionFactories.add(createLdapConnectionFactory(url, startTls));
+      }
+
+      String loadBalancingAlgorithm = (String) props.get(LDAP_LOAD_BALANCING);
+      Options options = Options.defaultOptions();
+      if (FAILOVER.equalsIgnoreCase(loadBalancingAlgorithm)) {
+        ldapConnectionFactory = Connections.newFailoverLoadBalancer(connectionFactories, options);
+      } else {
+        ldapConnectionFactory = Connections.newRoundRobinLoadBalancer(connectionFactories, options);
+      }
 
       ldapConnectionPool =
           new GenericObjectPool<>(
@@ -163,7 +197,7 @@ public class LdapLoginConfig {
     return config;
   }
 
-  protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls) {
+  protected ConnectionFactory createLdapConnectionFactory(String url, Boolean startTls) {
     boolean useSsl = url.startsWith("ldaps");
     boolean useTls = !url.startsWith("ldaps") && startTls;
 
@@ -253,10 +287,14 @@ public class LdapLoginConfig {
     props.put(USER_FILTER_OPTIONS_KEY, String.format("(%s=%%u)", loginUserAttribute));
     props.put(USER_SEARCH_SUBTREE_OPTIONS_KEY, "true");
     props.put(ROLE_BASE_DN_OPTIONS_KEY, properties.get(GROUP_BASE_DN));
+    Object groupMemberAttribute = properties.get(MEMBER_NAME_ATTRIBUTE);
+    groupMemberAttribute = groupMemberAttribute == null ? "member" : groupMemberAttribute;
     props.put(
         ROLE_FILTER_OPTIONS_KEY,
-        String.format("(member=%s=%%u,%s)", membershipUserAttribute, userBaseDn));
-    props.put(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY, "cn");
+        String.format(
+            "(|(%1$s=%2$s=%%u,%3$s)(%1$s=%%fqdn)(%1$s=%4$s=%%u,%%dn))",
+            groupMemberAttribute, membershipUserAttribute, userBaseDn, loginUserAttribute));
+    props.put(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY, membershipUserAttribute);
     props.put(ROLE_SEARCH_SUBTREE_OPTIONS_KEY, "true");
     props.put("authentication", "simple");
     props.put("ssl.protocol", "TLS");
@@ -290,9 +328,14 @@ public class LdapLoginConfig {
     ldapProperties.put(LDAP_BIND_USER_PASS, bindUserPass);
   }
 
-  public void setLdapUrl(String ldapUrl) {
+  public void setLdapUrl(String... ldapUrl) {
     LOGGER.trace("setLdapUrl called: {}", ldapUrl);
     ldapProperties.put(LDAP_URL, ldapUrl);
+  }
+
+  public void setLdapLoadBalancing(String ldapLoadBalancing) {
+    LOGGER.trace("setLdapLoadBalancing called: {}", ldapLoadBalancing);
+    ldapProperties.put(LDAP_LOAD_BALANCING, ldapLoadBalancing);
   }
 
   public void setUserBaseDn(String userBaseDn) {
@@ -321,8 +364,13 @@ public class LdapLoginConfig {
   }
 
   public void setMembershipUserAttribute(String membershipUserAttribute) {
-    LOGGER.trace("setMemberUserAttribute called: {}", membershipUserAttribute);
+    LOGGER.trace("setMembershipUserAttribute called: {}", membershipUserAttribute);
     ldapProperties.put(MEMBER_USER_ATTRIBUTE, membershipUserAttribute);
+  }
+
+  public void setMemberNameAttribute(String memberNameAttribute) {
+    LOGGER.trace("setMemberNameAttribute called: {}", memberNameAttribute);
+    ldapProperties.put(MEMBER_NAME_ATTRIBUTE, memberNameAttribute);
   }
 
   public void setBindMethod(String bindMethod) {

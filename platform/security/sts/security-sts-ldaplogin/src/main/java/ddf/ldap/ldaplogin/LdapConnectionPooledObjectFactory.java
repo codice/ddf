@@ -17,13 +17,13 @@ import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.ConnectionFactory;
 
 public class LdapConnectionPooledObjectFactory extends BasePooledObjectFactory<Connection> {
 
-  private final LDAPConnectionFactory ldapConnectionFactory;
+  private final ConnectionFactory ldapConnectionFactory;
 
-  public LdapConnectionPooledObjectFactory(LDAPConnectionFactory ldapConnectionFactory) {
+  public LdapConnectionPooledObjectFactory(ConnectionFactory ldapConnectionFactory) {
     this.ldapConnectionFactory = ldapConnectionFactory;
   }
 

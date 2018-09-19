@@ -18,10 +18,15 @@
 	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Login"
          id="Ldap_Login_Config">
 	    
-	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
+	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String" cardinality="10"
             default="ldaps://${org.codice.ddf.system.hostname}:1636"
             description="LDAP or LDAPS server and port">
 	    </AD>
+
+		<AD name="LDAP Load Balancing:" id="ldapLoadBalancing" required="false" type="String"
+			default="round_robin"
+			description="Load balancing algorithm to use when multiple LDAP urls are provided (round_robin, failover)">
+		</AD>
 
 		<AD name="LDAP Bind Method" id="bindMethod" required="true" type="String"
 			default="Simple">

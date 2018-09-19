@@ -18,10 +18,15 @@
 	<OCD description="STS Ldap and Roles Claims Handler Configuration. WARNING: The server must be restarted for these updates to take affect."
          name="Security STS LDAP and Roles Claims Handler" id="Claims_Handler_Manager">
 
-	    <AD name="LDAP URL:" id="url" required="true" type="String"
+	    <AD name="LDAP URL:" id="url" required="true" type="String" cardinality="10"
             default="ldaps://${org.codice.ddf.system.hostname}:1636"
             description="LDAP or LDAPS server and port">
 	    </AD>
+
+		<AD name="LDAP Load Balancing:" id="loadBalancing" required="false" type="String"
+			default="round_robin"
+			description="Load balancing algorithm to use when multiple LDAP urls are provided (round_robin, failover)">
+		</AD>
 
 		<AD name="LDAP Bind Method" id="bindMethod" required="true" type="String"
 			default="Simple">
