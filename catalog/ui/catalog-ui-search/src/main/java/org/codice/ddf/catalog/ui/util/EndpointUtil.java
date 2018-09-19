@@ -415,17 +415,13 @@ public class EndpointUtil {
     Stopwatch stopwatch = Stopwatch.createStarted();
 
     List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
-    QueryFunction queryFunction =
-        (queryRequest) -> {
-          QueryResponse queryResponse = catalogFramework.query(queryRequest);
-          responses.add(queryResponse);
-          return queryResponse;
-        };
 
-    List<Result> results =
-        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
-            .stream()
-            .collect(Collectors.toList());
+    List<Result> results;
+    if (cqlRequest.getCount() == 0) {
+      results = retrieveHitCount(request, responses);
+    } else {
+      results = retrieveResults(cqlRequest, request, responses);
+    }
 
     QueryResponse response =
         new QueryResponseImpl(
@@ -437,7 +433,7 @@ public class EndpointUtil {
                 .filter(Objects::nonNull)
                 .map(QueryResponse::getHits)
                 .findFirst()
-                .orElse(-1l),
+                .orElse(-1L),
             responses
                 .stream()
                 .filter(Objects::nonNull)
@@ -456,6 +452,26 @@ public class EndpointUtil {
         cqlRequest.isNormalize(),
         filterAdapter,
         actionRegistry);
+  }
+
+  private List<Result> retrieveHitCount(QueryRequest request, List<QueryResponse> responses)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    QueryResponse queryResponse = catalogFramework.query(request);
+    responses.add(queryResponse);
+    return queryResponse.getResults();
+  }
+
+  private List<Result> retrieveResults(
+      CqlRequest cqlRequest, QueryRequest request, List<QueryResponse> responses) {
+    QueryFunction queryFunction =
+        (queryRequest) -> {
+          QueryResponse queryResponse = catalogFramework.query(queryRequest);
+          responses.add(queryResponse);
+          return queryResponse;
+        };
+    return ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
+        .stream()
+        .collect(Collectors.toList());
   }
 
   public Map<String, Object> getMetacardMap(Metacard metacard) {
