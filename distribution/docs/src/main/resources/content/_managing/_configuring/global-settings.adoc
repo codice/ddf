@@ -275,7 +275,7 @@ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 |ws-security.subject.cert.constraints
 |String
 |Set to a comma separated list of regex patterns to define which hosts are allowed to connect to the STS
-|.*
+|`.*`
 |Yes
 
 6+^h|XML Settings
@@ -488,6 +488,14 @@ zookeeperhost3:2181
 |String
 |Memory allocated to the Solr Java process
 |2g
+|Yes
+
+6+^h|[[_other_properties]]Other Properties
+|Default ingest directory
+|ddf.ingest
+|String
+|Default ingest directory
+|`${home_directory}/ingest`
 |Yes
 
 |===
