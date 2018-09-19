@@ -40,7 +40,13 @@ var pixelOffset = new Cesium.Cartesian2(0.0, 0)
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0
 var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes
 
-function setupTerrainProvider(viewer, { type, ...terrainConfig } = {}) {
+function setupTerrainProvider(viewer, terrainProvider) {
+  if (terrainProvider == null || terrainProvider === undefined) {
+    console.info(`Unknown terrain provider configuration.
+              Default Cesium terrain provider will be used.`)
+    return
+  }
+  const { type, ...terrainConfig } = terrainProvider
   const TerrainProvider = imageryProviderTypes[type]
   if (TerrainProvider === undefined) {
     console.warn(`
