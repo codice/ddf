@@ -102,9 +102,15 @@ function generateAnyGeoFilter(property, model) {
         'MULTIPOLYGON' +
         sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)))
       return {
-        type: 'INTERSECTS',
+        type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
         property: property,
         value: poly,
+        ...(model.polygonBufferWidth && {
+          distance: DistanceUtils.getDistanceInMeters(
+            model.polygonBufferWidth,
+            model.polygonBufferUnits
+          ),
+        }),
       }
     case 'BBOX':
       return {
