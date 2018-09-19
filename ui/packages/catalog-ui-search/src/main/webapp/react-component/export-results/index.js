@@ -8,17 +8,35 @@ const CustomElements = require('js/CustomElements')
 const Component = CustomElements.registerReact('export-results')
 
 const capitalize = value => value.charAt(0).toUpperCase() + value.slice(1)
+const haveSearchResults = state =>
+  state && state.activeSearchResults && state.activeSearchResults.length > 0
 
 class ExportResults extends React.Component {
   constructor(props) {
     super(props)
 
     const passedProps = (props && props.options && props.options.props) || {}
+    const activeSearchResults = {
+      activeSearchResults:
+        (props.state && props.state.activeSearchResults) || [],
+    }
     const defaultExportSize = Object.keys(passedProps.export)[0]
     this.state = {
       ...passedProps,
+      ...activeSearchResults,
       exportSizeValue: defaultExportSize,
       exportFormats: [],
+    }
+  }
+
+  componentDidUpdate = async previousProps => {
+    if (
+      previousProps.state.activeSearchResults !==
+      this.props.state.activeSearchResults
+    ) {
+      this.setState({
+        activeSearchResults: this.props.state.activeSearchResults,
+      })
     }
   }
 
@@ -101,7 +119,7 @@ class ExportResults extends React.Component {
 
   render = () => {
     return (
-      (this.state && (
+      (haveSearchResults(this.state) && (
         <Component>
           {` Export `}
           <select
