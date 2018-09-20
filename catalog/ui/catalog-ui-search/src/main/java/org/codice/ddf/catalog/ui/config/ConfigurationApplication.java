@@ -217,6 +217,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List<String> basicSearchTemporalSelectionDefault;
 
+  private String basicSearchMatchType;
+
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
@@ -500,6 +502,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("requiredAttributes", getRequiredAttributes());
     config.put("enums", getAttributeEnumMap());
     config.put("basicSearchTemporalSelectionDefault", basicSearchTemporalSelectionDefault);
+    config.put("basicSearchMatchType", basicSearchMatchType);
     return config;
   }
 
@@ -1157,5 +1160,13 @@ public class ConfigurationApplication implements SparkApplication {
 
   public List<String> getBasicSearchTemporalSelectionDefault() {
     return basicSearchTemporalSelectionDefault;
+  }
+
+  public String getBasicSearchMatchType() {
+    return basicSearchMatchType;
+  }
+
+  public void setBasicSearchMatchType(String basicSearchMatchType) {
+    this.basicSearchMatchType = basicSearchMatchType;
   }
 }
