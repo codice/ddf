@@ -122,7 +122,6 @@ public class IngestCommand extends CatalogCommands {
   private static final String THREAD_NAME = "ingestCommandThread";
 
   private static final String CONTENT_PATH = CONTENT + File.separator;
-  public static final String DDF_INGEST = "ddf.ingest";
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
