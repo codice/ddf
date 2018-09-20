@@ -35,27 +35,31 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.ZipParameters;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZipCompression implements QueryResponseTransformer {
+
   public static final String METACARD_PATH = "metacards" + File.separator;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ZipCompression.class);
@@ -84,6 +88,16 @@ public class ZipCompression implements QueryResponseTransformer {
       SourceResponse upstreamResponse, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
 
+    checkArguments(upstreamResponse, arguments);
+
+    String filePath = (String) arguments.get(ZipDecompression.FILE_PATH);
+    createZip(upstreamResponse, filePath);
+
+    return getBinaryContentFromZip(filePath);
+  }
+
+  private void checkArguments(SourceResponse upstreamResponse, Map<String, Serializable> arguments)
+      throws CatalogTransformerException {
     if (upstreamResponse == null || CollectionUtils.isEmpty(upstreamResponse.getResults())) {
       throw new CatalogTransformerException("No Metacards were found to transform.");
     }
@@ -91,74 +105,57 @@ public class ZipCompression implements QueryResponseTransformer {
     if (MapUtils.isEmpty(arguments) || !arguments.containsKey(ZipDecompression.FILE_PATH)) {
       throw new CatalogTransformerException("No 'filePath' argument found in arguments map.");
     }
+  }
 
-    ZipFile zipFile;
-    String filePath = (String) arguments.get(ZipDecompression.FILE_PATH);
-    try {
-      zipFile = new ZipFile(filePath);
-    } catch (ZipException e) {
-      LOGGER.debug("Unable to create zip file with path : {}", filePath, e);
-      throw new CatalogTransformerException(
-          String.format("Unable to create zip file at %s", filePath), e);
-    }
+  private void createZip(SourceResponse upstreamResponse, String filePath)
+      throws CatalogTransformerException {
+    try (FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
 
-    List<Result> resultList = upstreamResponse.getResults();
+      List<Result> resultList = upstreamResponse.getResults();
+      Map<String, Resource> resourceMap = new HashMap<>();
 
-    Map<String, Resource> resourceMap = new HashMap<>();
-
-    resultList
-        .stream()
-        .map(Result::getMetacard)
-        .forEach(
-            metacard -> {
-              ZipParameters zipParameters = new ZipParameters();
-              zipParameters.setSourceExternalStream(true);
-              zipParameters.setFileNameInZip(METACARD_PATH + metacard.getId());
-
-              try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                  ObjectOutputStream objectOutputStream =
-                      new ObjectOutputStream(byteArrayOutputStream)) {
-
-                objectOutputStream.writeObject(new MetacardImpl(metacard));
-                InputStream inputStream =
-                    new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-                zipFile.addStream(inputStream, zipParameters);
+      // write the metacards to the zip
+      resultList
+          .stream()
+          .map(Result::getMetacard)
+          .forEach(
+              metacard -> {
+                writeMetacardToZip(zipOutputStream, metacard);
 
                 if (hasLocalResources(metacard)) {
                   resourceMap.putAll(getAllMetacardContent(metacard));
                 }
+              });
 
-              } catch (IOException | ZipException e) {
-                LOGGER.debug("Failed to add metacard with id {}.", metacard.getId(), e);
-              }
-            });
+      // write the resources to the zip
+      resourceMap.forEach(
+          (filename, resource) -> writeResourceToZip(zipOutputStream, filename, resource));
 
-    resourceMap.forEach(
-        (filename, resource) -> {
-          try {
-            ZipParameters zipParameters = new ZipParameters();
-            zipParameters.setSourceExternalStream(true);
-            zipParameters.setFileNameInZip(filename);
-            zipFile.addStream(resource.getInputStream(), zipParameters);
-          } catch (ZipException e) {
-            LOGGER.debug("Failed to add resource with id {} to zip.", resource.getName(), e);
-          }
-        });
-
-    BinaryContent binaryContent;
-    try {
-      InputStream fileInputStream = new ZipInputStream(new FileInputStream(zipFile.getFile()));
-      binaryContent = new BinaryContentImpl(fileInputStream);
-      jarSigner.signJar(
-          zipFile.getFile(),
-          System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
-          System.getProperty("javax.net.ssl.keyStorePassword"),
-          System.getProperty("javax.net.ssl.keyStore"),
-          System.getProperty("javax.net.ssl.keyStorePassword"));
-    } catch (FileNotFoundException e) {
-      throw new CatalogTransformerException("Unable to get ZIP file from ZipInputStream.", e);
+    } catch (IOException e) {
+      throw new CatalogTransformerException(
+          String.format(
+              "Error occurred when initializing/closing ZipOutputStream with path %s.", filePath),
+          e);
     }
-    return binaryContent;
+  }
+
+  private void writeMetacardToZip(ZipOutputStream zipOutputStream, Metacard metacard) {
+
+    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+
+      ZipEntry zipEntry = new ZipEntry(METACARD_PATH + metacard.getId());
+      zipOutputStream.putNextEntry(zipEntry);
+
+      objectOutputStream.writeObject(new MetacardImpl(metacard));
+      InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+
+      IOUtils.copy(inputStream, zipOutputStream);
+      inputStream.close();
+    } catch (IOException e) {
+      LOGGER.debug("Failed to add metacard with id {}.", metacard.getId(), e);
+    }
   }
 
   private boolean hasLocalResources(Metacard metacard) {
@@ -223,6 +220,47 @@ public class ZipCompression implements QueryResponseTransformer {
       LOGGER.debug("Unable to retrieve content from metacard : {}", metacard.getId(), e);
     }
     return resource;
+  }
+
+  private void writeResourceToZip(
+      ZipOutputStream zipOutputStream, String filename, Resource resource) {
+
+    try {
+      ZipEntry zipEntry = new ZipEntry(filename);
+      zipOutputStream.putNextEntry(zipEntry);
+
+      InputStream inputStream = resource.getInputStream();
+
+      IOUtils.copy(inputStream, zipOutputStream);
+      inputStream.close();
+    } catch (IOException e) {
+      LOGGER.debug("Failed to add resource with id {} to zip.", resource.getName(), e);
+    }
+  }
+
+  private BinaryContent getBinaryContentFromZip(String filePath)
+      throws CatalogTransformerException {
+    BinaryContent binaryContent;
+    InputStream fileInputStream;
+    File zipFile = new File(filePath);
+    try {
+      fileInputStream = new ZipInputStream(new FileInputStream(zipFile));
+      binaryContent = new BinaryContentImpl(fileInputStream);
+    } catch (FileNotFoundException e) {
+      throw new CatalogTransformerException("Unable to get ZIP file from ZipInputStream.", e);
+    }
+
+    jarSigner.signJar(
+        zipFile,
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST)),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore")),
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")));
+    return binaryContent;
   }
 
   public void setCatalogFramework(CatalogFramework catalogFramework) {
