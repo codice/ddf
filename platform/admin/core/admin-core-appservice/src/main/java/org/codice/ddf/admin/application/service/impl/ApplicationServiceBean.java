@@ -21,7 +21,6 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -49,6 +47,7 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -91,8 +90,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private final ConfigurationAdmin configAdmin;
 
-  private final FeaturesService featuresService;
-
   private ObjectName objectName;
 
   private MBeanServer mBeanServer;
@@ -106,6 +103,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   /** the service tracker. */
   private ServiceTracker<Object, Object> serviceTracker;
 
+  private SynchronizedInstaller syncInstaller;
+
   /**
    * Creates an instance of an ApplicationServiceBean
    *
@@ -117,12 +116,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       ApplicationService appService,
       ConfigurationAdmin configAdmin,
       MBeanServer mBeanServer,
-      FeaturesService featuresService)
+      SynchronizedInstaller syncInstaller)
       throws ApplicationServiceException {
     this.appService = appService;
     this.configAdmin = configAdmin;
     this.mBeanServer = mBeanServer;
-    this.featuresService = featuresService;
+    this.syncInstaller = syncInstaller;
+
     try {
       objectName =
           new ObjectName(ApplicationService.class.getName() + ":service=application-service");
@@ -189,8 +189,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                featuresService.installFeature(
-                    feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+                syncInstaller.installFeatures(feature);
                 return null;
               });
     } catch (VirtualMachineError e) {
@@ -210,8 +209,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                featuresService.uninstallFeature(
-                    feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+                syncInstaller.uninstallFeatures(feature);
                 return null;
               });
     } catch (VirtualMachineError e) {

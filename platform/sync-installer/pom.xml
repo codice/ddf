@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- /**
+<!--
+/**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
@@ -9,10 +10,24 @@
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
- **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <service interface="org.codice.ddf.test.common.features.FeatureUtilities">
-      <bean class="org.codice.ddf.test.common.features.FeatureUtilities"/>
-    </service>
+ **/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>platform</artifactId>
+        <groupId>ddf.platform</groupId>
+        <version>2.14.0-SNAPSHOT</version>
+    </parent>
+    <name>DDF :: Platform :: Sync Installer</name>
+    <artifactId>sync-installer</artifactId>
 
-</blueprint>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>sync-installer-api</module>
+        <module>sync-installer-impl</module>
+    </modules>
+</project>

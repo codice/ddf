@@ -27,7 +27,7 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
-import org.apache.karaf.features.FeaturesService;
+import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.common.features.FeatureUtilities;
 import org.codice.ddf.test.common.features.TestUtilitiesFeatures;
 import org.junit.Test;
@@ -66,16 +66,14 @@ public class ITTestUtilitiesFeatures {
                 FEATURE_REPO_PATH, TestUtilitiesFeatures.TEST_COMMON_FEATURE)));
   }
 
-  @Inject private FeaturesService featuresService;
-
-  @Inject private FeatureUtilities featureUtilities;
-
-  private String featureName;
-
   @Parameterized.Parameters
   public static List<Object[]> getParameters() {
     return FeatureUtilities.featureRepoToFeatureParameters(FEATURE_REPO_PATH, IGNORED_FEATURES);
   }
+
+  @Inject private SynchronizedInstaller syncInstaller;
+
+  private String featureName;
 
   public ITTestUtilitiesFeatures(String featureName) {
     this.featureName = featureName;
@@ -83,6 +81,7 @@ public class ITTestUtilitiesFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    featureUtilities.installAndUninstallFeature(featuresService, featureName);
+    syncInstaller.installFeatures(featureName);
+    syncInstaller.uninstallFeatures(featureName);
   }
 }
