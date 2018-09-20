@@ -31,7 +31,7 @@ Configure the URL Resource Reader from the ${admin-console}.
 
 See <<{application-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader configurations>> for all possible configurations.
 
-=== Configuring Permissions for the URL Resource Reader
+===== Configuring Permissions for the URL Resource Reader
 
 Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permissions to the directory containing the resources. The following permissions, replacing <DIRECTORY_PATH> with the path of the directory containing resources should be placed in the URL Resource Reader section inside ${home_directory}/security/configurations.policy.
 
@@ -72,7 +72,3 @@ If a resource was requested with the URL `udp://123.45.67.89:80/SampleResourceS
 ====
 If a file-based URL is passed to the `URLResourceReader`, that file path needs to be accessible by the ${branding} instance.
 ====
-
-===== Usage Limitations of the URL Resource Reader
-
-None.
