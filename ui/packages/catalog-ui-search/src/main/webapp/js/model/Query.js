@@ -202,6 +202,7 @@ define([
       this.cancelCurrentSearches()
 
       var data = Common.duplicate(this.buildSearchData())
+      data.batchId = Common.generateUUID()
       if (options.resultCountOnly) {
         data.count = 0
       }
