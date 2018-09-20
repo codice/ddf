@@ -233,7 +233,7 @@ public class IngestCommand extends CatalogCommands {
           String.format("batchsize * multithreaded cannot be larger than %d.", MAX_QUEUE_SIZE));
     }
 
-    File inputFile = getInputFile();
+    final File inputFile = getInputFile();
     if (inputFile == null) {
       return null;
     }
@@ -337,7 +337,13 @@ public class IngestCommand extends CatalogCommands {
     final File inputFile;
 
     if (StringUtils.isBlank(filePath)) {
-      inputFile = new File(getDefaultIngestLocation());
+      inputFile = getDefaultIngestLocation();
+      if (!inputFile.exists()) {
+        printErrorMessage("No file or directory provided and no default directory exists.");
+        console.println("Provide file or directory as an argument to the command.");
+        return null;
+      }
+
       printColor(Color.CYAN, String.format("Ingesting from %s\n", inputFile.toString()));
 
     } else {
@@ -456,8 +462,7 @@ public class IngestCommand extends CatalogCommands {
   }
 
   private Metacard readMetacard(File file) throws IngestException {
-    Metacard result;
-
+    Metacard result = null;
     FileInputStream fis = null;
     ObjectInputStream ois = null;
 
@@ -834,8 +839,10 @@ public class IngestCommand extends CatalogCommands {
     }
   }
 
-  private String getDefaultIngestLocation() {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(DDF_INGEST, ""));
+  private File getDefaultIngestLocation() {
+    String home =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("ddf.home"));
+    return StringUtils.isBlank(home) ? new File("") : new File(home, "ingest");
   }
 }
