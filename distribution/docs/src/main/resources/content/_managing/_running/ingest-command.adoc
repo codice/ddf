@@ -28,7 +28,7 @@ To see a list of all transformers currently installed, and the file types suppor
 For more information on the schemas and file types(mime-types) supported by each transformer see the <<{integrating-prefix}available_input_transformers, Input Transformers>>.
 
 The `<file path>` is the path to a file or a directory containing the desired files.
-Absolute paths are permitted. If the `<file path>` is not absolute, it is treated as relative to the ${home_directory} directory. If `<file_path>` is absent, the command will process the default ingest directory, `${home_directory}/ingest`. See <<{managing-prefix}_other_properties, default ingest location property>>.
+Absolute paths are permitted. If the `<file path>` is not absolute, it is treated as relative to the ${home_directory} directory. If `<file_path>` is absent, the command will process the default ingest directory, `${home_directory}/ingest`.
 
 
 .Windows Users
