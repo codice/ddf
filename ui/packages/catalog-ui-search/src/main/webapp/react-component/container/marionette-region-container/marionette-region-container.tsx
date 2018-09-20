@@ -13,7 +13,6 @@ import * as React from 'react'
 import * as Marionette from 'backbone.marionette'
 import styled from '../../styles/styled-components'
 const intervalToCheck = 20
-import { CustomElement } from '../../styles/mixins'
 import { hot } from 'react-hot-loader'
 
 type Props = {
@@ -21,10 +20,16 @@ type Props = {
   viewOptions?: object
   replaceElement?: boolean
   className?: string
-} & React.HTMLProps<HTMLDivElement>
+  /**
+   * If true the component will take up the container it's given.
+   */
+  gaseous?: boolean
+} & React.HTMLProps<HTMLDivElement> &
+  JSX.IntrinsicAttributes
 
-const RegionContainer = styled.div`
-  ${CustomElement};
+const RegionContainer = styled<{ gaseous: boolean }, 'div'>('div')`
+  width: ${props => (props.gaseous ? '100%' : 'auto')};
+  height: ${props => (props.gaseous ? '100%' : 'auto')};
 `
 export default hot(module)(
   class MarionetteRegionContainer extends React.Component<Props, {}> {
@@ -87,9 +92,10 @@ export default hot(module)(
       }
     }
     render() {
-      const { className, ...otherProps } = this.props
+      const { className, gaseous = true, ...otherProps } = this.props
       return (
         <RegionContainer
+          gaseous={gaseous}
           className={`marionette-region-container ${
             className ? className : ''
           }`}

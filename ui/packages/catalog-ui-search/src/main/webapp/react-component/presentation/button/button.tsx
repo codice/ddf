@@ -106,6 +106,7 @@ type RootProps = {
   inText?: boolean
   buttonType: buttonTypeEnum
   fadeUntilHover?: boolean
+  gaseous: boolean
 }
 
 const Root = styled<RootProps, 'button'>('button')`
@@ -124,8 +125,15 @@ const Root = styled<RootProps, 'button'>('button')`
       props.inText ? 'inherit !important' : props.theme.largeFontSize};
     line-height: ${props =>
       props.inText ? 'inherit !important' : props.theme.minimumButtonSize};
-    height: ${props =>
-      props.inText ? 'auto !important' : props.theme.minimumButtonSize};
+    height: ${props => {
+      if (props.inText) {
+        return 'auto'
+      } else if (props.gaseous) {
+        return '100%'
+      } else {
+        return props.theme.minimumButtonSize
+      }
+    }};
     min-width: ${props =>
       props.inText ? '0px !important' : props.theme.minimumButtonSize};
     min-height: ${props =>
@@ -223,6 +231,7 @@ type BaseButtonProps = {
    * Allow passing in styles
    */
   rootStyle?: React.CSSProperties
+  gaseous?: boolean
 } & React.HTMLProps<HTMLButtonElement>
 
 export const Button = ({
@@ -233,6 +242,7 @@ export const Button = ({
   inText,
   rootClassName,
   rootStyle,
+  gaseous = false,
   ...otherProps
 }: BaseButtonProps) => {
   return (
@@ -242,6 +252,7 @@ export const Button = ({
       className={rootClassName}
       // @ts-ignore
       style={rootStyle}
+      gaseous={gaseous}
       {...otherProps as JSX.IntrinsicAttributes}
     >
       {children ? children : ''}

@@ -16,101 +16,53 @@ const TitleView = require('component/content-title/content-title.view')
 const DropdownModel = require('component/dropdown/dropdown')
 const WorkspaceInteractionsView = require('component/dropdown/workspace-interactions/dropdown.workspace-interactions.view')
 const DropdownQueryView = require('component/dropdown/query/dropdown.query.view')
-const WorkspaceSaveView = require('component/save/workspace/workspace-save.view')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
+import SaveButton from '../save-button'
 
 type Props = {
   currentWorkspace: Backbone.Model
   saved: boolean
 }
 
+const StyledSaveButton = styled.div`
+  display: block;
+`
+
 const Root = styled<{ saved: boolean }, 'div'>('div')`
   width: 100%;
   overflow: hidden;
   position: relative;
-  height: calc(2 * ${props => props.theme.minimumLineSize});
+  height: 100%;
   white-space: nowrap;
+  display: flex;
+  justify-content: flex-start;
 
-  > div {
-    display: inline-block;
-    vertical-align: top;
+  > .content-title,
+  > .content-adhoc,
+  > .content-interactions,
+  > ${StyledSaveButton /* sc-selector*/} {
+    overflow: hidden;
+    height: 100%;
   }
 
   > .content-title {
-    height: 100%;
     text-overflow: ellipsis;
-    width: auto;
-    transition: padding ${props => props.theme.coreTransitionTime} ease-in-out;
-    padding-right: calc(
-      ${props => (props.saved ? '2' : '3')} *
-        ${props => props.theme.minimumButtonSize}
-    );
-    max-width: 100%;
-    ${props =>
-      props.saved
-        ? `
-      transition-delay: ${props.theme.multiple(
-        10,
-        props.theme.coreTransitionTime,
-        's'
-      )};
-    `
-        : ''};
   }
 
   > .content-interactions,
-  > .content-save,
+  > ${StyledSaveButton /* sc-selector */} {
+    flex-shrink: 0;
+  }
+
+  > .content-interactions,
   > .content-adhoc {
-    transform: translateX(calc(-3 * ${props => props.theme.minimumButtonSize}));
-    transition: width
-        ${props => props.theme.multiple(2, props.theme.coreTransitionTime, 's')}
-        ease-out,
-      margin
-        ${props => props.theme.multiple(2, props.theme.coreTransitionTime, 's')}
-        ease-out,
-      transform
-        ${props => props.theme.multiple(1, props.theme.coreTransitionTime, 's')}
-        ease-out;
-    width: ${props => props.theme.minimumButtonSize};
+    min-width: ${props => props.theme.minimumButtonSize};
     height: 100%;
     text-align: center;
   }
 
-  > .content-save {
-    position: relative;
-    overflow: hidden;
-    width: ${props => props.theme.minimumButtonSize};
-    ${props =>
-      props.saved
-        ? `
-    opacity: 1;
-    width: 0%;
-    transition-delay: ${props.theme.multiple(
-      10,
-      props.theme.coreTransitionTime,
-      's'
-    )};
-    `
-        : ''};
-  }
-
   > .content-adhoc {
-    width: auto;
-  }
-
-  > .content-interactions,
-  > .content-adhoc {
-    ${props =>
-      props.saved
-        ? `
-      transition-delay: ${props.theme.multiple(
-        10,
-        props.theme.coreTransitionTime,
-        's'
-      )};
-      transform: translateX(calc(-2 * ${props.theme.minimumButtonSize}));
-    `
-        : ''};
+    flex-shrink: 20;
   }
 `
 
@@ -118,16 +70,19 @@ const render = (props: Props) => {
   const { currentWorkspace, saved } = props
   return (
     <Root saved={saved}>
-      <MarionetteRegionContainer className="content-title" view={TitleView} />
       <MarionetteRegionContainer
-        className="content-save"
-        view={WorkspaceSaveView}
-        viewOptions={() => {
-          return {
-            model: currentWorkspace,
-          }
-        }}
+        className="content-title"
+        view={TitleView}
+        gaseous={false}
       />
+      <StyledSaveButton>
+        <SaveButton
+          isSaved={saved}
+          onClick={() => {
+            currentWorkspace.save()
+          }}
+        />
+      </StyledSaveButton>
       <MarionetteRegionContainer
         className="content-interactions is-button"
         view={WorkspaceInteractionsView}
@@ -140,6 +95,7 @@ const render = (props: Props) => {
             },
           }
         }}
+        gaseous={false}
       />
       <MarionetteRegionContainer
         className="content-adhoc is-button"
@@ -150,6 +106,7 @@ const render = (props: Props) => {
             modelForComponent: currentWorkspace,
           }
         }}
+        gaseous={false}
       />
     </Root>
   )
