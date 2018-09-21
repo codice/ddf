@@ -12,12 +12,12 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-const TitleView = require('component/content-title/content-title.view')
 const DropdownModel = require('component/dropdown/dropdown')
 const WorkspaceInteractionsView = require('component/dropdown/workspace-interactions/dropdown.workspace-interactions.view')
 const DropdownQueryView = require('component/dropdown/query/dropdown.query.view')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import SaveButton from '../save-button'
+import WorkspaceTitle from '../../container/workspace-title'
 
 type Props = {
   currentWorkspace: Backbone.Model
@@ -25,6 +25,10 @@ type Props = {
 }
 
 const StyledSaveButton = styled.div`
+  display: block;
+`
+
+const StyledWorkspaceTitle = styled.div`
   display: block;
 `
 
@@ -37,15 +41,14 @@ const Root = styled<{ saved: boolean }, 'div'>('div')`
   display: flex;
   justify-content: flex-start;
 
-  > .content-title,
-  > .content-adhoc,
+  > ${StyledWorkspaceTitle /* sc-selector*/}, > .content-adhoc,
   > .content-interactions,
   > ${StyledSaveButton /* sc-selector*/} {
     overflow: hidden;
     height: 100%;
   }
 
-  > .content-title {
+  > ${StyledWorkspaceTitle /* sc-selector*/} {
     text-overflow: ellipsis;
   }
 
@@ -70,11 +73,15 @@ const render = (props: Props) => {
   const { currentWorkspace, saved } = props
   return (
     <Root saved={saved}>
-      <MarionetteRegionContainer
-        className="content-title"
-        view={TitleView}
-        gaseous={false}
-      />
+      <StyledWorkspaceTitle>
+        <WorkspaceTitle
+          title={currentWorkspace.get('title')}
+          saved={saved}
+          onChange={(title: string) => {
+            currentWorkspace.set('title', title)
+          }}
+        />
+      </StyledWorkspaceTitle>
       <StyledSaveButton>
         <SaveButton
           isSaved={saved}

@@ -113,7 +113,7 @@ const Root = styled<RootProps, 'button'>('button')`
     max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     display: inline-block;
     border: none;
     padding: ${props =>

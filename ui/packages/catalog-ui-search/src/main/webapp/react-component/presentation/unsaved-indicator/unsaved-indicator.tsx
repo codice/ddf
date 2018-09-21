@@ -22,7 +22,7 @@ interface Props {
 const Root = styled<Props, 'span'>('span')`
   display: inline-block;
   line-height: inherit;
-
+  vertical-align: top;
   color: ${props => {
     return props.theme.warningColor
   }};
@@ -40,12 +40,6 @@ const Root = styled<Props, 'span'>('span')`
   opacity: ${props => {
     return props.shown ? 1 : 0
   }};
-
-  position: absolute;
-  left: ${props => {
-    return props.theme.minimumButtonSize
-  }};
-  top: -0.3125rem;
 `
 
 export default function UnsavedIndicator(props: Props) {
