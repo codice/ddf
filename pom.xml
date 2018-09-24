@@ -935,6 +935,24 @@
             <version>${xmlunit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>spock-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

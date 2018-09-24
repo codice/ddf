@@ -40,7 +40,6 @@
         <module>geospatial</module>
         <module>tlmatcher</module>
         <module>owasp-diff-runner</module>
-        <module>spock-shaded</module>
         <module>alerts</module>
         <module>test-common</module>
         <module>failsafe-controller</module>

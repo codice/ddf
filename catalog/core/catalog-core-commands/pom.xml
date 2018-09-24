@@ -125,12 +125,6 @@
             <artifactId>ant-launcher</artifactId>
             <version>${ant.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>spock-shaded</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

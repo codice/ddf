@@ -22,23 +22,19 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.util.NamedList
+import org.codice.junit.DeFinalize
+import org.codice.junit.DeFinalizer
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
-import org.codice.spock.extension.ClearInterruptions
-import org.codice.spock.extension.DeFinalize
-import org.codice.spock.extension.Supplemental
-import org.codice.spock.extension.builtin.DeFinalizer
+import org.codice.spock.ClearInterruptions
+import org.codice.spock.Supplemental
 import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.concurrent.Callable
-import java.util.concurrent.CancellationException
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
-import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.*
 
 import static org.codice.solr.factory.impl.SolrClientAdapter.State.*
 
