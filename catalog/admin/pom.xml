@@ -27,6 +27,6 @@
         <module>plugin</module>
         <module>module</module>
         <module>catalog-admin-downloadmanager</module>
-        <module>admin-poller-service</module>
+        <module>catalog-admin-poller-service</module>
     </modules>
 </project>

@@ -77,7 +77,8 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-core-attachment" version="${project.version}" description="Generate Filenames for Ingested Attachments">
+    <feature name="catalog-core-attachment" version="${project.version}"
+             description="Generate Filenames for Ingested Attachments">
         <feature>catalog-core-api</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment-impl/${project.version}</bundle>
     </feature>
@@ -187,7 +188,8 @@
         <bundle>mvn:org.apache.abdera/abdera-i18n/${abdera.version}</bundle>
         <!-- Cannot use <bundle>mvn:org.apache.abdera/abdera-parser/${abdera.version}</bundle>
         because of a classpath issue with OMFactory. Servicemix fixes this abdera-parser.-->
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/${abdera.osgi.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/${abdera.osgi.version}
+        </bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
@@ -303,9 +305,11 @@
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-xml" version="${project.version}" description="XML MetacardTransformer and InputTransformer">
+    <feature name="catalog-transformer-xml" version="${project.version}"
+             description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        </bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     </feature>
@@ -429,8 +433,8 @@
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-layout/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-poller-service-bean" version="${project.version}"
-             description="Admin Poller">
+    <feature name="catalog-admin-poller-service" version="${project.version}"
+             description="Catalog Admin Poller Service">
         <bundle>mvn:ddf.catalog.admin/catalog-admin-poller-service/${project.version}</bundle>
     </feature>
 
@@ -478,7 +482,8 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pptx/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-validator-metacardwkt" version="${project.version}" description="Provides support for WKT validation">
+    <feature name="catalog-validator-metacardwkt" version="${project.version}"
+             description="Provides support for WKT validation">
         <feature>catalog-core</feature>
         <bundle>mvn:org.codice.ddf.validator/catalog-validator-wkt/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.validator/catalog-validator-metacardwkt/${project.version}</bundle>
@@ -626,8 +631,7 @@
         <feature>catalog-admin-module-sources</feature>
         <feature>catalog-admin-module-maplayers</feature>
         <feature>catalog-admin-module-layout</feature>
-        <feature>admin-poller-service-bean</feature>
-        <feature>admin-poller-service-bean</feature>
+        <feature>catalog-admin-poller-service</feature>
         <feature>catalog-core-validationparser</feature>
         <feature>catalog-transformer-pdf</feature>
         <feature>catalog-transformer-pptx</feature>
