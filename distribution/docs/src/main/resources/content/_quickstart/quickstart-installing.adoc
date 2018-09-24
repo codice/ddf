@@ -149,7 +149,7 @@ ${branding-lowercase}${at-symbol}local>
 If ${branding} is being installed on a remote server that has no user interface some additional steps must be taken prior to starting the system.
 
 . Update any references to localhost in the following files. These references to localhost should be updated to match either the hostname or IP of the system.
-** `${home_directory}/etc/system.properties`
+** `${home_directory}/etc/custom.system.properties`
 ** `${home_directory}/etc/users.properties`
 ** `${home_directory}/etc/users.attributes`
 . From the console go to ${home_directory}/etc/certs.

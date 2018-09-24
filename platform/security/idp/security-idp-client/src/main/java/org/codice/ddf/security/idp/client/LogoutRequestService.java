@@ -45,7 +45,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -258,8 +257,8 @@ public class LogoutRequestService {
     return ok.build();
   }
 
-  private String extractSubject(HttpSession httpSession) {
-    return Stream.of(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+  private String extractSubject(Map<String, Object> sessionAttributes) {
+    return Stream.of(sessionAttributes.get(SecurityConstants.SAML_ASSERTION))
         .filter(SecurityTokenHolder.class::isInstance)
         .map(SecurityTokenHolder.class::cast)
         .map(SecurityTokenHolder::getRealmTokenMap)

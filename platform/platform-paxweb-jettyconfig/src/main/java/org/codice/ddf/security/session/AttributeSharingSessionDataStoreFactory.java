@@ -11,17 +11,15 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.common.options;
+package org.codice.ddf.security.session;
 
-public class SystemProperties {
+import org.eclipse.jetty.server.session.SessionDataStore;
+import org.eclipse.jetty.server.session.SessionDataStoreFactory;
+import org.eclipse.jetty.server.session.SessionHandler;
 
-  private SystemProperties() {}
-
-  public static final String SYSTEM_PROPERTIES_FILE_PATH = "etc/custom.system.properties";
-
-  public static final String HTTPS_PORT_PROPERTY = "org.codice.ddf.system.httpsPort";
-
-  public static final String HTTP_PORT_PROPERTY = "org.codice.ddf.system.httpPort";
-
-  public static final String FTP_PORT_PROPERTY = "org.codice.ddf.catalog.ftp.port";
+public class AttributeSharingSessionDataStoreFactory implements SessionDataStoreFactory {
+  @Override
+  public SessionDataStore getSessionDataStore(SessionHandler handler) {
+    return new AttributeSharingSessionDataStore();
+  }
 }

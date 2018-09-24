@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.platform.session.api;
 
+import java.util.Map;
 import java.util.function.Function;
-import javax.servlet.http.HttpSession;
 
 /**
  * Service contract for internal invalidation of HTTP Sessions.
@@ -31,5 +31,6 @@ public interface HttpSessionInvalidator {
    *     function is dependent upon the structure of the sessions stored in the server, which
    *     structure may not be knowable to the session cache itself.
    */
-  void invalidateSession(String subjectName, Function<HttpSession, String> sessionSubjectExtractor);
+  void invalidateSession(
+      String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor);
 }

@@ -136,7 +136,7 @@ but the value is not currently set, adding an attribute override will set the at
 To override attributes that are not part of the metacard type, <<{developing-prefix}attribute_injection_definition,attribute injection>> can be used.
 
 .Blacklist
-The CDM blacklist uses the "bad.files" and "bad.file.extensions" properties from the system.properties file in "etc/" in order to prevent
+The CDM blacklist uses the "bad.files" and "bad.file.extensions" properties from the custom.system.properties file in "etc/" in order to prevent
 malicious or unwanted data from being ingested into DDF.  While the CDM automatically omits hidden files, this is particularly useful when
 an operating system automatically generates files that should not be ingested.  One such example of this is "thumbs.db" in Windows.
 This file type and any temporary files are included in the blacklist.

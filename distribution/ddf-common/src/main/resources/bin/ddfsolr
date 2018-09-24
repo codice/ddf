@@ -30,13 +30,13 @@ HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 GET=${SCRIPTDIR}/get_property
 SOLR_EXEC=${HOME_DIR}/solr/bin/solr
 
-# Read port from system.properties file
+# Read port from custom.system.properties file
 SOLR_PORT=$($GET "solr.http.port")
 SOLR_MEM=$($GET "solr.mem")
 
 # Do not proceed if required properties are missing
 if [ -z "$SOLR_PORT" ]; then
-    echo "Cannot determine Solr port from system.properties file. Exiting."
+    echo "Cannot determine Solr port from custom.system.properties file. Exiting."
     exit 2
 fi
 
@@ -90,7 +90,7 @@ else
 
     # Do not proceed if required properties are missing
     if [ -z "$SOLR_PROTOCOL" ]; then
-        echo "Cannot determine Solr protocol (http or https) from system.properties file. Exiting."
+        echo "Cannot determine Solr protocol (http or https) from custom.system.properties file. Exiting."
         exit 3
     fi
 
@@ -99,7 +99,7 @@ else
 
     # Verify
     if  ( [ "$SOLR_PROTOCOL" != "https" ] && [ "$SOLR_PROTOCOL" != "http" ] ); then
-        echo "Unkown Solr protocol \"$SOLR_PROTOCOL\" found in system.properties file"
+        echo "Unkown Solr protocol \"$SOLR_PROTOCOL\" found in custom.system.properties file"
         echo "Expected \"http\" or \"https\". Exiting";
         exit 4
     fi

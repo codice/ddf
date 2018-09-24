@@ -66,7 +66,6 @@
         <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
-            <version>3.11.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -118,7 +118,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.1.2";
+  protected static final String KARAF_VERSION = "4.2.0";
 
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
@@ -190,7 +190,7 @@ public abstract class AbstractIntegrationTest {
 
   private static final String PAX_URL_MVN_LOCAL_REPO = "org.ops4j.pax.url.mvn.localRepository";
 
-  private static final String SYSTEM_PROPERTIES_REL_PATH = "etc/system.properties";
+  private static final String SYSTEM_PROPERTIES_REL_PATH = "etc/custom.system.properties";
 
   private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 

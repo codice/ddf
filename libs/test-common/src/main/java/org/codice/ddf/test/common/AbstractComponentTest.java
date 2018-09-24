@@ -14,6 +14,7 @@
 package org.codice.ddf.test.common;
 
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 import org.codice.ddf.test.common.configurators.ApplicationOptions;
 import org.codice.ddf.test.common.configurators.BundleOptionBuilder;
@@ -73,7 +74,9 @@ public abstract class AbstractComponentTest {
     return options(
         getContainerOptions().get(),
         getApplicationOptions(portFinder).get(),
-        getTestBundleOptions().build());
+        getTestBundleOptions().build(),
+        editConfigurationFilePut(
+            "etc/org.apache.karaf.features.cfg", "serviceRequirements", "disable"));
   }
 
   /**

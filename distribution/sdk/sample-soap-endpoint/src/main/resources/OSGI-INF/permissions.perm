@@ -1,5 +1,7 @@
 (java.io.FilePermission "-" "read,write,delete")
 (java.io.FilePermission "<<ALL FILES>>" "read,write,delete")
+(java.lang.reflect.ReflectPermission "suppressAccessChecks")
+(javax.security.auth.AuthPermission "getSubject")
 (org.osgi.framework.PackagePermission "*" "import")
 (org.osgi.framework.BundlePermission "sample-soap-endpoint" "provide,require,host")
 (org.osgi.framework.CapabilityPermission "osgi.identity" "provide")

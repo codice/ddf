@@ -7,9 +7,9 @@
 
 == {title}
 
-To change HTTP or HTTPS ports from the default values, edit the `system.properties` file.
+To change HTTP or HTTPS ports from the default values, edit the `custom.system.properties` file.
 
-. Open the file at ${home_directory}/etc/system.properties
+. Open the file at ${home_directory}/etc/custom.system.properties
 . Change the value after the `=` to the desired port number(s):
 .. `org.codice.ddf.system.httpsPort=8993` to `org.codice.ddf.system.httpsPort=<PORT>`
 .. `org.codice.ddf.system.httpPort=8181` to `org.codice.ddf.system.httpPort=<PORT>`

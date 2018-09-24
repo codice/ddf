@@ -199,8 +199,7 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
-                                <!-- Remove after versions exclusion after upgrading to Karaf 4.2.x (KARAF-5399) -->
-                                <exclude>META-INF/versions/**</exclude>
+                                <exclude>module-info.class</exclude>
                             </excludes>
                         </filter>
                     </filters>

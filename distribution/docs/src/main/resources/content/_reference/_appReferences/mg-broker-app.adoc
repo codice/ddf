@@ -31,8 +31,8 @@ The standard installation of the ${message-broker} application has no configurab
 Prior to making these configuration changes, follow the instructions in <<{managing-prefix}installing,Installing ${branding}>> to install ${branding} on two physically-separate hosts.
 
 . Configure each of the ${branding} installations to point to each other in a live/backup server configuration. One server will have an additional step to be designated as the backup.
-. Modify system.properties: +
-The `${home_directory}/etc/system.properties` in each of the installations needs to be updated so that the servers know about each other. The following properties need to have the values on the right side of the `=` updated.
+. Modify custom.system.properties: +
+The `${home_directory}/etc/custom.system.properties` in each of the installations needs to be updated so that the servers know about each other. The following properties need to have the values on the right side of the `=` updated.
 +
 [source]
 ----
