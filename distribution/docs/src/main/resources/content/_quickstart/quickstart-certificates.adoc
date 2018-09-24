@@ -156,12 +156,12 @@ After changing the certificates it will be necessary to update the system user a
 
 FQDNs should be used wherever possible. In the absence of DNS, however, IP addresses can be used.
 
-Replace `localhost` with the FQDN or the IP in `${home_directory}/etc/users.properties`, `${home_directory}/etc/users.attributes`, and `${home_directory}/etc/system.properties`.
+Replace `localhost` with the FQDN or the IP in `${home_directory}/etc/users.properties`, `${home_directory}/etc/users.attributes`, and `${home_directory}/etc/custom.system.properties`.
 
 [TIP]
 ====
 On linux this can be accomplished with a single command:
-`sed -i 's/localhost/<FQDN|IP>/g' ${home_directory}/etc/users.* ${home_directory}/etc/system.properties`
+`sed -i 's/localhost/<FQDN|IP>/g' ${home_directory}/etc/users.* ${home_directory}/etc/custom.system.properties`
 ====
 
 Finally, restart the ${branding} instance. Navigate to the ${admin-console} to test changes.

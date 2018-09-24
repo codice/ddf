@@ -24,7 +24,7 @@ See <<{managing-prefix}configuring_guest_claim_attributes,Configuring Guest Clai
 
 ====== System Configuration Settings
 
-System Settings and Contact Info, as described in <<{managing-prefix}configuring_system_settings, System Configuration Settings>>, can be changed in `${home_directory}/etc/system.properties`.
+System Settings and Contact Info, as described in <<{managing-prefix}configuring_system_settings, System Configuration Settings>>, can be changed in `${home_directory}/etc/custom.system.properties`.
 The certificates must be set up manually as described in <<{managing-prefix}managing_keystores_and_certificates,Managing Keystores and Certificates>>.
 
 [NOTE]

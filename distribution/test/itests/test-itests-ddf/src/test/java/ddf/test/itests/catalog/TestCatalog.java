@@ -2531,7 +2531,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
   @Test
   public void testIngestSanitizationBadFile() throws Exception {
-    // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+    // DDF-3172 bad.files and bad.file.extensions in custom.system.properties is not being respected
 
     // setup
     String fileName = "robots.txt"; // filename in bad.files
@@ -2563,7 +2563,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
   @Test
   public void testIngestSanitizationBadExtension() throws Exception {
-    // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+    // DDF-3172 bad.files and bad.file.extensions in custom.system.properties is not being respected
 
     // setup
     String fileName = "bad_file.cgi"; // file extension in bad.file.extensions
@@ -2596,7 +2596,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
   @Test
   public void testIngestIgnore() throws Exception {
-    // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+    // DDF-3172 bad.files and bad.file.extensions in custom.system.properties is not being respected
     String fileName = "thumbs.db"; // filename in ignore.files
 
     File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));

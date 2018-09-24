@@ -32,6 +32,7 @@ log:list = { log:get ALL } ;
 service:get = { $.context getService ($.context getServiceReference $args) };
 
 env = { shell:set $args }
+edit = { shell:nano $args }
 more = { shell:less -F $args }
 
 \#prompt = { "[1m${USER}[0m@${APPLICATION}(${SUBSHELL})> "?};
@@ -56,6 +57,7 @@ if { %(jlineReader != null) } {
 
   setopt group
   setopt auto-fresh-line
+  unsetopt insert-tab
   keymap "^[OA" up-line-or-search
   keymap "^[[A" up-line-or-search
   keymap "^[OB" down-line-or-search

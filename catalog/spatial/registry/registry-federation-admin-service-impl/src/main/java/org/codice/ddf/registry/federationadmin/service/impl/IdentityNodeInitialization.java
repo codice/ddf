@@ -72,7 +72,7 @@ public class IdentityNodeInitialization {
 
   private static final String KARAF_ETC = "karaf.etc";
 
-  private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
+  private static final String SYSTEM_PROPERTIES_FILE = "custom.system.properties";
 
   private FederationAdminService federationAdminService;
 

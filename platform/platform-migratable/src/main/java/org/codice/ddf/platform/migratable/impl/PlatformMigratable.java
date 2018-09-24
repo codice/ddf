@@ -51,6 +51,7 @@ public class PlatformMigratable implements Migratable {
       ImmutableList.of( //
           Paths.get("etc", "ws-security"),
           Paths.get("etc", "system.properties"),
+          Paths.get("etc", "custom.system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),
           Paths.get("etc", "config.properties"));

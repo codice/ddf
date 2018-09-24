@@ -58,6 +58,8 @@ public class FeatureUtilities {
 
   public static final String FEATURE_NAME_XPATH = "//*[local-name() = 'feature']/@name";
 
+  private BundleService bundleService;
+
   /**
    * Returns a list of feature names defined in a feature file.
    *
@@ -136,53 +138,6 @@ public class FeatureUtilities {
     return new FeatureImpl(toFeatureRepo(filePath).getFeatureFileUrl(), feature);
   }
 
-  /**
-   * Installs and uninstalls the specified feature. Ensures all bundles move into the Active state
-   * before uninstalling.
-   *
-   * @param featuresService
-   * @param featureName
-   * @throws Exception
-   */
-  public static void installAndUninstallFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
-    installFeature(featuresService, featureName);
-    uninstallFeature(featuresService, featureName);
-  }
-
-  /**
-   * Installs the specified feature. Waits for all bundles to move into the Active state.
-   *
-   * @param featuresService
-   * @param featureName
-   * @throws Exception
-   */
-  public static void installFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
-    long startTime = System.currentTimeMillis();
-    LOGGER.info("{} feature installing", featureName);
-    featuresService.installFeature(featureName);
-    waitForRequiredBundles("");
-    LOGGER.info(
-        "{} feature installed in {} ms.", featureName, (System.currentTimeMillis() - startTime));
-  }
-
-  /**
-   * Uninstalls the specified feature.
-   *
-   * @param featuresService
-   * @param featureName
-   * @throws Exception
-   */
-  public static void uninstallFeature(FeaturesService featuresService, String featureName)
-      throws Exception {
-    long startTime = System.currentTimeMillis();
-    LOGGER.info("{} feature uninstalling", featureName);
-    featuresService.uninstallFeature(featureName);
-    LOGGER.info(
-        "{} feature uninstalled in {} ms.", featureName, (System.currentTimeMillis() - startTime));
-  }
-
   // DDF-3768 ServiceManager should be moved to test-common and this duplicate code removed.
   public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
@@ -196,7 +151,77 @@ public class FeatureUtilities {
           .put(Bundle.ACTIVE, "ACTIVE")
           .build();
 
-  private static void printInactiveBundles(
+  /**
+   * Uninstalls the specified feature.
+   *
+   * @param featuresService
+   * @param featureName
+   * @throws Exception
+   */
+  public void uninstallFeature(FeaturesService featuresService, String featureName)
+      throws Exception {
+    long startTime = System.currentTimeMillis();
+    LOGGER.info("{} feature uninstalling", featureName);
+    featuresService.uninstallFeature(featureName);
+    LOGGER.info(
+        "{} feature uninstalled in {} ms.", featureName, (System.currentTimeMillis() - startTime));
+  }
+
+  /**
+   * Installs the specified feature. Waits for all bundles to move into the Active state.
+   *
+   * @param featuresService
+   * @param featureName
+   * @throws Exception
+   */
+  public void installFeature(FeaturesService featuresService, String featureName) throws Exception {
+    long startTime = System.currentTimeMillis();
+    LOGGER.info("{} feature installing", featureName);
+    featuresService.installFeature(featureName);
+    waitForRequiredBundles("");
+    LOGGER.info(
+        "{} feature installed in {} ms.", featureName, (System.currentTimeMillis() - startTime));
+  }
+
+  /**
+   * Installs and uninstalls the specified feature. Ensures all bundles move into the Active state
+   * before uninstalling.
+   *
+   * @param featuresService
+   * @param featureName
+   * @throws Exception
+   */
+  public void installAndUninstallFeature(FeaturesService featuresService, String featureName)
+      throws Exception {
+    installFeature(featuresService, featureName);
+    uninstallFeature(featuresService, featureName);
+  }
+
+  private void printInactiveBundles() {
+    printInactiveBundles(LOGGER::error, LOGGER::error);
+  }
+
+  private <S> S getService(Class<S> aClass) {
+    return getService(getBundleContext().getServiceReference(aClass));
+  }
+
+  private <S> S getService(ServiceReference<S> serviceReference) {
+    return getBundleContext().getService(serviceReference);
+  }
+
+  private <S> ServiceReference<S> getServiceReference(Class<S> aClass) {
+    return getBundleContext().getServiceReference(aClass);
+  }
+
+  private BundleContext getBundleContext() {
+    Bundle bundle = FrameworkUtil.getBundle(FeatureUtilities.class);
+    if (bundle != null) {
+      return bundle.getBundleContext();
+    }
+    return null;
+  }
+
+  private void printInactiveBundles(
       Consumer<String> headerConsumer, BiConsumer<String, Object[]> logConsumer) {
     headerConsumer.accept("Listing inactive bundles");
 
@@ -228,13 +253,12 @@ public class FeatureUtilities {
     }
   }
 
-  public static void printInactiveBundles() {
-    printInactiveBundles(LOGGER::error, LOGGER::error);
-  }
-
-  public static void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
+  private void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
     boolean ready = false;
-    BundleService bundleService = getService(BundleService.class);
+
+    if (bundleService == null) {
+      bundleService = getService(BundleService.class);
+    }
 
     long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
     while (!ready) {
@@ -279,25 +303,5 @@ public class FeatureUtilities {
         Thread.sleep(1000);
       }
     }
-  }
-
-  public static <S> S getService(Class<S> aClass) {
-    return getService(getBundleContext().getServiceReference(aClass));
-  }
-
-  public static <S> S getService(ServiceReference<S> serviceReference) {
-    return getBundleContext().getService(serviceReference);
-  }
-
-  public static <S> ServiceReference<S> getServiceReference(Class<S> aClass) {
-    return getBundleContext().getServiceReference(aClass);
-  }
-
-  public static BundleContext getBundleContext() {
-    Bundle bundle = FrameworkUtil.getBundle(FeatureUtilities.class);
-    if (bundle != null) {
-      return bundle.getBundleContext();
-    }
-    return null;
   }
 }

@@ -11,7 +11,7 @@ CALL %GET_PROPERTY% solr.http.protocol
 CALL %GET_PROPERTY% solr.mem 2g
 
 IF NOT "!solr.http.protocol!"=="http" IF NOT "!solr.http.protocol!"=="https" (
-    ECHO Unkown Solr protocol %solr.http.protocol% found in system.properties file
+    ECHO Unkown Solr protocol %solr.http.protocol% found in custom.system.properties file
     ECHO Expected 'http' or 'https' - Setting to the default https
     SET solr.http.protocol=https
 )

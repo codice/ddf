@@ -12,7 +12,7 @@ SCRIPTDIR=$(dirname $0)
 HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 
 # Useful files
-PROPERTIES_FILE=$HOME_DIR/etc/system.properties
+PROPERTIES_FILE=$HOME_DIR/etc/custom.system.properties
 RESTART_FILE="$SCRIPTDIR/restart.jvm"
 SOLR_EXEC=${SCRIPTDIR}/ddfsolr
 GET=${SCRIPTDIR}/get_property

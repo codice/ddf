@@ -7,7 +7,7 @@ SCRIPTDIR=$(dirname $0)
 HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 
 # Useful files
-PROPERTIES_FILE=$HOME_DIR/etc/system.properties
+PROPERTIES_FILE=$HOME_DIR/etc/custom.system.properties
 
 # Check file exists where it is supposed to
 if [ ! -f $PROPERTIES_FILE ]; then
