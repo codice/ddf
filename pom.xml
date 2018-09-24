@@ -58,7 +58,7 @@
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.14</ddf.support.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.2</acdebugger.version>
+        <acdebugger.version>1.4</acdebugger.version>
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
