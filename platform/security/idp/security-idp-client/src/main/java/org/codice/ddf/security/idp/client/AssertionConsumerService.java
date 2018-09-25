@@ -421,16 +421,10 @@ public class AssertionConsumerService {
     X509Certificate encryptionCert =
         findCertificate(systemCrypto.getEncryptionAlias(), systemCrypto.getEncryptionCrypto());
 
-    String hostname = SystemBaseUrl.INTERNAL.getHost();
-    String port = SystemBaseUrl.INTERNAL.getPort();
-    String rootContext = SystemBaseUrl.INTERNAL.getRootContext();
-
-    String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
-
-    String logoutLocation =
-        String.format("https://%s:%s%s/saml/logout", hostname, port, rootContext);
+    String entityId = SystemBaseUrl.EXTERNAL.constructUrl("/saml", true);
+    String logoutLocation = SystemBaseUrl.EXTERNAL.constructUrl("/saml/logout", true);
     String assertionConsumerServiceLocation =
-        String.format("https://%s:%s%s/saml/sso", hostname, port, rootContext);
+        SystemBaseUrl.EXTERNAL.constructUrl("/saml/sso", true);
 
     EntityDescriptor entityDescriptor =
         SamlProtocol.createSpMetadata(

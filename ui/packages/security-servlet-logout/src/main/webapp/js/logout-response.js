@@ -16,10 +16,8 @@
       //add additional params here if needed
     })
   }
+
   $('#landinglink').click(function() {
-    window.parent.postMessage('landing', window.location.origin + '/logout')
-  })
-  $('#signinlink').click(function() {
-    window.parent.postMessage('signin', window.location.origin + '/logout')
+    window.location.href = window.location.href.replace(/logout\/.*/, '')
   })
 })()
