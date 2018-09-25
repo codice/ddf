@@ -1346,7 +1346,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     }
 
     if (cookie == null) {
-      LOGGER.warn("Unable to logout. Cookie not found.");
+      LOGGER.error("Unable to logout. Cookie not found.");
       return Response.status(HttpStatus.SC_BAD_REQUEST).build();
     }
 

@@ -491,11 +491,12 @@ public class LogoutRequestService {
     try {
       URL url = new URL(destination);
       if (url.getHost().equals(SystemBaseUrl.EXTERNAL.getHost())
-          && String.valueOf(url.getPort()).equals(SystemBaseUrl.EXTERNAL.getPort())) {
+          && String.valueOf(url.getPort()).equals(SystemBaseUrl.EXTERNAL.getPort())
+          && !url.getPath().startsWith(SystemBaseUrl.EXTERNAL.getRootContext())) {
         destination = SystemBaseUrl.EXTERNAL.constructUrl(request.getRequestURI());
       }
     } catch (MalformedURLException e) {
-      LOGGER.debug("Unable to convert request URL to URL object.");
+      LOGGER.error("Unable to convert request URL to URL object.");
     }
 
     new SamlValidator.Builder(simpleSign)

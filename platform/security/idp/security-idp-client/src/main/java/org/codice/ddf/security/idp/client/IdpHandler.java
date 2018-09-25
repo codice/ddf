@@ -614,11 +614,12 @@ public class IdpHandler implements AuthenticationHandler {
     try {
       URL url = new URL(requestURL.toString());
       if (url.getHost().equals(SystemBaseUrl.EXTERNAL.getHost())
-          && String.valueOf(url.getPort()).equals(SystemBaseUrl.EXTERNAL.getPort())) {
+          && String.valueOf(url.getPort()).equals(SystemBaseUrl.EXTERNAL.getPort())
+          && !url.getPath().startsWith(SystemBaseUrl.EXTERNAL.getRootContext())) {
         requestURL = new StringBuffer(SystemBaseUrl.EXTERNAL.constructUrl(request.getRequestURI()));
       }
     } catch (MalformedURLException e) {
-      LOGGER.debug("Unable to convert request URL to URL object.");
+      LOGGER.error("Unable to convert request URL to URL object.");
     }
 
     String queryString = request.getQueryString();
