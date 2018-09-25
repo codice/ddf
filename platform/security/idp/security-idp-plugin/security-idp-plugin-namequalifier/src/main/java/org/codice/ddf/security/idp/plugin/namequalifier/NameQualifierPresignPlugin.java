@@ -34,7 +34,7 @@ import org.opensaml.saml.saml2.core.Response;
  *     Profiles for the OASIS Security Assertion Markup Language (SAML) V2.0 – Errata Composite</a>
  */
 public class NameQualifierPresignPlugin implements SamlPresignPlugin {
-  static final String NAME_QUALIFIER = SystemBaseUrl.INTERNAL.constructUrl("idp/login", true);
+  static final String NAME_QUALIFIER = SystemBaseUrl.EXTERNAL.constructUrl("idp/login", true);
 
   @Override
   public void processPresign(

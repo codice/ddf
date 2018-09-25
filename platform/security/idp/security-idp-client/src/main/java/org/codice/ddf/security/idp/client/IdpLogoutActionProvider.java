@@ -63,7 +63,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
         String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
         nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);
         logoutUrlString =
-            SystemBaseUrl.INTERNAL.constructUrl(
+            SystemBaseUrl.EXTERNAL.constructUrl(
                 "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true);
         logoutUrl = new URL(logoutUrlString);
 

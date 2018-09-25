@@ -33,8 +33,10 @@ import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -484,6 +486,19 @@ public class LogoutRequestService {
       String signature,
       SignableXMLObject xmlObject)
       throws ValidationException {
+    String destination = request.getRequestURL().toString();
+
+    try {
+      URL url = new URL(destination);
+      if (url.getHost().equals(SystemBaseUrl.EXTERNAL.getHost())
+          && String.valueOf(url.getPort()).equals(SystemBaseUrl.EXTERNAL.getPort())
+          && !url.getPath().startsWith(SystemBaseUrl.EXTERNAL.getRootContext())) {
+        destination = SystemBaseUrl.EXTERNAL.constructUrl(request.getRequestURI());
+      }
+    } catch (MalformedURLException e) {
+      LOGGER.error("Unable to convert request URL to URL object.");
+    }
+
     new SamlValidator.Builder(simpleSign)
         .setRedirectParams(
             relayState,
@@ -491,16 +506,11 @@ public class LogoutRequestService {
             signatureAlgorithm,
             samlRequest,
             idpMetadata.getSigningCertificate())
-        .buildAndValidate(
-            request.getRequestURL().toString(), SamlProtocol.Binding.HTTP_REDIRECT, xmlObject);
+        .buildAndValidate(destination, SamlProtocol.Binding.HTTP_REDIRECT, xmlObject);
   }
 
   private String getEntityId() {
-    String hostname = SystemBaseUrl.INTERNAL.getHost();
-    String port = SystemBaseUrl.INTERNAL.getPort();
-    String rootContext = SystemBaseUrl.INTERNAL.getRootContext();
-
-    return String.format("https://%s:%s%s/saml", hostname, port, rootContext);
+    return SystemBaseUrl.EXTERNAL.constructUrl("/saml", true);
   }
 
   private SecurityAssertion getIdpSecurityAssertion() {
@@ -623,7 +633,7 @@ public class LogoutRequestService {
   }
 
   private Response buildLogoutResponse(String message) {
-    UriBuilder uriBuilder = UriBuilder.fromUri(SystemBaseUrl.INTERNAL.getBaseUrl());
+    UriBuilder uriBuilder = UriBuilder.fromUri(SystemBaseUrl.EXTERNAL.getBaseUrl());
     uriBuilder.path("logout/logout-response.html");
     uriBuilder.queryParam("msg", message);
     return Response.seeOther(uriBuilder.build()).build();
