@@ -204,7 +204,7 @@ public class SourcePollerRunnerTest {
   }
 
   @Test
-  public void testNonExistantWithUnknownTitleIsntFound() {
+  public void testNonExistentWithUnknownTitleIsntFound() {
     SourcePollerRunner runner = new SourcePollerRunner();
     Set<ContentType> types = createContentTypes();
     Source source = createDefaultFederatedSource(true, types, "src", "1");
@@ -225,7 +225,7 @@ public class SourcePollerRunnerTest {
   }
 
   @Test
-  public void testNonExistantWithDuplicateTitleButWrongVersionIsntFound() {
+  public void testNonExistentWithDuplicateTitleButWrongVersionIsntFound() {
     SourcePollerRunner runner = new SourcePollerRunner();
     Set<ContentType> types = createContentTypes();
     Source source = createDefaultFederatedSource(true, types, "src", "1");
