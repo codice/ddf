@@ -15,6 +15,10 @@ package org.codice.ddf.transformer.xml.streaming.impl;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
@@ -32,6 +36,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
@@ -47,6 +52,8 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
   private final ThreadLocal<Parser> parser;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
+
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
     parser =
@@ -76,17 +83,19 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     }
 
     if (parsedObject instanceof Geometry) {
+      Geometry geometry = standardizeGeometry((Geometry) parsedObject);
+
       try {
-        Geometry geometry = convertCRS((Geometry) parsedObject);
-        return WKT_WRITER.get().write(geometry);
+        geometry = applyMathTransform(geometry);
       } catch (TransformException e) {
-        LOGGER.debug("Failed to transform geometry to lon/lat", e);
+        LOGGER.debug("Failed to transform geometry's CRS", e);
         throw new ValidationExceptionImpl(
-            e,
-            Collections.singletonList("Cannot transform geometry to lon/lat"),
-            new ArrayList<>());
+            e, Collections.singletonList("Cannot transform geometry's CRS"), new ArrayList<>());
       }
+
+      return WKT_WRITER.get().write(geometry);
     }
+
     LOGGER.debug("Unknown object parsed from GML and unable to convert to WKT");
     throw new ValidationExceptionImpl(
         "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
@@ -106,13 +115,86 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     }
   }
 
-  private Geometry convertCRS(Geometry geometry) throws ValidationException, TransformException {
-    return JTS.transform(geometry, getLatLonTransform());
+  /**
+   * Iterate over the geometry collection and convert the non-standard LinearRing to LineString
+   *
+   * @param geometryCollection the geometryCollection to be iterated
+   * @return an edited geometryCollection with LineString in place of LinearRing
+   */
+  private GeometryCollection standardizeGeometryCollection(GeometryCollection geometryCollection) {
+    ArrayList<Geometry> geometries = new ArrayList<>();
+
+    for (int i = 0; i < geometryCollection.getNumGeometries(); i++) {
+      Geometry geometry = standardizeGeometry(geometryCollection.getGeometryN(i));
+      geometries.add(geometry);
+    }
+
+    return GEOMETRY_FACTORY.createGeometryCollection(geometries.toArray(new Geometry[0]));
   }
 
-  private MathTransform getLatLonTransform() throws ValidationException {
+  /**
+   * Convert the non-standard LinearRing geometry to a LineString geometry
+   *
+   * @param geometry LinearRing to be converted
+   * @return new LineString geometry
+   */
+  private Geometry linearRingToLineString(Geometry geometry) {
+    return GEOMETRY_FACTORY.createLineString(((LinearRing) geometry).getCoordinateSequence());
+  }
+
+  /**
+   * Applies the math transformation to change Coordinate Reference Systems
+   *
+   * @param geometry Geometry to be transformed
+   * @return a Geometry with the transformation applied
+   * @throws ValidationException
+   * @throws TransformException
+   */
+  private Geometry applyMathTransform(Geometry geometry)
+      throws ValidationException, TransformException {
+    CoordinateReferenceSystem geometryCrs = getGeometryCrs(geometry);
+    return JTS.transform(geometry, getLatLonTransform(geometryCrs));
+  }
+
+  /**
+   * Standardizes the geometry by converting any instances of LinearRing to LineString.
+   *
+   * @param geometry the Geometry that may contain LinearRing
+   * @return a new Geometry with LineStrings in place of LinearRings
+   * @throws ValidationException
+   */
+  private Geometry standardizeGeometry(Geometry geometry) {
+    if (geometry instanceof GeometryCollection && !(geometry instanceof MultiPolygon)) {
+      return standardizeGeometryCollection((GeometryCollection) geometry);
+    }
+
+    if (geometry instanceof LinearRing) {
+      return linearRingToLineString(geometry);
+    }
+
+    return geometry;
+  }
+
+  /**
+   * Get the CRS from the provided geometry, defaulting to WGS84 if CRS not found in geometry.
+   *
+   * @param geometry a geometry used to determine CRS
+   * @return Extracted CRS or default
+   */
+  private CoordinateReferenceSystem getGeometryCrs(Geometry geometry) {
+    CoordinateReferenceSystem crs = (CoordinateReferenceSystem) geometry.getUserData();
+    if (crs == null) {
+      crs = DefaultGeographicCRS.WGS84;
+      LOGGER.debug("CRS not found in geometry, defaulting to WGS84");
+    }
+
+    return crs;
+  }
+
+  private MathTransform getLatLonTransform(CoordinateReferenceSystem sourceCrs)
+      throws ValidationException {
     try {
-      return CRS.findMathTransform(DefaultGeographicCRS.WGS84, CRS.decode(EPSG_4326, false));
+      return CRS.findMathTransform(sourceCrs, CRS.decode(EPSG_4326, false));
     } catch (FactoryException e) {
       throw new ValidationExceptionImpl(
           "Failed to find EPSG:4326 CRS, do you have the dependencies added?", e);
