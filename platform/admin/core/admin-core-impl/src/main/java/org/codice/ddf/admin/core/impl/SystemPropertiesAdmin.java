@@ -142,27 +142,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     try {
       Properties systemDotProperties = new Properties(systemPropertiesFile);
 
-      // Duplicate properties into the internal properties for legacy functionality
-      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HOST)) {
-        updatedSystemProperties.put(
-            SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HOST));
-      }
-      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_PROTOCOL)) {
-        updatedSystemProperties.put(
-            SystemBaseUrl.INTERNAL_PROTOCOL,
-            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_PROTOCOL));
-      }
-      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HTTP_PORT)) {
-        updatedSystemProperties.put(
-            SystemBaseUrl.INTERNAL_HTTP_PORT,
-            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HTTP_PORT));
-      }
-      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HTTPS_PORT)) {
-        updatedSystemProperties.put(
-            SystemBaseUrl.INTERNAL_HTTPS_PORT,
-            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HTTPS_PORT));
-      }
-
       updateProperty(SystemBaseUrl.EXTERNAL_HOST, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
       updateProperty(
