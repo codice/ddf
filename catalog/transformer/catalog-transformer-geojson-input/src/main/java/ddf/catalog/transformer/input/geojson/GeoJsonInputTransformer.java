@@ -169,7 +169,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
     return metacard;
   }
 
-  public Metacard getBaseMetacard(Map<String, Object> properties, List<MetacardType> metacardTypes)
+  protected Metacard getBaseMetacard(
+      Map<String, Object> properties, List<MetacardType> metacardTypes)
       throws CatalogTransformerException {
     final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
     MetacardImpl metacard;
