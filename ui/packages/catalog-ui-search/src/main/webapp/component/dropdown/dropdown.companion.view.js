@@ -22,6 +22,7 @@ define([
   'js/Common',
   'js/store',
   'behaviors/dropdown.behavior.utility',
+  'component/router/router',
   'behaviors/navigation.behavior',
 ], function(
   Marionette,
@@ -31,7 +32,8 @@ define([
   template,
   Common,
   store,
-  DropdownBehaviorUtility
+  DropdownBehaviorUtility,
+  router
 ) {
   return Marionette.LayoutView.extend(
     {
@@ -57,6 +59,7 @@ define([
           'change:isOpen',
           this.handleOpenChange
         )
+        this.listenForRoute()
         this.listenForClose()
       },
       hasFiltering: function() {
@@ -312,6 +315,12 @@ define([
       },
       stopListeningForOutsideClick: function() {
         $('body').off('mousedown.' + this.cid)
+      },
+      listenForRoute: function() {
+        this.listenTo(router, 'change', this.handleRouteChange)
+      },
+      handleRouteChange: function() {
+        this.close()
       },
       listenForResize: function() {
         $(window).on(

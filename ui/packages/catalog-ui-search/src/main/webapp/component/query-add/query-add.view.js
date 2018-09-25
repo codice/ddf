@@ -188,7 +188,6 @@ module.exports = Marionette.LayoutView.extend({
     this.queryContent.currentView.save()
     this.queryTitle.currentView.save()
     if (this.$el.hasClass('is-form-builder')) {
-      this.saveTemplateToBackend()
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
       return
     }
@@ -242,69 +241,6 @@ module.exports = Marionette.LayoutView.extend({
         }.bind(this)
       )
     }
-  },
-  getQueryAsQueryTemplate: function() {
-    const formModel =
-      this.model.get('associatedFormModel') || new SearchFormModel()
-    const formParameters = this.queryContent.currentView.serializeTemplateParameters()
-    let filterTree = cql.simplify(formParameters.filterTree || {})
-    let filterSettings = formParameters.filterSettings || {}
-    if (filterTree.filters && filterTree.filters.length === 1) {
-      filterTree = filterTree.filters[0]
-    }
-    filterSettings.sorts = filterSettings.sorts
-      .filter(sort => sort.attribute && sort.direction)
-      .map(sort => sort.attribute + ',' + sort.direction)
-    return {
-      filterTemplate: filterTree,
-      accessIndividuals: formModel.get('accessIndividuals'),
-      accessGroups: formModel.get('accessGroups'),
-      accessAdministrators: formModel.get('accessAdministrators'),
-      creator: formModel.get('createdBy'),
-      id: formModel.get('id'),
-      title: this.model.get('title'),
-      description: formModel.get('description'),
-      created: formModel.get('createdOn'),
-      owner: formModel.get('owner'),
-      querySettings: filterSettings,
-    }
-  },
-  saveTemplateToBackend: function() {
-    let loadingView = new LoadingView()
-    let _this = this
-    let _user = user
-    $.ajax({
-      url: './internal/forms/query',
-      data: JSON.stringify(this.getQueryAsQueryTemplate()),
-      method: 'PUT',
-      contentType: 'application/json',
-      customErrorHandling: true,
-    })
-      .done((data, textStatus, jqxhr) => {
-        _this.model.set({
-          type: 'custom',
-        })
-        const preferences = _user.getQuerySettings()
-        if (preferences.get('template')) {
-          preferences.set('type', 'custom')
-        } else {
-          preferences.set('type', 'text')
-        }
-        _user.savePreferences()
-      })
-      .fail((jqxhr, textStatus, errorThrown) => {
-        announcement.announce(
-          {
-            title: 'Search Form Failed to be Saved',
-            message: jqxhr.responseJSON.message,
-            type: 'error',
-          },
-          2500
-        )
-      })
-      .always(() => {
-        loadingView.remove()
-      })
   },
   endSave: function() {
     this.model.startSearch()

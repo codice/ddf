@@ -17,6 +17,7 @@ const Marionette = require('marionette')
 const TabsView = require('../tabs.view')
 const SearchFormTabsModel = require('./tabs.search-form')
 const store = require('js/store')
+const Query = require('js/model/Query.js')
 
 module.exports = TabsView.extend({
   selectionInterface: store,
@@ -31,7 +32,7 @@ module.exports = TabsView.extend({
     var activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({
-        model: this.options.queryModel,
+        model: this.options.queryModel || new Query.Model(),
       })
     )
   },

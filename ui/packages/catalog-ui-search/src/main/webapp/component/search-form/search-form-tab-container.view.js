@@ -17,10 +17,9 @@ const Marionette = require('marionette')
 const $ = require('jquery')
 const template = require('./search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form.collection.view')
-const SearchFormCollection = require('./search-form.collection.js')
+const SearchFormCollection = require('./search-form-collection-instance')
 const CustomElements = require('js/CustomElements')
 const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-const properties = require('properties')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -29,7 +28,7 @@ module.exports = Marionette.LayoutView.extend({
     collectionView: '.collection',
   },
   initialize: function() {
-    this.searchFormCollection = new SearchFormCollection()
+    this.searchFormCollection = SearchFormCollection
     this.listenTo(
       this.searchFormCollection,
       'change:doneLoading',
@@ -37,6 +36,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
+    SearchFormCollection.initialize()
     this.collectionView.show(
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
@@ -44,10 +44,8 @@ module.exports = Marionette.LayoutView.extend({
         queryModel: this.model,
       })
     )
-    if (properties.hasExperimentalEnabled()) {
-      LoadingCompanionView.beginLoading(this, this.$el)
-      this.handleLoadingSpinner()
-    }
+    LoadingCompanionView.beginLoading(this, this.$el)
+    this.handleLoadingSpinner()
   },
   handleLoadingSpinner: function() {
     if (this.searchFormCollection.getDoneLoading()) {
