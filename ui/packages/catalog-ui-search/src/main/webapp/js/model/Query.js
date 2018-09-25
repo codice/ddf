@@ -94,7 +94,8 @@ define([
                 }, user.getQuerySettings().toJSON());
             },
             resetToDefaults: function (overridenDefaults) {
-                this.set(_.omit(_merge(this.defaults(), overridenDefaults), ['type', 'isLocal', 'serverPageIndex', 'result']));
+                const defaults = _.omit(this.defaults(),  ['isLocal', 'serverPageIndex', 'result']);
+                this.set(_merge(defaults, overridenDefaults));
                 this.trigger('resetToDefaults');
             },
             applyDefaults: function () {
