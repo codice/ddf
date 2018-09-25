@@ -10,6 +10,12 @@ POPD
 SET GET_PROPERTY=%DIRNAME%get_property.bat
 SET SOLR_EXEC=%DDF_HOME%\bin\ddfsolr.bat
 
+REM Exit if JAVA_HOME not set
+IF "%JAVA_HOME%" == "" (
+    ECHO JAVA_HOME not set. Set JAVA_HOME to proceed - exiting.
+    EXIT /B
+)
+
 :RESTART
 REM Remove the restart file indicator so we can detect later if restart was requested
 IF EXIST "%DIRNAME%restart.jvm" DEL "%DIRNAME%restart.jvm"
