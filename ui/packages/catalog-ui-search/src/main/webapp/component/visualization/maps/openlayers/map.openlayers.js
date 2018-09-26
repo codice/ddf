@@ -582,36 +582,25 @@ module.exports = function OpenlayersMap(
       shapes.push(line)
     },
     showMultiLineShape: function(locationModel) {
-      var lineObject = locationModel.get('multiline').map(line => {
-        return line.map(coords => {
-          return convertPointCoordinate(coords)
+      let lineObject = locationModel.get('multiline').map(line => {
+        line.map(coords => {
+          convertPointCoordinate(coords)
         })
       })
 
-      var feature = new Openlayers.Feature({
+      let feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.MultiLineString(lineObject),
       })
 
       feature.setId(locationModel.cid)
 
-      var vectorSource = new Openlayers.source.Vector({
-        features: [feature],
-      })
-
-      var vectorLayer = new Openlayers.layer.Vector({
-        source: vectorSource,
-      })
-
-      map.addLayer(vectorLayer)
-      overlays[locationModel.cid] = vectorLayer
-
-      return vectorLayer
+      return createVectorLayer(locationModel, feature)
     },
     showMultiPolygonShape: function(locationModel) {
       let lineObject = locationModel.get('multipolygon').map(poly => {
-        return poly.map(coordinateSet => {
-          return coordinateSet.map(pair => {
-            return convertPointCoordinate(pair)
+        poly.map(coordinateSet => {
+          coordinateSet.map(pair => {
+            convertPointCoordinate(pair)
           })
         })
       })
@@ -622,6 +611,9 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
+      return createVectorLayer(locationModel, feature)
+    },
+    createVectorLayer: function(locationModel, feature) {
       let vectorSource = new Openlayers.source.Vector({
         features: [feature],
       })
@@ -636,12 +628,11 @@ module.exports = function OpenlayersMap(
       return vectorLayer
     },
     destroyShape: function(cid) {
-      shapes.forEach(function(shape, i) {
-        if (cid === shape.model.cid) {
-          shape.destroy()
-          shapes.splice(i, 1)
-        }
-      })
+      const shapeIndex = shapes.findIndex(shape => cid === shape.model.cid)
+      if (shapeIndex >= 0) {
+        shapes[shapeIndex].destroy()
+        shapes.splice(shapeIndex, 1)
+      }
     },
     destroyShapes: function() {
       shapes.forEach(function(shape) {
