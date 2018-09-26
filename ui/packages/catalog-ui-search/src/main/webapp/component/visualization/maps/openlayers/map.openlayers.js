@@ -581,6 +581,68 @@ module.exports = function OpenlayersMap(
       })
       shapes.push(line)
     },
+    showMultiLineShape: function(locationModel) {
+      var lineObject = locationModel.get('multiline').map(line => {
+        return line.map(coords => {
+          return convertPointCoordinate(coords)
+        })
+      })
+
+      var feature = new Openlayers.Feature({
+        geometry: new Openlayers.geom.MultiLineString(lineObject),
+      })
+
+      feature.setId(locationModel.cid)
+
+      var vectorSource = new Openlayers.source.Vector({
+        features: [feature],
+      })
+
+      var vectorLayer = new Openlayers.layer.Vector({
+        source: vectorSource,
+      })
+
+      map.addLayer(vectorLayer)
+      overlays[locationModel.cid] = vectorLayer
+
+      return vectorLayer
+    },
+    showMultiPolygonShape: function(locationModel) {
+      let lineObject = locationModel.get('multipolygon').map(poly => {
+        return poly.map(coordinateSet => {
+          return coordinateSet.map(pair => {
+            return convertPointCoordinate(pair)
+          })
+        })
+      })
+
+      let feature = new Openlayers.Feature({
+        geometry: new Openlayers.geom.MultiPolygon(lineObject),
+      })
+
+      feature.setId(locationModel.cid)
+
+      let vectorSource = new Openlayers.source.Vector({
+        features: [feature],
+      })
+
+      let vectorLayer = new Openlayers.layer.Vector({
+        source: vectorSource,
+      })
+
+      map.addLayer(vectorLayer)
+      overlays[locationModel.cid] = vectorLayer
+
+      return vectorLayer
+    },
+    destroyShape: function(cid) {
+      shapes.forEach(function(shape, i) {
+        if (cid === shape.model.cid) {
+          shape.destroy()
+          shapes.splice(i, 1)
+        }
+      })
+    },
     destroyShapes: function() {
       shapes.forEach(function(shape) {
         shape.destroy()
