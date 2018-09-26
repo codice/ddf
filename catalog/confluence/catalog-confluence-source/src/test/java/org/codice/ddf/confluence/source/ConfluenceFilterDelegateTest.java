@@ -32,6 +32,10 @@ import org.opengis.filter.Filter;
 public class ConfluenceFilterDelegateTest {
   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 
+  private static final String UNKNOWN_CONFLUENCE_ATTRIBUTE = "Unknown Confluence Attribute Mapping";
+
+  private static final String UNKNOWN_ATTRIBUTES_VALUE = "unknown attribute's value";
+
   private FilterBuilder builder = new GeotoolsFilterBuilder();
 
   private FilterAdapter adapter = new GeotoolsFilterAdapterImpl();
@@ -243,5 +247,59 @@ public class ConfluenceFilterDelegateTest {
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     adapter.adapt(filter, delegate);
     assertThat(delegate.isConfluenceQuery(), is(false));
+  }
+
+  @Test
+  public void testPropertyGreaterThanDate() throws Exception {
+    Filter filter =
+        builder.allOf(
+            builder
+                .attribute(Metacard.MODIFIED)
+                .is()
+                .after()
+                .date(new SimpleDateFormat(DATE_FORMAT).parse("2015-12-31 17:00")));
+    ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
+    assertThat(adapter.adapt(filter, delegate), is("lastmodified > \"2015-12-31 17:00\""));
+  }
+
+  @Test
+  public void testAndWithBlankOperand() throws Exception {
+    Filter filter =
+        builder.allOf(
+            builder.attribute(Metacard.TITLE).is().like().text("titleWithNoSpaces"),
+            builder.attribute(Topic.KEYWORD).is().like().text("  "));
+    ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
+    assertThat(
+        "No ANDs should be dangling with following blanks",
+        adapter.adapt(filter, delegate),
+        is("( ( title ~ \"titleWithNoSpaces\" ) )"));
+  }
+
+  @Test
+  public void testOrWithBlankOperand() throws Exception {
+    Filter filter =
+        builder.anyOf(
+            builder.attribute(Metacard.TITLE).is().like().text("with blanks"),
+            builder.attribute(Topic.KEYWORD).is().like().text("  "));
+    ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
+    assertThat(
+        "No ORs should be dangling with following blanks",
+        adapter.adapt(filter, delegate),
+        is("( ( title ~ \"with\" OR title ~ \"blanks\" ) )"));
+  }
+
+  @Test
+  public void testNotWithUnknownConfluenceParameter() throws Exception {
+    Filter filter =
+        builder.allOf(
+            builder.not(
+                builder
+                    .attribute(UNKNOWN_CONFLUENCE_ATTRIBUTE)
+                    .is()
+                    .like()
+                    .text(UNKNOWN_ATTRIBUTES_VALUE)));
+    ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
+    assertThat(
+        "Filter delegate NOT should return null", adapter.adapt(filter, delegate), nullValue());
   }
 }
