@@ -10,7 +10,7 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 :metadata-prefix: _
 :quickstart-prefix: quickstart.adoc#_
 :reference-prefix: reference.adoc#_
-:using-prefix: documentation.adoc#_
+:using-prefix: using.adoc#_
 
 <#include "build/metadata-reference.ftl">
 
