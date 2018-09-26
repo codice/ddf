@@ -157,9 +157,9 @@ define([
                     }
                 } else if (type === 'date') {
                     if (!moment(this.get('valueDate')).isValid()) {
-                        error = 'Invalid date. Must be of the format YYYY-MM-DD';
-                    } else if (!moment(this.get('valueDate') + 'T' + this.get('valueTime')).isValid()) {
-                        error = 'Invalid date/time. Must be of the format YYYY-MM-DD HH:MM';
+                        error = 'Invalid date. Must be of the format MM-DD-YYYY';
+                    } else if (this.get('valueTime') && this.get('valueTime').length > 0 && !moment(this.get('valueDate') + 'T' + this.get('valueTime')).isValid()) {
+                        error = 'Invalid date/time. Must be of the format MM-DD-YYYY HH:MM AM/PM';
                     }
                 }
             } else {
