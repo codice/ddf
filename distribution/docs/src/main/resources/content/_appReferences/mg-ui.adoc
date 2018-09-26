@@ -6,7 +6,10 @@
 
 == {title} Application Reference
 
-${deprecated}
+[IMPORTANT]
+====
+This Feature has been *DEPRECATED* and will be removed in a future version.
+====
 
 The Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
 

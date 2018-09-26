@@ -18,9 +18,12 @@
 :link: _using_standard_search_ui
 :order: 02
 
-${deprecated}
+[IMPORTANT]
+====
+This feature has been *DEPRECATED* and will be removed in a future version.
+====
 
-|[NOTE]
+[NOTE]
 ====
 To use the Standard Search UI, uninstall the DDF :: Security :: Filter :: CSRF bundle.
 ====
