@@ -63,6 +63,8 @@ public class CqlRequest {
 
   private String queryType;
 
+  private String batchId;
+
   private List<Sort> sorts = Collections.emptyList();
 
   private boolean normalize = false;
@@ -79,6 +81,14 @@ public class CqlRequest {
 
   public String getQueryType() {
     return queryType;
+  }
+
+  public void setBatchId(String batchId) {
+    this.batchId = batchId;
+  }
+
+  public String getBatchId() {
+    return batchId;
   }
 
   public void setSrc(String src) {
@@ -170,6 +180,12 @@ public class CqlRequest {
       queryRequest
           .getProperties()
           .put(ADDITIONAL_SORT_BYS, sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]));
+    }
+
+    queryRequest.getProperties().put("requestId", id);
+
+    if (StringUtils.isNotEmpty(batchId)) {
+      queryRequest.getProperties().put("batchId", batchId);
     }
 
     if (StringUtils.isNotEmpty(queryType)) {
