@@ -34,10 +34,11 @@ public interface Source extends Describable {
    *
    * <p><b>This is expected to be an expensive operation, possibly involving network I/O.</b>
    * Typically only {@link ddf.catalog.CatalogFramework} implementations will call this and only
-   * periodically.
+   * periodically. {@link
+   * ddf.catalog.CatalogFramework#getSourceInfo(ddf.catalog.operation.SourceInfoRequest)} should be
+   * used as a non-blocking alternative to {@link #isAvailable()}.
    *
    * @return true - if the site is available (up), false - if the site is unavailable (down)
-   * @see ddf.catalog.util.SourcePoller
    */
   public boolean isAvailable();
 
@@ -48,6 +49,10 @@ public interface Source extends Describable {
    * whether the {@link Source} is available at this very moment and also to use the {@link
    * SourceMonitor} object to update the caller of this method if this Source's availability changes
    * later in the future.
+   *
+   * <p>NOTE: Consider using {@link
+   * ddf.catalog.CatalogFramework#getSourceInfo(ddf.catalog.operation.SourceInfoRequest)} instead of
+   * {@link #isAvailable()}.
    *
    * @param callback - used to notify the caller of this method when the {@link Source} object wants
    *     to update its availability.

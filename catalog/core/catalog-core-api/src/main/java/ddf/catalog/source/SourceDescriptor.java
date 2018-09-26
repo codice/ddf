@@ -39,7 +39,8 @@ public interface SourceDescriptor extends Describable {
   public Set<ContentType> getContentTypes();
 
   /**
-   * Checks if {@link Source} is available.
+   * Checks if {@link Source} is available. This method does not block and may not return the most
+   * up-to-date availability.
    *
    * @return true, if is available
    * @see Source#isAvailable()

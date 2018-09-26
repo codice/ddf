@@ -323,7 +323,10 @@ public interface CatalogFramework extends Describable {
   /**
    * Returns information for each {@link ddf.catalog.source.Source} that is endpoint-addressable in
    * {@link CatalogFramework}, including its own {@link ddf.catalog.source.CatalogProvider}, based
-   * on the contents of the {@link SourceInfoRequest}.
+   * on the contents of the {@link SourceInfoRequest}. This method is a non-blocking alternative to
+   * {@link ddf.catalog.source.Source#isAvailable()}. The availability of {@link
+   * ddf.catalog.source.Source}s returned are based on previous availability checks by the {@link
+   * CatalogFramework}.
    *
    * <p>The {@link SourceInfoRequest} specifies either:
    *
