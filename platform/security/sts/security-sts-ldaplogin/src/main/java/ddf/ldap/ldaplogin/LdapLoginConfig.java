@@ -83,7 +83,7 @@ public class LdapLoginConfig {
 
   private static final String SUFFICIENT_FLAG = "sufficient";
 
-  public static final String LOGIN_USER_ATTRIBUTE = "loginUserAtttribute";
+  public static final String LOGIN_USER_ATTRIBUTE = "loginUserAttribute";
 
   public static final String MEMBER_USER_ATTRIBUTE = "membershipUserAttribute";
 

@@ -40,6 +40,7 @@
             <property name="ldapService" ref="ldapService"/>
             <property name="loginUserAttribute" value="uid"/>
             <property name="membershipUserAttribute" value="uid"/>
+            <property name="memberNameAttribute" value="member"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>

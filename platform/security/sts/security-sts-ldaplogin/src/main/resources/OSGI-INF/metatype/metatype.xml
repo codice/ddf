@@ -65,6 +65,11 @@
 			default="uid"
 			description="Attribute used as the membership attribute for the user in the group. Usually this is uid, cn, or something similar.">
 		</AD>
+
+		<AD name="LDAP Member Name Attribute:" id="memberNameAttribute" required="true" type="String"
+			default="member"
+			description="Attribute used to identify users in the group. Usually this is member or something similar.">
+		</AD>
 	    
 	    <AD name="LDAP User Login Attribute:" id="loginUserAttribute" required="true" type="String"
             default="uid"
