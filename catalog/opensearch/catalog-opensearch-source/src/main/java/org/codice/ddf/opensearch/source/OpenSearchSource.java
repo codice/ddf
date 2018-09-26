@@ -60,7 +60,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -114,8 +113,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   private static final String DESCRIPTION =
       "Queries DDF using the synchronous federated OpenSearch query";
 
-  private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
-
   protected static final String USERNAME_PROPERTY = "username";
 
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
@@ -133,10 +130,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   // service properties
   protected String shortname;
-
-  private boolean lastAvailable;
-
-  private Date lastAvailableDate = null;
 
   protected boolean localQueryOnly;
 
@@ -266,31 +259,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   @Override
   public boolean isAvailable() {
-    boolean isAvailable = false;
-    if (!lastAvailable
-        || (lastAvailableDate.before(
-            new Date(System.currentTimeMillis() - AVAILABLE_TIMEOUT_CHECK)))) {
-
-      WebClient client;
-      Response response;
-
-      try {
-        client = getClientFactory().getWebClient();
-        response = client.head();
-      } catch (Exception e) {
-        LOGGER.debug("Web Client was unable to connect to endpoint.", e);
-        return false;
-      }
-
-      if (response != null && !(response.getStatus() >= 404 || response.getStatus() == 402)) {
-        isAvailable = true;
-        lastAvailableDate = new Date();
-      }
-    } else {
-      isAvailable = lastAvailable;
+    try {
+      final WebClient client = getClientFactory().getWebClient();
+      final Response response = client.head();
+      return response != null && !(response.getStatus() >= 404 || response.getStatus() == 402);
+    } catch (Exception e) {
+      LOGGER.debug("Web Client was unable to connect to endpoint.", e);
+      return false;
     }
-    lastAvailable = isAvailable;
-    return isAvailable;
   }
 
   @Override
