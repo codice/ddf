@@ -241,7 +241,7 @@ public class HandlebarsWfsFeatureTransformerTest {
 
   private void assertExpectedAttributes(Metacard metacard) {
     assertThat(getAttributeValue(Location.COUNTRY_CODE, metacard), equalTo("CC - GBR"));
-    assertThat(getAttributeValue(Core.LOCATION, metacard), equalTo("POINT (-123.26 49.39)"));
+    assertThat(getAttributeValue(Core.LOCATION, metacard), equalTo("POINT (49.39 -123.26)"));
     assertThat(getAttributeValue(Contact.POINT_OF_CONTACT_NAME, metacard), equalTo("Captain Hook"));
   }
 
