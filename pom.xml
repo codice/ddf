@@ -56,7 +56,7 @@
         <snapshots.repository.url/>
         <reports.repository.url/>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.14</ddf.support.version>
+        <ddf.support.version>2.3.15-SNAPSHOT</ddf.support.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.4</acdebugger.version>
         <!--Documentation Replacements-->
@@ -462,9 +462,57 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>ddf.support</groupId>
+                            <artifactId>artifact-size-enforcer</artifactId>
+                            <version>${ddf.support.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>check-artifact-size</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <ArtifactSizeEnforcerRule
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-artifact-size</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <ArtifactSizeEnforcerRule
+                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!--Set the root POM directory-->
             <plugin>
                 <groupId>org.commonjava.maven.plugins</groupId>

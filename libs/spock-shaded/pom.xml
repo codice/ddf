@@ -73,6 +73,27 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-artifact-size</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <ArtifactSizeEnforcerRule
+                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                    <maxArtifactSize>9.2_MB</maxArtifactSize>
+                                </ArtifactSizeEnforcerRule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Need to have JaCoCo plugin otherwise surefire fails because ${argLine} is undefined -->
             <plugin>
                 <groupId>org.jacoco</groupId>

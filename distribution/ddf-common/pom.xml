@@ -70,6 +70,27 @@ These shared resources include:
       </resource>
     </resources>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>check-artifact-size</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <ArtifactSizeEnforcerRule
+                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                  <maxArtifactSize>15.8_MB</maxArtifactSize>
+                </ArtifactSizeEnforcerRule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <!--
 Generates the resources from the /resources sub-directory into a JAR file and copies
 it into the maven repo so other DDF distribution projects can access it.
