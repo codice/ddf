@@ -124,14 +124,12 @@ public class ListApplication implements SparkApplication {
             IOUtils.copy(attachmentInfo.getStream(), temporaryFileBackedOutputStream);
 
             for (Splitter splitter : lookupSplitters(attachmentInfo.getContentType())) {
-              // create new exception
-              // try catch block here
               try {
                 if (attemptToSplitAndStore(
                     response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
                   break;
               } catch (StopSplitterExecutionException e) {
-                String exceptionMessage = "TEST MSG";
+                String exceptionMessage = "Attached files do not contain the correct mimetypes";
                 LOGGER.debug(exceptionMessage);
                 createBadRequestResponse(exceptionMessage, response);
                 return null;
