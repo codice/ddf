@@ -33,5 +33,5 @@ public interface Splitter extends ServiceProperties {
    */
   Stream<StorableResource> split(
       StorableResource storableResource, Map<String, ? extends Serializable> arguments)
-      throws IOException;
+      throws IOException, StopSplitterExecutionException;
 }

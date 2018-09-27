@@ -50,6 +50,7 @@ import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.catalog.ui.metacard.impl.StorableResourceImpl;
 import org.codice.ddf.catalog.ui.metacard.internal.Splitter;
 import org.codice.ddf.catalog.ui.metacard.internal.SplitterLocator;
+import org.codice.ddf.catalog.ui.metacard.internal.StopSplitterExecutionException;
 import org.codice.ddf.catalog.ui.metacard.internal.StorableResource;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -123,9 +124,18 @@ public class ListApplication implements SparkApplication {
             IOUtils.copy(attachmentInfo.getStream(), temporaryFileBackedOutputStream);
 
             for (Splitter splitter : lookupSplitters(attachmentInfo.getContentType())) {
-              if (attemptToSplitAndStore(
-                  response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
-                break;
+              // create new exception
+              // try catch block here
+              try {
+                if (attemptToSplitAndStore(
+                    response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
+                  break;
+              } catch (StopSplitterExecutionException e) {
+                String exceptionMessage = "TEST MSG";
+                LOGGER.debug(exceptionMessage);
+                createBadRequestResponse(exceptionMessage, response);
+                return null;
+              }
             }
           }
 
@@ -141,7 +151,7 @@ public class ListApplication implements SparkApplication {
       AttachmentInfo attachmentInfo,
       TemporaryFileBackedOutputStream temporaryFileBackedOutputStream,
       Splitter splitter)
-      throws IOException {
+      throws IOException, StopSplitterExecutionException {
     List<String> ids = new LinkedList<>();
     List<String> errorMessages = new LinkedList<>();
 
@@ -197,7 +207,8 @@ public class ListApplication implements SparkApplication {
   }
 
   private Stream<StorableResource> createStream(
-      AttachmentInfo attachmentInfo, Splitter splitter, String listType) throws IOException {
+      AttachmentInfo attachmentInfo, Splitter splitter, String listType)
+      throws IOException, StopSplitterExecutionException {
     return splitter.split(
         createStorableResource(attachmentInfo),
         Collections.singletonMap(LIST_TYPE_HEADER, listType));
