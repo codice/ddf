@@ -42,6 +42,5 @@
         <module>owasp-diff-runner</module>
         <module>alerts</module>
         <module>test-common</module>
-        <module>mockito-extensions</module>
     </modules>
 </project>

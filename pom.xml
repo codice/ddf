@@ -955,6 +955,18 @@
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
+            <artifactId>hamcrest-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>mockito-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
             <artifactId>failsafe-controller</artifactId>
             <version>${codice-test.version}</version>
             <scope>test</scope>
