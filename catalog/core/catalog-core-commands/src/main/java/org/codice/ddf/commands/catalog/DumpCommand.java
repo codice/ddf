@@ -13,15 +13,19 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -32,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +60,7 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
+import org.geotools.filter.text.cql2.CQLException;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -79,6 +85,8 @@ public class DumpCommand extends CqlCommands {
   private static final String ZIP_COMPRESSION = "zipCompression";
 
   private static List<MetacardTransformer> transformers = null;
+
+  @VisibleForTesting protected static Optional<QueryResponseTransformer> zipCompression = null;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -172,7 +180,9 @@ public class DumpCommand extends CqlCommands {
   private Map<String, Serializable> zipArgs;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  protected Object executeWithSubject()
+      throws ParseException, CQLException, UnsupportedQueryException, SourceUnavailableException,
+          FederationException, IOException {
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
       dirPath += File.separator;
     }
@@ -259,32 +269,26 @@ public class DumpCommand extends CqlCommands {
           }
         } catch (InvalidSyntaxException e) {
           LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
+        } catch (CatalogTransformerException e) {
+          LOGGER.info("zipCompression transform failed");
         }
       } else if (multithreaded > 1) {
         final List<Result> results = new ArrayList<>(response.getResults());
         executorService.submit(
             () -> {
-              boolean transformationFailed = false;
               for (final Result result : results) {
                 Metacard metacard = result.getMetacard();
                 try {
-                  exportMetacard(dumpDir, metacard);
-                  printStatus(resultCount.incrementAndGet());
-                } catch (IOException | CatalogTransformerException e) {
-                  transformationFailed = true;
+                  exportMetacard(dumpDir, metacard, resultCount);
+                } catch (IOException e) {
                   LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
                 }
               }
-              if (transformationFailed) {
-                LOGGER.info(
-                    "One or more metacards failed to transform. Enable debug log for more details.");
-              }
             });
-      } else {
+      } else if (multithreaded == 1) {
         for (final Result result : response.getResults()) {
           Metacard metacard = result.getMetacard();
-          exportMetacard(dumpDir, metacard);
-          printStatus(resultCount.incrementAndGet());
+          exportMetacard(dumpDir, metacard, resultCount);
         }
       }
 
@@ -314,25 +318,35 @@ public class DumpCommand extends CqlCommands {
     return null;
   }
 
-  private void exportMetacard(File dumpLocation, Metacard metacard)
-      throws IOException, CatalogTransformerException {
+  private void exportMetacard(File dumpLocation, Metacard metacard, AtomicLong resultCount)
+      throws IOException {
     if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
       try (ObjectOutputStream oos =
           new ObjectOutputStream(new FileOutputStream(getOutputFile(dumpLocation, metacard)))) {
         oos.writeObject(new MetacardImpl(metacard));
         oos.flush();
+        resultCount.incrementAndGet();
       }
     } else {
       BinaryContent binaryContent;
       if (metacard != null) {
+
         for (MetacardTransformer transformer : transformers) {
-          binaryContent = transformer.transform(metacard, new HashMap<>());
-          if (binaryContent != null) {
-            try (FileOutputStream fos =
-                new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
-              fos.write(binaryContent.getByteArray());
+          try {
+            binaryContent = transformer.transform(metacard, new HashMap<>());
+
+            if (binaryContent != null) {
+              try (FileOutputStream fos =
+                  new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
+                fos.write(binaryContent.getByteArray());
+              }
+              resultCount.incrementAndGet();
+              break;
             }
-            break;
+
+          } catch (CatalogTransformerException e) {
+            LOGGER.info(
+                "One or more metacards failed to transform. Enable debug log for more details.");
           }
         }
       }
@@ -387,8 +401,12 @@ public class DumpCommand extends CqlCommands {
   }
 
   private Optional<QueryResponseTransformer> getZipCompression() throws InvalidSyntaxException {
-    return getServiceByFilter(
-        QueryResponseTransformer.class,
-        "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
+    if (zipCompression == null) {
+      zipCompression =
+          getServiceByFilter(
+              QueryResponseTransformer.class,
+              "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
+    }
+    return zipCompression;
   }
 }
