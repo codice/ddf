@@ -40,7 +40,6 @@
                 <exclude>etc/shell.init.script</exclude>
                 <exclude>etc/org.apache.karaf.kar.cfg</exclude>
                 <exclude>system/**/org.ops4j.pax.tipi.tomcat*</exclude>
-                <exclude>system/**/pax-web-jsp*</exclude>
                 <exclude>system/**/*elasticsearch*</exclude>
                 <exclude>system/**/*kibana*</exclude>
                 <exclude>system/**/pax-web-tomcat*</exclude>
