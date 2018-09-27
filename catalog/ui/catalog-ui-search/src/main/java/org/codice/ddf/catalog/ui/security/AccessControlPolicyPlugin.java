@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.containsACLAttributes;
+import static org.codice.ddf.catalog.ui.security.AccessControlUtil.CONTAINS_ACL_ATTRIBUTES;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -71,7 +71,7 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
 
   private Map<String, Set<String>> getPolicy(Metacard metacard) {
     return Optional.of(metacard)
-        .filter(containsACLAttributes)
+        .filter(CONTAINS_ACL_ATTRIBUTES)
         .map(this::getPolicyForMetacard)
         .orElseGet(ImmutableMap::of);
   }
@@ -79,7 +79,7 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
   private Map<String, Set<String>> getPolicy(List<Metacard> metacards) {
     return metacards
         .stream()
-        .filter(containsACLAttributes)
+        .filter(CONTAINS_ACL_ATTRIBUTES)
         .map(this::getPolicy)
         .map(Map::entrySet)
         .flatMap(Collection::stream)

@@ -41,7 +41,7 @@ public class AccessControlUtil {
    * Takes a {@link Metacard} and attribute name and returns a set of the corresponding values if
    * they exist
    */
-  public static BiFunction<Metacard, String, Set<String>> attributeToSet =
+  public static final BiFunction<Metacard, String, Set<String>> ATTRIBUTE_TO_SET =
       (metacard, attr) -> new HashSet<>(getValuesOrEmpty(metacard, attr));
 
   private static BiFunction<Metacard, String, Boolean> metacardDescriptorsContain =
@@ -51,7 +51,7 @@ public class AccessControlUtil {
    * It will be a pre-condition contain the full set of security attributes to enable access
    * control.
    */
-  public static Predicate<Metacard> containsACLAttributes =
+  public static final Predicate<Metacard> CONTAINS_ACL_ATTRIBUTES =
       (metacard) ->
           metacardDescriptorsContain.apply(metacard, Security.ACCESS_ADMINISTRATORS)
               || metacardDescriptorsContain.apply(metacard, Security.ACCESS_GROUPS)
@@ -61,33 +61,33 @@ public class AccessControlUtil {
    * Does a diff between the old set of {@link Metacard} access-administrators with the set to see
    * if anyone was added or removed.
    */
-  public static BiFunction<Metacard, Metacard, Boolean> accessAdminHasChanged =
+  public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_ADMIN_HAS_CHANGED =
       (oldMetacard, newMetacard) ->
           !Sets.symmetricDifference(
-                  attributeToSet.apply(oldMetacard, Security.ACCESS_ADMINISTRATORS),
-                  attributeToSet.apply(newMetacard, Security.ACCESS_ADMINISTRATORS))
+                  ATTRIBUTE_TO_SET.apply(oldMetacard, Security.ACCESS_ADMINISTRATORS),
+                  ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_ADMINISTRATORS))
               .isEmpty();
 
   /**
    * Does a diff between the old set of {@link Metacard} access-individuals with the set to see if
    * anyone was added or removed.
    */
-  public static BiFunction<Metacard, Metacard, Boolean> accessIndividualsHasChanged =
+  public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_INDIVIDUALS_HAS_CHANGED =
       (oldMetacard, newMetacard) ->
           !Sets.symmetricDifference(
-                  attributeToSet.apply(oldMetacard, Security.ACCESS_INDIVIDUALS),
-                  attributeToSet.apply(newMetacard, Security.ACCESS_INDIVIDUALS))
+                  ATTRIBUTE_TO_SET.apply(oldMetacard, Security.ACCESS_INDIVIDUALS),
+                  ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_INDIVIDUALS))
               .isEmpty();
 
   /**
    * Does a diff between the old set of {@link Metacard} access-groups with the set to see if a role
    * was added or removed.
    */
-  public static BiFunction<Metacard, Metacard, Boolean> accessGroupsHasChanged =
+  public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_GROUPS_HAS_CHANGED =
       (oldMetacard, newMetacard) ->
           !Sets.symmetricDifference(
-                  attributeToSet.apply(oldMetacard, Security.ACCESS_GROUPS),
-                  attributeToSet.apply(newMetacard, Security.ACCESS_GROUPS))
+                  ATTRIBUTE_TO_SET.apply(oldMetacard, Security.ACCESS_GROUPS),
+                  ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_GROUPS))
               .isEmpty();
 
   /**
@@ -110,7 +110,7 @@ public class AccessControlUtil {
    *     an empty set
    */
   public static Set<String> getAccessIndividuals(Metacard metacard) {
-    return attributeToSet.apply(metacard, Security.ACCESS_INDIVIDUALS);
+    return ATTRIBUTE_TO_SET.apply(metacard, Security.ACCESS_INDIVIDUALS);
   }
 
   /**
@@ -118,7 +118,7 @@ public class AccessControlUtil {
    *     empty set
    */
   public static Set<String> getAccessGroups(Metacard metacard) {
-    return attributeToSet.apply(metacard, Security.ACCESS_GROUPS);
+    return ATTRIBUTE_TO_SET.apply(metacard, Security.ACCESS_GROUPS);
   }
 
   /**
@@ -126,7 +126,7 @@ public class AccessControlUtil {
    *     return an empty set
    */
   public static Set<String> getAccessAdministrators(Metacard metacard) {
-    return attributeToSet.apply(metacard, Security.ACCESS_ADMINISTRATORS);
+    return ATTRIBUTE_TO_SET.apply(metacard, Security.ACCESS_ADMINISTRATORS);
   }
 
   /** Sets owner value associated with a particular {@link Metacard} */

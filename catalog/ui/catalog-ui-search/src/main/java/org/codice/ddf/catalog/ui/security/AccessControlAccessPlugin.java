@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.accessAdminHasChanged;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.accessGroupsHasChanged;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.accessIndividualsHasChanged;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.attributeToSet;
+import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_ADMIN_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_GROUPS_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_INDIVIDUALS_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ATTRIBUTE_TO_SET;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.isAnyObjectNull;
 
 import ddf.catalog.data.Metacard;
@@ -52,19 +52,19 @@ public class AccessControlAccessPlugin implements AccessPlugin {
   // Equivalent to doing a set intersection of the subject with the access-admin list
   private final Predicate<Metacard> subjectIsAccessAdmin =
       (newMetacard) ->
-          attributeToSet
+          ATTRIBUTE_TO_SET
               .apply(newMetacard, Security.ACCESS_ADMINISTRATORS)
               .contains(subjectSupplier.get());
 
   private final Predicate<Metacard> subjectIsOwner =
       (newMetacard) ->
-          attributeToSet.apply(newMetacard, Core.METACARD_OWNER).contains(subjectSupplier.get());
+          ATTRIBUTE_TO_SET.apply(newMetacard, Core.METACARD_OWNER).contains(subjectSupplier.get());
 
   private boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated)
-        && (accessAdminHasChanged.apply(prev, updated)
-            || accessIndividualsHasChanged.apply(prev, updated)
-            || accessGroupsHasChanged.apply(prev, updated));
+        && (ACCESS_ADMIN_HAS_CHANGED.apply(prev, updated)
+            || ACCESS_INDIVIDUALS_HAS_CHANGED.apply(prev, updated)
+            || ACCESS_GROUPS_HAS_CHANGED.apply(prev, updated));
   }
 
   @Override
