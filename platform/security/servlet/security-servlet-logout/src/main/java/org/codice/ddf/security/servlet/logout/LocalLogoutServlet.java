@@ -32,8 +32,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,12 @@ public class LocalLogoutServlet extends HttpServlet {
 
     try {
       redirectUrlBuilder = new URIBuilder("/logout/logout-response.html");
+
+      if (Strings.isNotBlank(SystemBaseUrl.EXTERNAL.getRootContext())) {
+        redirectUrlBuilder =
+            new URIBuilder(
+                SystemBaseUrl.EXTERNAL.getRootContext() + "/logout/logout-response.html");
+      }
 
       invalidateSession(request, response);
 

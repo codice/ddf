@@ -19,7 +19,7 @@
     var actions = JSON.parse(data)
 
     var doLogout = function(action) {
-      $('iframe').attr('src', action.url)
+      window.location.href = action.url
       $('#modal').removeClass('is-hidden')
     }
 
@@ -67,31 +67,7 @@
     }
   })
 
-  var handleIframeResponse = function(e) {
-    if (e.origin === window.location.origin) {
-      var action = e.data.split(':')[0]
-      if (action === 'landing') {
-        window.location.href = window.location.origin
-      } else if (action === 'signin') {
-        window.location.href =
-          window.location.origin +
-          '/login' +
-          (prevUrl !== undefined && prevUrl !== 'undefined'
-            ? '?prevurl=' + prevUrl
-            : '')
-      }
-    }
-  }
-  window.addEventListener('message', handleIframeResponse, false)
   $('#landinglink').click(function() {
-    window.location.href = window.location.origin
-  })
-  $('#signinlink').click(function() {
-    window.location.href =
-      window.location.origin +
-      '/login' +
-      (prevUrl !== undefined && prevUrl !== 'undefined'
-        ? '?prevurl=' + prevUrl
-        : '')
+    window.location.href = window.location.href.replace(/logout\/.*/, '')
   })
 })()
