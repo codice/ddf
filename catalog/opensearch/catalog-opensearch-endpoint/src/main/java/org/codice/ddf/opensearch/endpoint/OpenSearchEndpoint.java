@@ -97,10 +97,8 @@ public class OpenSearchEndpoint implements OpenSearch {
   private final FilterBuilder filterBuilder;
 
   public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder) {
-    LOGGER.trace("Entering OpenSearch Endpoint Constructor.");
     this.framework = framework;
     this.filterBuilder = filterBuilder;
-    LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");
   }
 
   /**
@@ -138,6 +136,7 @@ public class OpenSearchEndpoint implements OpenSearch {
    * @param type Specifies the type of data to search for. (example: nitf)
    * @param versions Specifies the versions in a comma-delimited list.
    */
+  @Override
   @GET
   public Response processQuery(
       @QueryParam(OpenSearchConstants.SEARCH_TERMS) String searchTerms,
@@ -162,13 +161,10 @@ public class OpenSearchEndpoint implements OpenSearch {
       @QueryParam(OpenSearchConstants.TYPE) String type,
       @QueryParam(OpenSearchConstants.VERSIONS) String versions,
       @Context HttpServletRequest request) {
-    final String methodName = "processQuery";
-    LOGGER.trace("ENTERING: {}", methodName);
     Response response;
     LOGGER.trace("request url: {}", ui.getRequestUri());
 
     try {
-      String queryFormat = format;
       OpenSearchQuery query = createNewQuery(startIndex, count, maxResults, sort, maxTimeout);
 
       if (StringUtils.isNotEmpty(sources)) {
@@ -196,17 +192,13 @@ public class OpenSearchEndpoint implements OpenSearch {
 
         query.setIsEnterprise(false);
       } else {
-        LOGGER.debug("No sites found, defaulting to enterprise query.");
+        LOGGER.trace("No sites found, defaulting to enterprise query.");
         query.setIsEnterprise(true);
       }
 
       // contextual
       if (StringUtils.isNotBlank(searchTerms)) {
-        try {
-          query.addContextualFilter(searchTerms.trim(), selectors);
-        } catch (ParsingException e) {
-          throw new IllegalArgumentException(e.getMessage());
-        }
+        query.addContextualFilter(searchTerms.trim(), selectors);
       }
 
       if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
@@ -229,27 +221,26 @@ public class OpenSearchEndpoint implements OpenSearch {
       for (Object key : request.getParameterMap().keySet()) {
         if (key instanceof String) {
           Object value = request.getParameterMap().get(key);
-          if (value instanceof Serializable) {
+          if (value != null) {
             properties.put((String) key, ((String[]) value)[0]);
           }
         }
       }
 
-      response = executeQuery(queryFormat, query, ui, properties);
-    } catch (IllegalArgumentException iae) {
-      LOGGER.info("Bad input found while executing a query", iae);
+      response = executeQuery(format, query, ui, properties);
+    } catch (ParsingException e) {
+      LOGGER.debug("Bad input found while executing a query", e);
       response =
           Response.status(Response.Status.BAD_REQUEST)
-              .entity(wrapStringInPreformattedTags(iae.getMessage()))
+              .entity(wrapStringInPreformattedTags(e.getMessage()))
               .build();
     } catch (RuntimeException re) {
-      LOGGER.info("Exception while executing a query", re);
+      LOGGER.debug("Exception while executing a query", re);
       response =
           Response.serverError()
               .entity(wrapStringInPreformattedTags("Exception while executing a query"))
               .build();
     }
-    LOGGER.trace("EXITING: {}", methodName);
 
     return response;
   }
@@ -289,7 +280,7 @@ public class OpenSearchEndpoint implements OpenSearch {
 
     if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
       if (StringUtils.isBlank(radius)) {
-        LOGGER.debug("Adding default radius {}", DEFAULT_RADIUS);
+        LOGGER.trace("Adding default radius {}", DEFAULT_RADIUS);
         query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);
       } else {
         LOGGER.trace("Using radius: {}", radius);
@@ -319,7 +310,7 @@ public class OpenSearchEndpoint implements OpenSearch {
       Map<String, Serializable> arguments = new HashMap<>();
       String organization = framework.getOrganization();
       String url = ui.getRequestUri().toString();
-      if (LOGGER.isDebugEnabled()) {
+      if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("organization: {}", organization);
         LOGGER.trace("url: {}", url);
       }
@@ -370,25 +361,25 @@ public class OpenSearchEndpoint implements OpenSearch {
         }
       }
     } catch (UnsupportedQueryException ce) {
-      LOGGER.info("Unsupported query", ce);
+      LOGGER.debug("Unsupported query", ce);
       response =
           Response.status(Response.Status.BAD_REQUEST)
               .entity(wrapStringInPreformattedTags("Unsupported query"))
               .build();
     } catch (CatalogTransformerException e) {
-      LOGGER.info("Error transforming response", e);
+      LOGGER.debug("Error transforming response", e);
       response =
           Response.serverError()
               .entity(wrapStringInPreformattedTags("Error transforming response"))
               .build();
     } catch (FederationException e) {
-      LOGGER.info("Error executing query", e);
+      LOGGER.debug("Error executing query", e);
       response =
           Response.serverError()
               .entity(wrapStringInPreformattedTags("Error executing query"))
               .build();
     } catch (SourceUnavailableException e) {
-      LOGGER.info("Error executing query because the underlying source was unavailable.", e);
+      LOGGER.debug("Error executing query because the underlying source was unavailable.", e);
       response =
           Response.serverError()
               .entity(
@@ -399,7 +390,7 @@ public class OpenSearchEndpoint implements OpenSearch {
       // Account for any runtime exceptions and send back a server error
       // this prevents full stacktraces returning to the client
       // this allows for a graceful server error to be returned
-      LOGGER.info("RuntimeException on executing query", e);
+      LOGGER.debug("RuntimeException on executing query", e);
       response =
           Response.serverError()
               .entity(wrapStringInPreformattedTags("RuntimeException on executing query"))
@@ -451,8 +442,10 @@ public class OpenSearchEndpoint implements OpenSearch {
       LOGGER.trace("Empty {} query parameter", OpenSearchConstants.COUNT);
 
       if (StringUtils.isEmpty(maxResultsStr)) {
-        LOGGER.trace("Empty {} query parameter", OpenSearchConstants.MAX_RESULTS);
-        LOGGER.trace("Using default {} instead", DEFAULT_COUNT);
+        LOGGER.trace(
+            "Empty {} query parameter. Using default {} instead",
+            OpenSearchConstants.MAX_RESULTS,
+            DEFAULT_COUNT);
         count = DEFAULT_COUNT;
       } else {
         // honor maxResults if count is not specified

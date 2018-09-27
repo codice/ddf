@@ -22,10 +22,9 @@ import org.parboiled.annotations.SuppressNode;
 import org.parboiled.support.StringVar;
 
 /**
- * This parser is based on a modified version of the "IC/DoD keyword Query Language Specification,
- * V2.0" DRAFT (4 September 2012). This spec includes an EBNF that this parser is based on. All
- * changes to that EBNF were made to add variable whitespace handling and to make parsing more
- * efficient.
+ * This parser is based on a modified version of the "IC/DoD Keyword Query Language Specification,
+ * V2.0" (3 October 2012). This spec includes an EBNF that this parser is based on. All changes to
+ * that EBNF were made to add variable whitespace handling and to make parsing more efficient.
  */
 @SuppressWarnings({"InfiniteRecursion"})
 @BuildParseTree
@@ -50,19 +49,19 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
 
   protected final Rule dblquote = terminal("\"");
 
-  protected final Rule spaceRule = terminal(SPACE_STRING);
-
   // This method exists to detect end of input.
   public Rule inputPhrase() {
     return Sequence(keywordQueryExpression(), EOI);
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <keyword-query-expression> ::= <term> (<boolean-operator> <term>)*;
+   * Original keyword Query Specification EBNF excerpt:
    *
-   * <p>The implementation was changed to allow whitespace. <br>
-   * keyword query expression = optional whitespace, term, {boolean operator, term}, optional
+   * <p>{@code <keyword-query-expression> ::= <term> (<boolean-operator> <term>)*;}
+   *
+   * <p>The implementation was changed to allow whitespace.
+   *
+   * <p>keyword query expression = optional whitespace, term, {boolean operator, term}, optional
    * whitespace;
    */
   Rule keywordQueryExpression() {
@@ -79,24 +78,28 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <boolean-operator> ::= <and> | <or> | <not>;
+   * Original keyword Query Specification:
+   *
+   * <p>{@code <boolean-operator> ::= " "|" AND "|" OR "|" NOT "|" AND NOT "|" OR NOT ";}
    *
    * <p>The implementation was changed to evaluate OR and NOT first, so all spaces aren't evaluated
-   * as ANDs. <br>
-   * boolean operator = or | not | and;
+   * as ANDs.
+   *
+   * <p>boolean operator = or | not | and;
    */
   Rule booleanOperator() {
     return FirstOf(or(), not(), and());
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <and> ::= “ AND ” | “ ”;
+   * Original keyword Query Specification:
+   *
+   * <p>{@code <and> ::= " AND " | " ";}
    *
    * <p>The implementation was changed to allow whitespace and to not require boolean operators to
-   * be wrapped in spaces. <br>
-   * and = (optional whitespace, "AND", optional whitespace) | mandatory whitespace;
+   * be wrapped in spaces.
+   *
+   * <p>and = (optional whitespace, "AND", optional whitespace) | mandatory whitespace;
    */
   Rule and() {
     return FirstOf(
@@ -104,46 +107,54 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <or> ::= “ OR ”;
+   * Original keyword Query Specification:
+   *
+   * <p>{@code <or> ::= " OR ";}
    *
    * <p>The implementation was changed to allow whitespace and to not require boolean operators to
-   * be wrapped in spaces. <br>
-   * or = (optional whitespace, "OR", optional whitespace);
+   * be wrapped in spaces.
+   *
+   * <p>or = (optional whitespace, "OR", optional whitespace);
    */
   Rule or() {
     return Sequence(optionalWhiteSpace(), orOperator, optionalWhiteSpace());
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <not> ::= “ NOT ”;
+   * Original keyword Query Specification:
+   *
+   * <p>{@code <not> ::= " NOT ";}
    *
    * <p>The implementation was changed to allow whitespace and to not require boolean operators to
-   * be wrapped in spaces. <br>
-   * not = (optional whitespace, "NOT", optional whitespace);
+   * be wrapped in spaces.
+   *
+   * <p>not = (optional whitespace, "NOT", optional whitespace);
    */
   Rule not() {
     return Sequence(optionalWhiteSpace(), notOperator, optionalWhiteSpace());
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <term> ::= <keyword> | <phrase> | <group>;
+   * Original keyword Query Specification:
    *
-   * <p>The implementation was changed to evaluate the most specific rule first. <br>
-   * term = group | phrase | keyword;
+   * <p>{@code <term> ::= <keyword> | <phrase> | <group>;}
+   *
+   * <p>The implementation was changed to evaluate the most specific rule first.
+   *
+   * <p>term = group | phrase | keyword;
    */
   Rule term() {
     return FirstOf(group(), phrase(), keyword());
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <phrase> ::= '"' <keyword> (' '<keyword>)* '"';
+   * Original keyword Query Specification:
    *
-   * <p>The implementation was changed to allow whitespace. <br>
-   * phrase = optional whitespace, '"', optional whitespace, keyword, { optional whitespace,
+   * <p>{@code <phrase> ::= '"' <keyword> (' '<keyword>)*'"';}
+   *
+   * <p>The implementation was changed to allow whitespace.
+   *
+   * <p>phrase = optional whitespace, '"', optional whitespace, keyword, { optional whitespace,
    * keyword}, optional whitespace, '"';
    */
   Rule phrase() {
@@ -162,11 +173,13 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
   }
 
   /**
-   * Original keyword Query Specification EBNF excerpt <br>
-   * <group> ::= '('<keyword-query-expression>')';
+   * Original keyword Query Specification:
    *
-   * <p>The implementation was changed to allow whitespace. <br>
-   * group = optional whitespace, '(', optional whitespace, keyword query expression, optional
+   * <p>{@code <group> ::= '('<keyword-query-expression>')';}
+   *
+   * <p>The implementation was changed to allow whitespace.
+   *
+   * <p>group = optional whitespace, '(', optional whitespace, keyword query expression, optional
    * whitespace, ')';
    */
   Rule group() {
@@ -181,14 +194,19 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
   }
 
   /**
-   * Original keyword Query Specification excerpt <br>
-   * "A keyword is a single string (containing no whitespaces) such as "test" or "hello"."
+   * Original keyword Query Specification:
    *
-   * <p>All characters except: EOI, whitespace, (, ), ". <br>
+   * <ul>
+   *   <li>{@code <keyword> ::= (<uppercase-alpha> | <lowercase-alpha> | <digit>)+}
+   *   <li>{@code <uppercase-alpha> ::= <any US-ASCII uppercase letter "A".."Z">}
+   *   <li>{@code <lowercase-alpha> ::= <any US-ASCII lowercase letter "a".."z">}
+   *   <li>{@code <digit> ::= <any US-ASCII digit "0".."9">}
+   * </ul>
+   *
+   * <p>All characters except: EOI, whitespace, {@code (}, {@code )}, and {@code "}
    */
   Rule keyword() {
-    // TODO the default value is used to allow the parser to keep running during error
-    // recovery... is this right?
+    // The default value is used to allow the parser to keep running during error recovery.
     return Sequence(
         OneOrMore(NoneOf(" \t\n\f()\"")),
         push(new KeywordASTNode(matchOrDefault("defaultKeyword"))));
