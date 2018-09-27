@@ -288,7 +288,10 @@ public class LdapLoginConfig {
     props.put(USER_SEARCH_SUBTREE_OPTIONS_KEY, "true");
     props.put(ROLE_BASE_DN_OPTIONS_KEY, properties.get(GROUP_BASE_DN));
     Object groupMemberAttribute = properties.get(MEMBER_NAME_ATTRIBUTE);
-    groupMemberAttribute = groupMemberAttribute == null ? "member" : groupMemberAttribute;
+    groupMemberAttribute =
+        groupMemberAttribute == null || groupMemberAttribute.toString().trim().isEmpty()
+            ? "member"
+            : groupMemberAttribute;
     props.put(
         ROLE_FILTER_OPTIONS_KEY,
         String.format(

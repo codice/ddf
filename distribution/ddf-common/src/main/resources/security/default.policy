@@ -389,6 +389,10 @@ grant codeBase "file:/security-sts-attributequeryclaimshandler/security-sts-ldap
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
 }
 
+grant codeBase "file:/security-core-api/security-sts-ldapclaimshandler" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
+}
+
 //
 // itest specific perms
 //
