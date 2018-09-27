@@ -46,9 +46,9 @@
         </mailingList>
     </mailingLists>
     <parent>
-        <groupId>codice</groupId>
-        <artifactId>codice-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>1.0.0</version>
     </parent>
     <properties>
         <!--  default URL properties -->
