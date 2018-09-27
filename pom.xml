@@ -56,7 +56,7 @@
         <snapshots.repository.url/>
         <reports.repository.url/>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.15-SNAPSHOT</ddf.support.version>
+        <ddf.support.version>2.3.15</ddf.support.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.4</acdebugger.version>
         <!--Documentation Replacements-->
