@@ -62,10 +62,10 @@ define([
         $.ajax({
           url: url,
           data: 'jsonp=jsonp&query=' + this.model.get('searchText'),
-          success: function(resultStr) {
-            resultStr = resultStr.replace('jsonp(', '')
-            resultStr = resultStr.substring(0, resultStr.length - 1)
-            var result = $.parseJSON(resultStr)
+          contentType: 'application/javascript',
+          dataType: 'jsonp',
+          jsonp: 'jsonp',
+          success: function(result) {
             if (result.resourceSets.length === 0) {
               view.model.set(
                 'searchText',
