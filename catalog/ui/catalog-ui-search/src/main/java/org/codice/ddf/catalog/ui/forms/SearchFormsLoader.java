@@ -115,7 +115,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     if (systemSubject == null) {
       throw new SecurityException("Could not get systemSubject to initialize system templates");
     }
-    
+
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     Failsafe.with(
