@@ -17,8 +17,13 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
@@ -129,6 +134,18 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       geometries.add(geometry);
     }
 
+    if (geometryCollection.getClass() == MultiPoint.class) {
+      return GEOMETRY_FACTORY.createMultiPoint(geometries.toArray(new Point[0]));
+    }
+
+    if (geometryCollection.getClass() == MultiLineString.class) {
+      return GEOMETRY_FACTORY.createMultiLineString(geometries.toArray(new LineString[0]));
+    }
+
+    if (geometryCollection.getClass() == MultiPolygon.class) {
+      return GEOMETRY_FACTORY.createMultiPolygon(geometries.toArray(new Polygon[0]));
+    }
+
     return GEOMETRY_FACTORY.createGeometryCollection(geometries.toArray(new Geometry[0]));
   }
 
@@ -164,7 +181,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
    * @throws ValidationException
    */
   private Geometry standardizeGeometry(Geometry geometry) {
-    if (geometry instanceof GeometryCollection && !(geometry instanceof MultiPolygon)) {
+    if (geometry instanceof GeometryCollection) {
       return standardizeGeometryCollection((GeometryCollection) geometry);
     }
 
@@ -182,13 +199,12 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
    * @return Extracted CRS or default
    */
   private CoordinateReferenceSystem getGeometryCrs(Geometry geometry) {
-    CoordinateReferenceSystem crs = (CoordinateReferenceSystem) geometry.getUserData();
-    if (crs == null) {
-      crs = DefaultGeographicCRS.WGS84;
-      LOGGER.debug("CRS not found in geometry, defaulting to WGS84");
+    if (geometry.getUserData() instanceof CoordinateReferenceSystem) {
+      return (CoordinateReferenceSystem) geometry.getUserData();
     }
 
-    return crs;
+    LOGGER.trace("CRS not found in geometry, defaulting to WGS84");
+    return DefaultGeographicCRS.WGS84;
   }
 
   private MathTransform getLatLonTransform(CoordinateReferenceSystem sourceCrs)
