@@ -47,10 +47,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.catalog.ui.exceptions.StopSplitterExecutionException;
 import org.codice.ddf.catalog.ui.metacard.impl.StorableResourceImpl;
 import org.codice.ddf.catalog.ui.metacard.internal.Splitter;
 import org.codice.ddf.catalog.ui.metacard.internal.SplitterLocator;
-import org.codice.ddf.catalog.ui.metacard.internal.StopSplitterExecutionException;
 import org.codice.ddf.catalog.ui.metacard.internal.StorableResource;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -129,9 +129,9 @@ public class ListApplication implements SparkApplication {
                     response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
                   break;
               } catch (StopSplitterExecutionException e) {
-                String exceptionMessage = "Attached files do not contain the correct mimetypes";
-                LOGGER.debug(exceptionMessage);
-                createBadRequestResponse(exceptionMessage, response);
+                LOGGER.debug("Mime type error.", e);
+                createBadRequestResponse(
+                    "Attached files do not contain the correct mimetypes", response);
                 return null;
               }
             }

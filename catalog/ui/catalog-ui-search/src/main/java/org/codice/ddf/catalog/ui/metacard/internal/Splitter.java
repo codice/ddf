@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.codice.ddf.catalog.ui.exceptions.StopSplitterExecutionException;
 
 /** Split a resource into a stream of resources. */
 public interface Splitter extends ServiceProperties {
