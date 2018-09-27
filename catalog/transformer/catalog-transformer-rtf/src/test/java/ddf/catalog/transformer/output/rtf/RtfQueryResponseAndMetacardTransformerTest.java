@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.output.rtf;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
@@ -84,7 +85,10 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
 
     String referenceRtf = getReferenceMetacardRtfFile();
 
-    assertThat("Produced RTF document must match reference", rtfResult, equalTo(referenceRtf));
+    assertThat(
+        "Produced RTF document must match reference",
+        rtfResult,
+        equalToIgnoringWhiteSpace(referenceRtf));
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -120,7 +124,10 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
 
     String referenceRtf = getReferenceSourceResponseRtfFile();
 
-    assertThat("Produced RTF document must match reference", rtfResult, equalTo(referenceRtf));
+    assertThat(
+        "Produced RTF document must match reference",
+        rtfResult,
+        equalToIgnoringWhiteSpace(referenceRtf));
   }
 
   private RtfQueryResponseAndMetacardTransformer createTransformer() throws MimeTypeParseException {

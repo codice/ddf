@@ -40,7 +40,6 @@
         -->
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
         <jaxb.visitor.plugin.version>1.13</jaxb.visitor.plugin.version>
-        <catalog.joda.time.version>2.2</catalog.joda.time.version>
         <!-- Mina version is not the latest version due to Apache FTPServer 1.0.6 not supporting newer releases properly -->
         <mina.version>2.0.6</mina.version>
     </properties>
@@ -487,22 +486,22 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-osgi</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-xjc</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>

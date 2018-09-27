@@ -254,7 +254,11 @@ public class ExportCommand extends CqlCommands {
     List<ExportItem> exportedItems = doMetacardExport(zipOutputStream, filter);
     if (exportedItems.isEmpty()) {
       console.println("No metacards found to export, exiting.");
-      FileUtils.deleteQuietly(outputFile);
+      try {
+        zipOutputStream.close();
+      } finally {
+        FileUtils.deleteQuietly(outputFile);
+      }
       return null;
     }
 

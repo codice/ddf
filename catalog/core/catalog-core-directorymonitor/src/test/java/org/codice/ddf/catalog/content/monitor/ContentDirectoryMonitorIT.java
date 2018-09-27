@@ -311,6 +311,8 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("commons-collections", "commons-collections"),
         new BundleInfo("org.apache.commons", "commons-collections4"),
         new BundleInfo("commons-configuration", "commons-configuration"),
+        new BundleInfo("org.apache.commons", "commons-configuration2"),
+        new BundleInfo("joda-time", "joda-time"),
         new BundleInfo("com.google.guava", "guava"),
         new BundleInfo("org.apache.tika", "tika-core"),
         new BundleInfo("org.apache.shiro", "shiro-core"),

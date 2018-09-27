@@ -353,6 +353,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetBrief()
       throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;
@@ -400,6 +401,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetSummary()
       throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;
@@ -447,6 +449,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetFull()
       throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;
@@ -494,6 +497,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionHits() throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;
 
@@ -534,6 +538,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetElements()
       throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;
@@ -586,6 +591,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetFirstPage()
       throws UnsupportedEncodingException, JAXBException {
     final int maxRecords = 6;
@@ -598,6 +604,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetMiddlePage()
       throws UnsupportedEncodingException, JAXBException {
     final int maxRecords = 6;
@@ -610,6 +617,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetLastPage()
       throws UnsupportedEncodingException, JAXBException {
     final int maxRecords = 6;
@@ -622,6 +630,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionGetAllOnePage()
       throws UnsupportedEncodingException, JAXBException {
     final int maxRecords = 23;
@@ -634,6 +643,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionById() throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 2;
 
@@ -668,6 +678,7 @@ public class GetRecordsResponseConverterTest {
   }
 
   @Ignore
+  @Test
   public void testMarshalRecordCollectionFullXml()
       throws UnsupportedEncodingException, JAXBException {
     final int totalResults = 5;

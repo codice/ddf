@@ -35,12 +35,10 @@ const Root = styled<{}, 'div'>('div')`
         ${props => props.theme.minimumDividerSize}
     );
     text-align: center;
-
     div + div {
       margin-top: ${props => props.theme.mediumSpacing};
     }
   }
-
   input + input {
     margin-top: ${props => props.theme.mediumSpacing};
   }

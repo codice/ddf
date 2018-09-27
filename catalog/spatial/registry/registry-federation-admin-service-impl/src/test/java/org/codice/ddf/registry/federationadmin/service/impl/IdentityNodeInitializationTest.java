@@ -164,6 +164,7 @@ public class IdentityNodeInitializationTest {
     verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
+  @Test
   public void initWithIngestException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     when(federationAdminService.addRegistryEntry(any(Metacard.class)))
@@ -172,6 +173,7 @@ public class IdentityNodeInitializationTest {
     verify(federationAdminService, times(1)).addRegistryEntry(any(Metacard.class));
   }
 
+  @Test
   public void initWithRegistryTransformerException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     doThrow(CatalogTransformerException.class)
@@ -182,6 +184,7 @@ public class IdentityNodeInitializationTest {
     verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
+  @Test
   public void initWithParserException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     doThrow(ParserException.class)
@@ -192,6 +195,7 @@ public class IdentityNodeInitializationTest {
     verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
+  @Test
   public void initWithIOException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     doThrow(IOException.class).when(registryTransformer).transform(any(InputStream.class));

@@ -34,11 +34,12 @@
         <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
         <feature>cxf-rt-security</feature>
         <feature>cxf-jaxrs</feature>
-        <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
         <feature>common-system</feature>
 
         <feature>guava</feature>
-        <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
+        <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <feature>cxf-bindings-soap</feature>
 
@@ -172,7 +173,7 @@
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-api/${project.version}</bundle>
         <feature>javax-validation</feature>
         <feature>cxf-frontend-javascript</feature>
-        <bundle>mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
+        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
         <feature>cxf-jaxrs</feature>
         <feature>security-sts-realm</feature>
         <feature>util-uuidgenerator</feature>
