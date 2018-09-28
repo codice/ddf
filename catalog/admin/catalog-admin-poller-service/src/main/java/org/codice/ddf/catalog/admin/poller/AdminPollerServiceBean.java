@@ -95,14 +95,15 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     helper.felixConfigAdmin = felixConfigAdmin;
 
     mBeanServer = ManagementFactory.getPlatformMBeanServer();
+
+    final String objectNameString = AdminPollerServiceBean.class.getName() + SERVICE_NAME;
     ObjectName objName = null;
     try {
-      objName = new ObjectName(AdminPollerServiceBean.class.getName() + SERVICE_NAME);
+      objName = new ObjectName(objectNameString);
     } catch (MalformedObjectNameException e) {
-      LOGGER.info(
-          "Unable to create Admin Source Poller Service MBean with name [{}].",
-          AdminPollerServiceBean.class.getName() + SERVICE_NAME,
-          e);
+      // This should never happen.
+      throw new IllegalStateException(
+          "Could not register MBean for ObjectName " + objectNameString, e);
     }
     objectName = objName;
   }
@@ -122,7 +123,10 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         LOGGER.debug("Re-registered Admin Source Poller Service Service MBean");
       }
     } catch (Exception e) {
-      LOGGER.info("Could not register MBean [{}].", objectName, e);
+      LOGGER.warn(
+          "Could not register MBean [{}]. Retrieving source status/info will not work. Try Restarting",
+          objectName,
+          e);
     }
   }
 
@@ -133,7 +137,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         LOGGER.debug("Unregistered Admin Source Poller Service Service MBean");
       }
     } catch (Exception e) {
-      LOGGER.info("Exception unregistering MBean [{}].", objectName, e);
+      LOGGER.debug("Exception unregistering MBean [{}].", objectName, e);
     }
   }
 
@@ -150,18 +154,18 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
               try {
                 return source.isAvailable();
               } catch (Exception e) {
-                LOGGER.info("Couldn't get availability on source {}: {}", servicePID, e);
+                LOGGER.debug("Couldn't get availability on source {}: {}", servicePID, e);
               }
             }
           } catch (IOException e) {
-            LOGGER.info("Couldn't find configuration for source '{}'", source.getId());
+            LOGGER.debug("Couldn't find configuration for source '{}'", source.getId());
           }
         } else {
-          LOGGER.info("Source '{}' not a configured service", source.getId());
+          LOGGER.debug("Source '{}' not a configured service", source.getId());
         }
       }
     } catch (InvalidSyntaxException e) {
-      LOGGER.info("Could not get service reference list");
+      LOGGER.debug("Could not get service reference list");
     }
 
     return false;
@@ -213,7 +217,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
           metatype.setConfigurations(configurations);
         }
       } catch (Exception e) {
-        LOGGER.info("Error getting source info: {}", e.getMessage());
+        LOGGER.debug("Error getting source info: {}", e.getMessage());
       }
     }
 

@@ -50,7 +50,7 @@
     "spatial-csw",
     "catalog-plugin-security-audit",
     "catalog-admin-module-sources",
-    "admin-poller-service-bean"
+    "catalog-admin-poller-service"
   ],
   "stop-bundles": [
     "platform-commands",
