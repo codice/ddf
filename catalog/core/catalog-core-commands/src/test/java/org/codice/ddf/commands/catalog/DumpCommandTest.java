@@ -233,7 +233,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     String outputDirectoryPath = outputDirectory.getAbsolutePath();
     dumpCommand.dirPath = outputDirectoryPath;
     dumpCommand.transformerId = "someOtherTransformer";
-    Path zipfilePath = Paths.get(outputDirectoryPath.toString(), "foo.zip");
+    Path zipfilePath = Paths.get(outputDirectoryPath, "foo.zip");
     dumpCommand.zipFileName = zipfilePath.toString();
 
     // when

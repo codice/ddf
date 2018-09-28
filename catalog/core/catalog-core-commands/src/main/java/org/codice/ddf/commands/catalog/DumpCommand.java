@@ -19,13 +19,10 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -36,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +56,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
-import org.geotools.filter.text.cql2.CQLException;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -86,7 +81,7 @@ public class DumpCommand extends CqlCommands {
 
   private static List<MetacardTransformer> transformers = null;
 
-  @VisibleForTesting protected static Optional<QueryResponseTransformer> zipCompression = null;
+  @VisibleForTesting static volatile Optional<QueryResponseTransformer> zipCompression = null;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -180,9 +175,7 @@ public class DumpCommand extends CqlCommands {
   private Map<String, Serializable> zipArgs;
 
   @Override
-  protected Object executeWithSubject()
-      throws ParseException, CQLException, UnsupportedQueryException, SourceUnavailableException,
-          FederationException, IOException {
+  protected Object executeWithSubject() throws Exception {
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
       dirPath += File.separator;
     }
@@ -285,7 +278,7 @@ public class DumpCommand extends CqlCommands {
                 }
               }
             });
-      } else if (multithreaded == 1) {
+      } else {
         for (final Result result : response.getResults()) {
           Metacard metacard = result.getMetacard();
           exportMetacard(dumpDir, metacard, resultCount);
