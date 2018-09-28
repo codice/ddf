@@ -267,5 +267,8 @@ pipeline {
         unstable {
             slackSend color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
         }
+        always {
+            junit '**/target/surefire-reports/*.xml'
+        }
     }
 }
