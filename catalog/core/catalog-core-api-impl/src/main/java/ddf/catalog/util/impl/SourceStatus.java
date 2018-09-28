@@ -13,12 +13,37 @@
  */
 package ddf.catalog.util.impl;
 
+import ddf.catalog.source.Source;
+
 /**
- * The SourceStatus is an enum representing the state a source (Catalog Provider, Federated Source,
- * or Connected Source) can be in
+ * Describes the last known availability of a {@link Source} by the {@link SourcePoller}. {@link
+ * SourceStatus} includes more statuses than the {@code boolean} for available/unavailable returned
+ * by {@link Source#isAvailable()}. See the javadoc for the {@link SourcePoller} for more details
+ * about when {@link Source#isAvailable()} is checked for {@link Source}s.
  */
-enum SourceStatus {
-  UNCHECKED,
+public enum SourceStatus {
+
+  /**
+   * Indicates that {@link Source#isAvailable()} returned {@code true} at the last time it was
+   * checked for the {@link Source} in the {@link SourcePoller}
+   */
   AVAILABLE,
-  UNAVAILABLE
+
+  /**
+   * Indicates that {@link Source#isAvailable()} returned {@code false} at the last time it was
+   * checked for the {@link Source} in the {@link SourcePoller}
+   */
+  UNAVAILABLE,
+
+  /**
+   * Indicates that {@link Source#isAvailable()} threw an exception at the last time it was checked
+   * for the {@link Source} in the {@link SourcePoller}
+   */
+  EXCEPTION,
+
+  /**
+   * Indicates that {@link Source#isAvailable()} timed out at the last time it was checked for the
+   * {@link Source} in the {@link SourcePoller}
+   */
+  TIMEOUT
 }

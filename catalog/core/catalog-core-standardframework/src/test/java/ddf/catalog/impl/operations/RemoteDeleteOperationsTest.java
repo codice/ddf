@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
@@ -292,7 +293,7 @@ public class RemoteDeleteOperationsTest {
     String localProviderName = "ddf";
 
     mockPoller = mock(SourcePoller.class);
-    when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
+    when(mockPoller.getSourceAvailability(isA(Source.class))).thenReturn(Optional.empty());
 
     provider = mock(CatalogProvider.class);
     when(provider.getId()).thenReturn(localProviderName);

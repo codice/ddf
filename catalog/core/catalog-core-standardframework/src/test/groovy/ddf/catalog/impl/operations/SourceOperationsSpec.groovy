@@ -13,6 +13,7 @@
  */
 package ddf.catalog.impl.operations
 
+import ddf.action.ActionRegistry
 import ddf.catalog.content.StorageProvider
 import ddf.catalog.data.ContentType
 import ddf.catalog.impl.FrameworkProperties
@@ -21,9 +22,9 @@ import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.Source
 import ddf.catalog.source.SourceUnavailableException
-import ddf.catalog.util.impl.CachedSource
+import ddf.catalog.util.impl.SourceAvailability
 import ddf.catalog.util.impl.SourcePoller
-import ddf.catalog.util.impl.SourcePollerRunner
+import ddf.catalog.util.impl.SourceStatus
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
@@ -35,8 +36,6 @@ class SourceOperationsSpec extends Specification {
     private List<CatalogProvider> catalogProviders
     private List<StorageProvider> storageProviders
     private Map<String, FederatedSource> fedSources
-    private SourcePoller sourcePoller
-    private SourcePollerRunner pollerRunner
     private SourceOperations sourceOperations
     private double pollerWaitTime
 
@@ -45,37 +44,16 @@ class SourceOperationsSpec extends Specification {
         catalogProviders = (1..3).collect { mockCatalogProvider(it) }
         storageProviders = [Mock(StorageProvider)]
         fedSources = ['fed1', 'fed2'].collectEntries { [(it): mockFedSource(it)] }
-        pollerRunner = new SourcePollerRunner()
-        sourcePoller = new SourcePoller(pollerRunner)
-        for (FederatedSource federatedSource : fedSources.values()) {
-            pollerRunner.bind(federatedSource)
-        }
-        pollerRunner.bind(catalogProviders.get(0))
-        int wait = 0
-        while (wait < 5) {
-            for (FederatedSource source : fedSources.values()) {
-                CachedSource cachedSource = sourcePoller.getCachedSource(source)
-                if (cachedSource == null || !cachedSource.isAvailable()) {
-                    Thread.sleep(100)
-                    wait++
-                    break
-                }
-            }
-            CachedSource cachedProvider = sourcePoller.getCachedSource(catalogProviders.get(0))
-            if (cachedProvider == null || !cachedProvider.isAvailable()) {
-                Thread.sleep(100)
-            }
-            wait++
-        }
-        pollerWaitTime = (sourcePoller.getInterval() * 60) + 5
 
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
             storageProviders = this.storageProviders
             federatedSources = fedSources
-            sourcePoller = this.sourcePoller
+            sourcePoller = Mock(SourcePoller) {
+                getSourceAvailability(_ as Source) >> { Source source -> Optional.of(new SourceAvailability(source.isAvailable() ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE)) }
+            }
         }
-        sourceOperations = new SourceOperations(frameworkProperties)
+        sourceOperations = new SourceOperations(frameworkProperties, Mock(ActionRegistry.class))
         sourceOperations.setId(SOURCE_ID)
         sourceOperations.bind(catalogProviders.get(0))
     }
@@ -127,6 +105,8 @@ class SourceOperationsSpec extends Specification {
         then:
         ids == [SOURCE_ID] as Set
     }
+
+    // TODO Assert SourceDescriptor#getLastAvailabilityDate
 
     def 'test getSourceInfo with fanout and null request'() {
         when:
@@ -202,13 +182,14 @@ class SourceOperationsSpec extends Specification {
         request.getSourceIds() >> { [SOURCE_ID] }
         def oneDisabledSource = [fed1: mockFedSource('fed1'), fed2: mockFedSource('fed2', false)]
         frameworkProperties.federatedSources = oneDisabledSource
-        frameworkProperties.sourcePoller.runner.bind(oneDisabledSource.fed2)
+        frameworkProperties.sourcePoller.bind(oneDisabledSource.fed2)
         int retry
         while (retry < 5) {
-            def source = frameworkProperties.sourcePoller.getCachedSource(oneDisabledSource.fed2)
-            if (source.isAvailable()) {
+            def status = frameworkProperties.sourcePoller.getSourceAvailability(oneDisabledSource.fed2)
+            if (status != SourceStatus.UNAVAILABLE) {
                 break
             }
+
             Thread.sleep(100)
             retry++
         }
@@ -235,7 +216,6 @@ class SourceOperationsSpec extends Specification {
         then: 'It is an error to ask for any source but local in fanout mode'
         thrown(SourceUnavailableException)
     }
-
 
     def 'test getSourceInfo without fanout and null request'() {
         when:
@@ -434,7 +414,8 @@ class SourceOperationsSpec extends Specification {
         !available
     }
 
-    @Ignore // Currently still fails under some circumstances
+    @Ignore
+    // Currently still fails under some circumstances
     def 'test source not available'() {
         setup:
         def source = Mock(Source)
@@ -457,7 +438,8 @@ class SourceOperationsSpec extends Specification {
         !available
     }
 
-    @Ignore // Currently still fails under some circumstances
+    @Ignore
+    // Currently still fails under some circumstances
     def 'test source is available'() {
         setup:
         def source = Mock(Source)
@@ -481,9 +463,10 @@ class SourceOperationsSpec extends Specification {
     }
 
     private def mockCatalogProvider(def id) {
-        def catProv = Mock(CatalogProvider)
-        catProv.getId() >> { return id }
-        return catProv
+        return Mock(CatalogProvider) {
+            getId() >> id
+            getContentTypes() >> []
+        }
     }
 
     private def mockFedSource(def id, def available = true) {

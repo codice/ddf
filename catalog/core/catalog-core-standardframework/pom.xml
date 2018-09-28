@@ -354,6 +354,11 @@
             <artifactId>security-rest-cxfwrapper</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+        </dependency>
 
         <!--Spock dependencies-->
         <dependency>
@@ -378,7 +383,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-
                         <Embed-Dependency>
                             activities,
                             catalog-core-actions,
@@ -536,6 +540,7 @@
                             org.opengis.filter.sort,
                             org.opengis.filter.temporal,
                             org.opengis.temporal,
+                            org.osgi.framework.hooks.service,
                             org.osgi.framework;version="[1.5,2)",
                             org.osgi.service.blueprint.container,
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",

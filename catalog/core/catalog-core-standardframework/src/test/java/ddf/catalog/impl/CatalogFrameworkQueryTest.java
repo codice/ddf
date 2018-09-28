@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,14 +52,16 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.CachedSource;
+import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
+import ddf.catalog.util.impl.SourceStatus;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
@@ -85,12 +87,17 @@ public class CatalogFrameworkQueryTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<ContentType>(), true, new Date());
 
-    // Mock register the provider in the container
-    // Mock the source poller
     SourcePoller mockPoller = mock(SourcePoller.class);
-    CachedSource source = mock(CachedSource.class);
-    when(source.isAvailable()).thenReturn(Boolean.TRUE);
-    when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    new SourceAvailability(
+                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                            ? SourceStatus.AVAILABLE
+                            : SourceStatus.UNAVAILABLE)))
+        .when(mockPoller)
+        .getSourceAvailability(any(Source.class));
+
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<>();
     FrameworkProperties props = new FrameworkProperties();
     props.setCatalogProviders(Collections.singletonList(provider));

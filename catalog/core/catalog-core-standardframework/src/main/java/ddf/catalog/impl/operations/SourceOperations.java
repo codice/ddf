@@ -28,18 +28,22 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.DescribableImpl;
+import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
+import ddf.catalog.util.impl.SourceStatus;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.Validate;
-import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +56,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SourceOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceOperations.class);
+
+  private static final Date UNKNOWN_LAST_AVAILABILITY_DATE = null;
 
   //
   // Injected properties
@@ -181,25 +187,18 @@ public class SourceOperations extends DescribableImpl {
   public SourceInfoResponse getSourceInfo(
       SourceInfoRequest sourceInfoRequest, boolean fanoutEnabled)
       throws SourceUnavailableException {
-    SourceInfoResponse response;
-    Set<SourceDescriptor> sourceDescriptors;
-
-    if (fanoutEnabled) {
-      return getFanoutSourceInfo(sourceInfoRequest);
+    if (sourceInfoRequest == null) {
+      throw new SourceUnavailableException("SourceInfoRequest was null");
     }
 
-    boolean addCatalogProviderDescriptor = false;
     try {
-      validateSourceInfoRequest(sourceInfoRequest);
-      // Obtain the source information based on the sourceIds in the
-      // request
+      final Set<SourceDescriptor> sourceDescriptors;
+      final Set<String> requestedSourceIds = sourceInfoRequest.getSourceIds();
 
-      sourceDescriptors = new LinkedHashSet<>();
-      Set<String> requestedSourceIds = sourceInfoRequest.getSourceIds();
-
-      // If it is an enterprise request than add all source information for the enterprise
-      if (sourceInfoRequest.isEnterprise()) {
-
+      if (fanoutEnabled) {
+        sourceDescriptors = Collections.singleton(getFanoutSourceDescriptor(requestedSourceIds));
+        // If it is an enterprise request than add all source information for the enterprise
+      } else if (sourceInfoRequest.isEnterprise()) {
         sourceDescriptors =
             getFederatedSourceDescriptors(frameworkProperties.getFederatedSources().values(), true);
         // If Ids are specified check if they are known sources
@@ -208,6 +207,7 @@ public class SourceOperations extends DescribableImpl {
         Set<FederatedSource> discoveredSources = new HashSet<>();
         boolean containsId = false;
 
+        boolean addCatalogProviderDescriptor = false;
         for (String requestedSourceId : requestedSourceIds) {
           // Check if the requestedSourceId can be found in the known federatedSources
 
@@ -234,19 +234,17 @@ public class SourceOperations extends DescribableImpl {
             getFederatedSourceDescriptors(discoveredSources, addCatalogProviderDescriptor);
 
       } else {
-        // only add the local catalogProviderdescriptor
+        // only add the local catalogProvider SourceDescriptor
+        sourceDescriptors = new HashSet<>();
         addCatalogSourceDescriptor(sourceDescriptors);
       }
 
-      response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
-
+      return new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
     } catch (RuntimeException re) {
       LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
       throw new SourceUnavailableException(
           "Exception during runtime while performing getSourceInfo");
     }
-
-    return response;
   }
 
   //
@@ -254,39 +252,22 @@ public class SourceOperations extends DescribableImpl {
   //
 
   /**
-   * Checks that the specified source is valid and available.
+   * Checks that the specified source is valid and available. Does not block.
    *
-   * @param source the {@link Source} to check availability of
-   * @return true if the {@link Source} is available, false otherwise
+   * @param source the {@link Source} to check
+   * @return {@code true} if the {@link Source} is available, {@code false} otherwise
    */
   boolean isSourceAvailable(Source source) {
     if (source == null) {
       LOGGER.debug("source is null, therefore not available");
       return false;
     }
-    try {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Checking if source \"{}\" is available...", source.getId());
-      }
 
-      // source is considered available unless we have checked and seen otherwise
-      boolean available = true;
-      Source cachedSource = frameworkProperties.getSourcePoller().getCachedSource(source);
-      if (cachedSource != null) {
-        available = cachedSource.isAvailable();
-      }
-
-      if (!available) {
-        LOGGER.info("source \"{}\" is not available", source.getId());
-      }
-      return available;
-    } catch (ServiceUnavailableException e) {
-      LOGGER.info("Caught ServiceUnavaiableException", e);
-      return false;
-    } catch (Exception e) {
-      LOGGER.info("Caught Exception", e);
-      return false;
-    }
+    LOGGER.trace(
+        "Checking the source poller if the source id={} was available the last time it was checked",
+        source.getId());
+    final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
+    return isAvailable(sourceAvailability);
   }
 
   /**
@@ -296,82 +277,55 @@ public class SourceOperations extends DescribableImpl {
    * configuration with the fanout's site name in it. This keeps the individual {@link
    * FederatedSource}s' source info hidden from the external client.
    */
-  private SourceInfoResponse getFanoutSourceInfo(SourceInfoRequest sourceInfoRequest)
+  @NotNull
+  private SourceDescriptorImpl getFanoutSourceDescriptor(Set<String> ids)
       throws SourceUnavailableException {
-
-    SourceInfoResponse response;
-    SourceDescriptorImpl sourceDescriptor;
-    try {
-
-      // request
-      if (sourceInfoRequest == null) {
-        throw new IllegalArgumentException("SourceInfoRequest was null");
+    // Only return source descriptor information if this sourceId is
+    // specified
+    if (ids != null) {
+      Optional<String> notLocal = ids.stream().filter(s -> !s.equals(getId())).findFirst();
+      if (notLocal.isPresent()) {
+        SourceUnavailableException sourceUnavailableException =
+            new SourceUnavailableException("Unknown source: " + notLocal.get());
+        LOGGER.debug(
+            "Throwing SourceUnavailableException for unknown source: {}",
+            notLocal.get(),
+            sourceUnavailableException);
+        throw sourceUnavailableException;
       }
-
-      Set<SourceDescriptor> sourceDescriptors = new LinkedHashSet<>();
-      Set<String> ids = sourceInfoRequest.getSourceIds();
-
-      // Only return source descriptor information if this sourceId is
-      // specified
-      if (ids != null) {
-        Optional<String> notLocal = ids.stream().filter(s -> !s.equals(getId())).findFirst();
-        if (notLocal.isPresent()) {
-          SourceUnavailableException sourceUnavailableException =
-              new SourceUnavailableException("Unknown source: " + notLocal.get());
-          LOGGER.debug(
-              "Throwing SourceUnavailableException for unknown source: {}",
-              notLocal.get(),
-              sourceUnavailableException);
-          throw sourceUnavailableException;
-        }
-      }
-
-      // Fanout will only add one source descriptor with all the contents
-      Set<Source> availableSources =
-          frameworkProperties
-              .getFederatedSources()
-              .values()
-              .stream()
-              .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
-              .filter(source -> source != null && source.isAvailable())
-              .collect(Collectors.toSet());
-
-      Set<ContentType> contentTypes =
-          availableSources
-              .stream()
-              .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
-              .filter(source -> source.getContentTypes() != null)
-              .map(Source::getContentTypes)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toSet());
-
-      Source localSource = null;
-
-      if (catalog != null) {
-        localSource = frameworkProperties.getSourcePoller().getCachedSource(catalog);
-        if (localSource != null && localSource.isAvailable()) {
-          availableSources.add(localSource);
-          contentTypes.addAll(localSource.getContentTypes());
-        }
-      }
-
-      List<Action> actions = getSourceActions(localSource);
-
-      // only reveal this sourceDescriptor, not the federated sources
-      sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes, actions);
-      if (this.getVersion() != null) {
-        sourceDescriptor.setVersion(this.getVersion());
-      }
-      sourceDescriptor.setAvailable(availableSources.size() > 0);
-      sourceDescriptors.add(sourceDescriptor);
-
-      response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
-
-    } catch (RuntimeException re) {
-      throw new SourceUnavailableException(
-          "Exception during runtime while performing getSourceInfo", re);
     }
-    return response;
+
+    // Fanout will only add one source descriptor with all the contents
+    final Set<Source> sources = new HashSet<>(frameworkProperties.getFederatedSources().values());
+    CollectionUtils.addIgnoreNull(sources, catalog);
+
+    boolean sourceDescriptorIsAvailable = false;
+    final Set<Date> lastAvailableDates = new HashSet<>();
+    final Set<ContentType> contentTypes = new HashSet<>();
+    for (final Source source : sources) {
+      final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
+      if (isAvailable(sourceAvailability)) {
+        sourceDescriptorIsAvailable = true;
+        Optional.ofNullable(source.getContentTypes()).ifPresent(contentTypes::addAll);
+        lastAvailableDates.add(getSourceDescriptorLastAvailabilityDate(sourceAvailability));
+      }
+    }
+
+    // Only reveal this sourceDescriptor, not the federated sources
+    final SourceDescriptorImpl sourceDescriptor =
+        new SourceDescriptorImpl(this.getId(), contentTypes, getSourceActions(catalog));
+    if (this.getVersion() != null) {
+      sourceDescriptor.setVersion(this.getVersion());
+    }
+
+    sourceDescriptor.setAvailable(sourceDescriptorIsAvailable);
+    sourceDescriptor.setLastAvailabilityDate(
+        lastAvailableDates
+            .stream()
+            .filter(Objects::nonNull)
+            .max(Date::compareTo)
+            .orElse(UNKNOWN_LAST_AVAILABILITY_DATE));
+    return sourceDescriptor;
   }
 
   private List<Action> getSourceActions(Source localSource) {
@@ -394,18 +348,15 @@ public class SourceOperations extends DescribableImpl {
           String sourceId = source.getId();
           LOGGER.debug("adding sourceId: {}", sourceId);
 
-          Source cachedSource = null;
-          // check the poller for cached information
-          if (frameworkProperties.getSourcePoller() != null
-              && frameworkProperties.getSourcePoller().getCachedSource(source) != null) {
-            cachedSource = frameworkProperties.getSourcePoller().getCachedSource(source);
-          }
-
           sourceDescriptor =
               new SourceDescriptorImpl(
                   sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
-          sourceDescriptor.setAvailable((cachedSource != null) && cachedSource.isAvailable());
+
+          final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
+          sourceDescriptor.setAvailable(isAvailable(sourceAvailability));
+          sourceDescriptor.setLastAvailabilityDate(
+              getSourceDescriptorLastAvailabilityDate(sourceAvailability));
 
           sourceDescriptors.add(sourceDescriptor);
         }
@@ -415,12 +366,6 @@ public class SourceOperations extends DescribableImpl {
       addCatalogSourceDescriptor(sourceDescriptors);
     }
     return sourceDescriptors;
-  }
-
-  private void validateSourceInfoRequest(SourceInfoRequest sourceInfoRequest) {
-    if (sourceInfoRequest == null) {
-      throw new IllegalArgumentException("SourceInfoRequest was null");
-    }
   }
 
   /**
@@ -442,26 +387,40 @@ public class SourceOperations extends DescribableImpl {
     // But when a local catalog provider is configured, include its content types in the
     // local site info.
     if (descriptors != null) {
-      Source cachedSource = null;
       if (catalog != null) {
         // check the poller for cached information
-        if (frameworkProperties.getSourcePoller() != null
-            && frameworkProperties.getSourcePoller().getCachedSource(catalog) != null) {
-          cachedSource = frameworkProperties.getSourcePoller().getCachedSource(catalog);
+        SourceDescriptorImpl descriptor =
+            new SourceDescriptorImpl(
+                this.getId(), catalog.getContentTypes(), sourceActionRegistry.list(catalog));
+        if (this.getVersion() != null) {
+          descriptor.setVersion(this.getVersion());
         }
-        if (cachedSource != null) {
-          SourceDescriptorImpl descriptor =
-              new SourceDescriptorImpl(
-                  this.getId(),
-                  cachedSource.getContentTypes(),
-                  sourceActionRegistry.list(cachedSource));
-          if (this.getVersion() != null) {
-            descriptor.setVersion(this.getVersion());
-          }
-          descriptor.setAvailable(cachedSource.isAvailable());
-          descriptors.add(descriptor);
-        }
+
+        final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(catalog);
+
+        descriptor.setAvailable(isAvailable(sourceAvailability));
+        descriptor.setLastAvailabilityDate(
+            getSourceDescriptorLastAvailabilityDate(sourceAvailability));
+        descriptors.add(descriptor);
       }
     }
+  }
+
+  private Optional<SourceAvailability> getSourceAvailability(final Source source) {
+    Validate.notNull(source);
+    return frameworkProperties.getSourcePoller().getSourceAvailability(source);
+  }
+
+  private static boolean isAvailable(Optional<SourceAvailability> sourceAvailability) {
+    return sourceAvailability.map(s -> s.getSourceStatus() == SourceStatus.AVAILABLE).orElse(false);
+  }
+
+  /** @see {@link SourceDescriptor#getLastAvailabilityDate()} */
+  @Nullable
+  private static Date getSourceDescriptorLastAvailabilityDate(
+      final Optional<SourceAvailability> sourceAvailability) {
+    return sourceAvailability
+        .map(SourceAvailability::getSourceStatusDate)
+        .orElse(UNKNOWN_LAST_AVAILABILITY_DATE);
   }
 }

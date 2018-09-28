@@ -20,13 +20,13 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourceListener"/>
         <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
+                            unbind-method="unbind" ref="sourcePoller"/>
     </reference-list>
 
     <reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource"
                     availability="optional">
         <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
+                            unbind-method="unbind" ref="sourcePoller"/>
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="federatedSourceMap"/>
     </reference-list>
@@ -42,7 +42,7 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourceListener"/>
         <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
+                            unbind-method="unbind" ref="sourcePoller"/>
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="catalogProviderSortedList"/>
         <reference-listener bind-method="bind"
@@ -62,7 +62,7 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="catalogStoreMap"/>
         <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
+                            unbind-method="unbind" ref="sourcePoller"/>
     </reference-list>
 
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>

@@ -65,7 +65,6 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.SourcePoller;
-import ddf.catalog.util.impl.SourcePollerRunner;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,9 +144,8 @@ public class FederationStrategyTest {
     provider.setQueryDelayMillis(queryDelay);
 
     // Mock register the provider in the container
-    SourcePollerRunner runner = new SourcePollerRunner();
-    SourcePoller poller = new SourcePoller(runner);
-    runner.bind(provider);
+    SourcePoller poller = new SourcePoller();
+    poller.bind(provider);
 
     // Must have more than one thread or sleeps will block the monitor
     SortedFederationStrategy fedStrategy =

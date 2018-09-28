@@ -47,9 +47,11 @@ public interface SourceDescriptor extends Describable {
   public boolean isAvailable();
 
   /**
-   * Gets the last availability date of the {@link Source}
+   * Gets the date that the availability of the {@link Source} was last checked by the {@link
+   * ddf.catalog.CatalogFramework}
    *
-   * @return the last availability date
+   * @return the date that the availability of the {@link Source} was last checked, or {@code null}
+   *     if the availability has not yet been checked
    */
   public Date getLastAvailabilityDate();
 

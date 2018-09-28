@@ -72,24 +72,21 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
+    <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" destroy-method="destroy">
         <cm:managed-properties persistent-id="ddf.catalog.util.impl.SourcePoller"
                                update-strategy="container-managed"/>
-        <argument ref="sourcePollerRunner"/>
+        <property name="pollIntervalMinutes" value="1"/>
+        <property name="connectedSources" ref="connectedSources"/>
+        <property name="federatedSources" ref="federatedSources"/>
+        <property name="catalogProviders" ref="catalog"/>
+        <property name="catalogStores" ref="catalogStore"/>
     </bean>
-
-    <!-- Poller instance which is a listener and source polling mechanism -->
-    <bean id="sourcePollerRunner" class="ddf.catalog.util.impl.SourcePollerRunner">
-    </bean>
+    <service ref="sourcePoller" interface="org.osgi.framework.hooks.service.EventListenerHook"/>
 
     <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
     <!-- export the bean on the service registry -->
-    <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework">
-        <registration-listener ref="sourcePoller"
-                               registration-method="start" unregistration-method="cancel"/>
-    </service>
-
+    <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
 
     <cm:managed-service-factory id="ddf.catalog.impl.action.SourceActionProviderImpl"
                                 factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl" interface="ddf.action.ActionProvider">

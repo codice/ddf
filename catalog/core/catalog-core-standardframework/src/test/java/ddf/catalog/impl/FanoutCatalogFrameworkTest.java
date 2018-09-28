@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -74,10 +75,12 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
-import ddf.catalog.util.impl.SourcePollerRunner;
+import ddf.catalog.util.impl.SourceStatus;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.InputStream;
@@ -86,6 +89,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
@@ -114,8 +118,17 @@ public class FanoutCatalogFrameworkTest {
   public void initFramework() {
 
     // Mock register the provider in the container
-    SourcePollerRunner runner = new SourcePollerRunner();
-    SourcePoller poller = new SourcePoller(runner);
+    SourcePoller poller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    new SourceAvailability(
+                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                            ? SourceStatus.AVAILABLE
+                            : SourceStatus.UNAVAILABLE)))
+        .when(poller)
+        .getSourceAvailability(any(Source.class));
+
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
     frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(poller);
@@ -226,9 +239,11 @@ public class FanoutCatalogFrameworkTest {
   @Test
   public void testQueryReplacesSourceId() throws Exception {
     ConnectedSource source1 = mock(ConnectedSource.class);
-    ConnectedSource source2 = mock(ConnectedSource.class);
     when(source1.getId()).thenReturn("source1");
+    when(source1.isAvailable()).thenReturn(true);
+    ConnectedSource source2 = mock(ConnectedSource.class);
     when(source2.getId()).thenReturn("source2");
+    when(source2.isAvailable()).thenReturn(true);
 
     frameworkProperties.setConnectedSources(ImmutableList.of(source1, source2));
     frameworkProperties.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
@@ -346,8 +361,16 @@ public class FanoutCatalogFrameworkTest {
    */
   @Test
   public void testNullContentTypesInGetSourceInfo() throws SourceUnavailableException {
-    SourcePollerRunner runner = new SourcePollerRunner();
-    SourcePoller poller = new SourcePoller(runner);
+    SourcePoller poller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    new SourceAvailability(
+                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                            ? SourceStatus.AVAILABLE
+                            : SourceStatus.UNAVAILABLE)))
+        .when(poller)
+        .getSourceAvailability(any(Source.class));
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 
     SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
