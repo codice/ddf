@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.Appender;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,7 @@ import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.mockito.StackCaptor;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -228,7 +230,7 @@ public class ApplicationServiceBeanTest {
             testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     serviceBean.installFeature("profile-name");
 
-    verify(mockSyncInstaller).installFeatures(eq("profile-name"));
+    verify(mockSyncInstaller).installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
@@ -238,14 +240,18 @@ public class ApplicationServiceBeanTest {
             testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     serviceBean.installFeature("profile-name");
 
-    verify(mockSyncInstaller, privileged(times(1))).installFeatures(eq("profile-name"));
+    verify(mockSyncInstaller, privileged(times(1)))
+        .installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
   public void testUninstallFeatureCallIsPrivileged() throws Exception {
     StackCaptor stackCaptor = new StackCaptor();
 
-    stackCaptor.doCaptureStack().when(mockSyncInstaller).uninstallFeatures(anyString());
+    stackCaptor
+        .doCaptureStack()
+        .when(mockSyncInstaller)
+        .uninstallFeatures(Matchers.any(EnumSet.class), anyString());
 
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(

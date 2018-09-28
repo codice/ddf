@@ -21,6 +21,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -189,7 +191,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                syncInstaller.installFeatures(feature);
+                syncInstaller.installFeatures(
+                    EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles), feature);
                 return null;
               });
     } catch (VirtualMachineError e) {
@@ -209,7 +212,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                syncInstaller.uninstallFeatures(feature);
+                syncInstaller.uninstallFeatures(
+                    EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles), feature);
                 return null;
               });
     } catch (VirtualMachineError e) {

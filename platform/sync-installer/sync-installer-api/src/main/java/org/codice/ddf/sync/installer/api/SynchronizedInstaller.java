@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.sync.installer.api;
 
+import java.util.EnumSet;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.apache.karaf.features.FeaturesService;
 import org.osgi.service.cm.Configuration;
 
 /**
@@ -177,8 +179,7 @@ public interface SynchronizedInstaller {
    * Installs and starts one or more features. Waits until the state of all specified features are
    * Started and all bundles are Active before returning.
    *
-   * @param maxWaitTime the max wait time, in milliseconds, for features to start and bundles to
-   *     reach an Active state
+   * @param options additional feature installation options
    * @param feature name of feature to be started
    * @param additionalFeatures names of additional features to be started
    * @throws SynchronizedInstallerException if an error occurs while performing wait
@@ -186,7 +187,28 @@ public interface SynchronizedInstaller {
    *     be met
    * @throws InterruptedException if thread is interrupted while waiting for condition to be met
    */
-  void installFeatures(long maxWaitTime, String feature, String... additionalFeatures)
+  void installFeatures(
+      EnumSet<FeaturesService.Option> options, String feature, String... additionalFeatures)
+      throws InterruptedException;
+  /**
+   * Installs and starts one or more features. Waits until the state of all specified features are
+   * Started and all bundles are Active before returning.
+   *
+   * @param maxWaitTime the max wait time, in milliseconds, for features to start and bundles to
+   *     reach an Active state
+   * @param options additional feature installation options
+   * @param feature name of feature to be started
+   * @param additionalFeatures names of additional features to be started
+   * @throws SynchronizedInstallerException if an error occurs while performing wait
+   * @throws SynchronizedInstallerTimeoutException if condition takes longer than max wait time to
+   *     be met
+   * @throws InterruptedException if thread is interrupted while waiting for condition to be met
+   */
+  void installFeatures(
+      long maxWaitTime,
+      EnumSet<FeaturesService.Option> options,
+      String feature,
+      String... additionalFeatures)
       throws InterruptedException;
 
   /**
@@ -203,9 +225,26 @@ public interface SynchronizedInstaller {
   void uninstallFeatures(String feature, String... additionalFeatures) throws InterruptedException;
 
   /**
+   * Uninstalls one or more features. Waits for the all bundles to reach an Active state before
+   * returning
+   *
+   * @param options additional options for feature uninstalls
+   * @param feature name of feature to uninstall
+   * @param additionalFeatures names of additional features to uninstall
+   * @throws SynchronizedInstallerException if an error occurs while performing wait
+   * @throws SynchronizedInstallerTimeoutException if condition takes longer than max wait time to
+   *     be met
+   * @throws InterruptedException if thread is interrupted while waiting for condition to be met
+   */
+  void uninstallFeatures(
+      EnumSet<FeaturesService.Option> options, String feature, String... additionalFeatures)
+      throws InterruptedException;
+
+  /**
    * Uninstalls one or more features. Waits until all bundles reach an Active state before
    * returning.
    *
+   * @param options additional options for feature uninstalls
    * @param maxWaitTime the max wait time, in milliseconds, for features to start and bundles to
    *     reach an Active state
    * @param feature name of feature to be started
@@ -215,7 +254,11 @@ public interface SynchronizedInstaller {
    *     be met
    * @throws InterruptedException if thread is interrupted while waiting for condition to be met
    */
-  void uninstallFeatures(long maxWaitTime, String feature, String... additionalFeatures)
+  void uninstallFeatures(
+      long maxWaitTime,
+      EnumSet<FeaturesService.Option> options,
+      String feature,
+      String... additionalFeatures)
       throws InterruptedException;
 
   /**

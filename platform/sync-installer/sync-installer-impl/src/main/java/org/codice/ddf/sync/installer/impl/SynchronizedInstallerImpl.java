@@ -263,11 +263,22 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
   @Override
   public void installFeatures(String feature, String... additionalFeatures)
       throws InterruptedException {
-    installFeatures(DEFAULT_MAX_FEATURE_WAIT, feature, additionalFeatures);
+    installFeatures(EnumSet.noneOf(FeaturesService.Option.class), feature, additionalFeatures);
   }
 
   @Override
-  public void installFeatures(long maxWaitTime, String feature, String... additionalFeatures)
+  public void installFeatures(
+      EnumSet<FeaturesService.Option> options, String feature, String... additionalFeatures)
+      throws InterruptedException {
+    installFeatures(DEFAULT_MAX_FEATURE_WAIT, options, feature, additionalFeatures);
+  }
+
+  @Override
+  public void installFeatures(
+      long maxWaitTime,
+      EnumSet<FeaturesService.Option> options,
+      String feature,
+      String... additionalFeatures)
       throws InterruptedException {
     Set<String> featuresToInstall =
         featuresFromNames(feature, additionalFeatures)
@@ -280,8 +291,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     long startTime = System.currentTimeMillis();
 
     try {
-      featuresService.installFeatures(
-          featuresToInstall, EnumSet.noneOf(FeaturesService.Option.class));
+      featuresService.installFeatures(featuresToInstall, options);
     } catch (Exception e) {
       throw new SynchronizedInstallerException(
           "Failed to install features [" + String.join(",", featuresToInstall) + "]", e);
@@ -294,11 +304,22 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
   @Override
   public void uninstallFeatures(String feature, String... additionalFeatures)
       throws InterruptedException {
-    uninstallFeatures(DEFAULT_MAX_FEATURE_WAIT, feature, additionalFeatures);
+    uninstallFeatures(EnumSet.noneOf(FeaturesService.Option.class), feature, additionalFeatures);
   }
 
   @Override
-  public void uninstallFeatures(long maxWaitTime, String feature, String... additionalFeatures)
+  public void uninstallFeatures(
+      EnumSet<FeaturesService.Option> options, String feature, String... additionalFeatures)
+      throws InterruptedException {
+    uninstallFeatures(DEFAULT_MAX_FEATURE_WAIT, options, feature, additionalFeatures);
+  }
+
+  @Override
+  public void uninstallFeatures(
+      long maxWaitTime,
+      EnumSet<FeaturesService.Option> options,
+      String feature,
+      String... additionalFeatures)
       throws InterruptedException {
     Set<String> featuresToUninstall =
         featuresFromNames(feature, additionalFeatures)
@@ -309,8 +330,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     LOGGER.info("Uninstalling the following features: [{}]", featureNames);
     long startTime = System.currentTimeMillis();
     try {
-      featuresService.uninstallFeatures(
-          featuresToUninstall, EnumSet.noneOf(FeaturesService.Option.class));
+      featuresService.uninstallFeatures(featuresToUninstall, options);
     } catch (Exception e) {
       throw new SynchronizedInstallerException(
           "Failed to uninstall features [" + String.join(",", featuresToUninstall) + "]", e);
