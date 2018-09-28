@@ -144,9 +144,7 @@ public class LdapLoginConfig {
       List<ConnectionFactory> connectionFactories = new ArrayList<>();
 
       Boolean startTls =
-          props.get(START_TLS) == null
-              ? false
-              : Boolean.parseBoolean(props.get(START_TLS).toString());
+          props.get(START_TLS) != null && Boolean.parseBoolean(props.get(START_TLS).toString());
 
       for (String url : urls) {
         connectionFactories.add(createLdapConnectionFactory(url, startTls));
