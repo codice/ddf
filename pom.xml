@@ -250,9 +250,9 @@
                     <version>${maven-jacoco-plugin.version}</version>
                     <dependencies>
                         <dependency>
-                            <groupId>ddf.support</groupId>
-                            <artifactId>support-jacoco</artifactId>
-                            <version>${ddf.support.version}</version>
+                            <groupId>org.codice.maven</groupId>
+                            <artifactId>jacoco</artifactId>
+                            <version>${codice-maven.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
