@@ -23,6 +23,7 @@ define(['moment'], function(moment) {
     temporalClass = 'Temporal',
     timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
     patterns = {
+      //Allows for non-standard single-quoted property names
       PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
       COMPARISON: /^(=|<>|<=|<|>=|>|LIKE|ILIKE)/i,
       IS_NULL: /^IS NULL/i,
