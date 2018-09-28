@@ -24,7 +24,6 @@ import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTes
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
