@@ -24,8 +24,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -34,7 +36,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.forgerock.opendj.ldap.ConnectionFactory;
+import org.forgerock.opendj.ldap.Connections;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LDAPUrl;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.util.Options;
 import org.osgi.framework.Bundle;
@@ -48,6 +53,10 @@ import org.slf4j.LoggerFactory;
 public class ClaimsHandlerManager {
 
   public static final String URL = "url";
+
+  public static final String LOAD_BALANCING = "ldapLoadBalancing";
+
+  public static final String FAILOVER = "failover";
 
   public static final String START_TLS = "startTls";
 
@@ -109,7 +118,8 @@ public class ClaimsHandlerManager {
       return;
     }
     LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-    String url = new PropertyResolver((String) props.get(ClaimsHandlerManager.URL)).toString();
+    List<String> urls = getUrls(props, ClaimsHandlerManager.URL);
+    String loadBalancingAlgorithm = (String) props.get(ClaimsHandlerManager.LOAD_BALANCING);
     Boolean startTls;
     if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
       startTls = Boolean.valueOf((String) props.get(ClaimsHandlerManager.START_TLS));
@@ -155,8 +165,10 @@ public class ClaimsHandlerManager {
       if (encryptService != null) {
         password = encryptService.decryptValue(password);
       }
-      LDAPConnectionFactory connection1 = createLdapConnectionFactory(url, startTls);
-      LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
+      ConnectionFactory connection1 =
+          createConnectionFactory(urls, startTls, loadBalancingAlgorithm);
+      ConnectionFactory connection2 =
+          createConnectionFactory(urls, startTls, loadBalancingAlgorithm);
       registerRoleClaimsHandler(
           connection1,
           propertyFileLocation,
@@ -191,7 +203,36 @@ public class ClaimsHandlerManager {
     }
   }
 
+  private List<String> getUrls(Map<String, Object> props, String key) {
+    List<String> urls = new ArrayList<>();
+    Object urlProperty = props.get(key);
+    if (urlProperty instanceof String[]) {
+      urls.addAll(Arrays.asList((String[]) urlProperty));
+    } else {
+      urls.add(urlProperty.toString());
+    }
+
+    return urls;
+  }
+
   public void destroy() {}
+
+  protected ConnectionFactory createConnectionFactory(
+      List<String> urls, Boolean startTls, String loadBalancingAlgorithm) throws LdapException {
+    List<ConnectionFactory> connectionFactories = new ArrayList<>();
+
+    for (String singleUrl : urls) {
+      connectionFactories.add(
+          createLdapConnectionFactory(new PropertyResolver(singleUrl).toString(), startTls));
+    }
+
+    Options options = Options.defaultOptions();
+    if (FAILOVER.equalsIgnoreCase(loadBalancingAlgorithm)) {
+      return Connections.newFailoverLoadBalancer(connectionFactories, options);
+    } else {
+      return Connections.newRoundRobinLoadBalancer(connectionFactories, options);
+    }
+  }
 
   protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
       throws LdapException {
@@ -218,12 +259,9 @@ public class ClaimsHandlerManager {
         LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
         ClaimsHandlerManager.class.getClassLoader());
 
-    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(':'));
-    Integer port = useSsl ? 636 : 389;
-    try {
-      port = Integer.valueOf(url.substring(url.lastIndexOf(':') + 1));
-    } catch (NumberFormatException ignore) {
-    }
+    LDAPUrl parsedUrl = LDAPUrl.valueOf(url);
+    String host = parsedUrl.getHost();
+    Integer port = parsedUrl.getPort();
 
     auditRemoteConnection(host);
 
@@ -254,7 +292,7 @@ public class ClaimsHandlerManager {
    * @param groupBaseDn Base DN of the group.
    */
   private void registerRoleClaimsHandler(
-      LDAPConnectionFactory connection,
+      ConnectionFactory connection,
       String propertyFileLoc,
       String userBaseDn,
       String loginUserAttribute,
@@ -296,7 +334,7 @@ public class ClaimsHandlerManager {
    * @param userNameAttr Identifier that defines the user.
    */
   private void registerLdapClaimsHandler(
-      LDAPConnectionFactory connection,
+      ConnectionFactory connection,
       String propertyFileLoc,
       String userBaseDn,
       String userNameAttr,
@@ -355,9 +393,14 @@ public class ClaimsHandlerManager {
     return null;
   }
 
-  public void setUrl(String url) {
+  public void setUrl(String... url) {
     LOGGER.trace("Setting url: {}", url);
     ldapProperties.put(URL, url);
+  }
+
+  public void setLoadBalancing(String loadBalancing) {
+    LOGGER.trace("Setting loadBalancing: {}", loadBalancing);
+    ldapProperties.put(LOAD_BALANCING, loadBalancing);
   }
 
   public void setStartTls(boolean startTls) {
