@@ -14,6 +14,8 @@
 
 package org.codice.ddf.catalog.ui.exceptions;
 
+/** Used when splitting through specific file type(s) fails and prevents other splitter services from running.
+ */
 public class StopSplitterExecutionException extends Exception {
 
   /**
