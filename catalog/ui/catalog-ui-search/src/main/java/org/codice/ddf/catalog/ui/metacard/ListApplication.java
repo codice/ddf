@@ -129,7 +129,7 @@ public class ListApplication implements SparkApplication {
                     response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
                   break;
               } catch (StopSplitterExecutionException e) {
-                LOGGER.debug("Mime type error.", e);
+                LOGGER.debug("Failed to split file.", e);
                 createBadRequestResponse(
                     "Attached files do not contain the correct mimetypes", response);
                 return null;
