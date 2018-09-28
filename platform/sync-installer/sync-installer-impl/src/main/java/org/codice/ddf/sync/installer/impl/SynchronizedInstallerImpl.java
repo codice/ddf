@@ -82,9 +82,6 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SynchronizedInstallerImpl.class);
 
-  private static final EnumSet FEATURE_OPTIONS =
-      EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles);
-
   private BundleContext bundleContext;
 
   private ConfigurationAdmin configAdmin;
@@ -283,7 +280,8 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     long startTime = System.currentTimeMillis();
 
     try {
-      featuresService.installFeatures(featuresToInstall, FEATURE_OPTIONS);
+      featuresService.installFeatures(
+          featuresToInstall, EnumSet.noneOf(FeaturesService.Option.class));
     } catch (Exception e) {
       throw new SynchronizedInstallerException(
           "Failed to install features [" + String.join(",", featuresToInstall) + "]", e);
@@ -311,7 +309,8 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     LOGGER.info("Uninstalling the following features: [{}]", featureNames);
     long startTime = System.currentTimeMillis();
     try {
-      featuresService.uninstallFeatures(featuresToUninstall, FEATURE_OPTIONS);
+      featuresService.uninstallFeatures(
+          featuresToUninstall, EnumSet.noneOf(FeaturesService.Option.class));
     } catch (Exception e) {
       throw new SynchronizedInstallerException(
           "Failed to uninstall features [" + String.join(",", featuresToUninstall) + "]", e);
