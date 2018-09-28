@@ -23,10 +23,22 @@ public interface Security {
   String ACCESS_GROUPS = "security.access-groups";
 
   /**
+   * {@link ddf.catalog.data.Attribute} name for adding more granularity for groups to discern who
+   * can _only_ read
+   */
+  String ACCESS_GROUPS_READ = "security.access-groups_read";
+
+  /**
    * {@link ddf.catalog.data.Attribute} name for storing the email addresses of users to enforce
    * access controls upon
    */
   String ACCESS_INDIVIDUALS = "security.access-individuals";
+
+  /**
+   * {@link ddf.catalog.data.Attribute} name for adding more granularity for individuals to discern
+   * who can _only_ read
+   */
+  String ACCESS_INDIVIDUALS_READ = "security.access-individuals_read";
 
   /**
    * {@link ddf.catalog.data.Attribute} name for storing list of individuals who have the ability to

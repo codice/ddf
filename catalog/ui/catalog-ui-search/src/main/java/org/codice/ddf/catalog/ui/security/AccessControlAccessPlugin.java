@@ -56,6 +56,15 @@ public class AccessControlAccessPlugin implements AccessPlugin {
               .apply(newMetacard, Security.ACCESS_ADMINISTRATORS)
               .contains(subjectSupplier.get());
 
+  private final Predicate<Metacard> subjectHasWritePerms =
+      (newMetacard) ->
+          ATTRIBUTE_TO_SET
+                  .apply(newMetacard, Security.ACCESS_GROUPS)
+                  .contains(subjectSupplier.get())
+              || ATTRIBUTE_TO_SET
+                  .apply(newMetacard, Security.ACCESS_INDIVIDUALS)
+                  .contains(subjectSupplier.get());
+
   private final Predicate<Metacard> subjectIsOwner =
       (newMetacard) ->
           ATTRIBUTE_TO_SET.apply(newMetacard, Core.METACARD_OWNER).contains(subjectSupplier.get());
@@ -85,6 +94,31 @@ public class AccessControlAccessPlugin implements AccessPlugin {
           }
           return null;
         };
+
+    /**
+     * Since this is an update request, it implies that the metacard is changing. The only way for a
+     * metacard to change is if the requesting subject has the perms to do so. The required perms
+     * require to be one of the following: - Access Administrator - Current owner of the metacard -
+     * Be explicitly placed in the _R/W_ group on the security attributes
+     */
+    boolean foundNonWriteableMetacard =
+        input
+            .getUpdates()
+            .stream()
+            .map(Map.Entry::getValue)
+            .filter(Objects::nonNull)
+            .filter(
+                mc ->
+                    !subjectIsAccessAdmin.test(mc)
+                        && !subjectIsOwner.test(mc)
+                        && !subjectHasWritePerms.test(mc))
+            .findFirst()
+            .isPresent();
+
+    if (foundNonWriteableMetacard) {
+      throw new StopProcessingException(
+          "Cannot update metacard(s). Subject cannot change access control permissions because they are not in set of users with writeable permissions.");
+    }
 
     boolean foundInaccessibleMetacard =
         input
