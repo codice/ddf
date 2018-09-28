@@ -582,11 +582,9 @@ module.exports = function OpenlayersMap(
       shapes.push(line)
     },
     showMultiLineShape: function(locationModel) {
-      let lineObject = locationModel.get('multiline').map(line => {
-        line.map(coords => {
-          convertPointCoordinate(coords)
-        })
-      })
+      let lineObject = locationModel
+        .get('multiline')
+        .map(line => line.map(coords => convertPointCoordinate(coords)))
 
       let feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.MultiLineString(lineObject),
@@ -597,13 +595,13 @@ module.exports = function OpenlayersMap(
       return createVectorLayer(locationModel, feature)
     },
     showMultiPolygonShape: function(locationModel) {
-      let lineObject = locationModel.get('multipolygon').map(poly => {
-        poly.map(coordinateSet => {
-          coordinateSet.map(pair => {
-            convertPointCoordinate(pair)
-          })
-        })
-      })
+      let lineObject = locationModel
+        .get('multipolygon')
+        .map(poly =>
+          poly.map(coordinateSet =>
+            coordinateSet.map(pair => convertPointCoordinate(pair))
+          )
+        )
 
       let feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.MultiPolygon(lineObject),
