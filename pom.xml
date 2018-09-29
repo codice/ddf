@@ -300,7 +300,7 @@ This Feature has been *DEPRECATED* and will be removed in a future version.
 are essentially embedding a slightly modified version of felix -->
         <osgi.version>5.0.0</osgi.version>
         <keyczar.version>0.66</keyczar.version>
-        <cas.client.version>3.4.1</cas.client.version>
+        <cas.client.version>3.2.2</cas.client.version>
         <javax.inject.version>1</javax.inject.version>
         <fabric8.version>3.0.12</fabric8.version>
     </properties>

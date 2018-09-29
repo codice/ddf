@@ -178,7 +178,7 @@
         <feature>util-uuidgenerator</feature>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
-	<feature>security-migratable</feature>
+        <feature>security-migratable</feature>
     </feature>
 
     <feature name="security-expansion" version="${project.version}"
@@ -202,7 +202,7 @@
     <feature name="security-cas-tokenvalidator" version="${project.version}"
              description="Security CAS Validator for the STS.">
         <feature>security-sts-server</feature>
-        <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
+        <bundle dependency="true">mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-casclaimshandler" version="${project.version}"
@@ -212,7 +212,7 @@
     </feature>
 
     <feature name="security-cas" version="${project.version}"
-        description="CAS client, token validator, and claims handler">
+             description="CAS client, token validator, and claims handler">
         <feature>security-cas-client</feature>
         <feature>security-cas-tokenvalidator</feature>
         <feature>security-sts-casclaimshandler</feature>
