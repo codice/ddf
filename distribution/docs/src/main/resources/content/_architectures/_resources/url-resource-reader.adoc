@@ -31,7 +31,7 @@ Configure the URL Resource Reader from the ${admin-console}.
 
 See <<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader configurations>> for all possible configurations.
 
-=== Configuring Permissions for the URL Resource Reader
+===== Configuring Permissions for the URL Resource Reader
 
 Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permission entries for the directory containing the resources. To add the correct permission entries, edit the file ${home_directory}/security/configurations.policy. In the URL Resource Reader section of the file, add two new permission for each top-level directory that the Resource Reader needs to access. The Resource Reader needs one permission to read the directory and another to read its contents.
 

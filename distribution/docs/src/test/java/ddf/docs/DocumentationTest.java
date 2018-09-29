@@ -15,6 +15,7 @@ package ddf.docs;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -79,32 +80,29 @@ public class DocumentationTest {
             .filter(f -> f.toString().endsWith(HTML_DIRECTORY))
             .collect(Collectors.toList());
 
-    Set<String> anchors = new HashSet<>(); // list of all internal links
-    Set<String> sections = new HashSet<>(); // list of all internal link destinations
+    Set<String> links = new HashSet<>();
+    Set<String> anchors = new HashSet<>();
 
     for (Path path : docs) {
       Document doc = Jsoup.parse(path.toFile(), "UTF-8", EMPTY_STRING);
 
-      String thisDoc = StringUtils.substringAfterLast(path.toString(), "/");
+      String thisDoc = StringUtils.substringAfterLast(path.toString(), File.separator);
       Elements elements = doc.body().getAllElements();
       for (Element element : elements) {
-        if (!element
-                .toString()
-                .contains(
-                    ":") // this eliminates external links; this test does not check external links
+        if (!element.toString().contains(":")
             && StringUtils.substringBetween(element.toString(), HREF_ANCHOR, CLOSE) != null) {
-          anchors.add(
+          links.add(
               thisDoc + "#" + StringUtils.substringBetween(element.toString(), HREF_ANCHOR, CLOSE));
         }
 
-        sections.add(thisDoc + "#" + StringUtils.substringBetween(element.toString(), ID, CLOSE));
+        anchors.add(thisDoc + "#" + StringUtils.substringBetween(element.toString(), ID, CLOSE));
       }
     }
-    anchors.removeAll(sections);
-    assertThat("Anchors missing section reference: " + anchors.toString(), anchors.isEmpty());
+    links.removeAll(anchors);
+    assertThat("Anchors missing section reference: " + links.toString(), links.isEmpty());
   }
 
-  private Path getPath() throws URISyntaxException, IOException {
+  private Path getPath() throws URISyntaxException {
     Path testPath = Paths.get(this.getClass().getResource(EMPTY_STRING).toURI());
     Path targetDirectory = testPath.getParent().getParent().getParent();
     return Paths.get(targetDirectory.toString()).resolve(DOCS_DIRECTORY).resolve(HTML_DIRECTORY);
