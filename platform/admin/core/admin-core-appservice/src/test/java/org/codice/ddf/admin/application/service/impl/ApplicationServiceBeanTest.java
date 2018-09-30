@@ -15,9 +15,7 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
 import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -48,7 +46,6 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -57,10 +54,11 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
+import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.mockito.StackCaptor;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -90,16 +88,13 @@ public class ApplicationServiceBeanTest {
 
   private static final String TEST_REPO_NAME = "TestRepo";
 
-  private static final String DO_PRIVILEGED_STACK_ELEMENT =
-      "java.security.AccessController.doPrivileged";
-
   private ApplicationService testAppService;
 
   private ConfigurationAdmin testConfigAdminExt;
 
   private Application testApp;
 
-  private FeaturesService mockFeaturesService;
+  private SynchronizedInstaller mockSyncInstaller;
 
   private BundleContext bundleContext;
 
@@ -112,7 +107,7 @@ public class ApplicationServiceBeanTest {
     testAppService = mock(ApplicationServiceImpl.class);
     testConfigAdminExt = mock(ConfigurationAdmin.class);
     testApp = mock(ApplicationImpl.class);
-    mockFeaturesService = mock(FeaturesService.class);
+    mockSyncInstaller = mock(SynchronizedInstaller.class);
 
     when(testApp.getName()).thenReturn(TEST_APP_NAME);
     when(testApp.getDescription()).thenReturn(TEST_APP_DESCRIP);
@@ -131,7 +126,7 @@ public class ApplicationServiceBeanTest {
   public void testInit() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     serviceBean.init();
 
     verify(mBeanServer).registerMBean(serviceBean, objectName);
@@ -147,7 +142,7 @@ public class ApplicationServiceBeanTest {
   public void testInitTwice() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
         .thenThrow(new InstanceAlreadyExistsException())
         .thenReturn(null);
@@ -168,7 +163,7 @@ public class ApplicationServiceBeanTest {
   public void testInitWhenRegisterMBeanThrowsInstanceAlreadyExistsException() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
 
     when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
         .thenThrow(new NullPointerException());
@@ -185,7 +180,7 @@ public class ApplicationServiceBeanTest {
   public void testDestroy() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
 
     serviceBean.destroy();
 
@@ -202,7 +197,7 @@ public class ApplicationServiceBeanTest {
   public void testDestroyWhenUnregisterMBeanThrowsInstanceNotFoundException() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
 
     doThrow(new InstanceNotFoundException()).when(mBeanServer).unregisterMBean(objectName);
 
@@ -219,7 +214,7 @@ public class ApplicationServiceBeanTest {
   public void testDestroyWhenUnregisterMBeanThrowsMBeanRegistrationException() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
 
     doThrow(new MBeanRegistrationException(new Exception()))
         .when(mBeanServer)
@@ -232,26 +227,21 @@ public class ApplicationServiceBeanTest {
   public void testInstallProfile() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     serviceBean.installFeature("profile-name");
 
-    ArgumentCaptor<EnumSet<FeaturesService.Option>> captor = ArgumentCaptor.forClass(EnumSet.class);
-    verify(mockFeaturesService).installFeature(eq("profile-name"), captor.capture());
-
-    EnumSet<FeaturesService.Option> options = captor.getValue();
-    assertThat(options, hasSize(1));
-    assertThat(options, hasItem(FeaturesService.Option.NoAutoRefreshBundles));
+    verify(mockSyncInstaller).installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
   public void testInstallFeatureCallIsPrivileged() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     serviceBean.installFeature("profile-name");
 
-    verify(mockFeaturesService, privileged(times(1)))
-        .installFeature(eq("profile-name"), any(EnumSet.class));
+    verify(mockSyncInstaller, privileged(times(1)))
+        .installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
@@ -260,12 +250,12 @@ public class ApplicationServiceBeanTest {
 
     stackCaptor
         .doCaptureStack()
-        .when(mockFeaturesService)
-        .uninstallFeature(anyString(), any(EnumSet.class));
+        .when(mockSyncInstaller)
+        .uninstallFeatures(Matchers.any(EnumSet.class), anyString());
 
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     serviceBean.uninstallFeature("profile-name");
 
     assertThat(stackCaptor.getStack(), stackContainsDoPrivilegedCall());
@@ -305,7 +295,7 @@ public class ApplicationServiceBeanTest {
 
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
 
     List<Map<String, Object>> result = serviceBean.getInstallationProfiles();
 
@@ -325,7 +315,7 @@ public class ApplicationServiceBeanTest {
   public void testGetServices() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller) {
           @Override
           protected BundleContext getContext() {
             return bundleContext;
@@ -370,7 +360,7 @@ public class ApplicationServiceBeanTest {
   public void testGetServicesNotContainsKey() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller) {
           @Override
           protected BundleContext getContext() {
             return bundleContext;
@@ -417,7 +407,7 @@ public class ApplicationServiceBeanTest {
   public void testGetServicesMetatypeInfo() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller) {
           @Override
           protected BundleContext getContext() {
             return bundleContext;
@@ -495,7 +485,7 @@ public class ApplicationServiceBeanTest {
 
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller) {
           @Override
           protected BundleContext getContext() {
             return bundleContext;
@@ -526,7 +516,7 @@ public class ApplicationServiceBeanTest {
   public void testGetSetApplicationPlugins() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
     ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
     List<ApplicationPlugin> pluginList = new ArrayList<>();
@@ -547,7 +537,7 @@ public class ApplicationServiceBeanTest {
   public void testGetAllFeatures() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
     FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
     testFeatureDetailsList.add(testFeatureDetails1);
@@ -574,7 +564,7 @@ public class ApplicationServiceBeanTest {
   public void testGetPluginsForApplication() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+            testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller);
     ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
     ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
     List<ApplicationPlugin> pluginList = new ArrayList<>();

@@ -24,9 +24,10 @@ import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTes
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
-import org.apache.karaf.features.FeaturesService;
+import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.common.features.FeatureUtilities;
 import org.codice.ddf.test.common.features.TestUtilitiesFeatures;
 import org.junit.Test;
@@ -43,6 +44,9 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 public class ITCamelFeatures {
 
   private static final String FEATURE_REPO_PATH = getTestResource("/features.xml");
+
+  // Causes the featureService to become unavailable
+  private static final List<String> IGNORED_FEATURES = Collections.singletonList("camel-cxf");
 
   @Configuration
   public static Option[] examConfiguration() {
@@ -62,9 +66,7 @@ public class ITCamelFeatures {
     return FeatureUtilities.featureRepoToFeatureParameters(FEATURE_REPO_PATH);
   }
 
-  @Inject private FeaturesService featuresService;
-
-  @Inject private FeatureUtilities featureUtilities;
+  @Inject private SynchronizedInstaller syncInstaller;
 
   private String featureName;
 
@@ -74,6 +76,10 @@ public class ITCamelFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    featureUtilities.installAndUninstallFeature(featuresService, featureName);
+    if (IGNORED_FEATURES.contains(featureName)) {
+      return;
+    }
+    syncInstaller.installFeatures(featureName);
+    syncInstaller.uninstallFeatures(featureName);
   }
 }

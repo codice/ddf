@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <bean id="exampleManagedService"
+          class="org.codice.ddf.test.ExampleService">
+        <cm:managed-properties persistent-id="org.codice.ddf.test.ExampleService.pid"
+                               update-strategy="container-managed" />
+        <argument ref="blueprintBundleContext"/>
+        <property name="exampleProp" value="defaultExamplePropValue"/>
+    </bean>
+
+    <service ref="exampleManagedService" interface="org.codice.ddf.test.ExampleService" />
+
+    <cm:managed-service-factory
+            factory-pid="org.codice.ddf.test.ExampleService.fpid"
+            interface="org.codice.ddf.test.ExampleMSFInstance">
+        <cm:managed-component class="org.codice.ddf.test.ExampleMSFInstance">
+            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
+            <property name="exampleProp" value="defaultExamplePropValue"/>
+        </cm:managed-component>
+    </cm:managed-service-factory>
+
+</blueprint>
