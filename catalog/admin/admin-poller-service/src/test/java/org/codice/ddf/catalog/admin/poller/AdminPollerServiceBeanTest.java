@@ -27,40 +27,55 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import ddf.action.Action;
 import ddf.action.MultiActionProvider;
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.SourceInfoRequest;
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.SourceInfoRequestSources;
+import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceUnavailableException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.shiro.util.CollectionUtils;
 import org.codice.ddf.admin.core.api.ConfigurationStatus;
 import org.codice.ddf.admin.core.api.Metatype;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
+import org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean.AdminSourceHelper;
 import org.codice.ddf.opensearch.source.OpenSearchSource;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-public class AdminPollerTest {
+public class AdminPollerServiceBeanTest {
 
-  public static final String CONFIG_PID = "properPid";
+  private static final String CONFIG_PID = "properPid";
 
-  public static final String EXCEPTION_PID = "throwsAnException";
+  private static final String FPID = "OpenSearchSource";
 
-  public static final String FPID = "OpenSearchSource";
+  private static MockedAdminPoller poller;
 
-  public static MockedAdminPoller poller;
+  private static AdminSourceHelper helper;
+
+  private CatalogFramework catalogFramework;
 
   private List<Result> results;
 
@@ -81,7 +96,9 @@ public class AdminPollerTest {
     results = new ArrayList<>();
     results.add(new ResultImpl(metacard1));
 
-    poller = new AdminPollerTest().new MockedAdminPoller(null, null);
+    catalogFramework = mock(CatalogFramework.class);
+    helper = mock(AdminSourceHelper.class);
+    poller = new AdminPollerServiceBeanTest().new MockedAdminPoller(null, null, catalogFramework);
     poller.setOperationActionProviders(new ArrayList<>());
     poller.setReportActionProviders(new ArrayList<>());
   }
@@ -145,22 +162,99 @@ public class AdminPollerTest {
   }
 
   @Test
-  public void testSourceStatus() {
-    assertThat(poller.sourceStatus(CONFIG_PID), is(true));
-    assertThat(poller.sourceStatus(EXCEPTION_PID), is(false));
-    assertThat(poller.sourceStatus("FAKE SOURCE"), is(false));
+  public void testSourceStatusAvailable() throws Exception {
+    SourceDescriptor descriptor = mock(SourceDescriptor.class);
+    when(descriptor.isAvailable()).thenReturn(true);
+    when(descriptor.getLastAvailabilityDate()).thenReturn(new Date());
+    SourceInfoRequest request =
+        new SourceInfoRequestSources(false, Collections.singleton("sourceId"));
+    SourceInfoResponse response =
+        new SourceInfoResponseImpl(request, Collections.EMPTY_MAP, descriptor);
+    when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(response);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(1));
+  }
+
+  @Test
+  public void testSourceStatusUnavailable() throws Exception {
+    SourceDescriptor descriptor = mock(SourceDescriptor.class);
+    when(descriptor.isAvailable()).thenReturn(false);
+    when(descriptor.getLastAvailabilityDate()).thenReturn(new Date());
+    SourceInfoRequest request =
+        new SourceInfoRequestSources(false, Collections.singleton("sourceId"));
+    SourceInfoResponse response =
+        new SourceInfoResponseImpl(request, Collections.EMPTY_MAP, descriptor);
+    when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(response);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(0));
+  }
+
+  @Test
+  public void testSourceStatusNotYetChecked() throws Exception {
+    SourceDescriptor descriptor = mock(SourceDescriptor.class);
+    SourceInfoRequest request =
+        new SourceInfoRequestSources(false, Collections.singleton("sourceId"));
+    SourceInfoResponse response =
+        new SourceInfoResponseImpl(request, Collections.EMPTY_MAP, descriptor);
+    when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(response);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(-1));
+  }
+
+  @Test
+  public void testSourceStatusReceivesMultipleSourceDescriptors() throws Exception {
+    SourceDescriptor descriptor1 = mock(SourceDescriptor.class);
+    SourceDescriptor descriptor2 = mock(SourceDescriptor.class);
+    Set<SourceDescriptor> descriptors = new HashSet<SourceDescriptor>();
+    descriptors.add(descriptor1);
+    descriptors.add(descriptor2);
+    SourceInfoRequest request =
+        new SourceInfoRequestSources(false, Collections.singleton("sourceId"));
+    SourceInfoResponse response =
+        new SourceInfoResponseImpl(request, Collections.EMPTY_MAP, descriptors);
+    when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(response);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(0));
+  }
+
+  @Test
+  public void testSourceStatusHandlesSourceUnavailableException() throws Exception {
+    when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class)))
+        .thenThrow(SourceUnavailableException.class);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(0));
+  }
+
+  @Test
+  public void testSourceStatusWithUnknownPID() {
+    assertThat(poller.sourceStatus("UnknownPID"), is(0));
+  }
+
+  @Test
+  public void testSourceStatusWithNonConfiguredService() throws Exception {
+    Source nonConfiguredServiceSource = mock(Source.class);
+    when(helper.getSources()).thenReturn(CollectionUtils.asList(nonConfiguredServiceSource));
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(0));
+  }
+
+  @Test
+  public void testSourceStatusHandlesInvalidSyntaxException() throws Exception {
+    when(helper.getSources()).thenThrow(InvalidSyntaxException.class);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(0));
   }
 
   private class MockedAdminPoller extends AdminPollerServiceBean {
     public MockedAdminPoller(
         org.codice.ddf.admin.core.api.ConfigurationAdmin configurationAdmin,
-        ConfigurationAdmin configAdmin) {
-      super(configurationAdmin, configAdmin);
+        ConfigurationAdmin configAdmin,
+        CatalogFramework catalogFramework) {
+      super(configurationAdmin, configAdmin, catalogFramework);
     }
 
     @Override
     protected AdminSourceHelper getHelper() {
-      AdminSourceHelper helper = mock(AdminSourceHelper.class);
       try {
         // Mock out the configuration
         Configuration config = mock(Configuration.class);
@@ -180,17 +274,12 @@ public class AdminPollerTest {
         when(helper.getConfigurations(any(Metatype.class)))
             .thenReturn(CollectionUtils.asList(config, config2), null);
 
-        // Mock out the sources
+        // Mock out the source
         OpenSearchSource source = mock(OpenSearchSource.class);
-        when(source.isAvailable()).thenReturn(true);
+        when(source.getId()).thenReturn("sourceId");
 
-        OpenSearchSource badSource = mock(OpenSearchSource.class);
-        when(badSource.isAvailable()).thenThrow(new RuntimeException());
-
-        // CONFIG_PID, EXCEPTION_PID, FAKE_SOURCE
-        when(helper.getConfiguration(any(ConfiguredService.class)))
-            .thenReturn(config, config, config);
-        when(helper.getSources()).thenReturn(CollectionUtils.asList((Source) source, badSource));
+        when(helper.getConfiguration(any(ConfiguredService.class))).thenReturn(config);
+        when(helper.getSources()).thenReturn(CollectionUtils.asList((Source) source));
 
         // Mock out the metatypes
         Service metatype = new ServiceImpl();

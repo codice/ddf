@@ -21,6 +21,8 @@
 
     <reference id="configurationAdmin" interface="org.codice.ddf.admin.core.api.ConfigurationAdmin"/>
 
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+
     <reference-list id="reportActionProviders" interface="ddf.action.MultiActionProvider"
                     filter="(id=catalog.source.report.*)" availability="optional"/>
 
@@ -33,6 +35,7 @@
           destroy-method="destroy">
         <argument ref="configurationAdmin"/>
         <argument ref="felixConfigurationAdmin"/>
+        <argument ref="catalogFramework"/>
         <cm:managed-properties persistent-id="org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean"
                                update-strategy="container-managed"/>
         <property name="reportActionProviders" ref="reportActionProviders"/>

@@ -17,7 +17,7 @@ import java.util.List;
 import org.codice.ddf.admin.core.api.Service;
 
 public interface AdminPollerServiceBeanMBean {
-  boolean sourceStatus(String servicePID);
+  int sourceStatus(String servicePID);
 
   List<Service> allSourceInfo();
 }

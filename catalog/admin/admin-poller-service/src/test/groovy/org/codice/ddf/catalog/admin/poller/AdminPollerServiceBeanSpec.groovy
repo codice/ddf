@@ -13,13 +13,15 @@
  */
 package org.codice.ddf.catalog.admin.poller
 
+import ddf.catalog.CatalogFramework
 import spock.lang.Specification
 
 class AdminPollerServiceBeanSpec extends Specification {
 
     def "test LDAP filter generation"() {
         setup:
-        def apsb = new AdminPollerServiceBean(null, null)
+        def catalogFramework = Mock(CatalogFramework)
+        def apsb = new AdminPollerServiceBean(null, null, catalogFramework)
         apsb.setIncludeAsSource(includes)
         apsb.setExcludeAsSource(excludes)
 

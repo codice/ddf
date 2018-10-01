@@ -75,10 +75,10 @@ define([
                     data.disabledConfigurations = this.model.get('disabledConfigurations').toJSON();
                 }
 
-                if(typeof this.model.get('available') === 'undefined') {
+                if(typeof this.model.get('available') === 'undefined' || this.model.get('available') === -1) {
                     data.loading = true;
                 } else {
-                    data.available = this.model.get('available');
+                    data.available = this.model.get('available') === 1;
                 }
 
                 data.name = this.model.get('name');

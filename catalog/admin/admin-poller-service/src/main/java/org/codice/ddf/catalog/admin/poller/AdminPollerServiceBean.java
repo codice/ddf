@@ -13,12 +13,18 @@
  */
 package org.codice.ddf.catalog.admin.poller;
 
+import com.google.common.collect.Iterables;
 import ddf.action.Action;
 import ddf.action.MultiActionProvider;
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.operation.SourceInfoRequest;
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.SourceInfoRequestSources;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceDescriptor;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -29,12 +35,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import org.apache.commons.lang.Validate;
 import org.apache.shiro.util.CollectionUtils;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.ConfigurationDetails;
@@ -84,11 +92,16 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
   private List<String> excludeAsSource;
 
-  protected String serviceFactoryFilter;
+  private String serviceFactoryFilter;
+
+  private CatalogFramework catalogFramework;
 
   public AdminPollerServiceBean(
       ConfigurationAdmin configurationAdmin,
-      org.osgi.service.cm.ConfigurationAdmin felixConfigAdmin) {
+      org.osgi.service.cm.ConfigurationAdmin felixConfigAdmin,
+      CatalogFramework catalogFramework) {
+    Validate.notNull(catalogFramework, "Argument catalogFramework cannot be null");
+    this.catalogFramework = catalogFramework;
 
     helper = getHelper();
     helper.configurationAdmin = configurationAdmin;
@@ -137,8 +150,9 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     }
   }
 
+  // returns 1 = available, 0 = unavailable, -1 = status pending
   @Override
-  public boolean sourceStatus(String servicePID) {
+  public int sourceStatus(String servicePID) {
     try {
       List<Source> sources = helper.getSources();
       for (Source source : sources) {
@@ -147,11 +161,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
           try {
             Configuration config = helper.getConfiguration(cs);
             if (config != null && config.getProperties().get("service.pid").equals(servicePID)) {
-              try {
-                return source.isAvailable();
-              } catch (Exception e) {
-                LOGGER.info("Couldn't get availability on source {}: {}", servicePID, e);
-              }
+              return sourceIsAvailable(source.getId());
             }
           } catch (IOException e) {
             LOGGER.info("Couldn't find configuration for source '{}'", source.getId());
@@ -164,7 +174,28 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
       LOGGER.info("Could not get service reference list");
     }
 
-    return false;
+    return 0;
+  }
+
+  private int sourceIsAvailable(String sourceId) {
+    try {
+      final SourceInfoRequest sourceInfoRequest =
+          new SourceInfoRequestSources(false, Collections.singleton(sourceId));
+      final SourceInfoResponse sourceInfoResponse =
+          catalogFramework.getSourceInfo(sourceInfoRequest);
+      final Set<SourceDescriptor> sourceDescriptors = sourceInfoResponse.getSourceInfo();
+      final SourceDescriptor sourceDescriptor = Iterables.getOnlyElement(sourceDescriptors);
+
+      if (sourceDescriptor.getLastAvailabilityDate() == null) {
+        return -1;
+      }
+      if (sourceDescriptor.isAvailable()) {
+        return 1;
+      }
+    } catch (Exception e) {
+      LOGGER.info("Couldn't get availability on source {}", sourceId, e);
+    }
+    return 0;
   }
 
   @Override
