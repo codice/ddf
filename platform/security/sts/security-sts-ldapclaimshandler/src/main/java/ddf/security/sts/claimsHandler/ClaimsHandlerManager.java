@@ -118,13 +118,7 @@ public class ClaimsHandlerManager {
       return;
     }
     LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-    List<String> urls = new ArrayList<>();
-    Object urlObj = props.get(ClaimsHandlerManager.URL);
-    if (urlObj instanceof String[]) {
-      urls.addAll(Arrays.asList((String[]) urlObj));
-    } else {
-      urls.add(urlObj.toString());
-    }
+    List<String> urls = getUrls(props, ClaimsHandlerManager.URL);
     String loadBalancingAlgorithm = (String) props.get(ClaimsHandlerManager.LOAD_BALANCING);
     Boolean startTls;
     if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
@@ -207,6 +201,18 @@ public class ClaimsHandlerManager {
           "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work. Check LDAP configuration.",
           e);
     }
+  }
+
+  private List<String> getUrls(Map<String, Object> props, String key) {
+    List<String> urls = new ArrayList<>();
+    Object urlProperty = props.get(key);
+    if (urlProperty instanceof String[]) {
+      urls.addAll(Arrays.asList((String[]) urlProperty));
+    } else {
+      urls.add(urlProperty.toString());
+    }
+
+    return urls;
   }
 
   public void destroy() {}

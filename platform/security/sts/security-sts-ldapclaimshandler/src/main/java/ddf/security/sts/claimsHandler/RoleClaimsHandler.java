@@ -254,7 +254,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
             SearchResultEntry entry = entryReader.readEntry();
 
             userDN = entry.getName().toString();
-            specificUserBaseDN = userDN.substring(userDN.indexOf(",") + 1);
+            specificUserBaseDN = userDN.substring(userDN.indexOf(',') + 1);
             if (!membershipUserAttribute.equals(loginUserAttribute)) {
               Attribute attr = entry.getAttribute(membershipUserAttribute);
               if (attr != null) {
