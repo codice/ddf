@@ -34,9 +34,16 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.concurrent.*
+import java.util.concurrent.Callable
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
+import java.util.concurrent.ScheduledExecutorService
 
-import static org.codice.solr.factory.impl.SolrClientAdapter.State.*
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CLOSED
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CONNECTED
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CONNECTING
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CREATING
 
 @Supplemental
 @RunWith(DeFinalizer)
