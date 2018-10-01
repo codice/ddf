@@ -31,6 +31,7 @@
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle>mvn:ddf.thirdparty/rest-assured/${project.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
 
         <bundle>
             wrap:mvn:ddf.security/ddf-security-common/${project.version}$Bundle-SymbolicName=itest-test-security-common
