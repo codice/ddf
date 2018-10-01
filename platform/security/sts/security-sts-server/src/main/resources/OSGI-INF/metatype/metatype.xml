@@ -21,7 +21,7 @@
         </AD>
 	    
 	    <AD name="Token Issuer:" id="issuer" required="true" type="String"
-            default="${org.codice.ddf.system.protocol}://${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}${org.codice.ddf.system.rootContext}/idp/login"
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.httpsPort}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/idp/login"
             description="The name of the server issuing tokens. Generally this is unique identifier of this IdP.">
 	    </AD>
 	    
