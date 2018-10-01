@@ -180,6 +180,8 @@
         </argument>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="metacardActionRegistry"/>
         <argument ref="injectableAttributes"/>
         <argument>
             <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
