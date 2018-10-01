@@ -660,6 +660,11 @@ are essentially embedding a slightly modified version of felix -->
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
