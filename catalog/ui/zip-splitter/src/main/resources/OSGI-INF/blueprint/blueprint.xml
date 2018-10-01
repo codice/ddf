@@ -25,7 +25,7 @@
         </argument>
     </bean>
 
-    <service ref="zipSplitter" interface="org.codice.ddf.catalog.ui.metacard.internal.Splitter">
+    <service ref="zipSplitter" interface="org.codice.ddf.catalog.ui.splitter.Splitter">
         <service-properties>
             <entry key="id" value="zip-splitter"/>
         </service-properties>

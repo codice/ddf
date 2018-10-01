@@ -11,13 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.internal;
+package org.codice.ddf.catalog.ui.splitter;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.codice.ddf.catalog.ui.exceptions.StopSplitterExecutionException;
 
 /** Split a resource into a stream of resources. */
 public interface Splitter extends ServiceProperties {

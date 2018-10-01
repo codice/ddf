@@ -21,7 +21,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.ui.metacard.internal.StorableResource;
+import org.codice.ddf.catalog.ui.splitter.StorableResource;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 
 @NotThreadSafe

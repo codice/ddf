@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.activation.MimeType;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.ui.metacard.internal.StorableResource;
+import org.codice.ddf.catalog.ui.splitter.StorableResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

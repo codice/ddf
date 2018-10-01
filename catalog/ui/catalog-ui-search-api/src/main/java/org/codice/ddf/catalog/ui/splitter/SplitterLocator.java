@@ -11,20 +11,21 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.exceptions;
+package org.codice.ddf.catalog.ui.splitter;
 
-/**
- * Used when splitting through specific file type(s) fails and prevents other splitter services from
- * running.
- */
-public class StopSplitterExecutionException extends Exception {
+import org.codice.ddf.catalog.ui.splitter.Splitter;
+
+import java.util.List;
+import javax.activation.MimeType;
+
+/** Locate {@link Splitter} services based on the mime-type of the content being split. */
+public interface SplitterLocator {
 
   /**
-   * This exception should be used to terminate execution when parsing files of certain mimetypes.
+   * Find the {@link Splitter}s that can handle the given mime-type.
    *
-   * @param str the {@link String} exception message
+   * @param mimeType the mime-type of the content to be split
+   * @return list of splitters
    */
-  public StopSplitterExecutionException(String str) {
-    super(str);
-  }
+  List<Splitter> find(MimeType mimeType);
 }

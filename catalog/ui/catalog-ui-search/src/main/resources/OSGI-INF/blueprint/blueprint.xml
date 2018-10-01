@@ -645,7 +645,7 @@
              interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
 
     <!-- This should have a service ranking lower than all other splitters. -->
-    <service interface="org.codice.ddf.catalog.ui.metacard.internal.Splitter" ranking="-100">
+    <service interface="org.codice.ddf.catalog.ui.splitter.Splitter" ranking="-100">
         <service-properties>
             <entry key="id" value="identity-splitter"/>
         </service-properties>

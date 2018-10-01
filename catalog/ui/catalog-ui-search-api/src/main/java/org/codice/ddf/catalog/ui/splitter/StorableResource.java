@@ -11,19 +11,29 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.internal;
+package org.codice.ddf.catalog.ui.splitter;
 
-import java.util.List;
-import javax.activation.MimeType;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
 
-/** Locate {@link Splitter} services based on the mime-type of the content being split. */
-public interface SplitterLocator {
+/** Call {@link #close()} if {@link #isError()} returns {@code false}. */
+public interface StorableResource extends AutoCloseable {
 
   /**
-   * Find the {@link Splitter}s that can handle the given mime-type.
+   * The caller is not responsible for calling {@link InputStream#close()} on the returned stream.
+   * However, the caller is responsible for calling {@link AutoCloseable#close()}.
    *
-   * @param mimeType the mime-type of the content to be split
-   * @return list of splitters
+   * @return
+   * @throws IOException
    */
-  List<Splitter> find(MimeType mimeType);
+  InputStream getInputStream() throws IOException;
+
+  Optional<String> getMimeType();
+
+  String getFilename();
+
+  boolean isError();
+
+  String getErrorMessage();
 }

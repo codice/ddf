@@ -11,29 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.internal;
+package org.codice.ddf.catalog.ui.splitter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-
-/** Call {@link #close()} if {@link #isError()} returns {@code false}. */
-public interface StorableResource extends AutoCloseable {
+/**
+ * Used when splitting through specific file type(s) fails and prevents other splitter services from
+ * running.
+ */
+public class StopSplitterExecutionException extends Exception {
 
   /**
-   * The caller is not responsible for calling {@link InputStream#close()} on the returned stream.
-   * However, the caller is responsible for calling {@link AutoCloseable#close()}.
+   * This exception should be used to terminate execution when parsing files of certain mimetypes.
    *
-   * @return
-   * @throws IOException
+   * @param str the {@link String} exception message
    */
-  InputStream getInputStream() throws IOException;
-
-  Optional<String> getMimeType();
-
-  String getFilename();
-
-  boolean isError();
-
-  String getErrorMessage();
+  public StopSplitterExecutionException(String str) {
+    super(str);
+  }
 }

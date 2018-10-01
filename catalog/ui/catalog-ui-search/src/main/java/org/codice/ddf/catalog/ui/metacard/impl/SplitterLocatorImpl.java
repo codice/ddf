@@ -15,8 +15,8 @@ package org.codice.ddf.catalog.ui.metacard.impl;
 
 import java.util.List;
 import javax.activation.MimeType;
-import org.codice.ddf.catalog.ui.metacard.internal.Splitter;
-import org.codice.ddf.catalog.ui.metacard.internal.SplitterLocator;
+import org.codice.ddf.catalog.ui.splitter.Splitter;
+import org.codice.ddf.catalog.ui.splitter.SplitterLocator;
 
 public class SplitterLocatorImpl extends BaseLocator implements SplitterLocator {
 
