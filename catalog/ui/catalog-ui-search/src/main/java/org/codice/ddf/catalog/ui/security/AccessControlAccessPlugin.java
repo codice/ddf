@@ -95,6 +95,12 @@ public class AccessControlAccessPlugin implements AccessPlugin {
           return null;
         };
 
+    Predicate<Metacard> nonWriteableMetacard =
+        (mc) ->
+            !subjectIsAccessAdmin.test(mc)
+                && !subjectIsOwner.test(mc)
+                && !subjectHasWritePerms.test(mc);
+
     /**
      * Since this is an update request, it implies that the metacard is changing. The only way for a
      * metacard to change is if the requesting subject has the perms to do so. The required perms
@@ -112,11 +118,7 @@ public class AccessControlAccessPlugin implements AccessPlugin {
             .stream()
             .map(Map.Entry::getValue)
             .filter(Objects::nonNull)
-            .filter(
-                mc ->
-                    !subjectIsAccessAdmin.test(mc)
-                        && !subjectIsOwner.test(mc)
-                        && !subjectHasWritePerms.test(mc))
+            .filter(nonWriteableMetacard)
             .findFirst()
             .isPresent();
 
