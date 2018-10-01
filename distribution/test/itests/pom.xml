@@ -27,6 +27,7 @@
         <module>test-itests-common</module>
         <module>test-itests-ddf</module>
         <module>test-itests-dependencies-app</module>
+        <module>test-itests-kernel</module>
     </modules>
     <properties>
         <!-- Copied from ops4j/org.ops4j.pax.exam2/4.11.0/pom/pom.xml

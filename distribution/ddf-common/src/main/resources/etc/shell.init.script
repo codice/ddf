@@ -67,13 +67,8 @@ if { %(jlineReader != null) } {
 
 // DDF additions
 lna = { bundle:list -t 0 | grep -v Active };
-waitForReady = {
-    while { (la | grep "DDF :: Admin :: UI" | grep "Active") isEmpty } { echo -n ". "; sleep 1 }
-    while { ("3" equals (la | grep -v "Active" | grep -c "Hosts: ") ) equals "false" } { echo -n ". "; sleep 1 }
-    echo ""
-    echo "System Ready"
-};
-wfr = { waitForReady };
+waitForReady = { system:wait-for-ready $args } ;
+wfr = { system:wait-for-ready $args } ;
 
 // Fixes hitting `tab` on an empty console to list available commands.
 // See https://issues.apache.org/jira/browse/KARAF-5224.

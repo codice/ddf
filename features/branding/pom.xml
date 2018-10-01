@@ -40,19 +40,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>test-common</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>kernel</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>test</scope>
-        </dependency>
         <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>
@@ -63,6 +50,25 @@
         </dependency>
         <!--end feature dependencies-->
 
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>test-common</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>sync-installer-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>test-utilities</artifactId>

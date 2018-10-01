@@ -99,6 +99,11 @@
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>sync-installer-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.aries</groupId>
             <artifactId>org.apache.aries.util</artifactId>
         </dependency>

@@ -36,6 +36,12 @@
         <!--end feature dependencies-->
 
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>sync-installer-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>kernel</artifactId>
             <version>${project.version}</version>

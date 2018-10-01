@@ -382,5 +382,6 @@
         <module>email</module>
         <module>osgi</module>
         <module>branding-registry-impl</module>
+        <module>sync-installer</module>
     </modules>
 </project>
