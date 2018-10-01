@@ -224,6 +224,13 @@ metacard.version.versioned-on, +
 modified
 |false
 
+|Basic Search Match Type Metacard Attribute
+|basicSearchMatchType
+|String
+|Metacard attribute used for Basic Search Type Match.
+|datatype
+|true
+
 |Type Name Mapping
 |typeNameMapping
 |String

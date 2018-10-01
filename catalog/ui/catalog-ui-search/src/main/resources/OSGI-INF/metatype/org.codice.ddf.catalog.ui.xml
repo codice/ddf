@@ -195,6 +195,12 @@
             cardinality="10000"
             default="created,effective,modified,metacard.created,metacard.modified"/>
 
+        <AD id="basicSearchMatchType"
+            name="Basic Search Match Type Metacard Attribute"
+            description="Metacard attribute used for Basic Search Type Match."
+            type="String"
+            default="datatype"/>
+
         <AD id="typeNameMapping"
             name="Type Name Mapping"
             description="Mapping of display names to content types in the form name=type."

@@ -25,6 +25,7 @@ define([
   'component/dropdown/query-src/dropdown.query-src.view',
   'component/property/property.view',
   'component/property/property',
+  'properties',
   'js/cql',
   'component/singletons/metacard-definitions',
   'component/singletons/sources-instance',
@@ -44,6 +45,7 @@ define([
   QuerySrcView,
   PropertyView,
   Property,
+  properties,
   cql,
   metacardDefinitions,
   sources,
@@ -60,6 +62,12 @@ define([
     return nested
   }
 
+  function getMatchTypeAttribute() {
+    return metacardDefinitions.metacardTypes[properties.basicSearchMatchType]
+      ? properties.basicSearchMatchType
+      : 'datatype'
+  }
+
   function isTypeLimiter(filter) {
     var typesFound = {}
     filter.filters.forEach(function(subfilter) {
@@ -69,7 +77,7 @@ define([
     return (
       typesFound.length === 2 &&
       typesFound.indexOf('metadata-content-type') >= 0 &&
-      typesFound.indexOf('datatype') >= 0
+      typesFound.indexOf(getMatchTypeAttribute()) >= 0
     )
   }
 
@@ -494,7 +502,7 @@ define([
               typesSpecific.map(function(specificType) {
                 return CQLUtils.generateFilter(
                   'ILIKE',
-                  'datatype',
+                  getMatchTypeAttribute(),
                   specificType
                 )
               })
