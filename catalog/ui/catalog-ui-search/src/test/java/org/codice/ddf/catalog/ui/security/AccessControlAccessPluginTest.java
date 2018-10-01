@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Attribute;
@@ -147,7 +148,7 @@ public class AccessControlAccessPluginTest {
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
-                ImmutableSet.of(MOCK_IDENTITY_ATTR)));
+                ImmutableList.of(MOCK_IDENTITY_ATTR)));
 
     Metacard after =
         AccessControlUtil.metacardFromAttributes(
@@ -159,7 +160,35 @@ public class AccessControlAccessPluginTest {
                 Core.LOCATION,
                 "Arizona",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
-                ImmutableSet.of(MOCK_IDENTITY_ATTR)));
+                ImmutableList.of(MOCK_IDENTITY_ATTR)));
+
+    UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
+    accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
+  }
+
+  @Test(expected = StopProcessingException.class)
+  public void testFailureWhenNonWriteableUserModifies() throws StopProcessingException {
+    Metacard before =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                SecurityAttributes.ACCESS_INDIVIDUALS_READ,
+                ImmutableList.of(MOCK_IDENTITY_ATTR)));
+
+    Metacard after =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                Core.LOCATION,
+                "Arizona",
+                SecurityAttributes.ACCESS_INDIVIDUALS_READ,
+                ImmutableList.of(MOCK_IDENTITY_ATTR)));
 
     UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
     accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));

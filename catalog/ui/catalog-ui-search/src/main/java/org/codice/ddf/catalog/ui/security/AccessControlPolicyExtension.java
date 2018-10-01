@@ -47,6 +47,8 @@ public class AccessControlPolicyExtension implements PolicyExtension {
               Core.METACARD_OWNER,
               SecurityAttributes.ACCESS_ADMINISTRATORS,
               SecurityAttributes.ACCESS_INDIVIDUALS,
+              SecurityAttributes.ACCESS_INDIVIDUALS_READ,
+              SecurityAttributes.ACCESS_GROUPS_READ,
               SecurityAttributes.ACCESS_GROUPS)
           .build();
 
@@ -80,15 +82,15 @@ public class AccessControlPolicyExtension implements PolicyExtension {
 
     hasAccessGroups = predicate(Constants.ROLES_CLAIM_URI, SecurityAttributes.ACCESS_GROUPS);
 
+    hasAccessGroupsReadOnly =
+        predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_GROUPS_READ);
+
     hasAccessIndividuals =
         predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_INDIVIDUALS);
 
     hasAccessIndividualsReadOnly =
         predicate(
             subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_INDIVIDUALS_READ);
-
-    hasAccessGroupsReadOnly =
-        predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_GROUPS_READ);
   }
 
   private Map<String, Set<String>> getPermissions(List<Permission> permissions) {
