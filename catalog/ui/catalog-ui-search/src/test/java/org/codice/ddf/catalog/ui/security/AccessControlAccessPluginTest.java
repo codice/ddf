@@ -137,6 +137,34 @@ public class AccessControlAccessPluginTest {
     accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
   }
 
+  @Test
+  public void testSuccessWhenWriteableUserModifies() throws StopProcessingException {
+    Metacard before =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableSet.of(MOCK_IDENTITY_ATTR)));
+
+    Metacard after =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_METACARD_ID,
+                Core.METACARD_OWNER,
+                "before",
+                Core.LOCATION,
+                "Arizona",
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableSet.of(MOCK_IDENTITY_ATTR)));
+
+    UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
+    accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
+  }
+
   @Test(expected = StopProcessingException.class)
   public void testStopProcessingWhenNotAdmin() throws Exception {
 

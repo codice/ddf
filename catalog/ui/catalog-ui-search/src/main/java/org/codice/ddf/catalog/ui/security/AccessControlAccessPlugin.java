@@ -98,8 +98,13 @@ public class AccessControlAccessPlugin implements AccessPlugin {
     /**
      * Since this is an update request, it implies that the metacard is changing. The only way for a
      * metacard to change is if the requesting subject has the perms to do so. The required perms
-     * require to be one of the following: - Access Administrator - Current owner of the metacard -
-     * Be explicitly placed in the _R/W_ group on the security attributes
+     * require to be one of the following: <br>
+     *
+     * <ul>
+     *   <li>Access Administrator
+     *   <li>Current owner of the metacard
+     *   <li>Be explicitly placed in the R/W group on the security attributes
+     * </ul>
      */
     boolean foundNonWriteableMetacard =
         input
