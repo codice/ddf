@@ -114,6 +114,9 @@ module.exports = Marionette.LayoutView.extend({
       filterTree: JSON.stringify(this.queryAdvanced.currentView.getFilters()),
     })
   },
+  isValid: function() {
+    return this.querySettings.currentView.isValid()
+  },
   setDefaultTitle: function() {
     this.model.set('title', this.model.get('cql'))
   },

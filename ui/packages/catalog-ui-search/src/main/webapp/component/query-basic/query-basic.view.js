@@ -461,6 +461,9 @@ define([
         cql: generatedCQL,
       })
     },
+    isValid: function() {
+      return this.basicSettings.currentView.isValid()
+    },
     constructFilter: function() {
       var filters = []
 

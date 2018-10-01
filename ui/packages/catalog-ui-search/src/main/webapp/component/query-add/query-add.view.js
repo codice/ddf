@@ -29,6 +29,7 @@ const wreqr = require('wreqr')
 const user = require('component/singletons/user-instance')
 const cql = require('js/cql')
 const announcement = require('component/announcement')
+import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 const SearchFormModel = require('component/search-form/search-form.js')
 const properties = require('properties')
 const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view')
@@ -201,6 +202,10 @@ module.exports = Marionette.LayoutView.extend({
     this.queryContent.currentView.setDefaultTitle()
   },
   saveRun: function() {
+    if (!this.queryContent.currentView.isValid()) {
+      announcement.announce(InvalidSearchFormMessage)
+      return
+    }
     this.queryContent.currentView.save()
     this.queryTitle.currentView.save()
     if (this.model.get('title') === 'Search Name') {
