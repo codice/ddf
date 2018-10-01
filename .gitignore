@@ -19,11 +19,8 @@ atlassian-ide-plugin.xml
 *.sonar-ide.properties
 **/webapp/css/styles.css
 platform/solr/**/overlays
-distribution/docs/src/main/resources/content/*/*/.asciidoctor
-distribution/docs/src/main/resources/content/*/*/*.png
-
-
-
+distribution/docs/src/main/resources/content/**/.asciidoctor
+distribution/docs/src/main/resources/content/**/*.png
 # JMeter Related files to ignore
 jmeter.log
 *.jmx.log

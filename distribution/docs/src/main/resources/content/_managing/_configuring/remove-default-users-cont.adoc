@@ -3,9 +3,13 @@
 :status: published
 :summary: Remove users.properties file second half.
 :parent: Configuring User Access
-:order: 07
+:order: 08
 
+[WARNING]
+====
+Once the default users are removed, the `<${branding}_HOME>/bin/client` and `<${branding}_HOME>/bin/client.bat` scripts will not work.
 If SSH access to the Karaf shell is to be supported, edit the file `org.apache.karaf.shell.cfg` in the `<INSTALL_HOME>/etc` directory, changing the value of the `sshRealm` property from `karaf` to `ldap`.
+====
 
 .Emergency Use of `users.properties` file
 [NOTE]

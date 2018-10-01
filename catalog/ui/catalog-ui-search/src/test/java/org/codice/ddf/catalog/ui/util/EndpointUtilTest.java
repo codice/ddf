@@ -50,6 +50,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
+import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
+import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.cql.CqlResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -71,6 +74,8 @@ public class EndpointUtilTest {
 
   private Result resultMock;
 
+  CatalogFramework catalogFrameworkMock;
+
   @Before
   public void setUp() throws Exception {
 
@@ -81,7 +86,7 @@ public class EndpointUtilTest {
     // mocks
     MetacardType metacardTypeMock = mock(MetacardType.class);
 
-    CatalogFramework catalogFrameworkMock = mock(CatalogFramework.class);
+    catalogFrameworkMock = mock(CatalogFramework.class);
 
     InjectableAttribute injectableAttributeMock = mock(InjectableAttribute.class);
 
@@ -205,6 +210,19 @@ public class EndpointUtilTest {
   }
 
   @Test
+  public void testHitCountOnlyQuery() throws Exception {
+    long hitCount = 12L;
+    when(responseMock.getResults()).thenReturn(Collections.emptyList());
+    when(responseMock.getHits()).thenReturn(hitCount);
+    when(catalogFrameworkMock.query(any(QueryRequestImpl.class))).thenReturn(responseMock);
+
+    CqlQueryResponse cqlQueryResponse = endpointUtil.executeCqlQuery(generateCqlRequest(0));
+    List<CqlResult> results = cqlQueryResponse.getResults();
+    assertThat(results, hasSize(0));
+    assertThat(cqlQueryResponse.getQueryResponse().getHits(), is(hitCount));
+  }
+
+  @Test
   public void testCopyAttributes() {
 
     AttributeDescriptor firstAttributeDescriptor = mock(AttributeDescriptor.class);
@@ -236,5 +254,13 @@ public class EndpointUtilTest {
     assertThat(
         Collections.singletonList(secondValue),
         is(destinationMetacard.getAttribute(secondAttributeDescriptor.getName()).getValues()));
+  }
+
+  private CqlRequest generateCqlRequest(int count) {
+    CqlRequest cqlRequest = new CqlRequest();
+    cqlRequest.setCount(count);
+    cqlRequest.setCql("anyText ILIKE '*'");
+
+    return cqlRequest;
   }
 }
