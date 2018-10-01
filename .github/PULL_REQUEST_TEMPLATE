@@ -16,7 +16,20 @@ ____
 #### Who is reviewing it? 
 <!--(please choose AT LEAST two reviewers that need to approve the PR before it can get merged)-->
 #### Select relevant component teams: 
-https://github.com/orgs/codice/teams
+<!--
+@codice/build 
+@codice/continuous-integration 
+@codice/core-apis 
+@codice/data 
+@codice/docs 
+@codice/io 
+@codice/ogc 
+@codice/security 
+@codice/solr 
+@codice/test 
+@codice/ui 
+@codice/website 
+-->
 #### Ask 2 committers to review/merge the PR and tag them here.
 <!--
 If you don't know who to ask, you can request reviews in https://groups.google.com/forum/#!forum/ddf-developers .
