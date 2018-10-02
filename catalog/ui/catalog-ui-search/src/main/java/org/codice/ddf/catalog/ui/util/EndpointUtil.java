@@ -74,6 +74,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -597,6 +598,10 @@ public class EndpointUtil {
     }
 
     if (!(value instanceof String)) {
+      return null;
+    }
+
+    if (StringUtils.isEmpty((String) value)) {
       return null;
     }
 
