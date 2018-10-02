@@ -21,9 +21,9 @@ import org.apache.solr.core.SolrConfig
 import org.apache.solr.core.SolrCore
 import org.apache.solr.core.SolrResourceLoader
 import org.apache.solr.schema.IndexSchema
-import org.codice.spock.extension.DeFinalize
-import org.codice.spock.extension.Supplemental
-import org.codice.spock.extension.builtin.DeFinalizer
+import org.codice.junit.DeFinalize
+import org.codice.junit.DeFinalizer
+import org.codice.spock.Supplemental
 import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification

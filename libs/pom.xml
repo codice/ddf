@@ -36,10 +36,7 @@
         <module>klv</module>
         <module>mpeg-transport-stream</module>
         <module>geospatial</module>
-        <module>spock-shaded</module>
         <module>alerts</module>
         <module>test-common</module>
-        <module>failsafe-controller</module>
-        <module>mockito-extensions</module>
     </modules>
 </project>

@@ -21,13 +21,13 @@ import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.SolrException.ErrorCode
 import org.apache.solr.common.util.NamedList
+import org.codice.junit.DeFinalize
+import org.codice.junit.DeFinalizer
 import org.codice.solr.client.solrj.SolrClient.Initializer
 import org.codice.solr.client.solrj.SolrClient.Listener
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
-import org.codice.spock.extension.ClearInterruptions
-import org.codice.spock.extension.DeFinalize
-import org.codice.spock.extension.builtin.DeFinalizer
+import org.codice.spock.ClearInterruptions
 import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import org.spockframework.runtime.SpockTimeoutError
@@ -44,8 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import static java.util.concurrent.TimeUnit.*
 import static net.jodah.failsafe.Actions.*
-
-import static org.codice.solr.factory.impl.SolrClientAdapter.State.*;
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CLOSED;
 
 @ClearInterruptions
 @Timeout(SolrClientAdapterAsyncSpec.TIMEOUT_IN_SECS)

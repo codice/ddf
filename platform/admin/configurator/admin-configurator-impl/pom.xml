@@ -53,14 +53,6 @@
             <artifactId>org.apache.karaf.features.core</artifactId>
             <version>${karaf.version}</version>
         </dependency>
-
-        <!--Spock dependencies-->
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>spock-shaded</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
