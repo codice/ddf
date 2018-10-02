@@ -79,4 +79,17 @@ public class TagsFilterDelegateTest {
             filter, new TagsFilterDelegate(new HashSet<>(Arrays.asList("value2", "value1")))),
         is(true));
   }
+
+  @Test
+  public void testTagsNot() throws Exception {
+    Filter filter = builder.not(builder.attribute(Metacard.TAGS).is().like().text("value1"));
+    assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(true));
+    assertThat(adapter.adapt(filter, new TagsFilterDelegate("value1")), is(false));
+  }
+
+  @Test
+  public void testTagsNotWithoutTag() throws Exception {
+    Filter filter = builder.not(builder.attribute(Metacard.TITLE).is().like().text("value1"));
+    assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(false));
+  }
 }

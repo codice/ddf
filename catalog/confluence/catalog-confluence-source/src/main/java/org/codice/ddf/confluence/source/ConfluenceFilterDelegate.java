@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.confluence.common.Confluence;
 
 public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
@@ -38,7 +39,7 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
 
   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 
-  private static final String EMPTY_GROUP_PATTER = "\\(\\s*\\)";
+  private static final String EMPTY_GROUP_PATTERN = "\\(\\s*\\)";
 
   private boolean wildcardQuery = false;
 
@@ -93,23 +94,23 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
   public String and(List<String> operands) {
     return operands
         .stream()
-        .filter(Objects::nonNull)
+        .filter(StringUtils::isNotEmpty)
         .collect(Collectors.joining(" AND ", "( ", " )"))
-        .replaceAll(EMPTY_GROUP_PATTER, "");
+        .replaceAll(EMPTY_GROUP_PATTERN, "");
   }
 
   @Override
   public String or(List<String> operands) {
     return operands
         .stream()
-        .filter(Objects::nonNull)
+        .filter(StringUtils::isNotEmpty)
         .collect(Collectors.joining(" OR ", "( ", " )"))
-        .replaceAll(EMPTY_GROUP_PATTER, "");
+        .replaceAll(EMPTY_GROUP_PATTERN, "");
   }
 
   @Override
   public String not(String operand) {
-    return "NOT " + operand;
+    return operand != null ? "NOT " + operand : null;
   }
 
   @Override
@@ -125,10 +126,18 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
         literal,
         param ->
             Arrays.stream(literal.split(" "))
-                .map(e -> param.getLikeExpression(e))
+                .map(param::getLikeExpression)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(" OR ", "( ", " )"))
-                .replaceAll(EMPTY_GROUP_PATTER, ""));
+                .replaceAll(EMPTY_GROUP_PATTERN, ""));
+  }
+
+  @Override
+  public String propertyIsGreaterThan(String propertyName, Date date) {
+    return getConfluenceParameter(
+        propertyName,
+        null,
+        param -> param.getGreaterThanExpression(new SimpleDateFormat(DATE_FORMAT).format(date)));
   }
 
   @Override
