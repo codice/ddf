@@ -121,7 +121,7 @@ NOTE: This *DOES* change the port the system runs on.
 |Yes
 
 |Internal Default Port
-|org.codice.ddf.external.port
+|org.codice.ddf.system.port
 |String
 |The default port that the system uses. This should match either the above http or https port.
 
