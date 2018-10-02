@@ -211,7 +211,7 @@ module.exports = plugin(
       return this.settingsSortField.currentView.collection.models.length !== 0
     },
     save: function() {
-      if (!this.isValid) {
+      if (!this.isValid()) {
         announcement.announce(InvalidSearchFormMessage)
         return
       }
@@ -220,7 +220,7 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run: function() {
-      if (!this.isValid) {
+      if (!this.isValid()) {
         announcement.announce(InvalidSearchFormMessage)
         return
       }
