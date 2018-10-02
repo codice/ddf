@@ -13,16 +13,18 @@
  */
 package org.codice.ddf.catalog.ui.splitter;
 
-import org.codice.ddf.catalog.ui.splitter.Splitter;
-
 import java.util.List;
 import javax.activation.MimeType;
 
-/** Locate {@link Splitter} services based on the mime-type of the content being split. */
+/**
+ * Locate {@link org.codice.ddf.catalog.ui.splitter.Splitter} services based on the mime-type of the
+ * content being split.
+ */
 public interface SplitterLocator {
 
   /**
-   * Find the {@link Splitter}s that can handle the given mime-type.
+   * Find the {@link org.codice.ddf.catalog.ui.splitter.Splitter}s that can handle the given
+   * mime-type.
    *
    * @param mimeType the mime-type of the content to be split
    * @return list of splitters
