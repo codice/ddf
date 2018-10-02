@@ -282,9 +282,9 @@
         <fileSet>
             <directory>${setup.folder}/solr</directory>
             <outputDirectory>/solr</outputDirectory>
-          <excludes>
-            <exclude>**/derby*</exclude>
-          </excludes>
+            <excludes>
+                <exclude>**/derby*</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 
@@ -320,6 +320,24 @@
             </outputDirectory>
             <includes>
                 <include>ddf.platform.osgi:platform-osgi-conditions:jar:${project.version}</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/org/codice/acdebugger/acdebugger-api/${acdebugger.version}
+            </outputDirectory>
+            <includes>
+                <include>org.codice.acdebugger:acdebugger-api:jar:${acdebugger.version}
+                </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/org/codice/acdebugger/acdebugger-backdoor/${acdebugger.version}
+            </outputDirectory>
+            <includes>
+                <include>org.codice.acdebugger:acdebugger-backdoor:jar:${acdebugger.version}
+                </include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -15,8 +15,13 @@ package org.codice.ddf.condpermadmin;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import net.sourceforge.prograde.policy.SecurityActions;
@@ -27,8 +32,10 @@ import net.sourceforge.prograde.policyparser.ParsedPrincipal;
 import net.sourceforge.prograde.policyparser.Parser;
 import net.sourceforge.prograde.type.Priority;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.codice.acdebugger.PermissionService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.condpermadmin.ConditionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
@@ -37,7 +44,7 @@ import org.osgi.service.permissionadmin.PermissionInfo;
 import org.osgi.util.tracker.ServiceTracker;
 
 /** Initializes the CondPermAdmin permission table from all policy files in ddf_home/security */
-public class PermissionActivator implements BundleActivator {
+public class PermissionActivator implements BundleActivator, PermissionService {
 
   private static final String BUNDLE_NAME_CONDITION =
       "org.codice.ddf.condition.BundleNameCondition";
@@ -55,11 +62,15 @@ public class PermissionActivator implements BundleActivator {
 
   private ServiceTracker<ConditionalPermissionAdmin, ConditionalPermissionAdmin> permAdminTracker;
 
+  private volatile ConditionalPermissionAdmin conditionalPermissionAdmin = null;
+
+  private volatile Priority priorityResult = null;
+
+  @SuppressWarnings("squid:S1149" /* required by osgi's API */)
   @Override
   public void start(BundleContext bundleContext) throws Exception {
     System.setProperty("/", File.separator);
-    ConditionalPermissionAdmin conditionalPermissionAdmin =
-        getConditionalPermissionAdmin(bundleContext);
+    this.conditionalPermissionAdmin = getConditionalPermissionAdmin(bundleContext);
     String policyDir = SecurityActions.getSystemProperty("ddf.home") + File.separator + "security";
     if (policyDir.startsWith("=")) {
       policyDir = policyDir.substring(1);
@@ -79,30 +90,28 @@ public class PermissionActivator implements BundleActivator {
     ConditionalPermissionUpdate conditionalPermissionUpdate =
         conditionalPermissionAdmin.newConditionalPermissionUpdate();
     conditionalPermissionUpdate.getConditionalPermissionInfos().clear();
-    Priority priorityResult = null;
+    this.priorityResult = null;
     List<ConditionalPermissionInfo> allGrantInfos = new ArrayList<>();
     List<ConditionalPermissionInfo> allDenyInfos = new ArrayList<>();
     for (ParsedPolicy parsedPolicy : parsedPolicies) {
       List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
       List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
 
-      buildConditionalPermissionInfo(
-          conditionalPermissionAdmin, grantEntries, allGrantInfos, ConditionalPermissionInfo.ALLOW);
-      buildConditionalPermissionInfo(
-          conditionalPermissionAdmin, denyEntries, allDenyInfos, ConditionalPermissionInfo.DENY);
+      buildConditionalPermissionInfo(grantEntries, allGrantInfos, ConditionalPermissionInfo.ALLOW);
+      buildConditionalPermissionInfo(denyEntries, allDenyInfos, ConditionalPermissionInfo.DENY);
 
       Priority priority = parsedPolicy.getPriority();
       if (priorityResult == null) {
-        priorityResult = priority;
+        this.priorityResult = priority;
       } else if (priority != priorityResult) {
         // if they don't match, then we can't make a determination on the priority, so we'll
         // default to deny
-        priorityResult = Priority.DENY;
+        this.priorityResult = Priority.DENY;
       }
     }
 
     if (priorityResult == null && !allGrantInfos.isEmpty() && !allDenyInfos.isEmpty()) {
-      priorityResult = Priority.GRANT;
+      this.priorityResult = Priority.GRANT;
     }
 
     if (priorityResult == Priority.GRANT) {
@@ -110,16 +119,85 @@ public class PermissionActivator implements BundleActivator {
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allDenyInfos);
       conditionalPermissionUpdate
           .getConditionalPermissionInfos()
-          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
+          .add(getAllPermission(ConditionalPermissionInfo.ALLOW));
     } else if (priorityResult == Priority.DENY) {
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allDenyInfos);
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allGrantInfos);
       conditionalPermissionUpdate
           .getConditionalPermissionInfos()
-          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));
+          .add(getAllPermission(ConditionalPermissionInfo.DENY));
     }
 
     conditionalPermissionUpdate.commit();
+    final Dictionary<String, Object> props = new Hashtable<>(8);
+
+    props.put(Constants.SERVICE_DESCRIPTION, "DDF :: Platform :: OSGi :: CondPermAdmin");
+    props.put(Constants.SERVICE_VENDOR, "Codice Foundation");
+    bundleContext.registerService(PermissionService.class, this, props);
+  }
+
+  @Override
+  public void grantPermission(String bundle, String permission) throws Exception {
+    synchronized (this) {
+      // use the parsed policy to make it easier to parse the permission string
+      final ParsedPolicy parsedPolicy =
+          new Parser(false)
+              .parse(
+                  new StringReader(
+                      String.format(
+                          "grant codebase \"file:/%s\" { permission %s; }", bundle, permission)));
+      final List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
+      final List<ConditionalPermissionInfo> allGrantInfos = new ArrayList<>();
+      final ConditionalPermissionUpdate conditionalPermissionUpdate =
+          conditionalPermissionAdmin.newConditionalPermissionUpdate();
+
+      buildConditionalPermissionInfo(grantEntries, allGrantInfos, ConditionalPermissionInfo.ALLOW);
+      final ConditionalPermissionInfo grantInfo = allGrantInfos.get(0);
+      final List<ConditionalPermissionInfo> conditionalInfos =
+          conditionalPermissionUpdate.getConditionalPermissionInfos();
+      boolean added = false;
+
+      // see if we can find one conditional permission for the exact same permission
+      // if we do, let's just add this new bundle to the list as opposed to adding a
+      // brand new conditional permission
+      for (final ListIterator<ConditionalPermissionInfo> i = conditionalInfos.listIterator();
+          i.hasNext(); ) {
+        final ConditionalPermissionInfo permInfo = i.next();
+
+        if (Objects.equals(grantInfo.getAccessDecision(), permInfo.getAccessDecision())
+            && Arrays.equals(grantInfo.getPermissionInfos(), permInfo.getPermissionInfos())) {
+          final ConditionInfo[] conditions = permInfo.getConditionInfos();
+
+          if ((conditions != null)
+              && (conditions.length == 1)
+              && BUNDLE_NAME_CONDITION.equals(conditions[0].getType())) {
+            final String[] bundles = conditions[0].getArgs();
+            final String[] newBundles = new String[bundles.length + 1];
+
+            System.arraycopy(bundles, 0, newBundles, 0, bundles.length);
+            newBundles[bundles.length] = bundle;
+            final ConditionalPermissionInfo newPermInfo =
+                conditionalPermissionAdmin.newConditionalPermissionInfo(
+                    permInfo.getName(),
+                    new ConditionInfo[] {new ConditionInfo(BUNDLE_NAME_CONDITION, newBundles)},
+                    permInfo.getPermissionInfos(),
+                    permInfo.getAccessDecision());
+
+            i.set(newPermInfo);
+            added = true;
+            break;
+          }
+        }
+      }
+      if (!added) {
+        // if priority is to grant then insert at the top, otherwise insert before
+        // the last entry which always reference an all-permission to deny
+        final int index = (priorityResult == Priority.GRANT) ? 0 : conditionalInfos.size() - 1;
+
+        conditionalInfos.add(index, grantInfo);
+      }
+      conditionalPermissionUpdate.commit();
+    }
   }
 
   @VisibleForTesting
@@ -136,8 +214,7 @@ public class PermissionActivator implements BundleActivator {
     return permAdminTracker.getService();
   }
 
-  private ConditionalPermissionInfo getAllPermission(
-      ConditionalPermissionAdmin conditionalPermissionAdmin, String type) {
+  private ConditionalPermissionInfo getAllPermission(String type) {
     return conditionalPermissionAdmin.newConditionalPermissionInfo(
         null,
         null,
@@ -150,10 +227,7 @@ public class PermissionActivator implements BundleActivator {
    * pre-defined policy entries for administrators to add configuration specific permissions.
    */
   private void buildConditionalPermissionInfo(
-      ConditionalPermissionAdmin conditionalPermissionAdmin,
-      List<ParsedPolicyEntry> entries,
-      List<ConditionalPermissionInfo> infos,
-      String type) {
+      List<ParsedPolicyEntry> entries, List<ConditionalPermissionInfo> infos, String type) {
     for (ParsedPolicyEntry parsedPolicyEntry : entries) {
       List<ParsedPermission> permissions = parsedPolicyEntry.getPermissions();
       if (permissions.isEmpty()) {
