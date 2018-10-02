@@ -447,8 +447,8 @@ public class TestRegistry extends AbstractIntegrationTest {
         .match(
             post("/services/csw"),
             withPostBodyContaining("GetRecords"),
-            not(withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL)),
-            withPostBodyContaining(METACARD_ID))
+            withPostBodyContaining(RegistryConstants.REGISTRY_TAG),
+            withPostBodyContaining(REMOTE_METACARD_ID))
         .then(ok(), contentType("text/xml"), bytesContent(remoteMetacardResponse.getBytes()));
     cswServer
         .whenHttp()
