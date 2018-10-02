@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import org.apache.commons.lang3.StringUtils;
-import org.codice.ddf.catalog.ui.metacard.internal.ServiceProperties;
+import org.codice.ddf.catalog.ui.splitter.ServiceProperties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
