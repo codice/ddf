@@ -22,12 +22,12 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.util.NamedList
+import org.codice.junit.DeFinalize
+import org.codice.junit.DeFinalizer
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
-import org.codice.spock.extension.ClearInterruptions
-import org.codice.spock.extension.DeFinalize
-import org.codice.spock.extension.Supplemental
-import org.codice.spock.extension.builtin.DeFinalizer
+import org.codice.spock.ClearInterruptions
+import org.codice.spock.Supplemental
 import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import spock.lang.Shared
@@ -40,7 +40,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 
-import static org.codice.solr.factory.impl.SolrClientAdapter.State.*
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CLOSED
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CONNECTED
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CONNECTING
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.CREATING
 
 @Supplemental
 @RunWith(DeFinalizer)

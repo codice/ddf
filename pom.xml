@@ -57,6 +57,10 @@
         <reports.repository.url/>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.15</ddf.support.version>
+        <!-- Must MANUALLY update this if the codice-maven project's version changes -->
+        <codice-maven.version>0.1</codice-maven.version>
+        <!-- Must MANUALLY update this if the codice-test project's version changes -->
+        <codice-test.version>0.1</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.4</acdebugger.version>
         <!--Documentation Replacements-->
@@ -246,9 +250,9 @@
                     <version>${maven-jacoco-plugin.version}</version>
                     <dependencies>
                         <dependency>
-                            <groupId>ddf.support</groupId>
-                            <artifactId>support-jacoco</artifactId>
-                            <version>${ddf.support.version}</version>
+                            <groupId>org.codice.maven</groupId>
+                            <artifactId>jacoco</artifactId>
+                            <version>${codice-maven.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -929,6 +933,42 @@
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <version>${xmlunit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>spock-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>hamcrest-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>mockito-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>failsafe-controller</artifactId>
+            <version>${codice-test.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

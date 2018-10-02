@@ -14,7 +14,7 @@
 package org.codice.solr.factory.impl
 
 import org.apache.solr.client.solrj.SolrClient
-import org.codice.spock.extension.Supplemental
+import org.codice.spock.Supplemental
 import spock.lang.Specification
 import spock.lang.Unroll
 

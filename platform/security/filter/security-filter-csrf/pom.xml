@@ -32,13 +32,6 @@
             <artifactId>platform-filter-delegate</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- TEST DEPENDENCIES -->
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>spock-shaded</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

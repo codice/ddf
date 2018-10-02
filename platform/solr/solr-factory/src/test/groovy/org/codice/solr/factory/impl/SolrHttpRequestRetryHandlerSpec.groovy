@@ -14,7 +14,7 @@
 package org.codice.solr.factory.impl
 
 import org.apache.http.protocol.HttpContext
-import org.codice.spock.extension.ClearInterruptions
+import org.codice.spock.ClearInterruptions
 import spock.lang.Specification
 import spock.lang.Unroll
 

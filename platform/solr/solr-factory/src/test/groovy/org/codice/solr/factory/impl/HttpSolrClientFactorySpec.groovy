@@ -16,9 +16,9 @@ package org.codice.solr.factory.impl
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.util.NamedList
-import org.codice.spock.extension.DeFinalize
-import org.codice.spock.extension.Supplemental
-import org.codice.spock.extension.builtin.DeFinalizer
+import org.codice.junit.DeFinalize
+import org.codice.junit.DeFinalizer
+import org.codice.spock.Supplemental
 import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Timeout
