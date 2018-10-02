@@ -22,62 +22,105 @@ import org.osgi.service.cm.Configuration;
 
 public class ConfigureTestCommons {
 
-  public static final String METACARD_VALIDITITY_FILTER_PLUGIN_SERVICE_PID =
+  private static final String METACARD_VALIDITY_FILTER_PLUGIN_SERVICE_PID =
       "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
 
-  public static final String METACARD_VALIDITITY_MARKER_PLUGIN_SERVICE_PID =
+  private static final String METACARD_VALIDITY_MARKER_PLUGIN_SERVICE_PID =
       "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin";
 
-  public static final String METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID =
+  private static final String METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID =
       "org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin";
 
-  public static final String AUTH_Z_REALM_PID = "ddf.security.pdp.realm.AuthzRealm";
+  private static final String AUTH_Z_REALM_PID = "ddf.security.pdp.realm.AuthzRealm";
+
+  private static final String ADMIN_CONFIG_POLICY_PID =
+      "org.codice.ddf.admin.config.policy.AdminConfigPolicy";
 
   private ConfigureTestCommons() {}
 
-  public static void configureMetacardValidityFilterPlugin(
-      List<String> securityAttributeMappings, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDITITY_FILTER_PLUGIN_SERVICE_PID, null);
+  public static Dictionary<String, Object> configureService(
+      String pid, Dictionary<String, Object> newProps, AdminConfig adminConfig) throws IOException {
+    Configuration config = adminConfig.getConfiguration(pid, null);
+    Dictionary<String, Object> oldProps = config.getProperties();
+    config.update(newProps);
+    return oldProps;
+  }
+
+  /**
+   * Configures the MetacardValidityFilterPlugin. See metatype for more detailed descriptions.
+   *
+   * @param securityAttributeMappings - attribute mapping between metacard attribute and user
+   *     attribute
+   * @param filterErrors - sets whether metacards with validation errors are filtered
+   * @param filterWarnings - sets whether metacards with validation warnings are filtered
+   * @return A dictionary containing the old properties that the service had.
+   */
+  public static Dictionary<String, Object> configureMetacardValidityFilterPlugin(
+      List<String> securityAttributeMappings,
+      boolean filterErrors,
+      boolean filterWarnings,
+      AdminConfig configAdmin)
+      throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("attributeMap", securityAttributeMappings);
-    config.update(properties);
-  }
-
-  public static void configureFilterInvalidMetacards(
-      String filterErrors, String filterWarnings, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDITITY_FILTER_PLUGIN_SERVICE_PID, null);
-
-    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("filterErrors", filterErrors);
     properties.put("filterWarnings", filterWarnings);
-    config.update(properties);
+    return configureMetacardValidityFilterPlugin(properties, configAdmin);
   }
 
-  public static void configureEnforceValidityErrorsAndWarnings(
-      String enforceErrors, String enforceWarnings, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDITITY_MARKER_PLUGIN_SERVICE_PID, null);
-
-    Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("enforceErrors", enforceErrors);
-    properties.put("enforceWarnings", enforceWarnings);
-    config.update(properties);
+  /**
+   * Configures the MetacardValidityFilterPlugin. This method should only be used to reset a service
+   * configuration using a dictionary returned from the overloaded configuration method.
+   *
+   * @param props - dictionary of properties provided from the configuration
+   * @return A dictionary containing the old properties that the service had.
+   */
+  public static Dictionary<String, Object> configureMetacardValidityFilterPlugin(
+      Dictionary<String, Object> props, AdminConfig configAdmin) throws IOException {
+    return configureService(METACARD_VALIDITY_FILTER_PLUGIN_SERVICE_PID, props, configAdmin);
   }
 
-  public static void configureEnforcedMetacardValidators(
-      List<String> enforcedValidators, AdminConfig configAdmin) throws IOException {
-
-    // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDITITY_MARKER_PLUGIN_SERVICE_PID, null);
-
+  /**
+   * Configures the MetacardValidityMarkerPlugin. See metatype for more detailed descriptions.
+   *
+   * @param enforcedValidators - names of validators that will be enforced (reject errors/warnings)
+   * @param enforceErrors - sets whether metacards with validation errors are rejected
+   * @param enforceWarnings - sets whether metacards with validation warnings are rejected
+   * @return A dictionary containing the old properties that the service had.
+   */
+  public static Dictionary<String, Object> configureValidationMarkerPlugin(
+      List<String> enforcedValidators,
+      boolean enforceErrors,
+      boolean enforceWarnings,
+      AdminConfig configAdmin)
+      throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("enforcedMetacardValidators", enforcedValidators);
-    config.update(properties);
+    properties.put("enforceErrors", enforceErrors);
+    properties.put("enforceWarnings", enforceWarnings);
+    return configureValidationMarkerPlugin(properties, configAdmin);
   }
 
+  /**
+   * Configures the MetacardValidityMarkerPlugin. This method should only be used to reset a service
+   * configuration using a dictionary returned from the overloaded configuration method.
+   *
+   * @param props - dictionary of properties provided from the configuration
+   * @return A dictionary containing the old properties that the service had.
+   */
+  public static Dictionary<String, Object> configureValidationMarkerPlugin(
+      Dictionary<String, Object> props, AdminConfig configAdmin) throws IOException {
+    return configureService(METACARD_VALIDITY_MARKER_PLUGIN_SERVICE_PID, props, configAdmin);
+  }
+
+  /**
+   * Configures the MetacardAttributeSecurityPolicyPlugin. See metatype for more detailed
+   * descriptions.
+   *
+   * @param intersectAttributes - intersection mapping between source and destination attributes.
+   * @param unionAttributes - union mapping between source and destination attributes.
+   * @return A dictionary containing the old properties that the service had.
+   */
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
       List<String> intersectAttributes, List<String> unionAttributes, AdminConfig configAdmin)
       throws IOException {
@@ -87,29 +130,78 @@ public class ConfigureTestCommons {
     return configureMetacardAttributeSecurityFiltering(properties, configAdmin);
   }
 
+  /**
+   * Configures the MetacardAttributeSecurityPolicyPlugin. This method should only be used to reset
+   * a service configuration using a dictionary returned from the overloaded configuration method.
+   *
+   * @param properties - dictionary of properties provided from the configuration
+   * @return A dictionary containing the old properties that the service had.
+   */
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
       Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID, null);
-
-    Dictionary oldProperties = config.getProperties();
-    config.update(properties);
-    return oldProperties;
+    return configureService(METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID, properties, configAdmin);
   }
 
+  /**
+   * Configures the AuthzRealm. See metatype for more detailed descriptions.
+   *
+   * @param matchAllMappings - list of 'Match-All' subject attribute to Metacard attribute mapping
+   * @param matchOneAttributes - list of 'Match-One' subject attribute to Metacard attribute mapping
+   * @param environmentAttributes - List of environment attributes to pass to the XACML engine
+   * @return A dictionary containing the old properties that the service had.
+   */
   public static Dictionary<String, Object> configureAuthZRealm(
-      List<String> attributes, AdminConfig configAdmin) throws IOException {
+      List<String> matchAllMappings,
+      List<String> matchOneAttributes,
+      List<String> environmentAttributes,
+      AdminConfig configAdmin)
+      throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("matchOneMap", attributes);
+    properties.put("matchAllMappings", matchAllMappings);
+    properties.put("matchOneMappings", matchOneAttributes);
+    properties.put("environmentAttributes", environmentAttributes);
     return configureAuthZRealm(properties, configAdmin);
   }
 
+  /**
+   * Configures the AuthzRealm. This method should only be used to reset a service configuration
+   * using a dictionary returned from the overloaded configuration method.
+   *
+   * @param properties - dictionary of properties provided from the configuration
+   * @return A dictionary containing the old properties that the service had.
+   */
   public static Dictionary<String, Object> configureAuthZRealm(
       Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
-    Configuration config = configAdmin.getConfiguration(AUTH_Z_REALM_PID, null);
+    return configureService(AUTH_Z_REALM_PID, properties, configAdmin);
+  }
 
-    Dictionary oldProperties = config.getProperties();
-    config.update(properties);
-    return oldProperties;
+  /**
+   * Configures the AdminConfigPolicy. See metatype for more detailed descriptions.
+   *
+   * @param featurePolicies - features or apps that will only be modifiable and viewable to users
+   *     with the set attributes
+   * @param servicePolicies - services that will only be modifiable and viewable to users with the
+   *     set attributes
+   * @return A dictionary containing the old properties that the service had.
+   */
+  public static Dictionary<String, Object> configureAdminConfigPolicy(
+      List<String> featurePolicies, List<String> servicePolicies, AdminConfig configAdmin)
+      throws IOException {
+    Dictionary<String, Object> properties = new DictionaryMap<>();
+    properties.put("featurePolicies", featurePolicies);
+    properties.put("servicePolicies", servicePolicies);
+    return configureAdminConfigPolicy(properties, configAdmin);
+  }
+
+  /**
+   * Configures the AdminConfigPolicy. This method should only be used to reset a service
+   * configuration using a dictionary returned from the overloaded configuration method.
+   *
+   * @param properties - dictionary of properties provided from the configuration
+   * @return A dictionary containing the old properties that the service had.
+   */
+  public static Dictionary<String, Object> configureAdminConfigPolicy(
+      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+    return configureService(ADMIN_CONFIG_POLICY_PID, properties, configAdmin);
   }
 }

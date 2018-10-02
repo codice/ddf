@@ -20,11 +20,10 @@ import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
 import static java.lang.String.format;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.delete;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswFunctionQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
@@ -212,7 +211,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             .post(REST_PATH.getUrl())
             .getHeader("id");
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -243,7 +242,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(equalTo(200))
         .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -276,7 +275,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(equalTo(200))
         .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -287,7 +286,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     LOGGER.info("Getting response to {}", url);
     when().get(url).then().log().all().assertThat().body(hasXPath("/metacard[@id='" + id + "']"));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -322,7 +321,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     + JSON_RECORD_POC
                     + "']"));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -358,7 +357,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .when()
         .put(new DynamicUrl(REST_PATH, id).getUrl());
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -404,7 +403,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             hasXPath(
                 "/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN_EMAIL + "']"));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -450,10 +449,10 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(not(hasXPath(format(METACARD_X_PATH, id1))))
         .body(not(hasXPath(format(METACARD_X_PATH, id3))));
 
-    deleteMetacard(id1);
-    deleteMetacard(id2);
-    deleteMetacard(id3);
-    deleteMetacard(id4);
+    delete(id1);
+    delete(id2);
+    delete(id3);
+    delete(id4);
   }
 
   private Response ingestCswRecord() {
@@ -683,7 +682,7 @@ public class TestCatalog extends AbstractIntegrationTest {
           .statusCode(equalTo(200))
           .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"), not("0"));
     } finally {
-      deleteMetacard(id);
+      delete(id);
     }
   }
 
@@ -708,7 +707,7 @@ public class TestCatalog extends AbstractIntegrationTest {
           .statusCode(equalTo(200))
           .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"), not("0"));
     } finally {
-      deleteMetacard(id);
+      delete(id);
     }
   }
 
@@ -869,7 +868,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[5]",
                 is("1.0 2.0")));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -961,8 +960,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "//metacard/string[@name='topic.category']/value",
                 is("Hydrography--Dictionaries")));
 
-    deleteMetacard(firstId);
-    deleteMetacard(secondId);
+    delete(firstId);
+    delete(secondId);
   }
 
   @Test
@@ -1072,7 +1071,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     // possible due to DDF-1537, this test will need
     // to be updated to test this once it is fixed.
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -1130,7 +1129,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "//metacard/string[@name='topic.category']/value",
                 is("Hydrography--Dictionaries")));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -1173,7 +1172,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(equalTo(200))
         .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned='1']"));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -1199,8 +1198,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     verifyGetRecordByIdResponse(response, firstId, secondId);
 
-    deleteMetacard(firstId);
-    deleteMetacard(secondId);
+    delete(firstId);
+    delete(secondId);
   }
 
   @Test
@@ -1225,8 +1224,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     verifyGetRecordByIdResponse(response, firstId, secondId);
 
-    deleteMetacard(firstId);
-    deleteMetacard(secondId);
+    delete(firstId);
+    delete(secondId);
   }
 
   @Test
@@ -1243,7 +1242,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     given().get(url).then().log().all().assertThat().statusCode(equalTo(200)).body(is(SAMPLE_DATA));
 
-    deleteMetacard(metacardId);
+    delete(metacardId);
   }
 
   @Test
@@ -1296,7 +1295,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .assertThat()
         .header(HttpHeaders.CONTENT_LENGTH, notNullValue());
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -1323,7 +1322,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(equalTo(200))
         .body(is(SAMPLE_DATA));
 
-    deleteMetacard(metacardId);
+    delete(metacardId);
   }
 
   @Test
@@ -1363,7 +1362,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(is(partialSampleData));
     // @formatter:on
 
-    deleteMetacard(metacardId);
+    delete(metacardId);
   }
 
   @Test
@@ -1394,7 +1393,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(equalTo(400));
     // @formatter:on
 
-    deleteMetacard(metacardId);
+    delete(metacardId);
   }
 
   private void verifyGetRecordByIdResponse(
@@ -1468,7 +1467,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     config.update(configProps);
     getServiceManager().waitForAllBundles();
 
-    deleteMetacard(id1);
+    delete(id1);
   }
 
   @Test
@@ -1951,7 +1950,6 @@ public class TestCatalog extends AbstractIntegrationTest {
               .replaceFirst("ddf\\.metacard", newMetacardTypeName)
               .replaceFirst("resource-uri", "new-attribute-required-2");
       id = ingest(modifiedMetacardXml, "text/xml");
-      configureFilterInvalidMetacards("false", "false", getAdminConfig());
 
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", id);
 
@@ -1973,7 +1971,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                   newMetacardXpath + "/string[@name=\"new-attribute-required-2\"]/value",
                   is("\" + uri + \"")));
     } finally {
-      deleteMetacard(id);
+      delete(id);
       uninstallDefinitionJson(
           file,
           () -> {
@@ -1985,7 +1983,6 @@ public class TestCatalog extends AbstractIntegrationTest {
             return null;
           });
       getServiceManager().startFeature(true, "catalog-security-filter");
-      configureFilterInvalidMetacards("true", "true", getAdminConfig());
     }
   }
 
@@ -2064,8 +2061,8 @@ public class TestCatalog extends AbstractIntegrationTest {
               hasXPath(
                   metacard4XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)));
     } finally {
-      deleteMetacard(id3);
-      deleteMetacard(id4);
+      delete(id3);
+      delete(id4);
       uninstallDefinitionJson(
           file,
           () -> {
@@ -2153,8 +2150,8 @@ public class TestCatalog extends AbstractIntegrationTest {
               hasXPath(
                   metacard2XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)));
     } finally {
-      deleteMetacard(id1);
-      deleteMetacard(id2);
+      delete(id1);
+      delete(id2);
       uninstallDefinitionJson(
           file,
           () -> {
@@ -2202,8 +2199,8 @@ public class TestCatalog extends AbstractIntegrationTest {
           .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
           .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value", is("-12.541")));
     } finally {
-      deleteMetacard(id);
-      deleteMetacard(id2);
+      delete(id);
+      delete(id2);
     }
   }
 
@@ -2243,8 +2240,8 @@ public class TestCatalog extends AbstractIntegrationTest {
           .body(not(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']")));
 
     } finally {
-      deleteMetacard(id);
-      deleteMetacard(id2);
+      delete(id);
+      delete(id2);
     }
   }
 
@@ -2331,7 +2328,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
-      configureFilterInvalidMetacards("false", "false", getAdminConfig());
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", invalidCardId);
 
       getOpenSearch("xml", null, null, "q=*")
@@ -2361,15 +2357,14 @@ public class TestCatalog extends AbstractIntegrationTest {
     } finally {
 
       if (invalidCardId != null) {
-        deleteMetacard(invalidCardId);
+        delete(invalidCardId);
       }
 
       if (validCardId != null) {
-        deleteMetacard(validCardId);
+        delete(validCardId);
       }
 
       getServiceManager().startFeature(true, "catalog-security-filter");
-      configureShowInvalidMetacardsReset();
     }
   }
 
@@ -2413,7 +2408,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             hasXPath(
                 metacardPath + "/string[@name=\"" + Core.TITLE + "\"]/value", is(overrideTitle)));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -2448,7 +2443,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .when()
         .put(REST_PATH.getUrl() + id);
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -2516,7 +2511,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value", is("file.bin")));
 
     // clean up
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -2549,7 +2544,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 format(METACARD_X_PATH, id) + "/string[@name='title']/value", is("bad_file.bin")));
 
     // clean up
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
@@ -2620,14 +2615,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
     FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(data));
     return file;
-  }
-
-  public void configureShowInvalidMetacardsReset() throws IOException {
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-  }
-
-  public void configureFilterInvalidMetacardsReset() throws IOException {
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
   }
 
   private void verifyMetadataBackup() {

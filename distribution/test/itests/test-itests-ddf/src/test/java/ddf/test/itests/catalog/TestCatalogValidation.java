@@ -14,29 +14,24 @@
 package ddf.test.itests.catalog;
 
 import static com.jayway.restassured.RestAssured.given;
-import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.TRANSFORMER_XML;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestXmlFromResourceAndWait;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforceValidityErrorsAndWarnings;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforcedMetacardValidators;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.query;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
-import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
-import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
-import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureValidationMarkerPlugin;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
-import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.xml.HasXPath.hasXPath;
 
 import com.jayway.restassured.response.ValidatableResponse;
 import ddf.catalog.data.types.Validation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -63,8 +58,6 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 @ExamReactorStrategy(PerSuite.class)
 public class TestCatalogValidation extends AbstractIntegrationTest {
 
-  private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
-
   private static final String SAMPLE_VALIDATOR = "sample-validator";
 
   private static final String CLEAN_METACARD =
@@ -76,149 +69,137 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   private static final String ERROR_METACARD =
       XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml";
 
-  private static final String CSW_RECORD_XPATH =
-      "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]";
-
   @BeforeExam
   public void beforeExam() {
     try {
       waitForSystemReady();
       getServiceManager().startFeature(true, SAMPLE_VALIDATOR);
+
+      // start test with validation errors/warnings allowed in catalog/search results
+      configureValidationMarkerPlugin(
+          Collections.singletonList(""), false, false, getAdminConfig());
+      configureMetacardValidityFilterPlugin(
+          Collections.singletonList("invalid-state=guest"), false, false, getAdminConfig());
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
   }
 
   @Before
-  public void setup() throws Exception {
-    configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
-    configureFilterInvalidMetacards("false", "false", getAdminConfig());
-    configureMetacardValidityFilterPlugin(
-        Collections.singletonList("invalid-state=guest"), getAdminConfig());
+  public void setup() {
     clearCatalogAndWait();
   }
 
+  /* ***************** TEST ENFORCE VALIDATION ON INGEST ***************** */
   @Test
   public void testEnforceValidityErrorsOnly() throws Exception {
-    // Configure to enforce validator
-    configureEnforcedMetacardValidators(
-        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
+    // Configure marker plugin to enforce validator errors but not warnings
+    Dictionary<String, Object> markerPluginProps =
+        configureValidationMarkerPlugin(
+            Collections.singletonList(SAMPLE_VALIDATOR), true, false, getAdminConfig());
 
-    // Configure to enforce errors but not warnings
-    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
+    try {
+      String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+      String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+      ingestXmlFromResourceWaitForFailure(ERROR_METACARD);
 
-    ingestXmlFromResourceAndWait(WARNING_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceWaitForFailure(ERROR_METACARD);
+      // verify the clean and warning metacard can be queried
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
 
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-
-    String query =
-        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    // clean metacard and warning metacard should be in results but not error one
-    response.body(containsString("warning metacard"));
-    response.body(containsString("clean metacard"));
-    response.body(not(containsString("error metacard")));
+      // Test updating
+      String warningData = getFileContent(WARNING_METACARD);
+      String errorData = getFileContent(ERROR_METACARD);
+      update(cleanId, warningData, MediaType.APPLICATION_XML, HttpStatus.SC_OK);
+      update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_BAD_REQUEST);
+    } finally {
+      // Reset marker plugin
+      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+    }
   }
 
   @Test
   public void testEnforceValidityWarningsOnly() throws Exception {
-    // Configure to enforce validator
-    configureEnforcedMetacardValidators(
-        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
+    // Configure marker plugin to enforce warnings but not errors
+    Dictionary<String, Object> markerPluginProps =
+        configureValidationMarkerPlugin(
+            Collections.singletonList(SAMPLE_VALIDATOR), false, true, getAdminConfig());
 
-    // Configure to enforce warnings but not errors
-    configureEnforceValidityErrorsAndWarnings("false", "true", getAdminConfig());
+    try {
+      ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
+      String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+      String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceAndWait(ERROR_METACARD);
+      // verify the clean and error metacard can be queried
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
 
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-
-    String query =
-        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    // clean metacard and error metacard should be in results but not warning one
-    response.body(not(containsString("warning metacard")));
-    response.body(containsString("clean metacard"));
-    response.body(containsString("error metacard"));
+      // Test updating
+      String warningData = getFileContent(WARNING_METACARD);
+      String errorData = getFileContent(ERROR_METACARD);
+      update(cleanId, warningData, MediaType.APPLICATION_XML, HttpStatus.SC_BAD_REQUEST);
+      update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_OK);
+    } finally {
+      // Reset marker plugin
+      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+    }
   }
 
   @Test
   public void testEnforceValidityErrorsAndWarnings() throws Exception {
-    // Configure to enforce validator
-    configureEnforcedMetacardValidators(
-        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
+    // Configure marker plugin to enforce errors and warnings
+    Dictionary<String, Object> markerPluginProps =
+        configureValidationMarkerPlugin(
+            Collections.singletonList(SAMPLE_VALIDATOR), true, true, getAdminConfig());
 
-    // Configure to enforce errors and warnings
-    configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
+    try {
+      ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
+      String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+      ingestXmlFromResourceWaitForFailure(ERROR_METACARD);
 
-    ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceWaitForFailure(ERROR_METACARD);
+      // verify the clean metacard can be queried
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
 
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-
-    testWithRetry(
-        () -> {
-          String query =
-              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-          ValidatableResponse response =
-              given()
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                  .body(query)
-                  .post(CSW_PATH.getUrl())
-                  .then();
-
-          // clean metacard should be in results but not invalid ones
-          response.body(not(containsString("warning metacard")));
-          response.body(containsString("clean metacard"));
-          response.body(not(containsString("error metacard")));
-        });
+      // Test updating with invalid data
+      String warningData = getFileContent(WARNING_METACARD);
+      String errorData = getFileContent(ERROR_METACARD);
+      update(cleanId, warningData, MediaType.APPLICATION_XML, HttpStatus.SC_BAD_REQUEST);
+      update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_BAD_REQUEST);
+    } finally {
+      // Reset marker plugin
+      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+    }
   }
 
   @Test
   public void testNoEnforceValidityErrorsOrWarnings() throws Exception {
-    // Configure to enforce validator
-    configureEnforcedMetacardValidators(
-        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
+    // Configure marker plugin to enforce neither errors nor warnings
+    Dictionary<String, Object> markerPluginProps =
+        configureValidationMarkerPlugin(
+            Collections.singletonList(SAMPLE_VALIDATOR), false, false, getAdminConfig());
 
-    // Configure to enforce neither errors nor warnings
-    configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
+    try {
+      String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+      String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+      String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    ingestXmlFromResourceAndWait(WARNING_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceAndWait(ERROR_METACARD);
+      // verify the clean and warning metacard can be queried
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
 
-    String query =
-        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(containsString("warning metacard"));
-    response.body(containsString("clean metacard"));
-    response.body(containsString("error metacard"));
+      // Test updating
+      String warningData = getFileContent(WARNING_METACARD);
+      String errorData = getFileContent(ERROR_METACARD);
+      update(cleanId, warningData, MediaType.APPLICATION_XML, HttpStatus.SC_OK);
+      update(cleanId, errorData, MediaType.APPLICATION_XML, HttpStatus.SC_OK);
+    } finally {
+      // Reset marker plugin
+      configureValidationMarkerPlugin(markerPluginProps, getAdminConfig());
+    }
   }
 
+  /* ***************** TEST VALIDATION FILTERING ON QUERY ***************** */
   @Test
   public void testQueryByErrorFailedValidators() {
     ingestXmlFromResourceAndWait(WARNING_METACARD);
@@ -266,312 +247,84 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     response.body(containsString("warning metacard"));
   }
 
+  /* ***************** TEST POST-QUERY VALIDITY FILTERING ***************** */
   @Test
   public void testFilterPluginWarningsOnly() throws Exception {
-    ingestXmlFromResourceAndWait(WARNING_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceAndWait(ERROR_METACARD);
-
-    // Configure invalid filtering
-    configureMetacardValidityFilterPlugin(
-        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
+    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
     // Configure to filter metacards with validation warnings but not validation errors
-    configureFilterInvalidMetacards("false", "true", getAdminConfig());
+    Dictionary<String, Object> filterPluginProps =
+        configureMetacardValidityFilterPlugin(
+            Collections.singletonList("invalid-state=data-manager"), false, true, getAdminConfig());
 
-    testWithRetry(
-        () -> {
-          String query =
-              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-          ValidatableResponse response =
-              given()
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                  .body(query)
-                  .post(CSW_PATH.getUrl())
-                  .then();
+    query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
+    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
 
-          // clean metacard should be in results but not invalid one
-          response.body(not(containsString("warning metacard")));
-          response.body(containsString("clean metacard"));
-          response.body(containsString("error metacard"));
-        });
+    // Reset plugin
+    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
   }
 
   @Test
   public void testFilterPluginErrorsOnly() throws Exception {
-    ingestXmlFromResourceAndWait(ERROR_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    configureMetacardValidityFilterPlugin(
-        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
+    // Configure to filter metacards with validation errors but not validation warnings
+    Dictionary<String, Object> filterPluginProps =
+        configureMetacardValidityFilterPlugin(
+            Collections.singletonList("invalid-state=data-manager"), true, false, getAdminConfig());
 
-    testWithRetry(
-        () -> {
-          String query =
-              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-          ValidatableResponse response =
-              given()
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                  .body(query)
-                  .post(CSW_PATH.getUrl())
-                  .then();
+    query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
 
-          response.body(not(containsString("error metacard")));
-          response.body(containsString("clean metacard"));
-          response.body(containsString("warning metacard"));
-        });
+    // Reset plugin
+    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
   }
 
   @Test
   public void testFilterPluginWarningsAndErrors() throws Exception {
-    ingestXmlFromResourceAndWait(ERROR_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    // Configure invalid filtering
-    configureMetacardValidityFilterPlugin(
-        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
+    // Configure to filter metacards with validation errors and validation warnings
+    Dictionary<String, Object> filterPluginProps =
+        configureMetacardValidityFilterPlugin(
+            Collections.singletonList("invalid-state=data-manager"), true, true, getAdminConfig());
 
-    // configure to filter both metacards with validation errors and validation warnings
-    configureFilterInvalidMetacards("true", "true", getAdminConfig());
+    query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
+    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
 
-    testWithRetry(
-        () -> {
-          String query =
-              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-          ValidatableResponse response =
-              given()
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                  .body(query)
-                  .post(CSW_PATH.getUrl())
-                  .then();
-
-          response.body(not(containsString("error metacard")));
-          response.body(not(containsString("warning metacard")));
-          response.body(containsString("clean metacard"));
-        });
+    // Reset plugin
+    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
   }
 
   @Test
   public void testFilterPluginNoFiltering() throws Exception {
-    ingestXmlFromResourceAndWait(ERROR_METACARD);
-    ingestXmlFromResourceAndWait(CLEAN_METACARD);
-    ingestXmlFromResourceAndWait(WARNING_METACARD);
-
-    configureFilterInvalidMetacards("false", "false", getAdminConfig());
-
-    // Configure invalid filtering
-    configureMetacardValidityFilterPlugin(
-        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
-
-    testWithRetry(
-        () -> {
-          String query =
-              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-          ValidatableResponse response =
-              given()
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                  .body(query)
-                  .post(CSW_PATH.getUrl())
-                  .then();
-
-          response.body(containsString("error metacard"));
-          response.body(containsString("warning metacard"));
-          response.body(containsString("clean metacard"));
-        });
-  }
-
-  @Test
-  public void testValidationEnforcedUpdate() throws Exception {
     String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String cleanId = ingestXmlFromResourceAndWait(CLEAN_METACARD);
     String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    testWithRetry(
-        () -> {
-          String query =
-              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-          ValidatableResponse response =
-              given()
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                  .body(query)
-                  .post(CSW_PATH.getUrl())
-                  .then();
+    // Configure to not filter metacards with validation errors nor validation warnings
+    Dictionary<String, Object> filterPluginProps =
+        configureMetacardValidityFilterPlugin(
+            Collections.singletonList("invalid-state=data-manager"),
+            false,
+            false,
+            getAdminConfig());
 
-          response.body(containsString("error metacard"));
-          response.body(containsString("warning metacard"));
-        });
+    query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
 
-    configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
-    configureFilterInvalidMetacards("true", "true", getAdminConfig());
-
-    configureEnforcedMetacardValidators(
-        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
-
-    String errorMetacardXml = getFileContent(ERROR_METACARD);
-    given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(errorMetacardXml)
-        .put(new DynamicUrl(REST_PATH, errorId).getUrl())
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.SC_BAD_REQUEST);
-
-    String warningMetacardXml = getFileContent(WARNING_METACARD);
-    given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(warningMetacardXml)
-        .put(new DynamicUrl(REST_PATH, warningId).getUrl())
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.SC_BAD_REQUEST);
-
-    String warningIdXpath = format(METACARD_X_PATH, warningId);
-    String errorIdXpath = format(METACARD_X_PATH, errorId);
-
-    getOpenSearch("xml", null, null, "q=*")
-        .log()
-        .all()
-        .assertThat()
-        .body(hasXPath(warningIdXpath))
-        .body(hasXPath(warningIdXpath + "/string[@name='title']/value", is("warning metacard")))
-        .body(hasXPath(warningIdXpath + "/string[@name='validation-warnings']"))
-        .body(not(hasXPath(warningIdXpath + "/string[@name='validation-errors']")))
-        .body(hasXPath(errorIdXpath))
-        .body(hasXPath(errorIdXpath + "/string[@name='title']/value", is("error metacard")))
-        .body(not(hasXPath(errorIdXpath + "/string[@name='validation-warnings']")))
-        .body(hasXPath(errorIdXpath + "/string[@name='validation-errors']"));
-  }
-
-  @Test
-  public void testQueryingByValidationWarnings() throws Exception {
-    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
-    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
-
-    String query =
-        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
-
-    query =
-        new CswQueryBuilder()
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .getQuery();
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(not(hasXPath(format(CSW_RECORD_XPATH, warningId))));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
-
-    query =
-        new CswQueryBuilder()
-            .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_WARNINGS, "*")
-            .addLogicalOperator(OR)
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .getQuery();
-
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(not(hasXPath(format(CSW_RECORD_XPATH, warningId))));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
-
-    query =
-        new CswQueryBuilder()
-            .addLogicalOperator(NOT)
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .getQuery();
-
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(not(hasXPath(format(CSW_RECORD_XPATH, warningId))));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
-  }
-
-  @Test
-  public void testQueryingByValidationErrors() throws Exception {
-    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
-    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
-
-    String query =
-        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
-
-    query =
-        new CswQueryBuilder()
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
-            .getQuery();
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(not(hasXPath(format(CSW_RECORD_XPATH, errorId))));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
-
-    query =
-        new CswQueryBuilder()
-            .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_ERRORS, "*")
-            .addLogicalOperator(OR)
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
-            .getQuery();
-
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(not(hasXPath(format(CSW_RECORD_XPATH, errorId))));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
-
-    query =
-        new CswQueryBuilder()
-            .addLogicalOperator(NOT)
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
-            .getQuery();
-
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-
-    response.body(not(hasXPath(format(CSW_RECORD_XPATH, errorId))));
-    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
+    // Reset plugin
+    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
   }
 
   /**
@@ -596,26 +349,5 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               return false;
             });
     ids.forEach(CatalogTestCommons::deleteMetacardAndWait);
-  }
-
-  /**
-   * Setting configurations is performed asynchronously and there is no way to check if the
-   * configured bean has received a configuration update. This method provides a best effort
-   * workaround by retrying the test/assertions with a slight delay in between tries in an attempt
-   * to let the configuration thread catch up. The Runnable.run() method will be called in each
-   * attempt and all exceptions including AssertionErrors will be treated as a failed run and
-   * retried.
-   */
-  private void testWithRetry(Runnable runnable) {
-    with()
-        .pollInterval(1, SECONDS)
-        .await()
-        .atMost(30, SECONDS)
-        .ignoreExceptions()
-        .until(
-            () -> {
-              runnable.run();
-              return true;
-            });
   }
 }
