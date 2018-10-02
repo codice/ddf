@@ -53,7 +53,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.ddf.catalog.ui.metacard.workspace.transformer
+                            org.codice.ddf.catalog.ui.metacard.workspace.transformer,
+                            org.codice.ddf.catalog.ui.splitter
                         </Export-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,
