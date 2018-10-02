@@ -33,7 +33,7 @@
         <module>zip-splitter</module>
     </modules>
     <properties>
-        <cometd.version>3.0.9</cometd.version>
+        <cometd.version>3.1.4</cometd.version>
     </properties>
     <dependencyManagement>
         <dependencies>

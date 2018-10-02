@@ -36,8 +36,8 @@ import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.JSONContext;
-import org.cometd.common.Jackson1JSONContextClient;
-import org.cometd.server.Jackson1JSONContextServer;
+import org.cometd.common.JacksonJSONContextClient;
+import org.cometd.server.JacksonJSONContextServer;
 import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class WorkspaceService {
           if (workspacesList.size() == 1) {
             // Convert workspace's JSON representation back to nested maps of Map<String, Object>
             Map<String, Object> workspaces = (Map<String, Object>) workspacesList.get(0);
-            JSONContext.Client jsonContext = new Jackson1JSONContextClient();
+            JSONContext.Client jsonContext = new JacksonJSONContextClient();
             String json = (String) workspaces.get("workspaces_json_txt");
             LOGGER.debug("workspaces extracted JSON text:\n {}", json);
             Map<String, Object> workspacesMap;
@@ -104,7 +104,7 @@ public class WorkspaceService {
       } else {
         LOGGER.debug("Persisting workspaces for username = {}", username);
         // Use JSON serializer so that only "data" component is serialized, not entire Message
-        JSONContext.Server jsonContext = new Jackson1JSONContextServer();
+        JSONContext.Server jsonContext = new JacksonJSONContextServer();
         String json = jsonContext.getGenerator().generate(data);
         LOGGER.debug("workspaces JSON text:\n {}", json);
         PersistentItem item = new PersistentItem();
