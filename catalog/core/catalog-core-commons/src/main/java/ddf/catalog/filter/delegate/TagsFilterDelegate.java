@@ -62,7 +62,7 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
   @Override
   public Boolean not(Boolean operand) {
-    return tags == null ? operand : !operand;
+    return tags == null ? operand : false;
   }
 
   @Override

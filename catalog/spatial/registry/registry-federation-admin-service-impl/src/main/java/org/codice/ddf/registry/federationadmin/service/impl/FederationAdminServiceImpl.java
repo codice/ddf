@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+import com.google.common.collect.ImmutableSet;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -223,6 +224,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     List<Map.Entry<Serializable, Metacard>> updateList = new ArrayList<>();
     updateList.add(new AbstractMap.SimpleEntry<>(mcardId, updateMetacard));
 
+    properties.put(
+        "operation.query-tags",
+        ImmutableSet.of(RegistryConstants.REGISTRY_TAG, RegistryConstants.REGISTRY_TAG_INTERNAL));
+
     UpdateRequest updateRequest =
         new UpdateRequestImpl(updateList, Metacard.ID, properties, destinations);
 
@@ -290,7 +295,9 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         throw new FederationAdminException("Error looking up metacards to delete.", e);
       }
     }
-
+    properties.put(
+        "operation.query-tags",
+        ImmutableSet.of(RegistryConstants.REGISTRY_TAG, RegistryConstants.REGISTRY_TAG_INTERNAL));
     DeleteRequest deleteRequest =
         new DeleteRequestImpl(serializableIds, deleteField, properties, destinations);
     try {
