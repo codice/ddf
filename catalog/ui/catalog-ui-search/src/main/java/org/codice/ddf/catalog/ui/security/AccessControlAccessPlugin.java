@@ -19,7 +19,6 @@ import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_INDIVI
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ATTRIBUTE_TO_SET;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.isAnyObjectNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
@@ -53,14 +52,6 @@ public class AccessControlAccessPlugin implements AccessPlugin {
     this.subjectIdentitySupplier =
         () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
     this.subjectSupplier = () -> SecurityUtils.getSubject();
-  }
-
-  @VisibleForTesting
-  public AccessControlAccessPlugin(
-      SubjectIdentity subjectIdentity, Supplier<Subject> subjectSupplier) {
-    this.subjectIdentitySupplier =
-        () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
-    this.subjectSupplier = subjectSupplier;
   }
 
   // Equivalent to doing a set intersection of the subject with the access-admin list

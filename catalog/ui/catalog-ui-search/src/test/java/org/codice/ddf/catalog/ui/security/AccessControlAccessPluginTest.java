@@ -36,7 +36,6 @@ import ddf.security.SubjectIdentity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Before;
@@ -53,15 +52,11 @@ public class AccessControlAccessPluginTest {
 
   @Mock private Attribute mockAttribute;
 
-  @Mock private Attribute mockRolesAttribute;
-
   @Mock private Metacard mockMetacard;
 
   @Mock private Subject subject;
 
   private SubjectIdentity subjectIdentity = mock(SubjectIdentity.class);
-
-  private Supplier<Subject> shiroSubjectSupplier = () -> subject;
 
   @Before
   public void setUp() {
@@ -74,7 +69,7 @@ public class AccessControlAccessPluginTest {
 
     ThreadContext.bind(subject);
 
-    accessPlugin = new AccessControlAccessPlugin(subjectIdentity, shiroSubjectSupplier);
+    accessPlugin = new AccessControlAccessPlugin(subjectIdentity);
   }
 
   private UpdateRequest mockUpdateRequest(Map<String, Metacard> updates) {
