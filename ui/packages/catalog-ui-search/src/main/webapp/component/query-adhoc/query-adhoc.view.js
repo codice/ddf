@@ -25,9 +25,10 @@ define([
     'component/property/property',
     'component/singletons/user-instance',
     'js/Common',
-    'properties'
+    'properties',
+    'js/CQLUtils'
 ], function (Marionette, Backbone, _, $, template, CustomElements, store,
-           PropertyView, Property, user, Common, properties) {
+           PropertyView, Property, user, Common, properties, CQLUtils) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -96,11 +97,11 @@ define([
             var text = this.textField.currentView.model.getValue()[0];
             var cql;
             if (text.length === 0) {
-                cql = "anyText ILIKE '*'";
+                cql = CQLUtils.generateFilter('ILIKE', 'anyText', "*");
             } else {
-                cql = "anyText ILIKE '"+text+"'";
+                cql = CQLUtils.generateFilter('ILIKE', 'anyText', text);
             }
-            this.model.set('cql', cql);
+            this.model.set('cql', CQLUtils.transformFilterToCQL(cql));
         },
         save: function(){
             this.$el.find('form')[0].submit();
