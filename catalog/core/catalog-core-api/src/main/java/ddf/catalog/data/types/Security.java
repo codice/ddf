@@ -26,7 +26,7 @@ public interface Security {
    * {@link ddf.catalog.data.Attribute} name for adding more granularity for groups to discern who
    * can _only_ read
    */
-  String ACCESS_GROUPS_READ = "security.access-groups_read";
+  String ACCESS_GROUPS_READ = "security.access-groups-read";
 
   /**
    * {@link ddf.catalog.data.Attribute} name for storing the email addresses of users to enforce
@@ -38,7 +38,7 @@ public interface Security {
    * {@link ddf.catalog.data.Attribute} name for adding more granularity for individuals to discern
    * who can _only_ read
    */
-  String ACCESS_INDIVIDUALS_READ = "security.access-individuals_read";
+  String ACCESS_INDIVIDUALS_READ = "security.access-individuals-read";
 
   /**
    * {@link ddf.catalog.data.Attribute} name for storing list of individuals who have the ability to

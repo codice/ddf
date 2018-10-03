@@ -19,6 +19,7 @@ import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_INDIVI
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ATTRIBUTE_TO_SET;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.isAnyObjectNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
@@ -40,13 +41,26 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 public class AccessControlAccessPlugin implements AccessPlugin {
 
-  private Supplier<String> subjectSupplier;
+  private Supplier<String> subjectIdentitySupplier;
+
+  private Supplier<Subject> subjectSupplier;
 
   public AccessControlAccessPlugin(SubjectIdentity subjectIdentity) {
-    this.subjectSupplier = () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+    this.subjectIdentitySupplier =
+        () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+    this.subjectSupplier = () -> SecurityUtils.getSubject();
+  }
+
+  @VisibleForTesting
+  public AccessControlAccessPlugin(
+      SubjectIdentity subjectIdentity, Supplier<Subject> subjectSupplier) {
+    this.subjectIdentitySupplier =
+        () -> subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+    this.subjectSupplier = subjectSupplier;
   }
 
   // Equivalent to doing a set intersection of the subject with the access-admin list
@@ -54,20 +68,33 @@ public class AccessControlAccessPlugin implements AccessPlugin {
       (newMetacard) ->
           ATTRIBUTE_TO_SET
               .apply(newMetacard, Security.ACCESS_ADMINISTRATORS)
-              .contains(subjectSupplier.get());
+              .contains(subjectIdentitySupplier.get());
 
-  private final Predicate<Metacard> subjectHasWritePerms =
+  private final Predicate<Metacard> subjectHasRole =
+      (newMetacard) -> {
+        if (newMetacard.getAttribute(Security.ACCESS_GROUPS) == null) {
+          return false;
+        }
+        for (String item : ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_GROUPS)) {
+          return subjectSupplier.get().hasRole(item);
+        }
+        return false;
+      };
+
+  private final Predicate<Metacard> subjectHasIndividual =
       (newMetacard) ->
           ATTRIBUTE_TO_SET
-                  .apply(newMetacard, Security.ACCESS_GROUPS)
-                  .contains(subjectSupplier.get())
-              || ATTRIBUTE_TO_SET
-                  .apply(newMetacard, Security.ACCESS_INDIVIDUALS)
-                  .contains(subjectSupplier.get());
+              .apply(newMetacard, Security.ACCESS_INDIVIDUALS)
+              .contains(subjectIdentitySupplier.get());
+
+  private final Predicate<Metacard> subjectHasWritePerms =
+      (newMetacard) -> subjectHasRole.test(newMetacard) || subjectHasIndividual.test(newMetacard);
 
   private final Predicate<Metacard> subjectIsOwner =
       (newMetacard) ->
-          ATTRIBUTE_TO_SET.apply(newMetacard, Core.METACARD_OWNER).contains(subjectSupplier.get());
+          ATTRIBUTE_TO_SET
+              .apply(newMetacard, Core.METACARD_OWNER)
+              .contains(subjectIdentitySupplier.get());
 
   private boolean isAccessControlUpdated(Metacard prev, Metacard updated) {
     return !isAnyObjectNull(prev, updated)

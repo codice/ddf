@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,6 +36,7 @@ import ddf.security.SubjectIdentity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Before;
@@ -51,11 +53,15 @@ public class AccessControlAccessPluginTest {
 
   @Mock private Attribute mockAttribute;
 
+  @Mock private Attribute mockRolesAttribute;
+
   @Mock private Metacard mockMetacard;
 
   @Mock private Subject subject;
 
   private SubjectIdentity subjectIdentity = mock(SubjectIdentity.class);
+
+  private Supplier<Subject> shiroSubjectSupplier = () -> subject;
 
   @Before
   public void setUp() {
@@ -64,9 +70,11 @@ public class AccessControlAccessPluginTest {
     when(subjectIdentity.getUniqueIdentifier(subject)).thenReturn(MOCK_IDENTITY_ATTR);
     when(mockMetacard.getAttribute(Security.ACCESS_ADMINISTRATORS)).thenReturn(mockAttribute);
     when(mockAttribute.getValues()).thenReturn(Collections.singletonList(MOCK_IDENTITY_ATTR));
+    when(subject.hasRole(any())).thenReturn(true);
+
     ThreadContext.bind(subject);
 
-    accessPlugin = new AccessControlAccessPlugin(subjectIdentity);
+    accessPlugin = new AccessControlAccessPlugin(subjectIdentity, shiroSubjectSupplier);
   }
 
   private UpdateRequest mockUpdateRequest(Map<String, Metacard> updates) {
@@ -95,6 +103,8 @@ public class AccessControlAccessPluginTest {
                 MOCK_METACARD_ID,
                 Core.METACARD_OWNER,
                 "before",
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 SecurityAttributes.ACCESS_INDIVIDUALS,
                 ImmutableSet.of("admin")));
 
@@ -103,6 +113,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -119,6 +131,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("viewer"),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -129,6 +143,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("viewer"),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -145,6 +161,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -155,6 +173,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 Core.LOCATION,
@@ -173,6 +193,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS_READ,
@@ -183,6 +205,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 Core.LOCATION,
@@ -190,6 +214,7 @@ public class AccessControlAccessPluginTest {
                 SecurityAttributes.ACCESS_INDIVIDUALS_READ,
                 ImmutableList.of(MOCK_IDENTITY_ATTR)));
 
+    when(subject.hasRole(any())).thenReturn(false);
     UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
     accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
   }
@@ -202,6 +227,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_ADMINISTRATORS,
@@ -212,6 +239,8 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
+                SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_ADMINISTRATORS,

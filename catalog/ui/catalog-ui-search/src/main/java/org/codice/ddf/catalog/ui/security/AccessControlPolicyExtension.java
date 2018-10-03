@@ -83,7 +83,7 @@ public class AccessControlPolicyExtension implements PolicyExtension {
     hasAccessGroups = predicate(Constants.ROLES_CLAIM_URI, SecurityAttributes.ACCESS_GROUPS);
 
     hasAccessGroupsReadOnly =
-        predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_GROUPS_READ);
+        predicate(Constants.ROLES_CLAIM_URI, SecurityAttributes.ACCESS_GROUPS_READ);
 
     hasAccessIndividuals =
         predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_INDIVIDUALS);
@@ -126,11 +126,11 @@ public class AccessControlPolicyExtension implements PolicyExtension {
     // To be able to have viewing access to the metacard, you must satisfy the following criteria
     SecurityPredicate readPermsImplied =
         (sub, mc) ->
-            hasAccessAdministrators.apply(subject, metacard)
-                || hasAccessIndividuals.apply(subject, metacard)
-                || hasAccessGroups.apply(subject, metacard)
-                || hasAccessGroupsReadOnly.apply(subject, metacard)
-                || hasAccessIndividualsReadOnly.apply(subject, metacard);
+            hasAccessAdministrators.apply(sub, mc)
+                || hasAccessIndividuals.apply(sub, mc)
+                || hasAccessGroups.apply(sub, mc)
+                || hasAccessGroupsReadOnly.apply(sub, mc)
+                || hasAccessIndividualsReadOnly.apply(sub, mc);
 
     // get all permissions implied by the subject, this function returns what permissions
     // to filter from the key-value permission collection
