@@ -22,8 +22,7 @@ var properties = require('properties')
 // Note: using a non-secure resource will fail when running DDF with TLS.
 var geocoderOnlineEndpoint =
   'https://nominatim.openstreetmap.org/search?format=json&q='
-var geocoderOfflineEndpoint =
-  './internal/REST/v1/Locations?jsonp=loadJsonp&key=0&query='
+var geocoderOfflineEndpoint = './internal/REST/v1/Locations'
 var onlineGazetteer = properties.onlineGazetteer
 
 module.exports = Backbone.Model.extend({
@@ -38,66 +37,72 @@ module.exports = Backbone.Model.extend({
   },
   queryGazetteerOnline(input) {
     // Load in request string
-    return Cesium.loadJson(geocoderOnlineEndpoint + input)
-      .then(function(results) {
-        var bboxDegrees
-
-        // Extract desired fields
-        return results.map(function(resultObject) {
-          bboxDegrees = resultObject.boundingbox
-          return {
-            displayName: resultObject.display_name,
-            destination: Cesium.Rectangle.fromDegrees(
-              bboxDegrees[2],
-              bboxDegrees[0],
-              bboxDegrees[3],
-              bboxDegrees[1]
-            ),
-          }
-        })
-      })
-      .otherwise(
-        function(error) {
-          onlineGazetteer = false
-          // Run query against offline gazetteer
-          return this.queryGazetteerOffline(geocoderOfflineEndpoint, input)
-        }.bind(this)
-      )
-  },
-  queryGazetteerOffline(input) {
-    // Load in request string
-    return Cesium.loadText(geocoderOfflineEndpoint + input)
-      .then(function(results) {
-        // Strip out unwanted characters and parse JSON
-        var jsonResult = /\((.+)\)/.exec(results)[1]
-        var jsonObject = JSON.parse('[' + jsonResult + ']')
-
-        // Extract desired fields
-        return jsonObject.map(function(locationResult) {
-          var resultValues = locationResult.resourceSets[0].resources[0]
-          if (typeof resultValues != 'undefined') {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: geocoderOnlineEndpoint + input,
+        success: function(results) {
+          const formattedResults = results.map(function(resultObject) {
+            const bboxDegrees = resultObject.boundingbox
             return {
-              displayName: resultValues.name,
+              displayName: resultObject.display_name,
               destination: Cesium.Rectangle.fromDegrees(
-                resultValues.bbox[1],
-                resultValues.bbox[0],
-                resultValues.bbox[3],
-                resultValues.bbox[2]
+                bboxDegrees[2],
+                bboxDegrees[0],
+                bboxDegrees[3],
+                bboxDegrees[1]
               ),
             }
-          } else {
-            return {
-              displayName: 'Location not found',
-            }
-          }
-        })
+          })
+          resolve(formattedResults)
+        },
+        error: function(error) {
+          reject(error)
+          announcement.announce({
+            title: 'Online gazetteer not working, please try again.',
+            message:
+              'If the problem persists, contact your administrator. Caused by: ' +
+              String(error),
+            type: 'error',
+          })
+        },
       })
-      .otherwise(function(error) {
-        announcement.announce({
-          title: 'Geocoder Error',
-          message: String(error),
-          type: 'error',
-        })
+    })
+  },
+  queryGazetteerOffline(input) {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: geocoderOfflineEndpoint,
+        data: 'jsonp=jsonp&query=' + input,
+        contentType: 'application/javascript',
+        dataType: 'jsonp',
+        jsonp: 'jsonp',
+        success: function(result) {
+          const resource = result.resourceSets[0].resources[0]
+          const formattedResult =
+            typeof resource !== 'undefined'
+              ? {
+                  displayName: resource.name,
+                  destination: Cesium.Rectangle.fromDegrees(
+                    resource.bbox[1],
+                    resource.bbox[0],
+                    resource.bbox[3],
+                    resource.bbox[2]
+                  ),
+                }
+              : {
+                  displayName: 'Location not found',
+                }
+          resolve(formattedResult)
+        },
+        error: function(error) {
+          reject(error)
+          announcement.announce({
+            title: 'Geocoder Error',
+            message: String(error),
+            type: 'error',
+          })
+        },
       })
+    })
   },
 })
