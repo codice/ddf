@@ -132,5 +132,10 @@ describe('tokenize', () => {
       const result = cql.write(filter)
       expect(result).equals("anyText ILIKE '%%\\%\\%\\_\\___\\*\\*\\?\\?'")
     })
+
+    it('parses single quote property name', () => {
+      const result = cql.read("'ext.test-attribute' = 'this is a test'")
+      expect(result.property).equals('ext.test-attribute')
+    })
   })
 })

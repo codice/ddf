@@ -23,7 +23,8 @@ define(['moment'], function(moment) {
     temporalClass = 'Temporal',
     timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
     patterns = {
-      PROPERTY: /^([_a-zA-Z]\w*|"[^"]+")/,
+      //Allows for non-standard single-quoted property names
+      PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
       COMPARISON: /^(=|<>|<=|<|>=|>|LIKE|ILIKE)/i,
       IS_NULL: /^IS NULL/i,
       COMMA: /^,/,
@@ -252,6 +253,8 @@ define(['moment'], function(moment) {
       var tok = tokens.shift()
       switch (tok.type) {
         case 'PROPERTY':
+          //Remove single quotes if they exist in property name
+          tok.text = tok.text.replace(/^'|'$/g, '')
         case 'GEOMETRY':
         case 'VALUE':
         case 'TIME':
