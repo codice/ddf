@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Codice Foundation
  *
  * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -134,15 +134,15 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       geometries.add(geometry);
     }
 
-    if (geometryCollection.getClass() == MultiPoint.class) {
+    if (geometryCollection instanceof MultiPoint) {
       return GEOMETRY_FACTORY.createMultiPoint(geometries.toArray(new Point[0]));
     }
 
-    if (geometryCollection.getClass() == MultiLineString.class) {
+    if (geometryCollection instanceof MultiLineString) {
       return GEOMETRY_FACTORY.createMultiLineString(geometries.toArray(new LineString[0]));
     }
 
-    if (geometryCollection.getClass() == MultiPolygon.class) {
+    if (geometryCollection instanceof MultiPolygon) {
       return GEOMETRY_FACTORY.createMultiPolygon(geometries.toArray(new Polygon[0]));
     }
 
@@ -152,11 +152,11 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
   /**
    * Convert the non-standard LinearRing geometry to a LineString geometry
    *
-   * @param geometry LinearRing to be converted
+   * @param linearRing LinearRing to be converted
    * @return new LineString geometry
    */
-  private Geometry linearRingToLineString(Geometry geometry) {
-    return GEOMETRY_FACTORY.createLineString(((LinearRing) geometry).getCoordinateSequence());
+  private Geometry linearRingToLineString(LinearRing linearRing) {
+    return GEOMETRY_FACTORY.createLineString(linearRing.getCoordinateSequence());
   }
 
   /**
@@ -186,7 +186,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     }
 
     if (geometry instanceof LinearRing) {
-      return linearRingToLineString(geometry);
+      return linearRingToLineString((LinearRing) geometry);
     }
 
     return geometry;
