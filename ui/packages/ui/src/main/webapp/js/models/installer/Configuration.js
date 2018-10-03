@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, location*/
 /** Main view page for add. */
 define([
     'backbone',
@@ -79,6 +79,11 @@ define([
                 propertiesMap[model.get('key')] = model.get('value');
             });
 
+            var devMode = location.search.indexOf('dev=true') > -1 ? true : false;
+            if (devMode) {
+                var hostname = propertiesMap['org.codice.ddf.external.hostname'];
+                propertiesMap['org.codice.ddf.system.hostname'] = hostname;
+            }
 
             data.arguments = [propertiesMap];
             data = JSON.stringify(data);
