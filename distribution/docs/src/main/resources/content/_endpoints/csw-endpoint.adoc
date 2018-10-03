@@ -1755,6 +1755,30 @@ The following example shows a request for a record to be inserted.
 </csw:Transaction>
 ----
 
+[NOTE]
+====
+The `typeName` attribute in the `csw:Insert` element can be used to specify the
+document type that's being inserted and to select the appropriate input
+transformer.
+====
+
+.Sample XML transformer insert
+[source,xml]
+----
+<csw:Transaction service="CSW" version="2.0.2" verboseResponse="true" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+  <csw:Insert typeName="xml">
+    <metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml"
+          xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/"
+          xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
+        <type>ddf.metacard</type>
+        <string name="title">
+            <value>PlainXml near</value>
+        </string>
+    </metacard>
+  </csw:Insert>
+</csw:Transaction>
+----
+
 ====== Transaction Insert Response
 
 The following is an example of an `application/xml` response to the Transaction Insert sub-operation:
