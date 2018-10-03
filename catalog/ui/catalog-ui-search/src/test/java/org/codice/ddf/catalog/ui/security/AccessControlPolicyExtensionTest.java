@@ -188,7 +188,7 @@ public class AccessControlPolicyExtensionTest {
     List<Permission> before = ImmutableList.of(ROLES_READ_ONLY);
 
     CollectionPermission subject =
-        subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
+        subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("owner")));
 
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
