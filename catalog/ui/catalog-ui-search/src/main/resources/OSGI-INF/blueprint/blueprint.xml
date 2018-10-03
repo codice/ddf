@@ -83,6 +83,7 @@
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <argument ref="uuidGenerator"/>
+        <argument ref="facetWhitelistConfiguration" />
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui"
@@ -142,6 +143,17 @@
         <argument ref="subjectIdentity"/>
     </bean>
 
+
+    <bean id="facetAttributeAccessPlugin"
+          class="org.codice.ddf.catalog.ui.security.FacetAttributeAccessPlugin">
+        <argument ref="facetWhitelistConfiguration" />
+    </bean>
+
+    <service interface="ddf.catalog.plugin.AccessPlugin">
+        <ref component-id="facetAttributeAccessPlugin"/>
+    </service>
+
+
     <service interface="ddf.catalog.plugin.AccessPlugin">
         <ref component-id="accessControlAccessPlugin"/>
     </service>
@@ -164,6 +176,13 @@
           class="org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.security"
+                update-strategy="container-managed"/>
+    </bean>
+
+    <bean id="facetWhitelistConfiguration"
+          class="org.codice.ddf.catalog.ui.security.FacetWhitelistConfiguration">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.facetwhitelist"
                 update-strategy="container-managed"/>
     </bean>
 

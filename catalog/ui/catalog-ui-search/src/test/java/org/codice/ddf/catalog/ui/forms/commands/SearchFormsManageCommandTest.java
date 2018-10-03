@@ -120,8 +120,12 @@ public class SearchFormsManageCommandTest {
     List<String> idToDelete = ImmutableList.of("1", "2");
     DeleteRequest mockDeleteReq = new DeleteRequestImpl(idToDelete.toArray(new String[0]));
     verify(catalogFramework).delete(refEq(mockDeleteReq));
-    assertThat(this.getOutput(), containsString("\u001B[93mDeleted: \u001B[32m1\u001B[m\n"));
-    assertThat(this.getOutput(), containsString("\u001B[93mDeleted: \u001B[32m2\u001B[m\n"));
+    assertThat(
+        this.getOutput(),
+        containsString("\u001B[93mDeleted: \u001B[32m1\u001B[m" + System.lineSeparator()));
+    assertThat(
+        this.getOutput(),
+        containsString("\u001B[93mDeleted: \u001B[32m2\u001B[m" + System.lineSeparator()));
   }
 
   @Test
@@ -131,10 +135,14 @@ public class SearchFormsManageCommandTest {
     assertThat(
         this.getOutput(),
         containsString(
-            "\u001B[93mTitle: title1\n"
-                + "\u001B[32m\t- 1\u001B[m\n"
-                + "\u001B[93mTitle: title2\n"
-                + "\u001B[32m\t- 2\u001B[m\n"));
+            "\u001B[93mTitle: title1"
+                + System.lineSeparator()
+                + "\u001B[32m\t- 1\u001B[m"
+                + System.lineSeparator()
+                + "\u001B[93mTitle: title2"
+                + System.lineSeparator()
+                + "\u001B[32m\t- 2\u001B[m"
+                + System.lineSeparator()));
   }
 
   private static void interceptSystemOut() {
