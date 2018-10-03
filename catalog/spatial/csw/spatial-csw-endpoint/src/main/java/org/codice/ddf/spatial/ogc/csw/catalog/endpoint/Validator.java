@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;

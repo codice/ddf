@@ -150,6 +150,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryFilterTransformerProvider;
 import org.geotools.filter.text.cql2.CQLException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -164,8 +165,6 @@ import org.xml.sax.SAXException;
 
 /** CswEndpoint provides a server implementation of the Catalogue Service for Web (CSW) 2.0.2. */
 public class CswEndpoint implements Csw {
-
-  protected static final String QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD = "typeNames";
 
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
@@ -1173,7 +1172,7 @@ public class CswEndpoint implements Csw {
         .map(
             queryFilterTransformerServiceReference ->
                 queryFilterTransformerServiceReference.getProperty(
-                    QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+                    CswQueryFilterTransformerProvider.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
         .filter(Objects::nonNull)
         .filter(List.class::isInstance)
         .map(List.class::cast)

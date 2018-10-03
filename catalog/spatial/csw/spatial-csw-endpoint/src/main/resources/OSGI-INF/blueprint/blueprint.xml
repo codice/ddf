@@ -19,6 +19,7 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
@@ -113,6 +114,10 @@
                             ref="inputTransformers"/>
     </reference-list>
 
+
+    <bean id="cswActionTransformerProvider"
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
+
     <reference-list id="cswActionTransformers"
       interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer"
       availability="optional">
@@ -121,8 +126,6 @@
           ref="cswActionTransformerProvider"/>
     </reference-list>
 
-    <bean id="cswActionTransformerProvider"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
 
     <bean id="cswExceptionMapperProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
@@ -168,18 +171,6 @@
         <property name="description" value="The endpoint used for csw."/>
         <property name="bindingType" value="CSW_2.0.2"/>
     </bean>
-
-    <reference-list id="queryFilterTransformers"
-                    interface="ddf.catalog.transform.QueryFilterTransformer"
-                    member-type="service-reference"
-                    availability="optional">
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind"
-                            ref="queryFilterTransformerProvider"/>
-    </reference-list>
-
-    <bean id="queryFilterTransformerProvider"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.QueryFilterTransformerProvider"/>
 
     <bean id="validator"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">

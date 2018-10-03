@@ -47,6 +47,7 @@ import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.QueryFilterTransformerProvider;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -221,6 +222,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected SecureCxfClientFactory<Csw> factory;
   protected SecureCxfClientFactory<CswSubscribe> subscribeClientFactory;
   protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
+  protected QueryFilterTransformerProvider cswQueryFilterTransformerProvider;
   protected List<String> jaxbElementClassNames = new ArrayList<>();
   protected Map<String, String> jaxbElementClassMap = new HashMap<>();
   protected String filterlessSubscriptionId = null;
@@ -257,7 +259,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     this.encryptionService = encryptionService;
     this.context = context;
     this.cswSourceConfiguration = cswSourceConfiguration;
-    this.cswTransformConverter = provider;
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
@@ -1090,6 +1091,15 @@ public abstract class AbstractCswSource extends MaskableImpl
     this.cswTransformConverter = provider;
   }
 
+  public QueryFilterTransformerProvider getCswQueryFilterTransformerProvider() {
+    return cswQueryFilterTransformerProvider;
+  }
+
+  public void setCswQueryFilterTransformerProvider(
+      QueryFilterTransformerProvider cswQueryFilterTransformerProvider) {
+    this.cswQueryFilterTransformerProvider = cswQueryFilterTransformerProvider;
+  }
+
   public String getForceSpatialFilter() {
     return forceSpatialFilter;
   }
@@ -1161,6 +1171,12 @@ public abstract class AbstractCswSource extends MaskableImpl
               CswConstants.CSW_NAMESPACE_PREFIX);
     }
 
+    QueryRequest transformedQueryRequest =
+        cswQueryFilterTransformerProvider
+            .getTransformer(cswSourceConfiguration.getQueryTypeName())
+            .map(it -> it.transform(queryRequest, null))
+            .orElse(queryRequest);
+
     queryType.setTypeNames(Arrays.asList(queryTypeQName));
     if (null != elementSetType) {
       queryType.setElementSetName(createElementSetName(elementSetType));
@@ -1169,11 +1185,11 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else {
       queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
     }
-    SortByType sortBy = createSortBy(queryRequest);
+    SortByType sortBy = createSortBy(transformedQueryRequest);
     if (sortBy != null) {
       queryType.setSortBy(sortBy);
     }
-    QueryConstraintType constraint = createQueryConstraint(queryRequest);
+    QueryConstraintType constraint = createQueryConstraint(transformedQueryRequest);
     if (null != constraint) {
       queryType.setConstraint(constraint);
     }

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
+package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class QueryFilterTransformerProviderTest extends QueryFilterTransformerProvider {
+public class CswQueryFilterTransformerProviderTest extends CswQueryFilterTransformerProvider {
   private BundleContext bundleContext = mock(BundleContext.class);
 
   private static final String NAMESPACE = "{namespace}test";
@@ -50,7 +50,7 @@ public class QueryFilterTransformerProviderTest extends QueryFilterTransformerPr
     serviceReference = mock(ServiceReference.class);
     when(serviceReference.getProperty(ID_KEY)).thenReturn(NAMESPACE);
     when(bundleContext.getService(serviceReference)).thenReturn(transformer);
-    when(serviceReference.getProperty(CswEndpoint.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+    when(serviceReference.getProperty(QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
         .thenReturn(Collections.singletonList(TYPE_NAME));
   }
 

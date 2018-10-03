@@ -54,6 +54,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryFilterTransformer;
+import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;

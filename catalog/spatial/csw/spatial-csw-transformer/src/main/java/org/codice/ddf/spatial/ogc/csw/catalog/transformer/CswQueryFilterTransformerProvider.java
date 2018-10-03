@@ -12,9 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
+package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
 import ddf.catalog.transform.QueryFilterTransformer;
+import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,9 +36,12 @@ import org.slf4j.LoggerFactory;
  * Manages a reference list of {@link QueryFilterTransformer}'s by mapping them to the {@link
  * QName}'s they apply to.
  */
-public class QueryFilterTransformerProvider {
+public class CswQueryFilterTransformerProvider implements QueryFilterTransformerProvider {
+
+  public static final String QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD = "typeNames";
+
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(QueryFilterTransformerProvider.class);
+      LoggerFactory.getLogger(CswQueryFilterTransformerProvider.class);
 
   private Map<QName, QueryFilterTransformer> queryFilterTransformerMap = new ConcurrentHashMap<>();
 
@@ -100,8 +104,7 @@ public class QueryFilterTransformerProvider {
   }
 
   private List<String> getTypeNames(ServiceReference<QueryFilterTransformer> reference) {
-    Object typeNameObject =
-        reference.getProperty(CswEndpoint.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD);
+    Object typeNameObject = reference.getProperty(QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD);
     if (typeNameObject instanceof List) {
       return (List<String>) typeNameObject;
     }

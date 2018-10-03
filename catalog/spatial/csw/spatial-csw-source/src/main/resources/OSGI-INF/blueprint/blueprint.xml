@@ -30,6 +30,7 @@
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
 
     <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
@@ -83,6 +84,7 @@
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
+            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
             <property name="isCqlForced" value="false"/>
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
@@ -131,6 +133,7 @@
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
+            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
             <property name="isCqlForced" value="false"/>
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
@@ -173,6 +176,7 @@
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
+            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
             <property name="isCqlForced" value="false"/>
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
@@ -217,6 +221,7 @@
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
+            <property name="cswQueryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
             <property name="isCqlForced" value="false"/>
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
