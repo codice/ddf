@@ -592,7 +592,7 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
-      return createVectorLayer(locationModel, feature)
+      return this.createVectorLayer(locationModel, feature)
     },
     showMultiPolygonShape: function(locationModel) {
       let lineObject = locationModel
@@ -609,7 +609,7 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
-      return createVectorLayer(locationModel, feature)
+      return this.createVectorLayer(locationModel, feature)
     },
     createVectorLayer: function(locationModel, feature) {
       let vectorSource = new Openlayers.source.Vector({
