@@ -23,7 +23,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: UI</name>
-    <artifactId>ui</artifactId>
+    <artifactId>catalog-ui</artifactId>
     <groupId>ddf.ui</groupId>
     <packaging>pom</packaging>
     <modules>
