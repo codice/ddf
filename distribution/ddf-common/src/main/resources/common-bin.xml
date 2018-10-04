@@ -48,6 +48,8 @@
                 <exclude>**/pax/web/**/7.0.0/*</exclude>
                 <exclude>**/netty/**/4.0.33.Final/*</exclude>
                 <exclude>**/netty/**/4.0.33.Final</exclude>
+                <exclude>**/org.apache.servicemix.bundles.spring-core/5.0.4.RELEASE_1/*</exclude>
+                <exclude>**/org.apache.servicemix.bundles.spring-tx/5.0.4.RELEASE_1/*</exclude>
                 <!--
                 Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
                 when running client script it logs in as "karaf" user without requiring a password.

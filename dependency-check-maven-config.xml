@@ -507,8 +507,8 @@
 
     <suppress>
         <notes>
-            These CVEs are not an issue since the software is not exposing STOMP over WebSocket
-            endpoints.
+            These CVEs affect the spring-core and spring-tx bundles below version 5.0.4.
+            DDF is using versions of those bundles above 5.0.4.
         </notes>
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1275</cve>

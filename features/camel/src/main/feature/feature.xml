@@ -17,11 +17,8 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
-
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
-
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
-
     <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
 
     <!--START Camel Features-->

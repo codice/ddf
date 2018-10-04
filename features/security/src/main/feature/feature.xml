@@ -22,6 +22,7 @@
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
 
     <feature name="security-logger" version="${project.version}"
              description="Logs incoming and outgoing requests">
@@ -125,7 +126,7 @@
 
     <feature name="platform-paxweb-jettyconfig" version="${project.version}"
              description="Custom Session Manager">
-        <feature version="${spring.version}_1">spring</feature>
+        <feature>spring</feature>
         <feature>apache-commons</feature>
         <feature>pax-jetty</feature>
         <feature>session-invalidator</feature>
@@ -272,7 +273,7 @@
         <feature>security-core-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
-        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.2.RELEASE</bundle>
+        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/${spring-ldap-core.version}</bundle>
     </feature>
 
     <feature name="security-sts-server" version="${project.version}"

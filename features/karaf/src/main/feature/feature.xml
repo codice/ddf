@@ -31,6 +31,38 @@
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:org.ops4j.pax.transx/pax-transx-features/${pax.transx.version}/xml/features</repository>
 
+    <!-- overwrite karaf's spring with an upgraded version to address vulnerabilities -->
+  <feature name="spring" description="Spring 5.0.x support" version="${spring.version}_1">
+    <bundle dependency="true" start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/1.0_6
+    </bundle>
+    <bundle start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-core/${spring.version}_1
+    </bundle>
+    <bundle start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-expression/${spring.version}_1
+    </bundle>
+    <bundle start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-beans/${spring.version}_1
+    </bundle>
+    <bundle start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-aop/${spring.version}_1
+    </bundle>
+    <bundle start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-context/${spring.version}_1
+    </bundle>
+    <bundle start-level="30">
+      mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-context-support/${spring.version}_1
+    </bundle>
+  </feature>
+
+  <feature name="spring-tx" description="Spring 5.0.x Transaction (TX) support" version="${spring.version}_1">
+    <feature version="[5.0.4.RELEASE_1,5.1)">spring</feature>
+    <bundle start-level="30">
+    mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spring-tx/${spring.version}_1
+  </bundle>
+  </feature>
+
     <!--START Enterprise Features-->
     <!-- DO NOT EDIT
          All feature definitions come from 3rd party feature file:

@@ -18,6 +18,7 @@
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
 
     <feature name="util-uuidgenerator-api" version="${project.version}"
              description="UUID Generator API">

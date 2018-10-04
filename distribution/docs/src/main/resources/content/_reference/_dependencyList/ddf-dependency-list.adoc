@@ -350,9 +350,9 @@
 * org.slf4j:slf4j-simple:jar:1.7.1
 * org.slf4j:slf4j-simple:jar:1.7.5
 * org.spockframework:spock-core:jar:1.1-groovy-2.4
-* org.springframework.ldap:spring-ldap-core:jar:1.3.2.RELEASE
+* org.springframework.ldap:spring-ldap-core:jar:2.3.2.RELEASE
 * org.springframework.osgi:spring-osgi-core:jar:1.2.1
-* org.springframework:spring-core:jar:5.0.4.RELEASE
+* org.springframework:spring-core:jar:5.0.5.RELEASE
 * org.taktik:mpegts-streamer:jar:0.1.0_2
 * org.twitter4j:twitter4j-core:jar:4.0.4
 * org.xmlunit:xmlunit-matchers:jar:2.5.1

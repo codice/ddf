@@ -24,7 +24,7 @@
     <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="kernel" version="${project.version}"
-             description="Minimual set of features and dependencies commonly used.">
+             description="Minimal set of features and dependencies commonly used.">
         <feature version="${karaf.version}">standard</feature>
         <feature version="${karaf.version}">eventadmin</feature>
         <feature version="${karaf.version}">jasypt-encryption</feature>
