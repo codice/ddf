@@ -85,17 +85,17 @@ const BoundingBoxUsngMgrs = props => {
   )
 }
 
-const BoundingBoxUtm = props => {
+const BoundingBoxUtmUps = props => {
   const {
-    utmUpperLeftEasting,
-    utmUpperLeftNorthing,
-    utmUpperLeftZone,
-    utmUpperLeftHemisphere,
+    utmUpsUpperLeftEasting,
+    utmUpsUpperLeftNorthing,
+    utmUpsUpperLeftZone,
+    utmUpsUpperLeftHemisphere,
 
-    utmLowerRightEasting,
-    utmLowerRightNorthing,
-    utmLowerRightZone,
-    utmLowerRightHemisphere,
+    utmUpsLowerRightEasting,
+    utmUpsLowerRightNorthing,
+    utmUpsLowerRightZone,
+    utmUpsLowerRightHemisphere,
 
     cursor,
   } = props
@@ -108,23 +108,23 @@ const BoundingBoxUtm = props => {
           <div>
             <TextField
               label="Easting"
-              value={utmUpperLeftEasting}
-              onChange={cursor('utmUpperLeftEasting')}
+              value={utmUpsUpperLeftEasting}
+              onChange={cursor('utmUpsUpperLeftEasting')}
               addon="m"
             />
             <TextField
               label="Northing"
-              value={utmUpperLeftNorthing}
-              onChange={cursor('utmUpperLeftNorthing')}
+              value={utmUpsUpperLeftNorthing}
+              onChange={cursor('utmUpsUpperLeftNorthing')}
               addon="m"
             />
             <Zone
-              value={utmUpperLeftZone}
-              onChange={cursor('utmUpperLeftZone')}
+              value={utmUpsUpperLeftZone}
+              onChange={cursor('utmUpsUpperLeftZone')}
             />
             <Hemisphere
-              value={utmUpperLeftHemisphere}
-              onChange={cursor('utmUpperLeftHemisphere')}
+              value={utmUpsUpperLeftHemisphere}
+              onChange={cursor('utmUpsUpperLeftHemisphere')}
             />
           </div>
         </Group>
@@ -135,23 +135,23 @@ const BoundingBoxUtm = props => {
           <div>
             <TextField
               label="Easting"
-              value={utmLowerRightEasting}
-              onChange={cursor('utmLowerRightEasting')}
+              value={utmUpsLowerRightEasting}
+              onChange={cursor('utmUpsLowerRightEasting')}
               addon="m"
             />
             <TextField
               label="Northing"
-              value={utmLowerRightNorthing}
-              onChange={cursor('utmLowerRightNorthing')}
+              value={utmUpsLowerRightNorthing}
+              onChange={cursor('utmUpsLowerRightNorthing')}
               addon="m"
             />
             <Zone
-              value={utmLowerRightZone}
-              onChange={cursor('utmLowerRightZone')}
+              value={utmUpsLowerRightZone}
+              onChange={cursor('utmUpsLowerRightZone')}
             />
             <Hemisphere
-              value={utmLowerRightHemisphere}
-              onChange={cursor('utmLowerRightHemisphere')}
+              value={utmUpsLowerRightHemisphere}
+              onChange={cursor('utmUpsLowerRightHemisphere')}
             />
           </div>
         </Group>
@@ -218,7 +218,7 @@ const BoundingBox = props => {
   const inputs = {
     latlon: BoundingBoxLatLon,
     usng: BoundingBoxUsngMgrs,
-    utm: BoundingBoxUtm,
+    utmUps: BoundingBoxUtmUps,
     dms: BoundingBoxDms,
   }
 
@@ -230,7 +230,7 @@ const BoundingBox = props => {
         <RadioItem value="latlon">Lat/Lon (DD)</RadioItem>
         <RadioItem value="dms">Lat/Lon (DMS)</RadioItem>
         <RadioItem value="usng">USNG / MGRS</RadioItem>
-        <RadioItem value="utm">UTM</RadioItem>
+        <RadioItem value="utmUps">UTM / UPS</RadioItem>
       </Radio>
       {Component !== null ? <Component {...props} /> : null}
     </div>
