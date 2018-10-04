@@ -63,7 +63,7 @@ public class PdfInputTransformer implements InputTransformer {
 
   private int previewMaxLength = 30000;
 
-  private int metadataMaxLength = 30000;
+  private int metadataMaxLength = 5000000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PdfInputTransformer.class);
 
