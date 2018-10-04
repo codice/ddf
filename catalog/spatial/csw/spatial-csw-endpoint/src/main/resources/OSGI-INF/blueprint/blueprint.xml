@@ -114,7 +114,6 @@
                             ref="inputTransformers"/>
     </reference-list>
 
-
     <bean id="cswActionTransformerProvider"
       class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
 
@@ -126,7 +125,6 @@
           ref="cswActionTransformerProvider"/>
     </reference-list>
 
-
     <bean id="cswExceptionMapperProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
     <bean id="cswRecordCollectionWriter"
@@ -136,7 +134,7 @@
 
     <reference id="transformProvider" interface="com.thoughtworks.xstream.converters.Converter"
                filter="(id=csw)"/>
-
+    <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
     <bean id="transactionMessageBodyReader"
@@ -150,6 +148,27 @@
     <reference id="eventProcessor" interface="ddf.catalog.event.EventProcessor"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+    <bean id="validator"
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">
+        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
+    </bean>
+
+    <bean id="metacardCswRecordMap" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap"/>
+
+    <bean id="cswFilterFactory"
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
+        <argument ref="metacardCswRecordMap"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <property name="attributeRegistry" ref="attributeRegistry"/>
+        <property name="schemaToTagsMapping">
+            <array value-type="java.lang.String">
+                <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
+            </array>
+        </property>
+        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
+    </bean>
 
     <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint">
         <argument ref="catalogFramework"/>
@@ -172,33 +191,12 @@
         <property name="bindingType" value="CSW_2.0.2"/>
     </bean>
 
-    <bean id="validator"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">
-        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
-    </bean>
-
-    <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
-
-    <bean id="cswFilterFactory"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
-        <argument ref="metacardCswRecordMap"/>
-        <argument ref="filterBuilder"/>
-        <argument ref="filterAdapter"/>
-        <property name="attributeRegistry" ref="attributeRegistry"/>
-        <property name="schemaToTagsMapping">
-            <array value-type="java.lang.String">
-                <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
-            </array>
-        </property>
-        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
-    </bean>
-
-    <bean id="metacardCswRecordMap" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap"/>
     <bean id="cswQueryFilterTransformer"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer">
         <argument ref="metacardCswRecordMap"/>
         <argument ref="attributeRegistry"/>
     </bean>
+
     <service ref="cswQueryFilterTransformer" interface="ddf.catalog.transform.QueryFilterTransformer">
         <service-properties>
             <entry key="id">
@@ -240,7 +238,6 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-
     <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
                                 interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
         <cm:managed-component
@@ -251,7 +248,6 @@
             <property name="deliveryMethodUrl" value=""/>
             <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
         </cm:managed-component>
-
     </cm:managed-service-factory>
 
     <service ref="CswSubscriptionSvc" interface="ddf.catalog.event.Subscriber"/>

@@ -138,7 +138,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImp
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryFilterTransformerProvider;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opengis.filter.sort.SortBy;
@@ -233,7 +232,7 @@ public class CswEndpointTest {
     when(mockBundle.getBundleContext()).thenReturn(mockBundleContext);
     ServiceReference<QueryFilterTransformer> serviceReference = mock(ServiceReference.class);
     when(serviceReference.getProperty(
-            CswQueryFilterTransformerProvider.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+            QueryFilterTransformer.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
         .thenReturn(Collections.singletonList(THIRD_PARTY_TYPE_NAME));
     when(mockBundleContext.getServiceReferences(QueryFilterTransformer.class, null))
         .thenReturn(Collections.singletonList(serviceReference));

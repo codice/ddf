@@ -50,7 +50,8 @@ public class CswQueryFilterTransformerProviderTest extends CswQueryFilterTransfo
     serviceReference = mock(ServiceReference.class);
     when(serviceReference.getProperty(ID_KEY)).thenReturn(NAMESPACE);
     when(bundleContext.getService(serviceReference)).thenReturn(transformer);
-    when(serviceReference.getProperty(QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+    when(serviceReference.getProperty(
+            QueryFilterTransformer.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
         .thenReturn(Collections.singletonList(TYPE_NAME));
   }
 

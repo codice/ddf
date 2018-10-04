@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class CswQueryFilterTransformerProvider implements QueryFilterTransformerProvider {
 
-  public static final String QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD = "typeNames";
-
   private static final Logger LOGGER =
       LoggerFactory.getLogger(CswQueryFilterTransformerProvider.class);
 
@@ -104,7 +102,8 @@ public class CswQueryFilterTransformerProvider implements QueryFilterTransformer
   }
 
   private List<String> getTypeNames(ServiceReference<QueryFilterTransformer> reference) {
-    Object typeNameObject = reference.getProperty(QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD);
+    Object typeNameObject =
+        reference.getProperty(QueryFilterTransformer.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD);
     if (typeNameObject instanceof List) {
       return (List<String>) typeNameObject;
     }
