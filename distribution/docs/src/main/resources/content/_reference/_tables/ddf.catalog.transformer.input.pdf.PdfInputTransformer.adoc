@@ -35,7 +35,7 @@
 |metadataMaxLength
 |Integer
 |The maximum length of xml metadata to be extracted.
-|30000
+|5000000
 |true
 
 |===

@@ -29,7 +29,7 @@
         <AD description="The maximum length of xml metadata to be extracted."
             name="Maximum xml metadata length (bytes)" id="metadataMaxLength" required="true"
             type="Integer"
-            default="30000"/>
+            default="5000000"/>
 
     </OCD>
 
