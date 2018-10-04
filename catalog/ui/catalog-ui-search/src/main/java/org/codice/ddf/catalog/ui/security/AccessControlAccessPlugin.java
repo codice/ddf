@@ -17,6 +17,7 @@ import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_ADMIN_
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_GROUPS_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_INDIVIDUALS_HAS_CHANGED;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ATTRIBUTE_TO_SET;
+import static org.codice.ddf.catalog.ui.security.AccessControlUtil.CONTAINS_ACL_ATTRIBUTES;
 import static org.codice.ddf.catalog.ui.security.AccessControlUtil.isAnyObjectNull;
 
 import ddf.catalog.data.Metacard;
@@ -67,7 +68,9 @@ public class AccessControlAccessPlugin implements AccessPlugin {
           return false;
         }
         for (String item : ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_GROUPS)) {
-          return subjectSupplier.get().hasRole(item);
+          if (subjectSupplier.get().hasRole(item)) {
+            return true;
+          }
         }
         return false;
       };
@@ -136,6 +139,7 @@ public class AccessControlAccessPlugin implements AccessPlugin {
             .stream()
             .map(Map.Entry::getValue)
             .filter(Objects::nonNull)
+            .filter(CONTAINS_ACL_ATTRIBUTES)
             .filter(nonWriteableMetacard)
             .findFirst()
             .isPresent();

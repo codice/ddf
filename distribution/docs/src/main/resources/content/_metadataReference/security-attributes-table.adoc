@@ -19,16 +19,37 @@
 
 |[[security.access-groups]]security.access-groups
 |Attribute name for storing groups to enforce access
-controls upon.
+controls upon that will enable a user to read and write a metacard.
 |List of Strings
 |< 1024 characters per entry
 |
 
 |[[security.access-individuals]]security.access-individuals
 |Attribute name for storing the email addresses of users to
-enforce access controls upon.
+enforce access controls upon that will enable the ability to read and write a metacard.
 |List of Strings
 |A valid email address per RFC 5322.
 | 
+
+|[[security.access-individuals-read]]security.access-individuals-read
+|Attribute name for storing the email addresses of users to
+enforce access controls upon that can read, but not explicitly write to a metacard.
+|List of Strings
+|A valid email address per RFC 5322.
+| 
+
+|[[security.access-groups-read]]security.access-groups-read
+|Attribute name for storing groups to enforce access
+controls upon that will enable a user to read, but not necessarily write to a metacard.
+|List of Strings
+|< 1024 characters per entry
+|
+
+|[[security.access-administrators]]security.access-administrators
+|Attribute name for explicitly stating who has the permissions to modify the access control values of a metacard. These
+values include changing the security.access-groups, security.access-individuals and the security.access-administrators values.
+|List of Strings
+|A valid email address per RFC 5322.
+|
 
 |===
