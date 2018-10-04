@@ -261,6 +261,9 @@ define([
                     return encodeURIComponent(str);
                 }
                 return str;
+            },
+            inc: function(value) {
+                return parseInt(value) + 1;
             }
         };
 
