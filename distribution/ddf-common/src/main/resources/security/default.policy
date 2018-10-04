@@ -58,6 +58,8 @@ grant
 
 grant codeBase "file:/admin-core-appservice" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
+    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
+    permission java.io.FilePermission "${ddf.home.perm}bin${/}restart.jvm", "read, write";
 }
 
 grant codeBase "file:/org.apache.felix.fileinstall" {

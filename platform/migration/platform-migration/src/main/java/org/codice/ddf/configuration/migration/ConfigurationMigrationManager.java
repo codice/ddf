@@ -70,6 +70,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String INVALID_NULL_CONSUMER = "invalid null consumer";
 
+  private static final String DDF_HOME_KEY = "ddf.home";
+
   private final List<Migratable> migratables;
 
   private final SystemService system;
@@ -97,7 +99,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
                   () ->
                       ConfigurationMigrationManager.getProductInfo(
                           Paths.get(
-                              System.getProperty("ddf.home"),
+                              System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
                               ConfigurationMigrationManager.PRODUCT_BRANDING_FILENAME),
                           "branding"))
               .toLowerCase();
@@ -115,7 +117,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
               () ->
                   ConfigurationMigrationManager.getProductInfo(
                       Paths.get(
-                          System.getProperty("ddf.home"),
+                          System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
                           ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME),
                       "version"));
     } catch (SecurityException | IOException e) {
@@ -387,7 +389,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(new MigrationException(Messages.DECRYPT_INTERNAL_ERROR, exportFile, e));
     }
     report.end();
-    if ((zip == null) || (report.hasErrors())) {
+    if ((zip == null) || report.hasErrors()) {
       SecurityLogger.audit("Errors decrypting configuration settings in file {}", exportFile);
       report.record(new MigrationException(Messages.DECRYPT_FAILURE, exportFile));
       FileUtils.deleteQuietly(decryptFile.toFile()); // delete the decrypted zip if any
@@ -407,15 +409,26 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   private void restart(MigrationReport report) {
     try {
       if (!restartServiceWrapperIfControlled()) {
-        LOGGER.debug("asking karaf to restart");
-        System.setProperty("karaf.restart.jvm", "true");
-        system.reboot();
+        // create the restart.jvm file such that we would rely on the ddf script to restart
+        // ourselves
+        // and not on karaf. This will have the advantage to restart anything else (e.g. solr) that
+        // is also managed by that script
+        LOGGER.debug("generating restart.jvm file");
+        FileUtils.touch(
+            Paths.get(
+                    System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
+                    "bin",
+                    "restart.jvm")
+                .toFile());
+        // make sure Karaf is not going to restart us as we want the ddf script to do it
+        System.setProperty("karaf.restart.jvm", "false");
+        system.halt();
       }
-      SecurityLogger.audit("Rebooting system");
+      SecurityLogger.audit("Restarting system");
       report.record(Messages.RESTARTING_SYSTEM);
     } catch (Exception e) {
-      SecurityLogger.audit("Failed to reboot system");
-      LOGGER.debug("failed to request a reboot: ", e);
+      SecurityLogger.audit("Failed to restart system");
+      LOGGER.debug("failed to request a restart: ", e);
       report.record(Messages.RESTART_SYSTEM);
     }
   }
@@ -423,7 +436,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   private boolean restartServiceWrapperIfControlled()
       throws InstanceNotFoundException, MBeanException, ReflectionException,
           MalformedObjectNameException {
-    if ((System.getProperty("wrapper.key")) != null) {
+    if (System.getProperty("wrapper.key") != null) {
       LOGGER.debug("asking service wrapper to restart");
       ManagementFactory.getPlatformMBeanServer()
           .invoke(

@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -117,6 +116,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
             Mockito.withSettings()
                 .useConstructor(migratables, mockSystemService)
                 .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+    System.setProperty(RESTART_JVM, "true");
   }
 
   @After
@@ -312,12 +312,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
-        "Restart system property was not set", System.getProperty(RESTART_JVM), equalTo("true"));
+        "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
-    verify(mockSystemService).reboot();
+    verify(mockSystemService).halt();
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
@@ -339,12 +340,16 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
-    assertThat("Restart system property was set", System.getProperty(RESTART_JVM), nullValue());
+    assertThat(
+        "Restart system property was not cleared",
+        System.getProperty(RESTART_JVM),
+        equalTo("true"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(false));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
-    verify(mockSystemService, Mockito.never()).reboot();
+    verify(mockSystemService, Mockito.never()).halt();
     verify(mockWrapperManager).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
@@ -364,12 +369,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
-        "Restart system property was not set", System.getProperty(RESTART_JVM), equalTo("true"));
+        "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
-    verify(mockSystemService).reboot();
+    verify(mockSystemService).halt();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class),
@@ -395,7 +401,8 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
-        "Restart system property was not set", System.getProperty(RESTART_JVM), equalTo("true"));
+        "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
     reportHasInfoMessage(
         report.infos(),
         equalTo(
@@ -406,7 +413,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
                 + ".dar]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
-    verify(mockSystemService).reboot();
+    verify(mockSystemService).halt();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class),
@@ -450,17 +457,19 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
   public void doImportSucceedsWithKarafAndFailsToReboot() throws Exception {
     expectZipWithChecksum(true);
     expectImportDelegationIsSuccessful();
-    doThrow(Exception.class).when(mockSystemService).reboot();
+    doThrow(Exception.class).when(mockSystemService).halt();
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
     assertThat("Import was successful", report.wasSuccessful(), is(true));
-    assertThat("Restart system property was set", System.getProperty(RESTART_JVM), equalTo("true"));
+    assertThat(
+        "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Please restart the system for changes to take effect."));
-    verify(mockSystemService).reboot();
+    verify(mockSystemService).halt();
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
@@ -478,12 +487,16 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
     assertThat("Import was successful", report.wasSuccessful(), is(true));
-    assertThat("Restart system property was set", System.getProperty(RESTART_JVM), nullValue());
+    assertThat(
+        "Restart system property was not cleared",
+        System.getProperty(RESTART_JVM),
+        equalTo("true"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(false));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Please restart the system for changes to take effect."));
-    verify(mockSystemService, Mockito.never()).reboot();
+    verify(mockSystemService, Mockito.never()).halt();
     verify(mockWrapperManager).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(

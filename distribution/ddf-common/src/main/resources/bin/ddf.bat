@@ -34,7 +34,7 @@ IF "%start.solr%" == "true" (
 REM Actually invoke ddf to gain restart support
 IF "%start.ddf%" == "true" CALL "%DIRNAME%karaf.bat" %ARGS%
 
-REM Check if restart was requested by ddf_on_error.bat
+REM Check if a restart.jvm file was created to request a restart
 IF EXIST "%DIRNAME%restart.jvm" (
     ECHO Restarting JVM...
     CALL :STOP_SOLR
