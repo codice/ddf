@@ -11,19 +11,21 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.internal;
+package org.codice.ddf.catalog.ui.splitter;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.activation.MimeType;
 
-/** Locate {@link Splitter} services based on the mime-type of the content being split. */
-public interface SplitterLocator {
+/** This represents the basic properties associated with transformers. */
+public interface ServiceProperties {
 
-  /**
-   * Find the {@link Splitter}s that can handle the given mime-type.
-   *
-   * @param mimeType the mime-type of the content to be split
-   * @return list of splitters
-   */
-  List<Splitter> find(MimeType mimeType);
+  /** The transformer ID. */
+  String getId();
+
+  /** The set of mime-types handled by the transformer. */
+  Set<MimeType> getMimeTypes();
+
+  /** All properties associated with the transformer. */
+  Map<String, Object> getProperties();
 }

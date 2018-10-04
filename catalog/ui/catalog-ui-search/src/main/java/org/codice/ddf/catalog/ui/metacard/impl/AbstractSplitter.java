@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.activation.MimeType;
 import org.codice.ddf.catalog.ui.metacard.internal.ServicePropertiesConstants;
-import org.codice.ddf.catalog.ui.metacard.internal.Splitter;
+import org.codice.ddf.catalog.ui.splitter.Splitter;
 
 public abstract class AbstractSplitter implements Splitter {
 

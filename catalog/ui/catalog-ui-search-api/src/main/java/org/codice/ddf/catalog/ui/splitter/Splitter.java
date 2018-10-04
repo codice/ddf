@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.internal;
+package org.codice.ddf.catalog.ui.splitter;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -29,9 +29,11 @@ public interface Splitter extends ServiceProperties {
    * @param arguments any arguments to be used in the transformation. Keys are specific to each
    *     {@link Splitter} implementation
    * @return a stream of StorableResource
-   * @throws IOException
+   * @throws IOException if there is an error splitting and moves on to the next splitting service
+   * @throws StopSplitterExecutionException if there is an error splitting and execution flow must
+   *     be killed
    */
   Stream<StorableResource> split(
       StorableResource storableResource, Map<String, ? extends Serializable> arguments)
-      throws IOException;
+      throws IOException, StopSplitterExecutionException;
 }
