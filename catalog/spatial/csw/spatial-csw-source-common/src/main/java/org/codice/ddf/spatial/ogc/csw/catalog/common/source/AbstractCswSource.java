@@ -1172,10 +1172,12 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     QueryRequest transformedQueryRequest =
-        cswQueryFilterTransformerProvider
-            .getTransformer(cswSourceConfiguration.getQueryTypeName())
-            .map(it -> it.transform(queryRequest, null))
-            .orElse(queryRequest);
+        cswQueryFilterTransformerProvider != null
+            ? cswQueryFilterTransformerProvider
+                .getTransformer(cswSourceConfiguration.getQueryTypeName())
+                .map(it -> it.transform(queryRequest, null))
+                .orElse(queryRequest)
+            : queryRequest;
 
     queryType.setTypeNames(Arrays.asList(queryTypeQName));
     if (null != elementSetType) {
