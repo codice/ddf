@@ -124,6 +124,9 @@ define([
       this.$el.find('form')[0].submit()
       this.saveToModel()
     },
+    isValid: function() {
+      return this.textField.currentView.isValid()
+    },
     setDefaultTitle: function() {
       var title = this.textField.currentView.model.getValue()[0]
       if (title.length === 0) {

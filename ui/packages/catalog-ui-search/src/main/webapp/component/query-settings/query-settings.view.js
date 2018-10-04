@@ -28,6 +28,8 @@ const SortItemCollectionView = require('component/sort/sort.view')
 const Common = require('js/Common')
 const properties = require('properties')
 const plugin = require('plugins/query-settings')
+const announcement = require('component/announcement')
+import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 const ResultForm = properties.hasExperimentalEnabled()
   ? require('component/result-form/result-form')
   : {}
@@ -205,12 +207,23 @@ module.exports = plugin(
     saveToModel: function() {
       this.model.set(this.toJSON())
     },
+    isValid: function() {
+      return this.settingsSortField.currentView.collection.models.length !== 0
+    },
     save: function() {
+      if (!this.isValid()) {
+        announcement.announce(InvalidSearchFormMessage)
+        return
+      }
       this.saveToModel()
       this.cancel()
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run: function() {
+      if (!this.isValid()) {
+        announcement.announce(InvalidSearchFormMessage)
+        return
+      }
       this.saveToModel()
       this.cancel()
       this.model.startSearch()
