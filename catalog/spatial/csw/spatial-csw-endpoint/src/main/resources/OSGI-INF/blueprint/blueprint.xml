@@ -206,6 +206,13 @@
                     <value>{urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0}RegistryPackage</value>
                 </list>
             </entry>
+            <entry key="typeNames">
+                <list>
+                  <value>csw:Record</value>
+                  <value>gmd:MD_Metadata</value>
+                  <value>rim:RegistryPackage</value>
+                </list>
+            </entry>
         </service-properties>
     </service>
 

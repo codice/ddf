@@ -85,13 +85,7 @@ public class CswQueryFilterTransformerProvider implements QueryFilterTransformer
     if (StringUtils.isEmpty(typeName)) {
       return Optional.empty();
     }
-
-    QName qName = typeNameQNameMap.get(typeName);
-    if (qName == null) {
-      return Optional.empty();
-    }
-
-    return Optional.ofNullable(queryFilterTransformerMap.get(qName));
+    return getTransformer(typeNameQNameMap.get(typeName));
   }
 
   public synchronized Optional<QueryFilterTransformer> getTransformer(QName qName) {
