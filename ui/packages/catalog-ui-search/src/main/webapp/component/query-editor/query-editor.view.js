@@ -185,9 +185,15 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   showText: function() {
+    var translationToBasicMap = translateFilterToBasicMap(
+      cql.simplify(cql.read(this.model.get('cql')))
+    )
     this.queryContent.show(
       new QueryAdhoc({
         model: this.model,
+        text: translationToBasicMap.propertyValueMap.anyText
+          ? translationToBasicMap.propertyValueMap.anyText[0].value
+          : '',
       })
     )
   },
