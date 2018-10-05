@@ -17,15 +17,26 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 
 /**
- * <b> This code is experimental. While this interface is functional and tested, it may change or be
- * removed in a future version of the library. </b>
- *
- * <p>Manages a reference list of {@link QueryFilterTransformer}'s by mapping them to the typenames
- * they apply to.
+ * Provider interface to obtain the appropriate {@link QueryFilterTransformer} given qName or
+ * typeName
  */
 public interface QueryFilterTransformerProvider {
 
+  /**
+   * Look up the {@link QueryFilterTransformer} that can provide Query Filter transformation for the
+   * given qName
+   *
+   * @param qName
+   * @return {@link QueryFilterTransformer}
+   */
   Optional<QueryFilterTransformer> getTransformer(QName qName);
 
+  /**
+   * Look up the {@link QueryFilterTransformer} that can provide Query Filter transformation for the
+   * given typeName
+   *
+   * @param typeName
+   * @return {@link QueryFilterTransformer}
+   */
   Optional<QueryFilterTransformer> getTransformer(String typeName);
 }
