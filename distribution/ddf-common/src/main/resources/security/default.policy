@@ -73,6 +73,7 @@ grant codeBase "file:/platform-osgi-condpermadmin/acdebugger-backdoor" {
     permission org.osgi.framework.ServicePermission "org.codice.acdebugger.PermissionService", "get, register";
     permission org.osgi.framework.ServicePermission "org.osgi.service.condpermadmin.ConditionalPermissionAdmin", "get";
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.util.PropertyPermission "/", "read";
 }
 
 grant codeBase "file:/org.apache.felix.configadmin" {
