@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
@@ -55,7 +57,7 @@
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.14</ddf.support.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.4</acdebugger.version>
+        <acdebugger.version>1.5</acdebugger.version>
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
