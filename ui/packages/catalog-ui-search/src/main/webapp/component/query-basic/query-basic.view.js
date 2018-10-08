@@ -412,7 +412,7 @@ define([
           model: new Property({
             value: [this.filter.anyText ? this.filter.anyText[0].value : ''],
             id: 'Text',
-            placeholder: 'Text to search for.  Use "%" or "*" for wildcard.',
+            placeholder: 'Text to search for.  Use "*" for wildcard.',
           }),
         })
       )
