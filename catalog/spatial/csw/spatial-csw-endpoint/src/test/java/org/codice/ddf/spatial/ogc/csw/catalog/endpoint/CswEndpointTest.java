@@ -33,6 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.io.ParseException;
 import ddf.catalog.CatalogFramework;
@@ -233,7 +234,7 @@ public class CswEndpointTest {
     ServiceReference<QueryFilterTransformer> serviceReference = mock(ServiceReference.class);
     when(serviceReference.getProperty(
             QueryFilterTransformer.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
-        .thenReturn(Collections.singletonList(THIRD_PARTY_TYPE_NAME));
+        .thenReturn(ImmutableList.of(CswConstants.CSW_RECORD, THIRD_PARTY_TYPE_NAME));
     when(mockBundleContext.getServiceReferences(QueryFilterTransformer.class, null))
         .thenReturn(Collections.singletonList(serviceReference));
 
@@ -2008,14 +2009,11 @@ public class CswEndpointTest {
                 contains(
                     CswConstants.CONSTRAINT_LANGUAGE_FILTER, CswConstants.CONSTRAINT_LANGUAGE_CQL));
           } else if (StringUtils.equals(CswConstants.TYPE_NAMES_PARAMETER, parameter.getName())) {
-
-            // TODO : Remove conditional when GMD Metacard Transformer is merged (DDF-1976)
             if (StringUtils.equals(op.getName(), CswConstants.TRANSACTION)) {
               assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
             } else {
               assertThat(
-                  parameter.getValue(),
-                  hasItems(CswConstants.CSW_RECORD, GmdConstants.GMD_METACARD_TYPE_NAME));
+                  parameter.getValue(), hasItems(CswConstants.CSW_RECORD, THIRD_PARTY_TYPE_NAME));
             }
           }
         }
