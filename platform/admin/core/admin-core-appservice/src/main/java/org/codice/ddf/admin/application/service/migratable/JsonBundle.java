@@ -16,7 +16,6 @@ package org.codice.ddf.admin.application.service.migratable;
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
-import org.boon.json.annotations.JsonIgnore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
@@ -25,20 +24,28 @@ public class JsonBundle implements JsonValidatable {
   public static final String UNINSTALLED_STATE_STRING =
       JsonBundle.getStateString(Bundle.UNINSTALLED);
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final String name;
+  @Nullable // only because Gson may not set it
+  private String name;
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final Version version;
+  @Nullable // only because Gson may not set it
+  private Version version;
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final Long id; // Long used to detect missing Json entries as null
+  @Nullable // only because Gson may not set it
+  private Long id; // Long used to detect missing Json entries as null
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final Integer state; // Integer used to detect missing Json entries as null
+  @Nullable // only because Gson may not set it
+  private Integer state; // Integer used to detect missing Json entries as null
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final String location;
+  @Nullable // only because Gson may not set it
+  private String location;
+
+  public JsonBundle() {
+    this.name = null;
+    this.version = null;
+    this.id = null;
+    this.state = null;
+    this.location = null;
+  }
 
   /**
    * Constructs a new <code>JsonBundle</code> based on the given bundle.
@@ -141,7 +148,6 @@ public class JsonBundle implements JsonValidatable {
    *
    * @return a simple representation for this bundle state
    */
-  @JsonIgnore
   public SimpleState getSimpleState() {
     return JsonBundle.getSimpleState(state);
   }

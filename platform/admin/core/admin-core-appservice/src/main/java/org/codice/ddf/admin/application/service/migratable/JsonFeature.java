@@ -25,28 +25,40 @@ import org.apache.karaf.features.FeaturesService;
 public class JsonFeature implements JsonValidatable {
   private static final String FEATURE_OSGI_REQUIREMENT_FORMAT = "feature:%s/[%s,%s]";
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final String name;
+  @Nullable // only because Gson may not set it
+  private String name;
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final String id;
+  @Nullable // only because Gson may not set it
+  private String id;
 
-  @Nullable private final String version;
+  @Nullable private String version;
 
-  @Nullable private final String description;
+  @Nullable private String description;
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final FeatureState state;
+  @Nullable // only because Gson may not set it
+  private FeatureState state;
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final Boolean required; // Boolean used to detect missing Json entries as null
+  @Nullable // only because Gson may not set it
+  private Boolean required; // Boolean used to detect missing Json entries as null
 
-  @Nullable private final String region;
+  @Nullable private String region;
 
-  @Nullable private final String repository;
+  @Nullable private String repository;
 
-  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
-  private final Integer startLevel; // Integer used to detect missing Json entries as null
+  @Nullable // only because Gson may not set it
+  private Integer startLevel; // Integer used to detect missing Json entries as null
+
+  JsonFeature() {
+    this.name = null;
+    this.id = null;
+    this.version = null;
+    this.description = null;
+    this.state = null;
+    this.required = null;
+    this.region = null;
+    this.repository = null;
+    this.startLevel = null;
+  }
 
   /**
    * Constructs a new <code>JsonFeature</code> based on the given feature.
@@ -54,7 +66,7 @@ public class JsonFeature implements JsonValidatable {
    * @param feature the feature to create a Json representation for
    * @param featureService service used for retrieving info for features
    * @throws NullPointerException if <code>feature</code> or <code>featureService </code> is <code>
-   *     null</code>
+   *      null</code>
    */
   public JsonFeature(Feature feature, FeaturesService featureService) {
     this(

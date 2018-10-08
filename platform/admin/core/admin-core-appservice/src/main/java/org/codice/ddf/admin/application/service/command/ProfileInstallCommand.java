@@ -13,8 +13,7 @@
  */
 package org.codice.ddf.admin.application.service.command;
 
-import static org.boon.Boon.fromJson;
-
+import com.google.gson.reflect.TypeToken;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,6 +40,7 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.admin.application.service.migratable.JsonUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.service.resolver.ResolutionException;
 import org.slf4j.Logger;
@@ -243,7 +243,9 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
     try {
       profileMap =
           (Map<String, List<String>>)
-              fromJson(FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8));
+              JsonUtils.fromJson(
+                  FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8),
+                  new TypeToken<Map<String, List<String>>>() {}.getType());
       SecurityLogger.audit("Read profile {} from {}", profileName, profileFile.getAbsolutePath());
     } catch (FileNotFoundException e) {
       LOGGER.debug(

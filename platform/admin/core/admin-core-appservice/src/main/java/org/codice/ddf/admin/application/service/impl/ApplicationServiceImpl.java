@@ -39,10 +39,10 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
 import org.apache.shiro.SecurityUtils;
-import org.boon.Boon;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.admin.application.service.migratable.JsonUtils;
 import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -88,7 +88,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     for (File appDef : appDefinitions) {
       try {
         ApplicationImpl app =
-            Boon.fromJson(IOUtils.toString(appDef.toURI()), ApplicationImpl.class);
+            JsonUtils.fromJson(IOUtils.toString(appDef.toURI()), ApplicationImpl.class);
         if (isPermittedToViewFeature(app.getName())) {
           app.loadBundles(bundlesByLocation);
           apps.add(app);

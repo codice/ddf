@@ -22,8 +22,7 @@ public interface JsonValidatable {
    * Validates this object.
    *
    * <p><i>Note:</i> This method is required because objects of this class are deserialized with
-   * Boon which bypasses constructors and setters by using the {@link sun.misc.Unsafe} class which
-   * can lead to an inconsistent and unexpected state.
+   * Gson which bypasses setters which can lead to an inconsistent and unexpected state.
    *
    * @throws IllegalArgumentException if this object is invalid
    */
