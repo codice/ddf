@@ -557,6 +557,12 @@
         <argument ref="persistentStore"/>
     </bean>
 
+    <service ref="workspacePersistentStore" interface="org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore">
+        <service-properties>
+            <entry key="id" value="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl"/>
+        </service-properties>
+    </service>
+
     <reference id="smtpClient" availability="mandatory"
                interface="org.codice.ddf.platform.email.SmtpClient"/>
 
@@ -595,7 +601,6 @@
             persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"
             update-strategy="container-managed"/>
         <property name="queryTimeoutMinutes" value="5"/>
-        <property name="cronString" value="0 0 0 * * ?"/>
         <property name="queryTimeInterval" value="1440"/>
         <argument>
             <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.QueryUpdateSubscriberList">

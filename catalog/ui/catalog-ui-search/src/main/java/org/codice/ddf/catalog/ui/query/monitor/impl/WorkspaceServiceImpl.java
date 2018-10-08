@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -49,6 +48,7 @@ import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -223,7 +223,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   private List<Map<String, Object>> findSubscriptions() {
     try {
-      return persistentStore.get(SUBSCRIPTIONS_TYPE, "", 0, maxSubscriptions);
+      return persistentStore.get(
+          PersistenceType.SUBSCRIPTION_TYPE.toString(), "", 0, maxSubscriptions);
     } catch (PersistenceException e) {
       LOGGER.debug("Failed to get subscriptions for workspaces.", e);
     }

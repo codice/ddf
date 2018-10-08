@@ -28,10 +28,6 @@
             name="Notification Time Interval" id="queryTimeInterval" type="Integer"
             default="1440"/>
 
-        <AD description="Email Subscription Interval (Cron Expression)"
-            name="Email Subscription Interval" id="cronString" type="String"
-            default="0 0 0 * * ?"/>
-
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">

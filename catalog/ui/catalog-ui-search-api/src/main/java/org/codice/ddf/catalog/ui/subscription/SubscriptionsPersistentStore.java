@@ -11,13 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.query.monitor.api;
+package org.codice.ddf.catalog.ui.subscription;
 
 import java.util.Set;
 
 public interface SubscriptionsPersistentStore {
-
-  String SUBSCRIPTIONS_TYPE = "subscriptions";
 
   /**
    * Associate a set of email addresses with an ID. Adding an email that is already associated with

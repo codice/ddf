@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
+import static org.codice.ddf.persistence.PersistentStore.PersistenceType.SUBSCRIPTION_TYPE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -42,7 +43,6 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
-import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
@@ -105,8 +105,7 @@ public class WorkspaceServiceImplTest {
     when(attribute.getValue()).thenReturn(id);
     when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
     when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
-    when(persistentStore.get(
-            eq(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE), anyString(), eq(0), eq(100)))
+    when(persistentStore.get(eq(SUBSCRIPTION_TYPE.toString()), anyString(), eq(0), eq(100)))
         .thenReturn(Collections.singletonList(Collections.singletonMap("id_txt", id)));
 
     when(result.getMetacard()).thenReturn(metacard);

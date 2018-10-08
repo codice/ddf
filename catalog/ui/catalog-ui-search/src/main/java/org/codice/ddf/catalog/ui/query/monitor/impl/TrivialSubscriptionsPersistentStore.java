@@ -17,7 +17,7 @@ import static org.apache.commons.lang3.Validate.notBlank;
 
 import java.util.Collections;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
+import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 
 public class TrivialSubscriptionsPersistentStore implements SubscriptionsPersistentStore {
 

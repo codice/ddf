@@ -26,7 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.MetacardFormatter;
 import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;
-import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
+import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.platform.email.SmtpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
