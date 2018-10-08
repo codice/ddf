@@ -14,22 +14,29 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
+import org.apache.commons.collections4.map.LinkedMap;
 import org.codice.ddf.migration.MigrationException;
 
-/**
- * This class provides utility functions for dealing with Json objects returned by the <code>
- * org.boon.json</code> library.
- */
+/** This class provides utility functions for dealing with Json objects. */
 public class JsonUtils {
   @SuppressWarnings("PMD.DefaultPackage" /* designed as an internal service within this package */)
   @VisibleForTesting
-  static final ObjectMapper MAPPER = JsonFactory.create();
+  static final ObjectMapper MAPPER = new ObjectMapper();
 
   private JsonUtils() {}
 
@@ -151,5 +158,113 @@ public class JsonUtils {
           String.format("[%s] is not a Json %s", key, clazz.getSimpleName().toLowerCase()));
     }
     return clazz.cast(v);
+  }
+
+  /** Dummy class used to replace Boon with Gson. */
+  public static class ObjectMapper {
+    private final Gson gson;
+
+    private ObjectMapper() {
+      final CustomizedObjectTypeAdapter adapter = new CustomizedObjectTypeAdapter();
+
+      this.gson =
+          new GsonBuilder()
+              .serializeNulls()
+              .registerTypeHierarchyAdapter(Map.class, adapter)
+              .registerTypeHierarchyAdapter(List.class, adapter)
+              .registerTypeAdapter(Double.class, adapter)
+              .registerTypeAdapter(String.class, adapter)
+              .create();
+    }
+
+    /**
+     * Dummy method used to simulate the old boon library into.
+     *
+     * @return this
+     */
+    public ObjectMapper parser() {
+      return this;
+    }
+
+    /**
+     * Serializes any Java value as JSON output, using output stream provided (using encoding UTF8).
+     *
+     * <p><i>Note:</i> This method does not close the underlying stream explicitly here.
+     *
+     * @param out the output stream where to write the correspond Json
+     * @param value the value to be converted to Json
+     * @throws IOException if an I/O error occurred
+     */
+    public void writeValue(OutputStream out, Object value) throws IOException {
+      final OutputStreamWriter writer = new OutputStreamWriter(out);
+
+      gson.toJson(value, writer);
+      writer.flush();
+    }
+
+    /**
+     * Parses the given Json string into a corresponding map.
+     *
+     * @param json the Json string to be parsed
+     * @return the corresponding map
+     */
+    public Map<String, Object> parseMap(String json) {
+      return gson.fromJson(json, new TypeToken<Map<String, Object>>() {}.getType());
+    }
+  }
+
+  /** Gson type adapter used to handle numbers as long the way Boon was doing. */
+  private static class CustomizedObjectTypeAdapter extends TypeAdapter<Object> {
+    private final TypeAdapter<Object> delegate = new Gson().getAdapter(Object.class);
+
+    @Override
+    public void write(JsonWriter out, Object value) throws IOException {
+      delegate.write(out, value);
+    }
+
+    @Override
+    public Object read(JsonReader in) throws IOException {
+      final JsonToken token = in.peek();
+
+      switch (token) {
+        case BEGIN_ARRAY:
+          final List<Object> list = new ArrayList<>();
+
+          in.beginArray();
+          while (in.hasNext()) {
+            list.add(read(in));
+          }
+          in.endArray();
+          return list;
+        case BEGIN_OBJECT:
+          final Map<String, Object> map = new LinkedMap<>();
+
+          in.beginObject();
+          while (in.hasNext()) {
+            map.put(in.nextName(), read(in));
+          }
+          in.endObject();
+          return map;
+        case STRING:
+          return in.nextString();
+        case NUMBER:
+          final String n = in.nextString();
+
+          if (n.indexOf('.') == -1) {
+            try {
+              return Long.parseLong(n);
+            } catch (NumberFormatException e) { // ignore and handle it as a double
+            }
+          }
+          return Double.parseDouble(n);
+        case BOOLEAN:
+          return in.nextBoolean();
+        case NULL:
+          in.nextNull();
+          return null;
+        default:
+          throw new IllegalStateException("unknown gson token: " + token);
+      }
+    }
   }
 }

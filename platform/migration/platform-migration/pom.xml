@@ -101,8 +101,9 @@
             <version>${commons-codec.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
@@ -186,7 +187,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.74</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>

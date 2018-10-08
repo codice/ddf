@@ -216,14 +216,13 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     Assert.assertThat(entries, Matchers.aMapWithSize(1));
     Assert.assertThat(entries, Matchers.hasKey(MigrationContextImpl.METADATA_FILENAME.toString()));
-    final Object ometadata =
-        JsonUtils.MAPPER.fromJson(
+    final Map<String, Object> ometadata =
+        JsonUtils.MAPPER.parseMap(
             decrypt(
                 entries.get(MigrationContextImpl.METADATA_FILENAME.toString()).getContent(),
                 MigrationZipConstants.getDefaultKeyPathFor(exportFile)));
 
-    Assert.assertThat(ometadata, Matchers.instanceOf(Map.class));
-    assertMetaData((Map<String, Object>) ometadata);
+    assertMetaData(ometadata);
   }
 
   @Test
