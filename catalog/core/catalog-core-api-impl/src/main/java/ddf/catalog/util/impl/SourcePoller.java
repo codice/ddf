@@ -19,6 +19,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalNotification;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.catalog.source.CatalogProvider;
@@ -46,6 +47,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.Bundle;
@@ -109,15 +111,14 @@ public class SourcePoller implements EventListenerHook {
     cache =
         CacheBuilder.newBuilder()
             .maximumSize(1000)
-            // TODO Expire orphaned entries in the map caused by when sources are modified and their
-            // key
-            // is different
             .removalListener(
-                removalNotification ->
-                    LOGGER.debug(
-                        "Removing SourceKey {} from cache. cause={}",
-                        removalNotification.getKey(),
-                        removalNotification.getCause()))
+                (RemovalNotification<SourceKey, CachedSourceAvailability> removalNotification) -> {
+                  LOGGER.debug(
+                      "Removing SourceKey {} from cache. cause={}. Cancelling any futures that are checking availability for that entry",
+                      removalNotification.getKey(),
+                      removalNotification.getCause());
+                  removalNotification.getValue().cancel();
+                })
             .build();
   }
 
@@ -265,9 +266,7 @@ public class SourcePoller implements EventListenerHook {
         Optional.ofNullable(cache.getIfPresent(sourceKey));
     if (cachedSourceAvailabilityOptional.isPresent()) {
       // There might be a race condition where a new source is bound after it is found with during a
-      // poll.
-      // TODO How should the case when 2 different Sources have the same Source ID be handled?
-      // Recheck the availability of the source if it is not currently being checked.
+      // poll. Recheck the availability of the source if it is not currently being checked.
       LOGGER.debug("Binding a source that has a source key that has already been bound");
       final CachedSourceAvailability cachedSourceAvailability =
           cachedSourceAvailabilityOptional.get();
@@ -293,15 +292,12 @@ public class SourcePoller implements EventListenerHook {
       final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
           Optional.ofNullable(cache.getIfPresent(sourceKey));
       if (cachedSourceStatusOptional.isPresent()) {
-        LOGGER.debug(
-            "Unbinding source id={}. Cancelling the current availability check of the source, if not already completed.",
-            source.getId());
-        final CachedSourceAvailability cachedSourceAvailability = cachedSourceStatusOptional.get();
-        cachedSourceAvailability.cancel();
+        LOGGER.debug("Unbinding source id={}", source.getId());
+        // Cancelling SourceKeys is handled in the RemovalListener of the cache.
         cache.invalidate(sourceKey);
       } else {
         LOGGER.warn(
-            "Cannot unbind a source that has not yet been bound. The SourcePoller might not be reliable. Try restarting the system.");
+            "Cannot unbind a source that has not yet been bound. This means that the SourcePoller might not report accurate availability for these sources in the CatalogFramework. Try restarting.");
       }
     }
   }
@@ -381,16 +377,38 @@ public class SourcePoller implements EventListenerHook {
         "Found {} sources. Starting a process to check the availability of each source",
         sources.size());
 
-    // TODO Unbind orphaned entries in the map caused by when sources are modified and their key is
+    // Unbind orphaned entries in the map caused by when sources are modified and their key is
     // different
-
-    final Set<Future> futures =
+    final Map<SourceKey, Source> sourceKeyMap =
         sources
             .stream()
+            .collect(
+                Collectors.toMap(
+                    SourceKey::new,
+                    source -> source,
+                    (source, anotherSourceWithTheSameSourceKey) -> {
+                      LOGGER.warn(
+                          "Found different sources with the same SourceKey with id={}. This means that the SourcePoller might not report accurate availability for these sources in the CatalogFramework. Confirm that every source has a unique id, and try restarting.",
+                          source.getId());
+                      return source;
+                    }));
+    final Set<SourceKey> orphanedSourceKeys = cache.asMap().keySet();
+    orphanedSourceKeys.removeAll(sourceKeyMap.keySet());
+    if (CollectionUtils.isNotEmpty(orphanedSourceKeys)) {
+      LOGGER.debug(
+          "Found {} orphaned SourceKeys in the cache. This is caused by when sources are modified and their SourceKey changes. Removing these from the cache now",
+          orphanedSourceKeys.size());
+      orphanedSourceKeys.forEach(cache::invalidate);
+    }
+
+    final Set<Future> futures =
+        sourceKeyMap
+            .entrySet()
+            .stream()
             .map(
-                source -> {
-                  final String sourceId = source.getId();
-                  final SourceKey sourceKey = new SourceKey(source);
+                sourceKeySourceEntry -> {
+                  final SourceKey sourceKey = sourceKeySourceEntry.getKey();
+                  final Source source = sourceKeySourceEntry.getValue();
 
                   final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
                       Optional.ofNullable(cache.getIfPresent(sourceKey));
@@ -398,7 +416,8 @@ public class SourcePoller implements EventListenerHook {
                     final CachedSourceAvailability cachedSourceAvailability =
                         cachedSourceStatusOptional.get();
                     LOGGER.trace(
-                        "Starting a process to recheck the availability of source id={}", sourceId);
+                        "Starting a process to recheck the availability of source id={}",
+                        source.getId());
                     return cachedSourceAvailability.recheckOrGetCurrentCheck(source);
                   } else {
                     // There might be a race condition where a new source is set with the setSources
@@ -609,6 +628,7 @@ public class SourcePoller implements EventListenerHook {
       return Objects.hashCode(id, title, version, description, organization);
     }
 
+    /** Only used to in the {@link com.google.common.cache.RemovalListener} log message */
     @Override
     public String toString() {
       return String.format("id=%s, title=%s", id, title);
