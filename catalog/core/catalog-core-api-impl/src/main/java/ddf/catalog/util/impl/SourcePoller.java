@@ -20,6 +20,7 @@ import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.catalog.source.CatalogProvider;
@@ -30,6 +31,8 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,14 +44,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -78,15 +80,14 @@ public class SourcePoller implements EventListenerHook {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourcePoller.class);
 
-  private static final int EXECUTOR_SERVICE_TERMINATION_TIMEOUT = 5;
+  // TODO Make these smaller for unit tests
+  @VisibleForTesting static final int SOURCE_POLLER_RUNNER_PERIOD = 5;
 
-  private static final TimeUnit EXECUTOR_SERVICE_TERMINATION_TIMEOUT_TIME_UNIT = TimeUnit.SECONDS;
+  @VisibleForTesting static final TimeUnit SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT = TimeUnit.SECONDS;
 
-  private static final long DEFAULT_AVAILABILITY_CHECK_TIMEOUT = 1;
+  private static final int DEFAULT_POLL_INTERVAL_MINUTES = 1;
 
-  private static final TimeUnit AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT = TimeUnit.MINUTES;
-
-  private long availabilityCheckTimeout = DEFAULT_AVAILABILITY_CHECK_TIMEOUT;
+  private int pollIntervalMinutes = DEFAULT_POLL_INTERVAL_MINUTES;
 
   private List<ConnectedSource> connectedSources = Collections.emptyList();
 
@@ -100,13 +101,29 @@ public class SourcePoller implements EventListenerHook {
 
   private final Cache<SourceKey, CachedSourceAvailability> cache;
 
-  @Nullable private ExecutorService pollingExecutorService;
+  private ScheduledExecutorService pollingExecutorService;
 
-  /** Does not start polling */
+  /** Starts a process to periodically call {@link #handleAllSources()} */
   public SourcePoller() {
-    final ThreadFactory threadFactory =
-        StandardThreadFactoryBuilder.newThreadFactory("sourcePollerScheduledPollingThread");
-    sourceAvailabilityChecksThreadPool = Executors.newCachedThreadPool(threadFactory);
+    sourceAvailabilityChecksThreadPool =
+        Executors.newCachedThreadPool(
+            StandardThreadFactoryBuilder.newThreadFactory("sourcePollerScheduledPollingThread"));
+
+    // If any execution of this task takes longer than its period, then subsequent executions may
+    // start late, but will not concurrently execute.
+    LOGGER.debug(
+        "Scheduling ExecutorService at fixed rate of {} {} with an initial delay of {}",
+        SOURCE_POLLER_RUNNER_PERIOD,
+        SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT,
+        SOURCE_POLLER_RUNNER_PERIOD);
+    pollingExecutorService =
+        Executors.newSingleThreadScheduledExecutor(
+            StandardThreadFactoryBuilder.newThreadFactory("SourcePoller"));
+    pollingExecutorService.scheduleAtFixedRate(
+        this::handleAllSources,
+        SOURCE_POLLER_RUNNER_PERIOD,
+        SOURCE_POLLER_RUNNER_PERIOD,
+        SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT);
 
     cache =
         CacheBuilder.newBuilder()
@@ -123,24 +140,22 @@ public class SourcePoller implements EventListenerHook {
   }
 
   public void destroy() {
-    if (pollingExecutorService != null) {
-      MoreExecutors.shutdownAndAwaitTermination(
-          pollingExecutorService,
-          EXECUTOR_SERVICE_TERMINATION_TIMEOUT,
-          EXECUTOR_SERVICE_TERMINATION_TIMEOUT_TIME_UNIT);
-    }
+    MoreExecutors.shutdownAndAwaitTermination(pollingExecutorService, 5, TimeUnit.SECONDS);
 
     MoreExecutors.shutdownAndAwaitTermination(
-        sourceAvailabilityChecksThreadPool,
-        EXECUTOR_SERVICE_TERMINATION_TIMEOUT,
-        EXECUTOR_SERVICE_TERMINATION_TIMEOUT_TIME_UNIT);
+        sourceAvailabilityChecksThreadPool, 5, TimeUnit.SECONDS);
   }
 
   /**
    * This method is an non-blocking alternative to {@link Source#isAvailable()} which provides more
    * more details about the availability than just available or unavailable. The last availability
-   * check is guaranteed to be started when the source is bound with {@link #bind(Source)} or at the
-   * start of the lat poll interval, configured by {@link #setPollIntervalMinutes(long)}.
+   * check is guaranteed
+   *
+   * <p>If the {@code source} was not created or modified within the last poll interval, the last
+   * availability check is guaranteed to have started within the last poll interval. Else, the last
+   * availability check is guaranteed to have started at most {@value #SOURCE_POLLER_RUNNER_PERIOD}
+   * {@value #SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT} since the {@code source} was created or
+   * modified.
    *
    * @return a {@link SourceAvailability} for the availability of the {@code source}, or {@link
    *     Optional#empty()} if the availability of the {@code source} has not yet been checked
@@ -155,54 +170,27 @@ public class SourcePoller implements EventListenerHook {
   }
 
   /**
-   * Starts a process to periodically check the availability of each of the {@link Source}s
-   * configured by {@link #setConnectedSources(List)}, {@link #setFederatedSources(List)}, {@link
-   * #setCatalogProviders(List)}, and {@link #setCatalogStores(List)}.
-   *
-   * <p>At the start of each interval, a process to check the availability of a {@link Source} will
-   * not be started if the {@link Source} was bound or modified since the last poll and the
-   * availability check started by that action has not yet completed.
-   *
    * @param pollIntervalMinutes the interval (in minutes) at which to recheck the availability of
    *     the {@link Source}s
-   * @throws IllegalArgumentException if {@code pollIntervalMinutes} is less than {@code 1}
+   * @throws IllegalArgumentException if {@code pollIntervalMinutes} is less than {@code 1} or is
+   *     greater than {@link Integer#MAX_VALUE}
    */
   public void setPollIntervalMinutes(final long pollIntervalMinutes) {
-    final long minimumPollIntervalMinutes = 1;
+    final int minimumPollIntervalMinutes = 1;
     if (pollIntervalMinutes < minimumPollIntervalMinutes) {
       throw new IllegalArgumentException(
           "pollIntervalMinutes argument may not be less than " + minimumPollIntervalMinutes);
     }
 
-    if (pollingExecutorService != null) {
-      MoreExecutors.shutdownAndAwaitTermination(
-          pollingExecutorService,
-          EXECUTOR_SERVICE_TERMINATION_TIMEOUT,
-          EXECUTOR_SERVICE_TERMINATION_TIMEOUT_TIME_UNIT);
-    }
-
-    LOGGER.trace("Initializing ExecutorService");
-    final ScheduledExecutorService scheduledExecutorService =
-        Executors.newSingleThreadScheduledExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("SourcePoller"));
-
-    LOGGER.debug(
-        "Scheduling ExecutorService at fixed rate of {} {}", pollIntervalMinutes, TimeUnit.MINUTES);
-
-    // If any execution of this task takes longer than its period, then subsequent executions may
-    // start late, but will not concurrently execute.
-    scheduledExecutorService.scheduleAtFixedRate(
-        this::recheckAvailabilityOfAllSourcesAndWait, 0, pollIntervalMinutes, TimeUnit.MINUTES);
-    pollingExecutorService = scheduledExecutorService;
-
-    // Allow more time to check the availability
-    this.availabilityCheckTimeout =
-        AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT.convert(pollIntervalMinutes, TimeUnit.MINUTES);
+    this.pollIntervalMinutes = Ints.checkedCast(pollIntervalMinutes);
   }
 
   /**
    * Used to listen for when a {@link Source} is modified. If a {@link Source} is modified in a way
-   * that changes its {@link SourceKey}, the {@link Source} will be bound.
+   * that changes its {@link SourceKey}, the {@link Source} will be handled at the next {@link
+   * #handleAllSources()} call. Else, the current availability check for the {@link Source} will be
+   * cancelled, the availability will be updated to {@link Optional#empty()}, and a new availability
+   * check will be started.
    *
    * <p>Does not block
    *
@@ -223,7 +211,7 @@ public class SourcePoller implements EventListenerHook {
       final int serviceEventType = serviceEvent.getType();
 
       // ServiceEvent.REGISTERED and ServiceEvent.UNREGISTERING are already handled by the
-      // bind and unbind methods, respectively.
+      // handleAllSources method.
       if (serviceEventType != ServiceEvent.REGISTERED
           && serviceEventType != ServiceEvent.UNREGISTERING) {
         final String sourceId = source.getId();
@@ -238,66 +226,12 @@ public class SourcePoller implements EventListenerHook {
           final CachedSourceAvailability cachedSourceAvailability =
               cachedSourceStatusOptional.get();
           cachedSourceAvailability.cancel();
-          cachedSourceAvailability.recheckOrGetCurrentCheck(source);
+          cachedSourceAvailability.recheckAvailability(source, pollIntervalMinutes);
         } else {
           LOGGER.debug(
-              "Even though the source id={} has already been bound, the SourceKey for the source has been changed. The entry for the old SourceKey will expire.",
+              "Even though the source id={} has already been bound, the SourceKey for the source has been changed. The entry for the old SourceKey will be invalidated and a new entry will be bound at the next handleAllSources call.",
               sourceId);
-          bind(source);
         }
-      }
-    }
-  }
-
-  /**
-   * Starts a process to check {@link Source#isAvailable()} of the {@code source}
-   *
-   * <p>Does not block
-   *
-   * @throws IllegalArgumentException if {@code source} is {@code null} or if the {@code source} has
-   *     already been bound
-   */
-  public void bind(final Source source) {
-    notNull(source);
-
-    final SourceKey sourceKey = new SourceKey(source);
-
-    final Optional<CachedSourceAvailability> cachedSourceAvailabilityOptional =
-        Optional.ofNullable(cache.getIfPresent(sourceKey));
-    if (cachedSourceAvailabilityOptional.isPresent()) {
-      // There might be a race condition where a new source is bound after it is found with during a
-      // poll. Recheck the availability of the source if it is not currently being checked.
-      LOGGER.debug("Binding a source that has a source key that has already been bound");
-      final CachedSourceAvailability cachedSourceAvailability =
-          cachedSourceAvailabilityOptional.get();
-      cachedSourceAvailability.recheckOrGetCurrentCheck(source);
-    } else {
-      LOGGER.debug("Binding source id={}", source.getId());
-      final CachedSourceAvailability cachedSourceAvailability = new CachedSourceAvailability();
-      cache.put(sourceKey, cachedSourceAvailability);
-      cachedSourceAvailability.recheckOrGetCurrentCheck(source);
-    }
-  }
-
-  /**
-   * Clears the {@link SourceAvailability} for the {@code source} so that {@link
-   * #getSourceAvailability(Source)} will return {@link Optional#empty()}
-   *
-   * <p>Does not block
-   */
-  public void unbind(@Nullable final Source source) {
-    if (source != null) {
-      final SourceKey sourceKey = new SourceKey(source);
-
-      final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
-          Optional.ofNullable(cache.getIfPresent(sourceKey));
-      if (cachedSourceStatusOptional.isPresent()) {
-        LOGGER.debug("Unbinding source id={}", source.getId());
-        // Cancelling SourceKeys is handled in the RemovalListener of the cache.
-        cache.invalidate(sourceKey);
-      } else {
-        LOGGER.warn(
-            "Cannot unbind a source that has not yet been bound. This means that the SourcePoller might not report accurate availability for these sources in the CatalogFramework. Try restarting.");
       }
     }
   }
@@ -366,16 +300,26 @@ public class SourcePoller implements EventListenerHook {
     this.catalogStores = catalogStores;
   }
 
-  /** @throws IllegalArgumentException if one of the sources has not already been bound */
-  private void recheckAvailabilityOfAllSourcesAndWait() {
+  /**
+   * This method is used to keep the cache up to date.
+   *
+   * <p>The current {@link Source}s configured by {@link #setConnectedSources(List)}, {@link
+   * #setFederatedSources(List)}, {@link #setCatalogProviders(List)}, and {@link
+   * #setCatalogStores(List)} are discovered.
+   *
+   * <p>A process to check (or recheck) the availability of each {@link Source} is started unless
+   * the {@link Source} was created or modified within the last poll interval and the availability
+   * check triggered by that action (see {@link #event(ServiceEvent, Map)} has not yet completed.
+   *
+   * <p>TODO Should this method be synchronized?
+   */
+  private void handleAllSources() {
     final Set<Source> sources =
         Stream.of(connectedSources, federatedSources, catalogProviders, catalogStores)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
-    LOGGER.trace(
-        "Found {} sources. Starting a process to check the availability of each source",
-        sources.size());
+    LOGGER.trace("Found {} sources", sources.size());
 
     // Unbind orphaned entries in the map caused by when sources are modified and their key is
     // different
@@ -392,67 +336,41 @@ public class SourcePoller implements EventListenerHook {
                           source.getId());
                       return source;
                     }));
-    final Set<SourceKey> orphanedSourceKeys = cache.asMap().keySet();
-    orphanedSourceKeys.removeAll(sourceKeyMap.keySet());
-    if (CollectionUtils.isNotEmpty(orphanedSourceKeys)) {
+
+    final Set<SourceKey> currentSourceKeys = sourceKeyMap.keySet();
+    final Set<SourceKey> sourceKeysInTheCache = cache.asMap().keySet();
+
+    final Set<SourceKey> sourceKeysToRemove = new HashSet<>(sourceKeysInTheCache);
+    sourceKeysToRemove.removeAll(currentSourceKeys);
+    if (CollectionUtils.isNotEmpty(sourceKeysToRemove)) {
       LOGGER.debug(
-          "Found {} orphaned SourceKeys in the cache. This is caused by when sources are modified and their SourceKey changes. Removing these from the cache now",
-          orphanedSourceKeys.size());
-      orphanedSourceKeys.forEach(cache::invalidate);
+          "Found {} SourceKeys to remove from the cache. This is caused by when sources are destroyed or modified in a way that their SourceKey changes. Removing these from the cache now",
+          sourceKeysToRemove.size());
+      sourceKeysToRemove.forEach(cache::invalidate);
     }
 
-    final Set<Future> futures =
-        sourceKeyMap
-            .entrySet()
-            .stream()
-            .map(
-                sourceKeySourceEntry -> {
-                  final SourceKey sourceKey = sourceKeySourceEntry.getKey();
-                  final Source source = sourceKeySourceEntry.getValue();
+    for (final Map.Entry<SourceKey, Source> entry : sourceKeyMap.entrySet()) {
+      final Source source = entry.getValue();
+      final SourceKey sourceKey = entry.getKey();
 
-                  final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
-                      Optional.ofNullable(cache.getIfPresent(sourceKey));
-                  if (cachedSourceStatusOptional.isPresent()) {
-                    final CachedSourceAvailability cachedSourceAvailability =
-                        cachedSourceStatusOptional.get();
-                    LOGGER.trace(
-                        "Starting a process to recheck the availability of source id={}",
-                        source.getId());
-                    return cachedSourceAvailability.recheckOrGetCurrentCheck(source);
-                  } else {
-                    // There might be a race condition where a new source is set with the setSources
-                    // methods but has not yet been bound. In this case, bind the source anyway.
-                    LOGGER.debug(
-                        "Found a source that has not yet been bound. Binding source id={}",
-                        source.getId());
-                    final CachedSourceAvailability cachedSourceAvailability =
-                        new CachedSourceAvailability();
-                    cache.put(sourceKey, cachedSourceAvailability);
-                    return cachedSourceAvailability.recheckOrGetCurrentCheck(source);
-                  }
-                })
-            .collect(Collectors.toSet());
+      final Optional<CachedSourceAvailability> cachedSourceAvailabilityOptional =
+          Optional.ofNullable(cache.getIfPresent(sourceKey));
+      if (cachedSourceAvailabilityOptional.isPresent()) {
+        final CachedSourceAvailability cachedSourceAvailability =
+            cachedSourceAvailabilityOptional.get();
+        LOGGER.trace(
+            "Starting a process to recheck the availability of source id={}, which has already been added to the cache ",
+            source.getId());
+        cachedSourceAvailability.recheckAvailability(source, pollIntervalMinutes);
+      } else {
+        LOGGER.debug("Found a new SourceKey for source id={}", source.getId());
+        final CachedSourceAvailability cachedSourceAvailability = new CachedSourceAvailability();
+        cache.put(sourceKey, cachedSourceAvailability);
+        cachedSourceAvailability.recheckAvailability(source, pollIntervalMinutes);
+      }
+    }
 
-    LOGGER.trace(
-        "Successfully submitted availability checks for all of the sources. Waiting for them to complete");
-    futures.forEach(
-        future -> {
-          try {
-            future.get();
-          } catch (CancellationException e) {
-            LOGGER.debug(
-                "Cancelled a process to check the availability of a source. This is expected when a source is updated in the middle of a poll and when shutting down.");
-          } catch (ExecutionException | RuntimeException e) {
-            LOGGER.debug("Unable to wait for a poll thread to complete", e);
-            future.cancel(true);
-          } catch (InterruptedException e) {
-            LOGGER.debug("InterruptedException waiting for a poll thread to complete", e);
-            future.cancel(true);
-            Thread.currentThread().interrupt();
-          }
-        });
-
-    LOGGER.trace("Successfully checked the availability of all of the sources");
+    LOGGER.trace("Successfully submitted availability checks for all of the sources");
   }
 
   @VisibleForTesting
@@ -465,8 +383,8 @@ public class SourcePoller implements EventListenerHook {
   }
 
   /**
-   * Used to keep track of the last {@link SourceAvailability} in the {@link #cache} and to cancel
-   * the current availability check
+   * Used to keep track of the last known {@link SourceAvailability} in the {@link #cache} and to
+   * cancel the current availability check
    */
   private class CachedSourceAvailability {
 
@@ -486,45 +404,59 @@ public class SourcePoller implements EventListenerHook {
     private void cancel() {
       watcherFuture.cancel(true);
       isAvailableFuture.cancel(true);
+      sourceAvailabilityOptional = Optional.empty();
     }
 
     /**
-     * Availability checks will be cancelled if they take longer than the poll interval (or a
-     * default of {@value #DEFAULT_AVAILABILITY_CHECK_TIMEOUT} {@value
-     * #AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT} if the poll interval has not yet been configured), and
-     * the {@link SourceStatus} will be updated to {@link SourceStatus#TIMEOUT}.
+     * Starts a process to recheck the availability if it is not currently being checked and if has
+     * not been checked within the last {@code timeoutMinutes} minutes.
      */
-    public Future recheckOrGetCurrentCheck(final Source source) {
+    public void recheckAvailability(final Source source, final int timeoutMinutes) {
       notNull(source);
       final String sourceId = source.getId();
 
-      if (watcherFuture.isDone()) {
-        if (!isAvailableFuture.isDone()) {
-          isAvailableFuture.cancel(true);
-        }
-
-        LOGGER.trace("Starting a process to check the availability of source id={}", sourceId);
-        isAvailableFuture =
-            sourceAvailabilityChecksThreadPool.submit((Callable<Boolean>) source::isAvailable);
-        watcherFuture =
-            sourceAvailabilityChecksThreadPool.submit(
-                () -> waitAndUpdateAvailability(isAvailableFuture, sourceId));
-      } else {
+      if (!watcherFuture.isDone()) {
         LOGGER.debug(
             "A process has already been started to check the availability of source id={}. This is expected when the source is recently modified or bound. Not starting a new check",
             sourceId);
+        return;
       }
 
-      return watcherFuture;
+      if (!isAvailableFuture.isDone()) {
+        isAvailableFuture.cancel(true);
+      }
+
+      if (sourceAvailabilityOptional.isPresent()) {
+        final Date sourceStatusDate = sourceAvailabilityOptional.get().getSourceStatusDate();
+        final Date nextEarliestRecheckDate = DateUtils.addMinutes(sourceStatusDate, timeoutMinutes);
+        final Date now = new Date();
+
+        if (now.before(nextEarliestRecheckDate)) {
+          // Not rechecking the availability of source id={} because it has been checked in the last
+          // {} minutes
+          // Don't log anything here because this happens really often.
+          return;
+        }
+      }
+
+      LOGGER.trace("Starting a process to check the availability of source id={}", sourceId);
+      isAvailableFuture =
+          sourceAvailabilityChecksThreadPool.submit((Callable<Boolean>) source::isAvailable);
+      watcherFuture =
+          sourceAvailabilityChecksThreadPool.submit(
+              () -> watchAndUpdateAvailability(isAvailableFuture, sourceId, pollIntervalMinutes));
     }
 
-    private void waitAndUpdateAvailability(
-        final Future<Boolean> isAvailableFuture, final String sourceId) {
+    /**
+     * Availability checks will be cancelled if they take longer than the poll interval, and the
+     * {@link SourceStatus} will be updated to {@link SourceStatus#TIMEOUT}.
+     */
+    private void watchAndUpdateAvailability(
+        final Future<Boolean> isAvailableFuture, final String sourceId, long timeoutMinutes) {
       SourceStatus newSourceStatus;
 
       try {
-        final boolean isAvailable =
-            isAvailableFuture.get(availabilityCheckTimeout, AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT);
+        final boolean isAvailable = isAvailableFuture.get(timeoutMinutes, TimeUnit.MINUTES);
         LOGGER.trace("Successfully checked the availability of source id={}", sourceId);
         newSourceStatus = isAvailable ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE;
       } catch (TimeoutException e) {
@@ -532,8 +464,8 @@ public class SourcePoller implements EventListenerHook {
         LOGGER.debug(
             "Unable to check the availability of source id={} within {} {}. Cancelling the check",
             sourceId,
-            availabilityCheckTimeout,
-            AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT);
+            timeoutMinutes,
+            TimeUnit.MINUTES);
         newSourceStatus = SourceStatus.TIMEOUT;
       } catch (CancellationException e) {
         isAvailableFuture.cancel(true);

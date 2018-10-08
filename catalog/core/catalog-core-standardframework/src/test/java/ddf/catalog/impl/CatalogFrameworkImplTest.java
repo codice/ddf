@@ -1731,10 +1731,11 @@ public class CatalogFrameworkImplTest {
     CatalogProvider catalogProvider = mock(CatalogProvider.class);
     // Mock register the federated sources in the container
     SourcePoller poller = new SourcePoller();
-    for (FederatedSource source : federatedSources) {
-      poller.bind(source);
-    }
-    poller.bind(catalogProvider);
+    // TODO
+    //    for (FederatedSource source : federatedSources) {
+    //      poller.bind(source);
+    //    }
+    //    poller.bind(catalogProvider);
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(poller);
