@@ -16,7 +16,9 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
+    <repository>
+        mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features
+    </repository>
 
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
@@ -73,7 +75,8 @@
 
     <feature name="platform-configuration" version="${project.version}"
              description="Shared platform configuration">
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0</bundle>
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
+        </bundle>
         <feature>camel-blueprint</feature>
         <feature>camel-http</feature>
         <feature>branding-registry</feature>
@@ -109,6 +112,7 @@
         <bundle>mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson-version}</bundle>
         <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
 
         <feature>camel-blueprint</feature>
