@@ -150,7 +150,6 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     }
   }
 
-  // returns 1 = available, 0 = unavailable, -1 = status pending
   @Override
   public int sourceStatus(String servicePID) {
     try {
@@ -174,7 +173,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
       LOGGER.info("Could not get service reference list");
     }
 
-    return 0;
+    return UNAVAILABLE;
   }
 
   private int sourceIsAvailable(String sourceId) {
@@ -184,18 +183,22 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
       final SourceInfoResponse sourceInfoResponse =
           catalogFramework.getSourceInfo(sourceInfoRequest);
       final Set<SourceDescriptor> sourceDescriptors = sourceInfoResponse.getSourceInfo();
+
+      if (sourceDescriptors.isEmpty()) {
+        return STATUS_PENDING;
+      }
       final SourceDescriptor sourceDescriptor = Iterables.getOnlyElement(sourceDescriptors);
 
       if (sourceDescriptor.getLastAvailabilityDate() == null) {
-        return -1;
+        return STATUS_PENDING;
       }
       if (sourceDescriptor.isAvailable()) {
-        return 1;
+        return AVAILABLE;
       }
     } catch (Exception e) {
       LOGGER.info("Couldn't get availability on source {}", sourceId, e);
     }
-    return 0;
+    return UNAVAILABLE;
   }
 
   @Override

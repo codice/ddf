@@ -218,6 +218,18 @@ public class AdminPollerServiceBeanTest {
   }
 
   @Test
+  public void testSourceStatusReceivesNoSourceDescriptors() throws Exception {
+    Set<SourceDescriptor> descriptors = new HashSet<SourceDescriptor>();
+    SourceInfoRequest request =
+        new SourceInfoRequestSources(false, Collections.singleton("sourceId"));
+    SourceInfoResponse response =
+        new SourceInfoResponseImpl(request, Collections.EMPTY_MAP, descriptors);
+    when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(response);
+
+    assertThat(poller.sourceStatus(CONFIG_PID), is(-1));
+  }
+
+  @Test
   public void testSourceStatusHandlesSourceUnavailableException() throws Exception {
     when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class)))
         .thenThrow(SourceUnavailableException.class);
