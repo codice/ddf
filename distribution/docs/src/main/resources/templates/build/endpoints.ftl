@@ -1,3 +1,6 @@
+
+== Endpoints
+
 <#list endpointIntros as ei>
 <#if (ei.title == "Endpoints Intro")>
 include::${ei.file}[]

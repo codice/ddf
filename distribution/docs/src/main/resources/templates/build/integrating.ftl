@@ -5,36 +5,12 @@ include::${ii.file}[]
 </#if>
 </#list>
 
-== Data and Metadata
+<#include "data-validation.ftl">
 
-<#list datas?sort_by("order") as data>
-<#if (data.status == "published")>
-include::${data.file}[]
+<#include "endpoints.ftl">
 
-</#if>
-</#list>
+<#include "eventing.ftl">
 
-=== Data Validation
-<#list dataValidationIntros?sort_by("order") as dvi>
-<#if (dvi.status == "published")>
-include::${dvi.file}[]
+include::${project.build.directory}/doc-contents/content/scripts.html[]
 
-</#if>
-</#list>
-
-.Available Validation Services
-<#list dataValidations?sort_by("order") as dataValidation>
-<#if (dataValidation.status == "published")>
-<<${dataValidation.link},${dataValidation.title}>>:: ${dataValidation.summary}
-</#if>
-</#list>
-
-<#list dataValidations?sort_by("order") as dataValidation>
-<#if (dataValidation.status == "published")>
-
-==== ${dataValidation.title}
-
-include::${dataValidation.file}[]
-
-</#if>
-</#list>
+<#include "security-services.ftl">

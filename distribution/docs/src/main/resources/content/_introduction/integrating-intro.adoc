@@ -9,7 +9,7 @@ Federation with ${branding} is primarily accomplished through <<{integrating-pre
 
 If integrating with an existing installation of ${branding}, continue to the following sections on endpoints and data/metadata management.
 
-If a new installation of ${branding} is required, first see the <<_managing,Managing>> section for installation and configuration instructions, then return to this section for guidance on connecting external clients.
+If a new installation of ${branding} is required, first see the <<{managing-prefix}managing,Managing>> section for installation and configuration instructions, then return to this section for guidance on connecting external clients.
 
 If you would like to set up a test or demo installation to use while developing an external client, see the <<{quickstart-prefix}quick_start_tutorial,Quick Start Tutorial>> for demo instructions.
 
