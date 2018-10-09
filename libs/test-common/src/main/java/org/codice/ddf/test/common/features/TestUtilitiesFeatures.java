@@ -29,6 +29,8 @@ public class TestUtilitiesFeatures {
 
   public static final String TINY_BUNDLES = "tinybundles";
 
+  public static final String REST_ASSURED = "rest-assured";
+
   private static final FeatureRepo FEATURE_COORDINATES =
       new FeatureRepoImpl(
           maven()
@@ -56,5 +58,9 @@ public class TestUtilitiesFeatures {
 
   public static Feature tinyBundles() {
     return new FeatureImpl(FEATURE_COORDINATES.getFeatureFileUrl(), TINY_BUNDLES);
+  }
+
+  public static Feature restAssured() {
+    return new FeatureImpl(FEATURE_COORDINATES.getFeatureFileUrl(), REST_ASSURED);
   }
 }

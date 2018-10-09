@@ -30,7 +30,13 @@ public class InstallProfilesFeatures {
               .classifier("features")
               .version(DependencyVersionResolver.resolver()));
 
+  public static final String PROFILE_STANDARD = "profile-standard";
+
   public static FeatureRepo featureRepo() {
     return FEATURE_REPO_URL;
+  }
+
+  public static Feature profileStandard() {
+    return new FeatureImpl(FEATURE_REPO_URL.getFeatureFileUrl(), PROFILE_STANDARD);
   }
 }
