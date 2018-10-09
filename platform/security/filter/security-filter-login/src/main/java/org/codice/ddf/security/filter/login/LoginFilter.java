@@ -140,7 +140,6 @@ public class LoginFilter implements SecurityFilter {
 
   private SessionFactory sessionFactory;
 
-  /** Default expiration value is 31 minutes */
   private int expirationTime = DEFAULT_EXPIRATION_TIME;
 
   public LoginFilter() {
@@ -779,6 +778,10 @@ public class LoginFilter implements SecurityFilter {
     if (expirationTime >= 2) {
       this.expirationTime = expirationTime;
     } else {
+      LOGGER.info(
+          "Session expiration time of {} minute(s) is invalid. It will be set to the default of {} minutes",
+          expirationTime,
+          DEFAULT_EXPIRATION_TIME);
       this.expirationTime = DEFAULT_EXPIRATION_TIME;
     }
   }
