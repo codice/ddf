@@ -15,6 +15,9 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
+import ddf.security.common.audit.SecurityLogger;
+import java.lang.management.ManagementFactory;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -33,15 +36,19 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.system.SystemService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -93,12 +100,14 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private final FeaturesService featuresService;
 
-  private ObjectName objectName;
+  private final SystemService systemService;
 
-  private MBeanServer mBeanServer;
+  private final ObjectName objectName;
+
+  private final MBeanServer mBeanServer;
 
   /** the service pid string. */
-  private ApplicationService appService;
+  private final ApplicationService appService;
 
   /** has all the application plugins. */
   private List<ApplicationPlugin> applicationPlugins;
@@ -117,12 +126,14 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       ApplicationService appService,
       ConfigurationAdmin configAdmin,
       MBeanServer mBeanServer,
-      FeaturesService featuresService)
+      FeaturesService featuresService,
+      SystemService systemService)
       throws ApplicationServiceException {
     this.appService = appService;
     this.configAdmin = configAdmin;
     this.mBeanServer = mBeanServer;
     this.featuresService = featuresService;
+    this.systemService = systemService;
     try {
       objectName =
           new ObjectName(ApplicationService.class.getName() + ":service=application-service");
@@ -525,6 +536,36 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
   }
 
+  @Override
+  public void restart() {
+    try {
+      if (!restartServiceWrapperIfControlled()) {
+        // create the restart.jvm file such that we would rely on the ddf script to restart
+        // ourselves and not on karaf. This will have the advantage to restart anything else
+        // (e.g. solr) that is also managed by that script
+        LOGGER.debug("generating restart.jvm file");
+        AccessController.doPrivileged(
+            (PrivilegedExceptionAction<Void>)
+                () -> {
+                  FileUtils.touch(
+                      Paths.get(System.getProperty("ddf.home"), "bin", "restart.jvm").toFile());
+                  // make sure Karaf is not going to restart us as we want the ddf script to do it
+                  System.setProperty("karaf.restart.jvm", "false");
+                  systemService.halt();
+                  return null;
+                });
+      }
+      SecurityLogger.audit("Restarting system");
+      LOGGER.info("Restarting the system.");
+    } catch (PrivilegedActionException e) {
+      SecurityLogger.audit("Failed to restart system");
+      LOGGER.debug("failed to request a restart: ", e.getException());
+    } catch (Exception e) {
+      SecurityLogger.audit("Failed to restart system");
+      LOGGER.debug("failed to request a restart: ", e);
+    }
+  }
+
   /**
    * serviceTracker setter method. Needed for use in unit tests.
    *
@@ -532,6 +573,22 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    */
   void setServiceTracker(ServiceTracker serviceTracker) {
     this.serviceTracker = (ServiceTracker<Object, Object>) serviceTracker;
+  }
+
+  private boolean restartServiceWrapperIfControlled()
+      throws InstanceNotFoundException, MBeanException, ReflectionException,
+          MalformedObjectNameException {
+    if (System.getProperty("wrapper.key") != null) {
+      LOGGER.debug("asking service wrapper to restart");
+      ManagementFactory.getPlatformMBeanServer()
+          .invoke(
+              new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"),
+              "restart",
+              null,
+              null);
+      return true;
+    }
+    return false;
   }
 
   private static String computeLocation(Bundle bundle) {

@@ -17,6 +17,7 @@ import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
 import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,6 +34,9 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.Appender;
+import java.lang.management.ManagementFactory;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -41,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -49,6 +55,7 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.system.SystemService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -58,8 +65,13 @@ import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
 import org.codice.ddf.test.mockito.StackCaptor;
+import org.hamcrest.Matchers;
+import org.hamcrest.io.FileMatchers;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
@@ -93,6 +105,12 @@ public class ApplicationServiceBeanTest {
   private static final String DO_PRIVILEGED_STACK_ELEMENT =
       "java.security.AccessController.doPrivileged";
 
+  private static final String WRAPPER_KEY = "wrapper.key";
+
+  private static final String RESTART_JVM = "karaf.restart.jvm";
+
+  @Rule public TemporaryFolder testFolder = new TemporaryFolder();
+
   private ApplicationService testAppService;
 
   private ConfigurationAdmin testConfigAdminExt;
@@ -101,11 +119,17 @@ public class ApplicationServiceBeanTest {
 
   private FeaturesService mockFeaturesService;
 
+  private SystemService mockSystemService;
+
   private BundleContext bundleContext;
 
   private MBeanServer mBeanServer;
 
   private ObjectName objectName;
+
+  private WrapperManagerMXBean mockWrapperManager;
+
+  private Path ddfBin;
 
   @Before
   public void setUp() throws Exception {
@@ -113,6 +137,7 @@ public class ApplicationServiceBeanTest {
     testConfigAdminExt = mock(ConfigurationAdmin.class);
     testApp = mock(ApplicationImpl.class);
     mockFeaturesService = mock(FeaturesService.class);
+    mockSystemService = mock(SystemService.class);
 
     when(testApp.getName()).thenReturn(TEST_APP_NAME);
     when(testApp.getDescription()).thenReturn(TEST_APP_DESCRIP);
@@ -120,6 +145,22 @@ public class ApplicationServiceBeanTest {
     mBeanServer = mock(MBeanServer.class);
     objectName =
         new ObjectName(ApplicationService.class.getName() + ":service=application-service");
+    mockWrapperManager = mock(WrapperManagerMXBean.class);
+    ManagementFactory.getPlatformMBeanServer()
+        .registerMBean(
+            mockWrapperManager, new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"));
+    doNothing().when(mockWrapperManager).restart();
+    System.setProperty(RESTART_JVM, "true");
+    System.setProperty("ddf.home", testFolder.getRoot().toString());
+    ddfBin = testFolder.newFolder("bin").toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    System.getProperties().remove(RESTART_JVM);
+    System.getProperties().remove(WRAPPER_KEY);
+    ManagementFactory.getPlatformMBeanServer()
+        .unregisterMBean(new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"));
   }
 
   /**
@@ -129,9 +170,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testInit() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.init();
 
     verify(mBeanServer).registerMBean(serviceBean, objectName);
@@ -145,9 +184,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testInitTwice() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
         .thenThrow(new InstanceAlreadyExistsException())
         .thenReturn(null);
@@ -166,9 +203,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test(expected = ApplicationServiceException.class)
   public void testInitWhenRegisterMBeanThrowsInstanceAlreadyExistsException() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
     when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
         .thenThrow(new NullPointerException());
@@ -183,9 +218,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testDestroy() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
     serviceBean.destroy();
 
@@ -200,9 +233,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test(expected = ApplicationServiceException.class)
   public void testDestroyWhenUnregisterMBeanThrowsInstanceNotFoundException() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
     doThrow(new InstanceNotFoundException()).when(mBeanServer).unregisterMBean(objectName);
 
@@ -217,9 +248,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test(expected = ApplicationServiceException.class)
   public void testDestroyWhenUnregisterMBeanThrowsMBeanRegistrationException() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
     doThrow(new MBeanRegistrationException(new Exception()))
         .when(mBeanServer)
@@ -230,9 +259,7 @@ public class ApplicationServiceBeanTest {
 
   @Test
   public void testInstallProfile() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
     ArgumentCaptor<EnumSet<FeaturesService.Option>> captor = ArgumentCaptor.forClass(EnumSet.class);
@@ -245,9 +272,7 @@ public class ApplicationServiceBeanTest {
 
   @Test
   public void testInstallFeatureCallIsPrivileged() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
     verify(mockFeaturesService, privileged(times(1)))
@@ -263,9 +288,7 @@ public class ApplicationServiceBeanTest {
         .when(mockFeaturesService)
         .uninstallFeature(anyString(), any(EnumSet.class));
 
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.uninstallFeature("profile-name");
 
     assertThat(stackCaptor.getStack(), stackContainsDoPrivilegedCall());
@@ -303,9 +326,7 @@ public class ApplicationServiceBeanTest {
     featureList.add(testFeature2);
     when(testAppService.getInstallationProfiles()).thenReturn(featureList);
 
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
     List<Map<String, Object>> result = serviceBean.getInstallationProfiles();
 
@@ -323,14 +344,8 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testGetServices() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
-          @Override
-          protected BundleContext getContext() {
-            return bundleContext;
-          }
-        };
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
+
     Bundle testBundle = mock(Bundle.class);
     Bundle[] bundles = {testBundle};
     when(bundleContext.getBundles()).thenReturn(bundles);
@@ -368,14 +383,8 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testGetServicesNotContainsKey() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
-          @Override
-          protected BundleContext getContext() {
-            return bundleContext;
-          }
-        };
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
+
     Bundle testBundle = mock(Bundle.class);
     Bundle[] bundles = {testBundle};
     when(bundleContext.getBundles()).thenReturn(bundles);
@@ -415,14 +424,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testGetServicesMetatypeInfo() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
-          @Override
-          protected BundleContext getContext() {
-            return bundleContext;
-          }
-        };
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
 
     ServiceTracker testServiceTracker = mock(ServiceTracker.class);
     serviceBean.setServiceTracker(testServiceTracker);
@@ -493,14 +495,8 @@ public class ApplicationServiceBeanTest {
     root.addAppender(mockAppender);
     root.setLevel(Level.ALL);
 
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService) {
-          @Override
-          protected BundleContext getContext() {
-            return bundleContext;
-          }
-        };
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
+
     Bundle testBundle = mock(Bundle.class);
     Bundle[] bundles = {testBundle};
     when(bundleContext.getBundles()).thenReturn(bundles);
@@ -524,9 +520,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testGetSetApplicationPlugins() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
     ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
     List<ApplicationPlugin> pluginList = new ArrayList<>();
@@ -545,9 +539,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testGetAllFeatures() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
     FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
     testFeatureDetailsList.add(testFeatureDetails1);
@@ -572,9 +564,7 @@ public class ApplicationServiceBeanTest {
    */
   @Test
   public void testGetPluginsForApplication() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    ApplicationServiceBean serviceBean = newApplicationServiceBean();
     ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
     ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
     List<ApplicationPlugin> pluginList = new ArrayList<>();
@@ -596,5 +586,50 @@ public class ApplicationServiceBeanTest {
         "Should return the list of plugins given to it.",
         serviceBean.getPluginsForApplication(TEST_APP_NAME).get(0),
         is(plugin1JSON));
+  }
+
+  @Test
+  public void testRestartWithKarafRestart() throws Exception {
+    final ApplicationServiceBean serviceBean = newApplicationServiceBean();
+
+    serviceBean.restart();
+
+    assertThat(
+        "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), FileMatchers.anExistingFile());
+    verify(mockSystemService).halt();
+    verify(mockWrapperManager, Mockito.never()).restart();
+  }
+
+  @Test
+  public void testRestartWithWrapperRestart() throws Exception {
+    final ApplicationServiceBean serviceBean = newApplicationServiceBean();
+
+    System.setProperty(WRAPPER_KEY, "abc");
+
+    serviceBean.restart();
+
+    assertThat(
+        "Restart system property was not cleared",
+        System.getProperty(RESTART_JVM),
+        equalTo("true"));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), Matchers.not(FileMatchers.anExistingFile()));
+    verify(mockSystemService, Mockito.never()).halt();
+    verify(mockWrapperManager).restart();
+  }
+
+  private ApplicationServiceBean newApplicationServiceBean() throws ApplicationServiceException {
+    return new ApplicationServiceBean(
+        testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService, mockSystemService) {
+      @Override
+      protected BundleContext getContext() {
+        return bundleContext;
+      }
+    };
+  }
+
+  public static interface WrapperManagerMXBean {
+
+    public void restart() throws MBeanException;
   }
 }

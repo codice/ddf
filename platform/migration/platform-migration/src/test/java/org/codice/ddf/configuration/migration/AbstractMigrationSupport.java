@@ -90,6 +90,8 @@ public class AbstractMigrationSupport {
 
   protected Path ddfHome;
 
+  protected Path ddfBin;
+
   /**
    * Retrieves all zip entries representing files from the specified zip file.
    *
@@ -346,7 +348,7 @@ public class AbstractMigrationSupport {
   public void baseSetup() throws Exception {
     root = testFolder.getRoot().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
     ddfHome = testFolder.newFolder("ddf").toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
-
+    ddfBin = testFolder.newFolder("ddf", "bin").toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
     System.setProperty("ddf.home", ddfHome.toString());
   }
 
