@@ -64,6 +64,8 @@ public class ITUtilitiesFeatures {
 
   @Inject private FeaturesService featuresService;
 
+  @Inject private FeatureUtilities featureUtilities;
+
   private String featureName;
 
   public ITUtilitiesFeatures(String featureName) {
@@ -72,6 +74,6 @@ public class ITUtilitiesFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    FeatureUtilities.installAndUninstallFeature(featuresService, featureName);
+    featureUtilities.installAndUninstallFeature(featuresService, featureName);
   }
 }

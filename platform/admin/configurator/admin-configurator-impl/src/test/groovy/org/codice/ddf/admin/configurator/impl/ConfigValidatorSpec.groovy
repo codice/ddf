@@ -142,7 +142,7 @@ class ConfigValidatorSpec extends Specification {
         thrown(IllegalArgumentException)
 
         when:
-        validatePropertiesPath(Paths.get(System.getProperty('ddf.home'), 'etc', 'system.properties'))
+        validatePropertiesPath(Paths.get(System.getProperty('ddf.home'), 'etc', 'custom.system.properties'))
 
         then:
         thrown(IllegalArgumentException)

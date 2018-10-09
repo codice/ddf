@@ -46,9 +46,11 @@ public class KarafConfigurator {
         configureConsole().ignoreLocalConsole(),
         keepRuntimeFolder(),
         logLevel().logLevel(LogLevelOption.LogLevel.DEBUG),
-        editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
-        editConfigurationFilePut("etc/system.properties", SystemBaseUrl.EXTERNAL_HOST, "localhost"),
-        editConfigurationFilePut("etc/system.properties", SystemBaseUrl.INTERNAL_HOST, "localhost"),
+        editConfigurationFilePut("etc/custom.system.properties", "ddf.home", "${karaf.home}"),
+        editConfigurationFilePut(
+            "etc/custom.system.properties", SystemBaseUrl.EXTERNAL_HOST, "localhost"),
+        editConfigurationFilePut(
+            "etc/custom.system.properties", SystemBaseUrl.INTERNAL_HOST, "localhost"),
         when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()),
         KarafStandardFeatures.start("standard"));
   }

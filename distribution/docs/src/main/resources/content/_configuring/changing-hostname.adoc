@@ -11,4 +11,4 @@ By default, the STS server, STS client and the rest of the services use the syst
 Assuming the ${branding} instance is providing these services, the configuration must be updated to use the *fully qualified domain name* as the service provider.
 If the ${branding} is being accessed from behind a proxy or load balancer, set the system property `org.codice.ddf.external.hostname` to the hostname users will be using to access the ${branding}.
 
-This can be changed during <<{managing-prefix}completing_installation_from_the_admin_console,Initial Configuration>> or later by editing the `${home_directory}/etc/system.properties` file.
+This can be changed during <<{managing-prefix}completing_installation_from_the_admin_console,Initial Configuration>> or later by editing the `${home_directory}/etc/custom.system.properties` file.

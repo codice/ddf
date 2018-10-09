@@ -64,6 +64,8 @@ public class ITCamelFeatures {
 
   @Inject private FeaturesService featuresService;
 
+  @Inject private FeatureUtilities featureUtilities;
+
   private String featureName;
 
   public ITCamelFeatures(String featureName) {
@@ -72,6 +74,6 @@ public class ITCamelFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    FeatureUtilities.installAndUninstallFeature(featuresService, featureName);
+    featureUtilities.installAndUninstallFeature(featuresService, featureName);
   }
 }

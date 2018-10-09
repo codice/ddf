@@ -78,7 +78,7 @@ public class SystemPropertiesAdminTest {
     etcFolder = temporaryFolder.newFolder("etc");
     System.setProperty("karaf.etc", etcFolder.getAbsolutePath());
 
-    systemPropsFile = new File(etcFolder, "system.properties");
+    systemPropsFile = new File(etcFolder, "custom.system.properties");
     userPropsFile = new File(etcFolder, "users.properties");
     userAttrsFile = new File(etcFolder, "users.attributes");
   }

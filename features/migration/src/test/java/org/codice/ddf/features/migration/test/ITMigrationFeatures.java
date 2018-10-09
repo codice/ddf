@@ -64,6 +64,8 @@ public class ITMigrationFeatures {
 
   @Inject private FeaturesService featuresService;
 
+  @Inject private FeatureUtilities featureUtilities;
+
   private String featureName;
 
   public ITMigrationFeatures(String featureName) {
@@ -72,6 +74,6 @@ public class ITMigrationFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    FeatureUtilities.installAndUninstallFeature(featuresService, featureName);
+    featureUtilities.installAndUninstallFeature(featuresService, featureName);
   }
 }

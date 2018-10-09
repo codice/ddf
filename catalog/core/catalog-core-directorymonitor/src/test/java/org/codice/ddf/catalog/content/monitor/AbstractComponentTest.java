@@ -19,6 +19,7 @@ import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -47,6 +48,8 @@ public abstract class AbstractComponentTest {
         bundlesToStart().stream().map(this::startBundle).toArray(Option[]::new);
 
     return options(
+        editConfigurationFilePut(
+            "etc/org.apache.karaf.features.cfg", "serviceRequirements", "disable"),
         karafConfiguration(),
         setupDistribution(),
         getComponentUnderTestOptions(),

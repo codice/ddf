@@ -41,6 +41,15 @@ ${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-wrapper.conf -
 ----
 ${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-windows-wrapper.conf -n${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
 ----
+. Edit `${home_directory}/etc/${branding-lowercase}-wrapper.conf` and uncomment both of these lines
+(remove the `#` at the beginning of the lines).
+Note: The "9" and "10" indices may need to be changed to follow the sequence of other `wrapper.java.additional.n` properties in this file.
++
+.${home_directory}/etc/${branding-lowercase}-wrapper.conf
+----
+#wrapper.java.additional.9=-Djava.endorsed.dirs=%JAVA_HOME%/jre/lib/endorsed:%JAVA_HOME%/lib/endorsed:%KARAF_HOME%/lib/endorsed
+#wrapper.java.additional.10=-Djava.ext.dirs=%JAVA_HOME%/jre/lib/ext:%JAVA_HOME%/lib/ext:%KARAF_HOME%/lib/ext
+----
 . (Windows users skip this step) (All *NIX) If ${branding} was installed to run as a non-root
 user (as-recommended,) edit `${home_directory}/bin/${branding-lowercase}-service` and change
 the property `#RUN_AS_USER=` to:

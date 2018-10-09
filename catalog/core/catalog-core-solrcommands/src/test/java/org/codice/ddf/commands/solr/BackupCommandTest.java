@@ -92,7 +92,7 @@ public class BackupCommandTest {
   private static final String DEFAULT_DDF_HOME = "/opt/ddf";
 
   private static final Path SYSTEM_PROPERTIES_PATH =
-      Paths.get(DEFAULT_DDF_HOME, "etc", "system.properties");
+      Paths.get(DEFAULT_DDF_HOME, "etc", "custom.system.properties");
 
   private static final String SEE_COMMAND_USAGE_MESSAGE =
       "Invalid Argument(s). Please see command usage for details.";

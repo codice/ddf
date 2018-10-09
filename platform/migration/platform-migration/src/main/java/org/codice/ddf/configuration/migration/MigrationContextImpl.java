@@ -56,7 +56,7 @@ import org.codice.ddf.migration.MigrationReport;
  *               "name": "etc/startup.properties"
  *             },
  *             {
- *               "name": "etc/system.properties"
+ *               "name": "etc/custom.system.properties"
  *             }
  *           ],
  *           "folders": [
@@ -131,8 +131,8 @@ import org.codice.ddf.migration.MigrationReport;
  *       epoch if provided
  *   <li>'externals' provides an optional list of external files that should be present on the
  *       destination system as they were not exported
- *   <li>'system.properties' provides an optional list of java properties files containing a system
- *       property that references a file
+ *   <li>'custom.system.properties' provides an optional list of java properties files containing a
+ *       system property that references a file
  *   <li>'java.properties' provides an optional list of java properties files containing a Java
  *       property that references a file
  *   <li>'name' indicates the name of a file (absolute or relative to DDF_HOME). It is required

@@ -124,7 +124,7 @@ public class KarafOptions implements ContainerOptions {
         // thread attempts to create the backup before the exam bundle is completely
         // exploded.
         editConfigurationFilePut(
-            "etc/system.properties", "eclipse.enableStateSaver", Boolean.FALSE.toString()));
+            "etc/custom.system.properties", "eclipse.enableStateSaver", Boolean.FALSE.toString()));
   }
 
   private Option getPortConfigurationOptions() {

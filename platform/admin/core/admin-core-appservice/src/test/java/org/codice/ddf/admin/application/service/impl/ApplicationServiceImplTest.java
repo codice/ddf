@@ -82,7 +82,6 @@ public class ApplicationServiceImplTest {
     RepositoryImpl repo =
         new RepositoryImpl(
             ApplicationServiceImplTest.class.getClassLoader().getResource(featuresFile).toURI());
-    repo.load();
 
     return repo;
   }

@@ -36,8 +36,8 @@ import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.JSONContext;
-import org.cometd.common.Jackson1JSONContextClient;
-import org.cometd.server.Jackson1JSONContextServer;
+import org.cometd.common.JacksonJSONContextClient;
+import org.cometd.server.JacksonJSONContextServer;
 import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public class UserService {
                   PersistenceType.PREFERENCES_TYPE.toString(), "user = '" + userid + "'");
           if (preferencesList.size() == 1) {
             Map<String, Object> preferences = preferencesList.get(0);
-            JSONContext.Client jsonContext = new Jackson1JSONContextClient();
+            JSONContext.Client jsonContext = new JacksonJSONContextClient();
             String json = (String) preferences.get("preferences_json_txt");
             LOGGER.debug("preferences extracted JSON text:\n {}", json);
             Map preferencesMap;
@@ -106,7 +106,7 @@ public class UserService {
         reply.put(Search.SUCCESSFUL, true);
         remote.deliver(serverSession, "/service/user", reply);
       } else {
-        JSONContext.Server jsonContext = new Jackson1JSONContextServer();
+        JSONContext.Server jsonContext = new JacksonJSONContextServer();
         String json = jsonContext.getGenerator().generate(data);
         LOGGER.debug("preferences JSON text:\n {}", json);
         String username = SubjectUtils.getName(subject);

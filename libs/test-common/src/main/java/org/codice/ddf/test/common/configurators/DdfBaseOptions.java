@@ -80,7 +80,7 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DdfBaseOptions.class);
 
-  private static final String SYSTEM_PROPERTIES_FILE = "etc/system.properties";
+  private static final String SYSTEM_PROPERTIES_FILE = "etc/custom.system.properties";
 
   private static final String PAX_WEB_CONFIG_FILE = "etc/org.ops4j.pax.web.cfg";
 

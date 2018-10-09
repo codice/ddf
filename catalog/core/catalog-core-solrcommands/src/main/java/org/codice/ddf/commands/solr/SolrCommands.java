@@ -43,7 +43,7 @@ public abstract class SolrCommands implements Action {
   private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
 
   protected static final Path SYSTEM_PROPERTIES_PATH =
-      Paths.get(System.getProperty("ddf.etc"), "system.properties");
+      Paths.get(System.getProperty("ddf.etc"), "custom.system.properties");
 
   private static final Color ERROR_COLOR = Ansi.Color.RED;
 

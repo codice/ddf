@@ -68,6 +68,8 @@ public class ITInstallProfilesFeatures {
 
   @Inject private FeaturesService featuresService;
 
+  @Inject private FeatureUtilities featureUtilities;
+
   private String featureName;
 
   public ITInstallProfilesFeatures(String featureName) {
@@ -76,6 +78,6 @@ public class ITInstallProfilesFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    FeatureUtilities.installAndUninstallFeature(featuresService, featureName);
+    featureUtilities.installAndUninstallFeature(featuresService, featureName);
   }
 }
