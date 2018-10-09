@@ -410,9 +410,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     try {
       if (!restartServiceWrapperIfControlled()) {
         // create the restart.jvm file such that we would rely on the ddf script to restart
-        // ourselves
-        // and not on karaf. This will have the advantage to restart anything else (e.g. solr) that
-        // is also managed by that script
+        // ourselves and not on karaf. This will have the advantage to restart anything else
+        // (e.g. solr) that is also managed by that script
         LOGGER.debug("generating restart.jvm file");
         FileUtils.touch(
             Paths.get(

@@ -61,6 +61,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.StringDescription;
+import org.hamcrest.io.FileMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -313,7 +314,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
         "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
-    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), FileMatchers.anExistingFile());
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
@@ -344,7 +345,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         "Restart system property was not cleared",
         System.getProperty(RESTART_JVM),
         equalTo("true"));
-    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(false));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), Matchers.not(FileMatchers.anExistingFile()));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
@@ -370,7 +371,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
         "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
-    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), FileMatchers.anExistingFile());
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
@@ -402,7 +403,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
         "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
-    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), FileMatchers.anExistingFile());
     reportHasInfoMessage(
         report.infos(),
         equalTo(
@@ -464,7 +465,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     assertThat("Import was successful", report.wasSuccessful(), is(true));
     assertThat(
         "Restart system property was cleared", System.getProperty(RESTART_JVM), equalTo("false"));
-    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(true));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), FileMatchers.anExistingFile());
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
@@ -491,7 +492,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         "Restart system property was not cleared",
         System.getProperty(RESTART_JVM),
         equalTo("true"));
-    assertThat(ddfBin.resolve("restart.jvm").toFile().exists(), equalTo(false));
+    assertThat(ddfBin.resolve("restart.jvm").toFile(), Matchers.not(FileMatchers.anExistingFile()));
     reportHasInfoMessage(
         report.infos(), equalTo("Successfully imported from file [" + encryptedFileName + "]."));
     reportHasInfoMessage(
