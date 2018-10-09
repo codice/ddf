@@ -50,13 +50,8 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
       './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String)/',
     uninstallUrl:
       './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/uninstallFeature(java.lang.String)/',
-    shutdownUrl: './jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
-    propertiesUrl:
-      './jolokia/exec/org.apache.karaf:type=system,name=root/setProperty(java.lang.String,java.lang.String,boolean)/karaf.restart.jvm/true/false',
     restartUrl:
-      './jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
-    restartWrapperUrl:
-      './jolokia/exec/org.tanukisoftware.wrapper:type=WrapperManager/restart()',
+      './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/restart()/',
     defaults: function() {
       return {
         hasNext: true,
@@ -146,46 +141,12 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
           if (restart) {
             $.ajax({
               type: 'GET',
-              url: that.propertiesUrl,
+              url: that.restartUrl,
               dataType: 'JSON',
             }).done(function() {
-              // try to restart the service wrapper. this will fail with 404 if
-              // the wrapper is not installed
-              $.ajax({
-                type: 'GET',
-                url: that.restartWrapperUrl,
-                dataType: 'JSON',
-              })
-                .fail(function() {
-                  // Service wrapper is not installed, must be started via Karaf's script
-                  $.ajax({
-                    type: 'GET',
-                    url: that.restartUrl,
-                    dataType: 'JSON',
-                  }).done(function() {
-                    window.setTimeout(function() {
-                      window.location.href = that.get('redirectUrl')
-                    }, 60000)
-                  })
-                })
-                .done(function(data) {
-                  if (data.status === 2000) {
-                    window.setTimeout(function() {
-                      window.location.href = that.get('redirectUrl')
-                    }, 60000)
-                  } else if (data.status === 404) {
-                    // Service wrapper is not installed, must be started via Karaf's script
-                    $.ajax({
-                      type: 'GET',
-                      url: that.restartUrl,
-                      dataType: 'JSON',
-                    }).done(function() {
-                      window.setTimeout(function() {
-                        window.location.href = that.get('redirectUrl')
-                      }, 60000)
-                    })
-                  }
-                })
+              window.setTimeout(function() {
+                window.location.href = that.get('redirectUrl')
+              }, 60000)
             })
           } else {
             location.reload()

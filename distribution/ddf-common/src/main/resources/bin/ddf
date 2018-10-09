@@ -28,7 +28,7 @@ refresh_properties() {
 }
 
 
-# Return 0 (success/true) if ddf_on_error.sh created a restart file
+# Return 0 (success/true) if a restart.jvm file was created to request a restart
 is_restarting() {
     local RC=1
     if [ -f "$RESTART_FILE" ]; then
