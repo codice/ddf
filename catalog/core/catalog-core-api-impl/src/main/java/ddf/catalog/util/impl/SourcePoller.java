@@ -20,7 +20,6 @@ import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
-import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
@@ -72,14 +71,17 @@ public class SourcePoller implements EventListenerHook {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourcePoller.class);
 
-  // TODO Make these smaller for unit tests
-  @VisibleForTesting static final int SOURCE_POLLER_RUNNER_PERIOD = 5;
+  private static final int DEFAULT_HANDLE_ALL_SOURCES_PERIOD = 5;
 
-  @VisibleForTesting static final TimeUnit SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT = TimeUnit.SECONDS;
+  private static final TimeUnit DEFAULT_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT = TimeUnit.SECONDS;
 
-  private static final int DEFAULT_POLL_INTERVAL_MINUTES = 1;
+  private static final int DEFAULT_POLL_INTERVAL = 1;
 
-  private int pollIntervalMinutes = DEFAULT_POLL_INTERVAL_MINUTES;
+  private static final TimeUnit DEFAULT_POLL_INTERVAL_TIME_UNIT = TimeUnit.MINUTES;
+
+  private long pollInterval = DEFAULT_POLL_INTERVAL;
+
+  private TimeUnit pollIntervalTimeUnit = DEFAULT_POLL_INTERVAL_TIME_UNIT;
 
   private List<ConnectedSource> connectedSources = Collections.emptyList();
 
@@ -91,12 +93,25 @@ public class SourcePoller implements EventListenerHook {
 
   private final ExecutorService sourceAvailabilityChecksThreadPool;
 
+  private ExecutorService handleAllSourcesExecutorService;
+
   private final Cache<SourceKey, CachedSourceAvailability> cache;
 
-  private ScheduledExecutorService pollingExecutorService;
+  public SourcePoller() {
+    this(
+        DEFAULT_HANDLE_ALL_SOURCES_PERIOD,
+        DEFAULT_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT,
+        DEFAULT_POLL_INTERVAL,
+        DEFAULT_POLL_INTERVAL_TIME_UNIT);
+  }
 
   /** Starts a process to periodically call {@link #handleAllSources()} */
-  public SourcePoller() {
+  @VisibleForTesting
+  SourcePoller(
+      int sourcePollerRunnerPeriod,
+      TimeUnit sourcePollerRunnerPeriodTimeUnit,
+      final long pollInterval,
+      final TimeUnit pollIntervalTimeUnit) {
     sourceAvailabilityChecksThreadPool =
         Executors.newCachedThreadPool(
             StandardThreadFactoryBuilder.newThreadFactory("sourcePollerScheduledPollingThread"));
@@ -105,17 +120,18 @@ public class SourcePoller implements EventListenerHook {
     // start late, but will not concurrently execute.
     LOGGER.debug(
         "Scheduling ExecutorService at fixed rate of {} {} with an initial delay of {}",
-        SOURCE_POLLER_RUNNER_PERIOD,
-        SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT,
-        SOURCE_POLLER_RUNNER_PERIOD);
-    pollingExecutorService =
+        sourcePollerRunnerPeriod,
+        sourcePollerRunnerPeriodTimeUnit,
+        sourcePollerRunnerPeriod);
+    ScheduledExecutorService scheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("SourcePoller"));
-    pollingExecutorService.scheduleAtFixedRate(
+    scheduledExecutorService.scheduleAtFixedRate(
         this::handleAllSources,
-        SOURCE_POLLER_RUNNER_PERIOD,
-        SOURCE_POLLER_RUNNER_PERIOD,
-        SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT);
+        sourcePollerRunnerPeriod,
+        sourcePollerRunnerPeriod,
+        sourcePollerRunnerPeriodTimeUnit);
+    handleAllSourcesExecutorService = scheduledExecutorService;
 
     cache =
         CacheBuilder.newBuilder()
@@ -129,10 +145,12 @@ public class SourcePoller implements EventListenerHook {
                   removalNotification.getValue().cancel();
                 })
             .build();
+
+    setPollInterval(pollInterval, pollIntervalTimeUnit);
   }
 
   public void destroy() {
-    MoreExecutors.shutdownAndAwaitTermination(pollingExecutorService, 5, TimeUnit.SECONDS);
+    MoreExecutors.shutdownAndAwaitTermination(handleAllSourcesExecutorService, 5, TimeUnit.SECONDS);
 
     MoreExecutors.shutdownAndAwaitTermination(
         sourceAvailabilityChecksThreadPool, 5, TimeUnit.SECONDS);
@@ -145,9 +163,9 @@ public class SourcePoller implements EventListenerHook {
    *
    * <p>If the {@code source} was not created or modified within the last poll interval, the last
    * availability check is guaranteed to have started within the last poll interval. Else, the last
-   * availability check is guaranteed to have started at most {@value #SOURCE_POLLER_RUNNER_PERIOD}
-   * {@value #SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT} since the {@code source} was created or
-   * modified.
+   * availability check is guaranteed to have started at most some sourcePollerRunnerPeriod
+   * configured by {@link #SourcePoller(int, TimeUnit, long, TimeUnit)} since the {@code source} was
+   * created or modified.
    *
    * @return a {@link SourceAvailability} for the availability of the {@code source}, or {@link
    *     Optional#empty()} if the availability of the {@code source} has not yet been checked
@@ -174,7 +192,12 @@ public class SourcePoller implements EventListenerHook {
           "pollIntervalMinutes argument may not be less than " + minimumPollIntervalMinutes);
     }
 
-    this.pollIntervalMinutes = Ints.checkedCast(pollIntervalMinutes);
+    setPollInterval(pollIntervalMinutes, TimeUnit.MINUTES);
+  }
+
+  private void setPollInterval(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
+    this.pollInterval = pollInterval;
+    this.pollIntervalTimeUnit = pollIntervalTimeUnit;
   }
 
   /**
@@ -219,7 +242,7 @@ public class SourcePoller implements EventListenerHook {
               cachedSourceStatusOptional.get();
           cachedSourceAvailability.cancel();
           cachedSourceAvailability.recheckAvailability(
-              source, pollIntervalMinutes, sourceAvailabilityChecksThreadPool);
+              source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
         } else {
           LOGGER.debug(
               "Even though the source id={} has already been bound, the SourceKey for the source has been changed. The entry for the old SourceKey will be invalidated and a new entry will be bound at the next handleAllSources call.",
@@ -355,26 +378,17 @@ public class SourcePoller implements EventListenerHook {
             "Starting a process to recheck the availability of source id={}, which has already been added to the cache ",
             source.getId());
         cachedSourceAvailability.recheckAvailability(
-            source, pollIntervalMinutes, sourceAvailabilityChecksThreadPool);
+            source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
       } else {
         LOGGER.debug("Found a new SourceKey for source id={}", source.getId());
         final CachedSourceAvailability cachedSourceAvailability = new CachedSourceAvailability();
         cache.put(sourceKey, cachedSourceAvailability);
         cachedSourceAvailability.recheckAvailability(
-            source, pollIntervalMinutes, sourceAvailabilityChecksThreadPool);
+            source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
       }
     }
 
     LOGGER.trace("Successfully submitted availability checks for all of the sources");
-  }
-
-  @VisibleForTesting
-  BundleContext getBundleContext() {
-    return Optional.ofNullable(FrameworkUtil.getBundle(SourcePoller.class))
-        .map(Bundle::getBundleContext)
-        .orElseThrow(
-            () ->
-                new IllegalStateException("Unable to get the bundle context for the SourcePoller"));
   }
 
   /**
@@ -430,5 +444,14 @@ public class SourcePoller implements EventListenerHook {
     public String toString() {
       return String.format("id=%s, title=%s", id, title);
     }
+  }
+
+  @VisibleForTesting
+  BundleContext getBundleContext() {
+    return Optional.ofNullable(FrameworkUtil.getBundle(SourcePoller.class))
+        .map(Bundle::getBundleContext)
+        .orElseThrow(
+            () ->
+                new IllegalStateException("Unable to get the bundle context for the SourcePoller"));
   }
 }

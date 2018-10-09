@@ -24,18 +24,29 @@ import static org.awaitility.Awaitility.await
 
 class SourcePollerSpec extends Specification {
 
-    // TODO Set these to something much smaller in the SourcePoller so that these units tests are fast.
-    private static final TimeUnit DEFAULT_AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT = TimeUnit.MINUTES
+    private static final int SMALL_HANDLE_ALL_SOURCES_PERIOD = 1
 
-    private static final long DEFAULT_AVAILABILITY_CHECK_TIMEOUT = 1
+    private static final TimeUnit SMALL_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT = TimeUnit.SECONDS
+
+    private static final int SMALL_POLL_INTERVAL = 1
+
+    private static final TimeUnit SMALL_POLL_INTERVAL_TIME_UNIT = TimeUnit.SECONDS
+
+    private SourcePoller sourcePoller
+
+    def setup() {
+        sourcePoller = new SourcePoller(SMALL_HANDLE_ALL_SOURCES_PERIOD, SMALL_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT, SMALL_POLL_INTERVAL, SMALL_POLL_INTERVAL_TIME_UNIT)
+    }
+
+    def cleanup() {
+        sourcePoller.destroy()
+    }
 
     // create Source tests
 
     @Unroll
     def 'test create #expectedSourceStatus FederatedSource'() {
         given:
-        final SourcePoller sourcePoller = new SourcePoller()
-
         final FederatedSource mockFederatedSource = Mock(FederatedSource) {
             isAvailable() >> availability
         }
@@ -46,9 +57,6 @@ class SourcePollerSpec extends Specification {
         then:
         assertSourceStatus(sourcePoller, mockFederatedSource, expectedSourceStatus)
 
-        cleanup:
-        sourcePoller.destroy()
-
         where:
         availability || expectedSourceStatus
         true         || SourceStatus.AVAILABLE
@@ -57,11 +65,9 @@ class SourcePollerSpec extends Specification {
 
     def 'test bind FederatedSource availability timeout'() {
         given:
-        final SourcePoller sourcePoller = new SourcePoller()
-
         final FederatedSource mockFederatedSource = Mock(FederatedSource) {
             isAvailable() >> {
-                Thread.sleep(DEFAULT_AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT.toMillis(DEFAULT_AVAILABILITY_CHECK_TIMEOUT) + 1)
+                Thread.sleep(SMALL_POLL_INTERVAL_TIME_UNIT.toMillis(SMALL_POLL_INTERVAL) + 1)
                 return true
             }
         }
@@ -394,7 +400,7 @@ class SourcePollerSpec extends Specification {
 
     private static boolean assertSourceStatus(final SourcePoller sourcePoller, final Source source, final SourceStatus expectedSourceStatus) {
         // TODO Better timeouts here
-        await("source status is " + expectedSourceStatus).atMost(SourcePoller.SOURCE_POLLER_RUNNER_PERIOD + 1, SourcePoller.SOURCE_POLLER_RUNNER_PERIOD_TIME_UNIT).until {
+        await("source status is " + expectedSourceStatus).atMost(SMALL_HANDLE_ALL_SOURCES_PERIOD + 1, SMALL_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT).until {
             final Optional<SourceAvailability> sourceAvailability = sourcePoller.getSourceAvailability(source)
             if (sourceAvailability.isPresent()) {
                 return sourceAvailability.get().getSourceStatus() == expectedSourceStatus
@@ -409,7 +415,7 @@ class SourcePollerSpec extends Specification {
     private static boolean assertSourceStatusIsTimeout(final SourcePoller sourcePoller, final Source source) {
         final SourceStatus expectedSourceStatus = SourceStatus.TIMEOUT
         // TODO Better timeouts here
-        await("source status is " + expectedSourceStatus).atMost(DEFAULT_AVAILABILITY_CHECK_TIMEOUT * 2, DEFAULT_AVAILABILITY_CHECK_TIMEOUT_TIME_UNIT).until {
+        await("source status is " + expectedSourceStatus).atMost(SMALL_POLL_INTERVAL * 2, SMALL_POLL_INTERVAL_TIME_UNIT).until {
             final Optional<SourceAvailability> sourceAvailability = sourcePoller.getSourceAvailability(source)
             if (sourceAvailability.isPresent()) {
                 return sourceAvailability.get().getSourceStatus() == expectedSourceStatus

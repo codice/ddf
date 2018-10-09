@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,10 @@ public class CachedSourceAvailability {
    * not been checked within the last {@code timeoutMinutes} minutes.
    */
   public void recheckAvailability(
-      final Source source, final int timeoutMinutes, final ExecutorService executorService) {
+      final Source source,
+      final long timeout,
+      final TimeUnit timeoutTimeUnit,
+      final ExecutorService executorService) {
     notNull(source);
     final String sourceId = source.getId();
 
@@ -66,7 +68,8 @@ public class CachedSourceAvailability {
 
     if (sourceAvailabilityOptional.isPresent()) {
       final Date sourceStatusDate = sourceAvailabilityOptional.get().getSourceStatusDate();
-      final Date nextEarliestRecheckDate = DateUtils.addMinutes(sourceStatusDate, timeoutMinutes);
+      final Date nextEarliestRecheckDate =
+          new Date(sourceStatusDate.getTime() + timeoutTimeUnit.toMillis(timeout));
       final Date now = new Date();
 
       if (now.before(nextEarliestRecheckDate)) {
@@ -81,7 +84,8 @@ public class CachedSourceAvailability {
     isAvailableFuture = executorService.submit((Callable<Boolean>) source::isAvailable);
     watcherFuture =
         executorService.submit(
-            () -> watchAndUpdateAvailability(isAvailableFuture, sourceId, timeoutMinutes));
+            () ->
+                watchAndUpdateAvailability(isAvailableFuture, sourceId, timeout, timeoutTimeUnit));
   }
 
   /**
@@ -89,11 +93,14 @@ public class CachedSourceAvailability {
    * {@link SourceStatus} will be updated to {@link SourceStatus#TIMEOUT}.
    */
   private void watchAndUpdateAvailability(
-      final Future<Boolean> isAvailableFuture, final String sourceId, long timeoutMinutes) {
+      final Future<Boolean> isAvailableFuture,
+      final String sourceId,
+      final long timeout,
+      final TimeUnit timeoutTimeUnit) {
     SourceStatus newSourceStatus;
 
     try {
-      final boolean isAvailable = isAvailableFuture.get(timeoutMinutes, TimeUnit.MINUTES);
+      final boolean isAvailable = isAvailableFuture.get(timeout, timeoutTimeUnit);
       LOGGER.trace("Successfully checked the availability of source id={}", sourceId);
       newSourceStatus = isAvailable ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE;
     } catch (TimeoutException e) {
@@ -101,8 +108,8 @@ public class CachedSourceAvailability {
       LOGGER.debug(
           "Unable to check the availability of source id={} within {} {}. Cancelling the check",
           sourceId,
-          timeoutMinutes,
-          TimeUnit.MINUTES);
+          timeout,
+          timeoutTimeUnit);
       newSourceStatus = SourceStatus.TIMEOUT;
     } catch (CancellationException e) {
       isAvailableFuture.cancel(true);
