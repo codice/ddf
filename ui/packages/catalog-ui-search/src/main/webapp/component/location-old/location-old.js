@@ -483,7 +483,7 @@ define([
           var utmUps = this.LLtoUtmUps(result.south, result.east)
           if (utmUps !== undefined) {
             var utmUpsFormatted = this.formatUtmUps(utmUps)
-            this.setutmUpsLowerRight(utmUpsFormatted, true)
+            this.setUtmUpsLowerRight(utmUpsFormatted, true)
           }
         }
       }
