@@ -773,8 +773,7 @@ public class LoginFilter implements SecurityFilter {
     // Sets expirationTime to the default if the provided value is less than 2
     if (expirationTime >= 2) {
       this.expirationTime = expirationTime;
-    }
-    else {
+    } else {
       this.expirationTime = DEFAULT_EXPIRATION_TIME;
     }
   }
