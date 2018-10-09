@@ -26,6 +26,8 @@ import org.apache.commons.lang.WordUtils;
 
 public class ExportCategory implements RtfCategory {
 
+  public static final String EMPTY_VALUE = "--";
+
   private String title;
   private List<String> attributes;
 
@@ -122,7 +124,7 @@ public class ExportCategory implements RtfCategory {
   }
 
   private ExportValue emptyValue() {
-    return new JustValue("--", ValueType.EMPTY);
+    return new JustValue(EMPTY_VALUE, ValueType.EMPTY);
   }
 
   private ExportValue simpleValue(Attribute attribute) {
