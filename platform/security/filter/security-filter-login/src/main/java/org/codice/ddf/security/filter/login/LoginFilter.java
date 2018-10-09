@@ -100,6 +100,8 @@ public class LoginFilter implements SecurityFilter {
 
   private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
+  private static final int DEFAULT_EXPIRATION_TIME = 31;
+
   private static final ThreadLocal<DocumentBuilder> BUILDER =
       new ThreadLocal<DocumentBuilder>() {
         @Override
@@ -139,7 +141,7 @@ public class LoginFilter implements SecurityFilter {
   private SessionFactory sessionFactory;
 
   /** Default expiration value is 31 minutes */
-  private int expirationTime = 31;
+  private int expirationTime = DEFAULT_EXPIRATION_TIME;
 
   public LoginFilter() {
     super();
@@ -710,12 +712,8 @@ public class LoginFilter implements SecurityFilter {
         securityAssertion.getPrincipal().getName(),
         Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
     int minutes = getExpirationTime();
-    // we just want to set this to some non-zero value if the configuration is messed up
-    int seconds = 60;
-    if (minutes > 0) {
-      seconds = minutes * 60;
-    }
-    session.setMaxInactiveInterval(seconds);
+
+    session.setMaxInactiveInterval(minutes * 60);
   }
 
   /**
@@ -777,6 +775,12 @@ public class LoginFilter implements SecurityFilter {
    * @param expirationTime - time in minutes
    */
   public void setExpirationTime(int expirationTime) {
-    this.expirationTime = expirationTime;
+    // Sets expirationTime to the default if the provided value is less than 2
+    if (expirationTime >= 2) {
+      this.expirationTime = expirationTime;
+    }
+    else {
+      this.expirationTime = DEFAULT_EXPIRATION_TIME;
+    }
   }
 }
