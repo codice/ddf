@@ -28,4 +28,4 @@
 +------------------------------------------------------------+
 ....
 
-Endpoints act as a proxy between the client and the <<_catalog_framework_reference, Catalog Framework.>>
+Endpoints act as a proxy between the client and the <<{developing-prefix}catalog_framework_reference, Catalog Framework.>>

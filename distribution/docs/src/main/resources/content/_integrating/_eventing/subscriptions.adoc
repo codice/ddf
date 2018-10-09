@@ -13,7 +13,7 @@ A Subscription itself is a series of events during which various plugins or tran
 
 ====== Creation
 
-* Subscriptions are created directly with the <<_event_processor,Event Processor>> or declaratively through use of the Whiteboard Design Pattern.
+* Subscriptions are created directly with the <<{architecture-prefix}event_processor,Event Processor>> or declaratively through use of the Whiteboard Design Pattern.
 * The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.
 
 ====== Evaluation
@@ -72,7 +72,7 @@ When an event matches a subscription's criteria the Standard Event Processor:
 * invokes the `DeliveryMethod` operation corresponding to the type of event being processed, e.g., `created()` operation for the creation of a metacard.
 
 .Available Event Processor
-* <<_event_processor,Standard Event Processor>>
+* <<{architecture-prefix}event_processor,Standard Event Processor>>
 
 ====== Using ${branding} Implementation
 

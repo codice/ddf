@@ -15,10 +15,10 @@ ${branding} supports adding new attribute types, metacard types, validators, and
 
 The following may be defined in a JSON definition file:
 
-- <<_attribute_type_definition_file,Attribute Types>>
-- <<{integrating-prefix}metacard_type_definition_file,Metacard Types>>
-- <<_global_attribute_validators_file,Global Attribute Validators>>
-- <<_default_attribute_values,Default Attribute Values>>
+- <<{developing-prefix}attribute_type_definition_file,Attribute Types>>
+- <<{developing-prefix}metacard_type_definition_file,Metacard Types>>
+- <<{developing-prefix}global_attribute_validators_file,Global Attribute Validators>>
+- <<{developing-prefix}default_attribute_values,Default Attribute Values>>
 - <<{developing-prefix}attribute_injection_definition,Attribute Injections>>
 
 ==== Definition File Format
