@@ -99,6 +99,7 @@ define([
       radiusUnits: 'meters',
       radius: 1,
       locationType: 'latlon',
+      prevLocationType: 'latlon',
       lat: undefined,
       lon: undefined,
       dmsLat: '',
@@ -215,11 +216,18 @@ define([
       }
     },
     notDrawing: function() {
+      this.set('locationType', this.get('prevLocationType'))
       this.drawing = false
       store.get('content').turnOffDrawing()
     },
 
     drawingOn: function() {
+      const locationType = this.get('locationType')
+      this.set('prevLocationType', locationType)
+      if(locationType === 'utmUps'){
+        this.set('locationType', 'latlon')
+      }
+
       this.drawing = true
       store.get('content').turnOnDrawing(this)
     },
