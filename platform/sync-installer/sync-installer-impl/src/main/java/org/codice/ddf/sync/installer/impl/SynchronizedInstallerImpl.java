@@ -503,9 +503,11 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     }
 
     if (!states.getUnavailableBundles().isEmpty()) {
-      String unavailableBundles = bundleSymbolicNamesToString(states.getUnavailableBundles());
-      LOGGER.debug(
-          "Waiting on the following bundles to reach a ready state [{}]", unavailableBundles);
+      if (LOGGER.isDebugEnabled()) {
+        String unavailableBundles = bundleSymbolicNamesToString(states.getUnavailableBundles());
+        LOGGER.debug(
+            "Waiting on the following bundles to reach a ready state [{}]", unavailableBundles);
+      }
       return false;
     }
 

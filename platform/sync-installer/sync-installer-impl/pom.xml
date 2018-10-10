@@ -114,7 +114,7 @@
                                     <limit implementation="org.codice.jacoco.LenientLimit">
                                         <counter>BRANCH</counter>
                                         <value>COVEREDRATIO</value>
-                                        <minimum>.73</minimum>
+                                        <minimum>.70</minimum>
                                     </limit>
                                     <limit implementation="org.codice.jacoco.LenientLimit">
                                         <counter>COMPLEXITY</counter>
