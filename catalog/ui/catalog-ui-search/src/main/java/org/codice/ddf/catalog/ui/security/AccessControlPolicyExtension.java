@@ -126,7 +126,7 @@ public class AccessControlPolicyExtension implements PolicyExtension {
     }
 
     // To be able to have viewing access to the metacard, you must satisfy the following criteria
-    SecurityPredicate readPermsImplied =
+    SecurityPredicate subjectImpliesACL =
         (sub, mc) ->
             hasAccessAdministrators.apply(sub, mc)
                 || hasAccessIndividuals.apply(sub, mc)
@@ -141,7 +141,7 @@ public class AccessControlPolicyExtension implements PolicyExtension {
         () -> {
           if (isSystem.test(subject) || isOwner.apply(subject, metacard)) {
             return metacard.keySet(); // all permissions are implied
-          } else if (readPermsImplied.apply(subject, metacard)) {
+          } else if (subjectImpliesACL.apply(subject, metacard)) {
             return ACCESS_CONTROL_IMPLIED; // access control perms implied
           } else {
             return Collections.emptySet(); // nothing is implied
