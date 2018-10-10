@@ -575,7 +575,9 @@ define([
               )
               this.set('usng', usngsStr, { silent: true })
             } else {
-              this.clearUtmUpsPointRadius(true)
+              if (utmUpsParts.zoneNumber !== 0) {
+                this.clearUtmUpsPointRadius(true)
+              }
               this.set({
                 lat: undefined,
                 lon: undefined,
@@ -606,7 +608,9 @@ define([
                 { silent: true }
               )
             } else {
-              this.clearUtmUpsUpperLeft(true)
+              if (upperLeftParts.zoneNumber !== 0) {
+                this.clearUtmUpsUpperLeft(true)
+              }
               upperLeft = undefined
               this.set({
                 mapNorth: undefined,
@@ -631,7 +635,9 @@ define([
                 { silent: true }
               )
             } else {
-              this.clearUtmUpsLowerRight(true)
+              if (lowerRightParts.zoneNumber !== 0) {
+                this.clearUtmUpsLowerRight(true)
+              }
               lowerRight = undefined
               this.set({
                 mapNorth: undefined,
