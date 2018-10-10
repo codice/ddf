@@ -27,8 +27,17 @@
     <dependencies>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-filter-delegate</artifactId>
+            <artifactId>security-filter-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${apache.shiro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
     <build>

@@ -63,6 +63,8 @@
         <codice-test.version>0.1</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.5</acdebugger.version>
+        <!--temporary codice version of pax web-->
+        <pax.web.codice.version>7.2.4.CODICE</pax.web.codice.version>
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>

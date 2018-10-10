@@ -30,6 +30,13 @@ public final class SecurityConstants {
    */
   public static final String SECURITY_SUBJECT = "ddf.security.subject";
 
+  /**
+   * Property name for the java security subject. The java subject is added to incoming requests
+   * under this property name. The security framework retrieves the java subject using this property
+   * name in order to perform any security operations involving the java subject of the request.
+   */
+  public static final String SECURITY_JAVA_SUBJECT = "ddf.security.java.subject";
+
   /** Property key to obtain the saml assertion from a query request / response. */
   public static final String SAML_ASSERTION = "saml.assertion";
 

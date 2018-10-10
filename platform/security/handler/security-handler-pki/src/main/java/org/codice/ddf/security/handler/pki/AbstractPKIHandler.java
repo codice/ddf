@@ -14,12 +14,11 @@
 package org.codice.ddf.security.handler.pki;
 
 import java.security.cert.X509Certificate;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -57,13 +56,10 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
    * @param resolve flag with true implying that credentials should be obtained, false implying
    *     return if no credentials are found.
    * @return result of handling this request - status and optional tokens
-   * @throws ServletException
    */
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
-      throws ServletException {
-
+      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
     String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
     HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     handlerResult.setSource(realm + "-" + SOURCE);
@@ -123,8 +119,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException {
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     result.setSource(realm + "-" + SOURCE);

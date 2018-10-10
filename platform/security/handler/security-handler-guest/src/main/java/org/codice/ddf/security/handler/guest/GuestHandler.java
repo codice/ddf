@@ -14,12 +14,12 @@
 package org.codice.ddf.security.handler.guest;
 
 import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
@@ -64,7 +64,8 @@ public class GuestHandler implements AuthenticationHandler {
    */
   @Override
   public HandlerResult getNormalizedToken(
-      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
+      throws AuthenticationException {
     HandlerResult result = new HandlerResult();
 
     String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
@@ -86,7 +87,8 @@ public class GuestHandler implements AuthenticationHandler {
    * @return BSTAuthenticationToken
    */
   private BaseAuthenticationToken getAuthToken(
-      HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+      HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+      throws AuthenticationException {
     // check for basic auth first
     String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
     BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
@@ -98,24 +100,18 @@ public class GuestHandler implements AuthenticationHandler {
     // if basic fails, check for PKI
     PKIHandler pkiHandler = new PKIHandler();
     pkiHandler.setTokenFactory(tokenFactory);
-    try {
-      handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
-      if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
-        return handlerResult.getToken();
-      }
-    } catch (ServletException e) {
-      LOGGER.info("Encountered an exception while checking for PKI auth info.", e);
+    handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
+    if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+      return handlerResult.getToken();
     }
 
     // if everything fails, the user is guest, log in as such
-
     return new GuestAuthenticationToken(realm, request.getRemoteAddr());
   }
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException {
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
     String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);

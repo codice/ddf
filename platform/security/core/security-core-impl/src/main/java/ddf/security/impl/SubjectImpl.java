@@ -64,4 +64,9 @@ public class SubjectImpl extends DelegatingSubject implements Subject {
     }
     return false;
   }
+
+  @Override
+  public String getName() {
+    return "DDF Subject";
+  }
 }

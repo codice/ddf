@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-filter-delegate</artifactId>
+            <artifactId>security-filter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -421,6 +421,27 @@
             <artifactId>secure-boot</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-api</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-jetty</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-runtime</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-spi</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+
 
         <!--feature dependencies-->
         <dependency>

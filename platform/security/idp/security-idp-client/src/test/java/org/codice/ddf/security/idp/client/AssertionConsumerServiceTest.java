@@ -33,9 +33,6 @@ import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.RelayStates;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +40,9 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.http.HttpStatus;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
+import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class AssertionConsumerServiceTest {
 
   private RelayStates<String> relayStates;
 
-  private Filter loginFilter;
+  private SecurityFilter loginFilter;
 
   private SessionFactory sessionFactory;
 
@@ -92,7 +92,7 @@ public class AssertionConsumerServiceTest {
     relayStates = (RelayStates<String>) mock(RelayStates.class);
     when(relayStates.encode("fubar")).thenReturn(RELAY_STATE_VAL);
     when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
-    loginFilter = mock(javax.servlet.Filter.class);
+    loginFilter = mock(SecurityFilter.class);
     sessionFactory = mock(SessionFactory.class);
     httpRequest = mock(HttpServletRequest.class);
     when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("fubar"));
@@ -415,7 +415,7 @@ public class AssertionConsumerServiceTest {
 
   @Test
   public void testProcessSamlResponseLoginFail() throws Exception {
-    doThrow(ServletException.class)
+    doThrow(AuthenticationFailureException.class)
         .when(loginFilter)
         .doFilter(any(ServletRequest.class), isNull(ServletResponse.class), any(FilterChain.class));
     Response response =
@@ -475,7 +475,7 @@ public class AssertionConsumerServiceTest {
 
   @Test
   public void testGetLoginFilter() throws Exception {
-    Filter filter = assertionConsumerService.getLoginFilter();
+    SecurityFilter filter = assertionConsumerService.getLoginFilter();
     assertThat(
         "Returned login filter was not the same as the one set", filter, equalTo(loginFilter));
   }
