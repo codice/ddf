@@ -4,7 +4,7 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.util.concurrent.Futures;
 import ddf.catalog.source.Source;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -67,12 +67,11 @@ public class CachedSourceAvailability {
     }
 
     if (sourceAvailabilityOptional.isPresent()) {
-      final Date sourceStatusDate = sourceAvailabilityOptional.get().getSourceStatusDate();
-      final Date nextEarliestRecheckDate =
-          new Date(sourceStatusDate.getTime() + timeoutTimeUnit.toMillis(timeout));
-      final Date now = new Date();
+      final Instant sourceStatusTimeStamp = sourceAvailabilityOptional.get().getSourceStatusTimeStamp();
+      final Instant nextEarliestRecheckTime = sourceStatusTimeStamp.plusMillis(timeout);
+      final Instant now = Instant.now();
 
-      if (now.before(nextEarliestRecheckDate)) {
+      if (now.isBefore(nextEarliestRecheckTime)) {
         // Not rechecking the availability of source id={} because it has been checked in the last
         // {} minutes
         // Don't log anything here because this happens really often.
@@ -135,7 +134,7 @@ public class CachedSourceAvailability {
             sourceId,
             newSourceStatus,
             oldSourceAvailability.getSourceStatus(),
-            oldSourceAvailability.getSourceStatusDate());
+            oldSourceAvailability.getSourceStatusTimeStamp());
       }
 
       final SourceAvailability newSourceAvailability = new SourceAvailability(newSourceStatus);

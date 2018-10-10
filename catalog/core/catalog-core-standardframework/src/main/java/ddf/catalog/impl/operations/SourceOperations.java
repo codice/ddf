@@ -31,9 +31,9 @@ import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import ddf.catalog.util.impl.SourceStatus;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 public class SourceOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceOperations.class);
 
-  private static final Date UNKNOWN_LAST_AVAILABILITY_DATE = null;
+  private static final Instant UNKNOWN_LAST_AVAILABILITY_TIME = null;
 
   //
   // Injected properties
@@ -300,14 +300,14 @@ public class SourceOperations extends DescribableImpl {
     CollectionUtils.addIgnoreNull(sources, catalog);
 
     boolean sourceDescriptorIsAvailable = false;
-    final Set<Date> lastAvailableDates = new HashSet<>();
+    final Set<Instant> lastAvailableTimeStamps = new HashSet<>();
     final Set<ContentType> contentTypes = new HashSet<>();
     for (final Source source : sources) {
       final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
       if (isAvailable(sourceAvailability)) {
         sourceDescriptorIsAvailable = true;
         Optional.ofNullable(source.getContentTypes()).ifPresent(contentTypes::addAll);
-        lastAvailableDates.add(getSourceDescriptorLastAvailabilityDate(sourceAvailability));
+        lastAvailableTimeStamps.add(getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
       }
     }
 
@@ -319,12 +319,12 @@ public class SourceOperations extends DescribableImpl {
     }
 
     sourceDescriptor.setAvailable(sourceDescriptorIsAvailable);
-    sourceDescriptor.setLastAvailabilityDate(
-        lastAvailableDates
+    sourceDescriptor.setLastAvailabilityTimeStamp(
+        lastAvailableTimeStamps
             .stream()
             .filter(Objects::nonNull)
-            .max(Date::compareTo)
-            .orElse(UNKNOWN_LAST_AVAILABILITY_DATE));
+            .max(Instant::compareTo)
+            .orElse(UNKNOWN_LAST_AVAILABILITY_TIME));
     return sourceDescriptor;
   }
 
@@ -355,8 +355,8 @@ public class SourceOperations extends DescribableImpl {
 
           final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
           sourceDescriptor.setAvailable(isAvailable(sourceAvailability));
-          sourceDescriptor.setLastAvailabilityDate(
-              getSourceDescriptorLastAvailabilityDate(sourceAvailability));
+          sourceDescriptor.setLastAvailabilityTimeStamp(
+              getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
 
           sourceDescriptors.add(sourceDescriptor);
         }
@@ -399,8 +399,8 @@ public class SourceOperations extends DescribableImpl {
         final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(catalog);
 
         descriptor.setAvailable(isAvailable(sourceAvailability));
-        descriptor.setLastAvailabilityDate(
-            getSourceDescriptorLastAvailabilityDate(sourceAvailability));
+        descriptor.setLastAvailabilityTimeStamp(
+            getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
         descriptors.add(descriptor);
       }
     }
@@ -415,12 +415,12 @@ public class SourceOperations extends DescribableImpl {
     return sourceAvailability.map(s -> s.getSourceStatus() == SourceStatus.AVAILABLE).orElse(false);
   }
 
-  /** @see {@link SourceDescriptor#getLastAvailabilityDate()} */
+  /** @see {@link SourceDescriptor#getLastAvailabilityTimeStamp()} */
   @Nullable
-  private static Date getSourceDescriptorLastAvailabilityDate(
+  private static Instant getSourceDescriptorLastAvailabilityTimeStamp(
       final Optional<SourceAvailability> sourceAvailability) {
     return sourceAvailability
-        .map(SourceAvailability::getSourceStatusDate)
-        .orElse(UNKNOWN_LAST_AVAILABILITY_DATE);
+        .map(SourceAvailability::getSourceStatusTimeStamp)
+        .orElse(UNKNOWN_LAST_AVAILABILITY_TIME);
   }
 }

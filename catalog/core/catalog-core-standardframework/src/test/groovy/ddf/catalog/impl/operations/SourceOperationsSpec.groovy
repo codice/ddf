@@ -106,7 +106,7 @@ class SourceOperationsSpec extends Specification {
         ids == [SOURCE_ID] as Set
     }
 
-    // TODO Assert SourceDescriptor#getLastAvailabilityDate
+    // TODO Assert SourceDescriptor#getLastAvailabilityTimeStamp
 
     def 'test getSourceInfo with fanout and null request'() {
         when:

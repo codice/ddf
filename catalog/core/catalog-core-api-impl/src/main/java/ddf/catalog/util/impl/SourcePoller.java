@@ -54,7 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link SourcePoller} checks the availability of all configured {@link Source}s provides a
+ * The {@link SourcePoller} checks the availability of all configured {@link Source}s and provides a
  * non-blocking solution to check whether a {@link Source} is available. The {@link SourcePoller}
  * can be scheduled to execute at a configured rate, i.e., the polling interval.
  *
@@ -79,9 +79,9 @@ public class SourcePoller implements EventListenerHook {
 
   private static final TimeUnit DEFAULT_POLL_INTERVAL_TIME_UNIT = TimeUnit.MINUTES;
 
-  private long pollInterval = DEFAULT_POLL_INTERVAL;
+  private volatile long pollInterval = DEFAULT_POLL_INTERVAL;
 
-  private TimeUnit pollIntervalTimeUnit = DEFAULT_POLL_INTERVAL_TIME_UNIT;
+  private volatile TimeUnit pollIntervalTimeUnit = DEFAULT_POLL_INTERVAL_TIME_UNIT;
 
   private List<ConnectedSource> connectedSources = Collections.emptyList();
 
@@ -147,173 +147,6 @@ public class SourcePoller implements EventListenerHook {
             .build();
 
     setPollInterval(pollInterval, pollIntervalTimeUnit);
-  }
-
-  public void destroy() {
-    MoreExecutors.shutdownAndAwaitTermination(handleAllSourcesExecutorService, 5, TimeUnit.SECONDS);
-
-    MoreExecutors.shutdownAndAwaitTermination(
-        sourceAvailabilityChecksThreadPool, 5, TimeUnit.SECONDS);
-  }
-
-  /**
-   * This method is an non-blocking alternative to {@link Source#isAvailable()} which provides more
-   * more details about the availability than just available or unavailable. The last availability
-   * check is guaranteed
-   *
-   * <p>If the {@code source} was not created or modified within the last poll interval, the last
-   * availability check is guaranteed to have started within the last poll interval. Else, the last
-   * availability check is guaranteed to have started at most some sourcePollerRunnerPeriod
-   * configured by {@link #SourcePoller(int, TimeUnit, long, TimeUnit)} since the {@code source} was
-   * created or modified.
-   *
-   * @return a {@link SourceAvailability} for the availability of the {@code source}, or {@link
-   *     Optional#empty()} if the availability of the {@code source} has not yet been checked
-   * @throws IllegalArgumentException if the {@code source} is {@code null}
-   */
-  public Optional<SourceAvailability> getSourceAvailability(final Source source) {
-    notNull(source);
-
-    LOGGER.trace("Getting status of source id={}", source.getId());
-    return Optional.ofNullable(cache.getIfPresent(new SourceKey(source)))
-        .flatMap(CachedSourceAvailability::getSourceAvailability);
-  }
-
-  /**
-   * @param pollIntervalMinutes the interval (in minutes) at which to recheck the availability of
-   *     the {@link Source}s
-   * @throws IllegalArgumentException if {@code pollIntervalMinutes} is less than {@code 1} or is
-   *     greater than {@link Integer#MAX_VALUE}
-   */
-  public void setPollIntervalMinutes(final long pollIntervalMinutes) {
-    final int minimumPollIntervalMinutes = 1;
-    if (pollIntervalMinutes < minimumPollIntervalMinutes) {
-      throw new IllegalArgumentException(
-          "pollIntervalMinutes argument may not be less than " + minimumPollIntervalMinutes);
-    }
-
-    setPollInterval(pollIntervalMinutes, TimeUnit.MINUTES);
-  }
-
-  private void setPollInterval(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
-    this.pollInterval = pollInterval;
-    this.pollIntervalTimeUnit = pollIntervalTimeUnit;
-  }
-
-  /**
-   * Used to listen for when a {@link Source} is modified. If a {@link Source} is modified in a way
-   * that changes its {@link SourceKey}, the {@link Source} will be handled at the next {@link
-   * #handleAllSources()} call. Else, the current availability check for the {@link Source} will be
-   * cancelled, the availability will be updated to {@link Optional#empty()}, and a new availability
-   * check will be started.
-   *
-   * <p>Does not block
-   *
-   * @throws IllegalArgumentException if {@code serviceEvent} is {@code null}
-   */
-  @Override
-  public void event(
-      final ServiceEvent serviceEvent,
-      final Map<BundleContext, Collection<ListenerHook.ListenerInfo>> listeners) {
-    notNull(serviceEvent);
-
-    final ServiceReference<?> serviceReference = serviceEvent.getServiceReference();
-    final BundleContext bundleContext = getBundleContext();
-    final Object service = bundleContext.getService(serviceReference);
-
-    if (service instanceof Source) {
-      final Source source = (Source) service;
-      final int serviceEventType = serviceEvent.getType();
-
-      // ServiceEvent.REGISTERED and ServiceEvent.UNREGISTERING are already handled by the
-      // handleAllSources method.
-      if (serviceEventType != ServiceEvent.REGISTERED
-          && serviceEventType != ServiceEvent.UNREGISTERING) {
-        final String sourceId = source.getId();
-        final SourceKey sourceKey = new SourceKey(source);
-
-        final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
-            Optional.ofNullable(cache.getIfPresent(sourceKey));
-        if (cachedSourceStatusOptional.isPresent()) {
-          LOGGER.debug(
-              "The source id={} has been updated but its SourceKey is still the same. Cancelling the current availability check of the source, if not completed. Rechecking the availability of the source.",
-              sourceId);
-          final CachedSourceAvailability cachedSourceAvailability =
-              cachedSourceStatusOptional.get();
-          cachedSourceAvailability.cancel();
-          cachedSourceAvailability.recheckAvailability(
-              source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
-        } else {
-          LOGGER.debug(
-              "Even though the source id={} has already been bound, the SourceKey for the source has been changed. The entry for the old SourceKey will be invalidated and a new entry will be bound at the next handleAllSources call.",
-              sourceId);
-        }
-      }
-    }
-  }
-
-  /**
-   * Sets the {@link ConnectedSource}s of which to check the availability periodically according to
-   * {@link #setPollIntervalMinutes(long)}
-   *
-   * @throws IllegalArgumentException if {@code connectedSources} is {@code null}
-   */
-  public void setConnectedSources(final List<ConnectedSource> connectedSources) {
-    notNull(connectedSources);
-
-    LOGGER.trace(
-        "Setting connected sources: old size={}, new size={}",
-        this.connectedSources.size(),
-        connectedSources.size());
-    this.connectedSources = connectedSources;
-  }
-
-  /**
-   * Sets the {@link FederatedSource}s of which to check the availability periodically according to
-   * {@link #setPollIntervalMinutes(long)}
-   *
-   * @throws IllegalArgumentException if {@code federatedSource} is {@code null}
-   */
-  public void setFederatedSources(final List<FederatedSource> federatedSources) {
-    notNull(federatedSources);
-
-    LOGGER.trace(
-        "Setting federated sources: old size={}, new size={}",
-        this.federatedSources.size(),
-        federatedSources.size());
-    this.federatedSources = federatedSources;
-  }
-
-  /**
-   * Sets the {@link CatalogProvider}s of which to check the availability periodically according to
-   * {@link #setPollIntervalMinutes(long)}
-   *
-   * @throws IllegalArgumentException if {@code catalogProvider} is {@code null}
-   */
-  public void setCatalogProviders(final List<CatalogProvider> catalogProviders) {
-    notNull(catalogProviders);
-
-    LOGGER.trace(
-        "Setting catalog providers: old size={}, new size={}",
-        this.catalogProviders.size(),
-        catalogProviders.size());
-    this.catalogProviders = catalogProviders;
-  }
-
-  /**
-   * Sets the {@link CatalogStore}s of which to check the availability periodically according to
-   * {@link #setPollIntervalMinutes(long)}
-   *
-   * @throws IllegalArgumentException if {@code catalogStore} is {@code null}
-   */
-  public void setCatalogStores(final List<CatalogStore> catalogStores) {
-    notNull(catalogStores);
-
-    LOGGER.trace(
-        "Setting catalog stores: old size={}, new size={}",
-        this.catalogStores.size(),
-        catalogStores.size());
-    this.catalogStores = catalogStores;
   }
 
   /**
@@ -391,6 +224,182 @@ public class SourcePoller implements EventListenerHook {
     LOGGER.trace("Successfully submitted availability checks for all of the sources");
   }
 
+  private void setPollInterval(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
+    this.pollInterval = pollInterval;
+    this.pollIntervalTimeUnit = pollIntervalTimeUnit;
+  }
+
+  public void destroy() {
+    MoreExecutors.shutdownAndAwaitTermination(handleAllSourcesExecutorService, 5, TimeUnit.SECONDS);
+
+    MoreExecutors.shutdownAndAwaitTermination(
+        sourceAvailabilityChecksThreadPool, 5, TimeUnit.SECONDS);
+  }
+
+  /**
+   * This method is an non-blocking alternative to {@link Source#isAvailable()} which provides more
+   * more details about the availability than just available or unavailable. The last availability
+   * check is guaranteed
+   *
+   * <p>If the {@code source} was not created or modified within the last poll interval, the last
+   * availability check is guaranteed to have started within the last poll interval. Else, the last
+   * availability check is guaranteed to have started at most some sourcePollerRunnerPeriod
+   * configured by {@link #SourcePoller(int, TimeUnit, long, TimeUnit)} since the {@code source} was
+   * created or modified.
+   *
+   * @return a {@link SourceAvailability} for the availability of the {@code source}, or {@link
+   *     Optional#empty()} if the availability of the {@code source} has not yet been checked
+   * @throws IllegalArgumentException if the {@code source} is {@code null}
+   */
+  public Optional<SourceAvailability> getSourceAvailability(final Source source) {
+    notNull(source);
+
+    LOGGER.trace("Getting status of source id={}", source.getId());
+    return Optional.ofNullable(cache.getIfPresent(new SourceKey(source)))
+        .flatMap(CachedSourceAvailability::getSourceAvailability);
+  }
+
+  /**
+   * Used to listen for when a {@link Source} is modified. If a {@link Source} is modified in a way
+   * that changes its {@link SourceKey}, the {@link Source} will be handled at the next {@link
+   * #handleAllSources()} call. Else, the current availability check for the {@link Source} will be
+   * cancelled, the availability will be updated to {@link Optional#empty()}, and a new availability
+   * check will be started.
+   *
+   * <p>Does not block
+   *
+   * @throws IllegalArgumentException if {@code serviceEvent} is {@code null}
+   */
+  @Override
+  public void event(
+      final ServiceEvent serviceEvent,
+      final Map<BundleContext, Collection<ListenerHook.ListenerInfo>> listeners) {
+    notNull(serviceEvent);
+
+    final ServiceReference<?> serviceReference = serviceEvent.getServiceReference();
+    final BundleContext bundleContext = getBundleContext();
+    final Object service = bundleContext.getService(serviceReference);
+
+    if (service instanceof Source) {
+      final Source source = (Source) service;
+      final int serviceEventType = serviceEvent.getType();
+
+      // ServiceEvent.REGISTERED and ServiceEvent.UNREGISTERING are already handled by the
+      // handleAllSources method.
+      if (serviceEventType != ServiceEvent.REGISTERED
+          && serviceEventType != ServiceEvent.UNREGISTERING) {
+        final String sourceId = source.getId();
+        final SourceKey sourceKey = new SourceKey(source);
+
+        final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
+            Optional.ofNullable(cache.getIfPresent(sourceKey));
+        if (cachedSourceStatusOptional.isPresent()) {
+          LOGGER.debug(
+              "The source id={} has been updated but its SourceKey is still the same. Cancelling the current availability check of the source, if not completed. Rechecking the availability of the source.",
+              sourceId);
+          final CachedSourceAvailability cachedSourceAvailability =
+              cachedSourceStatusOptional.get();
+          cachedSourceAvailability.cancel();
+          cachedSourceAvailability.recheckAvailability(
+              source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
+        } else {
+          LOGGER.debug(
+              "Even though the source id={} has already been bound, the SourceKey for the source has been changed. The entry for the old SourceKey will be invalidated and a new entry will be bound at the next handleAllSources call.",
+              sourceId);
+        }
+      }
+    }
+  }
+
+  @VisibleForTesting
+  BundleContext getBundleContext() {
+    return Optional.ofNullable(FrameworkUtil.getBundle(SourcePoller.class))
+        .map(Bundle::getBundleContext)
+        .orElseThrow(
+            () ->
+                new IllegalStateException("Unable to get the bundle context for the SourcePoller"));
+  }
+
+  /**
+   * Sets the {@link ConnectedSource}s of which to check the availability periodically according to
+   * {@link #setPollIntervalMinutes(long)}
+   *
+   * @throws IllegalArgumentException if {@code connectedSources} is {@code null}
+   */
+  public void setConnectedSources(final List<ConnectedSource> connectedSources) {
+    notNull(connectedSources);
+
+    LOGGER.trace(
+        "Setting connected sources: old size={}, new size={}",
+        this.connectedSources.size(),
+        connectedSources.size());
+    this.connectedSources = connectedSources;
+  }
+
+  /**
+   * Sets the {@link FederatedSource}s of which to check the availability periodically according to
+   * {@link #setPollIntervalMinutes(long)}
+   *
+   * @throws IllegalArgumentException if {@code federatedSource} is {@code null}
+   */
+  public void setFederatedSources(final List<FederatedSource> federatedSources) {
+    notNull(federatedSources);
+
+    LOGGER.trace(
+        "Setting federated sources: old size={}, new size={}",
+        this.federatedSources.size(),
+        federatedSources.size());
+    this.federatedSources = federatedSources;
+  }
+
+  /**
+   * Sets the {@link CatalogProvider}s of which to check the availability periodically according to
+   * {@link #setPollIntervalMinutes(long)}
+   *
+   * @throws IllegalArgumentException if {@code catalogProvider} is {@code null}
+   */
+  public void setCatalogProviders(final List<CatalogProvider> catalogProviders) {
+    notNull(catalogProviders);
+
+    LOGGER.trace(
+        "Setting catalog providers: old size={}, new size={}",
+        this.catalogProviders.size(),
+        catalogProviders.size());
+    this.catalogProviders = catalogProviders;
+  }
+
+  /**
+   * Sets the {@link CatalogStore}s of which to check the availability periodically according to
+   * {@link #setPollIntervalMinutes(long)}
+   *
+   * @throws IllegalArgumentException if {@code catalogStore} is {@code null}
+   */
+  public void setCatalogStores(final List<CatalogStore> catalogStores) {
+    notNull(catalogStores);
+
+    LOGGER.trace(
+        "Setting catalog stores: old size={}, new size={}",
+        this.catalogStores.size(),
+        catalogStores.size());
+    this.catalogStores = catalogStores;
+  }
+
+  /**
+   * @param pollIntervalMinutes the interval (in minutes) at which to recheck the availability of
+   *     the {@link Source}s
+   * @throws IllegalArgumentException if {@code pollIntervalMinutes} is less than {@code 1} or is
+   *     greater than {@link Integer#MAX_VALUE}
+   */
+  public void setPollIntervalMinutes(final long pollIntervalMinutes) {
+    final int minimumPollIntervalMinutes = 1;
+    if (pollIntervalMinutes < minimumPollIntervalMinutes) {
+      throw new IllegalArgumentException(
+          "pollIntervalMinutes argument may not be less than " + minimumPollIntervalMinutes);
+    }
+
+    setPollInterval(pollIntervalMinutes, TimeUnit.MINUTES);
+  }
+
   /**
    * Used as a way to compare {@link Source}s in the {@link #cache}. Do not keep a reference to the
    * {@link Source} to prevent the issue addressed by DDF-2789.
@@ -438,20 +447,11 @@ public class SourcePoller implements EventListenerHook {
     public int hashCode() {
       return Objects.hashCode(id, title, version, description, organization);
     }
-
     /** Only used to in the {@link com.google.common.cache.RemovalListener} log message */
     @Override
     public String toString() {
       return String.format("id=%s, title=%s", id, title);
     }
-  }
 
-  @VisibleForTesting
-  BundleContext getBundleContext() {
-    return Optional.ofNullable(FrameworkUtil.getBundle(SourcePoller.class))
-        .map(Bundle::getBundleContext)
-        .orElseThrow(
-            () ->
-                new IllegalStateException("Unable to get the bundle context for the SourcePoller"));
   }
 }

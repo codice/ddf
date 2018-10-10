@@ -15,7 +15,7 @@ package ddf.catalog.util.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Contains details about the availability of a {@link ddf.catalog.source.Source} at the last time
@@ -25,14 +25,14 @@ public class SourceAvailability {
 
   private final SourceStatus sourceStatus;
 
-  private final Date sourceStatusDate;
+  private final Instant sourceStatusTimeStamp;
 
   /** @throws IllegalArgumentException if the {@code sourceStatus} is {@code null} */
   public SourceAvailability(final SourceStatus sourceStatus) {
     notNull(sourceStatus);
 
     this.sourceStatus = sourceStatus;
-    this.sourceStatusDate = new Date();
+    this.sourceStatusTimeStamp = Instant.now();
   }
 
   /**
@@ -44,10 +44,10 @@ public class SourceAvailability {
   }
 
   /**
-   * @return the {@link Date} that the availability of the {@link ddf.catalog.source.Source} was
+   * @return the {@link Instant} that the availability of the {@link ddf.catalog.source.Source} was
    *     last checked by the {@link SourcePoller}
    */
-  public Date getSourceStatusDate() {
-    return sourceStatusDate;
+  public Instant getSourceStatusTimeStamp() {
+    return sourceStatusTimeStamp;
   }
 }
