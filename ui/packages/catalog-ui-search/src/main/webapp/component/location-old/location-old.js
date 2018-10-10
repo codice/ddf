@@ -224,7 +224,7 @@ define([
     drawingOn: function() {
       const locationType = this.get('locationType')
       this.set('prevLocationType', locationType)
-      if(locationType === 'utmUps'){
+      if (locationType === 'utmUps') {
         this.set('locationType', 'latlon')
       }
 
@@ -770,16 +770,21 @@ define([
     //   zoneNumber : INTEGER (>=0 and <= 60)
     //   hemisphere : STRING (NORTHERN or SOUTHERN)
     LLtoUtmUps: function(lat, lon) {
-      if (isNaN(lat) || isNaN(lon)) {
+      if (isNaN(lon) || !this.isUtmUpsLatLonValid(lat)) {
         return undefined
       }
-      const utmUps = converter.LLtoUTMUPSObject(lat, lon)
-      utmUps.northing +=
-        typeof utmUps.zoneNumber === 'number' &&
-        utmUps.zoneNumber !== 0 &&
-        lat >= 0
-          ? 0
-          : northingOffset
+
+      let utmUps = {}
+      try {
+        utmUps = converter.LLtoUTMUPSObject(lat, lon)
+      } catch (err) {
+        return undefined
+      }
+
+      const { zoneNumber, northing } = utmUps
+      const isUps = zoneNumber === 0
+      utmUps.northing = isUps || lat >= 0 ? northing : northing + northingOffset
+
       utmUps.hemisphere = lat >= 0 ? 'NORTHERN' : 'SOUTHERN'
       return utmUps
     },
@@ -799,15 +804,17 @@ define([
     // Returns undefined if the latitude is out of range.
     //
     utmUpstoLL: function(utmUpsParts) {
-      const { hemisphere, zoneNumber } = utmUpsParts
+      const { hemisphere, zoneNumber, northing } = utmUpsParts
       const northernHemisphere = hemisphere === 'NORTHERN'
 
       utmUpsParts = {
         ...utmUpsParts,
         northPole: northernHemisphere,
       }
-      utmUpsParts.northing -=
-        zoneNumber !== 0 && northernHemisphere ? 0 : northingOffset
+
+      const isUps = zoneNumber === 0
+      utmUpsParts.northing =
+        isUps || northernHemisphere ? northing : northing - northingOffset
 
       let results = {}
       try {
