@@ -11,11 +11,11 @@
  **/
 import * as React from 'react'
 import WorkspacesTemplates from '../../presentation/workspaces-templates'
+import { hot } from 'react-hot-loader'
 
 const store = require('js/store')
 const LoadingView = require('component/loading/loading.view')
 const wreqr = require('wreqr')
-const Property = require('component/property/property')
 const properties = require('properties')
 
 interface Props {
@@ -26,29 +26,26 @@ interface Props {
 }
 
 interface State {
-  adhocModel: any
+  value: string
+  placeholder: string
 }
 
 class WorkspacesTemplatesContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
-      adhocModel: new Property({
-        value: [''],
-        label: '',
-        type: 'STRING',
-        showValidationIssues: false,
-        showLabel: false,
-        placeholder: 'Search ' + properties.branding + ' ' + properties.product,
-        isEditing: true,
-      }),
+      placeholder: 'Search ' + properties.branding + ' ' + properties.product,
+      value: '',
     }
   }
   startAdhocSearch() {
     this.prepForCreateNewWorkspace()
-    store
-      .get('workspaces')
-      .createAdhocWorkspace(this.state.adhocModel.getValue()[0])
+    store.get('workspaces').createAdhocWorkspace(this.state.value)
+  }
+  onChange(value: string) {
+    this.setState({
+      value,
+    })
   }
   prepForCreateNewWorkspace() {
     var loadingview = new LoadingView()
@@ -94,10 +91,12 @@ class WorkspacesTemplatesContainer extends React.Component<Props, State> {
         hasTemplatesExpanded={this.props.hasTemplatesExpanded}
         toggleExpansion={this.props.toggleExpansion}
         startAdhocSearch={this.startAdhocSearch.bind(this)}
-        adhocModel={this.state.adhocModel}
+        onChange={this.onChange.bind(this)}
+        value={this.state.value}
+        placeholder={this.state.placeholder}
       />
     )
   }
 }
 
-export default WorkspacesTemplatesContainer
+export default hot(module)(WorkspacesTemplatesContainer)
