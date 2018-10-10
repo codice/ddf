@@ -16,6 +16,7 @@ package org.codice.ddf.sync.installer.impl;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.concurrent.TimeUnit;
 import org.apache.karaf.log.core.LogService;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
@@ -41,6 +42,15 @@ public class WaitForReadyCommand implements Action {
   )
   boolean increaseLogLevel = false;
 
+  @Option(
+    name = "-wt",
+    aliases = {"--wait-time"},
+    description = "Amount of time to wait for the system to reach a ready state in seconds.",
+    required = false,
+    multiValued = false
+  )
+  Integer waitTime = null;
+
   @Reference SynchronizedInstaller syncInstaller;
 
   @Reference LogService logService;
@@ -54,7 +64,11 @@ public class WaitForReadyCommand implements Action {
                 if (increaseLogLevel) {
                   logService.setLevel("org.codice.ddf.sync.installer.impl", "TRACE");
                 }
-                syncInstaller.waitForBootFinish();
+                if (waitTime == null) {
+                  syncInstaller.waitForBootFinish();
+                } else {
+                  syncInstaller.waitForBootFinish(Math.max(0, TimeUnit.SECONDS.toMillis(waitTime)));
+                }
                 return null;
               });
     } catch (PrivilegedActionException e) {
