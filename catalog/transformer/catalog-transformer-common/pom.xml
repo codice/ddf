@@ -55,6 +55,12 @@
             <version>${common-compress.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
