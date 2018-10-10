@@ -81,4 +81,8 @@ public interface ApplicationServiceBeanMBean {
    */
   @Deprecated
   List<Map<String, Object>> getPluginsForApplication(String appName);
+
+  /** Triggers a restart of the system. */
+  @Deprecated
+  void restart();
 }
