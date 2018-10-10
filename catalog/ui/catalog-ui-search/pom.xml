@@ -345,6 +345,16 @@
             <artifactId>spatial-csw-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+      <dependency>
+        <groupId>ddf.mime.core</groupId>
+        <artifactId>mime-core-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codice.thirdparty</groupId>
+        <artifactId>tika-bundle</artifactId>
+        <version>${tika.thirdparty.bundle.version}</version>
+      </dependency>
     </dependencies>
 
     <build>
