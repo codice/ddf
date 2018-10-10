@@ -110,10 +110,10 @@ public class ValidationFilterPlugin extends PreFederatedLocalProviderQueryPlugin
         boolean subjectCanViewInvalidData = canViewInvalidData(input);
 
         List<Filter> filters = new ArrayList<>();
-        if (!subjectCanViewInvalidData || !showErrors) {
+        if (!subjectCanViewInvalidData && !showErrors) {
           filters.add(filterBuilder.attribute(Validation.VALIDATION_ERRORS).is().empty());
         }
-        if (!subjectCanViewInvalidData || !showWarnings) {
+        if (!subjectCanViewInvalidData && !showWarnings) {
           filters.add(filterBuilder.attribute(Validation.VALIDATION_WARNINGS).is().empty());
         }
 

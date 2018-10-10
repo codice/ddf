@@ -158,7 +158,7 @@ public class ValidationFilterPluginTest {
     when(catalogProvider.getId()).thenReturn("cat1");
 
     when(subject.isPermitted(any(KeyValueCollectionPermission.class)))
-        .thenReturn(canViewInvalidData);
+        .thenReturn(!canViewInvalidData);
 
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
@@ -184,13 +184,13 @@ public class ValidationFilterPluginTest {
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
     when(subject.isPermitted(any(KeyValueCollectionPermission.class)))
-        .thenReturn(canViewInvalidData);
+        .thenReturn(!canViewInvalidData);
 
     QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
 
     plugin.setAttributeMap(Collections.emptyList());
-    plugin.setShowErrors(true);
-    plugin.setShowWarnings(true);
+    plugin.setShowErrors(false);
+    plugin.setShowWarnings(false);
 
     QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
@@ -217,9 +217,9 @@ public class ValidationFilterPluginTest {
     QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
-        filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(false));
     assertThat(
-        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(false));
   }
 
   @Test
@@ -259,9 +259,9 @@ public class ValidationFilterPluginTest {
     QueryRequest returnQuery = plugin.process(localSource, queryRequest);
 
     assertThat(
-        filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(false));
     assertThat(
-        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(false));
   }
 
   @Test
@@ -303,17 +303,17 @@ public class ValidationFilterPluginTest {
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(false));
     assertThat(
-        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(false));
   }
 
   @Test
-  public void testHideErrorShowWarningWithPermission()
+  public void testHideErrorShowWarningWithNoPermission()
       throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
     when(subject.isPermitted(any(KeyValueCollectionPermission.class)))
-        .thenReturn(canViewInvalidData);
+        .thenReturn(!canViewInvalidData);
     QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
 
     plugin.setShowErrors(false);
