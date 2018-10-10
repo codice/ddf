@@ -252,14 +252,16 @@ define([
 
     repositionLatLon: function() {
       if (this.get('usngbb') !== undefined) {
-        var result = converter.USNGtoLL(this.get('usngbb'))
-        var newResult = {}
-        newResult.mapNorth = result.north
-        newResult.mapSouth = result.south
-        newResult.mapEast = result.east
-        newResult.mapWest = result.west
+        try {
+          var result = converter.USNGtoLL(this.get('usngbb'))
+          var newResult = {}
+          newResult.mapNorth = result.north
+          newResult.mapSouth = result.south
+          newResult.mapEast = result.east
+          newResult.mapWest = result.west
 
-        this.set(newResult)
+          this.set(newResult)
+        } catch (err) {}
       }
 
       this.repositionLatLonUtmUps(
@@ -334,7 +336,9 @@ define([
           ) &&
           this.get('usngbb')
         ) {
-          result = converter.USNGtoLL(this.get('usngbb'))
+          try {
+            result = converter.USNGtoLL(this.get('usngbb'))
+          } catch (err) {}
         }
 
         this.setLatLonUtmUps(
@@ -411,7 +415,9 @@ define([
           if (this.get('locationType') === 'usng' && this.drawing) {
             this.repositionLatLon()
           }
-        } catch (err) {}
+        } catch (err) {
+          this.set('usngbb', undefined)
+        }
 
         try {
           let utmUps = this.LLtoUtmUps(north, west)
@@ -446,7 +452,9 @@ define([
         try {
           var usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision)
           this.set('usng', usngsStr, { silent: true })
-        } catch (err) {}
+        } catch (err) {
+          this.set('usng', undefined)
+        }
 
         try {
           var utmUps = this.LLtoUtmUps(lat, lon)
@@ -472,7 +480,11 @@ define([
 
     setBboxUsng: function() {
       if (this.get('locationType') === 'usng') {
-        var result = converter.USNGtoLL(this.get('usngbb'))
+        let result
+        try {
+          result = converter.USNGtoLL(this.get('usngbb'))
+        } catch (err) {}
+
         if (result !== undefined) {
           var newResult = {}
           newResult.mapNorth = result.north
@@ -531,7 +543,10 @@ define([
     setRadiusUsng: function() {
       var usng = this.get('usng')
       if (usng !== undefined) {
-        var result = converter.USNGtoLL(usng, true)
+        let result
+        try {
+          result = converter.USNGtoLL(usng, true)
+        } catch (err) {}
 
         if (!isNaN(result.lat) && !isNaN(result.lon)) {
           this.set(result)
@@ -568,12 +583,16 @@ define([
             if (utmUpsResult !== undefined) {
               this.set(utmUpsResult)
 
-              var usngsStr = converter.LLtoUSNG(
-                utmUpsResult.lat,
-                utmUpsResult.lon,
-                usngPrecision
-              )
-              this.set('usng', usngsStr, { silent: true })
+              try {
+                var usngsStr = converter.LLtoUSNG(
+                  utmUpsResult.lat,
+                  utmUpsResult.lon,
+                  usngPrecision
+                )
+                this.set('usng', usngsStr, { silent: true })
+              } catch (err) {
+                this.set({ usng: undefined })
+              }
             } else {
               if (utmUpsParts.zoneNumber !== 0) {
                 this.clearUtmUpsPointRadius(true)
@@ -651,15 +670,19 @@ define([
         }
 
         if (upperLeft !== undefined && lowerRight !== undefined) {
-          var usngsStr = converter.LLBboxtoUSNG(
-            upperLeft.lat,
-            lowerRight.lat,
-            lowerRight.lon,
-            upperLeft.lon
-          )
-          this.set('usngbb', usngsStr, {
-            silent: this.get('locationType') === 'usng',
-          })
+          try {
+            var usngsStr = converter.LLBboxtoUSNG(
+              upperLeft.lat,
+              lowerRight.lat,
+              lowerRight.lon,
+              upperLeft.lon
+            )
+            this.set('usngbb', usngsStr, {
+              silent: this.get('locationType') === 'usng',
+            })
+          } catch (err) {
+            this.set('usngbb', undefined)
+          }
         }
       }
     },
