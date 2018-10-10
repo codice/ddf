@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static ddf.security.permission.CollectionPermission.READ_ACTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.doReturn;
@@ -108,6 +109,13 @@ public class AccessControlPolicyExtensionTest {
     return match;
   }
 
+  private static KeyValueCollectionPermission collRead(List<Permission> permissions) {
+    KeyValueCollectionPermission match = mock(KeyValueCollectionPermission.class);
+    doReturn(permissions).when(match).getPermissionList();
+    doReturn(READ_ACTION).when(match).getAction();
+    return match;
+  }
+
   @Test
   public void testOwnerOfMetacardImpliesAll() {
     List<Permission> before = ImmutableList.of(OWNER, INDIVIDUALS, ROLES, RANDOM);
@@ -155,7 +163,6 @@ public class AccessControlPolicyExtensionTest {
   @Test
   public void testLackingRoleReadImpliesNone() {
     List<Permission> before = ImmutableList.of(ROLES_READ_ONLY);
-
     CollectionPermission subject =
         subjectFrom(
             makePermission(
@@ -178,7 +185,9 @@ public class AccessControlPolicyExtensionTest {
                 Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner@connexta.com")));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+        extension
+            .isPermittedMatchAll(subject, collRead(before), collRead(before))
+            .getPermissionList();
 
     assertThat(after, is(Collections.emptyList()));
   }
@@ -191,7 +200,9 @@ public class AccessControlPolicyExtensionTest {
         subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("owner")));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+        extension
+            .isPermittedMatchAll(subject, collRead(before), collRead(before))
+            .getPermissionList();
 
     assertThat(after, is(Collections.emptyList()));
   }

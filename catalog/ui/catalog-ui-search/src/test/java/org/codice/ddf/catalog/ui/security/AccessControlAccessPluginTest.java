@@ -15,13 +15,11 @@ package org.codice.ddf.catalog.ui.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Attribute;
@@ -65,8 +63,6 @@ public class AccessControlAccessPluginTest {
     when(subjectIdentity.getUniqueIdentifier(subject)).thenReturn(MOCK_IDENTITY_ATTR);
     when(mockMetacard.getAttribute(Security.ACCESS_ADMINISTRATORS)).thenReturn(mockAttribute);
     when(mockAttribute.getValues()).thenReturn(Collections.singletonList(MOCK_IDENTITY_ATTR));
-    when(subject.hasRole(any())).thenReturn(true);
-
     ThreadContext.bind(subject);
 
     accessPlugin = new AccessControlAccessPlugin(subjectIdentity);
@@ -98,8 +94,6 @@ public class AccessControlAccessPluginTest {
                 MOCK_METACARD_ID,
                 Core.METACARD_OWNER,
                 "before",
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
                 SecurityAttributes.ACCESS_INDIVIDUALS,
                 ImmutableSet.of("admin")));
 
@@ -108,8 +102,6 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -126,8 +118,6 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of("viewer"),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -138,78 +128,11 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of("viewer"),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_INDIVIDUALS,
                 ImmutableSet.of("admin", "guest")));
 
-    UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
-    accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
-  }
-
-  @Test
-  public void testSuccessWhenWriteableUserModifies() throws StopProcessingException {
-    Metacard before =
-        AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(
-                Core.ID,
-                MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
-                Core.METACARD_OWNER,
-                "before",
-                SecurityAttributes.ACCESS_INDIVIDUALS,
-                ImmutableList.of(MOCK_IDENTITY_ATTR)));
-
-    Metacard after =
-        AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(
-                Core.ID,
-                MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
-                Core.METACARD_OWNER,
-                "before",
-                Core.LOCATION,
-                "Arizona",
-                SecurityAttributes.ACCESS_INDIVIDUALS,
-                ImmutableList.of(MOCK_IDENTITY_ATTR)));
-
-    UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
-    accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
-  }
-
-  @Test(expected = StopProcessingException.class)
-  public void testFailureWhenNonWriteableUserModifies() throws StopProcessingException {
-    Metacard before =
-        AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(
-                Core.ID,
-                MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
-                Core.METACARD_OWNER,
-                "before",
-                SecurityAttributes.ACCESS_INDIVIDUALS_READ,
-                ImmutableList.of(MOCK_IDENTITY_ATTR)));
-
-    Metacard after =
-        AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(
-                Core.ID,
-                MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
-                Core.METACARD_OWNER,
-                "before",
-                Core.LOCATION,
-                "Arizona",
-                SecurityAttributes.ACCESS_INDIVIDUALS_READ,
-                ImmutableList.of(MOCK_IDENTITY_ATTR)));
-
-    when(subject.hasRole(any())).thenReturn(false);
     UpdateRequest update = mockUpdateRequest(ImmutableMap.of(MOCK_METACARD_ID, after));
     accessPlugin.processPreUpdate(update, ImmutableMap.of(MOCK_METACARD_ID, before));
   }
@@ -222,8 +145,6 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_ADMINISTRATORS,
@@ -234,8 +155,6 @@ public class AccessControlAccessPluginTest {
             ImmutableMap.of(
                 Core.ID,
                 MOCK_METACARD_ID,
-                SecurityAttributes.ACCESS_GROUPS,
-                ImmutableList.of(""),
                 Core.METACARD_OWNER,
                 "before",
                 SecurityAttributes.ACCESS_ADMINISTRATORS,

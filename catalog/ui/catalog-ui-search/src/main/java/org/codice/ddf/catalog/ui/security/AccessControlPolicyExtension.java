@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static ddf.security.permission.CollectionPermission.READ_ACTION;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.impl.types.SecurityAttributes;
@@ -129,8 +131,9 @@ public class AccessControlPolicyExtension implements PolicyExtension {
             hasAccessAdministrators.apply(sub, mc)
                 || hasAccessIndividuals.apply(sub, mc)
                 || hasAccessGroups.apply(sub, mc)
-                || hasAccessGroupsReadOnly.apply(sub, mc)
-                || hasAccessIndividualsReadOnly.apply(sub, mc);
+                || (READ_ACTION.equals(allPerms.getAction())
+                    && (hasAccessGroupsReadOnly.apply(sub, mc)
+                        || hasAccessIndividualsReadOnly.apply(sub, mc)));
 
     // get all permissions implied by the subject, this function returns what permissions
     // to filter from the key-value permission collection
