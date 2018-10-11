@@ -36,11 +36,11 @@
     <!-- Fields -->
     <field name="_version_" type="plong" indexed="false" stored="false" docValues="true"/>
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
-    <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <field name="_text_" type="text" indexed="true" stored="false" multiValued="true"/>
 
     <field name="id_txt" type="string" indexed="true" stored="true" required="true" multiValued="false" docValues="true"/>
-    <field name="id_txt_tokenized" type="text_general" indexed="true" stored="false" required="false"/>
-    <field name="id_txt_tokenized_has_case" type="text_general_has_case" indexed="true" stored="false" required="false"/>
+    <field name="id_txt_tokenized" type="text" indexed="true" stored="false" required="false"/>
+    <field name="id_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" required="false"/>
 
     <field name="lux_xml" type="binary" indexed="false" stored="true"/>
 
@@ -60,9 +60,9 @@
     <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true" docValues="false"/>
     <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <dynamicField name="*_txt_ws" type="text_ws" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_txt_tokenized" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_txt_tokenized" type="text" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_txt_ws_has_case" type="text_ws_has_case" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_txt_tokenized_has_case" type="text_general_has_case" indexed="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" multiValued="true"/>
 
     <dynamicField name="*_bin" type="binary" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
@@ -117,29 +117,31 @@
         </analyzer>
     </fieldType>
 
-    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" preserveOriginal="1"/>
+            <filter class="solr.FlattenGraphFilterFactory"/>
         </analyzer>
         <analyzer type="query">
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"/>
         </analyzer>
     </fieldType>
 
-    <fieldType name="text_general_has_case" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="text_case" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" splitOnCaseChange="0" preserveOriginal="1"/>
+            <filter class="solr.FlattenGraphFilterFactory"/>
         </analyzer>
         <analyzer type="query">
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" splitOnCaseChange="0"/>
         </analyzer>
     </fieldType>
 
