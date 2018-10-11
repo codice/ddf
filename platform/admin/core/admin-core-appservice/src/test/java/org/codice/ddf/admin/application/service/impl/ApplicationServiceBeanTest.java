@@ -17,7 +17,6 @@ import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
 import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -70,9 +69,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -262,7 +259,7 @@ public class ApplicationServiceBeanTest {
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
-    verify(mockSyncInstaller).installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
+    verify(mockSyncInstaller).installFeatures(any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
@@ -271,7 +268,7 @@ public class ApplicationServiceBeanTest {
     serviceBean.installFeature("profile-name");
 
     verify(mockSyncInstaller, privileged(times(1)))
-        .installFeatures(Matchers.any(EnumSet.class), eq("profile-name"));
+        .installFeatures(any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
@@ -281,7 +278,7 @@ public class ApplicationServiceBeanTest {
     stackCaptor
         .doCaptureStack()
         .when(mockSyncInstaller)
-        .uninstallFeatures(Matchers.any(EnumSet.class), anyString());
+        .uninstallFeatures(any(EnumSet.class), anyString());
 
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.uninstallFeature("profile-name");
@@ -615,7 +612,7 @@ public class ApplicationServiceBeanTest {
 
   private ApplicationServiceBean newApplicationServiceBean() throws ApplicationServiceException {
     return new ApplicationServiceBean(
-        testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService, mockSystemService) {
+        testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller, mockSystemService) {
       @Override
       protected BundleContext getContext() {
         return bundleContext;

@@ -49,7 +49,6 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.system.SystemService;
-import org.apache.karaf.system.SystemService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -129,7 +128,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       ConfigurationAdmin configAdmin,
       MBeanServer mBeanServer,
       SynchronizedInstaller syncInstaller,
-          SystemService systemService))
+      SystemService systemService)
       throws ApplicationServiceException {
     this.appService = appService;
     this.configAdmin = configAdmin;

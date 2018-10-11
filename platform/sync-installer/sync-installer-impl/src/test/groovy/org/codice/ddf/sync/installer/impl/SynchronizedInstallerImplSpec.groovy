@@ -195,7 +195,7 @@ class SynchronizedInstallerImplSpec extends Specification {
                 .build()
 
         when:
-            sysInstaller.updateManagedService(pid, props, bundleLocation)
+        sysInstaller.updateManagedService(pid, props, bundleLocation)
 
         then:
         1 * serviceTracker.getService() >> Mock(ManagedService)
@@ -214,7 +214,7 @@ class SynchronizedInstallerImplSpec extends Specification {
     def 'successfully update managed service with properties'() {
         setup:
         def bundleLocation = 'bundleLocation'
-        def props = ['propKey':'propValue']
+        def props = ['propKey': 'propValue']
         def listenerRegistration = Mock(ServiceRegistration)
         def pid = "pid"
 
@@ -245,7 +245,7 @@ class SynchronizedInstallerImplSpec extends Specification {
     def 'failed while trying to update created factory configuration'() {
         setup:
         def bundleLocation = 'bundleLocation'
-        def props = ['propKey':'propValue']
+        def props = ['propKey': 'propValue']
         def listenerRegistration = Mock(ServiceRegistration)
         def pid = "pid"
 
@@ -264,7 +264,7 @@ class SynchronizedInstallerImplSpec extends Specification {
         1 * bundleContext.registerService(*_) >> listenerRegistration
         1 * configAdmin.getConfiguration(pid, bundleLocation) >> createdConfig
         1 * createdConfig.setBundleLocation(bundleLocation)
-        1 * createdConfig.update(props) >> { throw new IOException()}
+        1 * createdConfig.update(props) >> { throw new IOException() }
         1 * listenerRegistration.unregister()
         thrown(SynchronizedInstallerException)
     }
@@ -611,6 +611,9 @@ class SynchronizedInstallerImplSpec extends Specification {
         def bundle1 = Mock(Bundle)
         bundle1.getHeaders() >> new Hashtable<String, String>()
         def bundle1Info = Mock(BundleInfo)
+        bundleService.getInfo(bundle1) >> bundle1Info
+        bundle1Info.isFragment() >> true
+        bundle1Info.getState() >> BundleState.Failure
         bundle1.getSymbolicName() >> bundle1Name
 
         bundleContext.getBundles() >> [bundle1]
@@ -622,9 +625,6 @@ class SynchronizedInstallerImplSpec extends Specification {
         syncInstaller.waitForBundles()
 
         then:
-        1 * bundleService.getInfo(bundle1) >> bundle1Info
-        1 * bundle1Info.isFragment() >> true
-        1 * bundle1Info.getState() >> BundleState.Failure
         thrown(SynchronizedInstallerException)
     }
 
@@ -708,6 +708,55 @@ class SynchronizedInstallerImplSpec extends Specification {
 
         then:
         thrown(SynchronizedInstallerException)
+    }
+
+    def 'expected unavailable bundles are returned'() {
+        given:
+        Tuple2<Bundle, BundleInfo> available1 = createBundleInfoMocks("available1", true, BundleState.Resolved)
+        Tuple2<Bundle, BundleInfo> available2 = createBundleInfoMocks("available2", false, BundleState.Active)
+        Tuple2<Bundle, BundleInfo> unavailable1 = createBundleInfoMocks("unavailable1", true, BundleState.GracePeriod)
+        Tuple2<Bundle, BundleInfo> unavailable2 = createBundleInfoMocks("unavailable2", false, BundleState.GracePeriod)
+        Tuple2<Bundle, BundleInfo> failed1 = createBundleInfoMocks("failed1", true, BundleState.Failure)
+        Tuple2<Bundle, BundleInfo> failed2 = createBundleInfoMocks("failed2", false, BundleState.Failure)
+        def allBundles = [available1, available2, unavailable1, unavailable2, failed1, failed2].collectEntries { entry -> [entry.first, entry.second] }
+        bundleService.getInfo(_) >> {
+            return allBundles.get(arguments[0])
+        }
+        bundleContext.getBundles() >> allBundles.keySet()
+
+        SynchronizedInstallerMock syncInstaller = new SynchronizedInstallerBuilder()
+                .bundleContext(bundleContext)
+                .bundleService(bundleService)
+                .build()
+
+        SynchronizedInstallerImpl.BundleStates returnedBundles
+
+        when:
+        returnedBundles = syncInstaller.getUnavailableBundles(bundlesToCheck as Set)
+
+        then:
+        returnedBundles.getUnavailableBundles().collect { b -> b.getSymbolicName() }.sort() == expectedBundles.unavailable.sort()
+        returnedBundles.getFailedBundles().collect { b -> b.getSymbolicName() }.sort() == expectedBundles.failed.sort()
+        returnedBundles.getFailedAndUnavailableBundles().collect { b -> b.getSymbolicName() }.sort() == (expectedBundles.unavailable + expectedBundles.failed).sort()
+
+        where:
+        bundlesToCheck                                                                     || expectedBundles
+        ['available1', 'available2']                                                       || ['unavailable': [], 'failed': []]
+        ['unavailable1', 'unavailable2']                                                   || ['unavailable': ['unavailable1', 'unavailable2'], 'failed': []]
+        ['failed1', 'failed2']                                                             || ['unavailable': [], 'failed': ['failed1', 'failed2']]
+        ['available1', 'available2', 'unavailable1', 'unavailable2']                       || ['unavailable': ['unavailable1', 'unavailable2'], 'failed': []]
+        ['available1', 'available2', 'failed1', 'failed2']                                 || ['unavailable': [], 'failed': ['failed1', 'failed2']]
+        ['available1', 'available2', 'unavailable1', 'unavailable2', 'failed1', 'failed2'] || ['unavailable': ['unavailable1', 'unavailable2'], 'failed': ['failed1', 'failed2']]
+    }
+
+    Tuple2<Bundle, BundleInfo> createBundleInfoMocks(String symName, boolean isFragment, BundleState state) {
+        Bundle bundle = Mock(Bundle)
+        bundle.getSymbolicName() >> symName
+
+        BundleInfo bundleInfo = Mock(BundleInfo)
+        bundleInfo.isFragment() >> isFragment
+        bundleInfo.getState() >> state
+        return new Tuple(bundle, bundleInfo)
     }
 
     class SynchronizedInstallerMock extends SynchronizedInstallerImpl {
