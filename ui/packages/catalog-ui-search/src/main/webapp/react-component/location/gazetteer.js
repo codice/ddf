@@ -34,9 +34,7 @@ class Gazetteer extends React.Component {
     })
   }
   async geofeature(idParts) {
-    const fields = idParts.split(':')
-    const type = fields[0]
-    const id = fields[1]
+    const [type, id] = idParts.split(':')
     const res = await window.fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&osm_type=${type}&osm_id=${id}`
     )

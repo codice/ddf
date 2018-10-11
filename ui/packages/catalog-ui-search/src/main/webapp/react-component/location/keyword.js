@@ -61,7 +61,6 @@ class Keyword extends React.Component {
         }
       }
     } catch (e) {
-      console.log(e)
       this.setState(
         { loading: false, error: 'Geo feature endpoint unavailable' },
         () => {

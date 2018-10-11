@@ -27,7 +27,7 @@ class AutoComplete extends React.Component {
 
     if (!(input.length < minimumInputLength)) {
       try {
-        let suggestions = await suggester(input)
+        const suggestions = await suggester(input)
         this.setState({ loading: false, suggestions })
       } catch (e) {
         this.setState({ loading: false, error: 'Endpoint unavailable' }, () => {

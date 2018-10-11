@@ -52,7 +52,7 @@ function createMap(insertionElement) {
     element: insertionElement,
   })
 
-  // Removing this causes 2D map to load forever
+  // TODO DDF-4200 Revisit map loading forever when this is removed
   if (properties.gazetteer) {
     var geocoder = new Geocoder.View({
       el: $(insertionElement).siblings('#mapTools'),
@@ -257,7 +257,7 @@ module.exports = function OpenlayersMap(
       map.getView().fit(extent, {
         size: map.getSize(),
         duration: 500,
-        ...opts
+        ...opts,
       })
     },
     zoomToBoundingBox: function({ north, east, south, west }) {
