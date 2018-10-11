@@ -18,7 +18,6 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.util.Describable;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -51,8 +50,8 @@ public interface SourceDescriptor extends Describable {
    * Gets the Instant that the availability of the {@link Source} was last checked by the {@link
    * ddf.catalog.CatalogFramework}
    *
-   * @return the Instant that the availability of the {@link Source} was last checked, or {@code null}
-   *     if the availability has not yet been checked
+   * @return the Instant that the availability of the {@link Source} was last checked, or {@code
+   *     null} if the availability has not yet been checked
    */
   public Instant getLastAvailabilityTimeStamp();
 

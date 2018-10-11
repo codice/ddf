@@ -18,10 +18,8 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.util.impl.DescribableImpl;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.codice.ddf.platform.util.DateUtils;
 
 /** The Class SourceDescriptorImpl is the default representation of a {@link SourceDescriptor}. */
 public class SourceDescriptorImpl extends DescribableImpl implements SourceDescriptor {

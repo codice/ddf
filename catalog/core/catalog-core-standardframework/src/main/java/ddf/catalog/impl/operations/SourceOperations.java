@@ -307,7 +307,8 @@ public class SourceOperations extends DescribableImpl {
       if (isAvailable(sourceAvailability)) {
         sourceDescriptorIsAvailable = true;
         Optional.ofNullable(source.getContentTypes()).ifPresent(contentTypes::addAll);
-        lastAvailableTimeStamps.add(getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
+        lastAvailableTimeStamps.add(
+            getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
       }
     }
 

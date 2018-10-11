@@ -1,12 +1,23 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package ddf.catalog.util.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.util.concurrent.Futures;
 import ddf.catalog.source.Source;
-import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -27,18 +38,14 @@ public class CachedSourceAvailability {
   /** {@link Optional#empty()} indicates that an availability check has not yet completed */
   private Optional<SourceAvailability> sourceAvailabilityOptional;
 
-  private Future<Boolean> isAvailableFuture;
-
-  private Future watcherFuture;
+  private volatile Future isAvailableFuture;
 
   public CachedSourceAvailability() {
     sourceAvailabilityOptional = Optional.empty();
     isAvailableFuture = Futures.immediateCancelledFuture();
-    watcherFuture = Futures.immediateCancelledFuture();
   }
 
   public void cancel() {
-    watcherFuture.cancel(true);
     isAvailableFuture.cancel(true);
     sourceAvailabilityOptional = Optional.empty();
   }
@@ -47,83 +54,42 @@ public class CachedSourceAvailability {
    * Starts a process to recheck the availability if it is not currently being checked and if has
    * not been checked within the last {@code timeoutMinutes} minutes.
    */
-  public void recheckAvailability(
-      final Source source,
-      final long timeout,
-      final TimeUnit timeoutTimeUnit,
-      final ExecutorService executorService) {
+  public void recheckAvailability(final Source source, final ExecutorService executorService) {
     notNull(source);
     final String sourceId = source.getId();
 
-    if (!watcherFuture.isDone()) {
-      LOGGER.debug(
-          "A process has already been started to check the availability of source id={}. This is expected when the source is recently modified or bound. Not starting a new check",
-          sourceId);
-      return;
-    }
-
-    if (!isAvailableFuture.isDone()) {
-      isAvailableFuture.cancel(true);
-    }
-
-    if (sourceAvailabilityOptional.isPresent()) {
-      final Instant sourceStatusTimeStamp = sourceAvailabilityOptional.get().getSourceStatusTimeStamp();
-      final Instant nextEarliestRecheckTime = sourceStatusTimeStamp.plusMillis(timeout);
-      final Instant now = Instant.now();
-
-      if (now.isBefore(nextEarliestRecheckTime)) {
-        // Not rechecking the availability of source id={} because it has been checked in the last
-        // {} minutes
-        // Don't log anything here because this happens really often.
-        return;
-      }
-    }
-
+    handleLastAvailabilityCheckResult(sourceId);
     LOGGER.trace("Starting a process to check the availability of source id={}", sourceId);
-    isAvailableFuture = executorService.submit((Callable<Boolean>) source::isAvailable);
-    watcherFuture =
-        executorService.submit(
-            () ->
-                watchAndUpdateAvailability(isAvailableFuture, sourceId, timeout, timeoutTimeUnit));
+    isAvailableFuture = executorService.submit(() -> updateAvailability(source));
   }
 
-  /**
-   * Availability checks will be cancelled if they take longer than the poll interval, and the
-   * {@link SourceStatus} will be updated to {@link SourceStatus#TIMEOUT}.
-   */
-  private void watchAndUpdateAvailability(
-      final Future<Boolean> isAvailableFuture,
-      final String sourceId,
-      final long timeout,
-      final TimeUnit timeoutTimeUnit) {
-    SourceStatus newSourceStatus;
-
+  private void handleLastAvailabilityCheckResult(String sourceId) {
     try {
-      final boolean isAvailable = isAvailableFuture.get(timeout, timeoutTimeUnit);
-      LOGGER.trace("Successfully checked the availability of source id={}", sourceId);
-      newSourceStatus = isAvailable ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE;
+      isAvailableFuture.get(0, TimeUnit.MILLISECONDS);
     } catch (TimeoutException e) {
       isAvailableFuture.cancel(true);
       LOGGER.debug(
-          "Unable to check the availability of source id={} within {} {}. Cancelling the check",
-          sourceId,
-          timeout,
-          timeoutTimeUnit);
-      newSourceStatus = SourceStatus.TIMEOUT;
+          "Unable to check the availability of source id={} within the polling interval", sourceId);
+      sourceAvailabilityOptional = Optional.of(new SourceAvailability(SourceStatus.TIMEOUT));
     } catch (CancellationException e) {
       isAvailableFuture.cancel(true);
       LOGGER.debug("Unable to check the availability of source id={}", sourceId, e);
-      return;
     } catch (RuntimeException | ExecutionException e) {
       isAvailableFuture.cancel(true);
       LOGGER.debug("Exception checking the availability of source id={}", sourceId, e);
-      newSourceStatus = SourceStatus.EXCEPTION;
+      sourceAvailabilityOptional = Optional.of(new SourceAvailability(SourceStatus.EXCEPTION));
     } catch (InterruptedException e) {
       isAvailableFuture.cancel(true);
       LOGGER.debug("Interrupted while checking the availability of source id={}", sourceId);
       Thread.currentThread().interrupt();
-      return;
     }
+  }
+
+  private void updateAvailability(final Source source) {
+    final String sourceId = source.getId();
+    SourceStatus newSourceStatus =
+        source.isAvailable() ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE;
+    LOGGER.trace("Successfully checked the availability of source id={}", sourceId);
 
     if (sourceAvailabilityOptional.isPresent()) {
       final SourceAvailability oldSourceAvailability = sourceAvailabilityOptional.get();

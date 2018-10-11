@@ -46,10 +46,6 @@ import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.hooks.service.EventListenerHook;
-import org.osgi.framework.hooks.service.ListenerHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,21 +55,17 @@ import org.slf4j.LoggerFactory;
  * can be scheduled to execute at a configured rate, i.e., the polling interval.
  *
  * <p>This class maintains a list of all of the {@link Source}s and their last known availability.
- * {@link Source}s are added to this list when they are created or destroyed, and {@link Source}
- * availability is re-checked when the {@link Source} is modified. A cached map is maintained of all
- * the {@link Source}s and their last known availability, i.e., {@link SourceStatus}.
+ * {@link Source}s are added to, or removed from, this list when they are created or destroyed. A
+ * cached map is maintained of all the {@link Source}s and their last known availability, i.e.,
+ * {@link SourceStatus}.
  *
  * @see Source#isAvailable()
  * @see Source#isAvailable(SourceMonitor)
  * @see ddf.catalog.CatalogFramework#getSourceInfo(ddf.catalog.operation.SourceInfoRequest)
  */
-public class SourcePoller implements EventListenerHook {
+public class SourcePoller {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourcePoller.class);
-
-  private static final int DEFAULT_HANDLE_ALL_SOURCES_PERIOD = 5;
-
-  private static final TimeUnit DEFAULT_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT = TimeUnit.SECONDS;
 
   private static final int DEFAULT_POLL_INTERVAL = 1;
 
@@ -98,20 +90,12 @@ public class SourcePoller implements EventListenerHook {
   private final Cache<SourceKey, CachedSourceAvailability> cache;
 
   public SourcePoller() {
-    this(
-        DEFAULT_HANDLE_ALL_SOURCES_PERIOD,
-        DEFAULT_HANDLE_ALL_SOURCES_PERIOD_TIME_UNIT,
-        DEFAULT_POLL_INTERVAL,
-        DEFAULT_POLL_INTERVAL_TIME_UNIT);
+    this(DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL_TIME_UNIT);
   }
 
-  /** Starts a process to periodically call {@link #handleAllSources()} */
+  /** Starts a process to periodically call {@link #pollAllSources()} */
   @VisibleForTesting
-  SourcePoller(
-      int sourcePollerRunnerPeriod,
-      TimeUnit sourcePollerRunnerPeriodTimeUnit,
-      final long pollInterval,
-      final TimeUnit pollIntervalTimeUnit) {
+  SourcePoller(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
     sourceAvailabilityChecksThreadPool =
         Executors.newCachedThreadPool(
             StandardThreadFactoryBuilder.newThreadFactory("sourcePollerScheduledPollingThread"));
@@ -120,17 +104,14 @@ public class SourcePoller implements EventListenerHook {
     // start late, but will not concurrently execute.
     LOGGER.debug(
         "Scheduling ExecutorService at fixed rate of {} {} with an initial delay of {}",
-        sourcePollerRunnerPeriod,
-        sourcePollerRunnerPeriodTimeUnit,
-        sourcePollerRunnerPeriod);
+        pollInterval,
+        pollIntervalTimeUnit,
+        pollInterval);
     ScheduledExecutorService scheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("SourcePoller"));
     scheduledExecutorService.scheduleAtFixedRate(
-        this::handleAllSources,
-        sourcePollerRunnerPeriod,
-        sourcePollerRunnerPeriod,
-        sourcePollerRunnerPeriodTimeUnit);
+        this::pollAllSources, pollInterval, pollInterval, pollIntervalTimeUnit);
     handleAllSourcesExecutorService = scheduledExecutorService;
 
     cache =
@@ -156,13 +137,11 @@ public class SourcePoller implements EventListenerHook {
    * #setFederatedSources(List)}, {@link #setCatalogProviders(List)}, and {@link
    * #setCatalogStores(List)} are discovered.
    *
-   * <p>A process to check (or recheck) the availability of each {@link Source} is started unless
-   * the {@link Source} was created or modified within the last poll interval and the availability
-   * check triggered by that action (see {@link #event(ServiceEvent, Map)} has not yet completed.
-   *
-   * <p>TODO Should this method be synchronized?
+   * <p>A process to check (or recheck) the availability of each {@link Source} is started. If an
+   * availability check is still running once the new check is started, it will timeout and be
+   * replaced by the new availability check.
    */
-  private void handleAllSources() {
+  public synchronized void pollAllSources() {
     final Set<Source> sources =
         Stream.of(connectedSources, federatedSources, catalogProviders, catalogStores)
             .flatMap(Collection::stream)
@@ -210,14 +189,12 @@ public class SourcePoller implements EventListenerHook {
         LOGGER.trace(
             "Starting a process to recheck the availability of source id={}, which has already been added to the cache ",
             source.getId());
-        cachedSourceAvailability.recheckAvailability(
-            source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
+        cachedSourceAvailability.recheckAvailability(source, sourceAvailabilityChecksThreadPool);
       } else {
         LOGGER.debug("Found a new SourceKey for source id={}", source.getId());
         final CachedSourceAvailability cachedSourceAvailability = new CachedSourceAvailability();
         cache.put(sourceKey, cachedSourceAvailability);
-        cachedSourceAvailability.recheckAvailability(
-            source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
+        cachedSourceAvailability.recheckAvailability(source, sourceAvailabilityChecksThreadPool);
       }
     }
 
@@ -238,14 +215,7 @@ public class SourcePoller implements EventListenerHook {
 
   /**
    * This method is an non-blocking alternative to {@link Source#isAvailable()} which provides more
-   * more details about the availability than just available or unavailable. The last availability
-   * check is guaranteed
-   *
-   * <p>If the {@code source} was not created or modified within the last poll interval, the last
-   * availability check is guaranteed to have started within the last poll interval. Else, the last
-   * availability check is guaranteed to have started at most some sourcePollerRunnerPeriod
-   * configured by {@link #SourcePoller(int, TimeUnit, long, TimeUnit)} since the {@code source} was
-   * created or modified.
+   * more details about the availability than just available or unavailable.
    *
    * @return a {@link SourceAvailability} for the availability of the {@code source}, or {@link
    *     Optional#empty()} if the availability of the {@code source} has not yet been checked
@@ -257,58 +227,6 @@ public class SourcePoller implements EventListenerHook {
     LOGGER.trace("Getting status of source id={}", source.getId());
     return Optional.ofNullable(cache.getIfPresent(new SourceKey(source)))
         .flatMap(CachedSourceAvailability::getSourceAvailability);
-  }
-
-  /**
-   * Used to listen for when a {@link Source} is modified. If a {@link Source} is modified in a way
-   * that changes its {@link SourceKey}, the {@link Source} will be handled at the next {@link
-   * #handleAllSources()} call. Else, the current availability check for the {@link Source} will be
-   * cancelled, the availability will be updated to {@link Optional#empty()}, and a new availability
-   * check will be started.
-   *
-   * <p>Does not block
-   *
-   * @throws IllegalArgumentException if {@code serviceEvent} is {@code null}
-   */
-  @Override
-  public void event(
-      final ServiceEvent serviceEvent,
-      final Map<BundleContext, Collection<ListenerHook.ListenerInfo>> listeners) {
-    notNull(serviceEvent);
-
-    final ServiceReference<?> serviceReference = serviceEvent.getServiceReference();
-    final BundleContext bundleContext = getBundleContext();
-    final Object service = bundleContext.getService(serviceReference);
-
-    if (service instanceof Source) {
-      final Source source = (Source) service;
-      final int serviceEventType = serviceEvent.getType();
-
-      // ServiceEvent.REGISTERED and ServiceEvent.UNREGISTERING are already handled by the
-      // handleAllSources method.
-      if (serviceEventType != ServiceEvent.REGISTERED
-          && serviceEventType != ServiceEvent.UNREGISTERING) {
-        final String sourceId = source.getId();
-        final SourceKey sourceKey = new SourceKey(source);
-
-        final Optional<CachedSourceAvailability> cachedSourceStatusOptional =
-            Optional.ofNullable(cache.getIfPresent(sourceKey));
-        if (cachedSourceStatusOptional.isPresent()) {
-          LOGGER.debug(
-              "The source id={} has been updated but its SourceKey is still the same. Cancelling the current availability check of the source, if not completed. Rechecking the availability of the source.",
-              sourceId);
-          final CachedSourceAvailability cachedSourceAvailability =
-              cachedSourceStatusOptional.get();
-          cachedSourceAvailability.cancel();
-          cachedSourceAvailability.recheckAvailability(
-              source, pollInterval, pollIntervalTimeUnit, sourceAvailabilityChecksThreadPool);
-        } else {
-          LOGGER.debug(
-              "Even though the source id={} has already been bound, the SourceKey for the source has been changed. The entry for the old SourceKey will be invalidated and a new entry will be bound at the next handleAllSources call.",
-              sourceId);
-        }
-      }
-    }
   }
 
   @VisibleForTesting
@@ -452,6 +370,5 @@ public class SourcePoller implements EventListenerHook {
     public String toString() {
       return String.format("id=%s, title=%s", id, title);
     }
-
   }
 }

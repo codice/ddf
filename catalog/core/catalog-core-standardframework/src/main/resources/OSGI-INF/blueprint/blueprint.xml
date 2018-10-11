@@ -81,7 +81,6 @@
         <property name="catalogProviders" ref="catalog"/>
         <property name="catalogStores" ref="catalogStore"/>
     </bean>
-    <service ref="sourcePoller" interface="org.osgi.framework.hooks.service.EventListenerHook"/>
 
     <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
