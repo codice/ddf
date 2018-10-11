@@ -1125,8 +1125,8 @@
       -->
 
     <fieldType name="geohash"
-               class="solr.SpatialRecursivePrefixTreeFieldType"
-               spatialContextFactory="org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory"
+               class="solr.RptWithGeometrySpatialField"
+               spatialContextFactory="JTS"
                distanceUnits="degrees"
                autoIndex="true"
                allowMultiOverlap="true" />
