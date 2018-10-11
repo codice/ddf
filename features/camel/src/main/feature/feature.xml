@@ -121,7 +121,7 @@
     <feature version="${camel.version}">camel-core</feature>
         <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore4-version}</bundle>
         <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient4-version}</bundle>
-        <bundle dependency="true">mvn:joda-time/joda-time/${jodatime2-bundle-version}</bundle>
+        <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
         <bundle dependency="true">mvn:com.sun.mail/javax.mail/${javax-mail-version}</bundle>
         <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>

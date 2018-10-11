@@ -48,7 +48,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
     <properties>
         <!--  default URL properties -->
@@ -305,12 +305,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.7.0</version>
+                    <version>3.8.0</version>
                     <configuration>
                         <compilerId>javac-with-errorprone</compilerId>
-                        <compilerArgs>
-                            <arg>-Xep:JUnit4TestNotRun:WARN</arg>
-                        </compilerArgs>
                         <forceJavacCompilerUse>true</forceJavacCompilerUse>
                         <!-- maven-compiler-plugin defaults to targeting Java 5, but our javac
                                 only supports >=6 -->
