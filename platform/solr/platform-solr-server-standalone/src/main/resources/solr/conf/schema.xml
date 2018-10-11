@@ -190,8 +190,9 @@
     <dynamicField name="*_bln" type="boolean" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
     <dynamicField name="*_geo" type="string" indexed="false" stored="true" multiValued="true"/>
-    <dynamicField name="*_geo_index" type="geohash" indexed="true" stored="false"
+    <dynamicField name="*_geo_index" type="srptgeom" indexed="true" stored="false"
                   multiValued="true"/>
+    <dynamicField name="*_geo_sort" type="location" indexed="true" stored="false"
 
     <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
@@ -206,19 +207,6 @@
 
     <dynamicField name="*_bin" type="binary" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
-
-    <!-- sort keys for the multivalued fields -->
-    <!-- can remove non-geo sort keys with Solr 7.3+ thanks to SOLR-11854 -->
-    <dynamicField name="*_int_sk" type="pint" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_lng_sk" type="plong" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_shr_sk" type="pint" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_flt_sk" type="pfloat" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_dbl_sk" type="pdouble" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_tdt_sk" type="pdate" indexed="false" stored="false" docValues="true"/
-    <dynamicField name="*_bln_sk" type="boolean" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_txt_sk" type="string" indexed="true" stored="false" docValues="true"/>
-    <!-- stored is true until Solr 7.2+ which fixes SOLR-11532 -->
-    <dynamicField name="*_geo_sk" type="location" indexed="false" stored="true" docValues="true"/>
 
     <!-- DEPRECATED: The defaultSearchField is consulted by various query parsers when
      parsing a query string that isn't explicit about the field.  Machine (non-user)
@@ -715,8 +703,8 @@
      -->
     <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
 
-    <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
-    <fieldType name="location" class="solr.LatLonPointSpatialField"/>
+    <!-- A specialized field for geospatial search filters and distance sorting. -->
+    <fieldType name="location" class="solr.LatLonPointSpatialField" distanceUnits="kilometers" docValues="true"/>
 
     <!-- An alternative geospatial field type new to Solr 4.  It supports multiValued and polygon shapes.
       For more information about this and other Spatial fields new to Solr 4, see:
@@ -1152,7 +1140,7 @@
        </similarity>
       -->
 
-    <fieldType name="geohash"
+    <fieldType name="srptgeom"
                class="solr.RptWithGeometrySpatialField"
                spatialContextFactory="JTS"
                distanceUnits="degrees"
