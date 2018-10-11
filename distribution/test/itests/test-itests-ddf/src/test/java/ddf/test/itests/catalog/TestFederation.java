@@ -2055,6 +2055,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Ignore
+  @Test
   public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
     /**
      * Setup Add productDirectory to the URLResourceReader's set of valid root resource directories.
@@ -2096,6 +2097,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Ignore
+  @Test
   public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
     /**
      * Setup Add productDirectory to the URLResourceReader's set of valid root resource directories.
