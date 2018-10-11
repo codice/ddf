@@ -109,6 +109,8 @@ public class AccessControlPolicyExtension implements PolicyExtension {
     return (s, m) -> {
       Set<String> subject = s.getOrDefault(subjectAttribute, Collections.emptySet());
       Set<String> metacard = m.getOrDefault(metacardAttribute, Collections.emptySet());
+      subject = subject.stream().map(String::toLowerCase).collect(Collectors.toSet());
+      metacard = metacard.stream().map(String::toLowerCase).collect(Collectors.toSet());
       return !SetUtils.intersection(metacard, subject).isEmpty();
     };
   }
