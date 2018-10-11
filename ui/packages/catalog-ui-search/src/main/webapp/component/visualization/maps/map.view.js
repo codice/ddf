@@ -35,7 +35,7 @@ var properties = require('properties')
 var Common = require('js/Common')
 
 const React = require('react')
-const Keyword = require('react-component/location/keyword.js')
+const Gazetteer = require('react-component/location/gazetteer.js')
 
 function wrapNum(x, range) {
   var max = range[1],
@@ -134,20 +134,6 @@ const defaultHomeBoundingBox = {
   south: 24,
   east: -63,
   north: 52,
-}
-
-const PanZoomViewBuilder = function(map) {
-  return Marionette.ItemView.extend({
-    template() {
-      return (
-        <Keyword
-          setState={function({ polygon }) {
-            map.doPanZoom(polygon)
-          }}
-        />
-      )
-    },
-  })
 }
 
 module.exports = Marionette.LayoutView.extend({
@@ -267,11 +253,18 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   addPanZoom: function() {
+    const self = this
+    const PanZoomView = Marionette.ItemView.extend({
+      template() {
+        return (
+          <Gazetteer setState={({ polygon }) => self.map.doPanZoom(polygon)} />
+        )
+      },
+    })
     this.$el
       .find('.cesium-viewer-toolbar')
       .append('<div class="toolbar-panzoom is-button"></div>')
     this.addRegion('toolbarPanZoom', '.toolbar-panzoom')
-    const PanZoomView = PanZoomViewBuilder(this.map)
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
