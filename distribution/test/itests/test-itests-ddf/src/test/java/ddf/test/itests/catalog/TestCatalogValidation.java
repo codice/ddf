@@ -729,6 +729,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     Dictionary<String, ?> configProps = new Hashtable<>(pdpProperties);
     config.update(configProps);
 
+    configureShowInvalidMetacards("false", "false", getAdminConfig());
+
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
         Arrays.asList("invalid-state=data-manager"), getAdminConfig());
@@ -763,7 +765,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               .body(query)
               .post(CSW_PATH.getUrl())
               .then();
-      // Assert Metacard2 is in results Metacard1
+      // Assert Metacard2 is in results and not Metacard1
       response.body(
           hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
       response.body(
@@ -798,7 +800,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               .body(query)
               .post(CSW_PATH.getUrl())
               .then();
-      // Assert Metacard2 is in results Metacard1
+      // Assert Metacard1 and Metacard2 is in results
       response.body(
           hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
       response.body(
