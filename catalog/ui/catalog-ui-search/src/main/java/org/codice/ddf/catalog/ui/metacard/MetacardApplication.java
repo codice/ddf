@@ -123,7 +123,7 @@ import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
+import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;

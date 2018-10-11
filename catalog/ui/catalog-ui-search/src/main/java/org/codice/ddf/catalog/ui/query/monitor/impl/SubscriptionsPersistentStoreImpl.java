@@ -28,10 +28,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
+import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,8 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
   private static final String EMAIL_PROPERTY = "emails";
 
   private static final String ID = "id";
+
+  private static final String SUBSCRIPTIONS_TYPE = PersistenceType.SUBSCRIPTION_TYPE.toString();
 
   @VisibleForTesting static final int START_INDEX = 0;
 

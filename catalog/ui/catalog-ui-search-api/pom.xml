@@ -57,7 +57,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.workspace.transformer,
-                            org.codice.ddf.catalog.ui.splitter
+                            org.codice.ddf.catalog.ui.splitter,
+                            org.codice.ddf.catalog.ui.subscription
                         </Export-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,

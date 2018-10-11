@@ -113,6 +113,10 @@ public class SmtpClientImpl implements SmtpClient {
 
     Properties properties = new Properties();
 
+    if (hostName == null) {
+      throw new IllegalArgumentException("Hostname cannot be null for smtp client.");
+    }
+
     properties.setProperty(SMTP_HOST_PROPERTY, hostName);
     properties.setProperty(SMTP_PORT_PROPERTY, portNumber.toString());
 
@@ -149,6 +153,7 @@ public class SmtpClientImpl implements SmtpClient {
 
   Authenticator createAuthenticator() {
     return new Authenticator() {
+      @Override
       protected PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(userName, password);
       }

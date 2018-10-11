@@ -187,6 +187,12 @@ public class SmtpClientImplITCaseTest {
     validateUsernamePassword(username, password);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testWithNullHostname() {
+    SmtpClientImpl emailService = new SmtpClientImpl();
+    emailService.createSession();
+  }
+
   private void validateUsernamePassword(String username, String password)
       throws UnknownHostException {
     SmtpClientImpl emailService = new SmtpClientImpl();

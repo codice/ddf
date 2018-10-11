@@ -218,11 +218,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -405,7 +400,6 @@
                             httpcore,
                             platform-email-impl,
                             platform-util,
-                            platform-util-unavailableurls,
                             tlmatcher,
                             proxy-camel-route,
                             proxy-camel-servlet,
