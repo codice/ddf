@@ -42,8 +42,6 @@ public class SchemaFields {
 
   public static final String TEXT_SUFFIX = "_txt";
 
-  public static final String WHITESPACE_TEXT_SUFFIX = "_ws";
-
   public static final String XML_SUFFIX = "_xml";
 
   public static final String DATE_SUFFIX = "_tdt";

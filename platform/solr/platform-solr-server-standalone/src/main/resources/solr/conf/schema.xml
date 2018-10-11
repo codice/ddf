@@ -59,9 +59,7 @@
 
     <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true" docValues="false"/>
     <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-    <dynamicField name="*_txt_ws" type="text_ws" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_txt_tokenized" type="text" indexed="true" stored="false" multiValued="true"/>
-    <dynamicField name="*_txt_ws_has_case" type="text_ws_has_case" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" multiValued="true"/>
 
     <dynamicField name="*_bin" type="binary" indexed="false" stored="true" multiValued="true"/>
@@ -69,8 +67,6 @@
 
     <!-- Copy Fields -->
     <copyField source="*_txt_tokenized" dest="*_txt_tokenized_has_case"/>
-    <copyField source="*_txt_tokenized" dest="*_txt_ws"/>
-    <copyField source="*_txt_tokenized" dest="*_txt_ws_has_case"/>
     <copyField source="*_geo" dest="*_geo_index"/>
 
     <!-- Field Types -->
@@ -84,38 +80,6 @@
     <fieldType name="pdate" class="solr.DatePointField"/>
 
     <fieldType name="binary" class="solr.BinaryField"/>
-
-    <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
-        <analyzer type="index">
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <!-- DDF-1264 Regex strips leading and tailing punctuation from tokens but retains punctuation
-                          between characters.  Useful for doing wildcard searches on filenames. -->
-            <filter class="solr.PatternReplaceFilterFactory"
-                    pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-        </analyzer>
-        <analyzer type="query">
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.PatternReplaceFilterFactory"
-                    pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        </analyzer>
-    </fieldType>
-
-    <fieldType name="text_ws_has_case" class="solr.TextField" positionIncrementGap="100">
-        <analyzer type="index">
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.PatternReplaceFilterFactory"
-                    pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
-        </analyzer>
-        <analyzer type="query">
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.PatternReplaceFilterFactory"
-                    pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
-            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        </analyzer>
-    </fieldType>
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
