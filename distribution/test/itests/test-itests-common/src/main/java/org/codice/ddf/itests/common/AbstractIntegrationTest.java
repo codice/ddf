@@ -484,7 +484,8 @@ public abstract class AbstractIntegrationTest {
         // increase timeout for CI environment
         systemTimeout(GENERIC_TIMEOUT_MILLISECONDS),
         when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
-        cleanCaches(true));
+        cleanCaches(true),
+        KarafDistributionOption.debugConfiguration());
   }
 
   protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {

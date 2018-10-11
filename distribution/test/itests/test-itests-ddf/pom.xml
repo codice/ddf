@@ -444,7 +444,36 @@
                             <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>attach-ace-debugger</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${settings.localRepository}/org/codice/acdebugger/acdebugger-debugger/${acdebugger.version}/acdebugger-debugger-${acdebugger.version}-jar-with-dependencies.jar</argument>
+                                <argument>--continuous</argument>
+                                <argument>--debug</argument>
+                                <argument>--wait</argument>
+                                <argument>--reconnect</argument>
+                                <argument>--fail</argument>
+                            </arguments>
+                            <async>true</async>
+                        </configuration>
+                    </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codice.acdebugger</groupId>
+                        <artifactId>acdebugger-debugger</artifactId>
+                        <version>${acdebugger.version}</version>
+                        <classifier>jar-with-dependencies</classifier>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
