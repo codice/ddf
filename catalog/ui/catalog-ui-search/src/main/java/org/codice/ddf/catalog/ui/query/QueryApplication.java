@@ -38,6 +38,7 @@ import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler;
+import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -52,6 +53,8 @@ public class QueryApplication implements SparkApplication, Function {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
   private static final String APPLICATION_JSON = "application/json";
+
+  private final LatLonCoordinateProcessor coordinateProcessor;
 
   private FeatureService featureService;
 
@@ -70,6 +73,7 @@ public class QueryApplication implements SparkApplication, Function {
   private EndpointUtil util;
 
   public QueryApplication(CqlTransformHandler cqlTransformHandler) {
+    this.coordinateProcessor = new LatLonCoordinateProcessor();
     this.cqlTransformHandler = cqlTransformHandler;
   }
 
@@ -120,6 +124,7 @@ public class QueryApplication implements SparkApplication, Function {
         (req, res) -> {
           String query = req.queryParams("q");
           List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
+          results = coordinateProcessor.enhanceResults(results, query);
           return mapper.toJson(results);
         });
 
