@@ -20,15 +20,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.EnumSet;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -57,18 +54,11 @@ import org.slf4j.LoggerFactory;
 
 public class SynchronizedInstallerImpl implements SynchronizedInstaller {
 
-  private static final Map<Integer, String> BUNDLE_STATES;
-
-  static {
-    Map<Integer, String> states = new HashMap<>();
-    states.put(Bundle.UNINSTALLED, "UNINSTALLED");
-    states.put(Bundle.INSTALLED, "INSTALLED");
-    states.put(Bundle.RESOLVED, "RESOLVED");
-    states.put(Bundle.STARTING, "STARTING");
-    states.put(Bundle.STOPPING, "STOPPING");
-    states.put(Bundle.ACTIVE, "ACTIVE");
-    BUNDLE_STATES = Collections.unmodifiableMap(states);
-  }
+  private static final String BUNDLE_DIAG_FORMAT =
+      "%n---------------------------------------------------------------%n"
+          + "Bundle Name: %s%n"
+          + "Status: %s%n"
+          + "Diagnosis:%n%s%n";
 
   private static final String SERVICE_PID_FILTER = "(" + Constants.SERVICE_PID + "=%s)";
 
@@ -287,6 +277,10 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
             .collect(Collectors.toSet());
     String featureNames = String.join(", ", featuresToInstall);
 
+    if (featuresToInstall.isEmpty()) {
+      return;
+    }
+
     LOGGER.info("Installing the following features: [{}]", featureNames);
     long startTime = System.currentTimeMillis();
 
@@ -294,7 +288,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
       featuresService.installFeatures(featuresToInstall, options);
     } catch (Exception e) {
       throw new SynchronizedInstallerException(
-          "Failed to install features [" + String.join(",", featuresToInstall) + "]", e);
+          "Failed to install features [" + String.join(", ", featuresToInstall) + "]", e);
     }
 
     waitForBundles(getRemainingTime(startTime, maxWaitTime));
@@ -326,6 +320,11 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
             .filter(featuresService::isInstalled)
             .map(Feature::getName)
             .collect(Collectors.toSet());
+
+    if (featuresToUninstall.isEmpty()) {
+      return;
+    }
+
     String featureNames = String.join(", ", featuresToUninstall);
     LOGGER.info("Uninstalling the following features: [{}]", featureNames);
     long startTime = System.currentTimeMillis();
@@ -333,7 +332,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
       featuresService.uninstallFeatures(featuresToUninstall, options);
     } catch (Exception e) {
       throw new SynchronizedInstallerException(
-          "Failed to uninstall features [" + String.join(",", featuresToUninstall) + "]", e);
+          "Failed to uninstall features [" + String.join(", ", featuresToUninstall) + "]", e);
     }
 
     waitForBundles(getRemainingTime(startTime, maxWaitTime));
@@ -398,16 +397,16 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
             ? getAllBundleSymbolicNames()
             : Arrays.stream(symbolicNames).collect(Collectors.toSet());
 
-    Callable<Boolean> areBundlesReady = () -> getUnavailableBundles(toWaitFor).isEmpty();
+    Callable<Boolean> areBundlesReady = () -> areBundlesReady(toWaitFor);
 
     try {
       wait(
           areBundlesReady,
           maxWaitTime,
           DEFAULT_POLLING_INTERVAL,
-          "Failed waiting for bundles to reach a ready state.");
-    } catch (SynchronizedInstallerTimeoutException e) {
-      printBundleInformation(LOGGER::error, getUnavailableBundles(toWaitFor));
+          "Failed waiting for bundles to reach a ready state. Check logs for more details.");
+    } catch (SynchronizedInstallerException e) {
+      printBundleDiags(getUnavailableBundles(toWaitFor).getFailedAndUnavailableBundles());
       throw e;
     }
   }
@@ -439,7 +438,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
         }
 
         Thread.sleep(Math.min(remainingTime, pollInterval));
-      } catch (InterruptedException e) {
+      } catch (SynchronizedInstallerException | InterruptedException e) {
         throw e;
       } catch (Exception e) {
         throw new SynchronizedInstallerException(
@@ -448,7 +447,23 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     }
   }
 
-  private Set<Bundle> getUnavailableBundles(Set<String> toCheck) {
+  private void printBundleDiags(Collection<Bundle> toPrint) {
+    StringBuilder sb = new StringBuilder();
+    toPrint.forEach(bundle -> appendBundleDiag(bundle, sb));
+    LOGGER.error("Printing unsatisfied bundle requirements: {}", sb);
+  }
+
+  private void appendBundleDiag(Bundle bundle, StringBuilder sb) {
+    sb.append(
+        String.format(
+            BUNDLE_DIAG_FORMAT,
+            bundle.getHeaders().get(Constants.BUNDLE_NAME),
+            bundleService.getInfo(bundle).getState().toString(),
+            this.bundleService.getDiag(bundle)));
+  }
+
+  @VisibleForTesting
+  BundleStates getUnavailableBundles(Set<String> toCheck) {
     Set<Bundle> unavailableBundles = new HashSet<>();
     Set<Bundle> failedBundles = new HashSet<>();
 
@@ -457,37 +472,46 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
         continue;
       }
 
-      String bundleName = bundle.getHeaders().get(Constants.BUNDLE_NAME);
       BundleInfo bundleInfo = bundleService.getInfo(bundle);
       BundleState bundleState = bundleInfo.getState();
 
       if (BundleState.Failure.equals(bundleState)) {
         failedBundles.add(bundle);
+        continue;
       }
 
       if (bundleInfo.isFragment()) {
         if (!BundleState.Resolved.equals(bundleState)) {
-          LOGGER.debug("Fragment [{}] not ready with state [{}]", bundleName, bundleState);
           unavailableBundles.add(bundle);
         }
       } else if (!BundleState.Active.equals(bundleState)) {
-        LOGGER.debug("Bundle [{}] not ready with state [{}]", bundleName, bundleState);
         unavailableBundles.add(bundle);
       }
     }
 
-    if (!failedBundles.isEmpty()) {
-      printBundleInformation(LOGGER::error, failedBundles);
+    return new BundleStates(unavailableBundles, failedBundles);
+  }
+
+  private boolean areBundlesReady(Set<String> toCheck) {
+    BundleStates states = getUnavailableBundles(toCheck);
+
+    if (!states.getFailedBundles().isEmpty()) {
       throw new SynchronizedInstallerException(
-          "Bundles failed to start [" + bundleSymbolicNamesToString(failedBundles) + "]");
+          "Bundles failed to start ["
+              + bundleSymbolicNamesToString(states.getFailedBundles())
+              + "]");
     }
 
-    if (!unavailableBundles.isEmpty()) {
-      String bundleNames = bundleSymbolicNamesToString(unavailableBundles);
-      LOGGER.debug("Waiting on the following bundles to reach a ready state [{}]", bundleNames);
+    if (!states.getUnavailableBundles().isEmpty()) {
+      if (LOGGER.isDebugEnabled()) {
+        String unavailableBundles = bundleSymbolicNamesToString(states.getUnavailableBundles());
+        LOGGER.debug(
+            "Waiting on the following bundles to reach a ready state [{}]", unavailableBundles);
+      }
+      return false;
     }
 
-    return unavailableBundles;
+    return true;
   }
 
   @VisibleForTesting
@@ -501,30 +525,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
   }
 
   private String bundleSymbolicNamesToString(Collection<Bundle> bundles) {
-    return bundles.stream().map(Bundle::getSymbolicName).collect(Collectors.joining(","));
-  }
-
-  private void printBundleInformation(
-      BiConsumer<String, Object[]> logConsumer, Collection<Bundle> bundles) {
-    for (Bundle bundle : bundles) {
-      StringBuilder headerString = new StringBuilder("[ ");
-      Enumeration<String> keys = bundle.getHeaders().keys();
-
-      while (keys.hasMoreElements()) {
-        String key = keys.nextElement();
-        headerString.append(key).append("=").append(bundle.getHeaders().get(key)).append(", ");
-      }
-
-      headerString.append(" ]");
-      logConsumer.accept(
-          "\n\tBundle: {}_v{} | {}\n\tHeaders: {}",
-          new Object[] {
-            bundle.getSymbolicName(),
-            bundle.getVersion(),
-            BUNDLE_STATES.getOrDefault(bundle.getState(), "UNKNOWN"),
-            headerString
-          });
-    }
+    return bundles.stream().map(Bundle::getSymbolicName).collect(Collectors.joining(", "));
   }
 
   private Stream<Feature> featuresFromNames(String feature, String... additionalFeatures) {
@@ -593,6 +594,31 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
 
     public boolean isUpdated() {
       return updated;
+    }
+  }
+
+  private static class BundleStates {
+    private Set<Bundle> unavailableBundles;
+
+    private Set<Bundle> failedBundles;
+
+    BundleStates(Set<Bundle> unavailableBundles, Set<Bundle> failedBundles) {
+      this.unavailableBundles =
+          unavailableBundles == null ? Collections.emptySet() : unavailableBundles;
+      this.failedBundles = failedBundles == null ? Collections.emptySet() : failedBundles;
+    }
+
+    Set<Bundle> getUnavailableBundles() {
+      return unavailableBundles;
+    }
+
+    Set<Bundle> getFailedBundles() {
+      return failedBundles;
+    }
+
+    Set<Bundle> getFailedAndUnavailableBundles() {
+      return Stream.concat(getUnavailableBundles().stream(), getFailedBundles().stream())
+          .collect(Collectors.toSet());
     }
   }
 }
