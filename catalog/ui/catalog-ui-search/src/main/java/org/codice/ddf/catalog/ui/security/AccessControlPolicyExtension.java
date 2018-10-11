@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static ddf.security.permission.CollectionPermission.READ_ACTION;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.impl.types.SecurityAttributes;
@@ -47,6 +49,8 @@ public class AccessControlPolicyExtension implements PolicyExtension {
               Core.METACARD_OWNER,
               SecurityAttributes.ACCESS_ADMINISTRATORS,
               SecurityAttributes.ACCESS_INDIVIDUALS,
+              SecurityAttributes.ACCESS_INDIVIDUALS_READ,
+              SecurityAttributes.ACCESS_GROUPS_READ,
               SecurityAttributes.ACCESS_GROUPS)
           .build();
 
@@ -56,7 +60,11 @@ public class AccessControlPolicyExtension implements PolicyExtension {
 
   private final SecurityPredicate hasAccessGroups;
 
+  private final SecurityPredicate hasAccessGroupsReadOnly;
+
   private final SecurityPredicate hasAccessIndividuals;
+
+  private final SecurityPredicate hasAccessIndividualsReadOnly;
 
   private final Predicate<Map<String, Set<String>>> isSystem;
 
@@ -76,8 +84,15 @@ public class AccessControlPolicyExtension implements PolicyExtension {
 
     hasAccessGroups = predicate(Constants.ROLES_CLAIM_URI, SecurityAttributes.ACCESS_GROUPS);
 
+    hasAccessGroupsReadOnly =
+        predicate(Constants.ROLES_CLAIM_URI, SecurityAttributes.ACCESS_GROUPS_READ);
+
     hasAccessIndividuals =
         predicate(subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_INDIVIDUALS);
+
+    hasAccessIndividualsReadOnly =
+        predicate(
+            subjectIdentity.getIdentityAttribute(), SecurityAttributes.ACCESS_INDIVIDUALS_READ);
   }
 
   private Map<String, Set<String>> getPermissions(List<Permission> permissions) {
@@ -110,15 +125,23 @@ public class AccessControlPolicyExtension implements PolicyExtension {
       return match; // Simply imply nothing early on (essentially a no-op in this extension)
     }
 
+    // To be able to have viewing access to the metacard, you must satisfy the following criteria
+    SecurityPredicate subjectImpliesACL =
+        (sub, mc) ->
+            hasAccessAdministrators.apply(sub, mc)
+                || hasAccessIndividuals.apply(sub, mc)
+                || hasAccessGroups.apply(sub, mc)
+                || (READ_ACTION.equals(allPerms.getAction())
+                    && (hasAccessGroupsReadOnly.apply(sub, mc)
+                        || hasAccessIndividualsReadOnly.apply(sub, mc)));
+
     // get all permissions implied by the subject, this function returns what permissions
     // to filter from the key-value permission collection
     Supplier<Set<String>> impliedPermissions =
         () -> {
           if (isSystem.test(subject) || isOwner.apply(subject, metacard)) {
             return metacard.keySet(); // all permissions are implied
-          } else if (hasAccessAdministrators.apply(subject, metacard)
-              || hasAccessIndividuals.apply(subject, metacard)
-              || hasAccessGroups.apply(subject, metacard)) {
+          } else if (subjectImpliesACL.apply(subject, metacard)) {
             return ACCESS_CONTROL_IMPLIED; // access control perms implied
           } else {
             return Collections.emptySet(); // nothing is implied

@@ -110,20 +110,6 @@ public class AccessControlPreIngestPluginTest {
     assertThat(next.getAttribute(Core.METACARD_OWNER), nullValue());
   }
 
-  //  @Test
-  //  public void testUpdatePreserveOwner() {
-  //    AccessControlPreIngestPlugin plugin = makePlugin();
-  //
-  //    Metacard prev = AccessControlUtil.metacardFromAttributes(Collections.emptyMap());
-  //    Metacard next = AccessControlUtil.metacardFromAttributes(Collections.emptyMap());
-  //
-  //    AccessControlUtil.setOwner(prev, "prev");
-  //
-  //    assertThat(AccessControlUtil.getOwner(next), nullValue());
-  //    plugin.process(updateRequest(prev, next));
-  //    assertThat(AccessControlUtil.getOwner(next), is(AccessControlUtil.getOwner(prev)));
-  //  }
-
   @Test
   public void testUpdateAllowOwnerChange() {
     AccessControlPreIngestPlugin plugin = makePlugin();

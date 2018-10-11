@@ -49,7 +49,23 @@ public class SecurityAttributes implements Security, MetacardType {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
+            ACCESS_GROUPS_READ,
+            true /* indexed */,
+            true /* stored */,
+            true /* tokenized */,
+            true /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
             ACCESS_INDIVIDUALS,
+            true /* indexed */,
+            true /* stored */,
+            true /* tokenized */,
+            true /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            ACCESS_INDIVIDUALS_READ,
             true /* indexed */,
             true /* stored */,
             true /* tokenized */,

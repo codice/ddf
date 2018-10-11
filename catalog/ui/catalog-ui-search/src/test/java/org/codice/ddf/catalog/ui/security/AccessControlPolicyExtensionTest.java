@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static ddf.security.permission.CollectionPermission.READ_ACTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.doReturn;
@@ -49,11 +50,17 @@ public class AccessControlPolicyExtensionTest {
 
   private static final Permission ROLES = makePermission(SecurityAttributes.ACCESS_GROUPS, VALUES);
 
+  private static final Permission ROLES_READ_ONLY =
+      makePermission(SecurityAttributes.ACCESS_GROUPS_READ, VALUES);
+
   private static final Permission ADMINISTRATORS =
       makePermission(SecurityAttributes.ACCESS_ADMINISTRATORS, EMAILS);
 
   private static final Permission INDIVIDUALS =
       makePermission(SecurityAttributes.ACCESS_INDIVIDUALS, EMAILS);
+
+  private static final Permission INDIVIDUALS_READ_ONLY =
+      makePermission(SecurityAttributes.ACCESS_INDIVIDUALS_READ, EMAILS);
 
   private static final Permission OWNER =
       makePermission(Core.METACARD_OWNER, ImmutableSet.of("owner"));
@@ -102,6 +109,13 @@ public class AccessControlPolicyExtensionTest {
     return match;
   }
 
+  private static KeyValueCollectionPermission collRead(List<Permission> permissions) {
+    KeyValueCollectionPermission match = mock(KeyValueCollectionPermission.class);
+    doReturn(permissions).when(match).getPermissionList();
+    doReturn(READ_ACTION).when(match).getAction();
+    return match;
+  }
+
   @Test
   public void testOwnerOfMetacardImpliesAll() {
     List<Permission> before = ImmutableList.of(OWNER, INDIVIDUALS, ROLES, RANDOM);
@@ -126,6 +140,69 @@ public class AccessControlPolicyExtensionTest {
 
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+
+    assertThat(after, is(Collections.emptyList()));
+  }
+
+  @Test
+  public void testLackingIndividualReadImpliesNone() {
+    List<Permission> before = ImmutableList.of(INDIVIDUALS_READ_ONLY);
+
+    CollectionPermission subject =
+        subjectFrom(
+            makePermission(
+                Constants.EMAIL_ADDRESS_CLAIM_URI,
+                ImmutableSet.of("non-existent-email@connexta.com")));
+
+    List<Permission> after =
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+
+    assertThat(after, is(ImmutableList.of(INDIVIDUALS_READ_ONLY)));
+  }
+
+  @Test
+  public void testLackingRoleReadImpliesNone() {
+    List<Permission> before = ImmutableList.of(ROLES_READ_ONLY);
+    CollectionPermission subject =
+        subjectFrom(
+            makePermission(
+                Constants.EMAIL_ADDRESS_CLAIM_URI,
+                ImmutableSet.of("non-existent-email@connexta.com")));
+
+    List<Permission> after =
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
+
+    assertThat(after, is(ImmutableList.of(ROLES_READ_ONLY)));
+  }
+
+  @Test
+  public void testIndividualReadImplies() {
+    List<Permission> before = ImmutableList.of(INDIVIDUALS_READ_ONLY);
+
+    CollectionPermission subject =
+        subjectFrom(
+            makePermission(
+                Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner@connexta.com")));
+
+    List<Permission> after =
+        extension
+            .isPermittedMatchAll(subject, collRead(before), collRead(before))
+            .getPermissionList();
+
+    assertThat(after, is(Collections.emptyList()));
+  }
+
+  @Test
+  public void testRoleReadImplies() {
+    List<Permission> before = ImmutableList.of(ROLES_READ_ONLY);
+
+    CollectionPermission subject =
+        subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("owner")));
+
+    List<Permission> after =
+        extension
+            .isPermittedMatchAll(subject, collRead(before), collRead(before))
+            .getPermissionList();
 
     assertThat(after, is(Collections.emptyList()));
   }

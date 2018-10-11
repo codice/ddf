@@ -114,11 +114,27 @@ public class AccessControlUtil {
   }
 
   /**
+   * @return List of access-individuals with read-only perms from input {@link Metacard} if they
+   *     exist, otherwise return an empty set
+   */
+  public static Set<String> getAccessReadOnlyIndividuals(Metacard metacard) {
+    return ATTRIBUTE_TO_SET.apply(metacard, Security.ACCESS_INDIVIDUALS_READ);
+  }
+
+  /**
    * @return List of access-groups from input {@link Metacard} if they exist, otherwise return an
    *     empty set
    */
   public static Set<String> getAccessGroups(Metacard metacard) {
     return ATTRIBUTE_TO_SET.apply(metacard, Security.ACCESS_GROUPS);
+  }
+
+  /**
+   * @return List of access-groups with read-only perms from input {@link Metacard} if they exist,
+   *     otherwise return an empty set
+   */
+  public static Set<String> getAccessReadOnlyGroups(Metacard metacard) {
+    return ATTRIBUTE_TO_SET.apply(metacard, Security.ACCESS_GROUPS_READ);
   }
 
   /**

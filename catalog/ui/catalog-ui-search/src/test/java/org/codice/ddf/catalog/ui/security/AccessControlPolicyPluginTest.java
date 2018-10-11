@@ -86,4 +86,36 @@ public class AccessControlPolicyPluginTest {
                 Core.METACARD_OWNER,
                 Collections.singleton("owner"))));
   }
+
+  @Test
+  public void testPolicyMapForReadPerms() throws Exception {
+    Metacard metacard =
+        AccessControlUtil.metacardFromAttributes(
+            ImmutableMap.of(
+                Core.ID,
+                MOCK_ID,
+                Core.METACARD_OWNER,
+                "owner",
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                ImmutableList.of("owner@owner.com"),
+                SecurityAttributes.ACCESS_GROUPS_READ,
+                ImmutableList.of("group"),
+                SecurityAttributes.ACCESS_INDIVIDUALS_READ,
+                ImmutableList.of("owner@owner.com")));
+
+    PolicyResponse response = plugin.processPreUpdate(metacard, properties);
+
+    assertThat(
+        response.itemPolicy(),
+        is(
+            ImmutableMap.of(
+                SecurityAttributes.ACCESS_GROUPS_READ,
+                Collections.singleton("group"),
+                SecurityAttributes.ACCESS_ADMINISTRATORS,
+                Collections.singleton("owner@owner.com"),
+                SecurityAttributes.ACCESS_INDIVIDUALS_READ,
+                Collections.singleton("owner@owner.com"),
+                Core.METACARD_OWNER,
+                Collections.singleton("owner"))));
+  }
 }

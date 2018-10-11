@@ -49,8 +49,18 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
         Security.ACCESS_INDIVIDUALS, AccessControlUtil.getAccessIndividuals(metacard));
   }
 
+  private Map<String, Set<String>> getReadOnlyIndividualPermission(Metacard metacard) {
+    return ImmutableMap.of(
+        Security.ACCESS_INDIVIDUALS_READ, AccessControlUtil.getAccessReadOnlyIndividuals(metacard));
+  }
+
   private Map<String, Set<String>> getGroupPermission(Metacard metacard) {
     return ImmutableMap.of(Security.ACCESS_GROUPS, AccessControlUtil.getAccessGroups(metacard));
+  }
+
+  private Map<String, Set<String>> getReadOnlyGroupPermission(Metacard metacard) {
+    return ImmutableMap.of(
+        Security.ACCESS_GROUPS_READ, AccessControlUtil.getAccessReadOnlyGroups(metacard));
   }
 
   private Map<String, Set<String>> getOwner(Metacard metacard) {
@@ -62,6 +72,8 @@ public class AccessControlPolicyPlugin implements PolicyPlugin {
             getOwner(metacard),
             getAccessAdministratorPermission(metacard),
             getGroupPermission(metacard),
+            getReadOnlyGroupPermission(metacard),
+            getReadOnlyIndividualPermission(metacard),
             getIndividualPermission(metacard))
         .map(Map::entrySet)
         .flatMap(Collection::stream)
