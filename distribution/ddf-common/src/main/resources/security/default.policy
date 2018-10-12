@@ -481,6 +481,7 @@ grant {
     permission java.io.FilePermission "${ddf.home.perm}workspace", "read, write";
 
     permission java.io.FilePermission "${ddf.home.perm}data${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}countries.geo.json", "read";
     permission java.io.FilePermission "${ddf.home.perm}instances${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}solr${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}system${/}-", "read, write";

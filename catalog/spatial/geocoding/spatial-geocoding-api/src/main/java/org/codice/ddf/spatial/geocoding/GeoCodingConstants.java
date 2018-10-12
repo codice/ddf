@@ -57,6 +57,8 @@ public final class GeoCodingConstants {
 
   public static final String GEONAMES_TAG = "geonames";
 
+  public static final String GEOMETRY_TYPE = "geometryType";
+
   public static final String GAZETTEER_METACARD_TAG = "gazetteer";
 
   public static final String SUGGEST_PLACE_KEY = "suggestPlace";
