@@ -190,6 +190,9 @@ An existing search can be updated by selecting the search in the *Search* tab of
 *** Search for an exact word, such as `Text = apple` : Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.
 *** Search for the existence of items containing multiple words, such as `Text = apple orange` : Returns items containing both "apple" and "orange" words. Words can occur anywhere in an item's metadata.
 *** Search using wildcards, such as `Text = foo*` : Returns items containing words like "food", "fool", etc..
+*** Wildcards should only be used for single word searches, not for phrases.
+[WARNING]
+When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for `Text = ca*` instead of `Text = -ca*` when searching for words like "cat", "-cat", etc..  and search for `Text = *og` instead of `Text = *og.` when searching for words like "dog", "dog.", etc..
 *** Text searches are by default case insensitive, but case sensitive searches are an option.
 +
 ** [[_temporal_search_details]]*Temporal Search Details*: Search based on absolute time of the created, modified, or effective date.
