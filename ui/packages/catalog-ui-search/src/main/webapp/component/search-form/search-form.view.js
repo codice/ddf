@@ -34,6 +34,12 @@ module.exports = Marionette.LayoutView.extend({
   },
   initialize: function() {
     this.listenTo(this.model, 'change:type', this.changeView)
+    this.handleDefault()
+    this.listenTo(
+      user.getQuerySettings(),
+      'change:template',
+      this.handleDefault
+    )
   },
   onRender: function() {
     if (
@@ -123,6 +129,12 @@ module.exports = Marionette.LayoutView.extend({
 
     user.savePreferences()
     this.triggerCloseDropdown()
+  },
+  handleDefault: function() {
+    this.$el.toggleClass(
+      'is-default',
+      user.getQuerySettings().isTemplate(this.model)
+    )
   },
   triggerCloseDropdown: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
