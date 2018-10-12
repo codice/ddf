@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO DDF-3116 The catalog:dump shuts down DDF when it fails to transform
 @Service
 @Command(
   scope = CatalogCommands.NAMESPACE,
@@ -79,9 +79,9 @@ public class DumpCommand extends CqlCommands {
 
   private static final String ZIP_COMPRESSION = "zipCompression";
 
-  private static List<MetacardTransformer> transformers = null;
+  private List<MetacardTransformer> transformers = null;
 
-  @VisibleForTesting static volatile Optional<QueryResponseTransformer> zipCompression = null;
+  @VisibleForTesting volatile Optional<QueryResponseTransformer> zipCompression = Optional.empty();
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -251,9 +251,10 @@ public class DumpCommand extends CqlCommands {
 
       if (StringUtils.isNotBlank(zipFileName)) {
         try {
-          Optional<QueryResponseTransformer> zipCompression = getZipCompression();
-          if (zipCompression.isPresent()) {
-            BinaryContent binaryContent = zipCompression.get().transform(response, zipArgs);
+          Optional<QueryResponseTransformer> zipCompressionTransformer = getZipCompression();
+          if (zipCompressionTransformer.isPresent()) {
+            BinaryContent binaryContent =
+                zipCompressionTransformer.get().transform(response, zipArgs);
             if (binaryContent != null) {
               IOUtils.closeQuietly(binaryContent.getInputStream());
             }
@@ -382,7 +383,7 @@ public class DumpCommand extends CqlCommands {
       console.printf("Fail to get MetacardTransformer references due to %s", e.getMessage());
     }
     if (refs == null || refs.length == 0) {
-      return null;
+      return Collections.emptyList();
     }
 
     List<MetacardTransformer> metacardTransformerList = new ArrayList<>();
@@ -394,7 +395,7 @@ public class DumpCommand extends CqlCommands {
   }
 
   private Optional<QueryResponseTransformer> getZipCompression() throws InvalidSyntaxException {
-    if (zipCompression == null) {
+    if (!zipCompression.isPresent()) {
       zipCompression =
           getServiceByFilter(
               QueryResponseTransformer.class,
