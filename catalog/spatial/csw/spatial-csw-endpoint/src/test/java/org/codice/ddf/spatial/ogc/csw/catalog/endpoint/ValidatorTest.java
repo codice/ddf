@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.transform.QueryFilterTransformer;
+import ddf.catalog.transform.QueryFilterTransformerProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -26,6 +26,8 @@ import java.util.Map;
  */
 public interface QueryFilterTransformer {
 
+  String QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD = "typeNames";
+
   /**
    * Transforms a {@link QueryRequest}. {@link QueryRequest} is used in order to allow the
    * transformer to directly modify other properties (e.g. sourceId) based on criteria without

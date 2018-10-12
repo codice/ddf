@@ -150,8 +150,28 @@
                             ref="inputTransformers"/>
     </reference-list>
 
+    <!-- QueryFilterTransformerProvider -->
+    <bean id="cswQueryFilterTransformerProvider"
+      class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryFilterTransformerProvider"/>
 
-    <!-- CswTransformeProvider  -->
+    <reference-list id="queryFilterTransformerList"
+      interface="ddf.catalog.transform.QueryFilterTransformer"
+      member-type="service-reference"
+      availability="optional">
+        <reference-listener bind-method="bind"
+          unbind-method="unbind"
+          ref="cswQueryFilterTransformerProvider"/>
+    </reference-list>
+
+    <service ref="cswQueryFilterTransformerProvider" id="cswQueryFilterTransformerProviderService"
+      interface="ddf.catalog.transform.QueryFilterTransformerProvider">
+        <service-properties>
+            <entry key="id" value="cswFilter" />
+        </service-properties>
+    </service>
+
+
+    <!-- CswTransformerProvider  -->
     <bean id="cswTransformProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider">
         <argument ref="metacardTransformerManager"/>

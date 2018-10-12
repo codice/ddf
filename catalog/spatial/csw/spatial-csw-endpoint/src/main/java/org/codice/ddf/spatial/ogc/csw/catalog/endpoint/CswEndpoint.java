@@ -165,8 +165,6 @@ import org.xml.sax.SAXException;
 /** CswEndpoint provides a server implementation of the Catalogue Service for Web (CSW) 2.0.2. */
 public class CswEndpoint implements Csw {
 
-  protected static final String QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD = "typeNames";
-
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
   protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
@@ -238,10 +236,6 @@ public class CswEndpoint implements Csw {
           + "incorrect output format and schema.";
 
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Unable to retrieve product for ID: %s";
-
-  private static final List<String> TYPE_NAMES_LIST =
-      Arrays.asList(
-          CswConstants.CSW_RECORD, GmdConstants.GMD_METACARD_TYPE_NAME, CswConstants.EBRIM_RECORD);
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
@@ -1173,7 +1167,7 @@ public class CswEndpoint implements Csw {
         .map(
             queryFilterTransformerServiceReference ->
                 queryFilterTransformerServiceReference.getProperty(
-                    QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+                    QueryFilterTransformer.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
         .filter(Objects::nonNull)
         .filter(List.class::isInstance)
         .map(List.class::cast)
@@ -1194,7 +1188,7 @@ public class CswEndpoint implements Csw {
   }
 
   private List<String> getTypeNames() {
-    return Stream.of(getQueryFilterTransformerTypeNames(), TYPE_NAMES_LIST)
+    return Stream.of(getQueryFilterTransformerTypeNames())
         .flatMap(Collection::stream)
         .distinct()
         .collect(Collectors.toList());
