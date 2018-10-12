@@ -65,7 +65,8 @@
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package><!-- START: imports specific for embedding rrd4j -->
-                            !com.mongodb,
+                            !com.mongodb*,
+                            !org.bson.conversions,
                             !com.sleepycat.je,
                             sun.misc;resolution:=optional,
                             sun.nio.ch;resolution:=optional,

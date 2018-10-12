@@ -105,7 +105,8 @@
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package>
-                            !com.mongodb,
+                            !com.mongodb*,
+                            !org.bson.conversions,
                             !com.sleepycat.je,
                             sun.misc;resolution:=optional,
                             sun.nio.ch;resolution:=optional,
