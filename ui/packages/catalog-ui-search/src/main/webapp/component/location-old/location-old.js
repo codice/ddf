@@ -574,39 +574,36 @@ define([
 
     // This method is called when the UTM/UPS point radius coordinates are changed by the user.
     setRadiusUtmUps: function() {
-      if (this.isLocationTypeUtmUps()) {
-        if (this.isUtmUpsPointRadiusDefined()) {
-          var utmUpsParts = this.parseUtmUpsPointRadius()
-          if (utmUpsParts !== undefined) {
-            var utmUpsResult = this.utmUpstoLL(utmUpsParts)
+      if (!this.isLocationTypeUtmUps() && !this.isUtmUpsPointRadiusDefined()){ return }
+      
+      const utmUpsParts = this.parseUtmUpsPointRadius()
+      if (utmUpsParts === undefined) { return }
+      
+      const utmUpsResult = this.utmUpstoLL(utmUpsParts)
+      if (utmUpsResult !== undefined) {
+        this.set(utmUpsResult)
 
-            if (utmUpsResult !== undefined) {
-              this.set(utmUpsResult)
-
-              try {
-                var usngsStr = converter.LLtoUSNG(
-                  utmUpsResult.lat,
-                  utmUpsResult.lon,
-                  usngPrecision
-                )
-                this.set('usng', usngsStr, { silent: true })
-              } catch (err) {
-                this.set({ usng: undefined })
-              }
-            } else {
-              if (utmUpsParts.zoneNumber !== 0) {
-                this.clearUtmUpsPointRadius(true)
-              }
-              this.set({
-                lat: undefined,
-                lon: undefined,
-                usng: undefined,
-                radius: 1,
-              })
-            }
-          }
+        try {
+          var usngsStr = converter.LLtoUSNG(
+            utmUpsResult.lat,
+            utmUpsResult.lon,
+            usngPrecision
+          )
+          this.set('usng', usngsStr, { silent: true })
+        } catch (err) {
+          this.set({ usng: undefined })
         }
-      }
+      } else {
+        if (utmUpsParts.zoneNumber !== 0) {
+          this.clearUtmUpsPointRadius(true)
+        }
+        this.set({
+          lat: undefined,
+          lon: undefined,
+          usng: undefined,
+          radius: 1,
+        })
+      }      
     },
 
     // This method is called when the UTM/UPS bounding box coordinates are changed by the user.
@@ -807,6 +804,7 @@ define([
       try {
         utmUps = converter.LLtoUTMUPSObject(lat, lon)
       } catch (err) {
+        
         return undefined
       }
 
