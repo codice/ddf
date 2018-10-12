@@ -191,6 +191,11 @@ Search for the existence of items containing multiple words, such as `Text = app
 +
 Search using wildcards, such as `Text = foo*` : Returns items containing words like "food", "fool", etc..
 +
+Wildcards should only be used for single word searches, not for phrases.
++
+[WARNING]
+When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for `Text = ca*` instead of `Text = -ca*` when searching for words like "cat", "-cat", etc..  and search for `Text = *og` instead of `Text = *og.` when searching for words like "dog", "dog.", etc..
++
 Text searches are by default case insensitive, but case sensitive searches are an option.
 
 [[_temporal_search_details]]Temporal Search Details:: Search based on absolute time of the created, modified, or effective date.
