@@ -112,21 +112,24 @@ define([
         .fetch({ url: model.url + '/' + encodedUrl })
         .done(function() {
           view.urlModel.unset('error')
-          if (
+          if (view.urlModel.get('status') >= 400) {
+            view.urlModel.set(
+              'error',
+              'Error while looking up certificates. Check URL.'
+            )
+            view.disable()
+          } else if (
             view.urlModel.get('value') &&
-            view.urlModel.get('value').keys().length === 0
+            Object.keys(view.urlModel.get('value').attributes).length === 0
           ) {
             view.urlModel.set(
               'error',
               'Unable to determine certificates. Check URL.'
             )
-          } else if (view.urlModel.get('status') >= 400) {
-            view.urlModel.set(
-              'error',
-              'Error while looking up certificates. Check URL.'
-            )
+            view.disable()
+          } else {
+            view.checkSave(e)
           }
-          view.checkSave(e)
         })
         .fail(function(result) {
           view.disable()
@@ -145,6 +148,7 @@ define([
       } else if (target === '#url') {
         return (
           this.urlcertregion.currentView !== undefined &&
+          this.urlcertregion.currentView.model.attributes.error === undefined &&
           this.urlcertregion.currentView.model.keys().length > 0
         )
       }
@@ -257,6 +261,7 @@ define([
         this.urlModel
           .fetch({ url: this.urlModel.saveUrl + '/' + encodedUrl })
           .done(function(result) {
+            that.options.collection.parents[0].fetch({ reset: true })
             var obj = _.reduce(result.value, function(memo, val) {
               return !(!memo || !val)
             })

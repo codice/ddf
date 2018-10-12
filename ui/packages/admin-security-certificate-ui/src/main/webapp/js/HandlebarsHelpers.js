@@ -261,6 +261,9 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
         return str
       },
+      inc: function(value) {
+        return parseInt(value) + 1
+      },
     }
 
   // Export helpers
