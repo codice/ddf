@@ -35,10 +35,6 @@ import org.osgi.framework.Version;
 /** Provides useful functions for dealing with Json. */
 public class JsonUtils {
 
-  private JsonUtils() {
-    throw new UnsupportedOperationException();
-  }
-
   private static final Gson GSON;
 
   static {
@@ -48,6 +44,10 @@ public class JsonUtils {
             .registerTypeHierarchyAdapter(Map.class, new EmptyMapTypeAdapter())
             .registerTypeAdapter(Version.class, new VersionTypeAdapter())
             .create();
+  }
+
+  private JsonUtils() {
+    throw new UnsupportedOperationException();
   }
 
   public static void writeValue(OutputStream os, Object value) throws IOException {
