@@ -197,6 +197,11 @@
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>${setup.folder}/boot</directory>
+            <outputDirectory>/lib/boot</outputDirectory>
+        </fileSet>
+
         <!-- Deployable Files -->
         <fileSet>
             <directory>${setup.folder}/deploy</directory>
