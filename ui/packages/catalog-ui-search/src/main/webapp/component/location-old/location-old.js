@@ -396,46 +396,54 @@ define([
     },
 
     setBboxLatLon: function() {
-      var north = this.get('north'),
+      const north = this.get('north'),
         south = this.get('south'),
         west = this.get('west'),
         east = this.get('east')
       if (
-        north !== undefined &&
-        south !== undefined &&
-        east !== undefined &&
-        west !== undefined
+        north === undefined ||
+        south === undefined ||
+        east === undefined ||
+        west === undefined
       ) {
-        try {
-          var usngsStr = converter.LLBboxtoUSNG(north, south, east, west)
+        return
+      }
 
-          this.set('usngbb', usngsStr, {
-            silent: this.get('locationType') !== 'usng',
-          })
-          if (this.get('locationType') === 'usng' && this.drawing) {
-            this.repositionLatLon()
-          }
-        } catch (err) {
-          this.set('usngbb', undefined)
-        }
+      const lat = (parseFloat(north) + parseFloat(south)) / 2
+      const lon = (parseFloat(east) + parseFloat(west)) / 2
 
-        try {
-          let utmUps = this.LLtoUtmUps(north, west)
-          if (utmUps !== undefined) {
-            var utmUpsParts = this.formatUtmUps(utmUps)
-            this.setUtmUpsUpperLeft(utmUpsParts, !this.isLocationTypeUtmUps())
-          }
+      if (!this.isLatLonValid(lat, lon)) {
+        return
+      }
 
-          utmUps = this.LLtoUtmUps(south, east)
-          if (utmUps !== undefined) {
-            var utmUpsParts = this.formatUtmUps(utmUps)
-            this.setUtmUpsLowerRight(utmUpsParts, !this.isLocationTypeUtmUps())
-          }
+      let utmUps = this.LLtoUtmUps(north, west)
+      if (utmUps !== undefined) {
+        var utmUpsParts = this.formatUtmUps(utmUps)
+        this.setUtmUpsUpperLeft(utmUpsParts, !this.isLocationTypeUtmUps())
+      }
 
-          if (this.isLocationTypeUtmUps() && this.drawing) {
-            this.repositionLatLon()
-          }
-        } catch (err) {}
+      utmUps = this.LLtoUtmUps(south, east)
+      if (utmUps !== undefined) {
+        var utmUpsParts = this.formatUtmUps(utmUps)
+        this.setUtmUpsLowerRight(utmUpsParts, !this.isLocationTypeUtmUps())
+      }
+
+      if (this.isLocationTypeUtmUps() && this.drawing) {
+        this.repositionLatLon()
+      }
+
+      if (this.isInUpsSpace(lat, lon)) {
+        this.set('usngbb', undefined)
+        return
+      }
+
+      var usngsStr = converter.LLBboxtoUSNG(north, south, east, west)
+
+      this.set('usngbb', usngsStr, {
+        silent: this.get('locationType') !== 'usng',
+      })
+      if (this.get('locationType') === 'usng' && this.drawing) {
+        this.repositionLatLon()
       }
     },
 
@@ -444,30 +452,30 @@ define([
         lon = this.get('lon')
 
       if (
-        (store.get('content').get('drawing') ||
-          this.get('locationType') === 'latlon') &&
-        lat !== undefined &&
-        lon !== undefined
+        (!store.get('content').get('drawing') &&
+          this.get('locationType') !== 'latlon') ||
+        !this.isLatLonValid(lat, lon)
       ) {
-        try {
-          var usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision)
-          this.set('usng', usngsStr, { silent: true })
-        } catch (err) {
-          this.set('usng', undefined)
-        }
-
-        try {
-          var utmUps = this.LLtoUtmUps(lat, lon)
-          if (utmUps !== undefined) {
-            var utmUpsParts = this.formatUtmUps(utmUps)
-            this.setUtmUpsPointRadius(utmUpsParts, true)
-          } else {
-            this.clearUtmUpsPointRadius(false)
-          }
-        } catch (err) {}
-
-        this.setRadiusDmsFromMap()
+        return
       }
+
+      this.setRadiusDmsFromMap()
+
+      const utmUps = this.LLtoUtmUps(lat, lon)
+      if (utmUps !== undefined) {
+        var utmUpsParts = this.formatUtmUps(utmUps)
+        this.setUtmUpsPointRadius(utmUpsParts, true)
+      } else {
+        this.clearUtmUpsPointRadius(false)
+      }
+
+      if (this.isInUpsSpace(lat, lon)) {
+        this.set('usng', undefined)
+        return
+      }
+
+      var usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision)
+      this.set('usng', usngsStr, { silent: true })
     },
 
     setRadiusDmsLat: function() {
@@ -479,33 +487,37 @@ define([
     },
 
     setBboxUsng: function() {
-      if (this.get('locationType') === 'usng') {
-        let result
-        try {
-          result = converter.USNGtoLL(this.get('usngbb'))
-        } catch (err) {}
+      if (this.get('locationType') !== 'usng') {
+        return
+      }
+      
+      let result
+      try {
+        result = converter.USNGtoLL(this.get('usngbb'))
+      } catch (err) {}
 
-        if (result !== undefined) {
-          var newResult = {}
-          newResult.mapNorth = result.north
-          newResult.mapSouth = result.south
-          newResult.mapEast = result.east
-          newResult.mapWest = result.west
-          this.set(newResult)
-          this.set(result, { silent: true })
+      if (result === undefined) {
+        return
+      }
 
-          var utmUps = this.LLtoUtmUps(result.north, result.west)
-          if (utmUps !== undefined) {
-            var utmUpsFormatted = this.formatUtmUps(utmUps)
-            this.setUtmUpsUpperLeft(utmUpsFormatted, true)
-          }
+      var newResult = {}
+      newResult.mapNorth = result.north
+      newResult.mapSouth = result.south
+      newResult.mapEast = result.east
+      newResult.mapWest = result.west
+      this.set(newResult)
+      this.set(result, { silent: true })
 
-          var utmUps = this.LLtoUtmUps(result.south, result.east)
-          if (utmUps !== undefined) {
-            var utmUpsFormatted = this.formatUtmUps(utmUps)
-            this.setUtmUpsLowerRight(utmUpsFormatted, true)
-          }
-        }
+      var utmUps = this.LLtoUtmUps(result.north, result.west)
+      if (utmUps !== undefined) {
+        var utmUpsFormatted = this.formatUtmUps(utmUps)
+        this.setUtmUpsUpperLeft(utmUpsFormatted, true)
+      }
+
+      var utmUps = this.LLtoUtmUps(result.south, result.east)
+      if (utmUps !== undefined) {
+        var utmUpsFormatted = this.formatUtmUps(utmUps)
+        this.setUtmUpsLowerRight(utmUpsFormatted, true)
       }
     },
 
@@ -542,58 +554,67 @@ define([
 
     setRadiusUsng: function() {
       var usng = this.get('usng')
-      if (usng !== undefined) {
-        let result
-        try {
-          result = converter.USNGtoLL(usng, true)
-        } catch (err) {}
+      if (usng === undefined) {
+        return
+      }
 
-        if (!isNaN(result.lat) && !isNaN(result.lon)) {
-          this.set(result)
+      let result
+      try {
+        result = converter.USNGtoLL(usng, true)
+      } catch (err) {}
 
-          var utmUps = this.LLtoUtmUps(result.lat, result.lon)
-          if (utmUps !== undefined) {
-            var utmUpsParts = this.formatUtmUps(utmUps)
-            this.setUtmUpsPointRadius(utmUpsParts, true)
-          }
-        } else {
-          this.clearUtmUpsPointRadius(true)
-          this.set({
-            usng: undefined,
-            lat: undefined,
-            lon: undefined,
-            radius: 1,
-          })
+      if (isNaN(result.lat) || isNaN(result.lon)) {
+        this.set(result)
+
+        var utmUps = this.LLtoUtmUps(result.lat, result.lon)
+        if (utmUps !== undefined) {
+          var utmUpsParts = this.formatUtmUps(utmUps)
+          this.setUtmUpsPointRadius(utmUpsParts, true)
         }
+      } else {
+        this.clearUtmUpsPointRadius(true)
+        this.set({
+          usng: undefined,
+          lat: undefined,
+          lon: undefined,
+          radius: 1,
+        })
       }
     },
 
-    isUtmUpsLatLonValid: function(lat) {
-      return lat !== undefined && lat >= -90 && lat <= 90
+    isLatLonValid: function(lat, lon) {
+      return (
+        lat !== undefined &&
+        lon !== undefined &&
+        !isNaN(lat) &&
+        !isNaN(lon) &&
+        lat > -90 &&
+        lat < 90 &&
+        lon > -180 &&
+        lon < 180
+      )
+    },
+
+    isInUpsSpace: function(lat, lon) {
+      return (
+        (this.isLatLonValid(lat, lon) && (lat > 84 && lat < 90)) ||
+        (lat < -80 && lat > -90)
+      )
     },
 
     // This method is called when the UTM/UPS point radius coordinates are changed by the user.
     setRadiusUtmUps: function() {
-      if (!this.isLocationTypeUtmUps() && !this.isUtmUpsPointRadiusDefined()){ return }
-      
-      const utmUpsParts = this.parseUtmUpsPointRadius()
-      if (utmUpsParts === undefined) { return }
-      
-      const utmUpsResult = this.utmUpstoLL(utmUpsParts)
-      if (utmUpsResult !== undefined) {
-        this.set(utmUpsResult)
+      if (!this.isLocationTypeUtmUps() && !this.isUtmUpsPointRadiusDefined()) {
+        return
+      }
 
-        try {
-          var usngsStr = converter.LLtoUSNG(
-            utmUpsResult.lat,
-            utmUpsResult.lon,
-            usngPrecision
-          )
-          this.set('usng', usngsStr, { silent: true })
-        } catch (err) {
-          this.set({ usng: undefined })
-        }
-      } else {
+      const utmUpsParts = this.parseUtmUpsPointRadius()
+      if (utmUpsParts === undefined) {
+        return
+      }
+
+      const utmUpsResult = this.utmUpstoLL(utmUpsParts)
+      if (utmUpsResult === undefined) {
         if (utmUpsParts.zoneNumber !== 0) {
           this.clearUtmUpsPointRadius(true)
         }
@@ -603,85 +624,104 @@ define([
           usng: undefined,
           radius: 1,
         })
-      }      
+        return
+      }
+      this.set(utmUpsResult)
+
+      const { lat, lon } = utmUpsResult
+      if (!isLatLonValid(lat, lon) || isInUpsSpace(lat, lon)) {
+        this.set({ usng: undefined })
+        return
+      }
+
+      const usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision)
+
+      this.set('usng', usngsStr, { silent: true })
     },
 
     // This method is called when the UTM/UPS bounding box coordinates are changed by the user.
     setBboxUtmUps: function() {
-      if (this.isLocationTypeUtmUps()) {
-        var upperLeft = undefined
-        var lowerRight = undefined
+      if (!this.isLocationTypeUtmUps()) {
+        return
+      }
+      var upperLeft = undefined
+      var lowerRight = undefined
 
-        if (this.isUtmUpsUpperLeftDefined()) {
-          var upperLeftParts = this.parseUtmUpsUpperLeft()
-          if (upperLeftParts !== undefined) {
-            upperLeft = this.utmUpstoLL(upperLeftParts)
+      if (this.isUtmUpsUpperLeftDefined()) {
+        var upperLeftParts = this.parseUtmUpsUpperLeft()
+        if (upperLeftParts !== undefined) {
+          upperLeft = this.utmUpstoLL(upperLeftParts)
 
-            if (upperLeft !== undefined) {
-              this.set({ mapNorth: upperLeft.lat, mapWest: upperLeft.lon })
-              this.set(
-                { north: upperLeft.lat, west: upperLeft.lon },
-                { silent: true }
-              )
-            } else {
-              if (upperLeftParts.zoneNumber !== 0) {
-                this.clearUtmUpsUpperLeft(true)
-              }
-              upperLeft = undefined
-              this.set({
-                mapNorth: undefined,
-                mapSouth: undefined,
-                mapEast: undefined,
-                mapWest: undefined,
-                usngbb: undefined,
-              })
-            }
-          }
-        }
-
-        if (this.isUtmUpsLowerRightDefined()) {
-          var lowerRightParts = this.parseUtmUpsLowerRight()
-          if (lowerRightParts !== undefined) {
-            lowerRight = this.utmUpstoLL(lowerRightParts)
-
-            if (lowerRight !== undefined) {
-              this.set({ mapSouth: lowerRight.lat, mapEast: lowerRight.lon })
-              this.set(
-                { south: lowerRight.lat, east: lowerRight.lon },
-                { silent: true }
-              )
-            } else {
-              if (lowerRightParts.zoneNumber !== 0) {
-                this.clearUtmUpsLowerRight(true)
-              }
-              lowerRight = undefined
-              this.set({
-                mapNorth: undefined,
-                mapSouth: undefined,
-                mapEast: undefined,
-                mapWest: undefined,
-                usngbb: undefined,
-              })
-            }
-          }
-        }
-
-        if (upperLeft !== undefined && lowerRight !== undefined) {
-          try {
-            var usngsStr = converter.LLBboxtoUSNG(
-              upperLeft.lat,
-              lowerRight.lat,
-              lowerRight.lon,
-              upperLeft.lon
+          if (upperLeft !== undefined) {
+            this.set({ mapNorth: upperLeft.lat, mapWest: upperLeft.lon })
+            this.set(
+              { north: upperLeft.lat, west: upperLeft.lon },
+              { silent: true }
             )
-            this.set('usngbb', usngsStr, {
-              silent: this.get('locationType') === 'usng',
+          } else {
+            if (upperLeftParts.zoneNumber !== 0) {
+              this.clearUtmUpsUpperLeft(true)
+            }
+            upperLeft = undefined
+            this.set({
+              mapNorth: undefined,
+              mapSouth: undefined,
+              mapEast: undefined,
+              mapWest: undefined,
+              usngbb: undefined,
             })
-          } catch (err) {
-            this.set('usngbb', undefined)
           }
         }
       }
+
+      if (this.isUtmUpsLowerRightDefined()) {
+        var lowerRightParts = this.parseUtmUpsLowerRight()
+        if (lowerRightParts !== undefined) {
+          lowerRight = this.utmUpstoLL(lowerRightParts)
+
+          if (lowerRight !== undefined) {
+            this.set({ mapSouth: lowerRight.lat, mapEast: lowerRight.lon })
+            this.set(
+              { south: lowerRight.lat, east: lowerRight.lon },
+              { silent: true }
+            )
+          } else {
+            if (lowerRightParts.zoneNumber !== 0) {
+              this.clearUtmUpsLowerRight(true)
+            }
+            lowerRight = undefined
+            this.set({
+              mapNorth: undefined,
+              mapSouth: undefined,
+              mapEast: undefined,
+              mapWest: undefined,
+              usngbb: undefined,
+            })
+          }
+        }
+      }
+
+      if (upperLeft === undefined || lowerRight == undefined) {
+        return
+      }
+
+      const lat = (upperLeft.lat + lowerRight.lat) / 2
+      const lon = (upperLeft.lon + lowerRight.lon) / 2
+
+      if (!isLatLonValid(lat, lon) || isInUpsSpace(lat, lon)) {
+        this.set('usngbb', undefined)
+        return
+      }
+
+      var usngsStr = converter.LLBboxtoUSNG(
+        upperLeft.lat,
+        lowerRight.lat,
+        lowerRight.lon,
+        upperLeft.lon
+      )
+      this.set('usngbb', usngsStr, {
+        silent: this.get('locationType') === 'usng',
+      })
     },
 
     setBboxDmsNorth: function() {
@@ -796,18 +836,11 @@ define([
     //   zoneNumber : INTEGER (>=0 and <= 60)
     //   hemisphere : STRING (NORTHERN or SOUTHERN)
     LLtoUtmUps: function(lat, lon) {
-      if (isNaN(lon) || !this.isUtmUpsLatLonValid(lat)) {
+      if (!this.isLatLonValid(lat, lon)) {
         return undefined
       }
 
-      let utmUps = {}
-      try {
-        utmUps = converter.LLtoUTMUPSObject(lat, lon)
-      } catch (err) {
-        
-        return undefined
-      }
-
+      let utmUps = converter.LLtoUTMUPSObject(lat, lon)
       const { zoneNumber, northing } = utmUps
       const isUps = zoneNumber === 0
       utmUps.northing = isUps || lat >= 0 ? northing : northing + northingOffset
@@ -831,7 +864,7 @@ define([
     // Returns undefined if the latitude is out of range.
     //
     utmUpstoLL: function(utmUpsParts) {
-      const { hemisphere, zoneNumber, northing } = utmUpsParts
+      const { hemisphere, zoneNumber, northing, easting } = utmUpsParts
       const northernHemisphere = hemisphere === 'NORTHERN'
 
       utmUpsParts = {
@@ -843,12 +876,18 @@ define([
       utmUpsParts.northing =
         isUps || northernHemisphere ? northing : northing - northingOffset
 
-      let results = {}
-      try {
-        results = converter.UTMUPStoLL(utmUpsParts)
-      } catch (err) {}
+      const upsValidDistance = distance =>
+        distance >= 800000 && distance <= 3200000
+      if (
+        isUps &&
+        (!upsValidDistance(northing) || !upsValidDistance(easting))
+      ) {
+        return undefined
+      }
 
-      if (!this.isUtmUpsLatLonValid(results.lat)) {
+      let results = converter.UTMUPStoLL(utmUpsParts)
+
+      if (!this.isLatLonValid(results.lat, results.lon)) {
         return undefined
       }
 
