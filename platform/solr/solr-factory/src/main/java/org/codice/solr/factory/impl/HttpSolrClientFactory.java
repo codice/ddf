@@ -281,9 +281,18 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private CredentialsProvider getCredentialsProvider() {
+
+    //    BundleContext bc = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+    //    ServiceReference<ddf.catalog.solr.provider.SolrCatalogProvider> sr =
+    // bc.getServiceReference(SolrCatalogProvider.class);
+    //    CatalogProvider s = bc.getService(sr);
+
     CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials =
-        new UsernamePasswordCredentials(getProperty(SOLR_USERNAME), getProperty(SOLR_PASSWORD));
+    //    String userName = ConfigurationStore.getInstance().getUsername();
+    //    String password = ConfigurationStore.getInstance().getPassword();
+    String userName = "ddf";
+    String password = "changeit";
+    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(userName, password);
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }
