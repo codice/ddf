@@ -78,6 +78,15 @@ grant codeBase "file:/platform-osgi-condpermadmin/acdebugger-backdoor" {
     permission java.util.PropertyPermission "/", "read";
 }
 
+grant codeBase "file:/security-crl-generator" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}localCrl.crl", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}localCrl.pem", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}signature.properties", "read, write";
+}
+
 grant codeBase "file:/org.apache.felix.configadmin" {
     permission java.security.SecurityPermission "createAccessControlContext";
     permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";

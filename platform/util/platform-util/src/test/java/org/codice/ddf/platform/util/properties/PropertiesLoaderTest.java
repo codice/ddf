@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,7 +46,14 @@ public class PropertiesLoaderTest {
   private static File propertiesFile;
 
   private static final Map<Object, Object> EXAMPLE_MAP =
-      ImmutableMap.of("key1", "value1", "key2", "value2", "key3", "value3");
+      ImmutableMap.of("key1", "value1", "key2", "value2", "key3", "value3", "key4", "value4value");
+
+  // The system properties replacement is only done at the end when loadProperties is called.
+  // This map will be used when testing the individual methods that are visible for testing
+  private static final Map<Object, Object> EXAMPLE_MAP_WITH_SYS_PROP_KEY =
+      ImmutableMap.of("key1", "value1", "key2", "value2", "key3", "value3", "key4", "${value4}");
+  private static final Map<Object, Object> EXAMPLE_MAP_WITH_SYS_PROP_KEY_REV =
+      ImmutableMap.of("key4", "${value4}", "key3", "value3", "key2", "value2", "key1", "value1");
 
   private static final PropertiesLoader PROPERTIES_LOADER = PropertiesLoader.getInstance();
 
@@ -60,6 +69,13 @@ public class PropertiesLoaderTest {
     // initialize file
     propertiesFile = temporaryFolder.newFile(PROPERTIES_FILENAME);
     Files.write(propertiesFile.toPath(), sb.toString().getBytes());
+
+    System.setProperty("value4", "value4value");
+  }
+
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+    System.clearProperty("value4");
   }
 
   @Test
@@ -109,7 +125,7 @@ public class PropertiesLoaderTest {
         PropertiesLoader.attemptLoadWithSpring(
             PROPERTIES_FILENAME, this.getClass().getClassLoader());
 
-    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP.entrySet()));
+    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP_WITH_SYS_PROP_KEY.entrySet()));
   }
 
   @Test
@@ -125,7 +141,7 @@ public class PropertiesLoaderTest {
         PropertiesLoader.attemptLoadWithSpringAndClassLoader(
             PROPERTIES_FILENAME, this.getClass().getClassLoader());
 
-    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP.entrySet()));
+    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP_WITH_SYS_PROP_KEY.entrySet()));
   }
 
   @Test
@@ -157,7 +173,7 @@ public class PropertiesLoaderTest {
     Properties testProperties =
         PropertiesLoader.attemptLoadAsResource("/" + PROPERTIES_FILENAME, null);
 
-    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP.entrySet()));
+    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP_WITH_SYS_PROP_KEY.entrySet()));
   }
 
   @Test
@@ -185,5 +201,28 @@ public class PropertiesLoaderTest {
         PropertiesLoader.substituteSystemPropertyPlaceholders(propertiesMock);
 
     assertThat(testProperties.entrySet(), equalTo(testMapSystemPropertiesAfter.entrySet()));
+  }
+
+  @Test
+  public void testLoadPropertiesWithoutReplacingSystemProperties() throws Exception {
+    Properties testProperties =
+        PROPERTIES_LOADER.loadPropertiesWithoutSystemPropertySubstitution(
+            PROPERTIES_FILENAME, null);
+    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP_WITH_SYS_PROP_KEY.entrySet()));
+
+    testProperties =
+        PROPERTIES_LOADER.loadPropertiesWithoutSystemPropertySubstitution(
+            PROPERTIES_FILENAME, this.getClass().getClassLoader());
+    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP_WITH_SYS_PROP_KEY.entrySet()));
+
+    testProperties =
+        PROPERTIES_LOADER.loadPropertiesWithoutSystemPropertySubstitution(
+            "/" + PROPERTIES_FILENAME, null);
+    assertThat(testProperties.entrySet(), equalTo(EXAMPLE_MAP_WITH_SYS_PROP_KEY.entrySet()));
+
+    testProperties =
+        PROPERTIES_LOADER.loadPropertiesWithoutSystemPropertySubstitution(
+            getClass().getClassLoader().getResource(PROPERTIES_FILENAME).getPath(), null);
+    assertTrue(testProperties.entrySet().equals(EXAMPLE_MAP_WITH_SYS_PROP_KEY_REV.entrySet()));
   }
 }

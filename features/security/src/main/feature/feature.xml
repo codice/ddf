@@ -482,11 +482,13 @@
              description="Keystore editor MBean and associated web application.">
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
         <feature>security-core-api</feature>
+        <feature>security-core</feature>
         <bundle>
             mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}
         </bundle>
         <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}
         </bundle>
+        <bundle>mvn:ddf.security.certificate/security-crl-generator/${project.version}</bundle>
     </feature>
 
     <feature name="security-guest" version="${project.version}"
