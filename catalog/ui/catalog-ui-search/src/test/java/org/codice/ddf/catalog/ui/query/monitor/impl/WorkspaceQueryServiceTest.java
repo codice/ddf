@@ -150,6 +150,11 @@ public class WorkspaceQueryServiceTest {
     workspaceQueryServiceImpl.setSubject(
         new Subject() {
           @Override
+          public String getName() {
+            return "";
+          }
+
+          @Override
           public boolean isGuest() {
             return false;
           }

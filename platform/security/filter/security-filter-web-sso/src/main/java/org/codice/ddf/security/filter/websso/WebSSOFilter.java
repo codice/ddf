@@ -17,13 +17,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.AuthenticationChallengeException;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -53,7 +55,7 @@ public class WebSSOFilter implements SecurityFilter {
   ContextPolicyManager contextPolicyManager;
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init() {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("handlerList size is {}", handlerList.size());
 
@@ -83,7 +85,7 @@ public class WebSSOFilter implements SecurityFilter {
   @Override
   public void doFilter(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     LOGGER.debug("Performing doFilter() on WebSSOFilter");
     HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
     HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
@@ -128,7 +130,7 @@ public class WebSSOFilter implements SecurityFilter {
       HttpServletResponse httpResponse,
       FilterChain filterChain,
       List<AuthenticationHandler> handlers)
-      throws IOException, ServletException {
+      throws AuthenticationException, IOException {
 
     if (handlers.size() == 0) {
       LOGGER.warn(
@@ -181,7 +183,7 @@ public class WebSSOFilter implements SecurityFilter {
           // handler handled the response - it is redirecting or whatever
           // necessary to get their tokens
           LOGGER.debug("Stopping filter chain - handled by plugins");
-          return;
+          throw new AuthenticationChallengeException("Stopping filter chain - handled by plugins");
         case NO_ACTION:
           // should never occur - one of the handlers should have returned a token
           LOGGER.warn(
@@ -189,7 +191,8 @@ public class WebSSOFilter implements SecurityFilter {
               ipAddress,
               path);
           returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
-          return;
+          throw new AuthenticationFailureException(
+              "No handlers were able to determine required credentials");
         case COMPLETED:
           if (result.getToken() == null) {
             LOGGER.warn(
@@ -197,7 +200,7 @@ public class WebSSOFilter implements SecurityFilter {
                 ipAddress,
                 path);
             returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
-            return;
+            throw new AuthenticationFailureException("Completed without credentials");
           }
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(
@@ -212,7 +215,7 @@ public class WebSSOFilter implements SecurityFilter {
               "Unexpected response from handler - ignoring. Remote IP: {}, Path: {}",
               ipAddress,
               path);
-          return;
+          throw new AuthenticationFailureException("Unexpected response from handler");
       }
     } else {
       LOGGER.warn(
@@ -220,7 +223,7 @@ public class WebSSOFilter implements SecurityFilter {
           ipAddress,
           path);
       returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
-      return;
+      throw new AuthenticationFailureException("Didn't find any login credentials");
     }
 
     // If we got here, we've received our tokens to continue
@@ -230,6 +233,7 @@ public class WebSSOFilter implements SecurityFilter {
     } catch (InvalidSAMLReceivedException e) {
       // we tried to process an invalid or missing SAML assertion
       returnSimpleResponse(HttpServletResponse.SC_UNAUTHORIZED, httpResponse);
+      throw new AuthenticationFailureException(e);
     } catch (Exception e) {
       LOGGER.debug(
           "Exception in filter chain - passing off to handlers. Msg: {}", e.getMessage(), e);
@@ -252,6 +256,7 @@ public class WebSSOFilter implements SecurityFilter {
         httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
         httpResponse.flushBuffer();
       }
+      throw new AuthenticationFailureException(e);
     }
   }
 

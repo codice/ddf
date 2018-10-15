@@ -27,13 +27,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import java.io.IOException;
 import java.util.Collections;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
@@ -49,7 +48,7 @@ public class WebSSOFilterTest {
   private static final String MOCK_CONTEXT = "/test";
 
   @Test
-  public void testInit() throws ServletException {
+  public void testInit() {
     final Logger logger = (Logger) LoggerFactory.getLogger(WebSSOFilter.class);
     logger.setLevel(Level.DEBUG);
 
@@ -58,13 +57,13 @@ public class WebSSOFilterTest {
 
     WebSSOFilter webSSOFilter = new WebSSOFilter();
     webSSOFilter.setHandlerList(Collections.singletonList(handler));
-    webSSOFilter.init(mock(FilterConfig.class));
+    webSSOFilter.init();
 
     logger.setLevel(Level.OFF);
   }
 
   @Test
-  public void testDoFilterWhiteListed() throws IOException, ServletException {
+  public void testDoFilterWhiteListed() throws IOException, AuthenticationException {
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getRealm()).thenReturn("TestRealm");
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
@@ -114,7 +113,7 @@ public class WebSSOFilterTest {
   }
 
   @Test
-  public void testDoFilterResolvingOnSecondCall() throws IOException, ServletException {
+  public void testDoFilterResolvingOnSecondCall() throws IOException, AuthenticationException {
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getRealm()).thenReturn("TestRealm");
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
@@ -150,7 +149,11 @@ public class WebSSOFilterTest {
     when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
 
-    filter.doFilter(request, response, filterChain);
+    try {
+      filter.doFilter(request, response, filterChain);
+    } catch (AuthenticationException e) {
+
+    }
 
     verify(handler1, times(2))
         .getNormalizedToken(
@@ -164,7 +167,7 @@ public class WebSSOFilterTest {
   }
 
   @Test
-  public void testDoFilterWithRedirected() throws ServletException, IOException {
+  public void testDoFilterWithRedirected() throws AuthenticationException, IOException {
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getRealm()).thenReturn("TestRealm");
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
@@ -200,7 +203,11 @@ public class WebSSOFilterTest {
     when(request.getContextPath()).thenReturn(MOCK_CONTEXT);
     HttpServletResponse response = mock(HttpServletResponse.class);
 
-    filter.doFilter(request, response, filterChain);
+    try {
+      filter.doFilter(request, response, filterChain);
+    } catch (AuthenticationException e) {
+
+    }
 
     // the next filter should NOT be called
     verify(filterChain, never()).doFilter(request, response);
@@ -209,7 +216,7 @@ public class WebSSOFilterTest {
 
   @Test
   public void testDoFilterReturnsStatusCode503WhenNoHandlersRegistered()
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     WebSSOFilter filter = new WebSSOFilter();
     FilterChain filterChain = mock(FilterChain.class);
     HttpServletRequest request = mock(HttpServletRequest.class);

@@ -16,13 +16,12 @@ package org.codice.ddf.platform.response.filter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,14 +78,14 @@ public class ResponseFilter implements SecurityFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init() {
     LOGGER.trace("Initializing Response Security Filter.");
   }
 
   @Override
   public void doFilter(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
     addCommonHeaders(response);

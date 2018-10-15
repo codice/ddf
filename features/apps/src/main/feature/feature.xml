@@ -40,7 +40,7 @@
              description="Features that will be started on container startup.">
         <!--Added prerequisite to kernel since it starts up features that must be started before others such as wrap and blueprint -->
         <feature prerequisite="true">kernel</feature>
-        <feature prerequisite="true">platform-filter-delegate</feature>
+        <feature prerequisite="true">platform-paxweb-jettyconfig</feature>
         <!--Added prerequisite to make sure the security filter injector is running before any other contexts get registered-->
         <feature prerequisite="true">security-services-app</feature>
         <feature>ddf-branding</feature>

@@ -31,9 +31,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.cas.filter.ProxyFilter;
-import org.codice.ddf.security.handler.cas.filter.ProxyFilterChain;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.util.AbstractCasFilter;
 import org.jasig.cas.client.validation.Assertion;
@@ -54,14 +54,11 @@ public class CasHandlerTest {
    * @throws ServletException
    */
   @Test
-  public void testNoPrincipalNoResolve() throws ServletException {
+  public void testNoPrincipalNoResolve() throws AuthenticationException {
     CasHandler handler = createHandler();
     HandlerResult result =
         handler.getNormalizedToken(
-            createServletRequest(false),
-            mock(HttpServletResponse.class),
-            new ProxyFilterChain(null),
-            false);
+            createServletRequest(false), mock(HttpServletResponse.class), null, false);
     // NO_ACTION due to resolve being false
     assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
   }
@@ -72,14 +69,11 @@ public class CasHandlerTest {
    * @throws ServletException
    */
   @Test
-  public void testPrincipalNoResolve() throws ServletException {
+  public void testPrincipalNoResolve() throws AuthenticationException {
     CasHandler handler = createHandler();
     HandlerResult result =
         handler.getNormalizedToken(
-            createServletRequest(true),
-            mock(HttpServletResponse.class),
-            new ProxyFilterChain(null),
-            false);
+            createServletRequest(true), mock(HttpServletResponse.class), null, false);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
   }
 
@@ -91,16 +85,14 @@ public class CasHandlerTest {
    * @throws IOException
    */
   @Test
-  public void testNoPrincipalResolve() throws ServletException, IOException {
+  public void testNoPrincipalResolve()
+      throws AuthenticationException, IOException, ServletException {
     CasHandler handler = createHandler();
     AbstractCasFilter testFilter = mock(AbstractCasFilter.class);
     handler.setProxyFilter(new ProxyFilter(Collections.singletonList(testFilter)));
     HandlerResult result =
         handler.getNormalizedToken(
-            createServletRequest(false),
-            mock(HttpServletResponse.class),
-            new ProxyFilterChain(null),
-            true);
+            createServletRequest(false), mock(HttpServletResponse.class), null, true);
     assertEquals(HandlerResult.Status.REDIRECTED, result.getStatus());
     // verify that the filter was called once
     verify(testFilter)
@@ -115,14 +107,11 @@ public class CasHandlerTest {
    * @throws IOException
    */
   @Test
-  public void testPrincipalResolve() throws ServletException, IOException {
+  public void testPrincipalResolve() throws AuthenticationException {
     CasHandler handler = createHandler();
     HandlerResult result =
         handler.getNormalizedToken(
-            createServletRequest(true),
-            mock(HttpServletResponse.class),
-            new ProxyFilterChain(null),
-            true);
+            createServletRequest(true), mock(HttpServletResponse.class), null, true);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
   }
 
@@ -134,13 +123,12 @@ public class CasHandlerTest {
    * @throws IOException
    */
   @Test
-  public void testCachedPrincipalResolve() throws ServletException, IOException {
+  public void testCachedPrincipalResolve() throws AuthenticationException {
     CasHandler handler = createHandler();
     HttpServletRequest servletRequest = createServletRequest(true);
     HttpSession session = servletRequest.getSession();
     HandlerResult result =
-        handler.getNormalizedToken(
-            servletRequest, mock(HttpServletResponse.class), new ProxyFilterChain(null), true);
+        handler.getNormalizedToken(servletRequest, mock(HttpServletResponse.class), null, true);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
 
     // now check for caching sessions
@@ -148,8 +136,7 @@ public class CasHandlerTest {
     when(servletRequest.getSession()).thenReturn(session);
     when(servletRequest.getSession(any(Boolean.class))).thenReturn(session);
     result =
-        handler.getNormalizedToken(
-            servletRequest, mock(HttpServletResponse.class), new ProxyFilterChain(null), true);
+        handler.getNormalizedToken(servletRequest, mock(HttpServletResponse.class), null, true);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
   }
 

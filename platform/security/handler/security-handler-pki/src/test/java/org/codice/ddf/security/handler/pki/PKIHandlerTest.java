@@ -29,10 +29,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.junit.Test;
@@ -44,8 +43,7 @@ public class PKIHandlerTest {
    * given a valid HTTPServletRequest.
    */
   @Test
-  public void testGetNormalizedTokenSuccessNoCrlPki()
-      throws java.security.cert.CertificateException, ServletException {
+  public void testGetNormalizedTokenSuccessNoCrlPki() throws CertificateException {
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -71,7 +69,7 @@ public class PKIHandlerTest {
    */
   @Test
   public void testGetNormalizedTokenSuccessNoCrlPkiNoResolveNoResponse()
-      throws java.security.cert.CertificateException, ServletException {
+      throws CertificateException {
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -94,7 +92,7 @@ public class PKIHandlerTest {
    * given an invalid HTTPServletRequest.
    */
   @Test
-  public void testGetNormalizedTokenFailureNoCerts() throws ServletException, CertificateException {
+  public void testGetNormalizedTokenFailureNoCerts() throws CertificateException {
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -115,8 +113,7 @@ public class PKIHandlerTest {
 
   /** Tests that the PKIHandler returns REDIRECTED when the cert fails to pass the CRL check */
   @Test
-  public void testGetNormalizedTokenFailsWhenCrlFails()
-      throws ServletException, CertificateException {
+  public void testGetNormalizedTokenFailsWhenCrlFails() throws CertificateException {
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -136,11 +133,9 @@ public class PKIHandlerTest {
    * in the CRL
    *
    * @throws java.security.cert.CertificateException
-   * @throws ServletException
    */
   @Test
-  public void testNoActionWhenHttpResponseIsNull()
-      throws java.security.cert.CertificateException, ServletException {
+  public void testNoActionWhenHttpResponseIsNull() throws CertificateException {
 
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 
@@ -158,10 +153,9 @@ public class PKIHandlerTest {
    * Tests Error Handling
    *
    * @throws java.security.cert.CertificateException
-   * @throws ServletException
    */
   @Test
-  public void testErrorHandling() throws CertificateException, ServletException {
+  public void testErrorHandling() throws CertificateException {
 
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 

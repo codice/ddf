@@ -27,11 +27,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter;
 import org.junit.Before;
 import org.junit.Test;

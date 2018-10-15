@@ -79,7 +79,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -919,13 +918,9 @@ public class IdpEndpoint implements Idp, SessionHandler {
       LOGGER.debug("Logging user in via PKI.");
       PKIHandler pkiHandler = new PKIHandler();
       pkiHandler.setTokenFactory(tokenFactory);
-      try {
-        HandlerResult handlerResult = pkiHandler.getNormalizedToken(request, null, null, false);
-        if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
-          token = handlerResult.getToken();
-        }
-      } catch (ServletException e) {
-        LOGGER.info("Encountered an exception while checking for PKI auth info.", e);
+      HandlerResult handlerResult = pkiHandler.getNormalizedToken(request, null, null, false);
+      if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+        token = handlerResult.getToken();
       }
     } else if (USER_PASS.equals(authMethod)) {
       LOGGER.debug("Logging user in via BASIC auth.");

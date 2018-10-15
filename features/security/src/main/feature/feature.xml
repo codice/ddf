@@ -33,6 +33,7 @@
              description="Security Core">
         <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
         <feature>cxf-rt-security</feature>
+        <feature>security-filter-api</feature>
         <feature>cxf-jaxrs</feature>
         <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
@@ -57,19 +58,14 @@
 
     <feature name="platform-filter-response" version="${project.version}"
              description="Response Filter for outgoing HTTP messages.">
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <bundle>mvn:ddf.platform/platform-filter-response/${project.version}</bundle>
     </feature>
 
-    <feature name="platform-filter-delegate" version="${project.version}">
-        <feature>apache-commons</feature>
-        <feature version="${project.version}">kernel</feature>
-        <feature version="${spring.version}_1">spring</feature>
-        <feature>pax-http-jetty</feature>
-        <feature>pax-jetty</feature>
-        <feature>common-system</feature>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-        <bundle>mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+    <feature name="security-filter-api" version="${project.version}">
+        <feature prerequisite="true" version="${project.version}">kernel</feature>
+        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
+        <bundle>mvn:ddf.platform/security-filter-api/${project.version}</bundle>
     </feature>
 
     <feature name="platform-error-page-injector" version="${project.version}"
@@ -89,14 +85,11 @@
     <feature name="clientinfo-filter" version="${project.version}"
              description="Servlet filter to extract client information from the request">
         <feature>security-core-api</feature>
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <bundle>mvn:ddf.platform/platform-filter-clientinfo/${project.version}</bundle>
     </feature>
 
     <feature name="web-container" version="${project.version}">
-        <feature prerequisite="true">platform-filter-delegate</feature>
-        <!-- prerequisite=true is set because the platform-error-page-injector needs to start running before -->
-        <!-- any web servlets are initialized to properly add filters and error pages -->
         <feature>platform-paxweb-jettyconfig</feature>
         <feature>platform-error-page-injector</feature>
         <feature>war</feature>
@@ -127,6 +120,12 @@
              description="Custom Session Manager">
         <feature version="${spring.version}_1">spring</feature>
         <feature>apache-commons</feature>
+        <feature>security-core-api</feature>
+        <feature>security-filter-api</feature>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-api/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jetty/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-runtime/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-spi/${pax.web.codice.version}</bundle>
         <feature>pax-jetty</feature>
         <feature>session-invalidator</feature>
         <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
@@ -179,7 +178,7 @@
         <feature>util-uuidgenerator</feature>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
-	<feature>security-migratable</feature>
+        <feature>security-migratable</feature>
     </feature>
 
     <feature name="security-expansion" version="${project.version}"
@@ -213,7 +212,7 @@
     </feature>
 
     <feature name="security-cas" version="${project.version}"
-        description="CAS client, token validator, and claims handler">
+             description="CAS client, token validator, and claims handler">
         <feature>security-cas-client</feature>
         <feature>security-cas-tokenvalidator</feature>
         <feature>security-sts-casclaimshandler</feature>
@@ -365,7 +364,7 @@
     <feature name="security-filter-csrf" version="${project.version}"
              description="CSRF Filter for web applications.">
         <feature>security-core-api</feature>
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
     </feature>
 
@@ -376,7 +375,7 @@
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <feature>javax-validation</feature>
         <feature>cxf-frontend-javascript</feature>
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
     </feature>
@@ -385,7 +384,7 @@
              description="Authz Filter for web applications.">
         <feature>security-policy-context</feature>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <feature>javax-validation</feature>
         <feature>cxf-frontend-javascript</feature>
         <feature>cxf-jaxrs</feature>
@@ -415,7 +414,7 @@
 
     <feature name="security-filter-web-sso" version="${project.version}"
              description="Web SSO Filter for web applications.">
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <feature>security-handler-api</feature>
         <feature>security-policy-context</feature>
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
@@ -561,20 +560,20 @@
         <feature>javax-validation</feature>
         <feature>action-core-impl</feature>
         <feature>cxf-rs-security-sso-saml</feature>
-        <feature>platform-filter-delegate</feature>
+        <feature>security-filter-api</feature>
         <feature>security-handler-saml</feature>
         <feature>session-invalidator</feature>
         <feature>platform-paxweb-jettyconfig</feature>
-        <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
+        <feature>security-filter-login</feature>
         <feature>guava</feature>
-        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
-        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <feature>cxf-frontend-javascript</feature>
         <feature>cxf-jaxrs</feature>
         <feature>util-uuidgenerator</feature>
         <feature>security-handler-basic</feature>
-        <feature>security-filter-login</feature>
         <feature>security-idp-plugin</feature>
+        <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
         <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>

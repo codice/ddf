@@ -20,12 +20,13 @@ import com.google.common.hash.Hashing;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.cas.filter.ProxyFilter;
@@ -59,7 +60,7 @@ public class CasHandler implements AuthenticationHandler {
   @Override
   public HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
-      throws ServletException {
+      throws AuthenticationFailureException {
 
     // Default to NO_ACTION and set the source as this handler
     HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -76,8 +77,8 @@ public class CasHandler implements AuthenticationHandler {
       if (resolve && assertion == null) {
         proxyFilter.doFilter(request, response, new ProxyFilterChain(null));
       }
-    } catch (IOException e) {
-      throw new ServletException(e);
+    } catch (IOException | ServletException e) {
+      throw new AuthenticationFailureException(e);
     }
 
     if (assertion != null) {
@@ -115,8 +116,7 @@ public class CasHandler implements AuthenticationHandler {
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException {
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     HandlerResult handlerResult;
     LOGGER.debug("handleError was called on the CasHandler, cannot do anything.");
     handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);

@@ -41,8 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -68,11 +66,14 @@ import org.apache.wss4j.dom.validate.Validator;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.filter.AuthenticationChallengeException;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.joda.time.DateTime;
@@ -229,7 +230,7 @@ public class LoginFilter implements SecurityFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init() {
     LOGGER.debug("Starting LoginFilter.");
   }
 
@@ -246,7 +247,7 @@ public class LoginFilter implements SecurityFilter {
   @Override
   public void doFilter(
       final ServletRequest request, final ServletResponse response, final FilterChain chain)
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     LOGGER.debug("Performing doFilter() on LoginFilter");
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
@@ -278,6 +279,7 @@ public class LoginFilter implements SecurityFilter {
                 javax.security.auth.Subject javaSubject =
                     new javax.security.auth.Subject(
                         true, securityAssertion.getPrincipals(), emptySet, emptySet);
+                httpRequest.setAttribute(SecurityConstants.SECURITY_JAVA_SUBJECT, javaSubject);
                 javax.security.auth.Subject.doAs(javaSubject, action);
               } else {
                 LOGGER.debug("Subject had no security assertion.");
@@ -292,7 +294,7 @@ public class LoginFilter implements SecurityFilter {
   }
 
   private Subject validateRequest(final HttpServletRequest httpRequest)
-      throws IOException, ServletException {
+      throws AuthenticationChallengeException, AuthenticationFailureException {
 
     Subject subject = null;
 
@@ -317,7 +319,8 @@ public class LoginFilter implements SecurityFilter {
   }
 
   private Subject handleAuthenticationToken(
-      HttpServletRequest httpRequest, SAMLAuthenticationToken token) throws ServletException {
+      HttpServletRequest httpRequest, SAMLAuthenticationToken token)
+      throws AuthenticationFailureException {
     Subject subject;
     try {
       LOGGER.debug("Validating received SAML assertion.");
@@ -353,7 +356,7 @@ public class LoginFilter implements SecurityFilter {
         if (token.isReference()) {
           String msg = "Missing or invalid SAML assertion for provided reference.";
           LOGGER.debug(msg);
-          throw new InvalidSAMLReceivedException(msg);
+          throw new AuthenticationFailureException(msg);
         }
       }
 
@@ -430,10 +433,10 @@ public class LoginFilter implements SecurityFilter {
       }
     } catch (SecurityServiceException e) {
       LOGGER.debug("Unable to get subject from SAML request.", e);
-      throw new ServletException(e);
+      throw new AuthenticationFailureException(e);
     } catch (WSSecurityException e) {
       LOGGER.debug("Unable to read/validate security token from request.", e);
-      throw new ServletException(e);
+      throw new AuthenticationFailureException(e);
     }
     return subject;
   }
@@ -546,7 +549,7 @@ public class LoginFilter implements SecurityFilter {
 
   private SAMLAuthenticationToken renewSecurityToken(
       HttpSession session, SAMLAuthenticationToken savedToken)
-      throws ServletException, WSSecurityException {
+      throws AuthenticationFailureException {
     if (session != null) {
       SecurityAssertion savedAssertion =
           new SecurityAssertionImpl(((SecurityToken) savedToken.getCredentials()));
@@ -564,7 +567,7 @@ public class LoginFilter implements SecurityFilter {
       long timeoutMillis = (afterMil - System.currentTimeMillis());
 
       if (timeoutMillis <= 0) {
-        throw new InvalidSAMLReceivedException("SAML assertion has expired.");
+        throw new AuthenticationFailureException("SAML assertion has expired.");
       }
 
       if (timeoutMillis <= 60000) { // within 60 seconds
@@ -610,7 +613,9 @@ public class LoginFilter implements SecurityFilter {
   }
 
   private Subject handleAuthenticationToken(
-      HttpServletRequest httpRequest, BaseAuthenticationToken token) throws ServletException {
+      HttpServletRequest httpRequest, BaseAuthenticationToken token)
+      throws AuthenticationFailureException {
+
     Subject subject;
     HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
     // if we already have an assertion inside the session and it has not expired, then use that
@@ -640,7 +645,7 @@ public class LoginFilter implements SecurityFilter {
         }
       } catch (SecurityServiceException e) {
         LOGGER.debug("Unable to get subject from auth request.", e);
-        throw new ServletException(e);
+        throw new AuthenticationFailureException(e);
       }
     } else {
       LOGGER.trace("Creating SAML authentication token with session.");

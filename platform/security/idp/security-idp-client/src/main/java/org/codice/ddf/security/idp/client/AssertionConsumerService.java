@@ -34,8 +34,6 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.Filter;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -64,6 +62,8 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.filter.websso.WebSSOFilter;
@@ -100,7 +100,7 @@ public class AssertionConsumerService {
 
   @Context private HttpServletRequest request;
 
-  private Filter loginFilter;
+  private SecurityFilter loginFilter;
 
   private SystemCrypto systemCrypto;
 
@@ -400,7 +400,7 @@ public class AssertionConsumerService {
     try {
       LOGGER.trace("Trying to login with provided SAML assertion.");
       loginFilter.doFilter(wrappedRequest, null, (servletRequest, servletResponse) -> {});
-    } catch (IOException | ServletException e) {
+    } catch (IOException | AuthenticationException e) {
       LOGGER.debug("Failed to apply login filter to SAML assertion", e);
       return false;
     }
@@ -471,11 +471,11 @@ public class AssertionConsumerService {
     return response;
   }
 
-  public Filter getLoginFilter() {
+  public SecurityFilter getLoginFilter() {
     return loginFilter;
   }
 
-  public void setLoginFilter(Filter loginFilter) {
+  public void setLoginFilter(SecurityFilter loginFilter) {
     this.loginFilter = loginFilter;
   }
 

@@ -15,14 +15,14 @@ package org.codice.ddf.security.filter.csrf
 
 import com.google.common.collect.ImmutableList
 import com.google.common.net.HttpHeaders
+import org.codice.ddf.platform.filter.AuthenticationException
 import org.eclipse.jetty.http.HttpMethod
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
-
-import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import org.codice.ddf.platform.filter.FilterChain
 
 @RestoreSystemProperties
 class CsrfFilterSpec extends Specification {
@@ -85,9 +85,11 @@ class CsrfFilterSpec extends Specification {
         } else {
             request.getHeader(CsrfFilter.CSRF_HEADER) >> null
         }
+        try {
+            csrfFilter.doFilter(request, response, chain)
+        } catch (AuthenticationException e) {
 
-        csrfFilter.doFilter(request, response, chain)
-
+        }
         then:
         0 * response.setStatus(HttpServletResponse.SC_FORBIDDEN)
         0 * response.sendError(HttpServletResponse.SC_FORBIDDEN)
@@ -166,8 +168,11 @@ class CsrfFilterSpec extends Specification {
             request.getHeader(CsrfFilter.CSRF_HEADER) >> null
         }
 
-        csrfFilter.doFilter(request, response, chain)
+        try {
+            csrfFilter.doFilter(request, response, chain)
+        } catch (AuthenticationException e) {
 
+        }
         then:
         1 * response.setStatus(HttpServletResponse.SC_FORBIDDEN)
         1 * response.sendError(HttpServletResponse.SC_FORBIDDEN)
@@ -229,8 +234,11 @@ class CsrfFilterSpec extends Specification {
                 '/services/idp/login[/]?$=POST',
                 '/services/saml/sso[/]?$=POST'))
 
-        csrfFilter.doFilter(request, response, chain)
+        try {
+            csrfFilter.doFilter(request, response, chain)
+        } catch (AuthenticationException e) {
 
+        }
         then:
         0 * response.setStatus(HttpServletResponse.SC_FORBIDDEN)
         0 * response.sendError(HttpServletResponse.SC_FORBIDDEN)
@@ -294,8 +302,11 @@ class CsrfFilterSpec extends Specification {
                 '/services/idp/login[/]?$=POST',
                 '/services/saml/sso[/]?$=POST'))
 
-        csrfFilter.doFilter(request, response, chain)
+        try {
+            csrfFilter.doFilter(request, response, chain)
+        } catch (AuthenticationException e) {
 
+        }
         then:
         1 * response.setStatus(HttpServletResponse.SC_FORBIDDEN)
         1 * response.sendError(HttpServletResponse.SC_FORBIDDEN)
