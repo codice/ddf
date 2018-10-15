@@ -83,26 +83,6 @@
     </dependencies>
     <build>
         <plugins>
-            <!--
-                  <plugin>
-                    <groupId>org.jvnet.jaxb2.maven2</groupId>
-                    <artifactId>maven-jaxb2-plugin</artifactId>
-                    <executions>
-                      <execution>
-                        <goals>
-                          <goal>generate</goal>
-                        </goals>
-                      </execution>
-                    </executions>
-                    <configuration>
-
-                      <schemaDirectory>src/main/schema</schemaDirectory>
-                      <schemaIncludes>
-                        <include>**/*.xsd</include>
-                      </schemaIncludes>
-                    </configuration>
-                  </plugin>
-            -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

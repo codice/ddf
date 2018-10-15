@@ -67,7 +67,7 @@
             <version>${gml-v_3_1_1-schema.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
+            <groupId>ddf.jaxb</groupId>
             <artifactId>catalog-transformer-xml-binding</artifactId>
             <scope>compile</scope>
         </dependency>

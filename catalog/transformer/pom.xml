@@ -54,9 +54,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.catalog.transformer</groupId>
+                <groupId>ddf.jaxb</groupId>
                 <artifactId>catalog-transformer-xml-binding</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.abdera</groupId>
@@ -99,7 +99,6 @@
         <module>catalog-transformer-geojson-metacard</module>
         <module>catalog-transformer-geojson-queryresponse</module>
         <module>catalog-transformer-service-atom</module>
-        <module>catalog-transformer-xml-binding</module>
         <module>catalog-transformer-xml</module>
         <module>catalog-transformer-common</module>
         <module>catalog-transformer-streaming-api</module>
