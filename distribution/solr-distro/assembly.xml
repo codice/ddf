@@ -53,6 +53,9 @@
                 <!--This can be changed once Solr is upgraded to 7.5/8.0-->
                 <!--https://issues.apache.org/jira/browse/SOLR-12538-->
                 <include>bin/solr.cmd</include>
+                <!--These files lower the soft commit default to 1 second-->
+                <include>bin/solr.in.cmd</include>
+                <include>bin/solr.in.sh</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>

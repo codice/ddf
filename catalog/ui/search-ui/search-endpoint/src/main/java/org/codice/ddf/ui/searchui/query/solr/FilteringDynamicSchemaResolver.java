@@ -104,7 +104,6 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
     return fields;
   }
 
-  @Override
   public String getWhitespaceTokenizedField(String mappedPropertyName) {
     String field =
         mappedPropertyName.split(SchemaFields.TEXT_SUFFIX, 0)[0]
