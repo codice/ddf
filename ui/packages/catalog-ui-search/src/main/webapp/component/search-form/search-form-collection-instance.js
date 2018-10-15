@@ -9,16 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-const Tabs = require('component/tabs/tabs')
-const MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view')
-const MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view')
 
-module.exports = Tabs.extend({
-  defaults: {
-    tabs: {
-      'My Search Forms': MySearchFormCollectionView,
-      'Shared Search Forms': MySearchSharingFormCollectionView,
-    },
-  },
-})
+const SearchFormsCollection = require('./search-form.collection.js')
+module.exports = new SearchFormsCollection()

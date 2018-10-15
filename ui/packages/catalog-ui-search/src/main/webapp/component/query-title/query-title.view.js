@@ -60,7 +60,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender: function() {
     this.updateQueryName()
-    this.showSearchInteractions()
+    if (this.options.isSearchFormEditor !== true) {
+      this.showSearchInteractions()
+    }
   },
   showSearchInteractions: function() {
     this.searchInteractions.show(

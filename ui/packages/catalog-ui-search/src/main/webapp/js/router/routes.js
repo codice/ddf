@@ -59,4 +59,20 @@
       classes: 'is-bold',
     },
   },
+  openForms: {
+    patterns: ['forms(/)'],
+    component: 'component/tabs/search-form/tabs.search-form.view',
+    menu: {
+      text: 'Search Forms',
+      classes: 'is-bold',
+    },
+  },
+  newForm: {
+    patterns: ['forms/:id'],
+    component: 'component/search-form-editor/search-form-editor.view',
+    menu: {
+      text: 'Search Form Editor',
+      classes: 'is-bold',
+    },
+  },
 })

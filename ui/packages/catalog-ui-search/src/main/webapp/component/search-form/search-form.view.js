@@ -21,6 +21,8 @@ const user = require('../singletons/user-instance')
 const DropdownModel = require('../dropdown/dropdown')
 const SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view')
 const properties = require('properties')
+const wreqr = require('exports/wreqr')
+const Router = require('component/router/router')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -43,7 +45,7 @@ module.exports = Marionette.LayoutView.extend({
       this.model.get('type') === 'new-result'
     ) {
       this.$el.addClass('is-static')
-    } else if (properties.hasExperimentalEnabled()) {
+    } else {
       this.searchFormActions.show(
         new SearchFormInteractionsDropdownView({
           model: new DropdownModel(),
@@ -71,6 +73,7 @@ module.exports = Marionette.LayoutView.extend({
           this.options.queryModel.trigger('change:type')
         }
         user.getQuerySettings().set('type', 'new-form')
+        this.routeToSearchFormEditor('create')
         break
       case 'basic':
         this.options.queryModel.set('type', 'basic')
@@ -87,38 +90,50 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'text')
         break
       case 'custom':
-        let sorts =
-          this.model.get('querySettings') &&
-          this.model.get('querySettings').sorts
-        if (sorts) {
-          sorts = sorts.map(sort => ({
-            attribute: sort.split(',')[0],
-            direction: sort.split(',')[1],
-          }))
+        if (Router.attributes.path === 'forms(/)') {
+          this.model.set({
+            title: this.model.get('name'),
+            filterTree: this.model.get('filterTemplate'),
+            id: this.model.get('id'),
+            accessGroups: this.model.get('accessGroups'),
+            accessIndividuals: this.model.get('accessIndividuals'),
+            accessAdministrators: this.model.get('accessAdministrators'),
+          })
+          this.routeToSearchFormEditor(this.model.get('id'))
+        } else {
+          let sorts =
+            this.model.get('querySettings') &&
+            this.model.get('querySettings').sorts
+          if (sorts) {
+            sorts = sorts.map(sort => ({
+              attribute: sort.split(',')[0],
+              direction: sort.split(',')[1],
+            }))
+          }
+          this.options.queryModel.set({
+            type: 'custom',
+            title: this.model.get('name'),
+            filterTree: this.model.get('filterTemplate'),
+            src:
+              (this.model.get('querySettings') &&
+                this.model.get('querySettings').src) ||
+              '',
+            federation:
+              (this.model.get('querySettings') &&
+                this.model.get('querySettings').federation) ||
+              'enterprise',
+            sorts: sorts,
+            'detail-level':
+              (this.model.get('querySettings') &&
+                this.model.get('querySettings')['detail-level']) ||
+              'allFields',
+          })
+          if (oldType === 'custom') {
+            this.options.queryModel.trigger('change:type')
+          }
+          user.getQuerySettings().set('type', 'custom')
+          break
         }
-        this.options.queryModel.set({
-          type: 'custom',
-          title: this.model.get('name'),
-          filterTree: this.model.get('filterTemplate'),
-          src:
-            (this.model.get('querySettings') &&
-              this.model.get('querySettings').src) ||
-            '',
-          federation:
-            (this.model.get('querySettings') &&
-              this.model.get('querySettings').federation) ||
-            'enterprise',
-          sorts: sorts,
-          'detail-level':
-            (this.model.get('querySettings') &&
-              this.model.get('querySettings')['detail-level']) ||
-            'allFields',
-        })
-        if (oldType === 'custom') {
-          this.options.queryModel.trigger('change:type')
-        }
-        user.getQuerySettings().set('type', 'custom')
-        break
     }
 
     user.savePreferences()
@@ -126,5 +141,16 @@ module.exports = Marionette.LayoutView.extend({
   },
   triggerCloseDropdown: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+
+  routeToSearchFormEditor(newSearchFormId) {
+    const fragment = `forms/${newSearchFormId}`
+
+    wreqr.vent.trigger('router:navigate', {
+      fragment,
+      options: {
+        trigger: true,
+      },
+    })
   },
 })

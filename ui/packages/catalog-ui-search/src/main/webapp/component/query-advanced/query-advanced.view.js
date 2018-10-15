@@ -100,6 +100,9 @@ module.exports = Marionette.LayoutView.extend({
   cancel: function() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
+    if (typeof this.options.onCancel === 'function') {
+      this.options.onCancel()
+    }
   },
   save: function() {
     this.$el.removeClass('is-editing')
@@ -113,6 +116,9 @@ module.exports = Marionette.LayoutView.extend({
           : '',
       filterTree: JSON.stringify(this.queryAdvanced.currentView.getFilters()),
     })
+    if (typeof this.options.onSave === 'function') {
+      this.options.onSave()
+    }
   },
   isValid: function() {
     return this.querySettings.currentView.isValid()

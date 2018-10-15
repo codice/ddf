@@ -22,6 +22,7 @@ const announcement = require('component/announcement')
 const ConfirmationView = require('component/confirmation/confirmation.view')
 const lightboxInstance = require('component/lightbox/lightbox.view.instance')
 const QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view')
+const wreqr = require('exports/wreqr')
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -204,13 +205,19 @@ module.exports = Marionette.ItemView.extend({
   handleEdit: function() {
     if (this.model.get('type') === 'custom') {
       this.model.set({
-        type: 'new-form',
         title: this.model.get('name'),
         filterTree: this.model.get('filterTemplate'),
         id: this.model.get('id'),
         accessGroups: this.model.get('accessGroups'),
         accessIndividuals: this.model.get('accessIndividuals'),
         accessAdministrators: this.model.get('accessAdministrators'),
+      })
+      const fragment = `forms/${this.model.get('id')}`
+      wreqr.vent.trigger('router:navigate', {
+        fragment,
+        options: {
+          trigger: true,
+        },
       })
     } else if (this.model.get('type') === 'result') {
       this.model.set({
@@ -223,9 +230,9 @@ module.exports = Marionette.ItemView.extend({
         descriptors: this.model.get('descriptors'),
         description: this.model.get('description'),
       })
+      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+      this.model.trigger('change:type')
     }
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    this.model.trigger('change:type')
   },
   handleClick: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
