@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.metacard;
 
+import static ddf.catalog.data.types.Security.ACCESS_ADMINISTRATORS;
+import static ddf.catalog.data.types.Security.ACCESS_GROUPS;
+import static ddf.catalog.data.types.Security.ACCESS_GROUPS_READ;
+import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS;
+import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS_READ;
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -102,6 +107,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.NotFoundException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -124,6 +130,7 @@ import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
+import org.codice.ddf.catalog.ui.security.Constants;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
@@ -211,6 +218,10 @@ public class MetacardApplication implements SparkApplication {
 
   private String getSubjectEmail() {
     return SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
+  }
+
+  private List<String> getSubjectRoles() {
+    return SubjectUtils.getAttribute(SecurityUtils.getSubject(), Constants.ROLES_CLAIM_URI);
   }
 
   private String getSubjectIdentifier() {
@@ -456,8 +467,23 @@ public class MetacardApplication implements SparkApplication {
         "/workspaces",
         (req, res) -> {
           String email = getSubjectEmail();
+          List<String> subjectRoles = getSubjectRoles();
+          Map<String, List<String>> attributeMap = new HashMap<>();
+          if (email != null) {
+            attributeMap.put(Metacard.OWNER, Collections.singletonList(email));
+            attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
+            attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
+            attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));
+          }
+
+          if (CollectionUtils.isNotEmpty(subjectRoles)) {
+            attributeMap.put(ACCESS_GROUPS_READ, subjectRoles);
+            attributeMap.put(ACCESS_GROUPS, subjectRoles);
+          }
+
           Map<String, Result> workspaceMetacards =
-              util.getMetacardsByFilter(WorkspaceConstants.WORKSPACE_TAG);
+              util.getMetacardsByTagWithLikeAttributes(
+                  attributeMap, WorkspaceConstants.WORKSPACE_TAG);
 
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
           Set<String> ids =

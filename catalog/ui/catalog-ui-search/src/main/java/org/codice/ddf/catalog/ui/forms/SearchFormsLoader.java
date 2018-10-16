@@ -353,8 +353,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
   private static void createSystemMetacards(
       EndpointUtil util, List<Metacard> systemTemplates, CatalogFramework catalogFramework) {
-    Set<String> queryTitles = titlesTransform(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG));
-    Set<String> resultTitles = titlesTransform(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG));
+    Set<String> queryTitles = titlesTransform(util.getMetacardsByTag(QUERY_TEMPLATE_TAG));
+    Set<String> resultTitles = titlesTransform(util.getMetacardsByTag(ATTRIBUTE_GROUP_TAG));
     List<Metacard> dedupedTemplateMetacards =
         Stream.concat(
                 systemTemplates

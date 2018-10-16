@@ -72,6 +72,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -198,8 +199,49 @@ public class EndpointUtil {
     return getJson(result);
   }
 
-  public Map<String, Result> getMetacardsByFilter(String tagFilter) {
-    Filter filter = filterBuilder.attribute(Metacard.TAGS).is().like().text(tagFilter);
+  public Map<String, Result> getMetacardsByTag(String tagStr) {
+    Filter filter = filterBuilder.attribute(Metacard.TAGS).is().like().text(tagStr);
+
+    ResultIterable resultIterable =
+        resultIterable(
+            catalogFramework,
+            new QueryRequestImpl(
+                new QueryImpl(
+                    filter,
+                    1,
+                    pageSize,
+                    new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
+                    false,
+                    TimeUnit.SECONDS.toMillis(10)),
+                false,
+                null,
+                additionalSort(new HashMap<>(), Core.ID, SortOrder.ASCENDING)));
+    return resultIterable
+        .stream()
+        .collect(
+            Collectors.toMap(
+                result -> result.getMetacard().getId(),
+                Function.identity(),
+                EndpointUtil::firstInWinsMerge));
+  }
+
+  public Map<String, Result> getMetacardsByTagWithLikeAttributes(
+      Map<String, List<String>> attributeMap, String tagStr) {
+    return getMetacardsByTagWithLikeAttributes(
+        attributeMap, filterBuilder.attribute(Metacard.TAGS).is().like().text(tagStr));
+  }
+
+  public Map<String, Result> getMetacardsByTagWithLikeAttributes(
+      Map<String, List<String>> attributeMap, Filter tagFilter) {
+
+    List<Filter> attributeFilters = new ArrayList<>();
+
+    for (String attributeName : attributeMap.keySet()) {
+      attributeFilters.add(
+          buildAttributeFilter(attributeName, attributeMap.get(attributeName), false));
+    }
+
+    Filter filter = filterBuilder.allOf(filterBuilder.anyOf(attributeFilters), tagFilter);
 
     ResultIterable resultIterable =
         resultIterable(
@@ -233,20 +275,22 @@ public class EndpointUtil {
   }
 
   public Map<String, Result> getMetacards(
-      String attributeName, Collection<String> ids, String tag) {
+      String attributeName, Collection<String> attributeValues, String tag) {
     return getMetacards(
-        attributeName, ids, filterBuilder.attribute(Metacard.TAGS).is().like().text(tag));
+        attributeName,
+        attributeValues,
+        filterBuilder.attribute(Metacard.TAGS).is().like().text(tag));
   }
 
   public Map<String, Result> getMetacards(
-      String attributeName, Collection<String> ids, Filter tagFilter) {
-    if (ids.isEmpty()) {
+      String attributeName, Collection<String> attributeValues, Filter tagFilter) {
+    if (attributeValues.isEmpty()) {
       return new HashMap<>();
     }
 
-    List<Filter> filters = new ArrayList<>(ids.size());
-    for (String id : ids) {
-      Filter attributeFilter = filterBuilder.attribute(attributeName).is().equalTo().text(id);
+    List<Filter> filters = new ArrayList<>(attributeValues.size());
+    for (String value : attributeValues) {
+      Filter attributeFilter = filterBuilder.attribute(attributeName).is().equalTo().text(value);
       Filter filter = filterBuilder.allOf(attributeFilter, tagFilter);
       filters.add(filter);
     }
@@ -274,6 +318,29 @@ public class EndpointUtil {
                 result -> result.getMetacard().getId(),
                 Function.identity(),
                 EndpointUtil::firstInWinsMerge));
+  }
+
+  private Filter buildAttributeFilter(
+      String attributeName, List<String> attributeValues, boolean isExactMatch) {
+    if (CollectionUtils.isEmpty(attributeValues)) {
+      return null;
+    }
+
+    List<Filter> filters = new ArrayList<>();
+    for (String value : attributeValues) {
+      if (isExactMatch) {
+        filters.add(filterBuilder.attribute(attributeName).is().equalTo().text(value));
+      } else {
+        Filter f = filterBuilder.attribute(attributeName).is().like().text(value);
+        filters.add(f);
+      }
+    }
+
+    if (filters.size() == 1) {
+      return filters.get(0);
+    } else {
+      return filterBuilder.anyOf(filters);
+    }
   }
 
   private Map<String, Serializable> additionalSort(

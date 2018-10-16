@@ -93,6 +93,9 @@ public interface Metacard extends Serializable {
   /** {@link Attribute} name for accessing the title of the {@link Metacard}. <br> */
   String TITLE = "title";
 
+  /** {@link Attribute} name for accessing the owner of the {@link Metacard}. <br> */
+  String OWNER = "owner";
+
   /** {@link Attribute} name for accessing the XML metadata for this {@link Metacard}. <br> */
   String METADATA = "metadata";
 
