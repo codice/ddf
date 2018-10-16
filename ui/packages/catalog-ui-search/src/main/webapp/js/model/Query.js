@@ -12,6 +12,7 @@
 /*global define*/
 
 var Backbone = require('backbone')
+var $ = require('jquery')
 var _ = require('underscore')
 var properties = require('properties')
 var QueryResponse = require('js/model/QueryResponse')
@@ -161,6 +162,11 @@ Query.Model = Backbone.AssociatedModel.extend({
   isOutdated() {
     return this.get('isOutdated')
   },
+  startTieredSearchIfOutdated(ids) {
+    if (this.isOutdated()) {
+      this.startTieredSearch(ids)
+    }
+  },
   startSearchIfOutdated() {
     if (this.isOutdated()) {
       this.startSearch()
@@ -169,6 +175,30 @@ Query.Model = Backbone.AssociatedModel.extend({
   startSearchFromFirstPage: function(options) {
     this.handleChangeResultCount()
     this.startSearch(options)
+  },
+  startTieredSearch: function(ids) {
+    this.set('federation', 'local')
+    $.when(...this.startSearch()).then(
+      function() {
+        setTimeout(() => {
+          const results = this.get('result')
+            .get('results')
+            .toJSON()
+
+          const status = this.get('result')
+            .get('status')
+            .toJSON()
+
+          const resultIds = results.map(result => result.metacard.id)
+          const missingResult = ids.some(id => !resultIds.includes(id))
+          if (!missingResult) {
+            return
+          }
+          this.set('federation', 'enterprise')
+          this.startSearch({ queuedResults: results, status })
+        }, 0)
+      }.bind(this)
+    )
   },
   startSearch: function(options) {
     this.set('isOutdated', false)
@@ -202,11 +232,13 @@ Query.Model = Backbone.AssociatedModel.extend({
       result.setQueryId(this.getId())
       result.set('selectedResultTemplate', this.get('detail-level'))
       result.set('merged', true)
-      result.get('queuedResults').fullCollection.reset()
-      result.get('queuedResults').reset()
+      result
+        .get('queuedResults')
+        .fullCollection.reset(options.queuedResults || [])
+      result.get('queuedResults').reset(options.queuedResults || [])
       result.get('results').fullCollection.reset()
       result.get('results').reset()
-      result.get('status').reset(initialStatus)
+      results.get('status').reset(options.status || initialStatus)
     } else {
       result = new QueryResponse({
         queryId: this.getId(),
@@ -403,12 +435,8 @@ Query.Model = Backbone.AssociatedModel.extend({
       this.get('result')
         .get('status')
         .toJSON(),
-      function(status) {
-        return status.id !== 'cache'
-      }
-    ).reduce(function(hits, status) {
-      return status.hits ? hits + status.hits : hits
-    }, 0)
+      status => status.id !== 'cache'
+    ).reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
 
     if (hits === 0) {
       return '0 results'

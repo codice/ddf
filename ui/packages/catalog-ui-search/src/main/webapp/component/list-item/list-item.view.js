@@ -126,7 +126,8 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerRun: function(e) {
-    this.model.get('query').startSearch()
+    const ids = this.model.get('list.bookmarks')
+    this.model.get('query').startTieredSearch(ids)
     e.stopPropagation()
   },
   triggerStop: function(e) {
@@ -158,14 +159,18 @@ module.exports = Marionette.LayoutView.extend({
   handleNewMetacard(id) {
     if (id) {
       this.model.addBookmarks([id])
-      this.model.get('query').startSearchIfOutdated()
+      this.model
+        .get('query')
+        .startTieredSearchIfOutdated(this.model.get('list.bookmarks'))
     }
   },
   handleUploadSuccess(file) {
     var addedIds = file.xhr.getResponseHeader('Added-IDs')
     if (addedIds) {
       this.model.addBookmarks(addedIds.split(','))
-      this.model.get('query').startSearchIfOutdated()
+      this.model
+        .get('query')
+        .startTieredSearchIfOutdated(this.model.get('list.bookmarks'))
     }
   },
   serializeData: function() {

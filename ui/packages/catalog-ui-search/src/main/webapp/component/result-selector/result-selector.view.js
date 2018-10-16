@@ -100,7 +100,11 @@ define([
     },
     initialize: function(options) {
       if (!this.model.get('result')) {
-        this.model.startSearch()
+        if (this.options.tieredSearchIds !== undefined) {
+          this.model.startTieredSearch(this.options.tieredSearchIds)
+        } else {
+          this.model.startSearch()
+        }
       }
       this.model.get('result').set('currentlyViewed', true)
       this.options.selectionInterface.setCurrentQuery(this.model)
