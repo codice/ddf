@@ -28,6 +28,7 @@
                     availability="optional"/>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id"
@@ -35,6 +36,9 @@
             interface="ddf.catalog.source.FederatedSource">
         <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
                               init-method="init" destroy-method="destroy">
+            <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
+
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="wfsUrl" value="http://demo.mapserver.org/cgi-bin/wfs"/>
@@ -51,7 +55,6 @@
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
