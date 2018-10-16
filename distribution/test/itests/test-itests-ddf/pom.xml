@@ -453,6 +453,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <skip>${isDebugEnabled}</skip>
                             <executable>java</executable>
                             <arguments>
                                 <argument>-jar</argument>
@@ -462,7 +463,6 @@
                                 <argument>--continuous</argument>
                                 <argument>--debug</argument>
                                 <argument>--wait</argument>
-                                <argument>--reconnect</argument>
                                 <argument>--fail</argument>
                             </arguments>
                             <async>true</async>

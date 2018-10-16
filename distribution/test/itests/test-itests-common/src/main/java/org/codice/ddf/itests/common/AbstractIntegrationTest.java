@@ -478,19 +478,17 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected Option[] configurePaxExam() {
-    Option acdebuggerOption = null;
-    if (System.getProperty("acdebuggerEnabled", "false").equals("true")) {
-      String port = System.getProperty("acdebuggerPort", "5505");
-      acdebuggerOption = KarafDistributionOption.debugConfiguration(port, true);
-    }
     return options(
+        when(Boolean.getBoolean("acdebuggerEnabled") && !Boolean.getBoolean("isDebugEnabled"))
+            .useOptions(
+                KarafDistributionOption.debugConfiguration(
+                    System.getProperty("acdebuggerPort", "5505"), true)),
         logLevel(LogLevelOption.LogLevel.WARN),
         useOwnExamBundlesStartLevel(100),
         // increase timeout for CI environment
         systemTimeout(GENERIC_TIMEOUT_MILLISECONDS),
         when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
-        cleanCaches(true),
-        acdebuggerOption);
+        cleanCaches(true));
   }
 
   protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
