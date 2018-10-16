@@ -109,6 +109,9 @@ public class UserApplication implements SparkApplication {
     LOGGER.trace("preferences JSON text:\n {}", json);
 
     String userid = subjectIdentity.getUniqueIdentifier(subject);
+
+    LOGGER.trace("Update preferences for: {}", userid);
+
     PersistentItem item = new PersistentItem();
     item.addIdProperty(userid);
     item.addProperty("user", userid);

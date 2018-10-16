@@ -203,13 +203,16 @@ public class QueryOperations extends DescribableImpl {
       // Allow callers to determine the total results returned from the query; this value
       // may differ from the number of filtered results after processing plugins have been run.
       queryResponse.getProperties().put("actualResultSize", queryResponse.getResults().size());
-
+      LOGGER.debug("BeforePostQueryFilter result size: {}", queryResponse.getResults().size());
       queryResponse = injectAttributes(queryResponse);
       queryResponse = validateFixQueryResponse(queryResponse, overrideFanoutRename, fanoutEnabled);
       queryResponse = postProcessPreAuthorizationPlugins(queryResponse);
       queryResponse = populateQueryResponsePolicyMap(queryResponse);
       queryResponse = processPostQueryAccessPlugins(queryResponse);
       queryResponse = processPostQueryPlugins(queryResponse);
+
+      LOGGER.debug("AfterPostQueryFilter result size: {}", queryResponse.getResults().size());
+      LOGGER.debug("Total Hit count: {}", queryResponse.getHits());
 
     } catch (RuntimeException re) {
       throw new UnsupportedQueryException("Exception during runtime while performing query", re);
