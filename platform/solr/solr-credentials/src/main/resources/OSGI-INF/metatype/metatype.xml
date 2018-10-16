@@ -14,25 +14,23 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
   <OCD name="Solr Basic Authentication Credentials"
-      id="org.codice.solr.factory.SolrUsernamePasswordCredentials"
+      id="org.codice.solr.credentials.SolrUsernamePasswordCredentials"
       description="The username and password for authenticating to Solr via an HTTP connection.">
 
     <AD
         description="Username for Solr user"
-        name="User name" id="uersname" required="true"
+        name="User name" id="username" required="true"
         type="String" default="ddf"/>
 
     <AD
         description="Password for Solr user"
         name="Password" id="password" required="true"
         type="Password" default="changeit"/>
-
   </OCD>
 
-  <Designate pid="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator">
-    <Object ocdref="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"/>
+  <Designate pid="org.codice.solr.credentials.SolrUsernamePasswordCredentials">
+    <Object ocdref="org.codice.solr.credentials.SolrUsernamePasswordCredentials"/>
   </Designate>
-
 </metatype:MetaData>
 
 

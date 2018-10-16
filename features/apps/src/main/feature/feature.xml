@@ -75,6 +75,7 @@
         <feature>util-uuidgenerator</feature>
         <feature>platform-alerts</feature>
         <feature>session-manager-command</feature>
+        <feature>solr-credentials</feature>
     </feature>
 
     <feature name="security-services-app" version="${project.version}"
