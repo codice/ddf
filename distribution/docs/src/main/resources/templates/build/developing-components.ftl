@@ -4,7 +4,7 @@
 Create custom implementations of ${branding} components.
 
 <#list developingComponents?sort_by("order") as developingComponent>
-<#if (developingComponent.status == "published")>
+<#if (developingComponent.status == "published" && developingComponent.order != "na")>
 
 === ${developingComponent.title}
 
