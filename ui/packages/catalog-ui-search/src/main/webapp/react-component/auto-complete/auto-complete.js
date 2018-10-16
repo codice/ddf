@@ -1,7 +1,6 @@
 const React = require('react')
 
 const _debounce = require('lodash/debounce')
-import fetch from '../../react-component/utils/fetch'
 
 const Dropdown = require('../dropdown')
 const TextField = require('../text-field')
@@ -16,7 +15,6 @@ class AutoComplete extends React.Component {
       suggestions: [],
       error: null,
     }
-    this.fetch = props.fetch || fetch
     const { debounce = 500 } = this.props
     this.fetchSuggestions = _debounce(
       this.fetchSuggestions.bind(this),
@@ -25,12 +23,11 @@ class AutoComplete extends React.Component {
   }
   async fetchSuggestions() {
     const { input } = this.state
-    const { url, minimumInputLength = 3 } = this.props
+    const { suggester, minimumInputLength = 3 } = this.props
 
     if (!(input.length < minimumInputLength)) {
       try {
-        const res = await this.fetch(`${url}?q=${input}`)
-        let suggestions = await res.json()
+        const suggestions = await suggester(input)
         this.setState({ loading: false, suggestions })
       } catch (e) {
         this.setState({ loading: false, error: 'Endpoint unavailable' }, () => {

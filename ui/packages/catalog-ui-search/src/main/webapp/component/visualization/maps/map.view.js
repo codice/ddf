@@ -34,6 +34,9 @@ var MapSettingsDropdown = require('component/dropdown/map-settings/dropdown.map-
 var properties = require('properties')
 var Common = require('js/Common')
 
+const React = require('react')
+const Gazetteer = require('react-component/location/gazetteer.js')
+
 function wrapNum(x, range) {
   var max = range[1],
     min = range[0],
@@ -249,6 +252,21 @@ module.exports = Marionette.LayoutView.extend({
       homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox
     )
   },
+  addPanZoom: function() {
+    const self = this
+    const PanZoomView = Marionette.ItemView.extend({
+      template() {
+        return (
+          <Gazetteer setState={({ polygon }) => self.map.doPanZoom(polygon)} />
+        )
+      },
+    })
+    this.$el
+      .find('.cesium-viewer-toolbar')
+      .append('<div class="toolbar-panzoom is-button"></div>')
+    this.addRegion('toolbarPanZoom', '.toolbar-panzoom')
+    this.toolbarPanZoom.show(new PanZoomView())
+  },
   addHome: function() {
     this.$el
       .find('.cesium-viewer-toolbar')
@@ -353,6 +371,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.setupCollections()
     this.setupListeners()
+    this.addPanZoom()
     this.addHome()
     this.addClustering()
     this.addLayers()

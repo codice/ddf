@@ -52,6 +52,7 @@ function createMap(insertionElement) {
     element: insertionElement,
   })
 
+  // TODO DDF-4200 Revisit map loading forever when this is removed
   if (properties.gazetteer) {
     var geocoder = new Geocoder.View({
       el: $(insertionElement).siblings('#mapTools'),
@@ -202,6 +203,21 @@ module.exports = function OpenlayersMap(
     onCameraMoveEnd: function(callback) {
       map.on('moveend', callback)
     },
+    doPanZoom: function(coords) {
+      const that = this
+      that.zoomOut({ duration: 1000 }, () => {
+        setTimeout(() => {
+          that.zoomToExtent(coords, { duration: 2000 })
+        }, 0)
+      })
+    },
+    zoomOut: function(opts, next) {
+      if (map.getView().getZoom() > 6) {
+        map.getView().animate({ zoom: 6, duration: 500, ...opts }, next)
+      } else {
+        next()
+      }
+    },
     zoomToSelected: function() {
       if (selectionInterface.getSelectedResults().length === 1) {
         this.panToResults(selectionInterface.getSelectedResults())
@@ -231,7 +247,7 @@ module.exports = function OpenlayersMap(
         })
       }
     },
-    zoomToExtent: function(coords) {
+    zoomToExtent: function(coords, opts = {}) {
       var lineObject = coords.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
       })
@@ -241,6 +257,7 @@ module.exports = function OpenlayersMap(
       map.getView().fit(extent, {
         size: map.getSize(),
         duration: 500,
+        ...opts,
       })
     },
     zoomToBoundingBox: function({ north, east, south, west }) {

@@ -16,11 +16,19 @@ class Keyword extends React.Component {
     }
     this.fetch = this.props.fetch || fetch
   }
+  async suggester(input) {
+    const res = await this.fetch(`./internal/geofeature/suggestions?q=${input}`)
+    return await res.json()
+  }
+  async geofeature(id) {
+    const res = await this.fetch(`./internal/geofeature?id=${id}`)
+    return await res.json()
+  }
   async onChange({ id, name }) {
+    const geofeature = this.props.geofeature || (id => this.geofeature(id))
     this.setState({ value: name, loading: true })
     try {
-      const res = await this.fetch(`./internal/geofeature?id=${id}`)
-      const { type, geometry = {} } = await res.json()
+      const { type, geometry = {} } = await geofeature(id)
       this.setState({ loading: false })
 
       switch (geometry.type) {
@@ -64,6 +72,7 @@ class Keyword extends React.Component {
     }
   }
   render() {
+    const suggester = this.props.suggester || (input => this.suggester(input))
     const { polygon, cursor } = this.props
     const { value, loading, error } = this.state
     return (
@@ -73,7 +82,7 @@ class Keyword extends React.Component {
           onChange={option => this.onChange(option)}
           minimumInputLength={2}
           placeholder="Enter a region, country, or city"
-          url="./internal/geofeature/suggestions"
+          suggester={suggester}
         />
         {loading ? (
           <div style={{ marginTop: 10 }}>

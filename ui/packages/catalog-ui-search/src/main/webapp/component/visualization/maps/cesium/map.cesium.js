@@ -29,9 +29,6 @@ var DrawHelper = require('cesium-drawhelper/DrawHelper')
 var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller')
 var user = require('component/singletons/user-instance')
 var User = require('js/model/User')
-var wreqr = require('wreqr')
-var gazetteer = require('./geocoder')
-var mtgeo = require('mt-geo')
 
 var defaultColor = '#3c6dd5'
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0)
@@ -84,7 +81,7 @@ function createMap(insertionElement) {
       animation: false,
       fullscreenButton: false,
       timeline: false,
-      geocoder: new gazetteer(),
+      geocoder: false,
       homeButton: false,
       navigationHelpButton: false,
       sceneModePicker: false,
@@ -313,6 +310,27 @@ module.exports = function CesiumMap(
     onCameraMoveEnd: function(callback) {
       map.scene.camera.moveEnd.addEventListener(callback)
     },
+    doPanZoom: function(coords) {
+      const cartArray = coords.map(function(coord) {
+        return Cesium.Cartographic.fromDegrees(
+          coord[0],
+          coord[1],
+          map.camera._positionCartographic.height
+        )
+      })
+      if (cartArray.length === 1) {
+        const point = Cesium.Ellipsoid.WGS84.cartographicToCartesian(
+          cartArray[0]
+        )
+        this.panToCoordinate(point, 2.0)
+      } else {
+        const rectangle = Cesium.Rectangle.fromCartographicArray(cartArray)
+        this.panToRectangle(rectangle, {
+          duration: 2.0,
+          correction: 1.0,
+        })
+      }
+    },
     zoomToSelected: function() {
       if (selectionInterface.getSelectedResults().length === 1) {
         this.panToResults(selectionInterface.getSelectedResults())
@@ -347,20 +365,26 @@ module.exports = function CesiumMap(
         }
       }
     },
-    panToCoordinate: function(coords) {
+    panToCoordinate: function(coords, duration = 0.5) {
       map.scene.camera.flyTo({
-        duration: 0.5,
+        duration: duration,
         destination: coords,
       })
     },
     panToExtent: function(coords) {},
-    panToRectangle: function(rectangle) {
-      map.scene.camera.flyTo({
+    panToRectangle: function(
+      rectangle,
+      opts = {
         duration: 0.5,
+        correction: 0.25,
+      }
+    ) {
+      map.scene.camera.flyTo({
+        duration: opts.duration,
         destination: getDestinationForVisiblePan(rectangle, map),
         complete: function() {
           map.scene.camera.flyTo({
-            duration: 0.25,
+            duration: opts.correction,
             destination: getDestinationForVisiblePan(rectangle, map),
           })
         },
