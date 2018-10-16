@@ -490,7 +490,7 @@ define([
       if (this.get('locationType') !== 'usng') {
         return
       }
-      
+
       let result
       try {
         result = converter.USNGtoLL(this.get('usngbb'))
