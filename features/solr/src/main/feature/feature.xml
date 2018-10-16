@@ -53,4 +53,9 @@
         </bundle>
     </feature>
 
+    <feature name="solr-credentials" install="manual" version="${project.version}"
+        description="Solr Authentication Credentials">
+        <bundle>mvn:ddf.platform.solr/solr-credentials/${project.version}</bundle>
+    </feature>
+
 </features>

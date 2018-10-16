@@ -11,25 +11,32 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory;
+package org.codice.solr.credentials;
 
+/**
+ * Represents   basic auth credentials
+ */
 public class SolrUsernamePasswordCredentials {
 
   String password;
   String username;
 
+  @SuppressWarnings("unused")
   public String getUsername() {
     return username;
   }
 
+  @SuppressWarnings("unused")
   public void setUsername(String username) {
     this.username = username;
   }
 
+  @SuppressWarnings("unused")
   public String getPassword() {
     return password;
   }
 
+  @SuppressWarnings("unused")
   public void setPassword(String password) {
     this.password = password;
   }
