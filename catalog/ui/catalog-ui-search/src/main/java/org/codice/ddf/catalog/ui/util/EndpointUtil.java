@@ -174,7 +174,7 @@ public class EndpointUtil {
     CommonFactoryFinder.reset();
   }
 
-  public Metacard getMetacard(String id)
+  public Metacard getMetacardById(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
     Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
@@ -225,14 +225,14 @@ public class EndpointUtil {
                 EndpointUtil::firstInWinsMerge));
   }
 
-  public Map<String, Result> getMetacardsByTagWithLikeAttributes(
-      Map<String, List<String>> attributeMap, String tagStr) {
-    return getMetacardsByTagWithLikeAttributes(
+  public Map<String, Result> getMetacardsWithTagByLikeAttributes(
+      Map<String, Collection<String>> attributeMap, String tagStr) {
+    return getMetacardsWithTagByLikeAttributes(
         attributeMap, filterBuilder.attribute(Metacard.TAGS).is().like().text(tagStr));
   }
 
-  public Map<String, Result> getMetacardsByTagWithLikeAttributes(
-      Map<String, List<String>> attributeMap, Filter tagFilter) {
+  public Map<String, Result> getMetacardsWithTagByLikeAttributes(
+      Map<String, Collection<String>> attributeMap, Filter tagFilter) {
 
     List<Filter> attributeFilters = new ArrayList<>();
 
@@ -266,36 +266,31 @@ public class EndpointUtil {
                 EndpointUtil::firstInWinsMerge));
   }
 
-  public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter) {
-    return getMetacards(Metacard.ID, ids, tagFilter);
+  public Map<String, Result> getMetacardsWithTagById(Collection<String> ids, String tagFilter) {
+    return getMetacardsWithTagByAttributes(Metacard.ID, ids, tagFilter);
   }
 
-  public Map<String, Result> getMetacards(Collection<String> ids, Filter tagFilter) {
-    return getMetacards(Metacard.ID, ids, tagFilter);
+  public Map<String, Result> getMetacardsWithTagById(Collection<String> ids, Filter tagFilter) {
+    return getMetacardsWithTagByAttributes(Metacard.ID, ids, tagFilter);
   }
 
-  public Map<String, Result> getMetacards(
+  public Map<String, Result> getMetacardsWithTagByAttributes(
       String attributeName, Collection<String> attributeValues, String tag) {
-    return getMetacards(
+    return getMetacardsWithTagByAttributes(
         attributeName,
         attributeValues,
         filterBuilder.attribute(Metacard.TAGS).is().like().text(tag));
   }
 
-  public Map<String, Result> getMetacards(
+  public Map<String, Result> getMetacardsWithTagByAttributes(
       String attributeName, Collection<String> attributeValues, Filter tagFilter) {
     if (attributeValues.isEmpty()) {
       return new HashMap<>();
     }
 
-    List<Filter> filters = new ArrayList<>(attributeValues.size());
-    for (String value : attributeValues) {
-      Filter attributeFilter = filterBuilder.attribute(attributeName).is().equalTo().text(value);
-      Filter filter = filterBuilder.allOf(attributeFilter, tagFilter);
-      filters.add(filter);
-    }
+    Filter attributeFilter = buildAttributeFilter(attributeName, attributeValues, true);
+    Filter queryFilter = filterBuilder.allOf(attributeFilter, tagFilter);
 
-    Filter queryFilter = filterBuilder.anyOf(filters);
     ResultIterable resultIterable =
         resultIterable(
             catalogFramework,
@@ -321,7 +316,7 @@ public class EndpointUtil {
   }
 
   private Filter buildAttributeFilter(
-      String attributeName, List<String> attributeValues, boolean isExactMatch) {
+      String attributeName, Collection<String> attributeValues, boolean isExactMatch) {
     if (CollectionUtils.isEmpty(attributeValues)) {
       return null;
     }
@@ -462,7 +457,7 @@ public class EndpointUtil {
 
   public String metacardToJson(String id)
       throws SourceUnavailableException, UnsupportedQueryException, FederationException {
-    return metacardToJson(getMetacard(id));
+    return metacardToJson(getMetacardById(id));
   }
 
   public String metacardToJson(Metacard metacard) {
@@ -794,7 +789,7 @@ public class EndpointUtil {
    */
   public Metacard findWorkspace(String workspaceId) {
     try {
-      return getMetacard(workspaceId);
+      return getMetacardById(workspaceId);
     } catch (NotFoundException
         | UnsupportedQueryException
         | SourceUnavailableException

@@ -243,14 +243,14 @@ public class MetacardApplication implements SparkApplication {
         "/metacard/:id/attribute/validation",
         (req, res) -> {
           String id = req.params(":id");
-          return util.getJson(validator.getValidation(util.getMetacard(id)));
+          return util.getJson(validator.getValidation(util.getMetacardById(id)));
         });
 
     get(
         "/metacard/:id/validation",
         (req, res) -> {
           String id = req.params(":id");
-          return util.getJson(validator.getFullValidation(util.getMetacard(id)));
+          return util.getJson(validator.getFullValidation(util.getMetacardById(id)));
         });
 
     post(
@@ -275,7 +275,7 @@ public class MetacardApplication implements SparkApplication {
           List<String> ids =
               JsonFactory.create().parser().parseList(String.class, util.safeGetBody(req));
           List<Metacard> metacards =
-              util.getMetacards(ids, "*")
+              util.getMetacardsWithTagById(ids, "*")
                   .entrySet()
                   .stream()
                   .map(Map.Entry::getValue)
@@ -361,7 +361,7 @@ public class MetacardApplication implements SparkApplication {
           String id = req.params(":id");
           String revertId = req.params(":revertid");
 
-          Metacard versionMetacard = util.getMetacard(revertId);
+          Metacard versionMetacard = util.getMetacardById(revertId);
 
           List<Result> queryResponse = getMetacardHistory(id);
           if (queryResponse == null || queryResponse.isEmpty()) {
@@ -450,7 +450,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String id = req.params(":id");
           String email = getSubjectEmail();
-          Metacard metacard = util.getMetacard(id);
+          Metacard metacard = util.getMetacardById(id);
 
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
           boolean isSubscribed =
@@ -468,7 +468,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String email = getSubjectEmail();
           List<String> subjectRoles = getSubjectRoles();
-          Map<String, List<String>> attributeMap = new HashMap<>();
+          Map<String, Collection<String>> attributeMap = new HashMap<>();
           if (email != null) {
             attributeMap.put(Metacard.OWNER, Collections.singletonList(email));
             attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
@@ -482,7 +482,7 @@ public class MetacardApplication implements SparkApplication {
           }
 
           Map<String, Result> workspaceMetacards =
-              util.getMetacardsByTagWithLikeAttributes(
+              util.getMetacardsWithTagByLikeAttributes(
                   attributeMap, WorkspaceConstants.WORKSPACE_TAG);
 
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
@@ -720,7 +720,7 @@ public class MetacardApplication implements SparkApplication {
           String note = incoming.get("note").toString();
           Metacard metacard;
           try {
-            metacard = util.getMetacard(noteMetacardId);
+            metacard = util.getMetacardById(noteMetacardId);
           } catch (NotFoundException e) {
             LOGGER.debug("Note metacard was not found for updating. id={}", noteMetacardId);
             res.status(404);
@@ -747,7 +747,7 @@ public class MetacardApplication implements SparkApplication {
           String noteToDeleteMetacardId = req.params(":id");
           Metacard metacard;
           try {
-            metacard = util.getMetacard(noteToDeleteMetacardId);
+            metacard = util.getMetacardById(noteToDeleteMetacardId);
           } catch (NotFoundException e) {
             LOGGER.debug("Note metacard was not found for deleting. id={}", noteToDeleteMetacardId);
             res.status(404);
@@ -997,7 +997,7 @@ public class MetacardApplication implements SparkApplication {
     Set<String> changedIds =
         metacardChanges.stream().flatMap(mc -> mc.getIds().stream()).collect(Collectors.toSet());
 
-    Map<String, Result> results = util.getMetacards(changedIds, "*");
+    Map<String, Result> results = util.getMetacardsWithTagById(changedIds, "*");
 
     for (MetacardChanges changeset : metacardChanges) {
       for (AttributeChange attributeChange : changeset.getAttributes()) {

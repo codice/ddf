@@ -182,7 +182,8 @@ public class EndpointUtilTest {
         .thenReturn(mock(EqualityExpressionBuilder.class));
     when(filterBuilderMock.anyOf(anyList())).thenReturn(mock(Or.class));
 
-    Map<String, Result> result = endpointUtil.getMetacards(attributeName, ids, tagFilter);
+    Map<String, Result> result =
+        endpointUtil.getMetacardsWithTagByAttributes(attributeName, ids, tagFilter);
 
     assertThat(result.keySet(), hasSize(expected));
   }
@@ -212,43 +213,43 @@ public class EndpointUtilTest {
     when(filterBuilderMock.anyOf(anyList())).thenReturn(mock(Or.class));
     when(filterBuilderMock.allOf(any(Filter.class), any(Filter.class))).thenReturn(mock(And.class));
 
-    Map<String, List<String>> attributeMap = new HashMap<>();
+    Map<String, Collection<String>> attributeMap = new HashMap<>();
 
     // Only match on owner email
     attributeMap.put(Metacard.OWNER, Collections.singletonList(ownerEmail));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
 
     // Add individual access email match
     attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(ownerEmail));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock, times(2)).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(2));
 
     // Add individual read only email match
     attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(ownerEmail));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock, times(3)).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(3));
 
     // Admistrator match
     attributeMap.clear();
     attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(ownerEmail));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock, times(4)).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
 
     // Group read only match
     attributeMap.clear();
     attributeMap.put(ACCESS_GROUPS_READ, Collections.singletonList(ownerEmail));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock, times(5)).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
 
     // Group read and write match
     attributeMap.put(ACCESS_GROUPS, Collections.singletonList(ownerEmail));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock, times(6)).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(2));
 
@@ -256,7 +257,7 @@ public class EndpointUtilTest {
     attributeMap.clear();
     attributeMap.put(ACCESS_GROUPS_READ, new ArrayList<>(Arrays.asList("guest", "admin")));
     attributeMap.put(ACCESS_GROUPS, new ArrayList<>(Arrays.asList("guest", "admin")));
-    endpointUtil.getMetacardsByTagWithLikeAttributes(attributeMap, tagFilter);
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock, times(9)).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(2));
   }
