@@ -13,7 +13,7 @@
  *
  **/
 const wkx = require('wkx')
-const usng = require('usng.js/usng')
+const usng = require('usng.js')
 const converter = new usng.Converter()
 
 const { computeCircle, toKilometers } = require('./geo-helper')

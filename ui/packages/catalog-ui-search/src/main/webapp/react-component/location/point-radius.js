@@ -55,12 +55,12 @@ const PointRadiusUsngMgrs = props => {
   )
 }
 
-const PointRadiusUtm = props => {
+const PointRadiusUtmUps = props => {
   const {
-    utmEasting,
-    utmNorthing,
-    utmZone,
-    utmHemisphere,
+    utmUpsEasting,
+    utmUpsNorthing,
+    utmUpsZone,
+    utmUpsHemisphere,
     radius,
     radiusUnits,
     cursor,
@@ -69,18 +69,21 @@ const PointRadiusUtm = props => {
     <div>
       <TextField
         label="Easting"
-        value={utmEasting}
-        onChange={cursor('utmEasting')}
+        value={utmUpsEasting}
+        onChange={cursor('utmUpsEasting')}
         addon="m"
       />
       <TextField
         label="Northing"
-        value={utmNorthing}
-        onChange={cursor('utmNorthing')}
+        value={utmUpsNorthing}
+        onChange={cursor('utmUpsNorthing')}
         addon="m"
       />
-      <Zone value={utmZone} onChange={cursor('utmZone')} />
-      <Hemisphere value={utmHemisphere} onChange={cursor('utmHemisphere')} />
+      <Zone value={utmUpsZone} onChange={cursor('utmUpsZone')} />
+      <Hemisphere
+        value={utmUpsHemisphere}
+        onChange={cursor('utmUpsHemisphere')}
+      />
       <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
         <TextField label="Radius" value={radius} onChange={cursor('radius')} />
       </Units>
@@ -140,7 +143,7 @@ const PointRadius = props => {
     latlon: PointRadiusLatLon,
     dms: PointRadiusDms,
     usng: PointRadiusUsngMgrs,
-    utm: PointRadiusUtm,
+    utmUps: PointRadiusUtmUps,
   }
 
   const Component = inputs[locationType] || null
@@ -151,7 +154,7 @@ const PointRadius = props => {
         <RadioItem value="latlon">Lat / Lon (DD)</RadioItem>
         <RadioItem value="dms">Lat / Lon (DMS)</RadioItem>
         <RadioItem value="usng">USNG / MGRS</RadioItem>
-        <RadioItem value="utm">UTM</RadioItem>
+        <RadioItem value="utmUps">UTM / UPS</RadioItem>
       </Radio>
       <div className="input-location">
         {Component !== null ? <Component {...props} /> : null}

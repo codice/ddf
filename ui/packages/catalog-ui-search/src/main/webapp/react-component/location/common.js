@@ -24,20 +24,13 @@ const Units = ({ value, onChange, children }) => (
   </Group>
 )
 
-const range = n => {
-  const out = []
-  for (let i = 0; i < n; i++) {
-    out.push(i + 1)
-  }
-  return out
-}
-
+const range = [...Array(61).keys()]
 const Zone = ({ value, onChange }) => (
   <Group>
     <Label>Zone</Label>
     <Dropdown label={value}>
       <Menu value={value} onChange={onChange}>
-        {range(60).map(zone => (
+        {range.map(zone => (
           <MenuItem key={zone} value={zone} />
         ))}
       </Menu>
