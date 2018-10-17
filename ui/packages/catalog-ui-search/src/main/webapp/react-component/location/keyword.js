@@ -16,6 +16,21 @@ class Keyword extends React.Component {
     }
     this.fetch = this.props.fetch || fetch
   }
+  extractGeo(suggestion) {
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          suggestion.geo.map(coord => {
+            return [coord.lat, coord.lon]
+          }),
+        ],
+      },
+      properties: {},
+      id: suggestion.id,
+    }
+  }
   async suggester(input) {
     const res = await this.fetch(`./internal/geofeature/suggestions?q=${input}`)
     return await res.json()
@@ -24,8 +39,12 @@ class Keyword extends React.Component {
     const res = await this.fetch(`./internal/geofeature?id=${id}`)
     return await res.json()
   }
-  async onChange({ id, name }) {
-    const geofeature = this.props.geofeature || (id => this.geofeature(id))
+  async onChange(suggestion) {
+    const { id, name } = suggestion
+    const geofeature =
+      id === 'LITERAL'
+        ? () => this.extractGeo(suggestion)
+        : this.props.geofeature || (id => this.geofeature(id))
     this.setState({ value: name, loading: true })
     try {
       const { type, geometry = {} } = await geofeature(id)
