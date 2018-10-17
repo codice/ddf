@@ -99,7 +99,7 @@ public class LoginFilter implements SecurityFilter {
 
   private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
-  private static final int DEFAULT_EXPIRATION_TIME = ;
+  private static final int DEFAULT_EXPIRATION_TIME = 15;
 
   private static final ThreadLocal<DocumentBuilder> BUILDER =
       new ThreadLocal<DocumentBuilder>() {
