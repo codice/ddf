@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +65,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO DDF-3116 The catalog:dump shuts down DDF when it fails to transform
 @Service
 @Command(
   scope = CatalogCommands.NAMESPACE,
@@ -78,7 +79,9 @@ public class DumpCommand extends CqlCommands {
 
   private static final String ZIP_COMPRESSION = "zipCompression";
 
-  private static List<MetacardTransformer> transformers = null;
+  private List<MetacardTransformer> transformers = null;
+
+  @VisibleForTesting volatile Optional<QueryResponseTransformer> zipCompression = Optional.empty();
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -248,9 +251,10 @@ public class DumpCommand extends CqlCommands {
 
       if (StringUtils.isNotBlank(zipFileName)) {
         try {
-          Optional<QueryResponseTransformer> zipCompression = getZipCompression();
-          if (zipCompression.isPresent()) {
-            BinaryContent binaryContent = zipCompression.get().transform(response, zipArgs);
+          Optional<QueryResponseTransformer> zipCompressionTransformer = getZipCompression();
+          if (zipCompressionTransformer.isPresent()) {
+            BinaryContent binaryContent =
+                zipCompressionTransformer.get().transform(response, zipArgs);
             if (binaryContent != null) {
               IOUtils.closeQuietly(binaryContent.getInputStream());
             }
@@ -259,32 +263,26 @@ public class DumpCommand extends CqlCommands {
           }
         } catch (InvalidSyntaxException e) {
           LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
+        } catch (CatalogTransformerException e) {
+          LOGGER.info("zipCompression transform failed");
         }
       } else if (multithreaded > 1) {
         final List<Result> results = new ArrayList<>(response.getResults());
         executorService.submit(
             () -> {
-              boolean transformationFailed = false;
               for (final Result result : results) {
                 Metacard metacard = result.getMetacard();
                 try {
-                  exportMetacard(dumpDir, metacard);
-                  printStatus(resultCount.incrementAndGet());
-                } catch (IOException | CatalogTransformerException e) {
-                  transformationFailed = true;
+                  exportMetacard(dumpDir, metacard, resultCount);
+                } catch (IOException e) {
                   LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
                 }
-              }
-              if (transformationFailed) {
-                LOGGER.info(
-                    "One or more metacards failed to transform. Enable debug log for more details.");
               }
             });
       } else {
         for (final Result result : response.getResults()) {
           Metacard metacard = result.getMetacard();
-          exportMetacard(dumpDir, metacard);
-          printStatus(resultCount.incrementAndGet());
+          exportMetacard(dumpDir, metacard, resultCount);
         }
       }
 
@@ -314,25 +312,35 @@ public class DumpCommand extends CqlCommands {
     return null;
   }
 
-  private void exportMetacard(File dumpLocation, Metacard metacard)
-      throws IOException, CatalogTransformerException {
+  private void exportMetacard(File dumpLocation, Metacard metacard, AtomicLong resultCount)
+      throws IOException {
     if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
       try (ObjectOutputStream oos =
           new ObjectOutputStream(new FileOutputStream(getOutputFile(dumpLocation, metacard)))) {
         oos.writeObject(new MetacardImpl(metacard));
         oos.flush();
+        resultCount.incrementAndGet();
       }
     } else {
       BinaryContent binaryContent;
       if (metacard != null) {
+
         for (MetacardTransformer transformer : transformers) {
-          binaryContent = transformer.transform(metacard, new HashMap<>());
-          if (binaryContent != null) {
-            try (FileOutputStream fos =
-                new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
-              fos.write(binaryContent.getByteArray());
+          try {
+            binaryContent = transformer.transform(metacard, new HashMap<>());
+
+            if (binaryContent != null) {
+              try (FileOutputStream fos =
+                  new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
+                fos.write(binaryContent.getByteArray());
+              }
+              resultCount.incrementAndGet();
+              break;
             }
-            break;
+
+          } catch (CatalogTransformerException e) {
+            LOGGER.info(
+                "One or more metacards failed to transform. Enable debug log for more details.");
           }
         }
       }
@@ -375,7 +383,7 @@ public class DumpCommand extends CqlCommands {
       console.printf("Fail to get MetacardTransformer references due to %s", e.getMessage());
     }
     if (refs == null || refs.length == 0) {
-      return null;
+      return Collections.emptyList();
     }
 
     List<MetacardTransformer> metacardTransformerList = new ArrayList<>();
@@ -387,8 +395,12 @@ public class DumpCommand extends CqlCommands {
   }
 
   private Optional<QueryResponseTransformer> getZipCompression() throws InvalidSyntaxException {
-    return getServiceByFilter(
-        QueryResponseTransformer.class,
-        "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
+    if (!zipCompression.isPresent()) {
+      zipCompression =
+          getServiceByFilter(
+              QueryResponseTransformer.class,
+              "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
+    }
+    return zipCompression;
   }
 }

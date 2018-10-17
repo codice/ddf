@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -24,11 +25,16 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.fusesource.jansi.Ansi;
 import org.junit.Rule;
 import org.junit.Test;
@@ -177,7 +183,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   public void testNoFileDumpedWhenTransformFails() throws Exception {
     // mock transformer to throw exception
     MetacardTransformer transformer = mock(MetacardTransformer.class);
-    when(transformer.transform(any(), any())).thenThrow(Exception.class);
+    when(transformer.transform(any(), any())).thenThrow(CatalogTransformerException.class);
     List<MetacardTransformer> transformers = new ArrayList<>();
     transformers.add(transformer);
 
@@ -203,11 +209,52 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     assertThat(consoleOutput.getOutput(), containsString(" 0 file(s) dumped in "));
   }
 
+  @Test
+  public void testNoZipFileDumpedWhenTransformFails() throws Exception {
+    // mock transformer to throw exception
+    MetacardTransformer transformer = mock(MetacardTransformer.class);
+    when(transformer.transform(any(), any())).thenThrow(CatalogTransformerException.class);
+    QueryResponseTransformer zipCompressionMock = mock(QueryResponseTransformer.class);
+    when(zipCompressionMock.transform(any(), any())).thenThrow(CatalogTransformerException.class);
+    List<MetacardTransformer> transformers = new ArrayList<>();
+    transformers.add(transformer);
+
+    // given
+    List<Result> resultList = getResultList("id1", "id2");
+    MetacardImpl metacard1 = new MetacardImpl(resultList.get(0).getMetacard());
+    MetacardImpl metacard2 = new MetacardImpl(resultList.get(1).getMetacard());
+    metacard1.setResourceURI(new URI("content:" + metacard1.getId()));
+    metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
+
+    TestDumpCommand dumpCommand = new TestDumpCommand(transformers, zipCompressionMock);
+    dumpCommand.catalogFramework = givenCatalogFramework(resultList);
+    dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
+    File outputDirectory = testFolder.newFolder("somedirectory");
+    String outputDirectoryPath = outputDirectory.getAbsolutePath();
+    dumpCommand.dirPath = outputDirectoryPath;
+    dumpCommand.transformerId = "someOtherTransformer";
+    Path zipfilePath = Paths.get(outputDirectoryPath, "foo.zip");
+    dumpCommand.zipFileName = zipfilePath.toString();
+
+    // when
+    dumpCommand.executeWithSubject();
+
+    // then
+    assertThat(consoleOutput.getOutput(), containsString(" 0 file(s) dumped in "));
+    assertThat(zipfilePath.toFile().exists(), is(false));
+  }
+
   private class TestDumpCommand extends DumpCommand {
     private List<MetacardTransformer> list;
 
     TestDumpCommand(List<MetacardTransformer> list) {
       this.list = list;
+    }
+
+    TestDumpCommand(
+        List<MetacardTransformer> list, QueryResponseTransformer queryResponseTransformer) {
+      this.list = list;
+      zipCompression = Optional.of(queryResponseTransformer);
     }
 
     @Override
