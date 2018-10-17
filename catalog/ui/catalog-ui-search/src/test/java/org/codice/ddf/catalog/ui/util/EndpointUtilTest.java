@@ -181,6 +181,7 @@ public class EndpointUtilTest {
     when(filterBuilderMock.attribute(attributeName).is().equalTo())
         .thenReturn(mock(EqualityExpressionBuilder.class));
     when(filterBuilderMock.anyOf(anyList())).thenReturn(mock(Or.class));
+    when(filterBuilderMock.allOf(any(Filter.class), any(Filter.class))).thenReturn(mock(And.class));
 
     Map<String, Result> result =
         endpointUtil.getMetacardsWithTagByAttributes(attributeName, ids, tagFilter);
