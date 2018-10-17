@@ -46,6 +46,7 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
@@ -56,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
@@ -293,7 +293,8 @@ public class RemoteDeleteOperationsTest {
     String localProviderName = "ddf";
 
     mockPoller = mock(SourcePoller.class);
-    when(mockPoller.getSourceAvailability(isA(Source.class))).thenReturn(Optional.empty());
+    when(mockPoller.getSourceAvailability(isA(Source.class)))
+        .thenReturn(SourceAvailability.unknown());
 
     provider = mock(CatalogProvider.class);
     when(provider.getId()).thenReturn(localProviderName);

@@ -144,8 +144,7 @@ public class FederationStrategyTest {
     provider.setQueryDelayMillis(queryDelay);
 
     // Mock register the provider in the container
-    SourcePoller poller = new SourcePoller();
-    poller.bind(provider);
+    SourcePoller poller = mock(SourcePoller.class);
 
     // Must have more than one thread or sleeps will block the monitor
     SortedFederationStrategy fedStrategy =

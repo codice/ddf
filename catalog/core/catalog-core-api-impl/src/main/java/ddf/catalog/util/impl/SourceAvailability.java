@@ -35,6 +35,15 @@ public class SourceAvailability {
     this.sourceStatusTimeStamp = Instant.now();
   }
 
+  public static SourceAvailability unknown() {
+    return new SourceAvailability(SourceStatus.UNKNOWN, Instant.EPOCH);
+  }
+
+  private SourceAvailability(final SourceStatus sourceStatus, final Instant sourceStatusTimeStamp) {
+    this.sourceStatus = sourceStatus;
+    this.sourceStatusTimeStamp = sourceStatusTimeStamp;
+  }
+
   /**
    * @return the {@link SourceStatus} of the {@link ddf.catalog.source.Source} at the last time that
    *     the availability was checked by the {@link SourcePoller}

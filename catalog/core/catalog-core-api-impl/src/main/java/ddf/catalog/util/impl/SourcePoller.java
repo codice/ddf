@@ -20,6 +20,8 @@ import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
@@ -29,20 +31,24 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -71,6 +77,10 @@ public class SourcePoller {
 
   private static final TimeUnit DEFAULT_POLL_INTERVAL_TIME_UNIT = TimeUnit.MINUTES;
 
+  private static final int DEFAULT_TIMEOUT = 30;
+
+  private static final TimeUnit DEFAULT_TIMEOUT_TIME_UNIT = TimeUnit.SECONDS;
+
   private volatile long pollInterval = DEFAULT_POLL_INTERVAL;
 
   private volatile TimeUnit pollIntervalTimeUnit = DEFAULT_POLL_INTERVAL_TIME_UNIT;
@@ -83,47 +93,50 @@ public class SourcePoller {
 
   private List<CatalogStore> catalogStores = Collections.emptyList();
 
-  private final ExecutorService sourceAvailabilityChecksThreadPool;
+  private final ListeningExecutorService sourceAvailabilityChecksThreadPool;
 
-  private ExecutorService handleAllSourcesExecutorService;
+  private ScheduledExecutorService pollAllSourcesThreadPool;
 
-  private final Cache<SourceKey, CachedSourceAvailability> cache;
+  private final Cache<SourceKey, SourceAvailability> cache;
 
-  public SourcePoller() {
-    this(DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL_TIME_UNIT);
+  public SourcePoller(
+      ExecutorService sourceAvailabilityChecksThreadPool,
+      ScheduledExecutorService pollAllSourcesThreadPool) {
+    this(
+        sourceAvailabilityChecksThreadPool,
+        pollAllSourcesThreadPool,
+        DEFAULT_POLL_INTERVAL,
+        DEFAULT_POLL_INTERVAL_TIME_UNIT);
   }
 
   /** Starts a process to periodically call {@link #pollAllSources()} */
   @VisibleForTesting
-  SourcePoller(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
-    sourceAvailabilityChecksThreadPool =
-        Executors.newCachedThreadPool(
-            StandardThreadFactoryBuilder.newThreadFactory("sourcePollerScheduledPollingThread"));
+  SourcePoller(
+      ExecutorService sourceAvailabilityChecksThreadPool,
+      ScheduledExecutorService pollAllSourcesThreadPool,
+      final long pollInterval,
+      final TimeUnit pollIntervalTimeUnit) {
+    this.sourceAvailabilityChecksThreadPool =
+        MoreExecutors.listeningDecorator(sourceAvailabilityChecksThreadPool);
+    this.pollAllSourcesThreadPool = pollAllSourcesThreadPool;
 
-    // If any execution of this task takes longer than its period, then subsequent executions may
-    // start late, but will not concurrently execute.
     LOGGER.debug(
         "Scheduling ExecutorService at fixed rate of {} {} with an initial delay of {}",
         pollInterval,
         pollIntervalTimeUnit,
         pollInterval);
-    ScheduledExecutorService scheduledExecutorService =
-        Executors.newSingleThreadScheduledExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("SourcePoller"));
-    scheduledExecutorService.scheduleAtFixedRate(
+    pollAllSourcesThreadPool.scheduleAtFixedRate(
         this::pollAllSources, pollInterval, pollInterval, pollIntervalTimeUnit);
-    handleAllSourcesExecutorService = scheduledExecutorService;
 
     cache =
         CacheBuilder.newBuilder()
             .maximumSize(1000)
             .removalListener(
-                (RemovalNotification<SourceKey, CachedSourceAvailability> removalNotification) -> {
+                (RemovalNotification<SourceKey, SourceAvailability> removalNotification) -> {
                   LOGGER.debug(
                       "Removing SourceKey {} from cache. cause={}. Cancelling any futures that are checking availability for that entry",
                       removalNotification.getKey(),
                       removalNotification.getCause());
-                  removalNotification.getValue().cancel();
                 })
             .build();
 
@@ -137,68 +150,117 @@ public class SourcePoller {
    * #setFederatedSources(List)}, {@link #setCatalogProviders(List)}, and {@link
    * #setCatalogStores(List)} are discovered.
    *
-   * <p>A process to check (or recheck) the availability of each {@link Source} is started. If an
-   * availability check is still running once the new check is started, it will timeout and be
-   * replaced by the new availability check.
+   * <p>A process to check (or recheck) and cache the availability of each {@link Source} is
+   * performed.
    */
   public synchronized void pollAllSources() {
-    final Set<Source> sources =
-        Stream.of(connectedSources, federatedSources, catalogProviders, catalogStores)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toSet());
+    try {
+      final Set<Source> sources =
+          Stream.of(connectedSources, federatedSources, catalogProviders, catalogStores)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
 
-    LOGGER.trace("Found {} sources", sources.size());
+      LOGGER.trace("Found {} sources", sources.size());
 
-    // Unbind orphaned entries in the map caused by when sources are modified and their key is
-    // different
-    final Map<SourceKey, Source> sourceKeyMap =
-        sources
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    SourceKey::new,
-                    source -> source,
-                    (source, anotherSourceWithTheSameSourceKey) -> {
-                      LOGGER.warn(
-                          "Found different sources with the same SourceKey with id={}. This means that the SourcePoller might not report accurate availability for these sources in the CatalogFramework. Confirm that every source has a unique id, and try restarting.",
-                          source.getId());
-                      return source;
-                    }));
+      // Unbind orphaned entries in the map caused by when sources are modified and their key is
+      // different
+      final Map<SourceKey, Source> sourceKeyMap =
+          sources
+              .stream()
+              .collect(
+                  Collectors.toMap(
+                      SourceKey::new,
+                      source -> source,
+                      (source, anotherSourceWithTheSameSourceKey) -> {
+                        LOGGER.warn(
+                            "Found different sources with the same SourceKey with id={}. This means that the SourcePoller might not report accurate availability for these sources in the CatalogFramework. Confirm that every source has a unique id, and try restarting.",
+                            source.getId());
+                        return source;
+                      }));
 
-    final Set<SourceKey> currentSourceKeys = sourceKeyMap.keySet();
-    final Set<SourceKey> sourceKeysInTheCache = cache.asMap().keySet();
+      final Set<SourceKey> currentSourceKeys = sourceKeyMap.keySet();
+      final Set<SourceKey> sourceKeysInTheCache = cache.asMap().keySet();
 
-    final Set<SourceKey> sourceKeysToRemove = new HashSet<>(sourceKeysInTheCache);
-    sourceKeysToRemove.removeAll(currentSourceKeys);
-    if (CollectionUtils.isNotEmpty(sourceKeysToRemove)) {
-      LOGGER.debug(
-          "Found {} SourceKeys to remove from the cache. This is caused by when sources are destroyed or modified in a way that their SourceKey changes. Removing these from the cache now",
-          sourceKeysToRemove.size());
-      sourceKeysToRemove.forEach(cache::invalidate);
+      final Set<SourceKey> sourceKeysToRemove = new HashSet<>(sourceKeysInTheCache);
+      sourceKeysToRemove.removeAll(currentSourceKeys);
+      if (CollectionUtils.isNotEmpty(sourceKeysToRemove)) {
+        LOGGER.debug(
+            "Found {} SourceKeys to remove from the cache. This is caused by when sources are destroyed or modified in a way that their SourceKey changes. Removing these from the cache now",
+            sourceKeysToRemove.size());
+        sourceKeysToRemove.forEach(cache::invalidate);
+      }
+
+      Map<SourceKey, Future<SourceAvailability>> availabilityFutures =
+          startAvailabilityChecks(sourceKeyMap);
+      CacheResults(availabilityFutures);
+    } catch (Throwable throwable) {
+      LOGGER.warn("Scheduled polling of sources failed", throwable);
     }
+  }
 
-    for (final Map.Entry<SourceKey, Source> entry : sourceKeyMap.entrySet()) {
+  private Map<SourceKey, Future<SourceAvailability>> startAvailabilityChecks(
+      final Map<SourceKey, Source> sourceKeyMap) {
+    Map<SourceKey, Future<SourceAvailability>> availabilityFutures = new HashMap<>();
+    for (final Entry<SourceKey, Source> entry : sourceKeyMap.entrySet()) {
       final Source source = entry.getValue();
       final SourceKey sourceKey = entry.getKey();
 
-      final Optional<CachedSourceAvailability> cachedSourceAvailabilityOptional =
-          Optional.ofNullable(cache.getIfPresent(sourceKey));
-      if (cachedSourceAvailabilityOptional.isPresent()) {
-        final CachedSourceAvailability cachedSourceAvailability =
-            cachedSourceAvailabilityOptional.get();
-        LOGGER.trace(
-            "Starting a process to recheck the availability of source id={}, which has already been added to the cache ",
-            source.getId());
-        cachedSourceAvailability.recheckAvailability(source, sourceAvailabilityChecksThreadPool);
-      } else {
+      boolean sourceIsNotInCache = cache.getIfPresent(sourceKey) == null;
+      if (sourceIsNotInCache) {
         LOGGER.debug("Found a new SourceKey for source id={}", source.getId());
-        final CachedSourceAvailability cachedSourceAvailability = new CachedSourceAvailability();
-        cache.put(sourceKey, cachedSourceAvailability);
-        cachedSourceAvailability.recheckAvailability(source, sourceAvailabilityChecksThreadPool);
+        cache.put(sourceKey, SourceAvailability.unknown());
+      }
+
+      LOGGER.trace("Starting a process to check the availability of source id={}", source.getId());
+      Future<SourceAvailability> sourceAvailabilityFuture =
+          Futures.withTimeout(
+              sourceAvailabilityChecksThreadPool.submit(() -> checkAvailability(source)),
+              DEFAULT_TIMEOUT,
+              DEFAULT_TIMEOUT_TIME_UNIT,
+              pollAllSourcesThreadPool);
+      availabilityFutures.put(sourceKey, sourceAvailabilityFuture);
+    }
+    LOGGER.trace("Successfully submitted availability checks for all of the sources");
+    return availabilityFutures;
+  }
+
+  private void CacheResults(Map<SourceKey, Future<SourceAvailability>> availabilityFutures) {
+    for (final Entry<SourceKey, Future<SourceAvailability>> entry :
+        availabilityFutures.entrySet()) {
+      final Future<SourceAvailability> future = entry.getValue();
+      final SourceKey sourceKey = entry.getKey();
+      final String sourceId = sourceKey.id;
+
+      try {
+        SourceAvailability result = future.get();
+        cache.put(sourceKey, result);
+      } catch (CancellationException e) {
+        future.cancel(true);
+        LOGGER.debug("Unable to check the availability of source id={}", sourceId, e);
+      } catch (RuntimeException | ExecutionException e) {
+        future.cancel(true);
+
+        if (e.getCause() instanceof TimeoutException) {
+          LOGGER.debug(
+              "Timeout occurred while checking the availability of source id={}", sourceId);
+          cache.put(sourceKey, new SourceAvailability(SourceStatus.TIMEOUT));
+        } else {
+          LOGGER.debug("Exception checking the availability of source id={}", sourceId, e);
+          cache.put(sourceKey, new SourceAvailability(SourceStatus.EXCEPTION));
+        }
+      } catch (InterruptedException e) {
+        future.cancel(true);
+        LOGGER.debug("Interrupted while checking the availability of source id={}", sourceId);
+        Thread.currentThread().interrupt();
       }
     }
+    LOGGER.trace("Cache updated with new source availabilities");
+  }
 
-    LOGGER.trace("Successfully submitted availability checks for all of the sources");
+  private SourceAvailability checkAvailability(final Source source) {
+    SourceStatus newSourceStatus =
+        source.isAvailable() ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE;
+    return new SourceAvailability(newSourceStatus);
   }
 
   private void setPollInterval(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
@@ -207,26 +269,34 @@ public class SourcePoller {
   }
 
   public void destroy() {
-    MoreExecutors.shutdownAndAwaitTermination(handleAllSourcesExecutorService, 5, TimeUnit.SECONDS);
+    MoreExecutors.shutdownAndAwaitTermination(pollAllSourcesThreadPool, 5, TimeUnit.SECONDS);
 
     MoreExecutors.shutdownAndAwaitTermination(
         sourceAvailabilityChecksThreadPool, 5, TimeUnit.SECONDS);
   }
 
   /**
-   * This method is an non-blocking alternative to {@link Source#isAvailable()} which provides more
-   * more details about the availability than just available or unavailable.
+   * This method is a non-blocking alternative to {@link Source#isAvailable()} which provides more
+   * details about the availability than just available or unavailable.
    *
-   * @return a {@link SourceAvailability} for the availability of the {@code source}, or {@link
-   *     Optional#empty()} if the availability of the {@code source} has not yet been checked
+   * @return a {@link SourceAvailability} for the availability of the {@code source}. If the {@code
+   *     source} is not in the cache, or has not been checked yet, then a SourceAvailibility with a
+   *     {@link SourceStatus} of UNKNOWN and a timestamp of the epoch (January 1, 1970, 00:00:00
+   *     GMT) is returned.
    * @throws IllegalArgumentException if the {@code source} is {@code null}
    */
-  public Optional<SourceAvailability> getSourceAvailability(final Source source) {
+  public SourceAvailability getSourceAvailability(final Source source) {
     notNull(source);
 
     LOGGER.trace("Getting status of source id={}", source.getId());
-    return Optional.ofNullable(cache.getIfPresent(new SourceKey(source)))
-        .flatMap(CachedSourceAvailability::getSourceAvailability);
+    SourceAvailability availability = cache.getIfPresent(new SourceKey(source));
+    if (availability == null) {
+      LOGGER.debug(
+          "getSourceAvailability() called on an unregistered source id={}", source.getId());
+      return SourceAvailability.unknown();
+    } else {
+      return availability;
+    }
   }
 
   @VisibleForTesting
@@ -311,6 +381,8 @@ public class SourcePoller {
   public void setPollIntervalMinutes(final long pollIntervalMinutes) {
     final int minimumPollIntervalMinutes = 1;
     if (pollIntervalMinutes < minimumPollIntervalMinutes) {
+      LOGGER.debug(
+          "pollIntervalMinutes argument may not be less than " + minimumPollIntervalMinutes);
       throw new IllegalArgumentException(
           "pollIntervalMinutes argument may not be less than " + minimumPollIntervalMinutes);
     }

@@ -36,11 +36,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.Validate;
@@ -266,7 +264,7 @@ public class SourceOperations extends DescribableImpl {
     LOGGER.trace(
         "Checking the source poller if the source id={} was available the last time it was checked",
         source.getId());
-    final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
+    final SourceAvailability sourceAvailability = getSourceAvailability(source);
     return isAvailable(sourceAvailability);
   }
 
@@ -278,7 +276,7 @@ public class SourceOperations extends DescribableImpl {
    * FederatedSource}s' source info hidden from the external client.
    */
   @NotNull
-  private SourceDescriptorImpl getFanoutSourceDescriptor(Set<String> ids)
+  private SourceDescriptor getFanoutSourceDescriptor(Set<String> ids)
       throws SourceUnavailableException {
     // Only return source descriptor information if this sourceId is
     // specified
@@ -303,12 +301,11 @@ public class SourceOperations extends DescribableImpl {
     final Set<Instant> lastAvailableTimeStamps = new HashSet<>();
     final Set<ContentType> contentTypes = new HashSet<>();
     for (final Source source : sources) {
-      final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
+      final SourceAvailability sourceAvailability = getSourceAvailability(source);
       if (isAvailable(sourceAvailability)) {
         sourceDescriptorIsAvailable = true;
         Optional.ofNullable(source.getContentTypes()).ifPresent(contentTypes::addAll);
-        lastAvailableTimeStamps.add(
-            getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
+        lastAvailableTimeStamps.add(sourceAvailability.getSourceStatusTimeStamp());
       }
     }
 
@@ -321,11 +318,7 @@ public class SourceOperations extends DescribableImpl {
 
     sourceDescriptor.setAvailable(sourceDescriptorIsAvailable);
     sourceDescriptor.setLastAvailabilityTimeStamp(
-        lastAvailableTimeStamps
-            .stream()
-            .filter(Objects::nonNull)
-            .max(Instant::compareTo)
-            .orElse(UNKNOWN_LAST_AVAILABILITY_TIME));
+        lastAvailableTimeStamps.stream().max(Instant::compareTo).orElse(Instant.EPOCH));
     return sourceDescriptor;
   }
 
@@ -354,10 +347,10 @@ public class SourceOperations extends DescribableImpl {
                   sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
 
-          final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(source);
+          final SourceAvailability sourceAvailability = getSourceAvailability(source);
           sourceDescriptor.setAvailable(isAvailable(sourceAvailability));
           sourceDescriptor.setLastAvailabilityTimeStamp(
-              getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
+              sourceAvailability.getSourceStatusTimeStamp());
 
           sourceDescriptors.add(sourceDescriptor);
         }
@@ -397,31 +390,21 @@ public class SourceOperations extends DescribableImpl {
           descriptor.setVersion(this.getVersion());
         }
 
-        final Optional<SourceAvailability> sourceAvailability = getSourceAvailability(catalog);
+        final SourceAvailability sourceAvailability = getSourceAvailability(catalog);
 
         descriptor.setAvailable(isAvailable(sourceAvailability));
-        descriptor.setLastAvailabilityTimeStamp(
-            getSourceDescriptorLastAvailabilityTimeStamp(sourceAvailability));
+        descriptor.setLastAvailabilityTimeStamp(sourceAvailability.getSourceStatusTimeStamp());
         descriptors.add(descriptor);
       }
     }
   }
 
-  private Optional<SourceAvailability> getSourceAvailability(final Source source) {
+  private SourceAvailability getSourceAvailability(final Source source) {
     Validate.notNull(source);
     return frameworkProperties.getSourcePoller().getSourceAvailability(source);
   }
 
-  private static boolean isAvailable(Optional<SourceAvailability> sourceAvailability) {
-    return sourceAvailability.map(s -> s.getSourceStatus() == SourceStatus.AVAILABLE).orElse(false);
-  }
-
-  /** @see {@link SourceDescriptor#getLastAvailabilityTimeStamp()} */
-  @Nullable
-  private static Instant getSourceDescriptorLastAvailabilityTimeStamp(
-      final Optional<SourceAvailability> sourceAvailability) {
-    return sourceAvailability
-        .map(SourceAvailability::getSourceStatusTimeStamp)
-        .orElse(UNKNOWN_LAST_AVAILABILITY_TIME);
+  private static boolean isAvailable(SourceAvailability sourceAvailability) {
+    return sourceAvailability.getSourceStatus() == SourceStatus.AVAILABLE;
   }
 }

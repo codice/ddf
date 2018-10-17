@@ -72,10 +72,34 @@
         <argument ref="catalogFramework"/>
     </bean>
 
+    <bean id="sourceAvailabilityChecksThreadPool" class="java.util.concurrent.Executors"
+      factory-method="newCachedThreadPool">
+        <argument ref="sourcePollerScheduledPollingThreadFactory"/>
+    </bean>
+
+    <bean id="sourcePollerScheduledPollingThreadFactory"
+      class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+      factory-method="newThreadFactory">
+        <argument value="sourcePollerScheduledPollingThread"/>
+    </bean>
+
+    <bean id="pollAllSourcesThreadPool" class="java.util.concurrent.Executors"
+      factory-method="newScheduledThreadPool">
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument ref="sourcePollerPollAllSourcesThreadFactory"/>
+    </bean>
+
+    <bean id="sourcePollerPollAllSourcesThreadFactory"
+      class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+      factory-method="newThreadFactory">
+        <argument value="sourcePollerPollAllSourcesThread"/>
+    </bean>
+
     <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" destroy-method="destroy">
         <cm:managed-properties persistent-id="ddf.catalog.util.impl.SourcePoller"
                                update-strategy="container-managed"/>
-        <property name="pollIntervalMinutes" value="1"/>
+        <argument ref="sourceAvailabilityChecksThreadPool"/>
+        <argument ref="pollAllSourcesThreadPool"/>
         <property name="connectedSources" ref="connectedSources"/>
         <property name="federatedSources" ref="federatedSources"/>
         <property name="catalogProviders" ref="catalog"/>

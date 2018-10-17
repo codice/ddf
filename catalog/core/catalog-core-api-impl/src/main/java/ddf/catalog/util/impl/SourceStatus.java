@@ -24,25 +24,31 @@ import ddf.catalog.source.Source;
 public enum SourceStatus {
 
   /**
-   * Indicates that {@link Source#isAvailable()} returned {@code true} at the last time it was
-   * checked for the {@link Source} in the {@link SourcePoller}
+   * Indicates that {@link Source#isAvailable()} returned {@code true} the last time it was checked
+   * for the {@link Source} in the {@link SourcePoller}
    */
   AVAILABLE,
 
   /**
-   * Indicates that {@link Source#isAvailable()} returned {@code false} at the last time it was
-   * checked for the {@link Source} in the {@link SourcePoller}
+   * Indicates that {@link Source#isAvailable()} returned {@code false} the last time it was checked
+   * for the {@link Source} in the {@link SourcePoller}
    */
   UNAVAILABLE,
 
   /**
-   * Indicates that {@link Source#isAvailable()} threw an exception at the last time it was checked
-   * for the {@link Source} in the {@link SourcePoller}
+   * Indicates that the {@link Source} has not yet been checked for availability or could not be
+   * found by the {@link SourcePoller}
+   */
+  UNKNOWN,
+
+  /**
+   * Indicates that {@link Source#isAvailable()} threw an exception the last time it was checked for
+   * the {@link Source} in the {@link SourcePoller}
    */
   EXCEPTION,
 
   /**
-   * Indicates that {@link Source#isAvailable()} timed out at the last time it was checked for the
+   * Indicates that {@link Source#isAvailable()} timed out the last time it was checked for the
    * {@link Source} in the {@link SourcePoller}
    */
   TIMEOUT

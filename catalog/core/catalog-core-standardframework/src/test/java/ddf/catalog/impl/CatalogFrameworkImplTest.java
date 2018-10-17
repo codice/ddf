@@ -1449,7 +1449,7 @@ public class CatalogFrameworkImplTest {
       throws UnsupportedQueryException, FederationException, SourceUnavailableException {
 
     SourcePoller poller = mock(SourcePoller.class);
-    when(poller.getSourceAvailability(isA(Source.class))).thenReturn(Optional.empty());
+    when(poller.getSourceAvailability(isA(Source.class))).thenReturn(SourceAvailability.unknown());
 
     BundleContext context = null;
 
@@ -1730,7 +1730,7 @@ public class CatalogFrameworkImplTest {
     List<FederatedSource> federatedSources = createDefaultFederatedSourceList(false);
     CatalogProvider catalogProvider = mock(CatalogProvider.class);
     // Mock register the federated sources in the container
-    SourcePoller poller = new SourcePoller();
+    SourcePoller poller = mock(SourcePoller.class);
     // TODO
     //    for (FederatedSource source : federatedSources) {
     //      poller.bind(source);
@@ -1784,7 +1784,8 @@ public class CatalogFrameworkImplTest {
     // Mock register the federated sources in the container
     // Mock the source poller
     SourcePoller mockPoller = mock(SourcePoller.class);
-    when(mockPoller.getSourceAvailability(isA(Source.class))).thenReturn(Optional.empty());
+    when(mockPoller.getSourceAvailability(isA(Source.class)))
+        .thenReturn(SourceAvailability.unknown());
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(mockPoller);
@@ -2713,7 +2714,8 @@ public class CatalogFrameworkImplTest {
     // Mock register the provider in the container
     // Mock the source poller
     SourcePoller mockPoller = mock(SourcePoller.class);
-    when(mockPoller.getSourceAvailability(isA(Source.class))).thenReturn(Optional.empty());
+    when(mockPoller.getSourceAvailability(isA(Source.class)))
+        .thenReturn(SourceAvailability.unknown());
 
     // Create two ResourceReaders. The first should not return anything
     // and the second should.
@@ -2910,9 +2912,8 @@ public class CatalogFrameworkImplTest {
     SourcePoller mockPoller = mock(SourcePoller.class);
     when(mockPoller.getSourceAvailability(isA(Source.class)))
         .thenReturn(
-            Optional.of(
-                new SourceAvailability(
-                    sourceAvailability ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE)));
+            new SourceAvailability(
+                sourceAvailability ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE));
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setCatalogProviders(Collections.singletonList(provider));

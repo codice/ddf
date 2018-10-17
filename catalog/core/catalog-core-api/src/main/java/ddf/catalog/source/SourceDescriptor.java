@@ -50,8 +50,9 @@ public interface SourceDescriptor extends Describable {
    * Gets the Instant that the availability of the {@link Source} was last checked by the {@link
    * ddf.catalog.CatalogFramework}
    *
-   * @return the Instant that the availability of the {@link Source} was last checked, or {@code
-   *     null} if the availability has not yet been checked
+   * @return the Instant that the availability of the {@link Source} was last checked, or an {@link
+   *     Instant} representing the epoch (January 1, 1970, 00:00:00 GMT) if the availability has not
+   *     yet been checked.
    */
   public Instant getLastAvailabilityTimeStamp();
 

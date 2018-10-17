@@ -27,9 +27,9 @@ import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
 import java.util.Collections;
-import java.util.Optional;
 import org.junit.Test;
 
 public class SourceOperationsTest {
@@ -45,7 +45,8 @@ public class SourceOperationsTest {
         .thenReturn(Collections.singletonList(catalogProvider));
 
     final SourcePoller mockSourcePoller = mock(SourcePoller.class);
-    when(mockSourcePoller.getSourceAvailability(catalogProvider)).thenReturn(Optional.empty());
+    when(mockSourcePoller.getSourceAvailability(catalogProvider))
+        .thenReturn(SourceAvailability.unknown());
     when(frameworkProperties.getSourcePoller()).thenReturn(mockSourcePoller);
 
     ActionRegistry actionRegistry = mock(ActionRegistry.class);
