@@ -42,6 +42,7 @@ module.exports = Marionette.LayoutView.extend({
         collection: this.searchFormCollection.getCollection(),
         collectionWrapperModel: this.searchFormCollection,
         queryModel: this.model,
+        hideNewForm: this.options.hideNewForm,
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)

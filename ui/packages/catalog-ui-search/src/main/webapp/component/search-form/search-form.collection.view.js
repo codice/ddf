@@ -32,4 +32,11 @@ module.exports = Marionette.CollectionView.extend({
       collectionWrapperModel: this.options.collectionWrapperModel,
     }
   },
+  filter: function(child) {
+    if (this.options.hideNewForm) {
+      return child.get('type') !== 'new-form'
+    } else {
+      return true
+    }
+  },
 })
