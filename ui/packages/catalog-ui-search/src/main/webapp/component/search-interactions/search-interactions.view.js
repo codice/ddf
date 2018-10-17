@@ -26,9 +26,6 @@ const _merge = require('lodash/merge')
 const ConfirmationView = require('component/confirmation/confirmation.view')
 const user = require('component/singletons/user-instance')
 const properties = require('properties')
-const ResultFormSelectorDropdownView = properties.hasExperimentalEnabled()
-  ? require('component/dropdown/result-form-selector/dropdown.result-form-selector.view')
-  : {}
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -51,21 +48,7 @@ module.exports = Marionette.LayoutView.extend({
       this.triggerCloseDropdown
     )
     this.generateSearchFormSelector()
-    if (properties.hasExperimentalEnabled()) {
-      this.generateResultFormSelector()
-    }
     this.generateSearchSettings()
-  },
-  generateResultFormSelector: function() {
-    this.resultType.show(
-      new ResultFormSelectorDropdownView({
-        model: new DropdownModel(),
-        modelForComponent: this.model,
-      }),
-      {
-        replaceElement: true,
-      }
-    )
   },
   generateSearchFormSelector: function() {
     this.searchType.show(

@@ -30,9 +30,7 @@ const properties = require('properties')
 const plugin = require('plugins/query-settings')
 const announcement = require('component/announcement')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
-const ResultForm = properties.hasExperimentalEnabled()
-  ? require('component/result-form/result-form')
-  : {}
+const ResultForm = require('component/result-form/result-form')
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
@@ -62,14 +60,12 @@ module.exports = plugin(
         'change:sortField change:sortOrder change:src change:federation',
         Common.safeCallback(this.onBeforeShow)
       )
-      if (properties.hasExperimentalEnabled()) {
-        this.resultFormCollection = ResultForm.getResultCollection()
-        this.listenTo(
-          this.resultFormCollection,
-          'change:added',
-          this.handleFormUpdate
-        )
-      }
+      this.resultFormCollection = ResultForm.getResultCollection()
+      this.listenTo(
+        this.resultFormCollection,
+        'change:added',
+        this.handleFormUpdate
+      )
     },
     handleFormUpdate: function(newForm) {
       this.renderResultForms(this.resultFormCollection.filteredList)
@@ -78,9 +74,7 @@ module.exports = plugin(
       this.setupSortFieldDropdown()
       this.setupSrcDropdown()
       this.turnOnEditing()
-      if (properties.hasExperimentalEnabled()) {
-        this.renderResultForms(this.resultFormCollection.filteredList)
-      }
+      this.renderResultForms(this.resultFormCollection.filteredList)
       this.setupExtensions()
     },
     renderResultForms: function(resultTemplates) {
