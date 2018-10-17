@@ -151,7 +151,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
           .append(m.getOrganization())
           .append("\"}");
     }
-    sb.append("\"}");
+    sb.append("}}");
     final MigrationZipEntry ze = Mockito.mock(MigrationZipEntry.class);
 
     Mockito.when(ze.getName()).thenReturn(MigrationContextImpl.METADATA_FILENAME.toString());

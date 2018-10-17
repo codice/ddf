@@ -24,8 +24,8 @@ import org.apache.commons.lang.Validate;
 
 /** Defines a Json object to represent an exported profile. */
 public class JsonProfile implements JsonValidatable {
-  private final List<JsonFeature> features;
-  private final List<JsonBundle> bundles;
+  private List<JsonFeature> features;
+  private List<JsonBundle> bundles;
 
   /**
    * Constructs a default Json profile.
