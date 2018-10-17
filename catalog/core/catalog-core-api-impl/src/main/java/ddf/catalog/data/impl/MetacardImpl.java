@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -902,6 +903,22 @@ public class MetacardImpl implements Metacard {
         .toHashCode();
   }
 
-  // TODO: is an equals() method needed?
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
 
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    MetacardImpl metacard = (MetacardImpl) o;
+
+    return new EqualsBuilder()
+        .append(getId(), metacard.getId())
+        .append(getMetacardType(), metacard.getMetacardType())
+        .append(getMetadata(), metacard.getMetadata())
+        .isEquals();
+  }
 }
