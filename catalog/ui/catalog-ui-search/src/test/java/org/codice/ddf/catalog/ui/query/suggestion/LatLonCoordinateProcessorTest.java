@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
-import static org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor.LatLon.from;
+import static org.codice.ddf.catalog.ui.query.suggestion.LatLon.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor.LatLon;
-import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor.LiteralSuggestion;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;

@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
-import static org.apache.commons.lang3.Validate.notNull;
-
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,90 +84,5 @@ public class LatLonCoordinateProcessor {
 
   private boolean isValidLongitude(double longitude) {
     return longitude >= -180 && longitude <= 180;
-  }
-
-  @VisibleForTesting
-  static class LiteralSuggestion implements Suggestion {
-    private final String id;
-    private final String name;
-    private final List<LatLon> geo;
-
-    LiteralSuggestion(String id, String name, List<LatLon> geo) {
-      this.id = id;
-      this.name = name;
-      this.geo = geo;
-    }
-
-    @Override
-    public String getId() {
-      return id;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    public List<LatLon> getGeo() {
-      return geo;
-    }
-
-    public boolean hasGeo() {
-      return geo != null && !geo.isEmpty();
-    }
-
-    @Override
-    public String toString() {
-      return getName();
-    }
-  }
-
-  @VisibleForTesting
-  static class LatLon {
-    private final Double lat;
-    private final Double lon;
-
-    static LatLon from(Double lat, Double lon) {
-      return new LatLon(lat, lon);
-    }
-
-    private LatLon(Double lat, Double lon) {
-      notNull(lat);
-      notNull(lon);
-      this.lat = lat;
-      this.lon = lon;
-    }
-
-    public Double getLat() {
-      return lat;
-    }
-
-    public Double getLon() {
-      return lon;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      LatLon latLon = (LatLon) o;
-      return lat.equals(latLon.lat) && lon.equals(latLon.lon);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = lat.hashCode();
-      result = 31 * result + lon.hashCode();
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return "(" + getLat() + ", " + getLon() + ")";
-    }
   }
 }
