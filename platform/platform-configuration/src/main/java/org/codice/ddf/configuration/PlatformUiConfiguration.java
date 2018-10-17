@@ -56,7 +56,7 @@ public class PlatformUiConfiguration implements PlatformUiConfigurationService {
 
   public static final String TIMEOUT_CONFIG_KEY = "timeout";
 
-  private static final int DEFAULT_TIMEOUT_MINUTES = 15;
+  private static final int DEFAULT_TIMEOUT_MINUTES = 31;
 
   private static final int MINIMUM_TIMEOUT_MINUTES = 2;
 
