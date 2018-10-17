@@ -340,16 +340,26 @@
             <artifactId>spatial-csw-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-      <dependency>
-        <groupId>ddf.mime.core</groupId>
-        <artifactId>mime-core-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codice.thirdparty</groupId>
-        <artifactId>tika-bundle</artifactId>
-        <version>${tika.thirdparty.bundle.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>ddf.mime.core</groupId>
+            <artifactId>mime-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.usng4j</groupId>
+            <artifactId>usng4j-api</artifactId>
+            <version>${usng4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.usng4j</groupId>
+            <artifactId>usng4j-impl</artifactId>
+            <version>${usng4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -410,7 +420,9 @@
                             versioning-common,
                             filter-v_2_0,
                             ows-v_1_1_0-schema,
-                            jaxb2-basics-runtime
+                            jaxb2-basics-runtime,
+                            usng4j-api,
+                            usng4j-impl
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
@@ -453,7 +465,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>5.5_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>

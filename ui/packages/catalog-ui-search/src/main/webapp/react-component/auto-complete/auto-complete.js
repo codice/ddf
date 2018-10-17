@@ -30,6 +30,7 @@ class AutoComplete extends React.Component {
         const suggestions = await suggester(input)
         this.setState({ loading: false, suggestions })
       } catch (e) {
+        console.log(e)
         this.setState({ loading: false, error: 'Endpoint unavailable' }, () => {
           if (typeof this.props.onError === 'function') {
             this.props.onError(e)

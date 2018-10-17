@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.query.suggestion;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,12 +37,11 @@ public class LatLonCoordinateProcessor {
    * @param query the query string with potential coordinate literals present.
    */
   public List<Suggestion> enhanceResults(List<Suggestion> results, String query) {
-    LinkedList<Suggestion> enhanced = new LinkedList<>(results);
     LiteralSuggestion literal = getLatLonSuggestions(query);
     if (literal != null && literal.hasGeo()) {
-      enhanced.addFirst(literal);
+      results.add(0, literal);
     }
-    return enhanced;
+    return results;
   }
 
   private LiteralSuggestion getLatLonSuggestions(String query) {
@@ -58,7 +56,7 @@ public class LatLonCoordinateProcessor {
     List<LatLon> latLonList = getLatLonList(numbers);
     String name =
         "Lat/Lon: " + latLonList.stream().map(LatLon::toString).collect(Collectors.joining(", "));
-    return new LiteralSuggestion("LITERAL", name, latLonList);
+    return new LiteralSuggestion("LITERAL1", name, latLonList);
   }
 
   private List<LatLon> getLatLonList(List<Double> numbers) {

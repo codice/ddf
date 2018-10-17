@@ -55,7 +55,7 @@ class Gazetteer extends React.Component {
     return await res.json()
   }
   async geofeatureWithLiteralSupport(suggestion) {
-    if (suggestion.id === 'LITERAL') {
+    if (suggestion.id.startsWith('LITERAL')) {
       return this.extractGeo(suggestion)
     }
     const { id } = suggestion
