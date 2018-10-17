@@ -614,7 +614,7 @@ module.exports = function OpenlayersMap(
         }),
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: locationModel.color || defaultColor,
+            color: locationModel.get('color') || defaultColor,
             width: 4,
           }),
         }),
