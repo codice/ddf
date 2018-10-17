@@ -479,10 +479,6 @@ public abstract class AbstractIntegrationTest {
 
   protected Option[] configurePaxExam() {
     return options(
-        when(Boolean.getBoolean("acdebuggerEnabled") && !Boolean.getBoolean("isDebugEnabled"))
-            .useOptions(
-                KarafDistributionOption.debugConfiguration(
-                    System.getProperty("acdebuggerPort", "5505"), true)),
         logLevel(LogLevelOption.LogLevel.WARN),
         useOwnExamBundlesStartLevel(100),
         // increase timeout for CI environment
@@ -567,6 +563,10 @@ public abstract class AbstractIntegrationTest {
     return options(
         when(Boolean.getBoolean("isDebugEnabled"))
             .useOptions(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
+        when(Boolean.getBoolean("acdebuggerEnabled") && !Boolean.getBoolean("isDebugEnabled"))
+            .useOptions(
+                KarafDistributionOption.debugConfiguration(
+                    System.getProperty("acdebuggerPort", "5505"), true)),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 systemProperty(PAX_URL_MVN_LOCAL_REPO)
