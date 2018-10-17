@@ -396,8 +396,8 @@ grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/se
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
 }
 
-grant codeBase "file:/security-sts-attributequeryclaimshandler/security-sts-ldapclaimshandler" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
+grant codeBase "file:/security-core-api/security-sts-attributequeryclaimshandler/security-sts-ldapclaimshandler" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
 //
