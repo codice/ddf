@@ -165,6 +165,8 @@ define([
         geometry: rectangle,
       })
 
+      this.billboard.setId(this.model.cid)
+
       var color = this.model.get('color')
 
       var iconStyle = new ol.style.Style({
