@@ -655,6 +655,9 @@ module.exports = function OpenlayersMap(
       })
       shapes = []
     },
+    getOpenLayersMap: function() {
+      return map
+    },
     destroy: function() {
       this.destroyDrawingTools()
       unlistenToResize()

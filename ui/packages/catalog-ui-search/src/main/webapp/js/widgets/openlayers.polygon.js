@@ -165,6 +165,8 @@ Draw.PolygonView = Marionette.View.extend({
       geometry: geometryRepresentation,
     })
 
+    this.billboard.setId(this.model.cid)
+
     const color = this.model.get('color')
 
     const iconStyle = new ol.style.Style({
