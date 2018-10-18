@@ -100,8 +100,8 @@ define([
     },
     initialize: function(options) {
       if (!this.model.get('result')) {
-        if (this.options.tieredSearchIds !== undefined) {
-          this.model.startTieredSearch(this.options.tieredSearchIds)
+        if (options.tieredSearchIds !== undefined) {
+          this.model.startTieredSearch(options.tieredSearchIds)
         } else {
           this.model.startSearch()
         }

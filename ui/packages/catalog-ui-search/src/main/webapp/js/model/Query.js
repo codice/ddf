@@ -238,7 +238,7 @@ Query.Model = Backbone.AssociatedModel.extend({
       result.get('queuedResults').reset(options.queuedResults || [])
       result.get('results').fullCollection.reset()
       result.get('results').reset()
-      results.get('status').reset(options.status || initialStatus)
+      result.get('status').reset(options.status || initialStatus)
     } else {
       result = new QueryResponse({
         queryId: this.getId(),
@@ -438,10 +438,10 @@ Query.Model = Backbone.AssociatedModel.extend({
       status => status.id !== 'cache'
     ).reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
 
-    if (hits === 0) {
+    if (results === 0) {
       return '0 results'
     } else if (results > hits) {
-      return hits + ' results'
+      return results + ' results'
     }
 
     var clientState =
