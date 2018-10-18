@@ -21,11 +21,7 @@ class Keyword extends React.Component {
       type: 'Feature',
       geometry: {
         type: 'Polygon',
-        coordinates: [
-          suggestion.geo.map(coord => {
-            return [coord.lat, coord.lon]
-          }),
-        ],
+        coordinates: [suggestion.geo.map(coord => [coord.lat, coord.lon])],
       },
       properties: {},
       id: suggestion.id,

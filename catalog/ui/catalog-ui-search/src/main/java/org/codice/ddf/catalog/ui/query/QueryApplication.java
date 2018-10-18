@@ -54,7 +54,7 @@ public class QueryApplication implements SparkApplication, Function {
 
   private static final String APPLICATION_JSON = "application/json";
 
-  private final LatLonCoordinateProcessor coordinateProcessor;
+  private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
   private FeatureService featureService;
 
@@ -73,7 +73,7 @@ public class QueryApplication implements SparkApplication, Function {
   private EndpointUtil util;
 
   public QueryApplication(CqlTransformHandler cqlTransformHandler) {
-    this.coordinateProcessor = new LatLonCoordinateProcessor();
+    this.latLonCoordinateProcessor = new LatLonCoordinateProcessor();
     this.cqlTransformHandler = cqlTransformHandler;
   }
 
@@ -124,8 +124,8 @@ public class QueryApplication implements SparkApplication, Function {
         (req, res) -> {
           String query = req.queryParams("q");
           List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
-          results = coordinateProcessor.enhanceResults(results, query);
-          return mapper.toJson(results);
+          List<Suggestion> enhanced = latLonCoordinateProcessor.enhanceResults(results, query);
+          return mapper.toJson(enhanced);
         });
 
     get(

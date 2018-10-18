@@ -52,7 +52,7 @@ public class LatLonCoordinateProcessor {
     while (matcher.find()) {
       numbers.add(Double.parseDouble(matcher.group()));
     }
-    if (numbers.isEmpty() || numbers.size() == 1) {
+    if (numbers.size() <= 1) {
       return null;
     }
     List<LatLon> latLonList = getLatLonList(numbers);
@@ -65,24 +65,15 @@ public class LatLonCoordinateProcessor {
     List<LatLon> latLons = new ArrayList<>();
     for (int index = 0; index < numbers.size(); index++) {
       double latitude = numbers.get(index);
-      if (isValidLatitude(latitude)) {
-        if (index + 1 < numbers.size()) {
-          double longitude = numbers.get(index + 1);
-          if (isValidLongitude(longitude)) {
-            latLons.add(LatLon.from(latitude, longitude));
-            ++index;
-          }
+      if (LatLon.isValidLatitude(latitude) && index + 1 < numbers.size()) {
+
+        double longitude = numbers.get(index + 1);
+        if (LatLon.isValidLongitude(longitude)) {
+          latLons.add(LatLon.from(latitude, longitude));
+          ++index;
         }
       }
     }
     return latLons;
-  }
-
-  private boolean isValidLatitude(double latitude) {
-    return latitude >= -90 && latitude <= 90;
-  }
-
-  private boolean isValidLongitude(double longitude) {
-    return longitude >= -180 && longitude <= 180;
   }
 }
