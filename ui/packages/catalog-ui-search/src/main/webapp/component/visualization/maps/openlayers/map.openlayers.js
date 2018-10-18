@@ -605,7 +605,7 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
-      var styles = [
+      const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
             color: 'white',
@@ -639,7 +639,7 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
-      var styles = [
+      const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
             color: 'white',
