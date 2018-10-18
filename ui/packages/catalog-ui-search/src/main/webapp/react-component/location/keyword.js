@@ -29,21 +29,20 @@ class Keyword extends React.Component {
   }
   async suggester(input) {
     const res = await this.fetch(`./internal/geofeature/suggestions?q=${input}`)
-    return await res.json()
+    const json = await res.json()
+    return await json.filter(suggestion => suggestion.id !== 'LITERAL')
   }
-  async geofeature(id) {
+  async geofeature(suggestion) {
+    const { id } = suggestion
     const res = await this.fetch(`./internal/geofeature?id=${id}`)
     return await res.json()
   }
   async onChange(suggestion) {
-    const { id, name } = suggestion
     const geofeature =
-      id === 'LITERAL'
-        ? () => this.extractGeo(suggestion)
-        : this.props.geofeature || (id => this.geofeature(id))
-    this.setState({ value: name, loading: true })
+      this.props.geofeature || (suggestItem => this.geofeature(suggestItem))
+    this.setState({ value: suggestion.name, loading: true })
     try {
-      const { type, geometry = {} } = await geofeature(id)
+      const { type, geometry = {} } = await geofeature(suggestion)
       this.setState({ loading: false })
 
       switch (geometry.type) {

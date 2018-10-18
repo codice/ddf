@@ -2,12 +2,65 @@ const React = require('react')
 const Keyword = require('react-component/location/keyword.js')
 const properties = require('properties')
 
+import fetch from '../../react-component/utils/fetch'
+
 const onlineGazetteer = properties.onlineGazetteer
 
 class Gazetteer extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
+    this.fetch = this.props.fetch || fetch
+  }
+  expandPoint(geo) {
+    const offset = 0.1
+    if (geo.length === 1) {
+      const point = geo[0]
+      return [
+        {
+          lat: point.lat + offset,
+          lon: point.lon + offset,
+        },
+        {
+          lat: point.lat + offset,
+          lon: point.lon - offset,
+        },
+        {
+          lat: point.lat - offset,
+          lon: point.lon - offset,
+        },
+        {
+          lat: point.lat - offset,
+          lon: point.lon + offset,
+        },
+      ]
+    }
+    return geo
+  }
+  extractGeo(suggestion) {
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          this.expandPoint(suggestion.geo).map(coord => [coord.lon, coord.lat]),
+        ],
+      },
+      properties: {},
+      id: suggestion.id,
+    }
+  }
+  async suggesterWithLiteralSupport(input) {
+    const res = await this.fetch(`./internal/geofeature/suggestions?q=${input}`)
+    return await res.json()
+  }
+  async geofeatureWithLiteralSupport(suggestion) {
+    if (suggestion.id === 'LITERAL') {
+      return this.extractGeo(suggestion)
+    }
+    const { id } = suggestion
+    const res = await this.fetch(`./internal/geofeature?id=${id}`)
+    return await res.json()
   }
   getOsmTypeSymbol(type) {
     switch (type) {
@@ -33,8 +86,8 @@ class Gazetteer extends React.Component {
       }
     })
   }
-  async geofeature(idParts) {
-    const [type, id] = idParts.split(':')
+  async geofeature(suggestion) {
+    const [type, id] = suggestion.id.split(':')
     const res = await window.fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&osm_type=${type}&osm_id=${id}`
     )
@@ -63,10 +116,16 @@ class Gazetteer extends React.Component {
           <Keyword
             setState={this.props.setState}
             suggester={input => this.suggester(input)}
-            geofeature={id => this.geofeature(id)}
+            geofeature={suggestItem => this.geofeature(suggestItem)}
           />
         ) : (
-          <Keyword setState={this.props.setState} />
+          <Keyword
+            setState={this.props.setState}
+            suggester={input => this.suggesterWithLiteralSupport(input)}
+            geofeature={suggestItem =>
+              this.geofeatureWithLiteralSupport(suggestItem)
+            }
+          />
         )}
       </div>
     )

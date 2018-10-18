@@ -212,11 +212,7 @@ module.exports = function OpenlayersMap(
       })
     },
     zoomOut: function(opts, next) {
-      if (map.getView().getZoom() > 6) {
-        map.getView().animate({ zoom: 6, duration: 500, ...opts }, next)
-      } else {
-        next()
-      }
+      next()
     },
     zoomToSelected: function() {
       if (selectionInterface.getSelectedResults().length === 1) {
