@@ -175,11 +175,11 @@
     </bean>
 
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
-        <argument ref="catalogFramework"/>
-        <argument ref="filterBuilder"/>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
         <argument ref="injectableAttributes"/>
         <argument>
             <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
