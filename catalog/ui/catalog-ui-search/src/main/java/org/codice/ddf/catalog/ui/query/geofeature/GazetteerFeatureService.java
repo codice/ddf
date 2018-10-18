@@ -84,7 +84,7 @@ public class GazetteerFeatureService implements FeatureService {
       return null;
     }
 
-    if (entry.getFeatureCode() == null || COUNTRY_FEATURE_CODES.contains(entry.getFeatureCode())) {
+    if (COUNTRY_FEATURE_CODES.contains(entry.getFeatureCode())) {
       SimpleFeature feature = findCountryShape(entry);
       if (feature != null) {
         return feature;

@@ -143,10 +143,23 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
           new AttributeImpl(
               GeoEntryAttributes.GAZETTEER_SORT_VALUE,
               GeoCodingConstants.COUNTRY_GAZETTEER_SORT_VALUE));
+
+      if (isCountry(feature)) {
+        metacard.setAttribute(
+            new AttributeImpl(
+                GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME,
+                GeoCodingConstants.POLITICAL_ENTITY));
+      }
+
       return metacard;
     }
 
     throw new FeatureIndexingException("Malformed feature");
+  }
+
+  private boolean isCountry(SimpleFeature feature) {
+    return GeoCodingConstants.COUNTRY_TAG.equals(
+        feature.getAttribute(GeoCodingConstants.GEOMETRY_TYPE));
   }
 
   private Metacard findMetacardForFeature(SimpleFeature feature) throws FeatureIndexingException {
