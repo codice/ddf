@@ -64,7 +64,9 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
+import ddf.catalog.util.impl.SourceStatus;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,6 +147,8 @@ public class FederationStrategyTest {
 
     // Mock register the provider in the container
     SourcePoller poller = mock(SourcePoller.class);
+    when(poller.getSourceAvailability(any(Source.class)))
+        .thenReturn(new SourceAvailability(SourceStatus.AVAILABLE));
 
     // Must have more than one thread or sleeps will block the monitor
     SortedFederationStrategy fedStrategy =

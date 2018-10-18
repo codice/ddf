@@ -29,6 +29,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
+import ddf.catalog.util.impl.SourceStatus;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,16 +39,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import ddf.catalog.util.impl.SourceStatus;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
-import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-
-import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Support class for source delegate operations for the {@code CatalogFrameworkImpl}.
@@ -74,7 +69,7 @@ public class SourceOperations extends DescribableImpl {
   private ActionRegistry sourceActionRegistry;
 
   public SourceOperations(
-          FrameworkProperties frameworkProperties, ActionRegistry sourceActionRegistry) {
+      FrameworkProperties frameworkProperties, ActionRegistry sourceActionRegistry) {
     Validate.notNull(frameworkProperties, "frameworkProperties must be non-null");
     Validate.notNull(sourceActionRegistry, "sourceActionRegistry must be non-null");
 
@@ -185,8 +180,8 @@ public class SourceOperations extends DescribableImpl {
   }
 
   public SourceInfoResponse getSourceInfo(
-          SourceInfoRequest sourceInfoRequest, boolean fanoutEnabled)
-          throws SourceUnavailableException {
+      SourceInfoRequest sourceInfoRequest, boolean fanoutEnabled)
+      throws SourceUnavailableException {
     SourceInfoResponse response;
     Set<SourceDescriptor> sourceDescriptors;
 
@@ -207,7 +202,7 @@ public class SourceOperations extends DescribableImpl {
       if (sourceInfoRequest.isEnterprise()) {
 
         sourceDescriptors =
-                getFederatedSourceDescriptors(frameworkProperties.getFederatedSources().values(), true);
+            getFederatedSourceDescriptors(frameworkProperties.getFederatedSources().values(), true);
         // If Ids are specified check if they are known sources
       } else if (requestedSourceIds != null) {
         LOGGER.debug("getSourceRequest contains requested source ids");
@@ -228,8 +223,8 @@ public class SourceOperations extends DescribableImpl {
             // Check for the local catalog provider, DDF sourceId represents this
             if (requestedSourceId.equals(getId())) {
               LOGGER.debug(
-                      "adding CatalogSourceDescriptor since it was in sourceId list as: {}",
-                      requestedSourceId);
+                  "adding CatalogSourceDescriptor since it was in sourceId list as: {}",
+                  requestedSourceId);
               addCatalogProviderDescriptor = true;
             }
           }
@@ -237,7 +232,7 @@ public class SourceOperations extends DescribableImpl {
         }
 
         sourceDescriptors =
-                getFederatedSourceDescriptors(discoveredSources, addCatalogProviderDescriptor);
+            getFederatedSourceDescriptors(discoveredSources, addCatalogProviderDescriptor);
 
       } else {
         // only add the local catalogProviderdescriptor
@@ -249,7 +244,7 @@ public class SourceOperations extends DescribableImpl {
     } catch (RuntimeException re) {
       LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
       throw new SourceUnavailableException(
-              "Exception during runtime while performing getSourceInfo");
+          "Exception during runtime while performing getSourceInfo");
     }
 
     return response;
@@ -263,7 +258,8 @@ public class SourceOperations extends DescribableImpl {
    * Checks that the specified source is valid and available.
    *
    * @param source the {@link Source} to check availability of
-   * @return {@code true} if the {@link Source} is not {@code null} and is available, {@code false} otherwise
+   * @return {@code true} if the {@link Source} is not {@code null} and is available, {@code false}
+   *     otherwise
    */
   boolean isSourceAvailable(@Nullable Source source) {
     if (source == null) {
@@ -271,17 +267,18 @@ public class SourceOperations extends DescribableImpl {
       return false;
     }
 
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Checking if source \"{}\" is available...", source.getId());
-      }
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Checking if source \"{}\" is available...", source.getId());
+    }
 
-      // source is considered available unless we have checked and seen otherwise
-      boolean available = frameworkProperties.getSourcePoller().getSourceStatus(source) == SourceStatus.AVAILABLE;
+    // source is considered available unless we have checked and seen otherwise
+    boolean available =
+        frameworkProperties.getSourcePoller().getSourceStatus(source) == SourceStatus.AVAILABLE;
 
-      if (!available) {
-        LOGGER.info("source \"{}\" is not available", source.getId());
-      }
-      return available;
+    if (!available) {
+      LOGGER.info("source \"{}\" is not available", source.getId());
+    }
+    return available;
   }
 
   /**
@@ -292,7 +289,7 @@ public class SourceOperations extends DescribableImpl {
    * FederatedSource}s' source info hidden from the external client.
    */
   private SourceInfoResponse getFanoutSourceInfo(SourceInfoRequest sourceInfoRequest)
-          throws SourceUnavailableException {
+      throws SourceUnavailableException {
 
     SourceInfoResponse response;
     SourceDescriptorImpl sourceDescriptor;
@@ -312,31 +309,31 @@ public class SourceOperations extends DescribableImpl {
         Optional<String> notLocal = ids.stream().filter(s -> !s.equals(getId())).findFirst();
         if (notLocal.isPresent()) {
           SourceUnavailableException sourceUnavailableException =
-                  new SourceUnavailableException("Unknown source: " + notLocal.get());
+              new SourceUnavailableException("Unknown source: " + notLocal.get());
           LOGGER.debug(
-                  "Throwing SourceUnavailableException for unknown source: {}",
-                  notLocal.get(),
-                  sourceUnavailableException);
+              "Throwing SourceUnavailableException for unknown source: {}",
+              notLocal.get(),
+              sourceUnavailableException);
           throw sourceUnavailableException;
         }
       }
 
       // Fanout will only add one source descriptor with all the contents
       Set<Source> availableSources =
-              frameworkProperties
-                      .getFederatedSources()
-                      .values()
-                      .stream()
-                      .filter(this::isSourceAvailable)
-                      .collect(Collectors.toSet());
+          frameworkProperties
+              .getFederatedSources()
+              .values()
+              .stream()
+              .filter(this::isSourceAvailable)
+              .collect(Collectors.toSet());
 
       Set<ContentType> contentTypes =
-              availableSources
-                      .stream()
-                      .filter(source -> source.getContentTypes() != null)
-                      .map(Source::getContentTypes)
-                      .flatMap(Collection::stream)
-                      .collect(Collectors.toSet());
+          availableSources
+              .stream()
+              .filter(source -> source.getContentTypes() != null)
+              .map(Source::getContentTypes)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
 
       if (isSourceAvailable(catalog)) {
         availableSources.add(catalog);
@@ -357,7 +354,7 @@ public class SourceOperations extends DescribableImpl {
 
     } catch (RuntimeException re) {
       throw new SourceUnavailableException(
-              "Exception during runtime while performing getSourceInfo", re);
+          "Exception during runtime while performing getSourceInfo", re);
     }
     return response;
   }
@@ -373,7 +370,7 @@ public class SourceOperations extends DescribableImpl {
    * @return new {@link Set} of {@link SourceDescriptor}
    */
   private Set<SourceDescriptor> getFederatedSourceDescriptors(
-          Collection<FederatedSource> sources, boolean addCatalogProviderDescriptor) {
+      Collection<FederatedSource> sources, boolean addCatalogProviderDescriptor) {
     SourceDescriptorImpl sourceDescriptor;
     Set<SourceDescriptor> sourceDescriptors = new TreeSet<>(new SourceDescriptorComparator());
     if (sources != null) {
@@ -383,8 +380,8 @@ public class SourceOperations extends DescribableImpl {
           LOGGER.debug("adding sourceId: {}", sourceId);
 
           sourceDescriptor =
-                  new SourceDescriptorImpl(
-                          sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
+              new SourceDescriptorImpl(
+                  sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
           sourceDescriptor.setAvailable(isSourceAvailable(source));
 
@@ -425,10 +422,8 @@ public class SourceOperations extends DescribableImpl {
     if (descriptors != null) {
       if (catalog != null) {
         SourceDescriptorImpl descriptor =
-                new SourceDescriptorImpl(
-                        this.getId(),
-                        catalog.getContentTypes(),
-                        sourceActionRegistry.list(catalog));
+            new SourceDescriptorImpl(
+                this.getId(), catalog.getContentTypes(), sourceActionRegistry.list(catalog));
         if (this.getVersion() != null) {
           descriptor.setVersion(this.getVersion());
         }

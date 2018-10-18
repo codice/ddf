@@ -60,7 +60,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
@@ -89,11 +88,10 @@ public class CatalogFrameworkQueryTest {
     SourcePoller mockPoller = mock(SourcePoller.class);
     doAnswer(
             invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
         .when(mockPoller)
         .getSourceAvailability(any(Source.class));
 

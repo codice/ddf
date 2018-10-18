@@ -45,7 +45,7 @@ public class SourceOperationsTest {
 
     final SourcePoller mockSourcePoller = mock(SourcePoller.class);
     when(mockSourcePoller.getSourceAvailability(catalogProvider))
-        .thenReturn(SourceAvailability.unknown());
+        .thenReturn(SourceAvailability.UNKNOWN);
     when(frameworkProperties.getSourcePoller()).thenReturn(mockSourcePoller);
 
     ActionRegistry actionRegistry = mock(ActionRegistry.class);

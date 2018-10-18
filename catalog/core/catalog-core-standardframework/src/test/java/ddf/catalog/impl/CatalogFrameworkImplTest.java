@@ -165,7 +165,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -365,11 +364,10 @@ public class CatalogFrameworkImplTest {
     SourcePoller poller = mock(SourcePoller.class);
     doAnswer(
             invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
         .when(poller)
         .getSourceAvailability(any(Source.class));
 
@@ -1448,7 +1446,7 @@ public class CatalogFrameworkImplTest {
       throws UnsupportedQueryException, FederationException, SourceUnavailableException {
 
     SourcePoller poller = mock(SourcePoller.class);
-    when(poller.getSourceAvailability(isA(Source.class))).thenReturn(SourceAvailability.unknown());
+    when(poller.getSourceAvailability(isA(Source.class))).thenReturn(SourceAvailability.UNKNOWN);
 
     BundleContext context = null;
 
@@ -1729,15 +1727,18 @@ public class CatalogFrameworkImplTest {
     List<FederatedSource> federatedSources = createDefaultFederatedSourceList(false);
     CatalogProvider catalogProvider = mock(CatalogProvider.class);
     // Mock register the federated sources in the container
-    SourcePoller poller = mock(SourcePoller.class);
-    // TODO
-    //    for (FederatedSource source : federatedSources) {
-    //      poller.bind(source);
-    //    }
-    //    poller.bind(catalogProvider);
+    SourcePoller mockPoller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
+        .when(mockPoller)
+        .getSourceAvailability(any(Source.class));
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setSourcePoller(poller);
+    frameworkProperties.setSourcePoller(mockPoller);
     Map<String, FederatedSource> sources = new HashMap<>();
     for (FederatedSource federatedSource : federatedSources) {
       sources.put(federatedSource.getId(), federatedSource);
@@ -1784,7 +1785,7 @@ public class CatalogFrameworkImplTest {
     // Mock the source poller
     SourcePoller mockPoller = mock(SourcePoller.class);
     when(mockPoller.getSourceAvailability(isA(Source.class)))
-        .thenReturn(SourceAvailability.unknown());
+        .thenReturn(SourceAvailability.UNKNOWN);
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(mockPoller);
@@ -1832,11 +1833,10 @@ public class CatalogFrameworkImplTest {
     SourcePoller mockPoller = mock(SourcePoller.class);
     doAnswer(
             invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
         .when(mockPoller)
         .getSourceAvailability(any(Source.class));
 
@@ -2363,11 +2363,10 @@ public class CatalogFrameworkImplTest {
     SourcePoller mockPoller = mock(SourcePoller.class);
     doAnswer(
             invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
         .when(mockPoller)
         .getSourceAvailability(any(Source.class));
 
@@ -2714,7 +2713,7 @@ public class CatalogFrameworkImplTest {
     // Mock the source poller
     SourcePoller mockPoller = mock(SourcePoller.class);
     when(mockPoller.getSourceAvailability(isA(Source.class)))
-        .thenReturn(SourceAvailability.unknown());
+        .thenReturn(SourceAvailability.UNKNOWN);
 
     // Create two ResourceReaders. The first should not return anything
     // and the second should.
@@ -2841,11 +2840,10 @@ public class CatalogFrameworkImplTest {
     SourcePoller mockPoller = mock(SourcePoller.class);
     doAnswer(
             invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
         .when(mockPoller)
         .getSourceAvailability(any(Source.class));
 

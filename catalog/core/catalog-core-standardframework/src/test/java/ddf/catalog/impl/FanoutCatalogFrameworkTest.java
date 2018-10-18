@@ -88,7 +88,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
@@ -120,11 +119,10 @@ public class FanoutCatalogFrameworkTest {
     SourcePoller poller = mock(SourcePoller.class);
     doAnswer(
             invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
+                new SourceAvailability(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
         .when(poller)
         .getSourceAvailability(any(Source.class));
 
@@ -361,15 +359,8 @@ public class FanoutCatalogFrameworkTest {
   @Test
   public void testNullContentTypesInGetSourceInfo() throws SourceUnavailableException {
     SourcePoller poller = mock(SourcePoller.class);
-    doAnswer(
-            invocationOnMock ->
-                Optional.of(
-                    new SourceAvailability(
-                        ((Source) invocationOnMock.getArguments()[0]).isAvailable()
-                            ? SourceStatus.AVAILABLE
-                            : SourceStatus.UNAVAILABLE)))
-        .when(poller)
-        .getSourceAvailability(any(Source.class));
+    when(poller.getSourceAvailability(any(Source.class)))
+        .thenReturn(new SourceAvailability(SourceStatus.AVAILABLE));
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 
     SourceInfoRequest request = new SourceInfoRequestEnterprise(true);

@@ -293,7 +293,7 @@ public class RemoteDeleteOperationsTest {
 
     mockPoller = mock(SourcePoller.class);
     when(mockPoller.getSourceAvailability(isA(Source.class)))
-        .thenReturn(SourceAvailability.unknown());
+        .thenReturn(SourceAvailability.UNKNOWN);
 
     provider = mock(CatalogProvider.class);
     when(provider.getId()).thenReturn(localProviderName);
