@@ -38,8 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +55,8 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -220,7 +220,7 @@ public class IdpHandler implements AuthenticationHandler {
   @Override
   public HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
-      throws ServletException {
+      throws AuthenticationFailureException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     if (httpRequest.getMethod().equals("HEAD")) {
@@ -228,7 +228,8 @@ public class IdpHandler implements AuthenticationHandler {
       try {
         response.flushBuffer();
       } catch (IOException e) {
-        throw new ServletException("Unable to send response to HEAD message from IdP client.");
+        throw new AuthenticationFailureException(
+            "Unable to send response to HEAD message from IdP client.");
       }
       return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     }
@@ -342,7 +343,7 @@ public class IdpHandler implements AuthenticationHandler {
     try {
       IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
       if (idpssoDescriptor == null) {
-        throw new ServletException(IDP_METADATA_MISSING);
+        throw new AuthenticationFailureException(IDP_METADATA_MISSING);
       }
       authnRequest =
           createAndSignAuthnRequest(
@@ -350,7 +351,7 @@ public class IdpHandler implements AuthenticationHandler {
       paosRequest = createPaosRequest((HttpServletRequest) request);
       ecpRequest = createEcpRequest();
       ecpRelayState = createEcpRelayState((HttpServletRequest) request);
-    } catch (ServletException | WSSecurityException e) {
+    } catch (WSSecurityException | AuthenticationFailureException e) {
       LOGGER.debug("Unable to create and sign AuthnRequest.", e);
       httpServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       try {
@@ -436,7 +437,7 @@ public class IdpHandler implements AuthenticationHandler {
   }
 
   private void doHttpRedirectBinding(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException {
+      throws AuthenticationFailureException {
 
     String redirectUrl;
     String idpRequest = null;
@@ -444,7 +445,7 @@ public class IdpHandler implements AuthenticationHandler {
     try {
       IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
       if (idpssoDescriptor == null) {
-        throw new ServletException(IDP_METADATA_MISSING);
+        throw new AuthenticationFailureException(IDP_METADATA_MISSING);
       }
       StringBuilder queryParams =
           new StringBuilder("SAMLRequest=")
@@ -464,14 +465,14 @@ public class IdpHandler implements AuthenticationHandler {
       redirectUrl = idpUri.build().toString();
     } catch (UnsupportedEncodingException e) {
       LOGGER.info("Unable to encode relay state: {}", relayState, e);
-      throw new ServletException("Unable to create return location");
+      throw new AuthenticationFailureException("Unable to create return location");
     } catch (SimpleSign.SignatureException e) {
       String msg = "Unable to sign request";
       LOGGER.info(msg, e);
-      throw new ServletException(msg);
+      throw new AuthenticationFailureException(msg);
     } catch (URISyntaxException e) {
       LOGGER.info("Unable to parse IDP request location: {}", idpRequest, e);
-      throw new ServletException("Unable to determine IDP location.");
+      throw new AuthenticationFailureException("Unable to determine IDP location.");
     }
 
     try {
@@ -479,16 +480,16 @@ public class IdpHandler implements AuthenticationHandler {
       response.flushBuffer();
     } catch (IOException e) {
       LOGGER.info("Unable to redirect AuthnRequest to {}", redirectUrl, e);
-      throw new ServletException("Unable to redirect to IdP");
+      throw new AuthenticationFailureException("Unable to redirect to IdP");
     }
   }
 
   private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException {
+      throws AuthenticationFailureException {
     try {
       IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
       if (idpssoDescriptor == null) {
-        throw new ServletException(IDP_METADATA_MISSING);
+        throw new AuthenticationFailureException(IDP_METADATA_MISSING);
       }
       response
           .getWriter()
@@ -503,12 +504,12 @@ public class IdpHandler implements AuthenticationHandler {
       response.flushBuffer();
     } catch (IOException e) {
       LOGGER.info("Unable to post AuthnRequest to IdP", e);
-      throw new ServletException("Unable to post to IdP");
+      throw new AuthenticationFailureException("Unable to post to IdP");
     }
   }
 
   private String createAndSignAuthnRequest(boolean isPost, boolean wantSigned)
-      throws ServletException {
+      throws AuthenticationFailureException {
 
     String spIssuerId = getSpIssuerId();
     String spAssertionConsumerServiceUrl = getSpAssertionConsumerServiceUrl(spIssuerId);
@@ -558,7 +559,7 @@ public class IdpHandler implements AuthenticationHandler {
   }
 
   private String serializeAndSign(boolean isPost, boolean wantSigned, AuthnRequest authnRequest)
-      throws ServletException {
+      throws AuthenticationFailureException {
     try {
       if (isPost && wantSigned) {
         simpleSign.signSamlObject(authnRequest);
@@ -576,14 +577,15 @@ public class IdpHandler implements AuthenticationHandler {
       return requestMessage;
     } catch (WSSecurityException e) {
       LOGGER.info(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
-      throw new ServletException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
+      throw new AuthenticationFailureException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
     } catch (SimpleSign.SignatureException e) {
       LOGGER.info(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST, e);
-      throw new ServletException(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST);
+      throw new AuthenticationFailureException(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST);
     }
   }
 
-  private String encodeAuthnRequest(String requestMessage, boolean isPost) throws ServletException {
+  private String encodeAuthnRequest(String requestMessage, boolean isPost)
+      throws AuthenticationFailureException {
     try {
       if (isPost) {
         return encodePostRequest(requestMessage);
@@ -592,7 +594,7 @@ public class IdpHandler implements AuthenticationHandler {
       }
     } catch (WSSecurityException | IOException e) {
       LOGGER.info(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
-      throw new ServletException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
+      throw new AuthenticationFailureException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
     }
   }
 
@@ -634,7 +636,7 @@ public class IdpHandler implements AuthenticationHandler {
   @Override
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException {
+      throws AuthenticationFailureException {
     String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     result.setSource(realm + "-" + SOURCE);

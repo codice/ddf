@@ -470,5 +470,10 @@ public class FilterPluginTest {
     public boolean isGuest() {
       return false;
     }
+
+    @Override
+    public String getName() {
+      return "Mock Subject";
+    }
   }
 }

@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import javax.servlet.ServletException;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
 
-public class InvalidSAMLReceivedException extends ServletException {
+public class InvalidSAMLReceivedException extends AuthenticationFailureException {
   public InvalidSAMLReceivedException() {
     super();
   }

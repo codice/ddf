@@ -28,12 +28,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
@@ -51,16 +50,10 @@ public class AuthorizationFilterTest {
 
   @Test
   public void testAuthorizedSubject() {
-    FilterConfig filterConfig = mock(FilterConfig.class);
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     Subject subject = mock(Subject.class);
     when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(true);
     ThreadContext.bind(subject);
@@ -75,7 +68,7 @@ public class AuthorizationFilterTest {
       if (!sucess) {
         fail("Should have called doFilter with a valid Subject");
       }
-    } catch (IOException | ServletException e) {
+    } catch (IOException | AuthenticationException e) {
       fail(e.getMessage());
     }
     ThreadContext.unbindSubject();
@@ -83,16 +76,10 @@ public class AuthorizationFilterTest {
 
   @Test
   public void testUnAuthorizedSubject() {
-    FilterConfig filterConfig = mock(FilterConfig.class);
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     Subject subject = mock(Subject.class);
     when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(false);
     ThreadContext.bind(subject);
@@ -104,7 +91,7 @@ public class AuthorizationFilterTest {
 
     try {
       loginFilter.doFilter(servletRequest, servletResponse, filterChain);
-    } catch (IOException | ServletException e) {
+    } catch (IOException | AuthenticationException e) {
       fail(e.getMessage());
     }
     ThreadContext.unbindSubject();
@@ -112,15 +99,10 @@ public class AuthorizationFilterTest {
 
   @Test
   public void testNoSubject() {
-    FilterConfig filterConfig = mock(FilterConfig.class);
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
+    loginFilter.init();
 
     HttpServletRequest servletRequest = getMockServletRequest();
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
@@ -129,23 +111,17 @@ public class AuthorizationFilterTest {
 
     try {
       loginFilter.doFilter(servletRequest, servletResponse, filterChain);
-    } catch (IOException | ServletException e) {
+    } catch (IOException | AuthenticationException e) {
       fail(e.getMessage());
     }
   }
 
   @Test
   public void testBadSubject() {
-    FilterConfig filterConfig = mock(FilterConfig.class);
     ContextPolicyManager contextPolicyManager = new TestPolicyManager();
     contextPolicyManager.setContextPolicy(PATH, getMockContextPolicy());
     AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     HttpServletRequest servletRequest = getMockServletRequest();
     servletRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
@@ -154,7 +130,7 @@ public class AuthorizationFilterTest {
 
     try {
       loginFilter.doFilter(servletRequest, servletResponse, filterChain);
-    } catch (IOException | ServletException e) {
+    } catch (IOException | AuthenticationException e) {
       fail(e.getMessage());
     }
   }

@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 
 public interface AuthenticationHandler {
 
@@ -48,7 +48,7 @@ public interface AuthenticationHandler {
    */
   HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
-      throws ServletException;
+      throws AuthenticationException;
 
   /**
    * Called when downstream authentication fails. Should attempt to re-acquire credentials if
@@ -59,5 +59,5 @@ public interface AuthenticationHandler {
    */
   HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException;
+      throws AuthenticationException;
 }

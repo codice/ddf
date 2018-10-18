@@ -58,6 +58,8 @@
         <ddf.support.version>2.3.14</ddf.support.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.5</acdebugger.version>
+        <!--temporary codice version of pax web-->
+        <pax.web.codice.version>7.2.4.CODICE</pax.web.codice.version>
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

@@ -409,5 +409,10 @@ public class ResourceUsagePluginTest {
     public boolean isGuest() {
       return false;
     }
+
+    @Override
+    public String getName() {
+      return "Mock Subject";
+    }
   }
 }

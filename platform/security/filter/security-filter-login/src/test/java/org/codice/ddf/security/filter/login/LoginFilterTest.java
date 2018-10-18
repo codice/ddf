@@ -40,11 +40,8 @@ import java.util.Locale;
 import java.util.Map;
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -57,10 +54,12 @@ import javax.servlet.http.Part;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.AuthenticationFailureException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
@@ -106,22 +105,15 @@ public class LoginFilterTest {
 
   @Test
   public void testNoSubject() {
-    FilterConfig filterConfig = mock(FilterConfig.class);
     LoginFilter loginFilter = new LoginFilter();
     loginFilter.setSessionFactory(sessionFactory);
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     HttpServletRequest servletRequest = mock(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain =
         new FilterChain() {
           @Override
-          public void doFilter(ServletRequest request, ServletResponse response)
-              throws IOException, ServletException {
+          public void doFilter(ServletRequest request, ServletResponse response) {
             fail("Should not have called doFilter without a valid Subject");
           }
         };
@@ -130,7 +122,7 @@ public class LoginFilterTest {
       loginFilter.doFilter(servletRequest, servletResponse, filterChain);
     } catch (IOException e) {
       fail(e.getMessage());
-    } catch (ServletException e) {
+    } catch (AuthenticationException e) {
       fail(e.getMessage());
     }
   }
@@ -139,27 +131,19 @@ public class LoginFilterTest {
    * Test with a bad subject - shouldn't call the filter chain, just returns.
    *
    * @throws IOException
-   * @throws ServletException
    */
   @Test
-  public void testBadSubject() throws IOException, ServletException {
-    FilterConfig filterConfig = mock(FilterConfig.class);
+  public void testBadSubject() throws IOException, AuthenticationException {
     LoginFilter loginFilter = new LoginFilter();
     loginFilter.setSessionFactory(sessionFactory);
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     HttpServletRequest servletRequest = new TestHttpServletRequest();
     servletRequest.setAttribute("ddf.security.securityToken", mock(SecurityToken.class));
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain =
         new FilterChain() {
           @Override
-          public void doFilter(ServletRequest request, ServletResponse response)
-              throws IOException, ServletException {
+          public void doFilter(ServletRequest request, ServletResponse response) {
             fail("Should not have continued down the filter chain without a valid Subject");
           }
         };
@@ -168,11 +152,10 @@ public class LoginFilterTest {
   }
 
   @Test
-  public void testValidEmptySubject() throws IOException, ServletException {
-    FilterConfig filterConfig = mock(FilterConfig.class);
+  public void testValidEmptySubject() throws IOException, AuthenticationException {
     LoginFilter loginFilter = new LoginFilter();
     loginFilter.setSessionFactory(sessionFactory);
-    loginFilter.init(filterConfig);
+    loginFilter.init();
 
     HttpServletRequest servletRequest = new TestHttpServletRequest();
     servletRequest.setAttribute("ddf.security.token", mock(HandlerResult.class));
@@ -186,15 +169,14 @@ public class LoginFilterTest {
 
   @Test
   public void testValidUsernameToken()
-      throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
-          SAXException, SecurityServiceException {
-    FilterConfig filterConfig = mock(FilterConfig.class);
+      throws IOException, ParserConfigurationException, SAXException, SecurityServiceException,
+          AuthenticationException {
     LoginFilter loginFilter = new LoginFilter();
     loginFilter.setSessionFactory(sessionFactory);
     ddf.security.service.SecurityManager securityManager =
         mock(ddf.security.service.SecurityManager.class);
     loginFilter.setSecurityManager(securityManager);
-    loginFilter.init(filterConfig);
+    loginFilter.init();
 
     HttpServletRequest servletRequest = mock(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
@@ -222,23 +204,16 @@ public class LoginFilterTest {
     loginFilter.doFilter(servletRequest, servletResponse, filterChain);
   }
 
-  @Test(expected = ServletException.class)
+  @Test(expected = AuthenticationFailureException.class)
   public void testExpiredSamlCookie()
-      throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
-          SAXException, SecurityServiceException {
-    FilterConfig filterConfig = mock(FilterConfig.class);
+      throws IOException, ParserConfigurationException, SAXException, AuthenticationException {
     LoginFilter loginFilter = new LoginFilter();
     loginFilter.setSessionFactory(sessionFactory);
     ddf.security.service.SecurityManager securityManager =
         mock(ddf.security.service.SecurityManager.class);
     loginFilter.setSecurityManager(securityManager);
     loginFilter.setSignaturePropertiesFile("signature.properties");
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     HttpServletRequest servletRequest = new TestHttpServletRequest();
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
@@ -252,22 +227,15 @@ public class LoginFilterTest {
     loginFilter.doFilter(servletRequest, servletResponse, filterChain);
   }
 
-  @Test(expected = ServletException.class)
+  @Test(expected = AuthenticationFailureException.class)
   public void testBadSigSamlCookie()
-      throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
-          SAXException, SecurityServiceException {
-    FilterConfig filterConfig = mock(FilterConfig.class);
+      throws IOException, ParserConfigurationException, SAXException, AuthenticationException {
     LoginFilter loginFilter = new LoginFilter();
     loginFilter.setSessionFactory(sessionFactory);
     ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
     loginFilter.setSecurityManager(securityManager);
     loginFilter.setSignaturePropertiesFile("signature.properties");
-    try {
-      loginFilter.init(filterConfig);
-    } catch (ServletException e) {
-      fail(e.getMessage());
-    }
-
+    loginFilter.init();
     HttpServletRequest servletRequest = new TestHttpServletRequest();
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
@@ -422,30 +390,32 @@ public class LoginFilterTest {
     }
 
     @Override
-    public boolean authenticate(HttpServletResponse httpServletResponse)
-        throws IOException, ServletException {
+    public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException {
       return false;
     }
 
     @Override
-    public void login(String s, String s1) throws ServletException {}
+    public void login(String s, String s1) {
+      // not needed
+    }
 
     @Override
-    public void logout() throws ServletException {}
+    public void logout() {
+      // not needed
+    }
 
     @Override
-    public Collection<Part> getParts() throws IOException, ServletException {
+    public Collection<Part> getParts() throws IOException {
       return null;
     }
 
     @Override
-    public Part getPart(String s) throws IOException, ServletException {
+    public Part getPart(String s) throws IOException {
       return null;
     }
 
     @Override
-    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass)
-        throws IOException, ServletException {
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) throws IOException {
       return null;
     }
 

@@ -24,12 +24,12 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Base64;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
