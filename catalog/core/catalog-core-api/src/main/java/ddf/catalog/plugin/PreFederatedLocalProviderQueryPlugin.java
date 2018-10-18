@@ -20,12 +20,11 @@ import ddf.catalog.source.SourceCache;
 import java.util.List;
 
 /**
- * A {@link PreFederatedLocalProviderQueryPlugin} is an abstract class implementing the {@link
- * PreFederatedQueryPlugin}. {@link PreFederatedQueryPlugin} that only apply for local source should
- * extend {@link PreFederatedLocalProviderQueryPlugin} This abstract class provide isLocalSource
- * method to check if a given source is a local source.
- *
- * @author lamhuy
+ * The {@link PreFederatedLocalProviderQueryPlugin} is an abstract class implementing the {@link
+ * PreFederatedQueryPlugin}. A {@link PreFederatedQueryPlugin} that applies only for local {@link
+ * Source}s should extend the {@link PreFederatedLocalProviderQueryPlugin}. This abstract class
+ * provides the {@link #isLocalSource} method to check if a given {@link Source} is a local {@link
+ * Source}.
  */
 public abstract class PreFederatedLocalProviderQueryPlugin implements PreFederatedQueryPlugin {
 

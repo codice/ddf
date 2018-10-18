@@ -17,15 +17,12 @@ import static com.jayway.restassured.RestAssured.given;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacardAndWait;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestXmlFromResourceAndWait;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforceValidityErrorsAndWarnings;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforcedMetacardValidators;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureValidationFilterPlugin;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -36,38 +33,28 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 
-import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
 import ddf.catalog.data.types.Validation;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
-import org.osgi.service.cm.Configuration;
 
 /**
- * Tests catalog validation This test was created to pull out 16 tests in TestCatalog that were
+ * Tests catalog validation. This test was created to pull out 16 tests in TestCatalog that were
  * starting/stopping the sample-validator each time. Since there is almost no overhead now for a new
  * class it is faster to just start the feature once for all 16 of the tests instead of toggling it
  * for each one.
@@ -78,27 +65,25 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
 
-  @Rule public TestName testName = new TestName();
+  private static final String SAMPLE_VALIDATOR = "sample-validator";
 
-  public static String getGetRecordByIdProductRetrievalUrl() {
-    return "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
-        + "http://www.opengis.net/cat/csw/2.0.2&"
-        + "outputFormat=application/octet-stream&outputSchema="
-        + "http://www.iana.org/assignments/media-types/application/octet-stream&"
-        + "id=placeholder_id";
-  }
+  private static final String CLEAN_METACARD =
+      XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml";
 
-  public static String getSimpleXml(String uri) {
-    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        + getFileContent(
-            XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard", ImmutableMap.of("uri", uri));
-  }
+  private static final String WARNING_METACARD =
+      XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml";
+
+  private static final String ERROR_METACARD =
+      XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml";
+
+  private static final String CSW_RECORD_XPATH =
+      "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]";
 
   @BeforeExam
-  public void beforeExam() throws Exception {
+  public void beforeExam() {
     try {
       waitForSystemReady();
-      getServiceManager().startFeature(true, "sample-validator");
+      getServiceManager().startFeature(true, SAMPLE_VALIDATOR);
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
@@ -106,12 +91,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Before
   public void setup() throws Exception {
-    configureShowInvalidMetacards("true", "true", getAdminConfig());
-    configureFilterInvalidMetacards("false", "false", getAdminConfig());
     configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
-    configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
-    configureValidationFilterPlugin(Arrays.asList("invalid-state=guest"), getAdminConfig());
+    configureFilterInvalidMetacards("false", "false", getAdminConfig());
+    configureMetacardValidityFilterPlugin(
+        Collections.singletonList("invalid-state=guest"), getAdminConfig());
     clearCatalogAndWait();
   }
 
@@ -119,14 +103,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   public void testEnforceValidityErrorsOnly() throws Exception {
     // Configure to enforce validator
     configureEnforcedMetacardValidators(
-        Collections.singletonList("sample-validator"), getAdminConfig());
+        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
 
     // Configure to enforce errors but not warnings
     configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
 
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceWaitForFailure(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceWaitForFailure(ERROR_METACARD);
 
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
@@ -149,14 +133,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   public void testEnforceValidityWarningsOnly() throws Exception {
     // Configure to enforce validator
     configureEnforcedMetacardValidators(
-        Collections.singletonList("sample-validator"), getAdminConfig());
+        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
 
     // Configure to enforce warnings but not errors
     configureEnforceValidityErrorsAndWarnings("false", "true", getAdminConfig());
 
-    ingestXmlFromResourceWaitForFailure(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+    ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
 
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
@@ -179,14 +163,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   public void testEnforceValidityErrorsAndWarnings() throws Exception {
     // Configure to enforce validator
     configureEnforcedMetacardValidators(
-        Collections.singletonList("sample-validator"), getAdminConfig());
+        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
 
     // Configure to enforce errors and warnings
     configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
 
-    ingestXmlFromResourceWaitForFailure(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceWaitForFailure(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+    ingestXmlFromResourceWaitForFailure(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceWaitForFailure(ERROR_METACARD);
 
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
@@ -212,14 +196,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   public void testNoEnforceValidityErrorsOrWarnings() throws Exception {
     // Configure to enforce validator
     configureEnforcedMetacardValidators(
-        Collections.singletonList("sample-validator"), getAdminConfig());
+        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
 
     // Configure to enforce neither errors nor warnings
     configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
 
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
 
     String query =
         new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
@@ -236,18 +220,15 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testQueryByErrorFailedValidators() throws Exception {
-    // Don't enforce the validator, so that it will be marked but ingested
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
-
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+  public void testQueryByErrorFailedValidators() {
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
 
     String query =
         new CswQueryBuilder()
             .addAttributeFilter(
-                PROPERTY_IS_LIKE, Validation.FAILED_VALIDATORS_ERRORS, "sample-validator")
+                PROPERTY_IS_LIKE, Validation.FAILED_VALIDATORS_ERRORS, SAMPLE_VALIDATOR)
             .getQuery();
     ValidatableResponse response =
         given()
@@ -262,18 +243,15 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testQueryByWarningFailedValidators() throws Exception {
-    // Don't enforce the validator, so that it will be marked but ingested
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
-
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+  public void testQueryByWarningFailedValidators() {
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
 
     String query =
         new CswQueryBuilder()
             .addAttributeFilter(
-                PROPERTY_IS_LIKE, Validation.FAILED_VALIDATORS_WARNINGS, "sample-validator")
+                PROPERTY_IS_LIKE, Validation.FAILED_VALIDATORS_WARNINGS, SAMPLE_VALIDATOR)
             .getQuery();
     ValidatableResponse response =
         given()
@@ -290,16 +268,13 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginWarningsOnly() throws Exception {
-    // Configure not enforcing validators so invalid metacards can ingest
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
-
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
+        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
 
     // Configure to filter metacards with validation warnings but not validation errors
     configureFilterInvalidMetacards("false", "true", getAdminConfig());
@@ -324,18 +299,12 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginErrorsOnly() throws Exception {
-    // Configure not enforcing validators so invalid metacards can ingest
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
 
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
-
-    // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
-
-    // Configure to filter metacards with validation errors but not validation warnings
+        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
     testWithRetry(
@@ -349,7 +318,6 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          // clean metacard should be in results but not invalid one
           response.body(not(containsString("error metacard")));
           response.body(containsString("clean metacard"));
           response.body(containsString("warning metacard"));
@@ -358,16 +326,13 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginWarningsAndErrors() throws Exception {
-    // Configure not enforcing validators so invalid metacards can ingest
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
-
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
+        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
 
     // configure to filter both metacards with validation errors and validation warnings
     configureFilterInvalidMetacards("true", "true", getAdminConfig());
@@ -383,7 +348,6 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          // clean metacard should be in results but not invalid one
           response.body(not(containsString("error metacard")));
           response.body(not(containsString("warning metacard")));
           response.body(containsString("clean metacard"));
@@ -392,16 +356,15 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginNoFiltering() throws Exception {
-    // Configure not enforcing validators so invalid metacards can ingest
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
+    ingestXmlFromResourceAndWait(ERROR_METACARD);
+    ingestXmlFromResourceAndWait(CLEAN_METACARD);
+    ingestXmlFromResourceAndWait(WARNING_METACARD);
 
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-    ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+    configureFilterInvalidMetacards("false", "false", getAdminConfig());
 
     // Configure invalid filtering
     configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
+        Collections.singletonList("invalid-state=not-any-users-roles"), getAdminConfig());
 
     testWithRetry(
         () -> {
@@ -414,7 +377,6 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          // clean metacard should be in results but not invalid one
           response.body(containsString("error metacard"));
           response.body(containsString("warning metacard"));
           response.body(containsString("clean metacard"));
@@ -422,403 +384,71 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testValidationEnforced() throws Exception {
-    // Update metacardMarkerPlugin config with enforcedMetacardValidators
-    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
-    configureEnforcedMetacardValidators(
-        Collections.singletonList("sample-validator"), getAdminConfig());
-
-    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    ingestXmlFromResourceWaitForFailure("/metacard2.xml");
-
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-
-    // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
-    // null"
-    // should get added by ValidationQueryFactory
-    String query =
-        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-    // Assert Metacard1 is in results AND not Metacard2
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-
-    // Search for all entries that have no validation warnings or errors
-    query =
-        new CswQueryBuilder()
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .getQuery();
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-    // Assert Metacard1 is in results AND not Metacard2
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-
-    // Search for all entries that have validation-warnings from sample-validator or no validation
-    // warnings
-    // Only search that will actually return all entries
-
-    query =
-        new CswQueryBuilder()
-            .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_WARNINGS, "*")
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .addLogicalOperator(OR)
-            .getQuery();
-
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-    // Assert Metacard1 and NOT metacard2 is in results
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-
-    // Search for all metacards that have validation-warnings
-    query =
-        new CswQueryBuilder()
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .addLogicalOperator("Not")
-            .getQuery();
-
-    response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(query)
-            .post(CSW_PATH.getUrl())
-            .then();
-    // Assert Metacard1 and metacard2 are NOT in results
-    response.body(
-        not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
-  }
-
-  @Test
-  public void testValidationUnenforced() throws Exception {
-    try {
-      getServiceManager().stopBundle("catalog-security-filter");
-
-      String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-      String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
-      // metacardMarkerPlugin has no enforcedMetacardValidators
-      // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
-      // null"
-      // should get added by ValidationQueryFactory
-      String query =
-          new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
-      ValidatableResponse response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard1 Metacard2 are in results
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-
-      // Search for all entries that have no validation warnings
-      query =
-          new CswQueryBuilder()
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-              .getQuery();
-      response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard1 is in results AND not Metacard2
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          not(
-              hasXPath(
-                  format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
-
-      // Search for all entries that have validation-warnings or no validation warnings
-      // Only search that will actually return all entries
-      query =
-          new CswQueryBuilder()
-              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_ERRORS, "*")
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
-              .addLogicalOperator(OR)
-              .getQuery();
-
-      response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard1 AND Metacard2 are in results
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-
-      // Search for all entries that are invalid
-      query =
-          new CswQueryBuilder()
-              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_ERRORS, "*")
-              .getQuery();
-
-      response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard2 is in results AND not Metacard1
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-      response.body(
-          not(
-              hasXPath(
-                  format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
-
-      query =
-          new CswQueryBuilder()
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
-              .addLogicalOperator(NOT)
-              .getQuery();
-
-      response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard2 is in results AND not Metacard1
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-      response.body(
-          not(
-              hasXPath(
-                  format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
-    } finally {
-      getServiceManager().startBundle("catalog-security-filter");
-    }
-  }
-
-  @Test
   public void testValidationEnforcedUpdate() throws Exception {
-    // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
+    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
+    testWithRetry(
+        () -> {
+          String query =
+              new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
+          ValidatableResponse response =
+              given()
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                  .body(query)
+                  .post(CSW_PATH.getUrl())
+                  .then();
 
-    // Enforce the sample metacard validator
+          response.body(containsString("error metacard"));
+          response.body(containsString("warning metacard"));
+        });
+
+    configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
+    configureFilterInvalidMetacards("true", "true", getAdminConfig());
+
     configureEnforcedMetacardValidators(
-        Collections.singletonList("sample-validator"), getAdminConfig());
+        Collections.singletonList(SAMPLE_VALIDATOR), getAdminConfig());
 
-    String metacard2Xml = getFileContent("metacard2.xml");
+    String errorMetacardXml = getFileContent(ERROR_METACARD);
     given()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(metacard2Xml)
-        .put(new DynamicUrl(REST_PATH, id1).getUrl())
+        .body(errorMetacardXml)
+        .put(new DynamicUrl(REST_PATH, errorId).getUrl())
         .then()
         .assertThat()
         .statusCode(HttpStatus.SC_BAD_REQUEST);
 
-    String metacard1Xml = getFileContent("metacard1.xml");
+    String warningMetacardXml = getFileContent(WARNING_METACARD);
     given()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(metacard1Xml)
-        .put(new DynamicUrl(REST_PATH, id2).getUrl())
+        .body(warningMetacardXml)
+        .put(new DynamicUrl(REST_PATH, warningId).getUrl())
         .then()
         .assertThat()
-        .statusCode(HttpStatus.SC_OK);
+        .statusCode(HttpStatus.SC_BAD_REQUEST);
 
-    String metacard1Path = format(METACARD_X_PATH, id1);
-    String metacard2Path = format(METACARD_X_PATH, id2);
+    String warningIdXpath = format(METACARD_X_PATH, warningId);
+    String errorIdXpath = format(METACARD_X_PATH, errorId);
 
     getOpenSearch("xml", null, null, "q=*")
         .log()
         .all()
         .assertThat()
-        .body(hasXPath(metacard1Path))
-        .body(hasXPath(metacard1Path + "/string[@name='title']/value", is("Metacard-1")))
-        .body(not(hasXPath(metacard1Path + "/string[@name='validation-errors']")))
-        .body(not(hasXPath(metacard1Path + "/string[@name='validation-warnings']")))
-        .body(hasXPath(metacard2Path))
-        .body(hasXPath(metacard2Path + "/string[@name='title']/value", is("Metacard-1")))
-        .body(not(hasXPath(metacard2Path + "/string[@name='validation-errors']")))
-        .body(not(hasXPath(metacard2Path + "/string[@name='validation-warnings']")));
+        .body(hasXPath(warningIdXpath))
+        .body(hasXPath(warningIdXpath + "/string[@name='title']/value", is("warning metacard")))
+        .body(hasXPath(warningIdXpath + "/string[@name='validation-warnings']"))
+        .body(not(hasXPath(warningIdXpath + "/string[@name='validation-errors']")))
+        .body(hasXPath(errorIdXpath))
+        .body(hasXPath(errorIdXpath + "/string[@name='title']/value", is("error metacard")))
+        .body(not(hasXPath(errorIdXpath + "/string[@name='validation-warnings']")))
+        .body(hasXPath(errorIdXpath + "/string[@name='validation-errors']"));
   }
 
   @Test
-  public void testValidationUnenforcedUpdate() throws Exception {
-    // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
+  public void testQueryingByValidationWarnings() throws Exception {
+    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
 
-    final String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    final String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-
-    String metacard2Xml = getFileContent("metacard2.xml");
-    given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(metacard2Xml)
-        .put(new DynamicUrl(REST_PATH, id1).getUrl())
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.SC_OK);
-
-    String metacard1Xml = getFileContent("metacard1.xml");
-    given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(metacard1Xml)
-        .put(new DynamicUrl(REST_PATH, id2).getUrl())
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.SC_OK);
-
-    configureShowInvalidMetacards("true", "true", getAdminConfig());
-
-    String metacard1Path = format(METACARD_X_PATH, id1);
-    String metacard2Path = format(METACARD_X_PATH, id2);
-
-    getOpenSearch("xml", null, null, "q=*")
-        .log()
-        .all()
-        .assertThat()
-        .body(hasXPath(metacard1Path))
-        .body(hasXPath(metacard1Path + "/string[@name='title']/value", is("Metacard-2")))
-        .body(
-            hasXPath(
-                "count(" + metacard1Path + "/string[@name='validation-errors']/value)", is("1")))
-        .body(
-            hasXPath(
-                "count(" + metacard1Path + "/string[@name='validation-warnings']/value)", is("1")))
-        .body(hasXPath(metacard2Path))
-        .body(hasXPath(metacard2Path + "/string[@name='title']/value", is("Metacard-1")))
-        .body(not(hasXPath(metacard2Path + "/string[@name='validation-errors']")))
-        .body(not(hasXPath(metacard2Path + "/string[@name='validation-warnings']")));
-  }
-
-  @Test
-  public void testValidationFiltering() throws Exception {
-    // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
-    // Configure the PDP
-    PdpProperties pdpProperties = new PdpProperties();
-    pdpProperties.put(
-        "matchOneMappings",
-        Arrays.asList("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"));
-    Configuration config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
-    Dictionary<String, ?> oldProps = config.getProperties();
-    Dictionary<String, ?> configProps = new Hashtable<>(pdpProperties);
-    config.update(configProps);
-
-    // Configure invalid filtering
-    configureMetacardValidityFilterPlugin(
-        Arrays.asList("invalid-state=data-manager"), getAdminConfig());
-    configureValidationFilterPlugin(Arrays.asList("invalid-state=data-manager"), getAdminConfig());
-
-    try {
-      String query =
-          new CswQueryBuilder()
-              .addAttributeFilter(PROPERTY_IS_LIKE, Validation.VALIDATION_ERRORS, "*")
-              .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
-              .addLogicalOperator(OR)
-              .getQuery();
-
-      ValidatableResponse response =
-          given()
-              .auth()
-              .preemptive()
-              .basic("localhost", "localhost")
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard2 is in results AND Metacard1
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-
-      response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard2 is in results Metacard1
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          not(
-              hasXPath(
-                  format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
-
-      // Configure invalid filtering
-      configureMetacardValidityFilterPlugin(
-          Arrays.asList("invalid-state=data-manager,guest"), getAdminConfig());
-      configureValidationFilterPlugin(
-          Arrays.asList("invalid-state=data-manager,guest"), getAdminConfig());
-
-      response =
-          given()
-              .auth()
-              .preemptive()
-              .basic("localhost", "localhost")
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard2 is in results AND Metacard1
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-
-      response =
-          given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-              .body(query)
-              .post(CSW_PATH.getUrl())
-              .then();
-      // Assert Metacard2 is in results Metacard1
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-      response.body(
-          hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
-
-    } finally {
-      config.update(oldProps);
-    }
-  }
-
-  @Test
-  public void testValidationChecker() throws Exception {
-    configureEnforcedMetacardValidators(Arrays.asList(""), getAdminConfig());
-
-    String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
-    String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
-
-    // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
-    // null"
-    // should get added by ValidationQueryFactory
     String query =
         new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
     ValidatableResponse response =
@@ -827,13 +457,10 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .body(query)
             .post(CSW_PATH.getUrl())
             .then();
-    // Assert Metacard1 is in results AND Metacard2 because showInvalidMetacards is true
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-    response.body(
-        (hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
 
-    // Search for all entries that have no validation warnings or errors
+    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
+
     query =
         new CswQueryBuilder()
             .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
@@ -844,20 +471,15 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .body(query)
             .post(CSW_PATH.getUrl())
             .then();
-    // Assert Metacard1 is in results AND not Metacard2
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-    response.body(
-        not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
 
-    // Search for all entries that have validation-warnings from sample-validator or no validation
-    // warnings
+    response.body(not(hasXPath(format(CSW_RECORD_XPATH, warningId))));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
 
     query =
         new CswQueryBuilder()
             .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_WARNINGS, "*")
-            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
             .addLogicalOperator(OR)
+            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
             .getQuery();
 
     response =
@@ -866,17 +488,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .body(query)
             .post(CSW_PATH.getUrl())
             .then();
-    // Assert Metacard1 and NOT metacard2 is in results
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
-    response.body(
-        not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
 
-    // Search for all metacards that have validation-warnings
+    response.body(not(hasXPath(format(CSW_RECORD_XPATH, warningId))));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
+
     query =
         new CswQueryBuilder()
+            .addLogicalOperator(NOT)
             .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
-            .addLogicalOperator("Not")
             .getQuery();
 
     response =
@@ -885,24 +504,82 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .body(query)
             .post(CSW_PATH.getUrl())
             .then();
-    // Assert Metacard2 and NOT metacard1 is in results
-    response.body(
-        not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
-    response.body(
-        hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
+
+    response.body(not(hasXPath(format(CSW_RECORD_XPATH, warningId))));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
+  }
+
+  @Test
+  public void testQueryingByValidationErrors() throws Exception {
+    String warningId = ingestXmlFromResourceAndWait(WARNING_METACARD);
+    String errorId = ingestXmlFromResourceAndWait(ERROR_METACARD);
+
+    String query =
+        new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
+    ValidatableResponse response =
+        given()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+            .body(query)
+            .post(CSW_PATH.getUrl())
+            .then();
+
+    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, errorId)));
+
+    query =
+        new CswQueryBuilder()
+            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
+            .getQuery();
+    response =
+        given()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+            .body(query)
+            .post(CSW_PATH.getUrl())
+            .then();
+
+    response.body(not(hasXPath(format(CSW_RECORD_XPATH, errorId))));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
+
+    query =
+        new CswQueryBuilder()
+            .addAttributeFilter(PROPERTY_IS_EQUAL_TO, Validation.VALIDATION_ERRORS, "*")
+            .addLogicalOperator(OR)
+            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
+            .getQuery();
+
+    response =
+        given()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+            .body(query)
+            .post(CSW_PATH.getUrl())
+            .then();
+
+    response.body(not(hasXPath(format(CSW_RECORD_XPATH, errorId))));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
+
+    query =
+        new CswQueryBuilder()
+            .addLogicalOperator(NOT)
+            .addPropertyIsNullAttributeFilter(Validation.VALIDATION_ERRORS)
+            .getQuery();
+
+    response =
+        given()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+            .body(query)
+            .post(CSW_PATH.getUrl())
+            .then();
+
+    response.body(not(hasXPath(format(CSW_RECORD_XPATH, errorId))));
+    response.body(hasXPath(format(CSW_RECORD_XPATH, warningId)));
   }
 
   /**
    * This method tries to ingest the given resource until it fails. This is needed because of the
    * async nature of setting configurations that would restrict/reject an ingest request.
-   *
-   * @param resourceName
-   * @return
-   * @throws IOException
    */
-  protected String ingestXmlFromResourceWaitForFailure(String resourceName) throws IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
+  private void ingestXmlFromResourceWaitForFailure(String resourcePath) {
+    String content = getFileContent(resourcePath);
     List<String> ids = new ArrayList<>();
     with()
         .pollInterval(1, SECONDS)
@@ -912,14 +589,13 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         .until(
             () -> {
               try {
-                ids.add(ingest(writer.toString(), "text/xml", true));
+                ids.add(ingest(content, "text/xml", true));
               } catch (AssertionError ae) {
                 return true;
               }
               return false;
             });
-    ids.stream().forEach(mcardId -> deleteMetacardAndWait(mcardId));
-    return null;
+    ids.forEach(CatalogTestCommons::deleteMetacardAndWait);
   }
 
   /**
@@ -929,11 +605,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
    * to let the configuration thread catch up. The Runnable.run() method will be called in each
    * attempt and all exceptions including AssertionErrors will be treated as a failed run and
    * retried.
-   *
-   * @param runnable
    */
   private void testWithRetry(Runnable runnable) {
-
     with()
         .pollInterval(1, SECONDS)
         .await()
@@ -944,26 +617,5 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               runnable.run();
               return true;
             });
-  }
-
-  public class PdpProperties extends HashMap<String, Object> {
-
-    public static final String SYMBOLIC_NAME = "security-pdp-authzrealm";
-
-    public static final String FACTORY_PID = "ddf.security.pdp.realm.AuthzRealm";
-
-    public PdpProperties() {
-      this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-    }
-  }
-
-  public class CatalogPolicyProperties extends HashMap<String, Object> {
-    public static final String SYMBOLIC_NAME = "catalog-security-policyplugin";
-
-    public static final String FACTORY_PID = "org.codice.ddf.catalog.security.CatalogPolicy";
-
-    public CatalogPolicyProperties() {
-      this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-    }
   }
 }

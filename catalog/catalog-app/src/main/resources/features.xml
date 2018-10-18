@@ -88,7 +88,6 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-validationfilterplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-solrcommands/${project.version}</bundle>
