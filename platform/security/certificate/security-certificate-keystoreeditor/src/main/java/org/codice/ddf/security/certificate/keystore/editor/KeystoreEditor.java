@@ -444,7 +444,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         throw new IllegalArgumentException("Alias cannot be null.");
       }
       KeyStore ks = null;
-      if (StringUtils.endsWithIgnoreCase(keystoreFileName, ".p12")) {
+      if (StringUtils.endsWithIgnoreCase(keystoreFileName, ".p12")
+          || StringUtils.endsWithIgnoreCase(keystoreFileName, ".pfx")) {
         ks = KeyStore.getInstance("PKCS12");
       } else if (StringUtils.endsWithIgnoreCase(keystoreFileName, ".jks")) {
         ks = KeyStore.getInstance("jks");
