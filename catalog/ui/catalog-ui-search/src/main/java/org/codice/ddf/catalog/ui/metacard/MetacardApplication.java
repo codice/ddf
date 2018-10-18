@@ -470,7 +470,7 @@ public class MetacardApplication implements SparkApplication {
           List<String> subjectRoles = getSubjectRoles();
           Map<String, Collection<String>> attributeMap = new HashMap<>();
           if (email != null) {
-            attributeMap.put(Metacard.OWNER, Collections.singletonList(email));
+            attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
             attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
             attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
             attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));

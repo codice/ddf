@@ -176,8 +176,8 @@ public class EndpointUtil {
 
   public Metacard getMetacardById(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
-    Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
+    Filter idFilter = filterBuilder.attribute(Core.ID).is().equalTo().text(id);
+    Filter tagsFilter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text("*");
     Filter filter = filterBuilder.allOf(idFilter, tagsFilter);
 
     QueryResponse queryResponse =
@@ -200,7 +200,7 @@ public class EndpointUtil {
   }
 
   public Map<String, Result> getMetacardsByTag(String tagStr) {
-    Filter filter = filterBuilder.attribute(Metacard.TAGS).is().like().text(tagStr);
+    Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tagStr);
 
     ResultIterable resultIterable =
         resultIterable(
@@ -228,7 +228,7 @@ public class EndpointUtil {
   public Map<String, Result> getMetacardsWithTagByLikeAttributes(
       Map<String, Collection<String>> attributeMap, String tagStr) {
     return getMetacardsWithTagByLikeAttributes(
-        attributeMap, filterBuilder.attribute(Metacard.TAGS).is().like().text(tagStr));
+        attributeMap, filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tagStr));
   }
 
   public Map<String, Result> getMetacardsWithTagByLikeAttributes(
@@ -267,11 +267,11 @@ public class EndpointUtil {
   }
 
   public Map<String, Result> getMetacardsWithTagById(Collection<String> ids, String tagFilter) {
-    return getMetacardsWithTagByAttributes(Metacard.ID, ids, tagFilter);
+    return getMetacardsWithTagByAttributes(Core.ID, ids, tagFilter);
   }
 
   public Map<String, Result> getMetacardsWithTagById(Collection<String> ids, Filter tagFilter) {
-    return getMetacardsWithTagByAttributes(Metacard.ID, ids, tagFilter);
+    return getMetacardsWithTagByAttributes(Core.ID, ids, tagFilter);
   }
 
   public Map<String, Result> getMetacardsWithTagByAttributes(
@@ -279,7 +279,7 @@ public class EndpointUtil {
     return getMetacardsWithTagByAttributes(
         attributeName,
         attributeValues,
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(tag));
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tag));
   }
 
   public Map<String, Result> getMetacardsWithTagByAttributes(
@@ -326,8 +326,7 @@ public class EndpointUtil {
       if (isExactMatch) {
         filters.add(filterBuilder.attribute(attributeName).is().equalTo().text(value));
       } else {
-        Filter f = filterBuilder.attribute(attributeName).is().like().text(value);
-        filters.add(f);
+        filters.add(filterBuilder.attribute(attributeName).is().like().text(value));
       }
     }
 
@@ -577,7 +576,7 @@ public class EndpointUtil {
 
   private boolean handleThumbnail(
       Metacard metacard, Map<String, Object> result, AttributeDescriptor descriptor) {
-    if (Metacard.THUMBNAIL.equals(descriptor.getName())) {
+    if (Core.THUMBNAIL.equals(descriptor.getName())) {
       if (metacard.getThumbnail() != null) {
         result.put(
             descriptor.getName(), Base64.getEncoder().encodeToString(metacard.getThumbnail()));

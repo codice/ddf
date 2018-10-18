@@ -40,6 +40,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.EqualityExpressionBuilder;
@@ -196,7 +197,7 @@ public class EndpointUtilTest {
     ArgumentCaptor<List> capturedFilterList = ArgumentCaptor.forClass(List.class);
 
     Map<String, List<String>> attributeMapMock = new HashMap<>();
-    attributeMapMock.put(Metacard.OWNER, Collections.singletonList(ownerEmail));
+    attributeMapMock.put(Core.METACARD_OWNER, Collections.singletonList(ownerEmail));
     attributeMapMock.put(ACCESS_ADMINISTRATORS, Collections.singletonList(ownerEmail));
     attributeMapMock.put(ACCESS_GROUPS_READ, Collections.singletonList("guest"));
     attributeMapMock.put(ACCESS_GROUPS, Collections.singletonList("admin"));
@@ -217,7 +218,7 @@ public class EndpointUtilTest {
     Map<String, Collection<String>> attributeMap = new HashMap<>();
 
     // Only match on owner email
-    attributeMap.put(Metacard.OWNER, Collections.singletonList(ownerEmail));
+    attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(ownerEmail));
     endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
     verify(filterBuilderMock).anyOf(capturedFilterList.capture());
     assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
