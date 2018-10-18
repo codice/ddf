@@ -93,18 +93,9 @@ module.exports = function (load, options) {
   var opts = options || {}
 
   var findMavenRoot = function (path) {
-    var found = false
-
-    return path
-      .split(p.sep)
-      .filter(function (dir) {
-        if (dir === 'src') {
-          found = true
-        }
-
-        return !found
-      })
-      .join(p.sep)
+    const nodes = path.split(p.sep)
+    const n = nodes.lastIndexOf('src')
+    return nodes.slice(0, n).join(p.sep)
   }
 
   // filter out unneeded dependencies
