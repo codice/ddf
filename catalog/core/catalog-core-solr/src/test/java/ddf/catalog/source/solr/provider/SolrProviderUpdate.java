@@ -13,6 +13,11 @@
  */
 package ddf.catalog.source.solr.provider;
 
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.ONE_HIT;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.create;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBuilder;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.update;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -36,6 +41,8 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.AbstractMap;
@@ -48,9 +55,17 @@ import java.util.Map;
 import java.util.Set;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SolrProviderUpdate extends SolrProviderTestBase {
+public class SolrProviderUpdate {
+
+  private static SolrCatalogProvider provider;
+
+  @BeforeClass
+  public static void setUp() {
+    provider = SolrProviderTest.getProvider();
+  }
 
   /** Testing that if records are properly updated. */
   @Test
@@ -58,17 +73,17 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
     // Single Update
 
-    deleteAll();
+    deleteAll(provider);
 
     MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-    CreateResponse createResponse = create(metacard);
+    CreateResponse createResponse = create(metacard, provider);
 
     String id = createResponse.getCreatedMetacards().get(0).getId();
 
     metacard.setContentTypeName("newContentType");
 
-    UpdateResponse response = update(id, metacard);
+    UpdateResponse response = update(id, metacard, provider);
 
     Update update = response.getUpdatedMetacards().get(0);
 
@@ -86,11 +101,11 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test
   public void testUpdatePartial() throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-    CreateResponse createResponse = create(metacard);
+    CreateResponse createResponse = create(metacard, provider);
 
     String id = createResponse.getCreatedMetacards().get(0).getId();
 
@@ -98,7 +113,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
     String[] ids = {id, "no_such_record"};
 
-    UpdateResponse response = update(ids, Arrays.asList(metacard, metacard));
+    UpdateResponse response = update(ids, Arrays.asList(metacard, metacard), provider);
 
     assertEquals(1, response.getUpdatedMetacards().size());
   }
@@ -107,7 +122,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test(expected = IngestException.class)
   public void testUpdateNull() throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     provider.update(null);
 
@@ -118,7 +133,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test
   public void testUpdateNullList() throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     UpdateResponse response = provider.update(new UpdateRequestImpl(null, Metacard.ID, null));
 
@@ -129,7 +144,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test
   public void testUpdateEmptyList() throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     UpdateResponse response =
         provider.update(new UpdateRequestImpl(new ArrayList<>(), Metacard.ID, null));
@@ -139,7 +154,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
   @Test
   public void testUpdateByMetacardId() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
     MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
@@ -155,7 +170,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
     List<Metacard> list = Arrays.asList(metacard1, metacard2);
 
-    CreateResponse createResponse = create(list);
+    CreateResponse createResponse = create(list, provider);
 
     List<String> responseStrings = MockMetacard.toStringList(createResponse.getCreatedMetacards());
 
@@ -177,12 +192,13 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
     String[] ids = {metacard1.getId(), metacard2.getId()};
 
-    UpdateResponse updateResponse = update(ids, list);
+    UpdateResponse updateResponse = update(ids, list, provider);
     verifyUpdates(uri1, uri2, updateResponse);
 
     // READ
     QueryImpl query =
-        new QueryImpl(filterBuilder.attribute(Metacard.RESOURCE_URI).is().equalTo().text(uri2));
+        new QueryImpl(
+            getFilterBuilder().attribute(Metacard.RESOURCE_URI).is().equalTo().text(uri2));
     query.setRequestsTotalResultsCount(true);
 
     QueryRequestImpl queryRequest = new QueryRequestImpl(query);
@@ -331,7 +347,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
   private void verifyAttributeUpdate(String attributeName, Serializable updatedValue)
       throws Exception {
-    deleteAll();
+    deleteAll(provider);
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(0);
 
@@ -339,13 +355,13 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
     MockMetacard metacard1 =
         new MockMetacard(Library.getFlagstaffRecord(), MetacardImpl.BASIC_METACARD, calendar);
     metacard1.setResourceURI(new URI("http://youwillfindme.com/here"));
-    create(metacard1);
+    create(metacard1, provider);
 
     // UPDATE
     MockMetacard updatedMetacard1 =
         new MockMetacard(Library.getTampaRecord(), MetacardImpl.BASIC_METACARD, calendar);
     updatedMetacard1.setAttribute(attributeName, updatedValue);
-    UpdateResponse updateResponse = update(metacard1.getId(), updatedMetacard1);
+    UpdateResponse updateResponse = update(metacard1.getId(), updatedMetacard1, provider);
 
     // VERIFY
     assertEquals(
@@ -415,11 +431,11 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test
   public void testUpdateOperationWithNoResults() throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-    UpdateResponse response = update("BAD_ID", metacard);
+    UpdateResponse response = update("BAD_ID", metacard, provider);
 
     assertEquals(0, response.getUpdatedMetacards().size());
   }
@@ -428,11 +444,11 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test
   public void testUpdateAlternativeAttribute() throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     final MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-    create(metacard);
+    create(metacard, provider);
 
     UpdateResponse response =
         provider.update(
@@ -496,7 +512,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   public void testUpdateNonUniqueAttributeValue()
       throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     MockMetacard m1 = new MockMetacard(Library.getFlagstaffRecord());
     MockMetacard m2 = new MockMetacard(Library.getFlagstaffRecord());
@@ -504,7 +520,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
     List<Metacard> list = Arrays.asList(m1, m2, m3);
 
-    create(list);
+    create(list, provider);
 
     provider.update(
         new UpdateRequest() {
@@ -561,14 +577,14 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   public void testUpdateNonUniqueAttributeValue2()
       throws IngestException, UnsupportedQueryException {
 
-    deleteAll();
+    deleteAll(provider);
 
     MockMetacard m1 = new MockMetacard(Library.getFlagstaffRecord());
     MockMetacard m2 = new MockMetacard(Library.getFlagstaffRecord());
 
     List<Metacard> list = Arrays.asList(m1, m2);
 
-    create(list);
+    create(list, provider);
 
     provider.update(
         new UpdateRequest() {
@@ -664,7 +680,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   /** Testing update operation of unknown attribute. */
   @Test(expected = IngestException.class)
   public void testUpdateUnknownAttribute() throws IngestException, UnsupportedQueryException {
-    deleteAll();
+    deleteAll(provider);
 
     provider.update(
         new UpdateRequest() {
@@ -714,23 +730,23 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
 
   @Test
   public void testUpdatePendingNrtIndex() throws Exception {
-    deleteAll();
+    deleteAll(provider);
     ConfigurationStore.getInstance().setForceAutoCommit(false);
 
     try {
       MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-      CreateResponse createResponse = create(metacard);
+      CreateResponse createResponse = create(metacard, provider);
 
       String id = createResponse.getCreatedMetacards().get(0).getId();
 
       MockMetacard updatedMetacard = new MockMetacard(Library.getFlagstaffRecord());
       updatedMetacard.setContentTypeName("first");
-      UpdateResponse firstUpdateResponse = update(id, updatedMetacard);
+      UpdateResponse firstUpdateResponse = update(id, updatedMetacard, provider);
 
       updatedMetacard = new MockMetacard(Library.getFlagstaffRecord());
       updatedMetacard.setContentTypeName("second");
-      UpdateResponse secondUpdateResponse = update(id, updatedMetacard);
+      UpdateResponse secondUpdateResponse = update(id, updatedMetacard, provider);
 
       verifyContentTypeUpdate(firstUpdateResponse, MockMetacard.DEFAULT_TYPE, "first");
       verifyContentTypeUpdate(secondUpdateResponse, "first", "second");

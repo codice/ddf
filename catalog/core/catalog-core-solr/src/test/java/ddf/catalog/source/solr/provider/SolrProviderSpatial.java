@@ -13,6 +13,10 @@
  */
 package ddf.catalog.source.solr.provider;
 
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.create;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBuilder;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.update;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
@@ -32,6 +36,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrProviderTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,6 +49,7 @@ import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.UomOgcMapping;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.opengis.filter.Filter;
@@ -52,7 +59,7 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SolrProviderSpatial extends SolrProviderTestBase {
+public class SolrProviderSpatial {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderSpatial.class);
 
@@ -60,10 +67,17 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   private final FilterFactory filterFactory = new FilterFactoryImpl();
 
+  private static SolrCatalogProvider provider;
+
+  @BeforeClass
+  public static void setUp() {
+    provider = SolrProviderTest.getProvider();
+  }
+
   @Test
   public void testSpatialPointRadius() throws Exception {
 
-    deleteAll();
+    deleteAll(provider);
     MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
     MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
     MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
@@ -76,9 +90,9 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     List<Metacard> list = Arrays.asList(metacard1, metacard2, metacard3);
 
     // CREATE
-    create(list);
+    create(list, provider);
 
-    Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text("*");
+    Filter filter = getFilterBuilder().attribute(Metacard.ID).is().like().text("*");
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertEquals("Failed to find all records.", 3, sourceResponse.getResults().size());
 
@@ -156,7 +170,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSortedPointRadiusWithComplexQuery() throws Exception {
-    deleteAll();
+    deleteAll(provider);
     MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
     MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
     MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
@@ -172,20 +186,21 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     List<Metacard> list = Arrays.asList(metacard1, metacard2, metacard3);
 
     // CREATE
-    create(list);
+    create(list, provider);
 
     // create a filter that has spatial and content type criteria
-    Filter contentFilter = filterBuilder.attribute(Metacard.CONTENT_TYPE).is().text("product");
+    Filter contentFilter = getFilterBuilder().attribute(Metacard.CONTENT_TYPE).is().text("product");
     Filter spatialFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
 
     Filter finalFilter =
-        filterBuilder.allOf(
-            filterBuilder.attribute(Metacard.ANY_TEXT).like().text("flagstaff"),
-            filterBuilder.allOf(contentFilter, spatialFilter));
+        getFilterBuilder()
+            .allOf(
+                getFilterBuilder().attribute(Metacard.ANY_TEXT).like().text("flagstaff"),
+                getFilterBuilder().allOf(contentFilter, spatialFilter));
 
     // sort by distance
     QueryImpl query = new QueryImpl(finalFilter);
@@ -201,7 +216,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSpatialNearestNeighbor() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
     MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
@@ -213,11 +228,11 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     metacard3.setLocation(Library.SHOW_LOW_AIRPORT_POINT_WKT);
 
     List<Metacard> list = Arrays.asList(metacard1, metacard2, metacard3);
-    create(list);
+    create(list, provider);
 
     // Ascending
     Filter positiveFilter =
-        filterBuilder.attribute(Metacard.GEOGRAPHY).beyond().wkt(Library.PHOENIX_POINT_WKT, 0);
+        getFilterBuilder().attribute(Metacard.GEOGRAPHY).beyond().wkt(Library.PHOENIX_POINT_WKT, 0);
     QueryImpl query = new QueryImpl(positiveFilter);
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -258,7 +273,10 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
     // Using WKT polygon
     positiveFilter =
-        filterBuilder.attribute(Metacard.GEOGRAPHY).beyond().wkt(Library.ARIZONA_POLYGON_WKT, 0);
+        getFilterBuilder()
+            .attribute(Metacard.GEOGRAPHY)
+            .beyond()
+            .wkt(Library.ARIZONA_POLYGON_WKT, 0);
     query = new QueryImpl(positiveFilter);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -281,12 +299,12 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
   @Test
   public void testSpatialDistanceWithinPolygon() throws Exception {
     Filter positiveFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .withinBuffer()
             .wkt(Library.ARIZONA_POLYGON_WKT, 50 * METERS_PER_KM);
     Filter negativeFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .withinBuffer()
             .wkt(Library.ARIZONA_POLYGON_WKT, 10 * METERS_PER_KM);
@@ -295,13 +313,13 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSpatialDistanceCalculationExactPoint() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     // given
     double radiusInKilometers = 50;
     double radiusInMeters = radiusInKilometers * METERS_PER_KM;
     Filter positiveFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .withinBuffer()
             .wkt(Library.LAS_VEGAS_POINT_WKT, radiusInMeters);
@@ -310,7 +328,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     metacard.setLocation(Library.LAS_VEGAS_POINT_WKT);
     List<Metacard> list = Collections.singletonList(metacard);
 
-    create(list);
+    create(list, provider);
 
     QueryImpl query = new QueryImpl(positiveFilter);
     query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
@@ -348,13 +366,13 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   private void spatialDistanceCalculationBetweenTwoPoints(String attribute, String sortBy)
       throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     // given
     double radiusInKilometers = 500;
     double radiusInMeters = radiusInKilometers * METERS_PER_KM;
     Filter positiveFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(attribute)
             .withinBuffer()
             .wkt(Library.PHOENIX_POINT_WKT, radiusInMeters);
@@ -377,7 +395,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     metacard.setAttribute(attribute, Library.LAS_VEGAS_POINT_WKT);
     List<Metacard> list = Collections.singletonList(metacard);
 
-    create(list);
+    create(list, provider);
 
     QueryImpl query = new QueryImpl(positiveFilter);
     query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(sortBy, SortOrder.ASCENDING));
@@ -415,9 +433,9 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
   @Test
   public void testSpatialWithin() throws Exception {
     Filter positiveFilter =
-        filterBuilder.attribute(Metacard.GEOGRAPHY).within().wkt(Library.ARIZONA_POLYGON_WKT);
+        getFilterBuilder().attribute(Metacard.GEOGRAPHY).within().wkt(Library.ARIZONA_POLYGON_WKT);
     Filter negativeFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .within()
             .wkt(Library.GULF_OF_GUINEA_POLYGON_WKT);
@@ -426,18 +444,18 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSpatialQueryWithClockwiseRectangle() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
     metacard.setLocation(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
     List<Metacard> list = Collections.singletonList(metacard);
 
     // CREATE
-    create(list);
+    create(list, provider);
 
     // POSITIVE
     Filter filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.CLOCKWISE_ARIZONA_RECTANGLE_WKT);
@@ -454,17 +472,17 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSpatialQueryAcrossInternationalDateLine() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
     metacard.setLocation(Library.MIDWAY_ISLANDS_POINT_WKT);
     List<Metacard> list = Collections.singletonList(metacard);
 
-    create(list);
+    create(list, provider);
 
     // POSITIVE - Counter Clockwise Orientation
     Filter filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT);
@@ -480,7 +498,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
     // POSITIVE - Clockwise Orientation
     filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT);
@@ -496,7 +514,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
     // NEGATIVE
     filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT);
@@ -507,17 +525,17 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSpatialCreateAndUpdateWithClockwiseRectangle() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     // CREATE
     MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
     metacard.setLocation(Library.CLOCKWISE_ARIZONA_RECTANGLE_WKT);
 
-    CreateResponse createResponse = create(Collections.singletonList(metacard));
+    CreateResponse createResponse = create(Collections.singletonList(metacard), provider);
     assertEquals(1, createResponse.getCreatedMetacards().size());
 
     Filter filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
@@ -530,11 +548,12 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     updatedMetacard.setLocation(Library.CLOCKWISE_ARIZONA_RECTANGLE_WKT);
 
     String[] ids = {metacard.getId()};
-    UpdateResponse updateResponse = update(ids, Collections.singletonList(updatedMetacard));
+    UpdateResponse updateResponse =
+        update(ids, Collections.singletonList(updatedMetacard), provider);
     assertEquals(1, updateResponse.getUpdatedMetacards().size());
 
     filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
@@ -545,18 +564,18 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testSpatialQueryWithCounterClockwiseRectangle() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
     metacard.setLocation(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
     List<Metacard> list = Collections.singletonList(metacard);
 
     // CREATE
-    create(list);
+    create(list, provider);
 
     // POSITIVE
     Filter filter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .intersecting()
             .wkt(Library.COUNTERCLOCKWISE_ARIZONA_RECTANGLE_WKT);
@@ -718,12 +737,12 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
   @Test
   public void testSpatialPolygonContainsPoint() throws Exception {
     Filter positiveFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .containing()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
     Filter negativeFilter =
-        filterBuilder
+        getFilterBuilder()
             .attribute(Metacard.GEOGRAPHY)
             .containing()
             .wkt(Library.GULF_OF_GUINEA_POINT_WKT);
@@ -733,40 +752,45 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
   @Test
   public void testSpatialAnyGeo() throws Exception {
     Filter positiveFilter =
-        filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(Library.ARIZONA_POLYGON_WKT);
+        getFilterBuilder().attribute(Metacard.ANY_GEO).within().wkt(Library.ARIZONA_POLYGON_WKT);
     Filter negativeFilter =
-        filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(Library.GULF_OF_GUINEA_POLYGON_WKT);
+        getFilterBuilder()
+            .attribute(Metacard.ANY_GEO)
+            .within()
+            .wkt(Library.GULF_OF_GUINEA_POLYGON_WKT);
     testSpatialWithWkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT, positiveFilter, negativeFilter);
   }
 
   private void testSpatialWithinWithWkt(String metacardWkt, String positiveWkt, String negativeWkt)
       throws Exception {
-    Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(positiveWkt);
-    Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(negativeWkt);
+    Filter positiveFilter =
+        getFilterBuilder().attribute(Metacard.ANY_GEO).within().wkt(positiveWkt);
+    Filter negativeFilter =
+        getFilterBuilder().attribute(Metacard.ANY_GEO).within().wkt(negativeWkt);
     testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
   }
 
   private void testSpatialIntersectsWithWkt(
       String metacardWkt, String positiveWkt, String negativeWkt) throws Exception {
     Filter positiveFilter =
-        filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(positiveWkt);
+        getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(positiveWkt);
     Filter negativeFilter =
-        filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(negativeWkt);
+        getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(negativeWkt);
     testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
 
-    positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(metacardWkt);
+    positiveFilter = getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(metacardWkt);
     testSpatialWithWkt(positiveWkt, positiveFilter, negativeFilter);
   }
 
   private void testSpatialWithWkt(String metacardWkt, Filter positiveFilter, Filter negativeFilter)
       throws Exception {
-    deleteAll(4);
+    deleteAll(4, provider);
 
     MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
     metacard.setLocation(metacardWkt);
     List<Metacard> list = Collections.singletonList(metacard);
 
-    create(list);
+    create(list, provider);
 
     SourceResponse sourceResponse =
         provider.query(new QueryRequestImpl(new QueryImpl(positiveFilter)));
