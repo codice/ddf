@@ -65,7 +65,6 @@ define([
         this.startListeningToSearch()
       }
       this.handleResult()
-      QueryConfirmationView = require('component/confirmation/query/confirmation.query.view')
       this.$el.toggleClass(
         'is-archive-searchable',
         !properties.isArchiveSearchEnabled()
