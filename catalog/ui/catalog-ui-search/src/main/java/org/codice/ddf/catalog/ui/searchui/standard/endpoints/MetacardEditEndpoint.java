@@ -70,7 +70,7 @@ public class MetacardEditEndpoint {
       @PathParam("attribute") String attribute)
       throws MetacardEndpointException {
     try {
-      Metacard metacard = endpointUtil.getMetacard(id);
+      Metacard metacard = endpointUtil.getMetacardById(id);
       Attribute metacardAttribute = metacard.getAttribute(attribute);
       if (metacardAttribute == null) {
         return Response.status(200).build();
@@ -99,7 +99,7 @@ public class MetacardEditEndpoint {
       String value)
       throws MetacardEndpointException {
     try {
-      Metacard metacard = endpointUtil.getMetacard(id);
+      Metacard metacard = endpointUtil.getMetacardById(id);
       if (metacard == null) {
         return Response.status(404).build();
       }
@@ -149,7 +149,7 @@ public class MetacardEditEndpoint {
       byte[] value)
       throws MetacardEndpointException {
     try {
-      Metacard metacard = endpointUtil.getMetacard(id);
+      Metacard metacard = endpointUtil.getMetacardById(id);
       if (metacard == null) {
         return Response.status(404).build();
       }
@@ -202,7 +202,7 @@ public class MetacardEditEndpoint {
       String value)
       throws MetacardEndpointException {
     try {
-      Metacard metacard = endpointUtil.getMetacard(id);
+      Metacard metacard = endpointUtil.getMetacardById(id);
       Attribute metacardAttribute = metacard.getAttribute(attribute);
 
       if (metacardAttribute == null) {

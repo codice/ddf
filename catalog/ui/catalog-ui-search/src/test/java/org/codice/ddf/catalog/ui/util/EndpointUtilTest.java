@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.util;
 
+import static ddf.catalog.data.types.Security.ACCESS_ADMINISTRATORS;
+import static ddf.catalog.data.types.Security.ACCESS_GROUPS;
+import static ddf.catalog.data.types.Security.ACCESS_GROUPS_READ;
+import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS;
+import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS_READ;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -21,6 +26,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.action.ActionRegistry;
@@ -33,6 +40,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.EqualityExpressionBuilder;
@@ -45,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +64,8 @@ import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.cql.CqlResult;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 
@@ -149,7 +160,7 @@ public class EndpointUtilTest {
     // exhausted
     when(responseMock.getResults()).thenReturn(resultList, resultList, emptyList);
 
-    Map<String, Result> result = endpointUtil.getMetacardsByFilter(tagFilter);
+    Map<String, Result> result = endpointUtil.getMetacardsByTag(tagFilter);
 
     assertThat(result.keySet(), hasSize(expected));
   }
@@ -171,14 +182,90 @@ public class EndpointUtilTest {
     when(filterBuilderMock.attribute(attributeName).is().equalTo())
         .thenReturn(mock(EqualityExpressionBuilder.class));
     when(filterBuilderMock.anyOf(anyList())).thenReturn(mock(Or.class));
+    when(filterBuilderMock.allOf(any(Filter.class), any(Filter.class))).thenReturn(mock(And.class));
 
-    Map<String, Result> result = endpointUtil.getMetacards(attributeName, ids, tagFilter);
+    Map<String, Result> result =
+        endpointUtil.getMetacardsWithTagByAttributes(attributeName, ids, tagFilter);
 
     assertThat(result.keySet(), hasSize(expected));
   }
 
+  @Test
+  public void testGetMetacardsByTagWithLikeAttributes() throws Exception {
+
+    String ownerEmail = "doNoReply@xyz.com";
+    ArgumentCaptor<List> capturedFilterList = ArgumentCaptor.forClass(List.class);
+
+    Map<String, List<String>> attributeMapMock = new HashMap<>();
+    attributeMapMock.put(Core.METACARD_OWNER, Collections.singletonList(ownerEmail));
+    attributeMapMock.put(ACCESS_ADMINISTRATORS, Collections.singletonList(ownerEmail));
+    attributeMapMock.put(ACCESS_GROUPS_READ, Collections.singletonList("guest"));
+    attributeMapMock.put(ACCESS_GROUPS, Collections.singletonList("admin"));
+    attributeMapMock.put(ACCESS_INDIVIDUALS, Collections.singletonList(ownerEmail));
+    attributeMapMock.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(ownerEmail));
+
+    Filter tagFilter = mock(Filter.class);
+    List<Result> emptyList = populateResultMockList(0);
+
+    when(responseMock.getResults()).thenReturn(emptyList);
+    for (String attributeName : attributeMapMock.keySet()) {
+      when(filterBuilderMock.attribute(attributeName).is().equalTo())
+          .thenReturn(mock(EqualityExpressionBuilder.class));
+    }
+    when(filterBuilderMock.anyOf(anyList())).thenReturn(mock(Or.class));
+    when(filterBuilderMock.allOf(any(Filter.class), any(Filter.class))).thenReturn(mock(And.class));
+
+    Map<String, Collection<String>> attributeMap = new HashMap<>();
+
+    // Only match on owner email
+    attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(ownerEmail));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
+
+    // Add individual access email match
+    attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(ownerEmail));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock, times(2)).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(2));
+
+    // Add individual read only email match
+    attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(ownerEmail));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock, times(3)).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(3));
+
+    // Admistrator match
+    attributeMap.clear();
+    attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(ownerEmail));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock, times(4)).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
+
+    // Group read only match
+    attributeMap.clear();
+    attributeMap.put(ACCESS_GROUPS_READ, Collections.singletonList(ownerEmail));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock, times(5)).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(1));
+
+    // Group read and write match
+    attributeMap.put(ACCESS_GROUPS, Collections.singletonList(ownerEmail));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock, times(6)).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(2));
+
+    // Multiple Group match
+    attributeMap.clear();
+    attributeMap.put(ACCESS_GROUPS_READ, new ArrayList<>(Arrays.asList("guest", "admin")));
+    attributeMap.put(ACCESS_GROUPS, new ArrayList<>(Arrays.asList("guest", "admin")));
+    endpointUtil.getMetacardsWithTagByLikeAttributes(attributeMap, tagFilter);
+    verify(filterBuilderMock, times(9)).anyOf(capturedFilterList.capture());
+    assertThat((List<Filter>) capturedFilterList.getValue(), hasSize(2));
+  }
+
   private List<Result> populateResultMockList(int size) {
-    return populateResultMockList(size, null);
+    return populateResultMockList(size, (String) null);
   }
 
   // this method will return Metacards with an attribute if the attribute parameter is specified

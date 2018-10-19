@@ -126,7 +126,7 @@ public class SearchFormsApplication implements SparkApplication {
     get(
         "/forms/query",
         (req, res) ->
-            util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
+            util.getMetacardsByTag(QUERY_TEMPLATE_TAG)
                 .values()
                 .stream()
                 .map(Result::getMetacard)
@@ -140,7 +140,7 @@ public class SearchFormsApplication implements SparkApplication {
     get(
         "/forms/result",
         (req, res) ->
-            util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)
+            util.getMetacardsByTag(ATTRIBUTE_GROUP_TAG)
                 .values()
                 .stream()
                 .map(Result::getMetacard)
