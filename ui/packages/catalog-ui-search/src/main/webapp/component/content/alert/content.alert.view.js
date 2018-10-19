@@ -32,37 +32,32 @@ const alertInstance = require('component/alert/alert')
 const ResultSelectorView = require('component/result-selector/result-selector.view')
 const VisualizationView = require('component/golden-layout/golden-layout.view')
 
-module.exports =  ContentView.extend({
-    className: 'is-alert',
-    initialize: function() {
-      this._mapView = new VisualizationView({
+module.exports = ContentView.extend({
+  className: 'is-alert',
+  initialize: function() {
+    this._mapView = new VisualizationView({
+      selectionInterface: alertInstance,
+      configName: 'goldenLayoutAlert',
+    })
+  },
+  onFirstRender() {
+    this.listenTo(alertInstance, 'change:currentAlert', this.updateContentLeft)
+  },
+  onRender: function() {
+    this.updateContentLeft()
+    if (this._mapView) {
+      this.contentRight.show(this._mapView)
+    }
+  },
+  updateContentLeft: function() {
+    this.contentLeft.show(
+      new ResultSelectorView({
+        model: alertInstance.get('currentQuery'),
         selectionInterface: alertInstance,
-        configName: 'goldenLayoutAlert',
       })
-    },
-    onFirstRender() {
-      this.listenTo(
-        alertInstance,
-        'change:currentAlert',
-        this.updateContentLeft
-      )
-    },
-    onRender: function() {
-      this.updateContentLeft()
-      if (this._mapView) {
-        this.contentRight.show(this._mapView)
-      }
-    },
-    updateContentLeft: function() {
-      this.contentLeft.show(
-        new ResultSelectorView({
-          model: alertInstance.get('currentQuery'),
-          selectionInterface: alertInstance,
-        })
-      )
-    },
-    unselectQueriesAndResults: function() {
-      alertInstance.clearSelectedResults()
-    },
-  })
-
+    )
+  },
+  unselectQueriesAndResults: function() {
+    alertInstance.clearSelectedResults()
+  },
+})

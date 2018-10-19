@@ -16,14 +16,13 @@ const store = require('js/store')
 const MetacardsBasicView = require('component/editor/metacards-basic/metacards-basic.view')
 const MetacardArchiveView = require('component/metacard-archive/metacard-archive.view')
 
-  var MetacardsTabs = Tabs.extend({
-    defaults: {
-      tabs: {
-        Details: MetacardsBasicView,
-        Archive: MetacardArchiveView,
-      },
+var MetacardsTabs = Tabs.extend({
+  defaults: {
+    tabs: {
+      Details: MetacardsBasicView,
+      Archive: MetacardArchiveView,
     },
-  })
+  },
+})
 
-module.exports =  MetacardsTabs
-
+module.exports = MetacardsTabs

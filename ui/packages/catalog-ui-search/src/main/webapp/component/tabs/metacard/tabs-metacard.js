@@ -23,19 +23,18 @@ const MetacardArchiveView = require('component/metacard-archive/metacard-archive
 const MetacardOverwriteView = require('component/metacard-overwrite/metacard-overwrite.view')
 const MetacardPreviewView = require('component/metacard-preview/metacard-preview.view')
 
-module.exports =  Tabs.extend({
-    defaults: {
-      tabs: {
-        Summary: MetacardBasicView,
-        Details: MetacardAdvancedView,
-        Preview: MetacardPreviewView,
-        History: MetacardHistoryView,
-        Associations: MetacardAssociationsView,
-        Quality: MetacardQualityView,
-        Actions: MetacardActionsView,
-        Archive: MetacardArchiveView,
-        Overwrite: MetacardOverwriteView,
-      },
+module.exports = Tabs.extend({
+  defaults: {
+    tabs: {
+      Summary: MetacardBasicView,
+      Details: MetacardAdvancedView,
+      Preview: MetacardPreviewView,
+      History: MetacardHistoryView,
+      Associations: MetacardAssociationsView,
+      Quality: MetacardQualityView,
+      Actions: MetacardActionsView,
+      Archive: MetacardArchiveView,
+      Overwrite: MetacardOverwriteView,
     },
-  })
-
+  },
+})

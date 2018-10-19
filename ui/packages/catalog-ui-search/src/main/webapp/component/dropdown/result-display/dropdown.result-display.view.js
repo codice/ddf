@@ -15,18 +15,17 @@
 /*global define*/
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-display.hbs')
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-resultDisplay',
-    serializeData: function() {
-      var values = this.model.get('value')
-      var selection = this.options.list.filter(function(item) {
-        return values.indexOf(item.value) !== -1
-      })[0]
-      return {
-        selection: selection,
-        icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o',
-      }
-    },
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-resultDisplay',
+  serializeData: function() {
+    var values = this.model.get('value')
+    var selection = this.options.list.filter(function(item) {
+      return values.indexOf(item.value) !== -1
+    })[0]
+    return {
+      selection: selection,
+      icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o',
+    }
+  },
+})

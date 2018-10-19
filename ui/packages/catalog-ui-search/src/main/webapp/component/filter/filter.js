@@ -12,13 +12,12 @@
 /*global define*/
 const _ = require('underscore')
 const Backbone = require('backbone')
-module.exports =  Backbone.Model.extend({
-    defaults: {
-      value: [''],
-      type: 'anyText',
-      comparator: 'CONTAINS',
-      sortableOrder: 0,
-    },
-    type: 'filter',
-  })
-
+module.exports = Backbone.Model.extend({
+  defaults: {
+    value: [''],
+    type: 'anyText',
+    comparator: 'CONTAINS',
+    sortableOrder: 0,
+  },
+  type: 'filter',
+})

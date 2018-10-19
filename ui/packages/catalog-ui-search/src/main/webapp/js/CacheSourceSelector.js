@@ -11,39 +11,38 @@
  **/
 const cql = require('js/cql')
 const CQLUtils = require('js/CQLUtils')
-  function buildCacheSourcesCql(sources) {
-    return {
-      type: 'OR',
-      filters: sources
-        .filter(function(source) {
-          return source !== 'cache'
-        })
-        .map(function(source) {
-          return {
-            property: '"metacard_source"',
-            type: '=',
-            value: source,
-          }
-        }),
-    }
+function buildCacheSourcesCql(sources) {
+  return {
+    type: 'OR',
+    filters: sources
+      .filter(function(source) {
+        return source !== 'cache'
+      })
+      .map(function(source) {
+        return {
+          property: '"metacard_source"',
+          type: '=',
+          value: source,
+        }
+      }),
   }
+}
 
-  function limitCacheSources(cql, sources) {
-    return {
-      type: 'AND',
-      filters: [cql, buildCacheSourcesCql(sources)],
-    }
+function limitCacheSources(cql, sources) {
+  return {
+    type: 'AND',
+    filters: [cql, buildCacheSourcesCql(sources)],
   }
+}
 
-module.exports =  {
-    trimCacheSources: function(cqlString, sources) {
-      return CQLUtils.sanitizeGeometryCql(
-        '(' +
-          cql.write(
-            limitCacheSources(cql.simplify(cql.read(cqlString)), sources)
-          ) +
-          ')'
-      )
-    },
-  }
-
+module.exports = {
+  trimCacheSources: function(cqlString, sources) {
+    return CQLUtils.sanitizeGeometryCql(
+      '(' +
+        cql.write(
+          limitCacheSources(cql.simplify(cql.read(cqlString)), sources)
+        ) +
+        ')'
+    )
+  },
+}

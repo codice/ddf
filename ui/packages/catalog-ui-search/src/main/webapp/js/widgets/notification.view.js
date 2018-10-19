@@ -10,34 +10,32 @@
  *
  **/
 const Marionette = require('marionette')
-  'use strict'
 
-  var NotificationView = Marionette.View.extend({
-    render: function() {
-      if (this.rendered) {
-        this.$el.hide('fast')
-      }
-      this.$el.empty()
-      // if it gets any more complicated than this, then we should move to templates
-      this.$el.append('<span>Please draw area of interest.</span>')
-      this.$el.animate(
-        {
-          height: 'show',
-        },
-        425
-      )
-      this.rendered = true
-      return this
-    },
-    destroy: function() {
-      this.$el.animate(
-        {
-          height: 'hide',
-        },
-        425
-      )
-    },
-  })
+var NotificationView = Marionette.View.extend({
+  render: function() {
+    if (this.rendered) {
+      this.$el.hide('fast')
+    }
+    this.$el.empty()
+    // if it gets any more complicated than this, then we should move to templates
+    this.$el.append('<span>Please draw area of interest.</span>')
+    this.$el.animate(
+      {
+        height: 'show',
+      },
+      425
+    )
+    this.rendered = true
+    return this
+  },
+  destroy: function() {
+    this.$el.animate(
+      {
+        height: 'hide',
+      },
+      425
+    )
+  },
+})
 
-module.exports =  NotificationView
-
+module.exports = NotificationView

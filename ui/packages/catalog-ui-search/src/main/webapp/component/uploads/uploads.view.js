@@ -20,17 +20,16 @@ const template = require('./uploads.hbs')
 const CustomElements = require('js/CustomElements')
 const UploadBatchItemCollectionView = require('component/upload-batch-item/upload-batch-item.collection.view')
 
-module.exports =  Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('uploads'),
-    modelEvents: {},
-    events: {},
-    regions: {
-      uploadList: '.uploads-list',
-    },
-    ui: {},
-    onBeforeShow: function() {
-      this.uploadList.show(new UploadBatchItemCollectionView())
-    },
-  })
-
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('uploads'),
+  modelEvents: {},
+  events: {},
+  regions: {
+    uploadList: '.uploads-list',
+  },
+  ui: {},
+  onBeforeShow: function() {
+    this.uploadList.show(new UploadBatchItemCollectionView())
+  },
+})

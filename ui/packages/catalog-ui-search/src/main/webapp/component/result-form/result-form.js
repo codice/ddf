@@ -16,11 +16,10 @@
 
 const Backbone = require('backbone')
 const ResultFormCollection = require('./result-form.collection')
-  let resultFormCollection = new ResultFormCollection()
-module.exports =  new (Backbone.Model.extend({
-    initialize: function() {},
-    getResultCollection: function() {
-      return resultFormCollection
-    },
-  }))()
-
+let resultFormCollection = new ResultFormCollection()
+module.exports = new (Backbone.Model.extend({
+  initialize: function() {},
+  getResultCollection: function() {
+    return resultFormCollection
+  },
+}))()

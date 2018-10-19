@@ -11,5 +11,4 @@
  **/
 /*global define*/
 const Lightbox = require('./Lightbox')
-module.exports =  new Lightbox()
-
+module.exports = new Lightbox()

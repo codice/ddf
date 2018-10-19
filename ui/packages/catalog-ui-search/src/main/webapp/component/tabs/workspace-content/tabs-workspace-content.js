@@ -15,14 +15,13 @@ const Tabs = require('../tabs')
 const WorkspaceSearchView = require('component/workspace-search/workspace-search.view')
 const WorkspaceListsView = require('component/workspace-lists/workspace-lists.view')
 
-  var WorkspaceContentTabs = Tabs.extend({
-    defaults: {
-      tabs: {
-        Search: WorkspaceSearchView,
-        Lists: WorkspaceListsView,
-      },
+var WorkspaceContentTabs = Tabs.extend({
+  defaults: {
+    tabs: {
+      Search: WorkspaceSearchView,
+      Lists: WorkspaceListsView,
     },
-  })
+  },
+})
 
-module.exports =  WorkspaceContentTabs
-
+module.exports = WorkspaceContentTabs

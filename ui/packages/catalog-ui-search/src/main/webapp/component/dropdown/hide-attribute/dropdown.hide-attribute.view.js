@@ -20,9 +20,8 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.hide-attribute.hbs')
 const HideAttributeView = require('component/hide-attribute/hide-attribute.view')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-hideAttribute',
-    componentToShow: HideAttributeView,
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-hideAttribute',
+  componentToShow: HideAttributeView,
+})

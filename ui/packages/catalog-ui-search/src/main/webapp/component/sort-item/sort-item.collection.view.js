@@ -20,23 +20,22 @@ const CustomElements = require('js/CustomElements')
 const queryItemView = require('./sort-item.view')
 const template = require('../sort/sort.hbs')
 
-module.exports =  Marionette.CollectionView.extend({
-    childView: queryItemView,
-    tagName: CustomElements.register('sort-item-collection'),
-    initialize: function(options) {
-      if (this.collection.length === 0) {
-        this.collection.add({
-          attribute: 'title',
-          direction: 'ascending',
-        })
-      }
-    },
-    childViewOptions: function(model, index) {
-      return {
-        collection: this.collection,
-        childIndex: index,
-        showBestTextOption: this.options.showBestTextOption,
-      }
-    },
-  })
-
+module.exports = Marionette.CollectionView.extend({
+  childView: queryItemView,
+  tagName: CustomElements.register('sort-item-collection'),
+  initialize: function(options) {
+    if (this.collection.length === 0) {
+      this.collection.add({
+        attribute: 'title',
+        direction: 'ascending',
+      })
+    }
+  },
+  childViewOptions: function(model, index) {
+    return {
+      collection: this.collection,
+      childIndex: index,
+      showBestTextOption: this.options.showBestTextOption,
+    }
+  },
+})

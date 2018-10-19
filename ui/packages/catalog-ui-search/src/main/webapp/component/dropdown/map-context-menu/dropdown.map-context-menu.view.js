@@ -20,9 +20,8 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.map-context-menu.hbs')
 const MapContextMenuView = require('component/map-context-menu/map-context-menu.view')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-mapContextMenu',
-    componentToShow: MapContextMenuView,
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-mapContextMenu',
+  componentToShow: MapContextMenuView,
+})

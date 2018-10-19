@@ -19,20 +19,19 @@ const QueryScheduleView = require('component/query-schedule/query-schedule.view'
 const QueryEditorView = require('component/query-editor/query-editor.view')
 const QueryAnnotationsView = require('component/query-annotations/query-annotations.view')
 
-  var WorkspaceContentTabs = Tabs.extend({
-    defaults: {
-      tabs: {
-        Search: QueryEditorView,
-        Settings: QuerySettingsView,
-        Schedule: QueryScheduleView,
-        Status: QueryStatusView,
-        Annotations: QueryAnnotationsView,
-      },
+var WorkspaceContentTabs = Tabs.extend({
+  defaults: {
+    tabs: {
+      Search: QueryEditorView,
+      Settings: QuerySettingsView,
+      Schedule: QueryScheduleView,
+      Status: QueryStatusView,
+      Annotations: QueryAnnotationsView,
     },
-    getAssociatedQuery: function() {
-      return store.getQuery()
-    },
-  })
+  },
+  getAssociatedQuery: function() {
+    return store.getQuery()
+  },
+})
 
-module.exports =  WorkspaceContentTabs
-
+module.exports = WorkspaceContentTabs

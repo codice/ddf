@@ -11,27 +11,26 @@
  **/
 /*global define*/
 
-  var namespace = 'intrigue-'
+var namespace = 'intrigue-'
 
-  var registry = {}
+var registry = {}
 
-module.exports =  {
-    register: function(name) {
-      if (registry[name]) {
-        throw Error(
-          'Multiple custom elements registered under the same name: ' + name
-        )
-      }
-      registry[name] = true
-      return namespace + name
-    },
-    getNamespace: function() {
-      return namespace
-    },
-    registerReact(name) {
-      name = 'react-' + name
-      registry[name] = true
-      return namespace + name
-    },
-  }
-
+module.exports = {
+  register: function(name) {
+    if (registry[name]) {
+      throw Error(
+        'Multiple custom elements registered under the same name: ' + name
+      )
+    }
+    registry[name] = true
+    return namespace + name
+  },
+  getNamespace: function() {
+    return namespace
+  },
+  registerReact(name) {
+    name = 'react-' + name
+    registry[name] = true
+    return namespace + name
+  },
+}

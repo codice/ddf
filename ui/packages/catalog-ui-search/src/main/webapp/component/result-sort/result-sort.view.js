@@ -22,62 +22,61 @@ const CustomElements = require('js/CustomElements')
 const user = require('component/singletons/user-instance')
 const SortItemCollectionView = require('component/sort/sort.view')
 
-module.exports =  Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('result-sort'),
-    modelEvents: {
-      change: 'render',
-    },
-    events: {
-      'click > .editor-footer .footer-remove': 'removeSort',
-      'click > .editor-footer .footer-save': 'saveSort',
-    },
-    ui: {},
-    regions: {
-      editorProperties: '.editor-properties',
-    },
-    initialize: function() {},
-    onRender: function() {
-      var resultSort = user
-        .get('user')
-        .get('preferences')
-        .get('resultSort')
-      this.editorProperties.show(
-        new SortItemCollectionView({
-          collection: new Backbone.Collection(resultSort),
-        })
-      )
-      this.handleSort()
-    },
-    removeSort: function() {
-      user
-        .get('user')
-        .get('preferences')
-        .set('resultSort', undefined)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    saveSort: function() {
-      var sorting = this.editorProperties.currentView.collection.toJSON()
-      user
-        .get('user')
-        .get('preferences')
-        .set('resultSort', sorting.length === 0 ? undefined : sorting)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    handleSort: function() {
-      var resultSort = user
-        .get('user')
-        .get('preferences')
-        .get('resultSort')
-      this.$el.toggleClass('has-sort', Boolean(resultSort))
-    },
-  })
-
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('result-sort'),
+  modelEvents: {
+    change: 'render',
+  },
+  events: {
+    'click > .editor-footer .footer-remove': 'removeSort',
+    'click > .editor-footer .footer-save': 'saveSort',
+  },
+  ui: {},
+  regions: {
+    editorProperties: '.editor-properties',
+  },
+  initialize: function() {},
+  onRender: function() {
+    var resultSort = user
+      .get('user')
+      .get('preferences')
+      .get('resultSort')
+    this.editorProperties.show(
+      new SortItemCollectionView({
+        collection: new Backbone.Collection(resultSort),
+      })
+    )
+    this.handleSort()
+  },
+  removeSort: function() {
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultSort', undefined)
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  saveSort: function() {
+    var sorting = this.editorProperties.currentView.collection.toJSON()
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultSort', sorting.length === 0 ? undefined : sorting)
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  handleSort: function() {
+    var resultSort = user
+      .get('user')
+      .get('preferences')
+      .get('resultSort')
+    this.$el.toggleClass('has-sort', Boolean(resultSort))
+  },
+})

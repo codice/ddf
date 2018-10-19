@@ -23,21 +23,20 @@ const store = require('js/store')
 const uploadInstance = require('component/upload/upload')
 const Common = require('js/Common')
 
-module.exports =  Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('upload-menu'),
-    onFirstRender: function() {
-      this.listenTo(uploadInstance, 'change:currentUpload', this.render)
-    },
-    serializeData: function() {
-      if (uploadInstance.get('currentUpload') === undefined) {
-        return {}
-      }
-      return {
-        when: Common.getMomentDate(
-          uploadInstance.get('currentUpload').get('sentAt')
-        ),
-      }
-    },
-  })
-
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('upload-menu'),
+  onFirstRender: function() {
+    this.listenTo(uploadInstance, 'change:currentUpload', this.render)
+  },
+  serializeData: function() {
+    if (uploadInstance.get('currentUpload') === undefined) {
+      return {}
+    }
+    return {
+      when: Common.getMomentDate(
+        uploadInstance.get('currentUpload').get('sentAt')
+      ),
+    }
+  },
+})

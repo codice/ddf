@@ -20,21 +20,20 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.metacard-interactions.hbs')
 const ComponentView = require('component/metacard-interactions/metacard-interactions.view')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-metacardInteractions',
-    componentToShow: ComponentView,
-    initializeComponentModel: function() {
-      //override if you need more functionality
-      this.modelForComponent = this.options.modelForComponent
-    },
-    listenToComponent: function() {
-      //override if you need more functionality
-    },
-    isCentered: true,
-    getCenteringElement: function() {
-      return this.el
-    },
-    hasTail: true,
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-metacardInteractions',
+  componentToShow: ComponentView,
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.options.modelForComponent
+  },
+  listenToComponent: function() {
+    //override if you need more functionality
+  },
+  isCentered: true,
+  getCenteringElement: function() {
+    return this.el
+  },
+  hasTail: true,
+})

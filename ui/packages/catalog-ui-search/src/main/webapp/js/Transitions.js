@@ -11,7 +11,6 @@
  **/
 /*global define*/
 
-module.exports =  {
-    coreTransitionTime: 200,
-  }
-
+module.exports = {
+  coreTransitionTime: 200,
+}

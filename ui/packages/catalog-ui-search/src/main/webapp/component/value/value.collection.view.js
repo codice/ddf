@@ -21,57 +21,56 @@ const ValueCollection = require('./value.collection')
 const CustomElements = require('js/CustomElements')
 const moment = require('moment')
 
-module.exports =  Marionette.CollectionView.extend(
-    {
-      childView: ValueView,
-      tagName: CustomElements.register('value-collection'),
-      collectionEvents: {
-        'change:value': 'updateProperty',
-        remove: 'updateProperty',
-        add: 'updateProperty',
-      },
-      initialize: function() {
-        this.updateProperty()
-      },
-      getValue: function() {
-        return this.collection.map(function(valueModel) {
-          return valueModel.getValue()
-        })
-      },
-      updateProperty: function() {
-        this.model.setValue(this.getValue())
-      },
-      addNewValue: function(propertyModel) {
-        this.collection.add({
-          value: propertyModel.getDefaultValue(),
+module.exports = Marionette.CollectionView.extend(
+  {
+    childView: ValueView,
+    tagName: CustomElements.register('value-collection'),
+    collectionEvents: {
+      'change:value': 'updateProperty',
+      remove: 'updateProperty',
+      add: 'updateProperty',
+    },
+    initialize: function() {
+      this.updateProperty()
+    },
+    getValue: function() {
+      return this.collection.map(function(valueModel) {
+        return valueModel.getValue()
+      })
+    },
+    updateProperty: function() {
+      this.model.setValue(this.getValue())
+    },
+    addNewValue: function(propertyModel) {
+      this.collection.add({
+        value: propertyModel.getDefaultValue(),
+        property: propertyModel,
+      })
+      this.children.last().focus()
+    },
+  },
+  {
+    generateValueCollectionView: function(propertyModel) {
+      var valueCollection = new ValueCollection()
+      if (propertyModel.get('value').length > 0) {
+        valueCollection.add(
+          propertyModel.get('value').map(function(value) {
+            return {
+              value: value,
+              property: propertyModel,
+            }
+          })
+        )
+      } else if (!propertyModel.get('multivalued')) {
+        valueCollection.add({
+          value: null,
           property: propertyModel,
         })
-        this.children.last().focus()
-      },
+      }
+      return new this({
+        collection: valueCollection,
+        model: propertyModel,
+      })
     },
-    {
-      generateValueCollectionView: function(propertyModel) {
-        var valueCollection = new ValueCollection()
-        if (propertyModel.get('value').length > 0) {
-          valueCollection.add(
-            propertyModel.get('value').map(function(value) {
-              return {
-                value: value,
-                property: propertyModel,
-              }
-            })
-          )
-        } else if (!propertyModel.get('multivalued')) {
-          valueCollection.add({
-            value: null,
-            property: propertyModel,
-          })
-        }
-        return new this({
-          collection: valueCollection,
-          model: propertyModel,
-        })
-      },
-    }
-  )
-
+  }
+)

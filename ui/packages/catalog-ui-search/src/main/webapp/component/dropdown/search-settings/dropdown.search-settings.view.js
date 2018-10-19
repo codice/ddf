@@ -21,19 +21,18 @@ const template = require('./dropdown.search-settings.hbs')
 const ComponentView = require('component/search-settings/search-settings.view')
 const store = require('js/store')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-search-settings',
-    componentToShow: ComponentView,
-    initialize: function() {
-      DropdownView.prototype.initialize.call(this)
-    },
-    initializeComponentModel: function() {
-      //override if you need more functionality
-      this.modelForComponent = this.options.modelForComponent
-    },
-    listenToComponent: function() {
-      //override if you need more functionality
-    },
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-search-settings',
+  componentToShow: ComponentView,
+  initialize: function() {
+    DropdownView.prototype.initialize.call(this)
+  },
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.options.modelForComponent
+  },
+  listenToComponent: function() {
+    //override if you need more functionality
+  },
+})

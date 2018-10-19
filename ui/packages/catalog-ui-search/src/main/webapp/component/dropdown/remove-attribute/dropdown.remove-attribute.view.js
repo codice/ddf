@@ -20,9 +20,8 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.remove-attribute.hbs')
 const RemoveAttributeView = require('component/remove-attribute/remove-attribute.view')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-removeAttribute',
-    componentToShow: RemoveAttributeView,
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-removeAttribute',
+  componentToShow: RemoveAttributeView,
+})

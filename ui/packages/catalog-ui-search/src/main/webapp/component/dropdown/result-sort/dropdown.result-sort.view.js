@@ -21,25 +21,24 @@ const template = require('./dropdown.result-sort.hbs')
 const ComponentView = require('component/result-sort/result-sort.view')
 const user = require('component/singletons/user-instance')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-resultSort',
-    componentToShow: ComponentView,
-    initialize: function() {
-      DropdownView.prototype.initialize.call(this)
-      this.listenTo(
-        user.get('user').get('preferences'),
-        'change:resultSort',
-        this.handleSort
-      )
-      this.handleSort()
-    },
-    handleSort: function() {
-      var resultSort = user
-        .get('user')
-        .get('preferences')
-        .get('resultSort')
-      this.$el.toggleClass('has-sort', Boolean(resultSort))
-    },
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-resultSort',
+  componentToShow: ComponentView,
+  initialize: function() {
+    DropdownView.prototype.initialize.call(this)
+    this.listenTo(
+      user.get('user').get('preferences'),
+      'change:resultSort',
+      this.handleSort
+    )
+    this.handleSort()
+  },
+  handleSort: function() {
+    var resultSort = user
+      .get('user')
+      .get('preferences')
+      .get('resultSort')
+    this.$el.toggleClass('has-sort', Boolean(resultSort))
+  },
+})

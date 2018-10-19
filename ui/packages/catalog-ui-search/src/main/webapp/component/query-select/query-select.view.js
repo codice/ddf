@@ -20,33 +20,32 @@ const CustomElements = require('js/CustomElements')
 const store = require('js/store')
 const QueryItemCollectionView = require('component/query-item/query-item.collection.view')
 
-  var eventsHash = {
-    click: 'handleClick',
-  }
+var eventsHash = {
+  click: 'handleClick',
+}
 
-  var namespace = CustomElements.getNamespace()
-  var queryItemClickEvent = 'click ' + namespace + 'query-item'
-  eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
+var namespace = CustomElements.getNamespace()
+var queryItemClickEvent = 'click ' + namespace + 'query-item'
+eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
 
-module.exports =  QueryItemCollectionView.extend({
-    className: 'is-query-select composed-menu',
-    events: eventsHash,
-    onBeforeShow: function() {
-      this.handleValue()
-    },
-    handleQueryItemClick: function(event) {
-      this.model.set('value', $(event.currentTarget).attr('data-queryid'))
-      this.handleValue()
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    handleValue: function() {
-      var queryId = this.model.get('value')
-      this.$el.find(namespace + 'query-item').removeClass('is-selected')
-      if (queryId) {
-        this.$el
-          .find(namespace + 'query-item[data-queryid="' + queryId + '"]')
-          .addClass('is-selected')
-      }
-    },
-  })
-
+module.exports = QueryItemCollectionView.extend({
+  className: 'is-query-select composed-menu',
+  events: eventsHash,
+  onBeforeShow: function() {
+    this.handleValue()
+  },
+  handleQueryItemClick: function(event) {
+    this.model.set('value', $(event.currentTarget).attr('data-queryid'))
+    this.handleValue()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  handleValue: function() {
+    var queryId = this.model.get('value')
+    this.$el.find(namespace + 'query-item').removeClass('is-selected')
+    if (queryId) {
+      this.$el
+        .find(namespace + 'query-item[data-queryid="' + queryId + '"]')
+        .addClass('is-selected')
+    }
+  },
+})

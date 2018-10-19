@@ -34,146 +34,145 @@ const InputAutocompleteView = require('component/input/autocomplete/input-autoco
 const InputColorView = require('component/input/color/input-color.view')
 const InputWithParamView = require('component/input/with-param/input-with-param.view')
 
-module.exports =  Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('value'),
-    events: {
-      'click .value-delete': 'delete',
-    },
-    regions: {
-      input: '.value-input',
-    },
-    initialize: function() {
-      this.listenTo(
-        this.model.get('property'),
-        'change:isEditing',
-        this.handleEdit
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('value'),
+  events: {
+    'click .value-delete': 'delete',
+  },
+  regions: {
+    input: '.value-input',
+  },
+  initialize: function() {
+    this.listenTo(
+      this.model.get('property'),
+      'change:isEditing',
+      this.handleEdit
+    )
+  },
+  onRender: function() {
+    this.handleEdit()
+    this.handleMultivalue()
+  },
+  onBeforeShow: function() {
+    if (this.model.get('property').get('enum')) {
+      this.input.show(
+        new InputEnumView({
+          model: this.model,
+        })
       )
-    },
-    onRender: function() {
-      this.handleEdit()
-      this.handleMultivalue()
-    },
-    onBeforeShow: function() {
-      if (this.model.get('property').get('enum')) {
-        this.input.show(
-          new InputEnumView({
-            model: this.model,
-          })
-        )
-      } else if (this.model.get('property').get('radio')) {
-        this.input.show(
-          new InputRadioView({
-            model: this.model,
-          })
-        )
-      } else {
-        switch (this.model.get('property').get('calculatedType')) {
-          case 'date':
-            this.input.show(
-              new InputDateView({
-                model: this.model,
-              })
-            )
-            break
-          case 'time':
-            this.input.show(
-              new InputTimeView({
-                model: this.model,
-              })
-            )
-            break
-          case 'thumbnail':
-            this.input.show(
-              new InputThumbnailView({
-                model: this.model,
-              })
-            )
-            break
-          case 'location':
-            this.input.show(
-              new InputLocationView({
-                model: this.model,
-              })
-            )
-            break
-          case 'boolean':
-            this.input.show(
-              new InputBooleanView({
-                model: this.model,
-              })
-            )
-            break
-          case 'geometry':
-            this.input.show(
-              new InputGeometryView({
-                model: this.model,
-              })
-            )
-            break
-          case 'number':
-            this.input.show(
-              new InputNumberView({
-                model: this.model,
-              })
-            )
-            break
-          case 'range':
-            this.input.show(
-              new InputRangeView({
-                model: this.model,
-              })
-            )
-            break
-          case 'textarea':
-            this.input.show(
-              new InputTextareaView({
-                model: this.model,
-              })
-            )
-            break
-          case 'autocomplete':
-            this.input.show(
-              new InputAutocompleteView({
-                model: this.model,
-              })
-            )
-            break
-          case 'color':
-            this.input.show(
-              new InputColorView({
-                model: this.model,
-              })
-            )
-            break
-          case 'near':
-            this.input.show(
-              new InputWithParamView({
-                model: this.model,
-              })
-            )
-            break
-          default:
-            this.input.show(
-              new InputView({
-                model: this.model,
-              })
-            )
-            break
-        }
+    } else if (this.model.get('property').get('radio')) {
+      this.input.show(
+        new InputRadioView({
+          model: this.model,
+        })
+      )
+    } else {
+      switch (this.model.get('property').get('calculatedType')) {
+        case 'date':
+          this.input.show(
+            new InputDateView({
+              model: this.model,
+            })
+          )
+          break
+        case 'time':
+          this.input.show(
+            new InputTimeView({
+              model: this.model,
+            })
+          )
+          break
+        case 'thumbnail':
+          this.input.show(
+            new InputThumbnailView({
+              model: this.model,
+            })
+          )
+          break
+        case 'location':
+          this.input.show(
+            new InputLocationView({
+              model: this.model,
+            })
+          )
+          break
+        case 'boolean':
+          this.input.show(
+            new InputBooleanView({
+              model: this.model,
+            })
+          )
+          break
+        case 'geometry':
+          this.input.show(
+            new InputGeometryView({
+              model: this.model,
+            })
+          )
+          break
+        case 'number':
+          this.input.show(
+            new InputNumberView({
+              model: this.model,
+            })
+          )
+          break
+        case 'range':
+          this.input.show(
+            new InputRangeView({
+              model: this.model,
+            })
+          )
+          break
+        case 'textarea':
+          this.input.show(
+            new InputTextareaView({
+              model: this.model,
+            })
+          )
+          break
+        case 'autocomplete':
+          this.input.show(
+            new InputAutocompleteView({
+              model: this.model,
+            })
+          )
+          break
+        case 'color':
+          this.input.show(
+            new InputColorView({
+              model: this.model,
+            })
+          )
+          break
+        case 'near':
+          this.input.show(
+            new InputWithParamView({
+              model: this.model,
+            })
+          )
+          break
+        default:
+          this.input.show(
+            new InputView({
+              model: this.model,
+            })
+          )
+          break
       }
-    },
-    handleEdit: function() {
-      this.$el.toggleClass('is-editing', this.model.isEditing())
-    },
-    handleMultivalue: function() {
-      this.$el.toggleClass('is-multivalued', this.model.isMultivalued())
-    },
-    focus: function() {
-      this.input.currentView.focus()
-    },
-    delete: function() {
-      this.model.destroy()
-    },
-  })
-
+    }
+  },
+  handleEdit: function() {
+    this.$el.toggleClass('is-editing', this.model.isEditing())
+  },
+  handleMultivalue: function() {
+    this.$el.toggleClass('is-multivalued', this.model.isMultivalued())
+  },
+  focus: function() {
+    this.input.currentView.focus()
+  },
+  delete: function() {
+    this.model.destroy()
+  },
+})

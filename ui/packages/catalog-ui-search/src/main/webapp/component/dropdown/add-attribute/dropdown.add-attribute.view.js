@@ -20,9 +20,8 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.add-attribute.hbs')
 const AddAttributeView = require('component/add-attribute/add-attribute.view')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-addAttribute',
-    componentToShow: AddAttributeView,
-  })
-
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-addAttribute',
+  componentToShow: AddAttributeView,
+})

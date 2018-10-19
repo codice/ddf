@@ -13,17 +13,16 @@
 const _ = require('underscore')
 const Backbone = require('backbone')
 const QueryResult = require('js/model/QueryResult')
-module.exports =  Backbone.AssociatedModel.extend({
-    relations: [
-      {
-        type: Backbone.Many,
-        key: 'results',
-        relatedModel: QueryResult,
-      },
-    ],
-    defaults: {
-      results: [],
+module.exports = Backbone.AssociatedModel.extend({
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'results',
+      relatedModel: QueryResult,
     },
-    initialize: function() {},
-  })
-
+  ],
+  defaults: {
+    results: [],
+  },
+  initialize: function() {},
+})

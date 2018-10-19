@@ -24,45 +24,44 @@ const _merge = require('lodash/merge')
 const Common = require('js/Common')
 const user = require('component/singletons/user-instance')
 
-module.exports =  DropdownView.extend({
-    template: template,
-    className: 'is-hover-preview',
-    componentToShow: ComponentView,
-    events: {
-      'mouseenter button': 'handleMouseEnter',
-      'mouseleave button': 'handleMouseLeave',
-      'click button': 'handleClick',
-    },
-    handleMouseEnter: function() {
-      if (user.getHoverPreview()) {
-        this.model.open()
-      }
-    },
-    handleMouseLeave: function() {
-      this.model.close()
-    },
-    handleClick: function() {
-      window.open(
-        Common.getImageSrc(
-          this.options.modelForComponent
-            .get('metacard')
-            .get('properties')
-            .get('thumbnail')
-        )
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-hover-preview',
+  componentToShow: ComponentView,
+  events: {
+    'mouseenter button': 'handleMouseEnter',
+    'mouseleave button': 'handleMouseLeave',
+    'click button': 'handleClick',
+  },
+  handleMouseEnter: function() {
+    if (user.getHoverPreview()) {
+      this.model.open()
+    }
+  },
+  handleMouseLeave: function() {
+    this.model.close()
+  },
+  handleClick: function() {
+    window.open(
+      Common.getImageSrc(
+        this.options.modelForComponent
+          .get('metacard')
+          .get('properties')
+          .get('thumbnail')
       )
-    },
-    initialize: function() {
-      DropdownView.prototype.initialize.call(this)
-    },
-    initializeComponentModel: function() {
-      //override if you need more functionality
-      this.modelForComponent = this.options.modelForComponent
-    },
-    listenToComponent: function() {
-      //override if you need more functionality
-    },
-    serializeData: function() {
-      return this.options.modelForComponent.toJSON()
-    },
-  })
-
+    )
+  },
+  initialize: function() {
+    DropdownView.prototype.initialize.call(this)
+  },
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.options.modelForComponent
+  },
+  listenToComponent: function() {
+    //override if you need more functionality
+  },
+  serializeData: function() {
+    return this.options.modelForComponent.toJSON()
+  },
+})

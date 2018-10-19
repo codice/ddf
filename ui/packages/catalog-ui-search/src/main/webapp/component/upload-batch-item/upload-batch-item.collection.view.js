@@ -20,24 +20,23 @@ const childView = require('./upload-batch-item.view')
 const CustomElements = require('js/CustomElements')
 const user = require('component/singletons/user-instance')
 
-module.exports =  Marionette.CollectionView.extend({
-    emptyView: Marionette.ItemView.extend({
-      className: 'alert-empty',
-      template: 'No Recent Uploads',
-    }),
-    className: 'is-list has-list-highlighting',
-    setDefaultCollection: function() {
-      this.collection = user
-        .get('user')
-        .get('preferences')
-        .get('uploads')
-    },
-    childView: childView,
-    tagName: CustomElements.register('upload-batch-item-collection'),
-    initialize: function(options) {
-      if (!options.collection) {
-        this.setDefaultCollection()
-      }
-    },
-  })
-
+module.exports = Marionette.CollectionView.extend({
+  emptyView: Marionette.ItemView.extend({
+    className: 'alert-empty',
+    template: 'No Recent Uploads',
+  }),
+  className: 'is-list has-list-highlighting',
+  setDefaultCollection: function() {
+    this.collection = user
+      .get('user')
+      .get('preferences')
+      .get('uploads')
+  },
+  childView: childView,
+  tagName: CustomElements.register('upload-batch-item-collection'),
+  initialize: function(options) {
+    if (!options.collection) {
+      this.setDefaultCollection()
+    }
+  },
+})

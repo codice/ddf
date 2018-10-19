@@ -32,37 +32,36 @@ const uploadInstance = require('component/upload/upload')
 const ResultSelectorView = require('component/result-selector/result-selector.view')
 const VisualizationView = require('component/golden-layout/golden-layout.view')
 
-module.exports =  ContentView.extend({
-    className: 'is-upload',
-    initialize: function() {
-      this._mapView = new VisualizationView({
+module.exports = ContentView.extend({
+  className: 'is-upload',
+  initialize: function() {
+    this._mapView = new VisualizationView({
+      selectionInterface: uploadInstance,
+      configName: 'goldenLayoutUpload',
+    })
+  },
+  onFirstRender() {
+    this.listenTo(
+      uploadInstance,
+      'change:currentUpload',
+      this.updateContentLeft
+    )
+  },
+  onRender: function() {
+    this.updateContentLeft()
+    if (this._mapView) {
+      this.contentRight.show(this._mapView)
+    }
+  },
+  updateContentLeft: function() {
+    this.contentLeft.show(
+      new ResultSelectorView({
+        model: uploadInstance.get('currentQuery'),
         selectionInterface: uploadInstance,
-        configName: 'goldenLayoutUpload',
       })
-    },
-    onFirstRender() {
-      this.listenTo(
-        uploadInstance,
-        'change:currentUpload',
-        this.updateContentLeft
-      )
-    },
-    onRender: function() {
-      this.updateContentLeft()
-      if (this._mapView) {
-        this.contentRight.show(this._mapView)
-      }
-    },
-    updateContentLeft: function() {
-      this.contentLeft.show(
-        new ResultSelectorView({
-          model: uploadInstance.get('currentQuery'),
-          selectionInterface: uploadInstance,
-        })
-      )
-    },
-    unselectQueriesAndResults: function() {
-      uploadInstance.clearSelectedResults()
-    },
-  })
-
+    )
+  },
+  unselectQueriesAndResults: function() {
+    uploadInstance.clearSelectedResults()
+  },
+})

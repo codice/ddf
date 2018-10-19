@@ -13,21 +13,20 @@
 const Backbone = require('backbone')
 const Common = require('js/Common')
 require('backbone-associations')
-module.exports =  Backbone.AssociatedModel.extend({
-    defaults: {
-      unseen: true,
-      queryId: undefined,
-      workspaceId: undefined,
-      when: undefined,
-      metacardIds: [],
-    },
-    initialize: function() {
-      if (!this.id) {
-        this.set('id', Common.generateUUID())
-      }
-    },
-    getTimeComparator: function() {
-      return this.get('when')
-    },
-  })
-
+module.exports = Backbone.AssociatedModel.extend({
+  defaults: {
+    unseen: true,
+    queryId: undefined,
+    workspaceId: undefined,
+    when: undefined,
+    metacardIds: [],
+  },
+  initialize: function() {
+    if (!this.id) {
+      this.set('id', Common.generateUUID())
+    }
+  },
+  getTimeComparator: function() {
+    return this.get('when')
+  },
+})

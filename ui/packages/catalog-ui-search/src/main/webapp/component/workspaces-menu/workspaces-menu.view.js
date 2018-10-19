@@ -18,11 +18,10 @@ const template = require('./workspaces-menu.hbs')
 const CustomElements = require('js/CustomElements')
 const properties = require('properties')
 
-module.exports =  Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('workspaces-menu'),
-    serializeData: function() {
-      return properties
-    },
-  })
-
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('workspaces-menu'),
+  serializeData: function() {
+    return properties
+  },
+})

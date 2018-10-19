@@ -32,51 +32,50 @@ const VisualizationView = require('component/visualization/visualization.view')
 const QueryTitleView = require('component/query-title/query-title.view')
 const GoldenLayoutView = require('component/golden-layout/golden-layout.view')
 
-  var ContentView = Marionette.LayoutView.extend({
-    template: contentTemplate,
-    tagName: CustomElements.register('content'),
-    regions: {
-      contentLeft: '.content-left',
-      contentRight: '.content-right',
-    },
-    initialize: function() {
-      this._mapView = new GoldenLayoutView({
-        selectionInterface: store.get('content'),
-        configName: 'goldenLayout',
-      })
-    },
-    onFirstRender() {
-      this.listenTo(
-        store.get('content'),
-        'change:currentWorkspace',
-        this.updateContentLeft
+var ContentView = Marionette.LayoutView.extend({
+  template: contentTemplate,
+  tagName: CustomElements.register('content'),
+  regions: {
+    contentLeft: '.content-left',
+    contentRight: '.content-right',
+  },
+  initialize: function() {
+    this._mapView = new GoldenLayoutView({
+      selectionInterface: store.get('content'),
+      configName: 'goldenLayout',
+    })
+  },
+  onFirstRender() {
+    this.listenTo(
+      store.get('content'),
+      'change:currentWorkspace',
+      this.updateContentLeft
+    )
+  },
+  onRender: function() {
+    this.updateContentLeft()
+    if (this._mapView) {
+      this.contentRight.show(this._mapView)
+    }
+  },
+  updateContentLeft: function(workspace) {
+    if (workspace) {
+      if (
+        Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'
+      ) {
+        this.updateContentLeft()
+        store.clearSelectedResults()
+      }
+    } else {
+      this.contentLeft.show(
+        new WorkspaceContentTabsView({
+          model: new WorkspaceContentTabs(),
+          selectionInterface: store.get('content'),
+        })
       )
-    },
-    onRender: function() {
-      this.updateContentLeft()
-      if (this._mapView) {
-        this.contentRight.show(this._mapView)
-      }
-    },
-    updateContentLeft: function(workspace) {
-      if (workspace) {
-        if (
-          Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'
-        ) {
-          this.updateContentLeft()
-          store.clearSelectedResults()
-        }
-      } else {
-        this.contentLeft.show(
-          new WorkspaceContentTabsView({
-            model: new WorkspaceContentTabs(),
-            selectionInterface: store.get('content'),
-          })
-        )
-      }
-    },
-    _mapView: undefined,
-  })
+    }
+  },
+  _mapView: undefined,
+})
 
-module.exports =  ContentView
-
+module.exports = ContentView
