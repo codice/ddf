@@ -12,10 +12,10 @@
 /*global define*/
 /*jslint browser: true*/
 
-define(['underscore'], function(_) {
+const _ = require('underscore')
   'use strict'
 
-  return {
+module.exports =  {
     is2dAvailable: undefined,
     isAvailable: function() {
       if (_.isUndefined(this.is2dAvailable)) {
@@ -34,4 +34,4 @@ define(['underscore'], function(_) {
       return this.is2dAvailable
     },
   }
-})
+

@@ -13,24 +13,15 @@
  *
  **/
 /*global define, alert*/
-define([
-  'backbone',
-  'marionette',
-  'underscore',
-  'jquery',
-  './multivalue.hbs',
-  'js/CustomElements',
-  'component/value/value.collection.view',
-], function(
-  Backbone,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  ValueCollection
-) {
-  return Marionette.LayoutView.extend({
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./multivalue.hbs')
+const CustomElements = require('js/CustomElements')
+const ValueCollection = require('component/value/value.collection.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('multivalue'),
     events: {
@@ -64,4 +55,4 @@ define([
       this.values.currentView.addNewValue(this.model)
     },
   })
-})
+

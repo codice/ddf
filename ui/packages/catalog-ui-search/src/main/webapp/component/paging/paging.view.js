@@ -13,15 +13,14 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './paging.hbs',
-  'lodash/debounce',
-], function(Marionette, _, $, CustomElements, template, _debounce) {
-  return Marionette.ItemView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const template = require('./paging.hbs')
+const _debounce = require('lodash/debounce')
+
+module.exports =  Marionette.ItemView.extend({
     tagName: CustomElements.register('paging'),
     template: template,
     initialize: function(options) {
@@ -116,4 +115,4 @@ define([
       this.$('.status').text(this.getQuery().getResultsRangeLabel(this.model))
     },
   })
-})
+

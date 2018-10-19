@@ -1,4 +1,5 @@
-define(['lodash', 'lodash/get'], function(_, _get) {
+const _ = require('lodash')
+const _get = require('lodash/get')
   var _map = {
     default: {
       class: 'fa fa-file',
@@ -188,7 +189,7 @@ define(['lodash', 'lodash/get'], function(_, _get) {
     return _get(_map, _formatAttribute(name), _default)
   }
 
-  return {
+module.exports =  {
     getClass: function(metacard) {
       var i = _deriveIconByMetacard(metacard)
       return _get(i, 'class', _default.class)
@@ -214,4 +215,4 @@ define(['lodash', 'lodash/get'], function(_, _get) {
       return _get(i, 'class', _default.class)
     },
   }
-})
+

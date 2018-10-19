@@ -10,13 +10,11 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone', 'moment', 'js/CQLUtils'], function(
-  _,
-  Backbone,
-  moment,
-  CQLUtils
-) {
-  return Backbone.Model.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+const moment = require('moment')
+const CQLUtils = require('js/CQLUtils')
+module.exports =  Backbone.Model.extend({
     defaults: {
       value: [],
       values: {},
@@ -270,4 +268,4 @@ define(['underscore', 'backbone', 'moment', 'js/CQLUtils'], function(
       return this.get('calculatedType')
     },
   })
-})
+

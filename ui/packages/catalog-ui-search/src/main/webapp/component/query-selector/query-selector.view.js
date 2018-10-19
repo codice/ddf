@@ -13,25 +13,15 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './query-selector.hbs',
-  'js/CustomElements',
-  'js/store',
-  'js/model/Query',
-  'component/query-item/query-item.collection.view',
-], function(
-  Marionette,
-  _,
-  $,
-  querySelectorTemplate,
-  CustomElements,
-  store,
-  Query,
-  QueryItemCollectionView
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const querySelectorTemplate = require('./query-selector.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const Query = require('js/model/Query')
+const QueryItemCollectionView = require('component/query-item/query-item.collection.view')
+
   var namespace = CustomElements.getNamespace()
 
   var QuerySelector = Marionette.LayoutView.extend({
@@ -113,5 +103,5 @@ define([
     },
   })
 
-  return QuerySelector
-})
+module.exports =  QuerySelector
+

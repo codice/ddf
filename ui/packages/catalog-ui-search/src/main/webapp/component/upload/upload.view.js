@@ -13,20 +13,13 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  './upload.hbs',
-  'js/CustomElements',
-  'component/content/upload/content.upload.view',
-  'component/upload/upload',
-], function(
-  Marionette,
-  template,
-  CustomElements,
-  uploadContentView,
-  uploadInstance
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const template = require('./upload.hbs')
+const CustomElements = require('js/CustomElements')
+const uploadContentView = require('component/content/upload/content.upload.view')
+const uploadInstance = require('component/upload/upload')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('upload'),
     regions: {
@@ -44,4 +37,4 @@ define([
       this.uploadDetails.show(new uploadContentView())
     },
   })
-})
+

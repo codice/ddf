@@ -13,32 +13,19 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './workspace-menu.hbs',
-  'js/CustomElements',
-  'component/content-title/content-title.view',
-  'component/dropdown/dropdown',
-  'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
-  'component/dropdown/query/dropdown.query.view',
-  'js/store',
-  'component/save/workspace/workspace-save.view',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  TitleView,
-  DropdownModel,
-  WorkspaceInteractionsView,
-  QueryView,
-  store,
-  SaveView
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./workspace-menu.hbs')
+const CustomElements = require('js/CustomElements')
+const TitleView = require('component/content-title/content-title.view')
+const DropdownModel = require('component/dropdown/dropdown')
+const WorkspaceInteractionsView = require('component/dropdown/workspace-interactions/dropdown.workspace-interactions.view')
+const QueryView = require('component/dropdown/query/dropdown.query.view')
+const store = require('js/store')
+const SaveView = require('component/save/workspace/workspace-save.view')
+
+module.exports =  Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = store.get('content')
     },
@@ -114,4 +101,4 @@ define([
       )
     },
   })
-})
+

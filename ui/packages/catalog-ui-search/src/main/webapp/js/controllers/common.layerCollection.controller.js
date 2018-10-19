@@ -12,7 +12,7 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-define(['marionette'], function(Marionette) {
+const Marionette = require('marionette')
   'use strict'
 
   var Controller = Marionette.Object.extend({
@@ -30,5 +30,5 @@ define(['marionette'], function(Marionette) {
     },
   })
 
-  return Controller
-})
+module.exports =  Controller
+

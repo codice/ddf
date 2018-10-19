@@ -13,21 +13,20 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './filter-comparator.hbs',
-  'js/CustomElements',
-  'component/singletons/metacard-definitions',
-], function(Marionette, _, $, template, CustomElements, metacardDefinitions) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./filter-comparator.hbs')
+const CustomElements = require('js/CustomElements')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+
   var geometryComparators = ['INTERSECTS']
   var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE']
   var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
   var numberComparators = ['>', '<', '=', '>=', '<=']
   var booleanComparators = ['=']
 
-  return Marionette.ItemView.extend({
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('filter-comparator'),
     className: 'is-action-list',
@@ -98,4 +97,4 @@ define([
       }
     },
   })
-})
+

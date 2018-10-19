@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.workspace-interactions.hbs',
-  'component/workspace-interactions/workspace-interactions.view',
-], function(Marionette, _, $, DropdownView, template, ComponentView) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.workspace-interactions.hbs')
+const ComponentView = require('component/workspace-interactions/workspace-interactions.view')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-workspaceInteractions',
     componentToShow: ComponentView,
@@ -38,4 +37,4 @@ define([
     },
     hasTail: true,
   })
-})
+

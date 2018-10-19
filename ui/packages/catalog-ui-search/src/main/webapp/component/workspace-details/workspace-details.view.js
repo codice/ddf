@@ -13,28 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './workspace-details.hbs',
-  'js/CustomElements',
-  'moment',
-  'component/singletons/user-instance',
-  'component/unsaved-indicator/workspace/workspace-unsaved-indicator.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  moment,
-  user,
-  UnsavedIndicatorView
-) {
-  return Marionette.LayoutView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./workspace-details.hbs')
+const CustomElements = require('js/CustomElements')
+const moment = require('moment')
+const user = require('component/singletons/user-instance')
+const UnsavedIndicatorView = require('component/unsaved-indicator/workspace/workspace-unsaved-indicator.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('workspace-details'),
     regions: {
@@ -75,4 +64,4 @@ define([
       return workspacesJSON
     },
   })
-})
+

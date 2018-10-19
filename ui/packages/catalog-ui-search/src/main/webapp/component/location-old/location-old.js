@@ -10,14 +10,13 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'backbone',
-  'usng.js',
-  'js/store',
-  'js/Common',
-  'component/location-new/utils/dms-utils',
-], function(_, Backbone, usngs, store, Common, dmsUtils) {
+const _ = require('underscore')
+const Backbone = require('backbone')
+const usngs = require('usng.js')
+const store = require('js/store')
+const Common = require('js/Common')
+const dmsUtils = require('component/location-new/utils/dms-utils')
+
   var converter = new usngs.Converter()
   var minimumDifference = 0.0001
   var minimumBuffer = 0.000001
@@ -77,7 +76,7 @@ define([
     }
   }
 
-  return Backbone.AssociatedModel.extend({
+module.exports =  Backbone.AssociatedModel.extend({
     defaults: {
       drawing: false,
       north: undefined,
@@ -1095,4 +1094,4 @@ define([
       )
     },
   })
-})
+

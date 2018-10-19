@@ -10,13 +10,12 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  '../tabs',
-  'js/store',
-  'component/editor/metacards-basic/metacards-basic.view',
-  'component/metacard-archive/metacard-archive.view',
-], function(_, Tabs, store, MetacardsBasicView, MetacardArchiveView) {
+const _ = require('underscore')
+const Tabs = require('../tabs')
+const store = require('js/store')
+const MetacardsBasicView = require('component/editor/metacards-basic/metacards-basic.view')
+const MetacardArchiveView = require('component/metacard-archive/metacard-archive.view')
+
   var MetacardsTabs = Tabs.extend({
     defaults: {
       tabs: {
@@ -26,5 +25,5 @@ define([
     },
   })
 
-  return MetacardsTabs
-})
+module.exports =  MetacardsTabs
+

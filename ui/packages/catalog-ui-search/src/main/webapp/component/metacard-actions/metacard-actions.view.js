@@ -13,16 +13,15 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'lodash',
-  'jquery',
-  './metacard-actions.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/map-actions/map-actions.view',
-], function(Marionette, _, $, template, CustomElements, store, MapActions) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('lodash')
+const $ = require('jquery')
+const template = require('./metacard-actions.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const MapActions = require('component/map-actions/map-actions.view')
+
+module.exports =  Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults().first()
     },
@@ -65,4 +64,4 @@ define([
       })
     },
   })
-})
+

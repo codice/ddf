@@ -13,22 +13,14 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './uploads.hbs',
-  'js/CustomElements',
-  'component/upload-batch-item/upload-batch-item.collection.view',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  UploadBatchItemCollectionView
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./uploads.hbs')
+const CustomElements = require('js/CustomElements')
+const UploadBatchItemCollectionView = require('component/upload-batch-item/upload-batch-item.collection.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('uploads'),
     modelEvents: {},
@@ -41,4 +33,4 @@ define([
       this.uploadList.show(new UploadBatchItemCollectionView())
     },
   })
-})
+

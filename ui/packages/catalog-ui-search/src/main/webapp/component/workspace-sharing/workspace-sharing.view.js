@@ -13,31 +13,18 @@
  *
  **/
 /*global define, window*/
-define([
-  'backbone',
-  'marionette',
-  'underscore',
-  'jquery',
-  './workspace-sharing.hbs',
-  './workspace-sharing.item.hbs',
-  'js/CustomElements',
-  'component/singletons/user-instance',
-  'component/editable-rows/editable-rows.view',
-  'component/dropdown/dropdown.view',
-  'component/loading-companion/loading-companion.view',
-], function(
-  Backbone,
-  Marionette,
-  _,
-  $,
-  template,
-  itemTemplate,
-  CustomElements,
-  user,
-  EditableRows,
-  DropdownView,
-  Loading
-) {
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./workspace-sharing.hbs')
+const itemTemplate = require('./workspace-sharing.item.hbs')
+const CustomElements = require('js/CustomElements')
+const user = require('component/singletons/user-instance')
+const EditableRows = require('component/editable-rows/editable-rows.view')
+const DropdownView = require('component/dropdown/dropdown.view')
+const Loading = require('component/loading-companion/loading-companion.view')
+
   var Input = Marionette.ItemView.extend({
     template: '<input class="form-control" type="text"/>',
     modelEvents: { change: 'updateValue' },
@@ -249,5 +236,5 @@ define([
     },
   })
 
-  return WorkspaceSharing
-})
+module.exports =  WorkspaceSharing
+

@@ -13,25 +13,15 @@
  *
  **/
 /*global define, window, document*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './help.hbs',
-  'js/CustomElements',
-  'component/dropdown/dropdown',
-  'component/dropdown/hint/dropdown.hint.view',
-  'component/hint/hint',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  Dropdown,
-  DropdownHintView,
-  Hint
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./help.hbs')
+const CustomElements = require('js/CustomElements')
+const Dropdown = require('component/dropdown/dropdown')
+const DropdownHintView = require('component/dropdown/hint/dropdown.hint.view')
+const Hint = require('component/hint/hint')
+
   var zeroScale = 'matrix(0, 0, 0, 0, 0, 0)'
   var zeroOpacity = '0'
 
@@ -176,7 +166,7 @@ define([
     })
   }
 
-  return new (Marionette.LayoutView.extend({
+module.exports =  new (Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('help'),
     events: {
@@ -352,4 +342,4 @@ define([
       this.$el.off('click.' + this.cid)
     },
   }))()
-})
+

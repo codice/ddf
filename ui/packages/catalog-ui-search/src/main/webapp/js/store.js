@@ -11,16 +11,15 @@
  **/
 /*global define,window*/
 
-define([
-  'jquery',
-  'backbone',
-  'backbone-poller',
-  'underscore',
-  'js/model/Workspace.collection',
-  'component/content/content',
-  'component/router/router',
-], function($, Backbone, poller, _, WorkspaceCollection, Content, router) {
-  return new (Backbone.Model.extend({
+const $ = require('jquery')
+const Backbone = require('backbone')
+const poller = require('backbone-poller')
+const _ = require('underscore')
+const WorkspaceCollection = require('js/model/Workspace.collection')
+const Content = require('component/content/content')
+const router = require('component/router/router')
+
+module.exports =  new (Backbone.Model.extend({
     initialize: function() {
       this.set('content', new Content())
       this.set('workspaces', new WorkspaceCollection())
@@ -161,4 +160,4 @@ define([
       return this.get('content').getCurrentQuery()
     },
   }))()
-})
+

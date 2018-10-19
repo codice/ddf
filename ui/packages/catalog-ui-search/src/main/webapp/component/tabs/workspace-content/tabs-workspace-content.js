@@ -10,12 +10,11 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  '../tabs',
-  'component/workspace-search/workspace-search.view',
-  'component/workspace-lists/workspace-lists.view',
-], function(_, Tabs, WorkspaceSearchView, WorkspaceListsView) {
+const _ = require('underscore')
+const Tabs = require('../tabs')
+const WorkspaceSearchView = require('component/workspace-search/workspace-search.view')
+const WorkspaceListsView = require('component/workspace-lists/workspace-lists.view')
+
   var WorkspaceContentTabs = Tabs.extend({
     defaults: {
       tabs: {
@@ -25,5 +24,5 @@ define([
     },
   })
 
-  return WorkspaceContentTabs
-})
+module.exports =  WorkspaceContentTabs
+

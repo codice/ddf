@@ -13,31 +13,18 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-enum.hbs',
-  'js/CustomElements',
-  'js/Common',
-  '../input.view',
-  'component/dropdown/dropdown.view',
-  'moment',
-  'component/singletons/user-instance',
-  'component/dropdown/dropdown',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  Common,
-  InputView,
-  DropdownView,
-  moment,
-  user,
-  DropdownModel
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-enum.hbs')
+const CustomElements = require('js/CustomElements')
+const Common = require('js/Common')
+const InputView = require('../input.view')
+const DropdownView = require('component/dropdown/dropdown.view')
+const moment = require('moment')
+const user = require('component/singletons/user-instance')
+const DropdownModel = require('component/dropdown/dropdown')
+
   function getValue(model) {
     var multivalued = model.get('property').get('enumMulti')
     var value = model.get('value')
@@ -56,7 +43,7 @@ define([
     return value
   }
 
-  return InputView.extend({
+module.exports =  InputView.extend({
     template: template,
     events: {
       'click .input-revert': 'revert',
@@ -178,4 +165,4 @@ define([
       return choice.length > 0
     },
   })
-})
+

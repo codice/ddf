@@ -13,31 +13,18 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './property.view',
-  './property.collection',
-  'properties',
-  'component/singletons/metacard-definitions',
-  'component/announcement',
-  'js/Common',
-  'component/singletons/user-instance',
-], function(
-  Marionette,
-  _,
-  $,
-  CustomElements,
-  PropertyView,
-  PropertyCollection,
-  properties,
-  metacardDefinitions,
-  announcement,
-  Common,
-  user
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const PropertyView = require('./property.view')
+const PropertyCollection = require('./property.collection')
+const properties = require('properties')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const announcement = require('component/announcement')
+const Common = require('js/Common')
+const user = require('component/singletons/user-instance')
+
   function fallbackComparator(a, b) {
     a = metacardDefinitions.getLabel(a).toLowerCase()
     b = metacardDefinitions.getLabel(b).toLowerCase()
@@ -50,7 +37,7 @@ define([
     return 0
   }
 
-  return Marionette.CollectionView.extend(
+module.exports =  Marionette.CollectionView.extend(
     {
       tagName: CustomElements.register('property-collection'),
       childView: PropertyView,
@@ -411,4 +398,4 @@ define([
       },
     }
   )
-})
+

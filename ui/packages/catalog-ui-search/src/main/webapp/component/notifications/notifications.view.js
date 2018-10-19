@@ -13,11 +13,9 @@
  *
  **/
 /*global define*/
-define(['marionette', './notification.hbs', 'js/CustomElements'], function(
-  Marionette,
-  template,
-  CustomElements
-) {
+const Marionette = require('marionette')
+const template = require('./notification.hbs')
+const CustomElements = require('js/CustomElements')
   var NotificationEmpty = Marionette.ItemView.extend({
     className: 'notification-empty',
     template: 'No recent notifications.',
@@ -43,7 +41,7 @@ define(['marionette', './notification.hbs', 'js/CustomElements'], function(
     },
   })
 
-  return Marionette.CollectionView.extend({
+module.exports =  Marionette.CollectionView.extend({
     tagName: CustomElements.register('notifications-list'),
     childView: NotificationItem,
     emptyView: NotificationEmpty,
@@ -51,4 +49,4 @@ define(['marionette', './notification.hbs', 'js/CustomElements'], function(
       this.collection = this.model
     },
   })
-})
+

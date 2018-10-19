@@ -13,26 +13,16 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.query-src.hbs',
-  'component/query-src/query-src.view',
-  'component/singletons/sources-instance',
-  'properties',
-], function(
-  Marionette,
-  _,
-  $,
-  DropdownView,
-  template,
-  ComponentView,
-  sources,
-  properties
-) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.query-src.hbs')
+const ComponentView = require('component/query-src/query-src.view')
+const sources = require('component/singletons/sources-instance')
+const properties = require('properties')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-querySrc',
     componentToShow: ComponentView,
@@ -59,4 +49,4 @@ define([
       }
     },
   })
-})
+

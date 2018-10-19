@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './confirmation.hbs',
-  './confirmation',
-  'js/CustomElements',
-], function(Marionette, _, $, template, Confirmation, CustomElements) {
-  return Marionette.LayoutView.extend(
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./confirmation.hbs')
+const Confirmation = require('./confirmation')
+const CustomElements = require('js/CustomElements')
+
+module.exports =  Marionette.LayoutView.extend(
     {
       template: template,
       tagName: CustomElements.register('confirmation'),
@@ -81,4 +80,4 @@ define([
       },
     }
   )
-})
+

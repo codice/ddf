@@ -13,45 +13,25 @@
  *
  **/
 /*global define, window*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './content.hbs',
-  'js/CustomElements',
-  'properties',
-  'component/tabs/workspace-content/tabs-workspace-content',
-  'component/tabs/workspace-content/tabs-workspace-content.view',
-  'component/tabs/query/tabs-query.view',
-  'js/store',
-  'component/tabs/metacard/tabs-metacard.view',
-  'component/tabs/metacards/tabs-metacards.view',
-  'js/Common',
-  'component/metacard-title/metacard-title.view',
-  'component/visualization/visualization.view',
-  'component/query-title/query-title.view',
-  'component/golden-layout/golden-layout.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  contentTemplate,
-  CustomElements,
-  properties,
-  WorkspaceContentTabs,
-  WorkspaceContentTabsView,
-  QueryTabsView,
-  store,
-  MetacardTabsView,
-  MetacardsTabsView,
-  Common,
-  MetacardTitleView,
-  VisualizationView,
-  QueryTitleView,
-  GoldenLayoutView
-) {
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const contentTemplate = require('./content.hbs')
+const CustomElements = require('js/CustomElements')
+const properties = require('properties')
+const WorkspaceContentTabs = require('component/tabs/workspace-content/tabs-workspace-content')
+const WorkspaceContentTabsView = require('component/tabs/workspace-content/tabs-workspace-content.view')
+const QueryTabsView = require('component/tabs/query/tabs-query.view')
+const store = require('js/store')
+const MetacardTabsView = require('component/tabs/metacard/tabs-metacard.view')
+const MetacardsTabsView = require('component/tabs/metacards/tabs-metacards.view')
+const Common = require('js/Common')
+const MetacardTitleView = require('component/metacard-title/metacard-title.view')
+const VisualizationView = require('component/visualization/visualization.view')
+const QueryTitleView = require('component/query-title/query-title.view')
+const GoldenLayoutView = require('component/golden-layout/golden-layout.view')
+
   var ContentView = Marionette.LayoutView.extend({
     template: contentTemplate,
     tagName: CustomElements.register('content'),
@@ -98,5 +78,5 @@ define([
     _mapView: undefined,
   })
 
-  return ContentView
-})
+module.exports =  ContentView
+

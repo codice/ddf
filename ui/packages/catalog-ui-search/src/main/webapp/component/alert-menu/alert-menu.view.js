@@ -13,28 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './alert-menu.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/alert/alert',
-  'js/Common',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  alertInstance,
-  Common
-) {
-  return Marionette.LayoutView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./alert-menu.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const alertInstance = require('component/alert/alert')
+const Common = require('js/Common')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('alert-menu'),
     events: {
@@ -72,4 +61,4 @@ define([
       }
     },
   })
-})
+

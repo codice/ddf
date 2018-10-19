@@ -11,13 +11,11 @@
  **/
 /*global define*/
 
-define(['jquery', 'backbone', 'underscore', 'properties', 'moment'], function(
-  $,
-  Backbone,
-  _,
-  properties,
-  moment
-) {
+const $ = require('jquery')
+const Backbone = require('backbone')
+const _ = require('underscore')
+const properties = require('properties')
+const moment = require('moment')
   function transformEnumResponse(metacardTypes, response) {
     return _.reduce(
       response,
@@ -94,7 +92,7 @@ define(['jquery', 'backbone', 'underscore', 'properties', 'moment'], function(
     }
   })
 
-  return new (Backbone.Model.extend({
+module.exports =  new (Backbone.Model.extend({
     initialize: function() {
       this.updateSortedMetacardTypes()
       this.getMetacardTypes()
@@ -230,4 +228,4 @@ define(['jquery', 'backbone', 'underscore', 'properties', 'moment'], function(
     validation: {},
     enums: properties.enums,
   }))()
-})
+

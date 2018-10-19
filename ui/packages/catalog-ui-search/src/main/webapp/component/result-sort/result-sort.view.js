@@ -13,26 +13,16 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'backbone',
-  'underscore',
-  'jquery',
-  './result-sort.hbs',
-  'js/CustomElements',
-  'component/singletons/user-instance',
-  'component/sort/sort.view',
-], function(
-  Marionette,
-  Backbone,
-  _,
-  $,
-  template,
-  CustomElements,
-  user,
-  SortItemCollectionView
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./result-sort.hbs')
+const CustomElements = require('js/CustomElements')
+const user = require('component/singletons/user-instance')
+const SortItemCollectionView = require('component/sort/sort.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('result-sort'),
     modelEvents: {
@@ -90,4 +80,4 @@ define([
       this.$el.toggleClass('has-sort', Boolean(resultSort))
     },
   })
-})
+

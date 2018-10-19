@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'backbone',
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-indicator.hbs',
-  'js/CustomElements',
-  'js/store',
-], function(Backbone, Marionette, _, $, template, CustomElements, store) {
-  return Marionette.ItemView.extend({
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./result-indicator.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('result-indicator'),
     initialize: function() {
@@ -70,4 +69,4 @@ define([
       }
     },
   })
-})
+

@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.result-form-selector.hbs',
-  'component/result-form-selector/result-form-selector.view',
-  'js/store',
-], function(Marionette, _, $, DropdownView, template, ResultForms, store) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.result-form-selector.hbs')
+const ResultForms = require('component/result-form-selector/result-form-selector.view')
+const store = require('js/store')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-search-form-selector',
     componentToShow: ResultForms,
@@ -56,4 +55,4 @@ define([
       )
     },
   })
-})
+

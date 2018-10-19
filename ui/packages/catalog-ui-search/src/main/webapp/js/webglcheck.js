@@ -13,10 +13,10 @@
 /*global window*/
 /*jslint browser: true*/
 
-define(['underscore'], function(_) {
+const _ = require('underscore')
   'use strict'
 
-  return {
+module.exports =  {
     isWebglAvailable: undefined,
     isAvailable: function() {
       if (_.isUndefined(this.isWebglAvailable)) {
@@ -45,4 +45,4 @@ define(['underscore'], function(_) {
       return this.isWebglAvailable
     },
   }
-})
+

@@ -13,27 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './dropdown.companion.view',
-  './dropdown',
-  './dropdown.hbs',
-  'component/select/select.collection.view',
-  'behaviors/button.behavior',
-], function(
-  Marionette,
-  _,
-  $,
-  CustomElements,
-  DropdownCompanionView,
-  DropdownModel,
-  template,
-  SelectView
-) {
-  return Marionette.LayoutView.extend(
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const DropdownCompanionView = require('./dropdown.companion.view')
+const DropdownModel = require('./dropdown')
+const template = require('./dropdown.hbs')
+const SelectView = require('component/select/select.collection.view')
+require('behaviors/button.behavior')
+
+module.exports =  Marionette.LayoutView.extend(
     {
       template: template,
       className: 'is-simpleDropdown',
@@ -180,4 +170,4 @@ define([
       },
     }
   )
-})
+

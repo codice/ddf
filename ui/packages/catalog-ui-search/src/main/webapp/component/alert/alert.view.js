@@ -13,22 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  './alert.hbs',
-  'js/CustomElements',
-  'component/content/alert/content.alert.view',
-  'component/alert/alert',
-], function(
-  Marionette,
-  _,
-  template,
-  CustomElements,
-  AlertContentView,
-  alertInstance
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const template = require('./alert.hbs')
+const CustomElements = require('js/CustomElements')
+const AlertContentView = require('component/content/alert/content.alert.view')
+const alertInstance = require('component/alert/alert')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('alert'),
     regions: {
@@ -46,4 +38,4 @@ define([
       this.alertDetails.show(new AlertContentView())
     },
   })
-})
+

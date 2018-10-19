@@ -11,14 +11,13 @@
  **/
 /*global define*/
 
-define([
-  'underscore',
-  'marionette',
-  'backbone',
-  'wreqr',
-  './map-actions.hbs',
-  'js/CustomElements',
-], function(_, Marionette, Backbone, wreqr, template, CustomElements) {
+const _ = require('underscore')
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const wreqr = require('wreqr')
+const template = require('./map-actions.hbs')
+const CustomElements = require('js/CustomElements')
+
   'use strict'
 
   var mapActionsView = Marionette.ItemView.extend({
@@ -104,5 +103,5 @@ define([
     },
   })
 
-  return mapActionsView
-})
+module.exports =  mapActionsView
+

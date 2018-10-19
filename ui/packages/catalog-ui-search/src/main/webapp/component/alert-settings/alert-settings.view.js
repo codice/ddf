@@ -13,26 +13,16 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './alert-settings.hbs',
-  'js/CustomElements',
-  'component/singletons/user-instance',
-  'component/property/property.view',
-  'component/property/property',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  user,
-  PropertyView,
-  Property
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./alert-settings.hbs')
+const CustomElements = require('js/CustomElements')
+const user = require('component/singletons/user-instance')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('alert-settings'),
     modelEvents: {},
@@ -179,4 +169,4 @@ define([
       preferences.savePreferences()
     },
   })
-})
+

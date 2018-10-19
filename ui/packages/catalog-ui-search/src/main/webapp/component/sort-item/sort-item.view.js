@@ -13,29 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './sort-item.hbs',
-  'js/CustomElements',
-  'component/singletons/metacard-definitions',
-  'component/dropdown/dropdown.view',
-  'component/property/property.view',
-  'component/property/property',
-  'properties',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  metacardDefinitions,
-  DropdownView,
-  PropertyView,
-  Property,
-  properties
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./sort-item.hbs')
+const CustomElements = require('js/CustomElements')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const DropdownView = require('component/dropdown/dropdown.view')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const properties = require('properties')
+
   var blacklist = ['anyText', 'anyGeo']
 
   function getSortLabel(attribute) {
@@ -82,7 +70,7 @@ define([
     }
   }
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('sort-item'),
     sortAttributes: [],
@@ -243,4 +231,4 @@ define([
       return data
     },
   })
-})
+

@@ -13,28 +13,18 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-quality.hbs',
-  'js/CustomElements',
-  'component/loading-companion/loading-companion.view',
-  'js/store',
-  'js/Common',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  LoadingCompanionView,
-  store,
-  Common
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-quality.hbs')
+const CustomElements = require('js/CustomElements')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const store = require('js/store')
+const Common = require('js/Common')
+
   var selectedVersion
 
-  return Marionette.ItemView.extend({
+module.exports =  Marionette.ItemView.extend({
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults().first()
     },
@@ -118,4 +108,4 @@ define([
       }
     },
   })
-})
+

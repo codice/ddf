@@ -10,26 +10,16 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'backbone',
-  'js/model/Metacard',
-  'js/model/Query',
-  'js/model/QueryResponse',
-  'js/model/QueryResult',
-  'js/cql',
-  'component/router/router',
-], function(
-  _,
-  Backbone,
-  Metacard,
-  Query,
-  QueryResponse,
-  QueryResult,
-  cql,
-  router
-) {
-  return new (Backbone.AssociatedModel.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+const Metacard = require('js/model/Metacard')
+const Query = require('js/model/Query')
+const QueryResponse = require('js/model/QueryResponse')
+const QueryResult = require('js/model/QueryResult')
+const cql = require('js/cql')
+const router = require('component/router/router')
+
+module.exports =  new (Backbone.AssociatedModel.extend({
     relations: [
       {
         type: Backbone.One,
@@ -218,4 +208,4 @@ define([
       return this.get('currentQuery')
     },
   }))()
-})
+

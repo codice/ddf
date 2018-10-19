@@ -16,7 +16,7 @@
 var filter = ''
 
 function convertArrayToModels(array) {
-  return array.map(key => {
+module.exports =  array.map(key => {
     return {
       id: key,
     }
@@ -24,54 +24,38 @@ function convertArrayToModels(array) {
 }
 
 function getDifference(collection, array) {
-  return collection.filter(model => array.indexOf(model.id) === -1)
+module.exports =  collection.filter(model => array.indexOf(model.id) === -1)
 }
 
 function intersect(collection, array) {
   var difference = getDifference(collection, array)
   collection.remove(difference)
-  return difference
+module.exports =  difference
 }
 
 function sync(collection, array) {
   var difference = getDifference(collection, array)
   collection.remove(difference)
   collection.add(convertArrayToModels(array))
-  return difference
+module.exports =  difference
 }
 
-define([
-  'backbone',
-  'marionette',
-  'underscore',
-  'jquery',
-  './editor.hbs',
-  'js/CustomElements',
-  'component/property/property.view',
-  'component/property/property',
-  'component/dropdown/details-filter/dropdown.details-filter.view',
-  'component/dropdown/dropdown',
-  'component/details-interactions/details-interactions.view',
-  'component/dropdown/popout/dropdown.popout.view',
-  'component/singletons/user-instance',
-  'properties',
-], function(
-  Backbone,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  PropertyView,
-  Property,
-  DetailsFilterView,
-  DropdownModel,
-  DetailsInteractionsView,
-  PopoutView,
-  user,
-  properties
-) {
-  return Marionette.LayoutView.extend({
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./editor.hbs')
+const CustomElements = require('js/CustomElements')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const DetailsFilterView = require('component/dropdown/details-filter/dropdown.details-filter.view')
+const DropdownModel = require('component/dropdown/dropdown')
+const DetailsInteractionsView = require('component/details-interactions/details-interactions.view')
+const PopoutView = require('component/dropdown/popout/dropdown.popout.view')
+const user = require('component/singletons/user-instance')
+const properties = require('properties')
+
+module.exports =  Marionette.LayoutView.extend({
     setDefaultModel: function() {
       //override
     },
@@ -358,4 +342,4 @@ define([
       return this.editorProperties.currentView.toJSON()
     },
   })
-})
+

@@ -13,11 +13,9 @@
  *
  **/
 /*global define*/
-define(['../dropdown.view', './dropdown.result-display.hbs'], function(
-  DropdownView,
-  template
-) {
-  return DropdownView.extend({
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.result-display.hbs')
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-resultDisplay',
     serializeData: function() {
@@ -31,4 +29,4 @@ define(['../dropdown.view', './dropdown.result-display.hbs'], function(
       }
     },
   })
-})
+

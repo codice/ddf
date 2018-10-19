@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.companion.view',
-  'js/CustomElements',
-], function(Marionette, _, $, DropdownCompanionView, CustomElements) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownCompanionView = require('../dropdown.companion.view')
+const CustomElements = require('js/CustomElements')
+
   var namespace = CustomElements.getNamespace()
 
-  return DropdownCompanionView.extend({
+module.exports =  DropdownCompanionView.extend({
     className: 'is-hint',
     listenForOutsideClick: function() {
       DropdownCompanionView.prototype.listenForOutsideClick.call(this)
@@ -36,4 +35,4 @@ define([
       )
     },
   })
-})
+

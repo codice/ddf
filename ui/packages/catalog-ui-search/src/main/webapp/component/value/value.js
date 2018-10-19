@@ -10,13 +10,12 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'backbone',
-  'component/property/property',
-  'backbone-associations',
-], function(_, Backbone, PropertyModel) {
-  return Backbone.AssociatedModel.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+const PropertyModel = require('component/property/property')
+require('backbone-associations')
+
+module.exports =  Backbone.AssociatedModel.extend({
     defaults: {
       value: undefined,
       isValid: true,
@@ -66,4 +65,4 @@ define([
       return this.get('property').showValidationIssues()
     },
   })
-})
+

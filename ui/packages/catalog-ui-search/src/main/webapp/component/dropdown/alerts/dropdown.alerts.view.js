@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.alerts.hbs',
-  'component/alerts/alerts.view',
-  'component/singletons/user-instance',
-], function(_, $, DropdownView, template, ComponentView, user) {
-  return DropdownView.extend({
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.alerts.hbs')
+const ComponentView = require('component/alerts/alerts.view')
+const user = require('component/singletons/user-instance')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-alerts is-button',
     componentToShow: ComponentView,
@@ -52,4 +51,4 @@ define([
     },
     hasTail: true,
   })
-})
+

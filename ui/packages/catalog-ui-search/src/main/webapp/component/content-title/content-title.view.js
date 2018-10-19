@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'js/CustomElements',
-  'js/store',
-  'component/unsaved-indicator/workspace/workspace-unsaved-indicator.view',
-  'react',
-  'behaviors/region.behavior',
-], function(Marionette, _, CustomElements, store, UnsavedIndicatorView, React) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const UnsavedIndicatorView = require('component/unsaved-indicator/workspace/workspace-unsaved-indicator.view')
+const React = require('react')
+require('behaviors/region.behavior')
+
+module.exports =  Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = store.get('content')
     },
@@ -88,4 +87,4 @@ define([
       this.model.get('currentWorkspace').set('title', e.currentTarget.value)
     },
   })
-})
+

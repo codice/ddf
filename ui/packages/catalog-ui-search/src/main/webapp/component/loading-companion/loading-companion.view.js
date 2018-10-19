@@ -13,14 +13,13 @@
  *
  **/
 /*global define, alert, window*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './loading-companion.hbs',
-  'js/CustomElements',
-  'js/Positioning',
-], function(Marionette, _, $, template, CustomElements, Positioning) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./loading-companion.hbs')
+const CustomElements = require('js/CustomElements')
+const Positioning = require('js/Positioning')
+
   var loadingCompanions = []
 
   function getLoadingCompanion(linkedView) {
@@ -100,7 +99,7 @@ define([
     },
   })
 
-  return {
+module.exports =  {
     loadElement(el) {
       if (!el) {
         throw "Must pass the el you're wanting to have a loader on top of."
@@ -149,4 +148,4 @@ define([
       }
     },
   }
-})
+

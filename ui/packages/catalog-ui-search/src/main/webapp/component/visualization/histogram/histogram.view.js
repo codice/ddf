@@ -13,37 +13,21 @@
  *
  **/
 /*global define, window*/
-define([
-  'wreqr',
-  'jquery',
-  'underscore',
-  'marionette',
-  'js/CustomElements',
-  './histogram.hbs',
-  'plotly.js',
-  'component/property/property',
-  'component/property/property.view',
-  'component/singletons/metacard-definitions',
-  'js/Common',
-  'properties',
-  'moment',
-  'component/singletons/user-instance',
-], function(
-  wreqr,
-  $,
-  _,
-  Marionette,
-  CustomElements,
-  template,
-  Plotly,
-  Property,
-  PropertyView,
-  metacardDefinitions,
-  Common,
-  properties,
-  moment,
-  user
-) {
+const wreqr = require('wreqr')
+const $ = require('jquery')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('js/CustomElements')
+const template = require('./histogram.hbs')
+const Plotly = require('plotly.js')
+const Property = require('component/property/property')
+const PropertyView = require('component/property/property.view')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const Common = require('js/Common')
+const properties = require('properties')
+const moment = require('moment')
+const user = require('component/singletons/user-instance')
+
   var zeroWidthSpace = '\u200B'
   var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS'
 
@@ -261,7 +245,7 @@ define([
     return baseLayout
   }
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     tagName: CustomElements.register('histogram'),
     template: template,
     regions: {
@@ -682,4 +666,4 @@ define([
     ctrlKey: false,
     pointsSelected: [],
   })
-})
+

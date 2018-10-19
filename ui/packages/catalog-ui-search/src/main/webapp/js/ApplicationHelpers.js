@@ -13,11 +13,10 @@
  *
  **/
 /* global define */
-define(['backbone', 'q', 'underscore', 'backbone-associations'], function(
-  Backbone,
-  Q,
-  _
-) {
+const Backbone = require('backbone')
+const Q = require('q')
+const _ = require('underscore')
+require('backbone-associations')
   // Backbone associations uses "." as its standard sub-object selecting within their framework.
   // However since some of our json attribute names have "." characters in the name, this causes
   // associations to do undesired sub-object querying when we do simple set operations on models
@@ -59,4 +58,4 @@ define(['backbone', 'q', 'underscore', 'backbone-associations'], function(
   if (typeof Backbone.Model.prototype.fetchPromise !== 'function') {
     Backbone.Model.prototype.fetchPromise = fetchPromise
   }
-})
+

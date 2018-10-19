@@ -13,15 +13,14 @@
  *
  **/
 /*global define, alert, window*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-color.hbs',
-  'js/CustomElements',
-  '../input.view',
-  'spectrum-colorpicker',
-], function(Marionette, _, $, template, CustomElements, InputView) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-color.hbs')
+const CustomElements = require('js/CustomElements')
+const InputView = require('../input.view')
+require('spectrum-colorpicker')
+
   function validTextColour(stringToTest) {
     if (
       [null, undefined, '', 'inherit', 'transparent'].indexOf(stringToTest) !==
@@ -60,7 +59,7 @@ define([
     }
   }
 
-  return InputView.extend({
+module.exports =  InputView.extend({
     template: template,
     events: {},
     serializeData: function() {
@@ -122,4 +121,4 @@ define([
       }
     },
   })
-})
+

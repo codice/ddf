@@ -11,7 +11,7 @@
  **/
 /*global define*/
 /*jshint bitwise: false*/
-define([], function() {
+
   var EARTH_MEAN_RADIUS_METERS = 6371008.7714
 
   var DEGREES_TO_RADIANS = Math.PI / 180
@@ -23,7 +23,7 @@ define([], function() {
   var METERS_MILES = 1609.344
   var METERS_NAUTICAL_MILES = 1852
 
-  return {
+module.exports =  {
     distToDegrees: function(distanceInMeters) {
       return this.toDegrees(this.distToRadians(distanceInMeters))
     },
@@ -74,4 +74,4 @@ define([], function() {
       return Math.round(value)
     },
   }
-})
+

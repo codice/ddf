@@ -13,13 +13,12 @@
  *
  **/
 /*global define*/
-define([
-  '../dropdown.view',
-  './dropdown.hint.hbs',
-  'component/hint/hint.view',
-  './dropdown.companion.hint.view',
-], function(DropdownView, template, ComponentView, HintDropdownCompanion) {
-  return DropdownView.extend({
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.hint.hbs')
+const ComponentView = require('component/hint/hint.view')
+const HintDropdownCompanion = require('./dropdown.companion.hint.view')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-hint',
     componentToShow: ComponentView,
@@ -32,4 +31,4 @@ define([
     },
     listenToComponent: function() {},
   })
-})
+

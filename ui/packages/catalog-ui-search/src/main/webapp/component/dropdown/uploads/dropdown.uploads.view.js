@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.uploads.hbs',
-  'component/uploads/uploads.view',
-  'component/singletons/user-instance',
-], function(_, $, DropdownView, template, ComponentView, user) {
-  return DropdownView.extend({
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.uploads.hbs')
+const ComponentView = require('component/uploads/uploads.view')
+const user = require('component/singletons/user-instance')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-uploads is-button',
     componentToShow: ComponentView,
@@ -52,4 +51,4 @@ define([
     },
     hasTail: true,
   })
-})
+

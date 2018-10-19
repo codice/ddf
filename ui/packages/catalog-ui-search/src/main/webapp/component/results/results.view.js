@@ -13,29 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './results.hbs',
-  'js/CustomElements',
-  'component/dropdown/query-select/dropdown.query-select.view',
-  'component/dropdown/dropdown',
-  'js/store',
-  'component/result-selector/result-selector.view',
-  'component/workspace-explore/workspace-explore.view',
-], function(
-  Marionette,
-  _,
-  $,
-  resultsTemplate,
-  CustomElements,
-  QuerySelectDropdown,
-  DropdownModel,
-  store,
-  ResultSelectorView,
-  WorkspaceExploreView
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const resultsTemplate = require('./results.hbs')
+const CustomElements = require('js/CustomElements')
+const QuerySelectDropdown = require('component/dropdown/query-select/dropdown.query-select.view')
+const DropdownModel = require('component/dropdown/dropdown')
+const store = require('js/store')
+const ResultSelectorView = require('component/result-selector/result-selector.view')
+const WorkspaceExploreView = require('component/workspace-explore/workspace-explore.view')
+
   var selectedQueryId
 
   var ResultsView = Marionette.LayoutView.extend({
@@ -119,5 +107,5 @@ define([
     },
   })
 
-  return ResultsView
-})
+module.exports =  ResultsView
+

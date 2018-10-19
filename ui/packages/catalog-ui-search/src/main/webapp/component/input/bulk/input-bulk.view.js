@@ -13,31 +13,18 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-bulk.hbs',
-  'js/CustomElements',
-  'component/input/input.view',
-  'component/multivalue/multivalue.view',
-  'component/dropdown/dropdown.view',
-  'js/Common',
-  'moment',
-  'component/singletons/user-instance',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  InputView,
-  MultivalueView,
-  DropdownView,
-  Common,
-  moment,
-  user
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-bulk.hbs')
+const CustomElements = require('js/CustomElements')
+const InputView = require('component/input/input.view')
+const MultivalueView = require('component/multivalue/multivalue.view')
+const DropdownView = require('component/dropdown/dropdown.view')
+const Common = require('js/Common')
+const moment = require('moment')
+const user = require('component/singletons/user-instance')
+
   function sortNoValueToTop(a, b) {
     if (a.value === 'bulkDefault') {
       return -1
@@ -60,7 +47,7 @@ define([
     return 0
   }
 
-  return InputView.extend({
+module.exports =  InputView.extend({
     className: 'is-bulk',
     template: template,
     regions: {
@@ -246,4 +233,4 @@ define([
       this.$el.addClass('is-homogeneous')
     },
   })
-})
+

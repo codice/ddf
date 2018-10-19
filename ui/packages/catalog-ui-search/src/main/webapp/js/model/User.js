@@ -12,38 +12,22 @@
 /*global define, window*/
 /*jslint bitwise: true */
 
-define([
-  'underscore',
-  'lodash.get',
-  'wreqr',
-  'backbone',
-  'properties',
-  './Alert',
-  'js/Common',
-  'js/model/UploadBatch',
-  'component/announcement',
-  'component/blacklist-item/blacklist-item',
-  'moment-timezone',
-  'js/model/Theme',
-  'js/ThemeUtils',
-  'js/model/QuerySettings',
-  'backbone-associations',
-], function(
-  _,
-  _get,
-  wreqr,
-  Backbone,
-  properties,
-  Alert,
-  Common,
-  UploadBatch,
-  announcement,
-  BlackListItem,
-  moment,
-  Theme,
-  ThemeUtils,
-  QuerySettings
-) {
+const _ = require('underscore')
+const _get = require('lodash.get')
+const wreqr = require('wreqr')
+const Backbone = require('backbone')
+const properties = require('properties')
+const Alert = require('./Alert')
+const Common = require('js/Common')
+const UploadBatch = require('js/model/UploadBatch')
+const announcement = require('component/announcement')
+const BlackListItem = require('component/blacklist-item/blacklist-item')
+const moment = require('moment-timezone')
+const Theme = require('js/model/Theme')
+const ThemeUtils = require('js/ThemeUtils')
+const QuerySettings = require('js/model/QuerySettings')
+require('backbone-associations')
+
   'use strict'
 
   var User = {}
@@ -436,5 +420,5 @@ define([
     },
   })
 
-  return User
-})
+module.exports =  User
+

@@ -14,7 +14,7 @@
  * See license.txt in the OpenLayers distribution or repository for the
  * full text of the license. */
 // jshint ignore: start
-define(['moment'], function(moment) {
+const moment = require('moment')
   'use strict'
 
   var comparisonClass = 'Comparison',
@@ -710,7 +710,7 @@ define(['moment'], function(moment) {
     }
   }
 
-  return {
+module.exports =  {
     read: function(cql) {
       if (cql === undefined || cql.length === 0) {
         return {
@@ -733,4 +733,4 @@ define(['moment'], function(moment) {
     translateCqlToUserql,
     translateUserqlToCql,
   }
-})
+

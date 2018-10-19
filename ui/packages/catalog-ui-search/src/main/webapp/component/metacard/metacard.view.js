@@ -13,28 +13,18 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard.hbs',
-  'js/CustomElements',
-  'component/metacard/metacard',
-  'component/golden-layout/golden-layout.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  metacardInstance,
-  GoldenLayoutMetacardView
-) {
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard.hbs')
+const CustomElements = require('js/CustomElements')
+const metacardInstance = require('component/metacard/metacard')
+const GoldenLayoutMetacardView = require('component/golden-layout/golden-layout.view')
+
   let queryForMetacard
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('metacard'),
     regions: {
@@ -89,4 +79,4 @@ define([
       )
     },
   })
-})
+

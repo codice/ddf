@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-define(['marionette'], function(Marionette) {
+const Marionette = require('marionette')
   'use strict'
 
   var NotificationView = Marionette.View.extend({
@@ -39,5 +39,5 @@ define(['marionette'], function(Marionette) {
     },
   })
 
-  return NotificationView
-})
+module.exports =  NotificationView
+

@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.search-interactions.hbs',
-  'component/search-interactions/search-interactions.view',
-  'js/store',
-], function(Marionette, _, $, DropdownView, template, ComponentView, store) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.search-interactions.hbs')
+const ComponentView = require('component/search-interactions/search-interactions.view')
+const store = require('js/store')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-search-interactions',
     componentToShow: ComponentView,
@@ -49,4 +48,4 @@ define([
       )
     },
   })
-})
+

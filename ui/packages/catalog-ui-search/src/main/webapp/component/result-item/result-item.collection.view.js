@@ -13,26 +13,16 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './result-item.view',
-  'component/result-group/result-group.view',
-  'js/store',
-  'lodash/debounce',
-], function(
-  Marionette,
-  _,
-  $,
-  CustomElements,
-  childView,
-  groupView,
-  store,
-  _debounce
-) {
-  return Marionette.CollectionView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const childView = require('./result-item.view')
+const groupView = require('component/result-group/result-group.view')
+const store = require('js/store')
+const _debounce = require('lodash/debounce')
+
+module.exports =  Marionette.CollectionView.extend({
     emptyView: Marionette.ItemView.extend({
       className: 'result-item-collection-empty',
       template: 'No results found',
@@ -66,4 +56,4 @@ define([
       childView.$el.attr('data-index', this.children.length - 1)
     },
   })
-})
+

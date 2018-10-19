@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.metacard-interactions.hbs',
-  'component/metacard-interactions/metacard-interactions.view',
-], function(Marionette, _, $, DropdownView, template, ComponentView) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.metacard-interactions.hbs')
+const ComponentView = require('component/metacard-interactions/metacard-interactions.view')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-metacardInteractions',
     componentToShow: ComponentView,
@@ -38,4 +37,4 @@ define([
     },
     hasTail: true,
   })
-})
+

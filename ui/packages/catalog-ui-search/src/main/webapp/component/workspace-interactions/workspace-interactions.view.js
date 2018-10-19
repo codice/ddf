@@ -14,34 +14,20 @@
  **/
 /*global define, window*/
 
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './workspace-interactions.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/router/router',
-  'component/singletons/user-instance',
-  'component/loading/loading.view',
-  'component/lightbox/lightbox.view.instance',
-  'component/workspace-sharing/workspace-sharing.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  router,
-  user,
-  LoadingView,
-  lightboxInstance,
-  WorkspaceSharing
-) {
-  return Marionette.ItemView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./workspace-interactions.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const router = require('component/router/router')
+const user = require('component/singletons/user-instance')
+const LoadingView = require('component/loading/loading.view')
+const lightboxInstance = require('component/lightbox/lightbox.view.instance')
+const WorkspaceSharing = require('component/workspace-sharing/workspace-sharing.view')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('workspace-interactions'),
     className: 'composed-menu',
@@ -173,4 +159,4 @@ define([
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
   })
-})
+

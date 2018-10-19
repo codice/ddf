@@ -10,8 +10,8 @@
  *
  **/
 /*global define*/
-define([], function() {
-  return {
+
+module.exports =  {
     coreTransitionTime: 200,
   }
-})
+

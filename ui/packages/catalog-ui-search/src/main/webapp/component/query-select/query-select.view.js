@@ -13,14 +13,13 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  'js/store',
-  'component/query-item/query-item.collection.view',
-], function(Marionette, _, $, CustomElements, store, QueryItemCollectionView) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const QueryItemCollectionView = require('component/query-item/query-item.collection.view')
+
   var eventsHash = {
     click: 'handleClick',
   }
@@ -29,7 +28,7 @@ define([
   var queryItemClickEvent = 'click ' + namespace + 'query-item'
   eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
 
-  return QueryItemCollectionView.extend({
+module.exports =  QueryItemCollectionView.extend({
     className: 'is-query-select composed-menu',
     events: eventsHash,
     onBeforeShow: function() {
@@ -50,4 +49,4 @@ define([
       }
     },
   })
-})
+

@@ -13,30 +13,18 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../editor.view',
-  'js/store',
-  'component/property/property.collection.view',
-  'component/loading-companion/loading-companion.view',
-  'component/alert/alert',
-  'component/singletons/metacard-definitions',
-  'js/ResultUtils',
-], function(
-  Marionette,
-  _,
-  $,
-  EditorView,
-  store,
-  PropertyCollectionView,
-  LoadingCompanionView,
-  alertInstance,
-  metacardDefinitions,
-  ResultUtils
-) {
-  return EditorView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const EditorView = require('../editor.view')
+const store = require('js/store')
+const PropertyCollectionView = require('component/property/property.collection.view')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const alertInstance = require('component/alert/alert')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const ResultUtils = require('js/ResultUtils')
+
+module.exports =  EditorView.extend({
     className: 'is-metacards-basic',
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults()
@@ -131,4 +119,4 @@ define([
       }
     },
   })
-})
+

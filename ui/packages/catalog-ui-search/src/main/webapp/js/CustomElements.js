@@ -10,12 +10,12 @@
  *
  **/
 /*global define*/
-define([], function() {
+
   var namespace = 'intrigue-'
 
   var registry = {}
 
-  return {
+module.exports =  {
     register: function(name) {
       if (registry[name]) {
         throw Error(
@@ -34,4 +34,4 @@ define([], function() {
       return namespace + name
     },
   }
-})
+

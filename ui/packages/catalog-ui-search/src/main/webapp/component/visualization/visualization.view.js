@@ -13,29 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'js/CustomElements',
-  './visualization.hbs',
-  'component/visualization/maps/openlayers/openlayers.view',
-  'component/visualization/combined-map/combined-map.view',
-  'component/visualization/histogram/histogram.view',
-  'component/visualization/table/table-viz.view',
-  'component/singletons/user-instance',
-  'maptype',
-], function(
-  wreqr,
-  Marionette,
-  CustomElements,
-  template,
-  OpenlayersView,
-  CombinedMapView,
-  HistogramView,
-  TableView,
-  user,
-  maptype
-) {
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const CustomElements = require('js/CustomElements')
+const template = require('./visualization.hbs')
+const OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view')
+const CombinedMapView = require('component/visualization/combined-map/combined-map.view')
+const HistogramView = require('component/visualization/histogram/histogram.view')
+const TableView = require('component/visualization/table/table-viz.view')
+const user = require('component/singletons/user-instance')
+const maptype = require('maptype')
+
   function getActiveVisualization() {
     return user
       .get('user')
@@ -47,7 +35,7 @@ define([
     return user.get('user').get('preferences')
   }
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     tagName: CustomElements.register('visualization'),
     template: template,
     regions: {
@@ -102,4 +90,4 @@ define([
       )
     },
   })
-})
+

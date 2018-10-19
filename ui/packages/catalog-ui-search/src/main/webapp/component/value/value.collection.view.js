@@ -13,24 +13,15 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './value.view',
-  './value.collection',
-  'js/CustomElements',
-  'moment',
-], function(
-  Marionette,
-  _,
-  $,
-  ValueView,
-  ValueCollection,
-  CustomElements,
-  moment
-) {
-  return Marionette.CollectionView.extend(
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const ValueView = require('./value.view')
+const ValueCollection = require('./value.collection')
+const CustomElements = require('js/CustomElements')
+const moment = require('moment')
+
+module.exports =  Marionette.CollectionView.extend(
     {
       childView: ValueView,
       tagName: CustomElements.register('value-collection'),
@@ -83,4 +74,4 @@ define([
       },
     }
   )
-})
+

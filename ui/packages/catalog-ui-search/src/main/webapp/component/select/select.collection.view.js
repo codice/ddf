@@ -13,16 +13,15 @@
  *
  **/
 /*global define, window*/
-define([
-  'backbone',
-  'marionette',
-  'underscore',
-  'jquery',
-  './select.view',
-  'js/CustomElements',
-  'js/Common',
-], function(Backbone, Marionette, _, $, childView, CustomElements, Common) {
-  return Marionette.CollectionView.extend({
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const childView = require('./select.view')
+const CustomElements = require('js/CustomElements')
+const Common = require('js/Common')
+
+module.exports =  Marionette.CollectionView.extend({
     emptyView: Marionette.ItemView.extend({
       className: 'select-collection-empty',
       template: 'Nothing Found',
@@ -244,4 +243,4 @@ define([
       })
     },
   })
-})
+

@@ -13,30 +13,18 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'backbone',
-  'underscore',
-  'jquery',
-  './metacard-menu.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/metacard/metacard',
-  'component/metacard-title/metacard-title.view',
-], function(
-  wreqr,
-  Marionette,
-  Backbone,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  metacardInstance,
-  MetacardTitleView
-) {
-  return Marionette.LayoutView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-menu.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const metacardInstance = require('component/metacard/metacard')
+const MetacardTitleView = require('component/metacard-title/metacard-title.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('metacard-menu'),
     events: {
@@ -83,4 +71,4 @@ define([
       }
     },
   })
-})
+

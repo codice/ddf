@@ -13,14 +13,13 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './loading.hbs',
-  'js/CustomElements',
-], function(Marionette, _, $, template, CustomElements) {
-  return Marionette.ItemView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./loading.hbs')
+const CustomElements = require('js/CustomElements')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('loading'),
     initialize: function() {
@@ -60,4 +59,4 @@ define([
       }
     },
   })
-})
+

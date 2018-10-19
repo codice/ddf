@@ -13,11 +13,9 @@
  *
  **/
 /*global define, alert*/
-define(['./Lightbox.view', './lightboxInstance'], function(
-  LightboxView,
-  lightboxInstance
-) {
-  return new LightboxView({
+const LightboxView = require('./Lightbox.view')
+const lightboxInstance = require('./lightboxInstance')
+module.exports =  new LightboxView({
     model: lightboxInstance,
   })
-})
+

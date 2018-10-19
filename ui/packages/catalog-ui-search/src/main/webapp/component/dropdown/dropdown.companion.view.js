@@ -13,29 +13,18 @@
  *
  **/
 /*global define, window, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './dropdown.companion.hbs',
-  'js/Common',
-  'js/store',
-  'behaviors/dropdown.behavior.utility',
-  'component/router/router',
-  'behaviors/navigation.behavior',
-], function(
-  Marionette,
-  _,
-  $,
-  CustomElements,
-  template,
-  Common,
-  store,
-  DropdownBehaviorUtility,
-  router
-) {
-  return Marionette.LayoutView.extend(
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const template = require('./dropdown.companion.hbs')
+const Common = require('js/Common')
+const store = require('js/store')
+const DropdownBehaviorUtility = require('behaviors/dropdown.behavior.utility')
+const router = require('component/router/router')
+require('behaviors/navigation.behavior')
+
+module.exports =  Marionette.LayoutView.extend(
     {
       template: template,
       tagName: CustomElements.register('dropdown-companion'),
@@ -352,4 +341,4 @@ define([
       },
     }
   )
-})
+

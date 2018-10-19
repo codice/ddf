@@ -13,24 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './details-filter.hbs',
-  'js/CustomElements',
-  'component/property/property.view',
-  'component/property/property',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  PropertyView,
-  Property
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./details-filter.hbs')
+const CustomElements = require('js/CustomElements')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('details-filter'),
     events: {
@@ -86,4 +77,4 @@ define([
       this.$el.find('input').focus()
     },
   })
-})
+

@@ -11,12 +11,11 @@
  **/
 /*global define, window, performance, setTimeout*/
 /*jshint bitwise: false*/
-define([
-  'jquery',
-  'moment',
-  'underscore',
-  'js/requestAnimationFramePolyfill',
-], function($, moment, _) {
+const $ = require('jquery')
+const moment = require('moment')
+const _ = require('underscore')
+require('js/requestAnimationFramePolyfill')
+
   const timeZones = {
     UTC: 'Etc/UTC',
     '-12': 'Etc/GMT+12',
@@ -51,7 +50,7 @@ define([
     12: { datetimefmt: 'DD MMM YYYY h:mm:ss.SSS a Z', timefmt: 'h:mm:ss a Z' },
   }
 
-  return {
+module.exports =  {
     //randomly generated guid guaranteed to be unique ;)
     undefined: '2686dcb5-7578-4957-974d-aaa9289cd2f0',
     coreTransitionTime: 250,
@@ -265,4 +264,4 @@ define([
       ])
     },
   }
-})
+

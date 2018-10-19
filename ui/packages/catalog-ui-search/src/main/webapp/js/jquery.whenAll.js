@@ -11,7 +11,7 @@
  **/
 /*global define*/
 
-define(['jquery'], function($) {
+const $ = require('jquery')
   $.whenAll = function() {
     var args = arguments,
       sliceDeferred = [].slice,
@@ -48,4 +48,4 @@ define(['jquery'], function($) {
     }
     return deferred.promise()
   }
-})
+

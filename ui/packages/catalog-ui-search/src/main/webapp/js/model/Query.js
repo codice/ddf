@@ -11,36 +11,21 @@
  **/
 /*global define*/
 
-define([
-  'backbone',
-  'underscore',
-  'properties',
-  'js/cql',
-  'js/model/QueryResponse',
-  'js/model/ResultSort',
-  'component/singletons/sources-instance',
-  'js/Common',
-  'js/CacheSourceSelector',
-  'component/announcement',
-  'js/CQLUtils',
-  'component/singletons/user-instance',
-  'lodash/merge',
-  'backbone-associations',
-], function(
-  Backbone,
-  _,
-  properties,
-  cql,
-  QueryResponse,
-  ResultSort,
-  Sources,
-  Common,
-  CacheSourceSelector,
-  announcement,
-  CQLUtils,
-  user,
-  _merge
-) {
+const Backbone = require('backbone')
+const _ = require('underscore')
+const properties = require('properties')
+const cql = require('js/cql')
+const QueryResponse = require('js/model/QueryResponse')
+const ResultSort = require('js/model/ResultSort')
+const Sources = require('component/singletons/sources-instance')
+const Common = require('js/Common')
+const CacheSourceSelector = require('js/CacheSourceSelector')
+const announcement = require('component/announcement')
+const CQLUtils = require('js/CQLUtils')
+const user = require('component/singletons/user-instance')
+const _merge = require('lodash/merge')
+require('backbone-associations')
+
   'use strict'
   var Query = {}
 
@@ -444,5 +429,5 @@ define([
       return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
     },
   })
-  return Query
-})
+module.exports =  Query
+

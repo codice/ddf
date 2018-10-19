@@ -14,15 +14,13 @@
  **/
 /*global define,window*/
 
-define(['backbone', './result-form.collection'], function(
-  Backbone,
-  ResultFormCollection
-) {
+const Backbone = require('backbone')
+const ResultFormCollection = require('./result-form.collection')
   let resultFormCollection = new ResultFormCollection()
-  return new (Backbone.Model.extend({
+module.exports =  new (Backbone.Model.extend({
     initialize: function() {},
     getResultCollection: function() {
       return resultFormCollection
     },
   }))()
-})
+

@@ -13,28 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './confirmation.query.hbs',
-  '../confirmation.view',
-  'js/CustomElements',
-  'component/dropdown/query-select/dropdown.query-select.view',
-  'component/dropdown/dropdown',
-  'js/store',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  ConfirmationView,
-  CustomElements,
-  QuerySelectDropdown,
-  DropdownModel,
-  store
-) {
-  return ConfirmationView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./confirmation.query.hbs')
+const ConfirmationView = require('../confirmation.view')
+const CustomElements = require('js/CustomElements')
+const QuerySelectDropdown = require('component/dropdown/query-select/dropdown.query-select.view')
+const DropdownModel = require('component/dropdown/dropdown')
+const store = require('js/store')
+
+module.exports =  ConfirmationView.extend({
     template: template,
     className: 'is-query',
     modelEvents: {
@@ -88,4 +77,4 @@ define([
       this.model.makeChoice(this.getValue())
     },
   })
-})
+

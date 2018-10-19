@@ -1,41 +1,22 @@
-define([
-  'jquery',
-  'backbone',
-  'marionette',
-  'underscore',
-  'properties',
-  'wreqr',
-  './metacard-notes.hbs',
-  'maptype',
-  'js/store',
-  'js/CustomElements',
-  'component/property/property.view',
-  'component/property/property',
-  'component/note/note.collection',
-  'component/note/note.collection.view',
-  'component/input/textarea/input-textarea.view',
-  'component/loading-companion/loading-companion.view',
-  'component/announcement',
-], function(
-  $,
-  Backbone,
-  Marionette,
-  _,
-  properties,
-  wreqr,
-  template,
-  maptype,
-  store,
-  CustomElements,
-  PropertyView,
-  Property,
-  NoteCollection,
-  NoteCollectionView,
-  TextAreaView,
-  LoadingCompanionView,
-  announcement
-) {
-  return Marionette.LayoutView.extend({
+const $ = require('jquery')
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const properties = require('properties')
+const wreqr = require('wreqr')
+const template = require('./metacard-notes.hbs')
+const maptype = require('maptype')
+const store = require('js/store')
+const CustomElements = require('js/CustomElements')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const NoteCollection = require('component/note/note.collection')
+const NoteCollectionView = require('component/note/note.collection.view')
+const TextAreaView = require('component/input/textarea/input-textarea.view')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const announcement = require('component/announcement')
+
+module.exports =  Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults().first()
       this._metacardId = this.model.get('metacard').get('id')
@@ -234,4 +215,4 @@ define([
       })
     },
   })
-})
+

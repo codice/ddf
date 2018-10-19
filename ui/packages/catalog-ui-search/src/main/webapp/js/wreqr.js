@@ -11,7 +11,8 @@
  **/
 /*global define*/
 
-define(['backbone', 'marionette'], function(Backbone) {
+const Backbone = require('backbone')
+require('marionette')
   'use strict'
   var wreqr = {}
 
@@ -19,5 +20,5 @@ define(['backbone', 'marionette'], function(Backbone) {
   wreqr.commands = new Backbone.Wreqr.Commands()
   wreqr.reqres = new Backbone.Wreqr.RequestResponse()
 
-  return wreqr
-})
+module.exports =  wreqr
+

@@ -13,29 +13,18 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-archive.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/loading/loading.view',
-  'component/confirmation/confirmation.view',
-  'js/ResultUtils',
-  'js/jquery.whenAll',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  LoadingView,
-  ConfirmationView,
-  ResultUtils
-) {
-  return Marionette.ItemView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-archive.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const LoadingView = require('component/loading/loading.view')
+const ConfirmationView = require('component/confirmation/confirmation.view')
+const ResultUtils = require('js/ResultUtils')
+require('js/jquery.whenAll')
+
+module.exports =  Marionette.ItemView.extend({
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults()
     },
@@ -185,4 +174,4 @@ define([
       })
     },
   })
-})
+

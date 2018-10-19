@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.notifications.hbs',
-  'component/notifications/notifications.view',
-], function(wreqr, Marionette, _, $, DropdownView, template, ComponentView) {
-  return DropdownView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.notifications.hbs')
+const ComponentView = require('component/notifications/notifications.view')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-notifications is-button',
     componentToShow: ComponentView,
@@ -53,4 +52,4 @@ define([
     },
     hasTail: true,
   })
-})
+

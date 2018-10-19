@@ -10,17 +10,16 @@
  *
  **/
 /*global define*/
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'wreqr',
-  'js/model/Metacard',
-  'js/model/Query',
-  'js/model/Workspace',
-  'js/model/QueryResult',
-], function($, _, Backbone, wreqr, Metacard, Query, Workspace, QueryResult) {
-  return Backbone.AssociatedModel.extend({
+const $ = require('jquery')
+const _ = require('underscore')
+const Backbone = require('backbone')
+const wreqr = require('wreqr')
+const Metacard = require('js/model/Metacard')
+const Query = require('js/model/Query')
+const Workspace = require('js/model/Workspace')
+const QueryResult = require('js/model/QueryResult')
+
+module.exports =  Backbone.AssociatedModel.extend({
     relations: [
       {
         type: Backbone.One,
@@ -201,4 +200,4 @@ define([
       return this.get('currentQuery')
     },
   })
-})
+

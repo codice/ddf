@@ -10,25 +10,15 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  '../tabs',
-  'js/store',
-  'component/query-settings/query-settings.view',
-  'component/query-status/query-status.view',
-  'component/query-schedule/query-schedule.view',
-  'component/query-editor/query-editor.view',
-  'component/query-annotations/query-annotations.view',
-], function(
-  _,
-  Tabs,
-  store,
-  QuerySettingsView,
-  QueryStatusView,
-  QueryScheduleView,
-  QueryEditorView,
-  QueryAnnotationsView
-) {
+const _ = require('underscore')
+const Tabs = require('../tabs')
+const store = require('js/store')
+const QuerySettingsView = require('component/query-settings/query-settings.view')
+const QueryStatusView = require('component/query-status/query-status.view')
+const QueryScheduleView = require('component/query-schedule/query-schedule.view')
+const QueryEditorView = require('component/query-editor/query-editor.view')
+const QueryAnnotationsView = require('component/query-annotations/query-annotations.view')
+
   var WorkspaceContentTabs = Tabs.extend({
     defaults: {
       tabs: {
@@ -44,5 +34,5 @@ define([
     },
   })
 
-  return WorkspaceContentTabs
-})
+module.exports =  WorkspaceContentTabs
+

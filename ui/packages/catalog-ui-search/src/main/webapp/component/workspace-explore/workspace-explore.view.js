@@ -13,25 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './workspace-explore.hbs',
-  'js/CustomElements',
-  'component/query-selector/query-selector.view',
-  'js/store',
-  'component/lightbox/lightbox.view.instance',
-], function(
-  Marionette,
-  _,
-  $,
-  workspaceExploreTemplate,
-  CustomElements,
-  QuerySelectorView,
-  store,
-  lightboxViewInstance
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const workspaceExploreTemplate = require('./workspace-explore.hbs')
+const CustomElements = require('js/CustomElements')
+const QuerySelectorView = require('component/query-selector/query-selector.view')
+const store = require('js/store')
+const lightboxViewInstance = require('component/lightbox/lightbox.view.instance')
+
   var WorkspaceExplore = Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = store.getCurrentWorkspace()
@@ -57,5 +47,5 @@ define([
     },
   })
 
-  return WorkspaceExplore
-})
+module.exports =  WorkspaceExplore
+

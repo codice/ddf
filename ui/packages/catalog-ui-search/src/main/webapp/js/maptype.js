@@ -11,14 +11,13 @@
  **/
 /*global define,window*/
 
-define([
-  'jquery',
-  'underscore',
-  'webglcheck',
-  '2dmapcheck',
-  'querystring',
-  'component/singletons/user-instance',
-], function($, _, webgl, twoD, qs, user) {
+const $ = require('jquery')
+const _ = require('underscore')
+const webgl = require('webglcheck')
+const twoD = require('2dmapcheck')
+const qs = require('querystring')
+const user = require('component/singletons/user-instance')
+
   'use strict'
 
   function getActiveVisualization() {
@@ -40,7 +39,7 @@ define([
     return qs.parse(query)
   }
 
-  return {
+module.exports =  {
     type: (function() {
       var param = url().map
       if (!_.isUndefined(param)) {
@@ -71,4 +70,4 @@ define([
       return this.is3d() || this.is2d()
     },
   }
-})
+

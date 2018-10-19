@@ -13,14 +13,13 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-status.hbs',
-  'js/CustomElements',
-], function(Marionette, _, $, template, CustomElements) {
-  return Marionette.ItemView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./result-status.hbs')
+const CustomElements = require('js/CustomElements')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('result-status'),
     initialize: function() {
@@ -35,4 +34,4 @@ define([
       this.$el.toggleClass('has-filtered', this.model.amountFiltered !== 0)
     },
   })
-})
+

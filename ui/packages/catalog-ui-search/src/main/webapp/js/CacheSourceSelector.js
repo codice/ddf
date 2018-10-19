@@ -9,7 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-define(['js/cql', 'js/CQLUtils'], function(cql, CQLUtils) {
+const cql = require('js/cql')
+const CQLUtils = require('js/CQLUtils')
   function buildCacheSourcesCql(sources) {
     return {
       type: 'OR',
@@ -34,7 +35,7 @@ define(['js/cql', 'js/CQLUtils'], function(cql, CQLUtils) {
     }
   }
 
-  return {
+module.exports =  {
     trimCacheSources: function(cqlString, sources) {
       return CQLUtils.sanitizeGeometryCql(
         '(' +
@@ -45,4 +46,4 @@ define(['js/cql', 'js/CQLUtils'], function(cql, CQLUtils) {
       )
     },
   }
-})
+

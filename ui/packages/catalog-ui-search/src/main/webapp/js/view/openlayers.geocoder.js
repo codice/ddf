@@ -10,14 +10,13 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'marionette',
-  'backbone',
-  'wreqr',
-  'templates/geocoder.handlebars',
-  'jquery',
-], function(_, Marionette, Backbone, wreqr, geocoderTemplate, $) {
+const _ = require('underscore')
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const wreqr = require('wreqr')
+const geocoderTemplate = require('templates/geocoder.handlebars')
+const $ = require('jquery')
+
   var geocoder = {}
   var url = './internal/REST/v1/Locations'
   var geocoderModel = new Backbone.Model()
@@ -100,5 +99,5 @@ define([
       }
     },
   })
-  return geocoder
-})
+module.exports =  geocoder
+

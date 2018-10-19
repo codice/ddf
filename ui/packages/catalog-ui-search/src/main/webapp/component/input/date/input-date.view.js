@@ -13,28 +13,17 @@
  *
  **/
 /*global define, alert, window*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-date.hbs',
-  'js/CustomElements',
-  'moment-timezone',
-  '../input.view',
-  'js/Common',
-  'component/singletons/user-instance',
-  'eonasdan-bootstrap-datetimepicker',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  moment,
-  InputView,
-  Common,
-  user
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-date.hbs')
+const CustomElements = require('js/CustomElements')
+const moment = require('moment-timezone')
+const InputView = require('../input.view')
+const Common = require('js/Common')
+const user = require('component/singletons/user-instance')
+require('eonasdan-bootstrap-datetimepicker')
+
   function getDateFormat() {
     return user
       .get('user')
@@ -49,7 +38,7 @@ define([
       .get('timeZone')
   }
 
-  return InputView.extend({
+module.exports =  InputView.extend({
     template: template,
     events: {
       'click .input-revert': 'revert',
@@ -155,4 +144,4 @@ define([
       }
     },
   })
-})
+

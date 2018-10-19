@@ -13,28 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'backbone',
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-group.hbs',
-  'js/CustomElements',
-  'js/store',
-  'js/Common',
-  'js/model/QueryResult.collection',
-], function(
-  Backbone,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  Common,
-  QueryResultCollection
-) {
-  return Marionette.LayoutView.extend({
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./result-group.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const Common = require('js/Common')
+const QueryResultCollection = require('js/model/QueryResult.collection')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('result-group'),
     modelEvents: {},
@@ -65,4 +54,4 @@ define([
       }
     },
   })
-})
+

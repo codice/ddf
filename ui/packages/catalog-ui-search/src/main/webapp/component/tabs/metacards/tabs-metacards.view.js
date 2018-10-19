@@ -13,15 +13,14 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../tabs.view',
-  './tabs-metacards',
-  'js/store',
-  'properties',
-], function(Marionette, _, $, TabsView, MetacardsTabsModel, store, properties) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const TabsView = require('../tabs.view')
+const MetacardsTabsModel = require('./tabs-metacards')
+const store = require('js/store')
+const properties = require('properties')
+
   function getTypes(results) {
     var types = {}
     results.forEach(function(result) {
@@ -141,5 +140,5 @@ define([
     },
   })
 
-  return MetacardsTabsView
-})
+module.exports =  MetacardsTabsView
+

@@ -13,16 +13,15 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-radio.hbs',
-  'js/CustomElements',
-  '../input.view',
-  'component/radio/radio.view',
-], function(Marionette, _, $, template, CustomElements, InputView, RadioView) {
-  return InputView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-radio.hbs')
+const CustomElements = require('js/CustomElements')
+const InputView = require('../input.view')
+const RadioView = require('component/radio/radio.view')
+
+module.exports =  InputView.extend({
     template: template,
     events: {
       'click .input-revert': 'revert',
@@ -93,4 +92,4 @@ define([
       return currentValue
     },
   })
-})
+

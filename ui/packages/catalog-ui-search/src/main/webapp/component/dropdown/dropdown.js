@@ -13,8 +13,9 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone'], function(_, Backbone) {
-  return Backbone.Model.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+module.exports =  Backbone.Model.extend({
     defaults: {
       isOpen: false,
       value: undefined,
@@ -33,4 +34,4 @@ define(['underscore', 'backbone'], function(_, Backbone) {
       this.set('isOpen', true)
     },
   })
-})
+

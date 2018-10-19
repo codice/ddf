@@ -13,30 +13,19 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  './query-item.hbs',
-  'js/CustomElements',
-  'component/query-interactions/query-interactions.view',
-  'component/query-feed/query-feed.view',
-  'component/query-schedule/query-schedule.view',
-  'component/query-settings/query-settings.view',
-  'component/query-editor/query-editor.view',
-  'behaviors/button.behavior',
-  'behaviors/dropdown.behavior',
-], function(
-  Marionette,
-  _,
-  template,
-  CustomElements,
-  QueryInteractionsView,
-  QueryFeedView,
-  QueryScheduleView,
-  QuerySettingsView,
-  QueryEditorView
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const template = require('./query-item.hbs')
+const CustomElements = require('js/CustomElements')
+const QueryInteractionsView = require('component/query-interactions/query-interactions.view')
+const QueryFeedView = require('component/query-feed/query-feed.view')
+const QueryScheduleView = require('component/query-schedule/query-schedule.view')
+const QuerySettingsView = require('component/query-settings/query-settings.view')
+const QueryEditorView = require('component/query-editor/query-editor.view')
+require('behaviors/button.behavior')
+require('behaviors/dropdown.behavior')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     attributes: function() {
       return {
@@ -152,4 +141,4 @@ define([
       e.stopPropagation()
     },
   })
-})
+

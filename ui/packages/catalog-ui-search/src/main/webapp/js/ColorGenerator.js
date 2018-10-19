@@ -10,7 +10,7 @@
  *
  **/
 /*global define*/
-define([], function() {
+
   function getRandomColor() {
     var letters = '789ABCD'
     var color = '#'
@@ -20,7 +20,7 @@ define([], function() {
     return color
   }
 
-  return {
+module.exports =  {
     getNewGenerator: function() {
       var colors = [
         // 10 best taken from here: https://ux.stackexchange.com/questions/94696/color-palette-for-all-types-of-color-blindness
@@ -62,4 +62,4 @@ define([], function() {
       }
     },
   }
-})
+

@@ -13,33 +13,19 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './query-schedule.hbs',
-  'js/CustomElements',
-  'js/store',
-  'properties',
-  'component/property/property.view',
-  'component/property/property',
-  'component/dropdown/dropdown.view',
-  'moment',
-  'js/Common',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  properties,
-  PropertyView,
-  Property,
-  DropdownView,
-  Moment,
-  Common
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-schedule.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const properties = require('properties')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const DropdownView = require('component/dropdown/dropdown.view')
+const Moment = require('moment')
+const Common = require('js/Common')
+
   function getHumanReadableDuration(milliseconds) {
     var duration = Moment.duration(milliseconds)
     var days = duration.days()
@@ -74,7 +60,7 @@ define([
       ]
     )
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('query-schedule'),
     modelEvents: {},
@@ -145,4 +131,4 @@ define([
       this.cancel()
     },
   })
-})
+

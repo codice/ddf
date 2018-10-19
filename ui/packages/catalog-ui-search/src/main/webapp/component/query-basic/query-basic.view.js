@@ -13,47 +13,26 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './query-basic.hbs',
-  'js/CustomElements',
-  'js/store',
-  'js/IconHelper',
-  'component/dropdown/dropdown',
-  'component/dropdown/query-src/dropdown.query-src.view',
-  'component/property/property.view',
-  'component/property/property',
-  'properties',
-  'js/cql',
-  'component/singletons/metacard-definitions',
-  'component/singletons/sources-instance',
-  'js/CQLUtils',
-  'component/query-settings/query-settings.view',
-  'component/query-time/query-time.view',
-  'js/Common',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  IconHelper,
-  DropdownModel,
-  QuerySrcView,
-  PropertyView,
-  Property,
-  properties,
-  cql,
-  metacardDefinitions,
-  sources,
-  CQLUtils,
-  QuerySettingsView,
-  QueryTimeView,
-  Common
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-basic.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const IconHelper = require('js/IconHelper')
+const DropdownModel = require('component/dropdown/dropdown')
+const QuerySrcView = require('component/dropdown/query-src/dropdown.query-src.view')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const properties = require('properties')
+const cql = require('js/cql')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const sources = require('component/singletons/sources-instance')
+const CQLUtils = require('js/CQLUtils')
+const QuerySettingsView = require('component/query-settings/query-settings.view')
+const QueryTimeView = require('component/query-time/query-time.view')
+const Common = require('js/Common')
+
   function isNested(filter) {
     var nested = false
     filter.filters.forEach(function(subfilter) {
@@ -188,7 +167,7 @@ define([
     }
   }
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('query-basic'),
     modelEvents: {},
@@ -534,4 +513,4 @@ define([
       this.model.set('title', title)
     },
   })
-})
+

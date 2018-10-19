@@ -13,50 +13,28 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './value.hbs',
-  'js/CustomElements',
-  'component/input/input.view',
-  'component/input/thumbnail/input-thumbnail.view',
-  'component/input/date/input-date.view',
-  'component/input/time/input-time.view',
-  'component/input/location/input-location.view',
-  'component/input/enum/input-enum.view',
-  'component/input/radio/input-radio.view',
-  'component/input/number/input-number.view',
-  'component/input/boolean/input-boolean.view',
-  'component/input/range/input-range.view',
-  'component/input/textarea/input-textarea.view',
-  'component/input/geometry/input-geometry.view',
-  'component/input/autocomplete/input-autocomplete.view',
-  'component/input/color/input-color.view',
-  'component/input/with-param/input-with-param.view',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  InputView,
-  InputThumbnailView,
-  InputDateView,
-  InputTimeView,
-  InputLocationView,
-  InputEnumView,
-  InputRadioView,
-  InputNumberView,
-  InputBooleanView,
-  InputRangeView,
-  InputTextareaView,
-  InputGeometryView,
-  InputAutocompleteView,
-  InputColorView,
-  InputWithParamView
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./value.hbs')
+const CustomElements = require('js/CustomElements')
+const InputView = require('component/input/input.view')
+const InputThumbnailView = require('component/input/thumbnail/input-thumbnail.view')
+const InputDateView = require('component/input/date/input-date.view')
+const InputTimeView = require('component/input/time/input-time.view')
+const InputLocationView = require('component/input/location/input-location.view')
+const InputEnumView = require('component/input/enum/input-enum.view')
+const InputRadioView = require('component/input/radio/input-radio.view')
+const InputNumberView = require('component/input/number/input-number.view')
+const InputBooleanView = require('component/input/boolean/input-boolean.view')
+const InputRangeView = require('component/input/range/input-range.view')
+const InputTextareaView = require('component/input/textarea/input-textarea.view')
+const InputGeometryView = require('component/input/geometry/input-geometry.view')
+const InputAutocompleteView = require('component/input/autocomplete/input-autocomplete.view')
+const InputColorView = require('component/input/color/input-color.view')
+const InputWithParamView = require('component/input/with-param/input-with-param.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('value'),
     events: {
@@ -198,4 +176,4 @@ define([
       this.model.destroy()
     },
   })
-})
+

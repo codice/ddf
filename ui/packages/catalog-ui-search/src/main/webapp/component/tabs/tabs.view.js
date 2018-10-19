@@ -13,14 +13,13 @@
  *
  **/
 /*global define, alert, window*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './tabs.hbs',
-  'js/CustomElements',
-  'wreqr',
-], function(Marionette, _, $, TabsTemplate, CustomElements, wreqr) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const TabsTemplate = require('./tabs.hbs')
+const CustomElements = require('js/CustomElements')
+const wreqr = require('wreqr')
+
   function namespacedEvent(event, view) {
     return event + '.' + view.cid
   }
@@ -190,5 +189,5 @@ define([
     },
   })
 
-  return TabsView
-})
+module.exports =  TabsView
+

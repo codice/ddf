@@ -11,33 +11,19 @@
  **/
 /*global define, window*/
 
-define([
-  'marionette',
-  'backbone',
-  'openlayers',
-  'underscore',
-  'properties',
-  'wreqr',
-  'maptype',
-  './notification.view',
-  '@turf/turf',
-  './drawing.controller',
-  '../OpenLayersGeometryUtils',
-  'js/DistanceUtils',
-], function(
-  Marionette,
-  Backbone,
-  ol,
-  _,
-  properties,
-  wreqr,
-  maptype,
-  NotificationView,
-  Turf,
-  DrawingController,
-  olUtils,
-  DistanceUtils
-) {
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const ol = require('openlayers')
+const _ = require('underscore')
+const properties = require('properties')
+const wreqr = require('wreqr')
+const maptype = require('maptype')
+const NotificationView = require('./notification.view')
+const Turf = require('@turf/turf')
+const DrawingController = require('./drawing.controller')
+const olUtils = require('../OpenLayersGeometryUtils')
+const DistanceUtils = require('js/DistanceUtils')
+
   'use strict'
 
   function translateFromOpenlayersCoordinates(coords) {
@@ -284,5 +270,5 @@ define([
     },
   })
 
-  return Draw
-})
+module.exports =  Draw
+

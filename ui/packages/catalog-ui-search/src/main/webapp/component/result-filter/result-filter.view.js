@@ -13,28 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-filter.hbs',
-  'js/CustomElements',
-  'component/singletons/user-instance',
-  'component/filter-builder/filter-builder.view',
-  'component/filter-builder/filter-builder',
-  'js/cql',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  user,
-  FilterBuilderView,
-  FilterBuilderModel,
-  cql
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./result-filter.hbs')
+const CustomElements = require('js/CustomElements')
+const user = require('component/singletons/user-instance')
+const FilterBuilderView = require('component/filter-builder/filter-builder.view')
+const FilterBuilderModel = require('component/filter-builder/filter-builder')
+const cql = require('js/cql')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('result-filter'),
     modelEvents: {
@@ -107,4 +96,4 @@ define([
       this.$el.toggleClass('has-filter', Boolean(resultFilter))
     },
   })
-})
+

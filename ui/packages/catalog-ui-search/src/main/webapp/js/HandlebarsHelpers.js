@@ -10,15 +10,14 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'moment',
-  'ace/handlebars/runtime',
-  'js/Common',
-  'component/singletons/metacard-definitions',
-  'lodash/get',
-  'jquery',
-], function(_, moment, Handlebars, Common, metacardDefinitions, _get, $) {
+const _ = require('underscore')
+const moment = require('moment')
+const Handlebars = require('ace/handlebars/runtime')
+const Common = require('js/Common')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const _get = require('lodash/get')
+const $ = require('jquery')
+
   'use strict'
 
   function bind(options, callback) {
@@ -342,5 +341,5 @@ define([
     }
   }
 
-  return helpers
-})
+module.exports =  helpers
+

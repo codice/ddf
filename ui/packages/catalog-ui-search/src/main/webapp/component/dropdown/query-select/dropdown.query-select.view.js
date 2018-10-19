@@ -13,28 +13,17 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.query-select.hbs',
-  'component/query-select/query-select.view',
-  'component/query-item/query-item.view',
-  'component/search-select/search-select.view',
-  'js/store',
-], function(
-  Marionette,
-  _,
-  $,
-  DropdownView,
-  template,
-  ComponentView,
-  QueryItemView,
-  SearchSelectView,
-  store
-) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.query-select.hbs')
+const ComponentView = require('component/query-select/query-select.view')
+const QueryItemView = require('component/query-item/query-item.view')
+const SearchSelectView = require('component/search-select/search-select.view')
+const store = require('js/store')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-querySelect',
     componentToShow: SearchSelectView,
@@ -81,4 +70,4 @@ define([
       }
     },
   })
-})
+

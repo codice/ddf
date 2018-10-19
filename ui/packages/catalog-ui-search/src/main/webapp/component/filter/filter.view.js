@@ -13,41 +13,23 @@
  *
  **/
 /*global define, alert, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './filter.hbs',
-  'js/CustomElements',
-  'component/dropdown/filter-comparator/dropdown.filter-comparator.view',
-  'component/multivalue/multivalue.view',
-  'component/singletons/metacard-definitions',
-  'component/property/property',
-  'component/dropdown/dropdown',
-  'component/dropdown/dropdown.view',
-  'component/relative-time/relative-time.view',
-  'component/value/value',
-  'js/CQLUtils',
-  'properties',
-  'js/Common',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  FilterComparatorDropdownView,
-  MultivalueView,
-  metacardDefinitions,
-  PropertyModel,
-  DropdownModel,
-  DropdownView,
-  RelativeTimeView,
-  ValueModel,
-  CQLUtils,
-  properties,
-  Common
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./filter.hbs')
+const CustomElements = require('js/CustomElements')
+const FilterComparatorDropdownView = require('component/dropdown/filter-comparator/dropdown.filter-comparator.view')
+const MultivalueView = require('component/multivalue/multivalue.view')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const PropertyModel = require('component/property/property')
+const DropdownModel = require('component/dropdown/dropdown')
+const DropdownView = require('component/dropdown/dropdown.view')
+const RelativeTimeView = require('component/relative-time/relative-time.view')
+const ValueModel = require('component/value/value')
+const CQLUtils = require('js/CQLUtils')
+const properties = require('properties')
+const Common = require('js/Common')
+
   const generatePropertyJSON = (value, type, comparator) => {
     const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
       value: value,
@@ -103,7 +85,7 @@ define([
     return property.replace(/^"(.+(?="$))"$/, '$1')
   }
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('filter'),
     attributes: function() {
@@ -443,4 +425,4 @@ define([
       )
     },
   })
-})
+

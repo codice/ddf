@@ -10,11 +10,10 @@
  *
  **/
 /*global define*/
-define(['backbone', 'js/Common', 'backbone-associations'], function(
-  Backbone,
-  Common
-) {
-  return Backbone.AssociatedModel.extend({
+const Backbone = require('backbone')
+const Common = require('js/Common')
+require('backbone-associations')
+module.exports =  Backbone.AssociatedModel.extend({
     defaults: {
       unseen: true,
       queryId: undefined,
@@ -31,4 +30,4 @@ define(['backbone', 'js/Common', 'backbone-associations'], function(
       return this.get('when')
     },
   })
-})
+

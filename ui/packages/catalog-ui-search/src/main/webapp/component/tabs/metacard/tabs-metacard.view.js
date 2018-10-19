@@ -13,26 +13,16 @@
  *
  **/
 /*global define, alert*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  '../tabs.view',
-  './tabs-metacard',
-  'js/store',
-  'properties',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  TabsView,
-  MetacardTabsModel,
-  store,
-  properties
-) {
-  return TabsView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const TabsView = require('../tabs.view')
+const MetacardTabsModel = require('./tabs-metacard')
+const store = require('js/store')
+const properties = require('properties')
+
+module.exports =  TabsView.extend({
     className: 'is-metacard',
     setDefaultModel: function() {
       this.model = new MetacardTabsModel()
@@ -139,4 +129,4 @@ define([
       }
     },
   })
-})
+

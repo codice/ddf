@@ -11,25 +11,15 @@
  **/
 /*global define*/
 
-define([
-  'marionette',
-  'backbone',
-  'cesium',
-  'underscore',
-  'wreqr',
-  'maptype',
-  './notification.view',
-  './drawing.controller',
-], function(
-  Marionette,
-  Backbone,
-  Cesium,
-  _,
-  wreqr,
-  maptype,
-  NotificationView,
-  DrawingController
-) {
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const Cesium = require('cesium')
+const _ = require('underscore')
+const wreqr = require('wreqr')
+const maptype = require('maptype')
+const NotificationView = require('./notification.view')
+const DrawingController = require('./drawing.controller')
+
   'use strict'
   var Draw = {}
 
@@ -451,5 +441,5 @@ define([
     },
   })
 
-  return Draw
-})
+module.exports =  Draw
+

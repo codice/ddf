@@ -13,14 +13,13 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../tabs.view',
-  'js/store',
-  'wreqr',
-], function(Marionette, _, $, TabsView, store, wreqr) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const TabsView = require('../tabs.view')
+const store = require('js/store')
+const wreqr = require('wreqr')
+
   var WorkspaceContentTabsView = TabsView.extend({
     initialize: function() {
       TabsView.prototype.initialize.call(this)
@@ -67,5 +66,5 @@ define([
     },
   })
 
-  return WorkspaceContentTabsView
-})
+module.exports =  WorkspaceContentTabsView
+

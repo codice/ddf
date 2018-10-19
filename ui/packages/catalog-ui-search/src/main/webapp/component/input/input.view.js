@@ -13,13 +13,12 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input.hbs',
-  'js/CustomElements',
-], function(Marionette, _, $, InputTemplate, CustomElements) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const InputTemplate = require('./input.hbs')
+const CustomElements = require('js/CustomElements')
+
   var InputView = Marionette.LayoutView.extend({
     className: function() {
       if (!this.model.get('property').get('enum')) {
@@ -109,5 +108,5 @@ define([
     },
   })
 
-  return InputView
-})
+module.exports =  InputView
+

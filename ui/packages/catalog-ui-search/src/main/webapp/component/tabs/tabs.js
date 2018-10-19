@@ -10,7 +10,8 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone'], function(_, Backbone) {
+const _ = require('underscore')
+const Backbone = require('backbone')
   var Tabs = Backbone.Model.extend({
     defaults: {
       tabs: {},
@@ -42,5 +43,5 @@ define(['underscore', 'backbone'], function(_, Backbone) {
     },
   })
 
-  return Tabs
-})
+module.exports =  Tabs
+

@@ -10,30 +10,18 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  'backbone',
-  'js/model/Metacard',
-  'js/model/UploadBatch',
-  'js/model/Query',
-  'js/model/QueryResponse',
-  'js/model/QueryResult',
-  'component/router/router',
-  'js/cql',
-  'component/singletons/user-instance',
-], function(
-  _,
-  Backbone,
-  Metacard,
-  UploadBatch,
-  Query,
-  QueryResponse,
-  QueryResult,
-  router,
-  cql,
-  user
-) {
-  return new (Backbone.AssociatedModel.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+const Metacard = require('js/model/Metacard')
+const UploadBatch = require('js/model/UploadBatch')
+const Query = require('js/model/Query')
+const QueryResponse = require('js/model/QueryResponse')
+const QueryResult = require('js/model/QueryResult')
+const router = require('component/router/router')
+const cql = require('js/cql')
+const user = require('component/singletons/user-instance')
+
+module.exports =  new (Backbone.AssociatedModel.extend({
     relations: [
       {
         type: Backbone.One,
@@ -224,4 +212,4 @@ define([
       return this.get('currentQuery')
     },
   }))()
-})
+

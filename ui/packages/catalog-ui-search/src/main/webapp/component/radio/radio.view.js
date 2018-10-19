@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './radio',
-  './radio.hbs',
-], function(Marionette, _, $, CustomElements, RadioModel, template) {
-  return Marionette.ItemView.extend(
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const RadioModel = require('./radio')
+const template = require('./radio.hbs')
+
+module.exports =  Marionette.ItemView.extend(
     {
       template: template,
       tagName: CustomElements.register('radio'),
@@ -88,4 +87,4 @@ define([
       },
     }
   )
-})
+

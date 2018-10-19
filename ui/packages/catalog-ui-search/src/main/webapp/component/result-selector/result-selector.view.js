@@ -13,42 +13,24 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-selector.hbs',
-  'js/CustomElements',
-  'properties',
-  'js/Common',
-  'component/result-item/result-item.collection.view',
-  'component/paging/paging.view',
-  'component/dropdown/result-display/dropdown.result-display.view',
-  'component/dropdown/result-filter/dropdown.result-filter.view',
-  'component/dropdown/dropdown',
-  'js/cql',
-  'component/dropdown/result-sort/dropdown.result-sort.view',
-  'component/singletons/user-instance',
-  'component/result-status/result-status.view',
-  'behaviors/selection.behavior',
-], function(
-  Marionette,
-  _,
-  $,
-  resultSelectorTemplate,
-  CustomElements,
-  properties,
-  Common,
-  ResultItemCollectionView,
-  PagingView,
-  DropdownView,
-  ResultFilterDropdownView,
-  DropdownModel,
-  cql,
-  ResultSortDropdownView,
-  user,
-  ResultStatusView
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const resultSelectorTemplate = require('./result-selector.hbs')
+const CustomElements = require('js/CustomElements')
+const properties = require('properties')
+const Common = require('js/Common')
+const ResultItemCollectionView = require('component/result-item/result-item.collection.view')
+const PagingView = require('component/paging/paging.view')
+const DropdownView = require('component/dropdown/result-display/dropdown.result-display.view')
+const ResultFilterDropdownView = require('component/dropdown/result-filter/dropdown.result-filter.view')
+const DropdownModel = require('component/dropdown/dropdown')
+const cql = require('js/cql')
+const ResultSortDropdownView = require('component/dropdown/result-sort/dropdown.result-sort.view')
+const user = require('component/singletons/user-instance')
+const ResultStatusView = require('component/result-status/result-status.view')
+require('behaviors/selection.behavior')
+
   function mixinBlackListCQL(originalCQL) {
     var blackListCQL = {
       filters: [
@@ -306,5 +288,5 @@ define([
     },
   })
 
-  return ResultSelector
-})
+module.exports =  ResultSelector
+

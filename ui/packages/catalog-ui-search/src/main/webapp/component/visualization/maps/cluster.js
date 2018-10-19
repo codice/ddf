@@ -10,12 +10,10 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone', 'js/model/QueryResult'], function(
-  _,
-  Backbone,
-  QueryResult
-) {
-  return Backbone.AssociatedModel.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+const QueryResult = require('js/model/QueryResult')
+module.exports =  Backbone.AssociatedModel.extend({
     relations: [
       {
         type: Backbone.Many,
@@ -28,4 +26,4 @@ define(['underscore', 'backbone', 'js/model/QueryResult'], function(
     },
     initialize: function() {},
   })
-})
+

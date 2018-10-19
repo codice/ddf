@@ -13,34 +13,21 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-history.hbs',
-  'js/CustomElements',
-  'component/loading-companion/loading-companion.view',
-  'js/store',
-  'js/Common',
-  'js/ResultUtils',
-  'component/announcement',
-  'moment',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  LoadingCompanionView,
-  store,
-  Common,
-  ResultUtils,
-  announcement,
-  moment
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-history.hbs')
+const CustomElements = require('js/CustomElements')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const store = require('js/store')
+const Common = require('js/Common')
+const ResultUtils = require('js/ResultUtils')
+const announcement = require('component/announcement')
+const moment = require('moment')
+
   var selectedVersion
 
-  return Marionette.ItemView.extend({
+module.exports =  Marionette.ItemView.extend({
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults().first()
     },
@@ -142,4 +129,4 @@ define([
         })
     },
   })
-})
+

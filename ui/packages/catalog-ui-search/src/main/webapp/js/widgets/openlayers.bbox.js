@@ -11,29 +11,17 @@
  **/
 /*global define*/
 
-define([
-  'marionette',
-  'backbone',
-  'openlayers',
-  'underscore',
-  'properties',
-  'wreqr',
-  'maptype',
-  './notification.view',
-  './drawing.controller',
-  '../OpenLayersGeometryUtils',
-], function(
-  Marionette,
-  Backbone,
-  ol,
-  _,
-  properties,
-  wreqr,
-  maptype,
-  NotificationView,
-  DrawingController,
-  olUtils
-) {
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const ol = require('openlayers')
+const _ = require('underscore')
+const properties = require('properties')
+const wreqr = require('wreqr')
+const maptype = require('maptype')
+const NotificationView = require('./notification.view')
+const DrawingController = require('./drawing.controller')
+const olUtils = require('../OpenLayersGeometryUtils')
+
   'use strict'
 
   var Draw = {}
@@ -301,5 +289,5 @@ define([
     },
   })
 
-  return Draw
-})
+module.exports =  Draw
+

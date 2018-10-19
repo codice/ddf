@@ -13,30 +13,18 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './upload-batch-item.hbs',
-  'js/CustomElements',
-  'js/store',
-  'js/Common',
-  'component/singletons/user-instance',
-  'component/upload-summary/upload-summary.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  Common,
-  user,
-  UploadSummaryView
-) {
-  return Marionette.LayoutView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./upload-batch-item.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const Common = require('js/Common')
+const user = require('component/singletons/user-instance')
+const UploadSummaryView = require('component/upload-summary/upload-summary.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('upload-batch-item'),
     modelEvents: {
@@ -97,4 +85,4 @@ define([
       }
     },
   })
-})
+

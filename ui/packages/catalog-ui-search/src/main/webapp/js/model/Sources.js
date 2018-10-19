@@ -13,13 +13,12 @@
 
 var user = require('component/singletons/user-instance')
 
-define([
-  'underscore',
-  'backbone',
-  'backbone-poller',
-  'properties',
-  'jquery',
-], function(_, Backbone, poller, properties, $) {
+const _ = require('underscore')
+const Backbone = require('backbone')
+const poller = require('backbone-poller')
+const properties = require('properties')
+const $ = require('jquery')
+
   'use strict'
 
   function removeLocalCatalogIfNeeded(response, localCatalog) {
@@ -67,7 +66,7 @@ define([
     }
   }
 
-  return Backbone.Collection.extend({
+module.exports =  Backbone.Collection.extend({
     url: './internal/catalog/sources',
     useAjaxSync: true,
     comparator: function(a, b) {
@@ -127,4 +126,4 @@ define([
     },
     localCatalog: 'local',
   })
-})
+

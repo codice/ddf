@@ -11,22 +11,21 @@
  **/
 /*global define, require, setTimeout */
 // #Main Application
-define([
-  'jquery',
-  'underscore',
-  'marionette',
-  'backbone',
-  'properties',
-  'maptype',
-  // Templates
-  'templates/banner.layout.handlebars',
-  // Load non attached libs and plugins
-  'bootstrap/dist/js/bootstrap.min',
-  'backbone-associations',
-  'backbone.modelbinder',
-  'backbone.modelbinder/Backbone.CollectionBinder',
-  'jquery-ui-multiselect-widget/src/jquery.multiselect',
-], function($, _, Marionette, Backbone, properties, maptype, banner) {
+const $ = require('jquery')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const properties = require('properties')
+const maptype = require('maptype')
+const banner = require(// Templates
+  'templates/banner.layout.handlebars')
+require(// Load non attached libs and plugins
+  'bootstrap/dist/js/bootstrap.min')
+require('backbone-associations')
+require('backbone.modelbinder')
+require('backbone.modelbinder/Backbone.CollectionBinder')
+require('jquery-ui-multiselect-widget/src/jquery.multiselect')
+
   var Application = {}
   Application.App = new Marionette.Application()
   Application.App.addRegions({
@@ -113,5 +112,5 @@ define([
     Backbone.history.start()
   })
 
-  return Application
-})
+module.exports =  Application
+

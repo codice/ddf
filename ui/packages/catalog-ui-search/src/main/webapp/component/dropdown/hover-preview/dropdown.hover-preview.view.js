@@ -13,30 +13,18 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.hover-preview.hbs',
-  'component/hover-preview/hover-preview.view',
-  'properties',
-  'lodash/merge',
-  'js/Common',
-  'component/singletons/user-instance',
-], function(
-  Marionette,
-  _,
-  $,
-  DropdownView,
-  template,
-  ComponentView,
-  properties,
-  _merge,
-  Common,
-  user
-) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.hover-preview.hbs')
+const ComponentView = require('component/hover-preview/hover-preview.view')
+const properties = require('properties')
+const _merge = require('lodash/merge')
+const Common = require('js/Common')
+const user = require('component/singletons/user-instance')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-hover-preview',
     componentToShow: ComponentView,
@@ -77,4 +65,4 @@ define([
       return this.options.modelForComponent.toJSON()
     },
   })
-})
+

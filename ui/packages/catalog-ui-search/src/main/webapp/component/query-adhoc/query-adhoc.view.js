@@ -13,36 +13,21 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'backbone',
-  'underscore',
-  'jquery',
-  './query-adhoc.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/property/property.view',
-  'component/property/property',
-  'component/singletons/user-instance',
-  'js/Common',
-  'properties',
-  'js/CQLUtils',
-], function(
-  Marionette,
-  Backbone,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  PropertyView,
-  Property,
-  user,
-  Common,
-  properties,
-  CQLUtils
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-adhoc.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const user = require('component/singletons/user-instance')
+const Common = require('js/Common')
+const properties = require('properties')
+const CQLUtils = require('js/CQLUtils')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('query-adhoc'),
     modelEvents: {},
@@ -137,4 +122,4 @@ define([
       this.model.set('title', title)
     },
   })
-})
+

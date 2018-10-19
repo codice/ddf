@@ -13,36 +13,21 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './query-interactions.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/lightbox/lightbox.view.instance',
-  'component/query-feedback/query-feedback.view',
-  'component/confirmation/query/confirmation.query.view',
-  'component/loading/loading.view',
-  'component/query-annotations/query-annotations.view',
-  'properties',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  lightboxInstance,
-  QueryFeedbackView,
-  QueryConfirmationView,
-  LoadingView,
-  QueryAnnotationsView,
-  properties
-) {
-  return Marionette.ItemView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-interactions.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const lightboxInstance = require('component/lightbox/lightbox.view.instance')
+const QueryFeedbackView = require('component/query-feedback/query-feedback.view')
+const QueryConfirmationView = require('component/confirmation/query/confirmation.query.view')
+const LoadingView = require('component/loading/loading.view')
+const QueryAnnotationsView = require('component/query-annotations/query-annotations.view')
+const properties = require('properties')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('query-interactions'),
     className: 'composed-menu',
@@ -185,4 +170,4 @@ define([
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
   })
-})
+

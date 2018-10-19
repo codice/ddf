@@ -13,26 +13,16 @@
  *
  **/
 /*global define, alert, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './property.hbs',
-  'js/CustomElements',
-  'component/input/bulk/input-bulk.view',
-  'js/Common',
-  './property',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  BulkInputView,
-  Common,
-  Property
-) {
-  return Marionette.LayoutView.extend(
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./property.hbs')
+const CustomElements = require('js/CustomElements')
+const BulkInputView = require('component/input/bulk/input-bulk.view')
+const Common = require('js/Common')
+const Property = require('./property')
+
+module.exports =  Marionette.LayoutView.extend(
     {
       template: template,
       tagName: CustomElements.register('property'),
@@ -318,4 +308,4 @@ define([
       },
     }
   )
-})
+

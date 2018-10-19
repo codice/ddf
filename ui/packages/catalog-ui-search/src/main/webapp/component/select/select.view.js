@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './select.hbs',
-  'js/CustomElements',
-  'js/Common',
-], function(Marionette, _, $, template, CustomElements, Common) {
-  return Marionette.ItemView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./select.hbs')
+const CustomElements = require('js/CustomElements')
+const Common = require('js/Common')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('select'),
     className: function() {
@@ -64,4 +63,4 @@ define([
       return modelJSON
     },
   })
-})
+

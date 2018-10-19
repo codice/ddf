@@ -13,24 +13,15 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-location.hbs',
-  'js/CustomElements',
-  '../input.view',
-  'component/location-old/location-old.view',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  InputView,
-  LocationView
-) {
-  return InputView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-location.hbs')
+const CustomElements = require('js/CustomElements')
+const InputView = require('../input.view')
+const LocationView = require('component/location-old/location-old.view')
+
+module.exports =  InputView.extend({
     template: template,
     events: {
       'click .input-revert': 'revert',
@@ -81,4 +72,4 @@ define([
       this.model.set('value', this.getCurrentValue())
     },
   })
-})
+

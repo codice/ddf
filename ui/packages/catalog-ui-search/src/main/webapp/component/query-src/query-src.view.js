@@ -13,15 +13,14 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './query-src.hbs',
-  'js/CustomElements',
-  'component/singletons/sources-instance',
-], function(Marionette, _, $, template, CustomElements, sources) {
-  return Marionette.ItemView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-src.hbs')
+const CustomElements = require('js/CustomElements')
+const sources = require('component/singletons/sources-instance')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('query-src'),
     className: 'is-action-list',
@@ -84,4 +83,4 @@ define([
       return sources.toJSON()
     },
   })
-})
+

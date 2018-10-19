@@ -13,15 +13,14 @@
  *
  **/
 /*global define, alert, window, FileReader*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './input-thumbnail.hbs',
-  '../input.view',
-  'component/announcement',
-  'js/Common',
-], function(Marionette, _, $, template, InputView, announcement, Common) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./input-thumbnail.hbs')
+const InputView = require('../input.view')
+const announcement = require('component/announcement')
+const Common = require('js/Common')
+
   function handleError() {
     announcement.announce({
       title: 'Image Upload Failed',
@@ -33,7 +32,7 @@ define([
     this.render()
   }
 
-  return InputView.extend({
+module.exports =  InputView.extend({
     template: template,
     events: {
       'click button': 'upload',
@@ -124,4 +123,4 @@ define([
       this.stopListeningForResize()
     },
   })
-})
+

@@ -10,16 +10,15 @@
  *
  **/
 /*global define, setInterval, clearInterval*/
-define([
-  'jquery',
-  'underscore',
-  'wreqr',
-  'js/cql',
-  'js/CQLUtils',
-  'component/singletons/sources-instance',
-  'moment',
-  './jquery.whenAll',
-], function($, _, wreqr, cql, CQLUtils, sources, moment) {
+const $ = require('jquery')
+const _ = require('underscore')
+const wreqr = require('wreqr')
+const cql = require('js/cql')
+const CQLUtils = require('js/CQLUtils')
+const sources = require('component/singletons/sources-instance')
+const moment = require('moment')
+require('./jquery.whenAll')
+
   var checkForFailures, startSearch, addFailure, handleReattempts
   var pollingQueries = {}
   var failedQueries = {}
@@ -228,7 +227,7 @@ define([
     handleReattempts()
   })
 
-  return {
+module.exports =  {
     handleAddingQuery: function(query) {
       this.handleRemovingQuery(query)
       query.listenTo(
@@ -275,4 +274,4 @@ define([
       return pollingQueries
     },
   }
-})
+

@@ -10,8 +10,9 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone'], function(_, Backbone) {
-  return Backbone.Model.extend({
+const _ = require('underscore')
+const Backbone = require('backbone')
+module.exports =  Backbone.Model.extend({
     defaults: {
       value: [''],
       type: 'anyText',
@@ -20,4 +21,4 @@ define(['underscore', 'backbone'], function(_, Backbone) {
     },
     type: 'filter',
   })
-})
+

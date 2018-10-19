@@ -13,28 +13,17 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './alert-item.hbs',
-  'js/CustomElements',
-  'js/store',
-  'js/Common',
-  'component/singletons/user-instance',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  Common,
-  user
-) {
-  return Marionette.ItemView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./alert-item.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const Common = require('js/Common')
+const user = require('component/singletons/user-instance')
+
+module.exports =  Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('alert-item'),
     modelEvents: {},
@@ -98,4 +87,4 @@ define([
       }
     },
   })
-})
+

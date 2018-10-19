@@ -13,34 +13,20 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'properties',
-  'jquery',
-  './search-settings.hbs',
-  'js/CustomElements',
-  'component/singletons/user-instance',
-  'component/property/property.view',
-  'component/property/property',
-  'component/query-settings/query-settings.view',
-  'js/model/Query',
-  'component/confirmation/confirmation.view',
-], function(
-  Marionette,
-  _,
-  properties,
-  $,
-  template,
-  CustomElements,
-  user,
-  PropertyView,
-  Property,
-  QuerySettingsView,
-  QueryModel,
-  ConfirmationView
-) {
-  return Marionette.LayoutView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const properties = require('properties')
+const $ = require('jquery')
+const template = require('./search-settings.hbs')
+const CustomElements = require('js/CustomElements')
+const user = require('component/singletons/user-instance')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const QuerySettingsView = require('component/query-settings/query-settings.view')
+const QueryModel = require('js/model/Query')
+const ConfirmationView = require('component/confirmation/confirmation.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('search-settings'),
     regions: {
@@ -130,4 +116,4 @@ define([
       this.onBeforeShow()
     },
   })
-})
+

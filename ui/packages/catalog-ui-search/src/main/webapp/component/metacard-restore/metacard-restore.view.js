@@ -13,27 +13,16 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-restore.hbs',
-  './metacard-restore-item.hbs',
-  'js/CustomElements',
-  'js/store',
-  'js/cql',
-  'js/model/Query',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  itemTemplate,
-  CustomElements,
-  store,
-  cql,
-  Query
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-restore.hbs')
+const itemTemplate = require('./metacard-restore-item.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const cql = require('js/cql')
+const Query = require('js/model/Query')
+
   var getDeletedMetacards = function() {
     var filter = {
       type: 'AND',
@@ -109,7 +98,7 @@ define([
     childView: RestoreItemView,
   })
 
-  return Marionette.LayoutView.extend({
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('metacard-restore'),
     modelEvents: {
@@ -131,4 +120,4 @@ define([
       )
     },
   })
-})
+

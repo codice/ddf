@@ -13,48 +13,27 @@
  *
  **/
 /*global define, window*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-interactions.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/router/router',
-  'component/singletons/user-instance',
-  'component/singletons/sources-instance',
-  'js/model/Query',
-  'wkx',
-  'js/CQLUtils',
-  'component/confirmation/query/confirmation.query.view',
-  'component/loading/loading.view',
-  'component/dropdown/popout/dropdown.popout.view',
-  'component/result-add/result-add.view',
-  'component/export-actions/export-actions.view',
-  'plugins/metacard-interactions',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  router,
-  user,
-  sources,
-  Query,
-  wkx,
-  CQLUtils,
-  QueryConfirmationView,
-  LoadingView,
-  PopoutView,
-  ResultAddView,
-  ExportActionsView,
-  plugin
-) {
-  return plugin(
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-interactions.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const router = require('component/router/router')
+const user = require('component/singletons/user-instance')
+const sources = require('component/singletons/sources-instance')
+const Query = require('js/model/Query')
+const wkx = require('wkx')
+const CQLUtils = require('js/CQLUtils')
+const QueryConfirmationView = require('component/confirmation/query/confirmation.query.view')
+const LoadingView = require('component/loading/loading.view')
+const PopoutView = require('component/dropdown/popout/dropdown.popout.view')
+const ResultAddView = require('component/result-add/result-add.view')
+const ExportActionsView = require('component/export-actions/export-actions.view')
+const plugin = require('plugins/metacard-interactions')
+
+module.exports =  plugin(
     Marionette.LayoutView.extend({
       template: template,
       tagName: CustomElements.register('metacard-interactions'),
@@ -363,4 +342,4 @@ define([
       },
     })
   )
-})
+

@@ -13,30 +13,18 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-title.hbs',
-  'js/CustomElements',
-  'js/IconHelper',
-  'js/store',
-  'component/dropdown/popout/dropdown.popout.view',
-  'component/metacard-interactions/metacard-interactions.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  IconHelper,
-  store,
-  PopoutView,
-  MetacardInteractionsView
-) {
-  return Marionette.LayoutView.extend({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-title.hbs')
+const CustomElements = require('js/CustomElements')
+const IconHelper = require('js/IconHelper')
+const store = require('js/store')
+const PopoutView = require('component/dropdown/popout/dropdown.popout.view')
+const MetacardInteractionsView = require('component/metacard-interactions/metacard-interactions.view')
+
+module.exports =  Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('metacard-title'),
     regions: {
@@ -118,4 +106,4 @@ define([
       this.$el.toggleClass('is-remote', types.remote !== undefined)
     },
   })
-})
+

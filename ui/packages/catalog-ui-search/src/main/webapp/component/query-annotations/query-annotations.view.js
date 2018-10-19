@@ -13,46 +13,26 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'jquery',
-  'backbone',
-  'marionette',
-  'underscore',
-  'properties',
-  'js/model/Metacard',
-  'wreqr',
-  './query-annotations.hbs',
-  'maptype',
-  'js/store',
-  'js/CustomElements',
-  'component/property/property.view',
-  'component/property/property',
-  'component/annotation/annotation.collection',
-  'component/annotation/annotation.collection.view',
-  'component/input/textarea/input-textarea.view',
-  'component/loading-companion/loading-companion.view',
-  'component/announcement',
-], function(
-  $,
-  Backbone,
-  Marionette,
-  _,
-  properties,
-  MetaCard,
-  wreqr,
-  template,
-  maptype,
-  store,
-  CustomElements,
-  PropertyView,
-  Property,
-  AnnotationCollection,
-  AnnotationCollectionView,
-  TextAreaView,
-  LoadingCompanionView,
-  announcement
-) {
-  return Marionette.LayoutView.extend({
+const $ = require('jquery')
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const properties = require('properties')
+const MetaCard = require('js/model/Metacard')
+const wreqr = require('wreqr')
+const template = require('./query-annotations.hbs')
+const maptype = require('maptype')
+const store = require('js/store')
+const CustomElements = require('js/CustomElements')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const AnnotationCollection = require('component/annotation/annotation.collection')
+const AnnotationCollectionView = require('component/annotation/annotation.collection.view')
+const TextAreaView = require('component/input/textarea/input-textarea.view')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const announcement = require('component/announcement')
+
+module.exports =  Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = this.selectionInterface.getSelectedResults().first()
     },
@@ -251,4 +231,4 @@ define([
       this.$el.toggleClass('is-editing', false)
     },
   })
-})
+

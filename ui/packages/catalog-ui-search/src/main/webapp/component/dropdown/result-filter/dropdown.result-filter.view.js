@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.result-filter.hbs',
-  'component/result-filter/result-filter.view',
-  'component/singletons/user-instance',
-], function(Marionette, _, $, DropdownView, template, ComponentView, user) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.result-filter.hbs')
+const ComponentView = require('component/result-filter/result-filter.view')
+const user = require('component/singletons/user-instance')
+
+module.exports =  DropdownView.extend({
     attributes: {
       'data-help':
         'Used to setup a local filter of a result set.  It does not re-execute the search.',
@@ -47,4 +46,4 @@ define([
       this.$el.toggleClass('has-filter', Boolean(resultFilter))
     },
   })
-})
+

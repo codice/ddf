@@ -13,25 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './queries.hbs',
-  'js/CustomElements',
-  'component/tabs/query/tabs-query.view',
-  'component/query-selector/query-selector.view',
-  'js/store',
-], function(
-  Marionette,
-  _,
-  $,
-  queriesTemplate,
-  CustomElements,
-  QueryTabsView,
-  QuerySelectorView,
-  store
-) {
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const queriesTemplate = require('./queries.hbs')
+const CustomElements = require('js/CustomElements')
+const QueryTabsView = require('component/tabs/query/tabs-query.view')
+const QuerySelectorView = require('component/query-selector/query-selector.view')
+const store = require('js/store')
+
   var Queries = Marionette.LayoutView.extend({
     setDefaultModel: function() {
       this.model = store.getCurrentWorkspace()
@@ -76,5 +66,5 @@ define([
     },
   })
 
-  return Queries
-})
+module.exports =  Queries
+

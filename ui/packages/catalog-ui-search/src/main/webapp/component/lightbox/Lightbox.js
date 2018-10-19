@@ -10,7 +10,8 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone'], function(_, Backbone) {
+const _ = require('underscore')
+const Backbone = require('backbone')
   var Lightbox = Backbone.Model.extend({
     defaults: {
       open: false,
@@ -30,5 +31,5 @@ define(['underscore', 'backbone'], function(_, Backbone) {
     },
   })
 
-  return Lightbox
-})
+module.exports =  Lightbox
+

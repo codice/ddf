@@ -13,16 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.result-sort.hbs',
-  'component/result-sort/result-sort.view',
-  'component/singletons/user-instance',
-], function(Marionette, _, $, DropdownView, template, ComponentView, user) {
-  return DropdownView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.result-sort.hbs')
+const ComponentView = require('component/result-sort/result-sort.view')
+const user = require('component/singletons/user-instance')
+
+module.exports =  DropdownView.extend({
     template: template,
     className: 'is-resultSort',
     componentToShow: ComponentView,
@@ -43,4 +42,4 @@ define([
       this.$el.toggleClass('has-sort', Boolean(resultSort))
     },
   })
-})
+

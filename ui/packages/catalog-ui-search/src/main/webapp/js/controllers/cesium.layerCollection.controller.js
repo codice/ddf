@@ -12,13 +12,12 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-define([
-  'underscore',
-  'marionette',
-  'cesium',
-  'js/controllers/common.layerCollection.controller',
-  'properties',
-], function(_, Marionette, Cesium, CommonLayerController, properties) {
+const _ = require('underscore')
+const Marionette = require('marionette')
+const Cesium = require('cesium')
+const CommonLayerController = require('js/controllers/common.layerCollection.controller')
+const properties = require('properties')
+
   'use strict'
 
   const DEFAULT_HTTPS_PORT = 443
@@ -138,5 +137,5 @@ define([
 
   Controller.imageryProviderTypes = imageryProviderTypes
 
-  return Controller
-})
+module.exports =  Controller
+

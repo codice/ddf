@@ -13,15 +13,14 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './sort-item.view',
-  '../sort/sort.hbs',
-], function(Marionette, _, $, CustomElements, queryItemView, template) {
-  return Marionette.CollectionView.extend({
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const queryItemView = require('./sort-item.view')
+const template = require('../sort/sort.hbs')
+
+module.exports =  Marionette.CollectionView.extend({
     childView: queryItemView,
     tagName: CustomElements.register('sort-item-collection'),
     initialize: function(options) {
@@ -40,4 +39,4 @@ define([
       }
     },
   })
-})
+

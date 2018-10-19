@@ -11,33 +11,19 @@
  **/
 /*global define*/
 
-define([
-  'marionette',
-  'backbone',
-  'cesium',
-  'underscore',
-  'wreqr',
-  'js/widgets/cesium.bbox',
-  'maptype',
-  './notification.view',
-  '@turf/turf',
-  '@turf/circle',
-  './drawing.controller',
-  'js/DistanceUtils',
-], function(
-  Marionette,
-  Backbone,
-  Cesium,
-  _,
-  wreqr,
-  DrawBbox,
-  maptype,
-  NotificationView,
-  Turf,
-  TurfCircle,
-  DrawingController,
-  DistanceUtils
-) {
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const Cesium = require('cesium')
+const _ = require('underscore')
+const wreqr = require('wreqr')
+const DrawBbox = require('js/widgets/cesium.bbox')
+const maptype = require('maptype')
+const NotificationView = require('./notification.view')
+const Turf = require('@turf/turf')
+const TurfCircle = require('@turf/circle')
+const DrawingController = require('./drawing.controller')
+const DistanceUtils = require('js/DistanceUtils')
+
   'use strict'
   var DrawCircle = {}
 
@@ -312,5 +298,5 @@ define([
     },
   })
 
-  return DrawCircle
-})
+module.exports =  DrawCircle
+
