@@ -87,29 +87,39 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
+  private static String username;
+  private static String password;
+  private static Boolean useBasicAuth;
   private final Map<String, String> propertyCache = new HashMap<>();
+  private String test;
 
   public static String getUsername() {
     return username;
   }
 
-  public static void setUsername(String username) {
-    HttpSolrClientFactory.username = username;
+  public static void setUsername(String uname) {
+    HttpSolrClientFactory.username = uname;
   }
 
   public static String getPassword() {
     return password;
   }
 
-  public static void setPassword(String password) {
-    HttpSolrClientFactory.password = password;
+  public static void setPassword(String pword) {
+    HttpSolrClientFactory.password = pword;
   }
 
-  public static String username;
-  public static String password;
+  public static Boolean getUseBasicAuth() {
+    return useBasicAuth;
+  }
+
+  public static void setUseBasicAuth(Boolean bauth) {
+    HttpSolrClientFactory.useBasicAuth = bauth;
+  }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
+
     Args.notEmpty(coreName, "Cannot create Solr client. Solr core name");
 
     String solrDir = getProperty(SOLR_DATA_DIR);
@@ -256,7 +266,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
               SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
     }
 
-    if (useBasicAuth()) {
+    if (getUseBasicAuth()) {
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());
       httpClientBuilder.addInterceptorFirst(new PreemptiveAuth(new BasicScheme()));
     }
@@ -300,11 +310,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private CredentialsProvider getCredentialsProvider() {
 
-
-
-
-    String username = ConfigurationStore.getInstance().getUsername();
-    String password = ConfigurationStore.getInstance().getPassword();
+    String username = getUsername();
+    String password = getPassword();
     CredentialsProvider provider = new BasicCredentialsProvider();
     org.apache.http.auth.UsernamePasswordCredentials credentials =
         new org.apache.http.auth.UsernamePasswordCredentials(username, password);
@@ -342,25 +349,36 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
         .orElse(new String[0]);
   }
 
-
-
   /** Extract OSGI helper code into its own class. */
-//  public static class ServiceFetcher {
-//
-//    public static <T> Optional<T> getService(Class<T> serviceInterface) {
-//
-//      ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-//      try {
-//        Thread.currentThread().setContextClassLoader(UsernamePassword.class.getClassLoader());
-//        Optional<BundleContext> bundleContext =
-//            Optional.ofNullable(FrameworkUtil.getBundle(UsernamePassword.class).getBundleContext());
-//        return bundleContext
-//            .map(bc -> bc.getServiceReference(serviceInterface))
-//            .map(sr -> bundleContext.get().getService(sr));
-//
-//      } finally {
-//        Thread.currentThread().setContextClassLoader(tccl);
-//      }
-//    }
+  //    public static class ServiceFetcher {
+  //
+  //      public static <T> Optional<T> getService(Class<T> serviceInterface) {
+  //
+  //        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+  //        try {
+  //          Thread.currentThread().setContextClassLoader(UsernamePassword.class.getClassLoader());
+  //          Optional<BundleContext> bundleContext =
+  //
+  //   Optional.ofNullable(FrameworkUtil.getBundle(UsernamePassword.class).getBundleContext());
+  //          return bundleContext
+  //              .map(bc -> bc.getServiceReference(serviceInterface))
+  //              .map(sr -> bundleContext.get().getService(sr));
+  //
+  //        } finally {
+  //          Thread.currentThread().setContextClassLoader(tccl);
+  //        }
+  //      }
 
+  public static class ServiceFetcher {
+
+    public static <T> Optional<T> getService(Class<T> serviceInterface) {
+
+      Optional<BundleContext> bundleContext =
+          Optional.ofNullable(
+              FrameworkUtil.getBundle(HttpSolrClientFactory.class).getBundleContext());
+      return bundleContext
+          .map(bc -> bc.getServiceReference(serviceInterface))
+          .map(sr -> bundleContext.get().getService(sr));
+    }
+  }
 }

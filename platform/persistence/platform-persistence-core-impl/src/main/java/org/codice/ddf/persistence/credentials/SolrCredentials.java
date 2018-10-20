@@ -15,39 +15,44 @@ package org.codice.ddf.persistence.credentials;
 
 import org.codice.solr.factory.impl.HttpSolrClientFactory;
 
-public class UsernamePassword {
+public class SolrCredentials {
 
+  // FYI. It needs this state to hold default values. Simply pointing the accessors to the
+  // static vars on HttpSolrClientFactory doesn't cut the mustard. Everything ends up null.
   private String password;
   private String username;
+  private Boolean useBasicAuth;
 
-  public void update() {
-    //    ConfigurationStore.getInstance().setUsername(username);
-    //    ConfigurationStore.getInstance().setPassword(password);
+  @SuppressWarnings("unused")
+  public Boolean getUseBasicAuth() {
+    return useBasicAuth;
+  }
+
+  @SuppressWarnings("unused")
+  public void setUseBasicAuth(Boolean useBasicAuth) {
+    this.useBasicAuth = useBasicAuth;
+    HttpSolrClientFactory.setUseBasicAuth(getUseBasicAuth());
   }
 
   @SuppressWarnings("unused")
   public String getUsername() {
-    // return password;
-    return HttpSolrClientFactory.getUsername();
+    return username;
   }
 
   @SuppressWarnings("unused")
   public void setUsername(String username) {
-    // this.username = username;
-    // update();
-    HttpSolrClientFactory.setUsername(username);
+    this.username = username;
+    HttpSolrClientFactory.setUsername(getUsername());
   }
 
   @SuppressWarnings("unused")
   public String getPassword() {
-    // return password;
-    return HttpSolrClientFactory.getUsername();
+    return password;
   }
 
   @SuppressWarnings("unused")
   public void setPassword(String password) {
-    HttpSolrClientFactory.setPassword(password);
-    //    this.password = password;
-    //    update();
+    this.password = password;
+    HttpSolrClientFactory.setPassword(getPassword());
   }
 }
