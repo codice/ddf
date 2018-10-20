@@ -27,11 +27,6 @@
     <packaging>feature</packaging>
     <dependencies>
         <dependency>
-        <groupId>ddf.platform.solr</groupId>
-        <artifactId>solr-credentials</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-        <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-appender</artifactId>
             <version>${project.version}</version>
