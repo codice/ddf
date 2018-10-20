@@ -14,8 +14,12 @@
 
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
     <OCD name="Solr Basic Authentication Credentials"
-        id="org.codice.ddf.persistence.credentials.UsernamePassword"
+        id="org.codice.ddf.persistence.credentials.SolrCredentials"
         description="The username and password for authenticating to Solr via an HTTP connection.">
+
+        <AD
+            description="Use basic authentication"
+            name="Use Basic Auth" id="useBasicAuth" required="true" type="Boolean" default="true"/>
 
         <AD
             description="Username for Solr user"
@@ -28,7 +32,7 @@
             type="Password" default="changeit"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.persistence.credentials.UsernamePassword">
-        <Object ocdref="org.codice.ddf.persistence.credentials.UsernamePassword"/>
+    <Designate pid="org.codice.ddf.persistence.credentials.SolrCredentials">
+        <Object ocdref="org.codice.ddf.persistence.credentials.SolrCredentials"/>
     </Designate>
 </metatype:MetaData>

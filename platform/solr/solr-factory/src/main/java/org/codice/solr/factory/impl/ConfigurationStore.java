@@ -30,27 +30,7 @@ public class ConfigurationStore {
 
   private boolean inMemory;
 
-  private String password;
-
-  private String username;
-
   private Double nearestNeighborDistanceLimit;
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
 
   /**
    * Constructs a new configuration store.
