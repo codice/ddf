@@ -6,7 +6,7 @@
     "mvn:ddf.platform.email/platform-email-impl/${project.version}",
     "mvn:ddf.platform.util/util-uuidgenerator-impl/${project.version}",
     "mvn:ddf.platform/landing-page/${project.version}",
-    "mvn:ddf.platform.solr/solr-credentials/${project.version}",
+    "mvn:ddf.persistence.core/persistence-core-impl/${project.version}",
     "mvn:ddf.platform/platform-configuration/${project.version}",
     "mvn:ddf.platform/platform-filter-response/${project.version}",
     "mvn:ddf.platform/platform-logging/${project.version}",

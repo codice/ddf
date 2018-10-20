@@ -34,7 +34,6 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -53,6 +52,8 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.solr.factory.SolrClientFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,25 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private final Map<String, String> propertyCache = new HashMap<>();
+
+  public static String getUsername() {
+    return username;
+  }
+
+  public static void setUsername(String username) {
+    HttpSolrClientFactory.username = username;
+  }
+
+  public static String getPassword() {
+    return password;
+  }
+
+  public static void setPassword(String password) {
+    HttpSolrClientFactory.password = password;
+  }
+
+  public static String username;
+  public static String password;
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
@@ -267,7 +287,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private boolean useBasicAuth() {
-    return new Boolean(getProperty(SOLR_USE_BASIC_AUTH));
+    return Boolean.valueOf(getProperty(SOLR_USE_BASIC_AUTH));
   }
 
   private String getCoreUrl(String coreName) {
@@ -280,17 +300,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private CredentialsProvider getCredentialsProvider() {
 
-    //    BundleContext bc = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-    //    ServiceReference<ddf.catalog.solr.provider.SolrCatalogProvider> sr =
-    // bc.getServiceReference(SolrCatalogProvider.class);
-    //    CatalogProvider s = bc.getService(sr);
 
+
+
+    String username = ConfigurationStore.getInstance().getUsername();
+    String password = ConfigurationStore.getInstance().getPassword();
     CredentialsProvider provider = new BasicCredentialsProvider();
-    //    String userName = ConfigurationStore.getInstance().getUsername();
-    //    String password = ConfigurationStore.getInstance().getPassword();
-    String userName = "ddf";
-    String password = "changeit";
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(userName, password);
+    org.apache.http.auth.UsernamePasswordCredentials credentials =
+        new org.apache.http.auth.UsernamePasswordCredentials(username, password);
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }
@@ -324,4 +341,26 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
         .map((x) -> (x.split("\\s*,\\s*")))
         .orElse(new String[0]);
   }
+
+
+
+  /** Extract OSGI helper code into its own class. */
+//  public static class ServiceFetcher {
+//
+//    public static <T> Optional<T> getService(Class<T> serviceInterface) {
+//
+//      ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+//      try {
+//        Thread.currentThread().setContextClassLoader(UsernamePassword.class.getClassLoader());
+//        Optional<BundleContext> bundleContext =
+//            Optional.ofNullable(FrameworkUtil.getBundle(UsernamePassword.class).getBundleContext());
+//        return bundleContext
+//            .map(bc -> bc.getServiceReference(serviceInterface))
+//            .map(sr -> bundleContext.get().getService(sr));
+//
+//      } finally {
+//        Thread.currentThread().setContextClassLoader(tccl);
+//      }
+//    }
+
 }
