@@ -14,6 +14,8 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.encryption.impl.EncryptionServiceImpl;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -87,39 +89,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
-  private static String username;
-  private static String password;
-  private static Boolean useBasicAuth;
   private final Map<String, String> propertyCache = new HashMap<>();
-  private String test;
-
-  public static String getUsername() {
-    return username;
-  }
-
-  public static void setUsername(String uname) {
-    HttpSolrClientFactory.username = uname;
-  }
-
-  public static String getPassword() {
-    return password;
-  }
-
-  public static void setPassword(String pword) {
-    HttpSolrClientFactory.password = pword;
-  }
-
-  public static Boolean getUseBasicAuth() {
-    return useBasicAuth;
-  }
-
-  public static void setUseBasicAuth(Boolean bauth) {
-    HttpSolrClientFactory.useBasicAuth = bauth;
-  }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
-
     Args.notEmpty(coreName, "Cannot create Solr client. Solr core name");
 
     String solrDir = getProperty(SOLR_DATA_DIR);
@@ -266,7 +239,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
               SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
     }
 
-    if (getUseBasicAuth()) {
+    if (useBasicAuth()) {
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());
       httpClientBuilder.addInterceptorFirst(new PreemptiveAuth(new BasicScheme()));
     }
@@ -310,8 +283,18 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private CredentialsProvider getCredentialsProvider() {
 
-    String username = getUsername();
-    String password = getPassword();
+    String username = getProperty("solr.username");
+    String encryptedPassword = getProperty("solr.password");
+
+    //    final EncryptionService[] encryptionService = new EncryptionService[1];
+    //    AccessController.doPrivileged(
+    //        (PrivilegedAction<EncryptionService>)
+    //            () -> encryptionService[0] = new EncryptionServiceImpl());
+    //    String password = encryptionService[0].decrypt(encryptedPassword);
+
+    EncryptionService encryptionService = new EncryptionServiceImpl();
+    String password = encryptionService.decrypt(encryptedPassword);
+
     CredentialsProvider provider = new BasicCredentialsProvider();
     org.apache.http.auth.UsernamePasswordCredentials credentials =
         new org.apache.http.auth.UsernamePasswordCredentials(username, password);

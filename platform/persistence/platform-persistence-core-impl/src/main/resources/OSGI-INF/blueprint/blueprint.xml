@@ -13,31 +13,16 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.2.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="solrFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl"/>
+    <bean id="solrFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl" />
+
     <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">
-        <argument ref="solrFactory"/>
+        <argument ref="solrFactory" />
     </bean>
-
+    
     <service ref="persistentStore" id="persistentStoreService"
-        interface="org.codice.ddf.persistence.PersistentStore">
+             interface="org.codice.ddf.persistence.PersistentStore">
     </service>
-
-    <bean id="solrCredentials"
-        class="org.codice.ddf.persistence.credentials.SolrCredentials">
-        <cm:managed-properties
-            persistent-id="org.codice.ddf.persistence.credentials.SolrCredentials"
-            update-strategy="container-managed"/>
-        <property name="username" value="ddf"/>
-        <property name="password" value="changeit"/>
-        <property name="useBasicAuth" value="true"/>
-    </bean>
-
-
-    <!--??? Does this need to be a service or not? The true client, HttpSolrClientFactory cannot access services (AFAIK) because that class is in a embedded JAR.-->
-    <service ref="solrCredentials"
-        interface="org.codice.ddf.persistence.credentials.SolrCredentials"/>
 
 </blueprint>
