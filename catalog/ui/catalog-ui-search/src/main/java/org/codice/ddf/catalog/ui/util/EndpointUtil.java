@@ -72,6 +72,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -173,10 +174,10 @@ public class EndpointUtil {
     CommonFactoryFinder.reset();
   }
 
-  public Metacard getMetacard(String id)
+  public Metacard getMetacardById(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
-    Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
+    Filter idFilter = filterBuilder.attribute(Core.ID).is().equalTo().text(id);
+    Filter tagsFilter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text("*");
     Filter filter = filterBuilder.allOf(idFilter, tagsFilter);
 
     QueryResponse queryResponse =
@@ -198,8 +199,8 @@ public class EndpointUtil {
     return getJson(result);
   }
 
-  public Map<String, Result> getMetacardsByFilter(String tagFilter) {
-    Filter filter = filterBuilder.attribute(Metacard.TAGS).is().like().text(tagFilter);
+  public Map<String, Result> getMetacardsByTag(String tagStr) {
+    Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tagStr);
 
     ResultIterable resultIterable =
         resultIterable(
@@ -224,34 +225,72 @@ public class EndpointUtil {
                 EndpointUtil::firstInWinsMerge));
   }
 
-  public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter) {
-    return getMetacards(Metacard.ID, ids, tagFilter);
+  public Map<String, Result> getMetacardsWithTagByLikeAttributes(
+      Map<String, Collection<String>> attributeMap, String tagStr) {
+    return getMetacardsWithTagByLikeAttributes(
+        attributeMap, filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tagStr));
   }
 
-  public Map<String, Result> getMetacards(Collection<String> ids, Filter tagFilter) {
-    return getMetacards(Metacard.ID, ids, tagFilter);
+  public Map<String, Result> getMetacardsWithTagByLikeAttributes(
+      Map<String, Collection<String>> attributeMap, Filter tagFilter) {
+
+    List<Filter> attributeFilters = new ArrayList<>();
+
+    for (String attributeName : attributeMap.keySet()) {
+      attributeFilters.add(
+          buildAttributeFilter(attributeName, attributeMap.get(attributeName), false));
+    }
+
+    Filter filter = filterBuilder.allOf(filterBuilder.anyOf(attributeFilters), tagFilter);
+
+    ResultIterable resultIterable =
+        resultIterable(
+            catalogFramework,
+            new QueryRequestImpl(
+                new QueryImpl(
+                    filter,
+                    1,
+                    pageSize,
+                    new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
+                    false,
+                    TimeUnit.SECONDS.toMillis(10)),
+                false,
+                null,
+                additionalSort(new HashMap<>(), Core.ID, SortOrder.ASCENDING)));
+    return resultIterable
+        .stream()
+        .collect(
+            Collectors.toMap(
+                result -> result.getMetacard().getId(),
+                Function.identity(),
+                EndpointUtil::firstInWinsMerge));
   }
 
-  public Map<String, Result> getMetacards(
-      String attributeName, Collection<String> ids, String tag) {
-    return getMetacards(
-        attributeName, ids, filterBuilder.attribute(Metacard.TAGS).is().like().text(tag));
+  public Map<String, Result> getMetacardsWithTagById(Collection<String> ids, String tagFilter) {
+    return getMetacardsWithTagByAttributes(Core.ID, ids, tagFilter);
   }
 
-  public Map<String, Result> getMetacards(
-      String attributeName, Collection<String> ids, Filter tagFilter) {
-    if (ids.isEmpty()) {
+  public Map<String, Result> getMetacardsWithTagById(Collection<String> ids, Filter tagFilter) {
+    return getMetacardsWithTagByAttributes(Core.ID, ids, tagFilter);
+  }
+
+  public Map<String, Result> getMetacardsWithTagByAttributes(
+      String attributeName, Collection<String> attributeValues, String tag) {
+    return getMetacardsWithTagByAttributes(
+        attributeName,
+        attributeValues,
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tag));
+  }
+
+  public Map<String, Result> getMetacardsWithTagByAttributes(
+      String attributeName, Collection<String> attributeValues, Filter tagFilter) {
+    if (attributeValues.isEmpty()) {
       return new HashMap<>();
     }
 
-    List<Filter> filters = new ArrayList<>(ids.size());
-    for (String id : ids) {
-      Filter attributeFilter = filterBuilder.attribute(attributeName).is().equalTo().text(id);
-      Filter filter = filterBuilder.allOf(attributeFilter, tagFilter);
-      filters.add(filter);
-    }
+    Filter attributeFilter = buildAttributeFilter(attributeName, attributeValues, true);
+    Filter queryFilter = filterBuilder.allOf(attributeFilter, tagFilter);
 
-    Filter queryFilter = filterBuilder.anyOf(filters);
     ResultIterable resultIterable =
         resultIterable(
             catalogFramework,
@@ -274,6 +313,28 @@ public class EndpointUtil {
                 result -> result.getMetacard().getId(),
                 Function.identity(),
                 EndpointUtil::firstInWinsMerge));
+  }
+
+  private Filter buildAttributeFilter(
+      String attributeName, Collection<String> attributeValues, boolean isExactMatch) {
+    if (CollectionUtils.isEmpty(attributeValues)) {
+      return null;
+    }
+
+    List<Filter> filters = new ArrayList<>();
+    for (String value : attributeValues) {
+      if (isExactMatch) {
+        filters.add(filterBuilder.attribute(attributeName).is().equalTo().text(value));
+      } else {
+        filters.add(filterBuilder.attribute(attributeName).is().like().text(value));
+      }
+    }
+
+    if (filters.size() == 1) {
+      return filters.get(0);
+    } else {
+      return filterBuilder.anyOf(filters);
+    }
   }
 
   private Map<String, Serializable> additionalSort(
@@ -395,7 +456,7 @@ public class EndpointUtil {
 
   public String metacardToJson(String id)
       throws SourceUnavailableException, UnsupportedQueryException, FederationException {
-    return metacardToJson(getMetacard(id));
+    return metacardToJson(getMetacardById(id));
   }
 
   public String metacardToJson(Metacard metacard) {
@@ -515,7 +576,7 @@ public class EndpointUtil {
 
   private boolean handleThumbnail(
       Metacard metacard, Map<String, Object> result, AttributeDescriptor descriptor) {
-    if (Metacard.THUMBNAIL.equals(descriptor.getName())) {
+    if (Core.THUMBNAIL.equals(descriptor.getName())) {
       if (metacard.getThumbnail() != null) {
         result.put(
             descriptor.getName(), Base64.getEncoder().encodeToString(metacard.getThumbnail()));
@@ -727,7 +788,7 @@ public class EndpointUtil {
    */
   public Metacard findWorkspace(String workspaceId) {
     try {
-      return getMetacard(workspaceId);
+      return getMetacardById(workspaceId);
     } catch (NotFoundException
         | UnsupportedQueryException
         | SourceUnavailableException

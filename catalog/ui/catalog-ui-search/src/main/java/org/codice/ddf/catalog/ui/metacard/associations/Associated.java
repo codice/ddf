@@ -111,7 +111,7 @@ public class Associated {
             .collect(Collectors.toList());
 
     Map<String, Metacard> metacards =
-        util.getMetacards(ids, getNonrestrictedTagsFilter())
+        util.getMetacardsWithTagById(ids, getNonrestrictedTagsFilter())
             .entrySet()
             .stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getMetacard()));

@@ -16,19 +16,33 @@ class Keyword extends React.Component {
     }
     this.fetch = this.props.fetch || fetch
   }
+  extractGeo(suggestion) {
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [suggestion.geo.map(coord => [coord.lon, coord.lat])],
+      },
+      properties: {},
+      id: suggestion.id,
+    }
+  }
   async suggester(input) {
     const res = await this.fetch(`./internal/geofeature/suggestions?q=${input}`)
-    return await res.json()
+    const json = await res.json()
+    return await json.filter(suggestion => suggestion.id !== 'LITERAL')
   }
-  async geofeature(id) {
+  async geofeature(suggestion) {
+    const { id } = suggestion
     const res = await this.fetch(`./internal/geofeature?id=${id}`)
     return await res.json()
   }
-  async onChange({ id, name }) {
-    const geofeature = this.props.geofeature || (id => this.geofeature(id))
-    this.setState({ value: name, loading: true })
+  async onChange(suggestion) {
+    const geofeature =
+      this.props.geofeature || (suggestItem => this.geofeature(suggestItem))
+    this.setState({ value: suggestion.name, loading: true })
     try {
-      const { type, geometry = {} } = await geofeature(id)
+      const { type, geometry = {} } = await geofeature(suggestion)
       this.setState({ loading: false })
 
       switch (geometry.type) {
