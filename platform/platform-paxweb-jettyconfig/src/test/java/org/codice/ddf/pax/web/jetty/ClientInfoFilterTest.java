@@ -11,13 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.platform.filter.clientinfo.impl;
+package org.codice.ddf.pax.web.jetty;
 
-import static org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter.CLIENT_INFO_KEY;
-import static org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter.SERVLET_CONTEXT_PATH;
-import static org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter.SERVLET_REMOTE_ADDR;
-import static org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter.SERVLET_REMOTE_HOST;
-import static org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter.SERVLET_SCHEME;
+import static org.codice.ddf.pax.web.jetty.ClientInfoFilter.CLIENT_INFO_KEY;
+import static org.codice.ddf.pax.web.jetty.ClientInfoFilter.SERVLET_CONTEXT_PATH;
+import static org.codice.ddf.pax.web.jetty.ClientInfoFilter.SERVLET_REMOTE_ADDR;
+import static org.codice.ddf.pax.web.jetty.ClientInfoFilter.SERVLET_REMOTE_HOST;
+import static org.codice.ddf.pax.web.jetty.ClientInfoFilter.SERVLET_SCHEME;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -27,12 +27,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
+import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

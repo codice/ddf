@@ -115,7 +115,7 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
     assertThat(
         "Produced RTF document must match reference",
         rtfResult,
-        equalTo(referenceRtfWithEmptyThumbnail));
+        equalToIgnoringWhiteSpace(referenceRtfWithEmptyThumbnail));
   }
 
   @Test(expected = CatalogTransformerException.class)

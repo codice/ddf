@@ -15,14 +15,16 @@ package org.codice.ddf.security.filter.csrf
 
 import com.google.common.collect.ImmutableList
 import com.google.common.net.HttpHeaders
+import org.codice.ddf.pax.web.jetty.CsrfFilter
 import org.codice.ddf.platform.filter.AuthenticationException
 import org.eclipse.jetty.http.HttpMethod
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
+
+import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import org.codice.ddf.platform.filter.FilterChain
 
 @RestoreSystemProperties
 class CsrfFilterSpec extends Specification {
