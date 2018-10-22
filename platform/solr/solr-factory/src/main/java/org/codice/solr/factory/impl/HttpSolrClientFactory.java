@@ -286,14 +286,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     String username = getProperty("solr.username");
     String encryptedPassword = getProperty("solr.password");
 
-    //    final EncryptionService[] encryptionService = new EncryptionService[1];
-    //    AccessController.doPrivileged(
-    //        (PrivilegedAction<EncryptionService>)
-    //            () -> encryptionService[0] = new EncryptionServiceImpl());
-    //    String password = encryptionService[0].decrypt(encryptedPassword);
+    final EncryptionService[] encryptionService = new EncryptionService[1];
+    AccessController.doPrivileged(
+        (PrivilegedAction<EncryptionService>)
+            () -> encryptionService[0] = new EncryptionServiceImpl());
+    String password = encryptionService[0].decrypt(encryptedPassword);
 
-    EncryptionService encryptionService = new EncryptionServiceImpl();
-    String password = encryptionService.decrypt(encryptedPassword);
+    //    EncryptionService encryptionService = new EncryptionServiceImpl();
+    //    String password = encryptionService.decrypt(encryptedPassword);
 
     CredentialsProvider provider = new BasicCredentialsProvider();
     org.apache.http.auth.UsernamePasswordCredentials credentials =
