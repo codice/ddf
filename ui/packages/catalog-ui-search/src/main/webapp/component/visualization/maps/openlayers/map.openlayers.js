@@ -608,12 +608,6 @@ module.exports = function OpenlayersMap(
       const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: 'white',
-            width: 8,
-          }),
-        }),
-        new Openlayers.style.Style({
-          stroke: new Openlayers.style.Stroke({
             color: locationModel.get('color') || defaultColor,
             width: 4,
           }),
@@ -642,20 +636,14 @@ module.exports = function OpenlayersMap(
       const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: 'white',
-            width: 8
-          })
-        }),
-        new Openlayers.style.Style({
-          stroke: new Openlayers.style.Stroke({
             color: locationModel.get('color') || defaultColor,
-            width: 4
-          })
-        })
+            width: 4,
+          }),
+        }),
       ]
 
       feature.setStyle(styles)
-      
+
       return this.createVectorLayer(locationModel, feature)
     },
     createVectorLayer: function(locationModel, feature) {
