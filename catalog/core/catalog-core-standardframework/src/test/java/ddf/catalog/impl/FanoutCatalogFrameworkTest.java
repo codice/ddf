@@ -78,7 +78,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourceStatus;
 import ddf.mime.MimeTypeMapper;

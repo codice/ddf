@@ -17,9 +17,10 @@ import ddf.action.Action;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.util.impl.DescribableImpl;
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.codice.ddf.platform.util.DateUtils;
 
 /** The Class SourceDescriptorImpl is the default representation of a {@link SourceDescriptor}. */
 public class SourceDescriptorImpl extends DescribableImpl implements SourceDescriptor {
@@ -31,7 +32,7 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
 
   protected boolean isAvailable = false;
 
-  protected Instant lastAvailableTimeStamp = null;
+  protected Date lastAvailableDate = null;
 
   private List<Action> actions;
 
@@ -102,8 +103,8 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
   }
 
   @Override
-  public Instant getLastAvailabilityTimeStamp() {
-    return Instant.from(lastAvailableTimeStamp);
+  public Date getLastAvailabilityDate() {
+    return DateUtils.copy(lastAvailableDate);
   }
 
   @Override
@@ -115,11 +116,11 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
   }
 
   /**
-   * Sets the last availability timestamp.
+   * Sets the last availability date.
    *
-   * @param lastAvailableTimeStamp the new last availability timestamp
+   * @param lastAvailableDate the new last availability date
    */
-  public void setLastAvailabilityTimeStamp(Instant lastAvailableTimeStamp) {
-    this.lastAvailableTimeStamp = Instant.from(lastAvailableTimeStamp);
+  public void setLastAvailabilityDate(Date lastAvailableDate) {
+    this.lastAvailableDate = DateUtils.copy(lastAvailableDate);
   }
 }

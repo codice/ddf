@@ -140,7 +140,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourceStatus;
 import ddf.mime.MimeTypeResolver;

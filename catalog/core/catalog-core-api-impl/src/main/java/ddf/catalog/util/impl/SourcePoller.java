@@ -93,17 +93,17 @@ public class SourcePoller {
 
   private List<CatalogStore> catalogStores = Collections.emptyList();
 
-  private final ListeningExecutorService sourceAvailabilityChecksThreadPool;
+  private final ListeningExecutorService availabilityChecksThreadPool;
 
   private ScheduledExecutorService pollAllSourcesThreadPool;
 
-  private final Cache<SourceKey, SourceAvailability> cache;
+  private final Cache<SourceKey, SourceStatus> cache;
 
   public SourcePoller(
-      ExecutorService sourceAvailabilityChecksThreadPool,
+      ExecutorService availabilityChecksThreadPool,
       ScheduledExecutorService pollAllSourcesThreadPool) {
     this(
-        sourceAvailabilityChecksThreadPool,
+        availabilityChecksThreadPool,
         pollAllSourcesThreadPool,
         DEFAULT_POLL_INTERVAL,
         DEFAULT_POLL_INTERVAL_TIME_UNIT);
@@ -112,12 +112,12 @@ public class SourcePoller {
   /** Starts a process to periodically call {@link #pollAllSources()} */
   @VisibleForTesting
   SourcePoller(
-      ExecutorService sourceAvailabilityChecksThreadPool,
+      ExecutorService availabilityChecksThreadPool,
       ScheduledExecutorService pollAllSourcesThreadPool,
       final long pollInterval,
       final TimeUnit pollIntervalTimeUnit) {
-    this.sourceAvailabilityChecksThreadPool =
-        MoreExecutors.listeningDecorator(sourceAvailabilityChecksThreadPool);
+    this.availabilityChecksThreadPool =
+        MoreExecutors.listeningDecorator(availabilityChecksThreadPool);
     this.pollAllSourcesThreadPool = pollAllSourcesThreadPool;
 
     LOGGER.debug(
@@ -132,7 +132,7 @@ public class SourcePoller {
         CacheBuilder.newBuilder()
             .maximumSize(1000)
             .removalListener(
-                (RemovalNotification<SourceKey, SourceAvailability> removalNotification) -> {
+                (RemovalNotification<SourceKey, SourceStatus> removalNotification) -> {
                   LOGGER.debug(
                       "Removing SourceKey {} from cache. cause={}. Cancelling any futures that are checking availability for that entry",
                       removalNotification.getKey(),
@@ -190,17 +190,17 @@ public class SourcePoller {
         sourceKeysToRemove.forEach(cache::invalidate);
       }
 
-      Map<SourceKey, Future<SourceAvailability>> availabilityFutures =
+      Map<SourceKey, Future<SourceStatus>> sourceStatusFutures =
           startAvailabilityChecks(sourceKeyMap);
-      CacheResults(availabilityFutures);
+      CacheResults(sourceStatusFutures);
     } catch (Throwable throwable) {
       LOGGER.warn("Scheduled polling of sources failed", throwable);
     }
   }
 
-  private Map<SourceKey, Future<SourceAvailability>> startAvailabilityChecks(
+  private Map<SourceKey, Future<SourceStatus>> startAvailabilityChecks(
       final Map<SourceKey, Source> sourceKeyMap) {
-    Map<SourceKey, Future<SourceAvailability>> availabilityFutures = new HashMap<>();
+    Map<SourceKey, Future<SourceStatus>> sourceStatusFutures = new HashMap<>();
     for (final Entry<SourceKey, Source> entry : sourceKeyMap.entrySet()) {
       final Source source = entry.getValue();
       final SourceKey sourceKey = entry.getKey();
@@ -208,31 +208,31 @@ public class SourcePoller {
       boolean sourceIsNotInCache = cache.getIfPresent(sourceKey) == null;
       if (sourceIsNotInCache) {
         LOGGER.debug("Found a new SourceKey for source id={}", source.getId());
-        cache.put(sourceKey, SourceAvailability.unknown());
+        cache.put(sourceKey, SourceStatus.UNKNOWN);
       }
 
       LOGGER.trace("Starting a process to check the availability of source id={}", source.getId());
-      Future<SourceAvailability> sourceAvailabilityFuture =
+      Future<SourceStatus> sourceStatusFuture =
           Futures.withTimeout(
-              sourceAvailabilityChecksThreadPool.submit(() -> checkAvailability(source)),
+              availabilityChecksThreadPool.submit(
+                  () -> source.isAvailable() ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE),
               DEFAULT_TIMEOUT,
               DEFAULT_TIMEOUT_TIME_UNIT,
               pollAllSourcesThreadPool);
-      availabilityFutures.put(sourceKey, sourceAvailabilityFuture);
+      sourceStatusFutures.put(sourceKey, sourceStatusFuture);
     }
     LOGGER.trace("Successfully submitted availability checks for all of the sources");
-    return availabilityFutures;
+    return sourceStatusFutures;
   }
 
-  private void CacheResults(Map<SourceKey, Future<SourceAvailability>> availabilityFutures) {
-    for (final Entry<SourceKey, Future<SourceAvailability>> entry :
-        availabilityFutures.entrySet()) {
-      final Future<SourceAvailability> future = entry.getValue();
+  private void CacheResults(Map<SourceKey, Future<SourceStatus>> sourceStatusFutures) {
+    for (final Entry<SourceKey, Future<SourceStatus>> entry : sourceStatusFutures.entrySet()) {
+      final Future<SourceStatus> future = entry.getValue();
       final SourceKey sourceKey = entry.getKey();
       final String sourceId = sourceKey.id;
 
       try {
-        SourceAvailability result = future.get();
+        SourceStatus result = future.get();
         cache.put(sourceKey, result);
       } catch (CancellationException e) {
         future.cancel(true);
@@ -243,10 +243,10 @@ public class SourcePoller {
         if (e.getCause() instanceof TimeoutException) {
           LOGGER.debug(
               "Timeout occurred while checking the availability of source id={}", sourceId);
-          cache.put(sourceKey, new SourceAvailability(SourceStatus.TIMEOUT));
+          cache.put(sourceKey, SourceStatus.TIMEOUT);
         } else {
           LOGGER.debug("Exception checking the availability of source id={}", sourceId, e);
-          cache.put(sourceKey, new SourceAvailability(SourceStatus.EXCEPTION));
+          cache.put(sourceKey, SourceStatus.EXCEPTION);
         }
       } catch (InterruptedException e) {
         future.cancel(true);
@@ -257,12 +257,6 @@ public class SourcePoller {
     LOGGER.trace("Cache updated with new source availabilities");
   }
 
-  private SourceAvailability checkAvailability(final Source source) {
-    SourceStatus newSourceStatus =
-        source.isAvailable() ? SourceStatus.AVAILABLE : SourceStatus.UNAVAILABLE;
-    return new SourceAvailability(newSourceStatus);
-  }
-
   private void setPollInterval(final long pollInterval, final TimeUnit pollIntervalTimeUnit) {
     this.pollInterval = pollInterval;
     this.pollIntervalTimeUnit = pollIntervalTimeUnit;
@@ -271,31 +265,27 @@ public class SourcePoller {
   public void destroy() {
     MoreExecutors.shutdownAndAwaitTermination(pollAllSourcesThreadPool, 5, TimeUnit.SECONDS);
 
-    MoreExecutors.shutdownAndAwaitTermination(
-        sourceAvailabilityChecksThreadPool, 5, TimeUnit.SECONDS);
+    MoreExecutors.shutdownAndAwaitTermination(availabilityChecksThreadPool, 5, TimeUnit.SECONDS);
   }
 
   /**
    * This method is a non-blocking alternative to {@link Source#isAvailable()} which provides more
    * details about the availability than just available or unavailable.
    *
-   * @return a {@link SourceAvailability} for the availability of the {@code source}. If the {@code
-   *     source} is not in the cache, or has not been checked yet, then a SourceAvailibility with a
-   *     {@link SourceStatus} of UNKNOWN and a timestamp of the epoch (January 1, 1970, 00:00:00
-   *     GMT) is returned.
+   * @return a {@link SourceStatus} for the {@code source}. {@link SourceStatus#UNKNOWN} if the
+   *     {@code source} is not in the cache or has not been checked yet.
    * @throws IllegalArgumentException if the {@code source} is {@code null}
    */
-  public SourceAvailability getSourceAvailability(final Source source) {
+  public SourceStatus getSourceStatus(final Source source) {
     notNull(source);
 
     LOGGER.trace("Getting status of source id={}", source.getId());
-    SourceAvailability availability = cache.getIfPresent(new SourceKey(source));
-    if (availability == null) {
-      LOGGER.debug(
-          "getSourceAvailability() called on an unregistered source id={}", source.getId());
-      return SourceAvailability.unknown();
+    SourceStatus sourceStatus = cache.getIfPresent(new SourceKey(source));
+    if (sourceStatus == null) {
+      LOGGER.debug("getSourceStatus() called on an unregistered source id={}", source.getId());
+      return SourceStatus.UNKNOWN;
     } else {
-      return availability;
+      return sourceStatus;
     }
   }
 

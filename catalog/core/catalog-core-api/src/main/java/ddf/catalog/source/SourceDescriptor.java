@@ -16,8 +16,8 @@ package ddf.catalog.source;
 import ddf.action.Action;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.util.Describable;
-import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -47,14 +47,11 @@ public interface SourceDescriptor extends Describable {
   public boolean isAvailable();
 
   /**
-   * Gets the Instant that the availability of the {@link Source} was last checked by the {@link
-   * ddf.catalog.CatalogFramework}
+   * Gets the last availability date of the {@link Source}
    *
-   * @return the Instant that the availability of the {@link Source} was last checked, or an {@link
-   *     Instant} representing the epoch (January 1, 1970, 00:00:00 GMT) if the availability has not
-   *     yet been checked.
+   * @return the last availability date
    */
-  public Instant getLastAvailabilityTimeStamp();
+  public Date getLastAvailabilityDate();
 
   /**
    * Get the list of actions associated with the {@link Source}.

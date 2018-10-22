@@ -27,7 +27,6 @@ import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.util.impl.SourceAvailability;
 import ddf.catalog.util.impl.SourcePoller;
 import java.util.Collections;
 import org.junit.Test;
