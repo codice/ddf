@@ -23,26 +23,14 @@ function hasUnsaved() {
 
 type State = {
   hasUnsaved: boolean
-  hasTemplatesExpanded: boolean
 }
 
 class WorkspacesContainer extends React.Component<WithBackboneProps, State> {
   constructor(props: WithBackboneProps) {
     super(props)
     this.state = {
-      hasUnsaved: hasUnsaved(),
-      hasTemplatesExpanded: false,
+      hasUnsaved: hasUnsaved()
     }
-  }
-  closeTemplates() {
-    this.setState({
-      hasTemplatesExpanded: false,
-    })
-  }
-  toggleExpansion() {
-    this.setState({
-      hasTemplatesExpanded: !this.state.hasTemplatesExpanded,
-    })
   }
   componentDidMount() {
     this.props.listenTo(
@@ -62,10 +50,7 @@ class WorkspacesContainer extends React.Component<WithBackboneProps, State> {
   render() {
     return (
       <Workspaces
-        closeTemplates={this.closeTemplates.bind(this)}
         hasUnsaved={this.state.hasUnsaved}
-        hasTemplatesExpanded={this.state.hasTemplatesExpanded}
-        toggleExpansion={this.toggleExpansion.bind(this)}
         saveAllWorkspaces={this.saveAllWorkspaces.bind(this)}
       />
     )

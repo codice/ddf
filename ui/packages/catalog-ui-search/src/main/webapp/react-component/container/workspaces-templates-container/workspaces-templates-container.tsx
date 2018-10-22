@@ -19,10 +19,7 @@ const wreqr = require('wreqr')
 const properties = require('properties')
 
 interface Props {
-  closeTemplates: () => void
   hasUnsaved: boolean
-  hasTemplatesExpanded: boolean
-  toggleExpansion: () => void
 }
 
 interface State {
@@ -58,38 +55,10 @@ class WorkspacesTemplatesContainer extends React.Component<Props, State> {
         },
       })
     })
-    this.props.closeTemplates()
-  }
-  createWorkspace() {
-    this.prepForCreateNewWorkspace()
-    store.get('workspaces').createWorkspace()
-  }
-  createLocalWorkspace() {
-    this.prepForCreateNewWorkspace()
-    store.get('workspaces').createLocalWorkspace()
-  }
-  createAllWorkspace() {
-    this.prepForCreateNewWorkspace()
-    store.get('workspaces').createAllWorkspace()
-  }
-  createGeoWorkspace() {
-    this.prepForCreateNewWorkspace()
-    store.get('workspaces').createGeoWorkspace()
-  }
-  createLatestWorkspace() {
-    this.prepForCreateNewWorkspace()
-    store.get('workspaces').createLatestWorkspace()
   }
   render() {
     return (
       <WorkspacesTemplates
-        createWorkspace={this.createWorkspace.bind(this)}
-        createLocalWorkspace={this.createLocalWorkspace.bind(this)}
-        createAllWorkspace={this.createAllWorkspace.bind(this)}
-        createGeoWorkspace={this.createGeoWorkspace.bind(this)}
-        createLatestWorkspace={this.createLatestWorkspace.bind(this)}
-        hasTemplatesExpanded={this.props.hasTemplatesExpanded}
-        toggleExpansion={this.props.toggleExpansion}
         startAdhocSearch={this.startAdhocSearch.bind(this)}
         onChange={this.onChange.bind(this)}
         value={this.state.value}
