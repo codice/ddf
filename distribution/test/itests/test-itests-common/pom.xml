@@ -24,6 +24,12 @@
     <artifactId>test-itests-common</artifactId>
     <name>DDF :: Integration Test :: Common</name>
     <packaging>bundle</packaging>
+
+    <properties>
+        <!-- For maven-surefire-plugin -->
+        <surefire.argline.append>-Dddf.version=${project.version}</surefire.argline.append>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
@@ -201,9 +207,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>${argLine} -Djava.awt.headless=true -noverify
-                        -Dddf.version=${project.version}
-                    </argLine>
                     <!--exclude karaf container for PaxExamRuleTest, there can only be one container present (Should be using NativeTestContainerFactory)-->
                     <classpathDependencyExcludes>
                         <classpathDependencyExclude>org.ops4j.pax.exam:pax-exam-container-karaf

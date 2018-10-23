@@ -504,8 +504,7 @@
                     <includes>
                         <include>**/*Suite.java</include>
                     </includes>
-                    <argLine>${argLine} -Dddf.version=${project.version} -Djava.awt.headless=true
-                        -noverify
+                    <argLine>-Dddf.version=${project.version} -Djava.awt.headless=true -noverify
                     </argLine>
                     <systemPropertyVariables>
                         <acdebuggerEnabled>${acdebugger.enabled}</acdebuggerEnabled>
