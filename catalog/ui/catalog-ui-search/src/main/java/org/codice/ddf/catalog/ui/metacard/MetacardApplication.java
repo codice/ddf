@@ -224,6 +224,11 @@ public class MetacardApplication implements SparkApplication {
     return SubjectUtils.getAttribute(SecurityUtils.getSubject(), Constants.ROLES_CLAIM_URI);
   }
 
+  // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
+  private boolean isElevatedUser(List<String> subjectRoles) {
+    return subjectRoles.contains("system-user");
+  }
+
   private String getSubjectIdentifier() {
     return subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
   }
@@ -466,25 +471,31 @@ public class MetacardApplication implements SparkApplication {
     get(
         "/workspaces",
         (req, res) -> {
+          Map<String, Result> workspaceMetacards;
           String email = getSubjectEmail();
           List<String> subjectRoles = getSubjectRoles();
-          Map<String, Collection<String>> attributeMap = new HashMap<>();
-          if (email != null) {
-            attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
-            attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
-            attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
-            attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));
+
+          // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
+          if (isElevatedUser(subjectRoles)) {
+            workspaceMetacards = util.getMetacardsByTag(WorkspaceConstants.WORKSPACE_TAG);
+          } else {
+            Map<String, Collection<String>> attributeMap = new HashMap<>();
+            if (email != null) {
+              attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
+              attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
+              attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
+              attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));
+            }
+
+            if (CollectionUtils.isNotEmpty(subjectRoles)) {
+              attributeMap.put(ACCESS_GROUPS_READ, subjectRoles);
+              attributeMap.put(ACCESS_GROUPS, subjectRoles);
+            }
+
+            workspaceMetacards =
+                util.getMetacardsWithTagByLikeAttributes(
+                    attributeMap, WorkspaceConstants.WORKSPACE_TAG);
           }
-
-          if (CollectionUtils.isNotEmpty(subjectRoles)) {
-            attributeMap.put(ACCESS_GROUPS_READ, subjectRoles);
-            attributeMap.put(ACCESS_GROUPS, subjectRoles);
-          }
-
-          Map<String, Result> workspaceMetacards =
-              util.getMetacardsWithTagByLikeAttributes(
-                  attributeMap, WorkspaceConstants.WORKSPACE_TAG);
-
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
           Set<String> ids =
               isEmpty(email) ? Collections.emptySet() : subscriptions.getSubscriptions(email);
