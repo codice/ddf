@@ -303,6 +303,8 @@
         <pax.transx.version>0.2.0</pax.transx.version>
         <joda-convert.version>1.7</joda-convert.version>
 
+        <org.rrd4j.version>3.3.1</org.rrd4j.version>
+
         <!-- Be warned! Changing the osgi version here could impact platform-osgi-configadmin since we
 are essentially embedding a slightly modified version of felix -->
         <osgi.version>5.0.0</osgi.version>
@@ -332,8 +334,7 @@ are essentially embedding a slightly modified version of felix -->
             <dependency>
                 <groupId>org.rrd4j</groupId>
                 <artifactId>rrd4j</artifactId>
-                <!-- See DDF-1397 for issues with the upgrade to 2.2.1-->
-                <version>2.2</version>
+                <version>${org.rrd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-fileupload</groupId>

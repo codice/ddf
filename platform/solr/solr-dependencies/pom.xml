@@ -26,7 +26,6 @@
     <properties>
         <jts.version>1.15.0</jts.version>
         <dropwizard.version>3.2.6</dropwizard.version>
-        <rrd4j.version>3.2</rrd4j.version>
         <s2.version>1.0.0</s2.version>
     </properties>
     <dependencies>
@@ -64,7 +63,7 @@
         <dependency>
             <groupId>org.rrd4j</groupId>
             <artifactId>rrd4j</artifactId>
-            <version>${rrd4j.version}</version>
+            <version>${org.rrd4j.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
