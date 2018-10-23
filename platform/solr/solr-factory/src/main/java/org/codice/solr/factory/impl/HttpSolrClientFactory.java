@@ -333,7 +333,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     public static <T> Optional<T> getService(Class<T> serviceInterface) {
       Optional<BundleContext> bundleContext =
           Optional.ofNullable(
-              // Not sure what should be passedin into getBundle. serviceInterface?
               FrameworkUtil.getBundle(HttpSolrClientFactory.class).getBundleContext());
       return bundleContext
           .map(bc -> bc.getServiceReference(serviceInterface))
