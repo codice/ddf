@@ -15,7 +15,6 @@ package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.encryption.impl.EncryptionServiceImpl;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -54,6 +53,7 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.HttpSolrClientFactory.ServiceFetcher.SolrPasswordException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -282,18 +282,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private CredentialsProvider getCredentialsProvider() {
-
     String username = getProperty("solr.username");
     String encryptedPassword = getProperty("solr.password");
-
-    final EncryptionService[] encryptionService = new EncryptionService[1];
-    AccessController.doPrivileged(
-        (PrivilegedAction<EncryptionService>)
-            () -> encryptionService[0] = new EncryptionServiceImpl());
-    String password = encryptionService[0].decrypt(encryptedPassword);
-
-    //    EncryptionService encryptionService = new EncryptionServiceImpl();
-    //    String password = encryptionService.decrypt(encryptedPassword);
+    Optional<EncryptionService> encryptionService =
+        ServiceFetcher.getService(EncryptionService.class);
+    String password =
+        encryptionService
+            .map(s -> s.decrypt(encryptedPassword))
+            .orElseThrow(SolrPasswordException::new);
 
     CredentialsProvider provider = new BasicCredentialsProvider();
     org.apache.http.auth.UsernamePasswordCredentials credentials =
@@ -332,36 +328,18 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
         .orElse(new String[0]);
   }
 
-  /** Extract OSGI helper code into its own class. */
-  //    public static class ServiceFetcher {
-  //
-  //      public static <T> Optional<T> getService(Class<T> serviceInterface) {
-  //
-  //        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-  //        try {
-  //          Thread.currentThread().setContextClassLoader(UsernamePassword.class.getClassLoader());
-  //          Optional<BundleContext> bundleContext =
-  //
-  //   Optional.ofNullable(FrameworkUtil.getBundle(UsernamePassword.class).getBundleContext());
-  //          return bundleContext
-  //              .map(bc -> bc.getServiceReference(serviceInterface))
-  //              .map(sr -> bundleContext.get().getService(sr));
-  //
-  //        } finally {
-  //          Thread.currentThread().setContextClassLoader(tccl);
-  //        }
-  //      }
-
   public static class ServiceFetcher {
 
     public static <T> Optional<T> getService(Class<T> serviceInterface) {
-
       Optional<BundleContext> bundleContext =
           Optional.ofNullable(
+              // Not sure what should be passedin into getBundle. serviceInterface?
               FrameworkUtil.getBundle(HttpSolrClientFactory.class).getBundleContext());
       return bundleContext
           .map(bc -> bc.getServiceReference(serviceInterface))
           .map(sr -> bundleContext.get().getService(sr));
     }
+
+    public static class SolrPasswordException extends RuntimeException {}
   }
 }
