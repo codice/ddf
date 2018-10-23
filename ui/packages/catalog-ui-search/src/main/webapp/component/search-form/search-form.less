@@ -13,6 +13,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-block;
+    width: 100%;
   }
 
   .search-form-contents {
@@ -35,6 +37,11 @@
     font-size: 3 * @largeFontSize;
     padding-top: @mediumSpacing;
   }
+
+  .default-icon {
+    float: right;
+    display: none;
+  }
 }
 
 @{customElementNamespace}search-form.is-static {
@@ -43,4 +50,13 @@
 
 @{customElementNamespace}search-form-loading {
   padding: 2 * @minimumSpacing;
+}
+
+@{customElementNamespace}search-form.is-default {
+  .default-icon {
+    display: block;
+  }
+  .search-form-title {
+    max-width: ~'calc(100% - @{minimumFontSize})';
+  }
 }
