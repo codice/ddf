@@ -45,6 +45,8 @@ type DownstreamProps = {
   required?: boolean
   showRequiredWarning?: boolean
   transformValue?: boolean
+  className?: string
+  style?: React.CSSProperties
 }
 
 /**
@@ -210,12 +212,15 @@ class BasePropertyWrapper extends React.Component<Props, State> {
     }
   }
   render() {
+    const { className, style } = this.props
     return (
       <MarionetteRegionContainer
         view={PropertyView}
         viewOptions={() => ({
           model: this.propertyModel,
         })}
+        className={className}
+        style={style}
         {...this.props.htmlProps as any}
       />
     )

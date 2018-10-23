@@ -9,16 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export {
-  default,
-  css,
-  injectGlobal,
-  keyframes,
-  ThemeProvider,
-  withTheme,
-} from './styled-components'
-export {
-  ThemeInterface,
-  SpecificSizingInterface,
-  ThemeColorInterface,
-} from './theme'
+export type SFC<P> = (props: P) => JSX.Element

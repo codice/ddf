@@ -17,6 +17,8 @@ import styled from '../../styles/styled-components'
 
 interface Props {
   shown: boolean
+  className?: string
+  style?: React.CSSProperties
 }
 
 const Root = styled<Props, 'span'>('span')`
@@ -43,5 +45,10 @@ const Root = styled<Props, 'span'>('span')`
 `
 
 export default function UnsavedIndicator(props: Props) {
-  return <Root {...props}>*</Root>
+  const { className, style, ...otherProps } = props
+  return (
+    <Root className={className} style={style as any} {...otherProps}>
+      *
+    </Root>
+  )
 }

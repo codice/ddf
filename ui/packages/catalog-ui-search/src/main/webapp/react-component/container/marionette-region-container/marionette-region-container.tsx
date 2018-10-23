@@ -20,16 +20,13 @@ type Props = {
   viewOptions?: object
   replaceElement?: boolean
   className?: string
-  /**
-   * If true the component will take up the container it's given.
-   */
-  gaseous?: boolean
+  style?: React.CSSProperties
 } & React.HTMLProps<HTMLDivElement> &
   JSX.IntrinsicAttributes
 
-const RegionContainer = styled<{ gaseous: boolean }, 'div'>('div')`
-  width: ${props => (props.gaseous ? '100%' : 'auto')};
-  height: ${props => (props.gaseous ? '100%' : 'auto')};
+const RegionContainer = styled.div`
+  width: 100%;
+  height: 100%;
 `
 export default hot(module)(
   class MarionetteRegionContainer extends React.Component<Props, {}> {
@@ -92,14 +89,14 @@ export default hot(module)(
       }
     }
     render() {
-      const { className, gaseous = true, ...otherProps } = this.props
+      const { className, style, ...otherProps } = this.props
       return (
         <RegionContainer
-          gaseous={gaseous}
           className={`marionette-region-container ${
             className ? className : ''
           }`}
           innerRef={this.regionRef as any}
+          style={style as any}
           {...otherProps as JSX.IntrinsicAttributes}
         />
       )

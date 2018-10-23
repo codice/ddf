@@ -10,29 +10,27 @@
  *
  **/
 import * as React from 'react'
-import WorkspaceTitlePresentation from '../../presentation/workspace-title'
+import {
+  ThemeInterface,
+  withTheme,
+  ThemeProvider,
+} from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 
 type Props = {
-  title: string
-  saved: boolean
-  onChange: (value: string) => void
-}
-type State = {}
-
-class WorkspaceTitle extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-  }
-  render() {
-    return (
-      <WorkspaceTitlePresentation
-        title={this.props.title}
-        onChange={this.props.onChange}
-        saved={this.props.saved}
-      />
-    )
-  }
+  children?: any
+  theme: ThemeInterface
+  color: (theme: ThemeInterface) => string
 }
 
-export default hot(module)(WorkspaceTitle)
+const render = (props: Props) => {
+  const { children, color, theme } = props
+  const modifiedTheme = {
+    ...theme,
+    background: theme ? color(theme) : '',
+  }
+
+  return <ThemeProvider theme={modifiedTheme}>{children}</ThemeProvider>
+}
+
+export default hot(module)(withTheme(render))

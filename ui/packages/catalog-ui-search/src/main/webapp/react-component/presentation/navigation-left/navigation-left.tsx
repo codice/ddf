@@ -18,8 +18,12 @@ import { Button, buttonTypeEnum } from '../button'
 const HandlebarsHelpers = require('../../../js/HandlebarsHelpers')
 import { hot } from 'react-hot-loader'
 
-const StyledUnsavedIndicator = styled.span`
-  display: inline-block;
+const StyledUnsavedIndicator = styled(UnsavedIndicator)`
+  position: absolute;
+  left: ${props => {
+    return props.theme.minimumButtonSize
+  }};
+  top: -0.3125rem;
 `
 
 export interface Props {
@@ -125,14 +129,6 @@ const Root = styled<Props, 'div'>('div')`
       transform: scale(1);
     }
   }
-
-  ${StyledUnsavedIndicator /* sc-selector */} {
-    position: absolute;
-    left: ${props => {
-      return props.theme.minimumButtonSize
-    }};
-    top: -0.3125rem;
-  }
 `
 
 const handleUnsaved = (props: Props, classes: string[]) => {
@@ -179,9 +175,9 @@ function NavigationLeft(props: Props) {
         fadeUntilHover={true}
       >
         <span className="fa fa-bars" />
-        <StyledUnsavedIndicator>
-          <UnsavedIndicator shown={props.hasUnsaved && !props.hasUnavailable} />
-        </StyledUnsavedIndicator>
+        <StyledUnsavedIndicator
+          shown={props.hasUnsaved && !props.hasUnavailable}
+        />
         <span className="navigation-sources fa fa-bolt" />
         <span className="navigation-multiple fa fa-exclamation" />
         {props.hasLogo ? (

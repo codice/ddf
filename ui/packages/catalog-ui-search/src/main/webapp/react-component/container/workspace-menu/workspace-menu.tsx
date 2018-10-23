@@ -14,27 +14,34 @@ import WorkspaceMenuPresentation from '../../presentation/workspace-menu'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { hot } from 'react-hot-loader'
 const store = require('js/store')
+const properties = require('properties')
 
 type Props = WithBackboneProps
 type State = {
   currentWorkspace?: Backbone.Model
   saved: boolean
+  branding: string
+  product: string
 }
 
-const mapStoretoState = () => {
+const mapToState = () => {
   return {
-    saved: store
-      .get('content')
-      .get('currentWorkspace')
-      .isSaved(),
+    saved: store.get('content').get('currentWorkspace')
+      ? store
+          .get('content')
+          .get('currentWorkspace')
+          .isSaved()
+      : false,
     currentWorkspace: store.get('content').get('currentWorkspace'),
+    branding: properties.branding,
+    product: properties.product,
   }
 }
 
 class WorkspaceMenu extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = mapStoretoState()
+    this.state = mapToState()
     props.listenTo(
       store.get('content'),
       'change:currentWorkspace',
@@ -42,11 +49,13 @@ class WorkspaceMenu extends React.Component<Props, State> {
     )
   }
   updateCurrentWorkspace() {
-    this.setState(mapStoretoState())
+    this.setState(mapToState())
   }
   render() {
     return this.state.currentWorkspace === undefined ? null : (
       <WorkspaceMenuPresentation
+        branding={this.state.branding}
+        product={this.state.product}
         currentWorkspace={this.state.currentWorkspace}
         saved={this.state.saved}
       />

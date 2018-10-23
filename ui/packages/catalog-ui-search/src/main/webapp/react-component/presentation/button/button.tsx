@@ -106,7 +106,6 @@ type RootProps = {
   inText?: boolean
   buttonType: buttonTypeEnum
   fadeUntilHover?: boolean
-  gaseous: boolean
 }
 
 const Root = styled<RootProps, 'button'>('button')`
@@ -128,8 +127,6 @@ const Root = styled<RootProps, 'button'>('button')`
     height: ${props => {
       if (props.inText) {
         return 'auto'
-      } else if (props.gaseous) {
-        return '100%'
       } else {
         return props.theme.minimumButtonSize
       }
@@ -231,7 +228,6 @@ type BaseButtonProps = {
    * Allow passing in styles
    */
   rootStyle?: React.CSSProperties
-  gaseous?: boolean
 } & React.HTMLProps<HTMLButtonElement>
 
 export const Button = ({
@@ -242,7 +238,6 @@ export const Button = ({
   inText,
   rootClassName,
   rootStyle,
-  gaseous = false,
   ...otherProps
 }: BaseButtonProps) => {
   return (
@@ -252,7 +247,6 @@ export const Button = ({
       className={rootClassName}
       // @ts-ignore
       style={rootStyle}
-      gaseous={gaseous}
       {...otherProps as JSX.IntrinsicAttributes}
     >
       {children ? children : ''}

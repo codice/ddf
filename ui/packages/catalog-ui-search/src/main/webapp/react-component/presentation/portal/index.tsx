@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="notification-icon" title="Search {{branding}} {{product}}" data-help="Start a new search.">
-    <i class="fa fa-search"></i>
-    <span>Search {{branding}} {{product}}</span>
-</div>
+export { default } from './portal'

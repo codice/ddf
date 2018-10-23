@@ -12,16 +12,19 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-const DropdownModel = require('component/dropdown/dropdown')
-const WorkspaceInteractionsView = require('component/dropdown/workspace-interactions/dropdown.workspace-interactions.view')
-const DropdownQueryView = require('component/dropdown/query/dropdown.query.view')
+import WorkspaceInteractions from '../../container/workspace-interactions'
+const QueryAddView = require('component/query-add/query-add.view')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import SaveButton from '../save-button'
-import WorkspaceTitle from '../../container/workspace-title'
+import WorkspaceTitle from '../workspace-title'
+import Dropdown from '../dropdown'
+import NavigationBehavior from '../navigation-behavior'
 
 type Props = {
   currentWorkspace: Backbone.Model
   saved: boolean
+  branding: string
+  product: string
 }
 
 const StyledSaveButton = styled.div`
@@ -30,6 +33,17 @@ const StyledSaveButton = styled.div`
 
 const StyledWorkspaceTitle = styled.div`
   display: block;
+`
+
+const StyledDropdown = styled(Dropdown)`
+  height: 100%;
+  line-height: inherit;
+`
+
+const Icon = styled.span`
+  display: inline-block;
+  text-align: right;
+  width: ${props => props.theme.minimumButtonSize};
 `
 
 const Root = styled<{ saved: boolean }, 'div'>('div')`
@@ -70,7 +84,7 @@ const Root = styled<{ saved: boolean }, 'div'>('div')`
 `
 
 const render = (props: Props) => {
-  const { currentWorkspace, saved } = props
+  const { currentWorkspace, saved, branding, product } = props
   return (
     <Root saved={saved}>
       <StyledWorkspaceTitle>
@@ -90,31 +104,31 @@ const render = (props: Props) => {
           }}
         />
       </StyledSaveButton>
-      <MarionetteRegionContainer
-        className="content-interactions is-button"
-        view={WorkspaceInteractionsView}
-        viewOptions={() => {
-          return {
-            model: new DropdownModel(),
-            modelForComponent: currentWorkspace,
-            dropdownCompanionBehaviors: {
-              navigation: {},
-            },
-          }
-        }}
-        gaseous={false}
-      />
-      <MarionetteRegionContainer
-        className="content-adhoc is-button"
-        view={DropdownQueryView}
-        viewOptions={() => {
-          return {
-            model: new DropdownModel(),
-            modelForComponent: currentWorkspace,
-          }
-        }}
-        gaseous={false}
-      />
+      <StyledDropdown
+        className="content-interactions"
+        content={() => (
+          <NavigationBehavior>
+            <WorkspaceInteractions workspace={currentWorkspace} />
+          </NavigationBehavior>
+        )}
+      >
+        <span className="fa fa-ellipsis-v" />
+      </StyledDropdown>
+      <StyledDropdown
+        className="content-adhoc"
+        content={() => (
+          <MarionetteRegionContainer
+            view={QueryAddView}
+            viewOptions={() => {
+              return {
+                model: currentWorkspace,
+              }
+            }}
+          />
+        )}
+      >
+        <Icon className="fa fa-search" /> Search {branding} {product}
+      </StyledDropdown>
     </Root>
   )
 }

@@ -71,13 +71,17 @@ const CheckIcon = styled<SaveButtonProps, 'span'>('span')`
   width: 100%;
 `
 
+const ModifiedButton = styled(Button)`
+  height: 100%;
+`
+
 export default hot(module)(function SaveButton({
   isSaved,
   onClick,
 }: SaveButtonProps & React.HTMLProps<HTMLButtonElement>) {
   return (
     <Root isSaved={isSaved}>
-      <Button
+      <ModifiedButton
         buttonType={buttonTypeEnum.neutral}
         onClick={
           isSaved
@@ -87,11 +91,10 @@ export default hot(module)(function SaveButton({
             : onClick
         }
         tabIndex={isSaved ? -1 : 0}
-        gaseous
       >
         <SaveIcon className="fa fa-floppy-o" isSaved={isSaved} />
         <CheckIcon className="fa fa-check" isSaved={isSaved} />
-      </Button>
+      </ModifiedButton>
     </Root>
   )
 })
