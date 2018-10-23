@@ -29,6 +29,8 @@
 
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
 
+    <reference id="systemInstaller" interface="org.codice.ddf.sync.installer.api.SynchronizedInstaller" />
+
     <reference id="systemService" interface="org.apache.karaf.system.SystemService"/>
 
     <reference-list id="bundleStateServices"
@@ -45,7 +47,7 @@
         <argument ref="appService"/>
         <argument ref="configurationAdmin"/>
         <argument ref="mBeanServer"/>
-        <argument ref="featuresService"/>
+        <argument ref="systemInstaller" />
         <argument ref="systemService"/>
         <property name="applicationPlugins" ref="applicationPluginList"/>
     </bean>

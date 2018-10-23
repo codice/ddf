@@ -15,10 +15,8 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
 import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -54,7 +52,6 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
@@ -64,6 +61,7 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
+import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.mockito.StackCaptor;
 import org.hamcrest.Matchers;
 import org.hamcrest.io.FileMatchers;
@@ -72,7 +70,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -117,7 +114,7 @@ public class ApplicationServiceBeanTest {
 
   private Application testApp;
 
-  private FeaturesService mockFeaturesService;
+  private SynchronizedInstaller mockSyncInstaller;
 
   private SystemService mockSystemService;
 
@@ -136,7 +133,7 @@ public class ApplicationServiceBeanTest {
     testAppService = mock(ApplicationServiceImpl.class);
     testConfigAdminExt = mock(ConfigurationAdmin.class);
     testApp = mock(ApplicationImpl.class);
-    mockFeaturesService = mock(FeaturesService.class);
+    mockSyncInstaller = mock(SynchronizedInstaller.class);
     mockSystemService = mock(SystemService.class);
 
     when(testApp.getName()).thenReturn(TEST_APP_NAME);
@@ -262,12 +259,7 @@ public class ApplicationServiceBeanTest {
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
-    ArgumentCaptor<EnumSet<FeaturesService.Option>> captor = ArgumentCaptor.forClass(EnumSet.class);
-    verify(mockFeaturesService).installFeature(eq("profile-name"), captor.capture());
-
-    EnumSet<FeaturesService.Option> options = captor.getValue();
-    assertThat(options, hasSize(1));
-    assertThat(options, hasItem(FeaturesService.Option.NoAutoRefreshBundles));
+    verify(mockSyncInstaller).installFeatures(any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
@@ -275,8 +267,8 @@ public class ApplicationServiceBeanTest {
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.installFeature("profile-name");
 
-    verify(mockFeaturesService, privileged(times(1)))
-        .installFeature(eq("profile-name"), any(EnumSet.class));
+    verify(mockSyncInstaller, privileged(times(1)))
+        .installFeatures(any(EnumSet.class), eq("profile-name"));
   }
 
   @Test
@@ -285,8 +277,8 @@ public class ApplicationServiceBeanTest {
 
     stackCaptor
         .doCaptureStack()
-        .when(mockFeaturesService)
-        .uninstallFeature(anyString(), any(EnumSet.class));
+        .when(mockSyncInstaller)
+        .uninstallFeatures(any(EnumSet.class), anyString());
 
     ApplicationServiceBean serviceBean = newApplicationServiceBean();
     serviceBean.uninstallFeature("profile-name");
@@ -620,7 +612,7 @@ public class ApplicationServiceBeanTest {
 
   private ApplicationServiceBean newApplicationServiceBean() throws ApplicationServiceException {
     return new ApplicationServiceBean(
-        testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService, mockSystemService) {
+        testAppService, testConfigAdminExt, mBeanServer, mockSyncInstaller, mockSystemService) {
       @Override
       protected BundleContext getContext() {
         return bundleContext;

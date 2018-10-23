@@ -56,6 +56,7 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -98,8 +99,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private final ConfigurationAdmin configAdmin;
 
-  private final FeaturesService featuresService;
-
   private final SystemService systemService;
 
   private final ObjectName objectName;
@@ -115,6 +114,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   /** the service tracker. */
   private ServiceTracker<Object, Object> serviceTracker;
 
+  private SynchronizedInstaller syncInstaller;
+
   /**
    * Creates an instance of an ApplicationServiceBean
    *
@@ -126,13 +127,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       ApplicationService appService,
       ConfigurationAdmin configAdmin,
       MBeanServer mBeanServer,
-      FeaturesService featuresService,
+      SynchronizedInstaller syncInstaller,
       SystemService systemService)
       throws ApplicationServiceException {
     this.appService = appService;
     this.configAdmin = configAdmin;
     this.mBeanServer = mBeanServer;
-    this.featuresService = featuresService;
+    this.syncInstaller = syncInstaller;
     this.systemService = systemService;
     try {
       objectName =
@@ -200,8 +201,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                featuresService.installFeature(
-                    feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+                syncInstaller.installFeatures(
+                    EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles), feature);
                 return null;
               });
     } catch (VirtualMachineError e) {
@@ -221,8 +222,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
               () -> {
-                featuresService.uninstallFeature(
-                    feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+                syncInstaller.uninstallFeatures(
+                    EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles), feature);
                 return null;
               });
     } catch (VirtualMachineError e) {

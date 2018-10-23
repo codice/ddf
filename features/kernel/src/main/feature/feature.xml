@@ -29,6 +29,12 @@
         <feature version="${karaf.version}">eventadmin</feature>
         <feature version="${karaf.version}">jasypt-encryption</feature>
         <feature version="${karaf.version}">http</feature>
+        <feature>sync-installer</feature>
+    </feature>
+
+    <feature name="sync-installer" version="${project.version}">
+        <bundle>mvn:ddf.platform/sync-installer-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/sync-installer-impl/${project.version}</bundle>
     </feature>
 
     <feature name="javax-validation" version="${project.version}">

@@ -28,6 +28,7 @@
         <module>test-input-transformer-stubs</module>
         <module>itests</module>
         <module>performance</module>
+        <module>example-bundle</module>
     </modules>
     <dependencies>
         <dependency>

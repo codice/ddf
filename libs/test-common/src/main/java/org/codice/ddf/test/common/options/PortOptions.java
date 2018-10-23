@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.test.common.options;
 
+import static org.codice.ddf.test.common.options.SystemProperties.SYSTEM_PROPERTIES_FILE_PATH;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
@@ -42,9 +45,17 @@ public class PortOptions extends BasicOptions {
 
   private static final String SSH_PORT_KEY = "sshPort";
 
+  private static final String SOLR_PORT_KEY = "solrPort";
+
   public static Option defaultPortsOptions() {
     return new DefaultCompositeOption(
-        httpsPort(), httpPort(), ftpPort(), rmiRegistryPort(), rmiServerPort(), sshPort());
+        httpsPort(),
+        httpPort(),
+        ftpPort(),
+        rmiRegistryPort(),
+        rmiServerPort(),
+        sshPort(),
+        solrPort());
   }
 
   public static Option httpsPort() {
@@ -87,5 +98,11 @@ public class PortOptions extends BasicOptions {
     recordConfiguration("%s=%s", SSH_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         KARAF_SHELL_CFG_FILE_PATH, SSH_PORT_PROPERTY, port);
+  }
+
+  public static Option solrPort() {
+    String port = getPortFinder().getPortAsString(SSH_PORT_KEY);
+    recordConfiguration("%s=%s", SOLR_PORT_KEY, port);
+    return editConfigurationFilePut(SYSTEM_PROPERTIES_FILE_PATH, "solr.http.port", port);
   }
 }

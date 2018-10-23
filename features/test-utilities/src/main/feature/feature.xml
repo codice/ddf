@@ -33,4 +33,21 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/1.3_1
         </bundle>
     </feature>
+
+    <feature name="awaitility" version="${project.version}"
+             description="Hamcrest bundles for asserting test cases.">
+        <feature>hamcrest-all</feature>
+        <bundle>mvn:org.awaitility/awaitility/3.1.0</bundle>
+    </feature>
+
+    <feature name="tinybundles" version="${project.version}" description="Dynamically creates bundles" >
+        <bundle>mvn:org.ops4j.base/ops4j-base-lang/1.5.0</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-monitors/1.5.0</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-io/1.5.0</bundle>
+
+        <bundle>mvn:org.ops4j.base/ops4j-base-store/1.5.0</bundle>
+
+        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/3.5.0</bundle>
+        <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/3.0.0</bundle>
+    </feature>
 </features>
