@@ -126,6 +126,5 @@
         <module>catalog-core-metacardtype</module>
         <module>catalog-core-attachment</module>
         <module>catalog-core-attachment-impl</module>
-        <module>catalog-core-validationfilterplugin</module>
     </modules>
 </project>

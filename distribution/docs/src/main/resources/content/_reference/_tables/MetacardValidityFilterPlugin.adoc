@@ -19,21 +19,21 @@
 |Attribute map
 |attributeMap
 |String
-|Mapping of Metacard SECURITY attribute to user attribute.
+|Mapping of Metacard SECURITY attribute to user attribute. Users with this role will always receive metacards with errors and/or warnings.
 |invalid-state=data-manager
 |false
 
 |Filter errors
 |filterErrors
 |Boolean
-|Sets whether metacards with validation errors are filtered.
+|Sets whether metacards with validation errors are filtered for users without the configured user attribute.
 |true
 |false
 
 |Filter warnings
 |filterWarnings
 |Boolean
-|Sets whether metacards with validation warnings are filtered.
+|Sets whether metacards with validation warnings are filtered for users without the configured user attribute.
 |false
 |false
 

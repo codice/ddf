@@ -24,9 +24,7 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMeta
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforceValidityErrorsAndWarnings;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswFunctionQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
@@ -178,7 +176,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @BeforeExam
-  public void beforeExam() throws Exception {
+  public void beforeExam() {
     try {
       waitForSystemReady();
     } catch (Exception e) {
@@ -194,7 +192,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   @After
   public void tearDown() throws IOException {
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
+        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
     clearCatalog();
   }
 
@@ -328,7 +326,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPointOfContactIsReadOnly() throws Exception {
+  public void testPointOfContactIsReadOnly() {
     LOGGER.debug("Ingesting SimpleGeoJsonRecord");
     String id =
         given()
@@ -573,14 +571,14 @@ public class TestCatalog extends AbstractIntegrationTest {
     expect("Camel route definitions were not found")
         .within(30, TimeUnit.SECONDS)
         .checkEvery(5, TimeUnit.SECONDS)
-        .until(() -> camelContext.getRouteDefinitions(), hasSize(2));
+        .until(camelContext::getRouteDefinitions, hasSize(2));
 
     camelContext.startAllRoutes();
 
     expect("Camel routes are started")
         .within(30, TimeUnit.SECONDS)
         .checkEvery(5, TimeUnit.SECONDS)
-        .until(() -> camelContext.isStartingRoutes(), is(false));
+        .until(camelContext::isStartingRoutes, is(false));
 
     Response response = ingestCswRecord();
     ValidatableResponse validatableResponse = response.then();
@@ -1232,7 +1230,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testGetRecordByIdProductRetrieval() throws IOException, XPathExpressionException {
+  public void testGetRecordByIdProductRetrieval() throws IOException {
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
     final String url =
@@ -1241,7 +1239,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
 
     given().get(url).then().log().all().assertThat().statusCode(equalTo(200)).body(is(SAMPLE_DATA));
 
@@ -1302,13 +1300,13 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPostGetRecordByIdProductRetrieval() throws IOException, XPathExpressionException {
+  public void testPostGetRecordByIdProductRetrieval() throws IOException {
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
 
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
 
     final String requestXml =
         getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery")
@@ -1329,14 +1327,13 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPostGetRecordByIdProductRetrievalWithRange()
-      throws IOException, XPathExpressionException {
+  public void testPostGetRecordByIdProductRetrievalWithRange() throws IOException {
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
 
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
 
     final String requestXml =
         getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery")
@@ -1370,14 +1367,13 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPostGetRecordByIdProductRetrievalWithInvalidRange()
-      throws IOException, XPathExpressionException {
+  public void testPostGetRecordByIdProductRetrievalWithInvalidRange() throws IOException {
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
 
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
 
     final String requestXml =
         getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery")
@@ -1425,49 +1421,6 @@ public class TestCatalog extends AbstractIntegrationTest {
           .body(hasXPath(format(xPathValidateTitleWithId, id)))
           .body(hasXPath(format(xPathValidateBboxLowerWithId, id)))
           .body(hasXPath(format(xPathValidateBboxUpperWithId, id)));
-    }
-  }
-
-  @Test
-  public void testFilterPlugin() throws Exception {
-    // Ingest the metacard
-    String id1 = ingestXmlFromResource("/metacard1.xml");
-    String xPath = format(METACARD_X_PATH, id1);
-
-    // Test without filtering
-    ValidatableResponse response = getOpenSearch("xml", null, null, "q=*");
-    response.body(hasXPath(xPath));
-
-    getServiceManager().startFeature(true, "sample-filter");
-
-    try {
-      // Configure the PDP
-      PdpProperties pdpProperties = new PdpProperties();
-      pdpProperties.put(
-          "matchAllMappings",
-          Arrays.asList(
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=point-of-contact"));
-      Configuration config =
-          configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
-      Dictionary<String, ?> configProps = new Hashtable<>(pdpProperties);
-      config.update(configProps);
-      getServiceManager().waitForAllBundles();
-
-      // Test with filtering with out point-of-contact
-      response = getOpenSearch("xml", null, null, "q=*");
-      response.body(not(hasXPath(xPath)));
-
-      response = getOpenSearch("xml", "admin", "admin", "q=*");
-
-      response.body(hasXPath(xPath));
-
-    } finally {
-      Configuration config =
-          configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
-      Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
-      config.update(configProps);
-      deleteMetacard(id1);
-      getServiceManager().stopFeature(true, "sample-filter");
     }
   }
 
@@ -1998,7 +1951,7 @@ public class TestCatalog extends AbstractIntegrationTest {
               .replaceFirst("ddf\\.metacard", newMetacardTypeName)
               .replaceFirst("resource-uri", "new-attribute-required-2");
       id = ingest(modifiedMetacardXml, "text/xml");
-      configureShowInvalidMetacards("true", "true", getAdminConfig());
+      configureFilterInvalidMetacards("false", "false", getAdminConfig());
 
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", id);
 
@@ -2032,7 +1985,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             return null;
           });
       getServiceManager().startFeature(true, "catalog-security-filter");
-      configureShowInvalidMetacards("false", "false", getAdminConfig());
+      configureFilterInvalidMetacards("true", "true", getAdminConfig());
     }
   }
 
@@ -2378,7 +2331,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
-      configureShowInvalidMetacards("true", "true", getAdminConfig());
+      configureFilterInvalidMetacards("false", "false", getAdminConfig());
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", invalidCardId);
 
       getOpenSearch("xml", null, null, "q=*")
@@ -2645,21 +2598,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             });
   }
 
-  protected String ingestXmlFromResource(String resourceName) throws IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
-    return ingest(writer.toString(), "text/xml");
-  }
-
-  protected String ingestXmlFromResource(String resourceName, boolean checkResponse)
-      throws IOException {
-    if (checkResponse) {
-      return ingestXmlFromResource(resourceName);
-    } else {
-      StringWriter writer = new StringWriter();
-      IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
-      return ingest(writer.toString(), "text/xml", checkResponse);
-    }
+  protected String ingestXmlFromResource(String resourceName) {
+    return ingest(getFileContent(resourceName), "text/xml");
   }
 
   private String ingestXmlWithProduct(String fileName) throws IOException {
@@ -2670,8 +2610,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     FileUtils.write(file, SAMPLE_DATA);
     String fileLocation = file.toURI().toURL().toString();
     LOGGER.debug("File Location: {}", fileLocation);
-    String metacardId = ingest(getSimpleXml(fileLocation), "text/xml");
-    return metacardId;
+    return ingest(getSimpleXml(fileLocation), "text/xml");
   }
 
   private File createTemporaryFile(String fileName, InputStream data) throws IOException {
@@ -2684,18 +2623,14 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   public void configureShowInvalidMetacardsReset() throws IOException {
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
+    configureFilterInvalidMetacards("true", "false", getAdminConfig());
   }
 
   public void configureFilterInvalidMetacardsReset() throws IOException {
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
   }
 
-  protected void configureEnforceValidityErrorsAndWarningsReset() throws IOException {
-    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
-  }
-
-  private void verifyMetadataBackup() throws Exception {
+  private void verifyMetadataBackup() {
     StringBuilder buffer =
         new StringBuilder(OPENSEARCH_PATH.getUrl())
             .append("?")
@@ -2717,17 +2652,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         .until(() -> path.toFile().exists());
 
     assertThat(path.toFile().exists(), is(true));
-  }
-
-  public class PdpProperties extends HashMap<String, Object> {
-
-    public static final String SYMBOLIC_NAME = "security-pdp-authzrealm";
-
-    public static final String FACTORY_PID = "ddf.security.pdp.realm.AuthzRealm";
-
-    public PdpProperties() {
-      this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-    }
   }
 
   public class CatalogPolicyProperties extends HashMap<String, Object> {
