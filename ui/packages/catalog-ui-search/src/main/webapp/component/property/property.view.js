@@ -113,7 +113,7 @@ define([
       },
       handleCalculatedType: function() {
         const input = this.$el.find('input')
-        if (input !== undefined) {
+        if (input) {
           input.attr('type', this.model.get('calculatedType'))
         }
       },
