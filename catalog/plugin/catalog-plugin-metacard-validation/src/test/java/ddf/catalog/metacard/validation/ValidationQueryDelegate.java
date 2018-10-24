@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.plugin.validationfilter;
+package ddf.catalog.metacard.validation;
 
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.List;

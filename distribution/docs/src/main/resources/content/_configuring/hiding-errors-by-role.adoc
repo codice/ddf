@@ -9,7 +9,7 @@
 
 Prevent certain users from seeing data with certain types of errors or warnings.
 Typically, this is used for security markings.
-Metacards with the specified metacard attributes will be hidden from users with the specified user attributes.
+Metacards with the specified metacard attributes will be hidden from users without the specified user attributes.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
@@ -17,5 +17,5 @@ Metacards with the specified metacard attributes will be hidden from users with 
 . Select *Metacard Validation Filter Plugin*.
 . For *Attribute map*, enter both the metacard `SECURITY` attribute to filter and the user attribute to filter.
 .. `<SECURITY ATTRIBUTE>=<USER ATTRIBUTE>`.
-. Select *Filter errors* to filter errors. Users will not see metacards with errors.
-. Select *Filter warnings* to filter warnings. Users will not see metacards with warnings.
+. Select *Filter errors* to filter errors. Users without the security attribute will not see metacards with errors.
+. Select *Filter warnings* to filter warnings. Users without the security attribute will not see metacards with warnings.

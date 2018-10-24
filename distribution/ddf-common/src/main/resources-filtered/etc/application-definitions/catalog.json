@@ -10,7 +10,6 @@
     "mvn:ddf.catalog.core/catalog-core-urlresourcereader/${project.version}",
     "mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}",
     "mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}",
-    "mvn:ddf.catalog.core/catalog-core-validationfilterplugin/${project.version}",
     "mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}",
     "mvn:ddf.catalog.plugin/catalog-plugin-security-audit/${project.version}",
     "mvn:ddf.catalog.plugin/catalog-plugin-videothumbnail/${project.version}",
