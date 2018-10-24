@@ -209,7 +209,7 @@
         </argument>
         <argument ref="configurationApplication"/>
         <property name="whiteListedMetacardTypes">
-            <array value-type="java.lang.String"/>
+            <array />
         </property>
     </bean>
 

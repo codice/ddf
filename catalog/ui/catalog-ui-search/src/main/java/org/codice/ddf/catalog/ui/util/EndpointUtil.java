@@ -163,8 +163,8 @@ public class EndpointUtil {
     return whiteListedMetacardTypes;
   }
 
-  public void setWhiteListedMetacardTypes(List<String> whitelistedMetacardTypes) {
-    this.whiteListedMetacardTypes = whitelistedMetacardTypes;
+  public void setWhiteListedMetacardTypes(List<String> whiteListedMetacardTypes) {
+    this.whiteListedMetacardTypes = whiteListedMetacardTypes;
   }
 
   @SuppressWarnings("squid:S1604") // generics cannot be lambdas
@@ -355,10 +355,13 @@ public class EndpointUtil {
   }
 
   private List<MetacardType> getFilteredMetacardTypes() {
-    return metacardTypes
-        .stream()
-        .filter(metacardType -> whiteListedMetacardTypes.contains(metacardType.getName()))
-        .collect(Collectors.toList());
+    if (!whiteListedMetacardTypes.isEmpty()) {
+      return metacardTypes
+          .stream()
+          .filter(metacardType -> whiteListedMetacardTypes.contains(metacardType.getName()))
+          .collect(Collectors.toList());
+    }
+    return metacardTypes;
   }
 
   public Map<String, Object> getMetacardTypeMap() {
