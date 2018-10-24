@@ -17,13 +17,19 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.binding.ObjectElement;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObjectAdapter extends XmlAdapter<ObjectElement, Attribute> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ObjectAdapter.class);
 
   public static ObjectElement marshalFrom(Attribute attribute) throws CatalogTransformerException {
 
@@ -51,6 +57,14 @@ public class ObjectAdapter extends XmlAdapter<ObjectElement, Attribute> {
   public static Attribute unmarshalFrom(ObjectElement element) {
     AttributeImpl attribute = null;
     for (Serializable value : element.getValue()) {
+      try {
+        value =
+            (Serializable)
+                new ObjectInputStream(new ByteArrayInputStream((byte[]) value)).readObject();
+      } catch (IOException | ClassNotFoundException e) {
+        LOGGER.debug("Could not unmarshal Metacard Object from Base64 encoded string", e);
+      }
+
       if (attribute == null) {
         attribute = new AttributeImpl(element.getName(), value);
       } else {
