@@ -6,6 +6,92 @@ import fetch from '../../react-component/utils/fetch'
 
 const onlineGazetteer = properties.onlineGazetteer
 
+const getLargestBbox = (polygonCoordinates, isMultiPolygon) => {
+  let finalMax = { x: Number.MIN_SAFE_INTEGER, y: Number.MIN_SAFE_INTEGER }
+  let finalMin = { x: Number.MAX_SAFE_INTEGER, y: Number.MAX_SAFE_INTEGER }
+  const boundingBoxLimit = 75
+  let encompassingBoundingBox = {
+    maxX: Number.MIN_SAFE_INTEGER,
+    minX: Number.MAX_SAFE_INTEGER,
+    maxY: Number.MIN_SAFE_INTEGER,
+    minY: Number.MAX_SAFE_INTEGER,
+  }
+  let maxArea = -1
+  let currentArea = -1
+  let currentMax
+  let currentMin
+  polygonCoordinates.map(rowCoordinates => {
+    currentMax = { x: Number.MIN_SAFE_INTEGER, y: Number.MIN_SAFE_INTEGER }
+    currentMin = { x: Number.MAX_SAFE_INTEGER, y: Number.MAX_SAFE_INTEGER }
+    if (isMultiPolygon) {
+      rowCoordinates[0].map(coordinates => {
+        currentMax.x = Math.max(coordinates[0], currentMax.x)
+        currentMax.y = Math.max(coordinates[1], currentMax.y)
+        currentMin.x = Math.min(coordinates[0], currentMin.x)
+        currentMin.y = Math.min(coordinates[1], currentMin.y)
+        encompassingBoundingBox.maxX = Math.max(
+          coordinates[0],
+          encompassingBoundingBox.maxX
+        )
+        encompassingBoundingBox.maxY = Math.max(
+          coordinates[1],
+          encompassingBoundingBox.maxY
+        )
+        encompassingBoundingBox.minX = Math.min(
+          coordinates[0],
+          encompassingBoundingBox.minX
+        )
+        encompassingBoundingBox.minY = Math.min(
+          coordinates[1],
+          encompassingBoundingBox.minY
+        )
+      })
+    } else {
+      rowCoordinates.map(coordinates => {
+        currentMax.x = Math.max(coordinates[0], currentMax.x)
+        currentMax.y = Math.max(coordinates[1], currentMax.y)
+        currentMin.x = Math.min(coordinates[0], currentMin.x)
+        currentMin.y = Math.min(coordinates[1], currentMin.y)
+        encompassingBoundingBox.maxX = Math.max(
+          coordinates[0],
+          encompassingBoundingBox.maxX
+        )
+        encompassingBoundingBox.maxY = Math.max(
+          coordinates[1],
+          encompassingBoundingBox.maxY
+        )
+        encompassingBoundingBox.minX = Math.min(
+          coordinates[0],
+          encompassingBoundingBox.minX
+        )
+        encompassingBoundingBox.minY = Math.min(
+          coordinates[1],
+          encompassingBoundingBox.minY
+        )
+      })
+    }
+    currentArea = (currentMax.x - currentMin.x) * (currentMax.y - currentMin.y)
+    if (currentArea > maxArea) {
+      maxArea = currentArea
+      finalMax = currentMax
+      finalMin = currentMin
+    }
+  })
+  const encompassingBoundingBoxHeight =
+    encompassingBoundingBox.maxY - encompassingBoundingBox.minY
+  const encompassingBoundingBoxWidth =
+    encompassingBoundingBox.maxX - encompassingBoundingBox.minX
+  return encompassingBoundingBoxWidth >= boundingBoxLimit ||
+    encompassingBoundingBoxHeight >= boundingBoxLimit
+    ? {
+        maxX: finalMax.x,
+        minX: finalMin.x,
+        maxY: finalMax.y,
+        minY: finalMin.y,
+      }
+    : encompassingBoundingBox
+}
+
 class Gazetteer extends React.Component {
   constructor(props) {
     super(props)
@@ -60,7 +146,27 @@ class Gazetteer extends React.Component {
     }
     const { id } = suggestion
     const res = await this.fetch(`./internal/geofeature?id=${id}`)
-    return await res.json()
+    const data = await res.json()
+    const finalArea = getLargestBbox(
+      data.geometry.coordinates,
+      this.isMultiPolygon(data.geometry.coordinates)
+    )
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [finalArea.minX, finalArea.minY],
+            [finalArea.maxX, finalArea.minY],
+            [finalArea.maxX, finalArea.maxY],
+            [finalArea.minX, finalArea.maxY],
+          ],
+        ],
+      },
+      properties: {},
+      id: data.display_name,
+    }
   }
   getOsmTypeSymbol(type) {
     switch (type) {
@@ -86,12 +192,32 @@ class Gazetteer extends React.Component {
       }
     })
   }
+  isMultiPolygon(coordinates) {
+    return coordinates[0][0][0] !== null && coordinates[0][0][0][0] !== null
+  }
   async geofeature(suggestion) {
     const [type, id] = suggestion.id.split(':')
     const res = await window.fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&osm_type=${type}&osm_id=${id}`
+      `https://nominatim.openstreetmap.org/reverse?format=json&osm_type=${type}&osm_id=${id}&polygon_geojson=1`
     )
     const data = await res.json()
+    const boundingBoxLimit = 75
+    const boundingBoxWidth = data.boundingbox[3] - data.boundingbox[2]
+    const boundingBoxHeight = data.boundingbox[1] - data.boundingbox[0]
+    if (
+      (boundingBoxWidth >= boundingBoxLimit ||
+        boundingBoxHeight >= boundingBoxLimit) &&
+      Object.keys(data.address).length === 2
+    ) {
+      const finalArea = getLargestBbox(
+        data.geojson.coordinates,
+        this.isMultiPolygon(data.geojson.coordinates)
+      )
+      data.boundingbox[0] = finalArea.minY
+      data.boundingbox[1] = finalArea.maxY
+      data.boundingbox[2] = finalArea.minX
+      data.boundingbox[3] = finalArea.maxX
+    }
     return {
       type: 'Feature',
       geometry: {
@@ -100,8 +226,8 @@ class Gazetteer extends React.Component {
           [
             [data.boundingbox[2], data.boundingbox[0]],
             [data.boundingbox[3], data.boundingbox[0]],
-            [data.boundingbox[2], data.boundingbox[1]],
             [data.boundingbox[3], data.boundingbox[1]],
+            [data.boundingbox[2], data.boundingbox[1]],
           ],
         ],
       },
@@ -133,3 +259,4 @@ class Gazetteer extends React.Component {
 }
 
 module.exports = Gazetteer
+module.exports.getLargestBbox = getLargestBbox

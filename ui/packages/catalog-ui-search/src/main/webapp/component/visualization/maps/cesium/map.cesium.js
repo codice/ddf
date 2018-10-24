@@ -131,7 +131,7 @@ function determineIdFromPosition(position, map) {
 }
 
 function expandRectangle(rectangle) {
-  var scalingFactor = 0.25
+  const scalingFactor = 0.05
 
   var widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west)
   var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south)
@@ -472,7 +472,7 @@ module.exports = function CesiumMap(
     /*
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
-        */
+          */
     addPointWithText: function(point, options) {
       var pointObject = convertPointCoordinate(point)
       var cartographicPosition = Cesium.Cartographic.fromDegrees(
@@ -512,7 +512,7 @@ module.exports = function CesiumMap(
     /*
           Adds a billboard point utilizing the passed in point and options.
           Options are a view to relate to, and an id, and a color.
-        */
+          */
     addPoint: function(point, options) {
       var pointObject = convertPointCoordinate(point)
       var cartographicPosition = Cesium.Cartographic.fromDegrees(
@@ -675,7 +675,7 @@ module.exports = function CesiumMap(
     /*
          Updates a passed in geometry to reflect whether or not it is selected.
          Options passed in are color and isSelected.
-         */
+        */
     updateCluster: function(geometry, options) {
       if (geometry.constructor === Array) {
         geometry.forEach(
@@ -713,7 +713,7 @@ module.exports = function CesiumMap(
     /*
           Updates a passed in geometry to reflect whether or not it is selected.
           Options passed in are color and isSelected.
-        */
+          */
     updateGeometry: function(geometry, options) {
       if (geometry.constructor === Array) {
         geometry.forEach(
