@@ -31,8 +31,6 @@ If no local catalog provider is configured, the site information returned includ
 
 The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
 
-When this feature is installed, the Catalog Fanout Framework App feature `catalog-core-fanoutframework` should be uninstalled, as both catalog frameworks should not be installed simultaneously.
-
 ===== Configuring the Standard Catalog Framework
 
 These are the configurable properties on the Standard Catalog Framework.
