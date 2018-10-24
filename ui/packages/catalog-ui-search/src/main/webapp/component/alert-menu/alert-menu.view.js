@@ -13,63 +13,51 @@
  *
  **/
 /*global define*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './alert-menu.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/alert/alert',
-  'js/Common',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  alertInstance,
-  Common
-) {
-  return Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('alert-menu'),
-    events: {
-      'click > .workspace-title': 'goToWorkspace',
-    },
-    onFirstRender: function() {
-      this.listenTo(alertInstance, 'change:currentAlert', this.render)
-    },
-    goToWorkspace: function(e) {
-      var workspaceId = $(e.currentTarget).attr('data-workspaceid')
-      wreqr.vent.trigger('router:navigate', {
-        fragment: 'workspaces/' + workspaceId,
-        options: {
-          trigger: true,
-        },
-      })
-    },
-    serializeData: function() {
-      if (alertInstance.get('currentAlert') === undefined) {
-        return {}
-      }
-      var alertJSON = alertInstance.get('currentAlert').toJSON()
-      var workspace = store.get('workspaces').filter(function(workspace) {
-        return workspace.get('queries').get(alertJSON.queryId)
-      })[0]
-      var query
-      if (workspace) {
-        query = workspace.get('queries').get(alertJSON.queryId)
-      }
-      return {
-        amount: alertJSON.metacardIds.length,
-        when: Common.getMomentDate(alertJSON.when),
-        query: query ? query.toJSON() : undefined,
-        workspace: workspace ? workspace.toJSON() : undefined,
-      }
-    },
-  })
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./alert-menu.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const alertInstance = require('component/alert/alert')
+const Common = require('js/Common')
+
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('alert-menu'),
+  events: {
+    'click > .workspace-title': 'goToWorkspace',
+  },
+  onFirstRender: function() {
+    this.listenTo(alertInstance, 'change:currentAlert', this.render)
+  },
+  goToWorkspace: function(e) {
+    var workspaceId = $(e.currentTarget).attr('data-workspaceid')
+    wreqr.vent.trigger('router:navigate', {
+      fragment: 'workspaces/' + workspaceId,
+      options: {
+        trigger: true,
+      },
+    })
+  },
+  serializeData: function() {
+    if (alertInstance.get('currentAlert') === undefined) {
+      return {}
+    }
+    var alertJSON = alertInstance.get('currentAlert').toJSON()
+    var workspace = store.get('workspaces').filter(function(workspace) {
+      return workspace.get('queries').get(alertJSON.queryId)
+    })[0]
+    var query
+    if (workspace) {
+      query = workspace.get('queries').get(alertJSON.queryId)
+    }
+    return {
+      amount: alertJSON.metacardIds.length,
+      when: Common.getMomentDate(alertJSON.when),
+      query: query ? query.toJSON() : undefined,
+      workspace: workspace ? workspace.toJSON() : undefined,
+    }
+  },
 })

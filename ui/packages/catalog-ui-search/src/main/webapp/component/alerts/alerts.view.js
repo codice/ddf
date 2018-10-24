@@ -13,32 +13,23 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './alerts.hbs',
-  'js/CustomElements',
-  'component/alert-item/alert-item.collection.view',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  AlertItemCollectionView
-) {
-  return Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('alerts'),
-    modelEvents: {},
-    events: {},
-    regions: {
-      alertList: '.alerts-list',
-    },
-    ui: {},
-    onBeforeShow: function() {
-      this.alertList.show(new AlertItemCollectionView())
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./alerts.hbs')
+const CustomElements = require('js/CustomElements')
+const AlertItemCollectionView = require('component/alert-item/alert-item.collection.view')
+
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('alerts'),
+  modelEvents: {},
+  events: {},
+  regions: {
+    alertList: '.alerts-list',
+  },
+  ui: {},
+  onBeforeShow: function() {
+    this.alertList.show(new AlertItemCollectionView())
+  },
 })

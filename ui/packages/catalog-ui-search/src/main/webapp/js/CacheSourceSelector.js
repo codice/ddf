@@ -9,40 +9,40 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-define(['js/cql', 'js/CQLUtils'], function(cql, CQLUtils) {
-  function buildCacheSourcesCql(sources) {
-    return {
-      type: 'OR',
-      filters: sources
-        .filter(function(source) {
-          return source !== 'cache'
-        })
-        .map(function(source) {
-          return {
-            property: '"metacard_source"',
-            type: '=',
-            value: source,
-          }
-        }),
-    }
-  }
-
-  function limitCacheSources(cql, sources) {
-    return {
-      type: 'AND',
-      filters: [cql, buildCacheSourcesCql(sources)],
-    }
-  }
-
+const cql = require('js/cql')
+const CQLUtils = require('js/CQLUtils')
+function buildCacheSourcesCql(sources) {
   return {
-    trimCacheSources: function(cqlString, sources) {
-      return CQLUtils.sanitizeGeometryCql(
-        '(' +
-          cql.write(
-            limitCacheSources(cql.simplify(cql.read(cqlString)), sources)
-          ) +
-          ')'
-      )
-    },
+    type: 'OR',
+    filters: sources
+      .filter(function(source) {
+        return source !== 'cache'
+      })
+      .map(function(source) {
+        return {
+          property: '"metacard_source"',
+          type: '=',
+          value: source,
+        }
+      }),
   }
-})
+}
+
+function limitCacheSources(cql, sources) {
+  return {
+    type: 'AND',
+    filters: [cql, buildCacheSourcesCql(sources)],
+  }
+}
+
+module.exports = {
+  trimCacheSources: function(cqlString, sources) {
+    return CQLUtils.sanitizeGeometryCql(
+      '(' +
+        cql.write(
+          limitCacheSources(cql.simplify(cql.read(cqlString)), sources)
+        ) +
+        ')'
+    )
+  },
+}

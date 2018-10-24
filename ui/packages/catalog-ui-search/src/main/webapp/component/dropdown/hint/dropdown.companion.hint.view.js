@@ -13,27 +13,25 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.companion.view',
-  'js/CustomElements',
-], function(Marionette, _, $, DropdownCompanionView, CustomElements) {
-  var namespace = CustomElements.getNamespace()
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownCompanionView = require('../dropdown.companion.view')
+const CustomElements = require('js/CustomElements')
 
-  return DropdownCompanionView.extend({
-    className: 'is-hint',
-    listenForOutsideClick: function() {
-      DropdownCompanionView.prototype.listenForOutsideClick.call(this)
-      $(namespace + 'help').on(
-        'mousedown.' + this.cid,
-        function(event) {
-          if (this.$el.find(event.target).length === 0) {
-            this.close()
-          }
-        }.bind(this)
-      )
-    },
-  })
+var namespace = CustomElements.getNamespace()
+
+module.exports = DropdownCompanionView.extend({
+  className: 'is-hint',
+  listenForOutsideClick: function() {
+    DropdownCompanionView.prototype.listenForOutsideClick.call(this)
+    $(namespace + 'help').on(
+      'mousedown.' + this.cid,
+      function(event) {
+        if (this.$el.find(event.target).length === 0) {
+          this.close()
+        }
+      }.bind(this)
+    )
+  },
 })

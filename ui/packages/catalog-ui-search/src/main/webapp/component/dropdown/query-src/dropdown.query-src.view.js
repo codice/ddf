@@ -13,50 +13,39 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.query-src.hbs',
-  'component/query-src/query-src.view',
-  'component/singletons/sources-instance',
-  'properties',
-], function(
-  Marionette,
-  _,
-  $,
-  DropdownView,
-  template,
-  ComponentView,
-  sources,
-  properties
-) {
-  return DropdownView.extend({
-    template: template,
-    className: 'is-querySrc',
-    componentToShow: ComponentView,
-    initializeComponentModel: function() {
-      //override if you need more functionality
-      this.modelForComponent = this.model
-      this.listenTo(this.model, 'change:federation', this.render)
-    },
-    isCentered: true,
-    getCenteringElement: function() {
-      return this.el.querySelector('.dropdown-container')
-    },
-    hasTail: true,
-    hasLimitedWidth: true,
-    serializeData: function() {
-      var srcs = this.model.get('value')
-      return {
-        sources: sources.toJSON().filter(function(src) {
-          return srcs.indexOf(src.id) !== -1
-        }),
-        enterprise: this.model.get('federation') === 'enterprise',
-        localCatalog: sources.localCatalog,
-        isLocalCatalogEnabled: !properties.isDisableLocalCatalog(),
-      }
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.query-src.hbs')
+const ComponentView = require('component/query-src/query-src.view')
+const sources = require('component/singletons/sources-instance')
+const properties = require('properties')
+
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-querySrc',
+  componentToShow: ComponentView,
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.model
+    this.listenTo(this.model, 'change:federation', this.render)
+  },
+  isCentered: true,
+  getCenteringElement: function() {
+    return this.el.querySelector('.dropdown-container')
+  },
+  hasTail: true,
+  hasLimitedWidth: true,
+  serializeData: function() {
+    var srcs = this.model.get('value')
+    return {
+      sources: sources.toJSON().filter(function(src) {
+        return srcs.indexOf(src.id) !== -1
+      }),
+      enterprise: this.model.get('federation') === 'enterprise',
+      localCatalog: sources.localCatalog,
+      isLocalCatalogEnabled: !properties.isDisableLocalCatalog(),
+    }
+  },
 })

@@ -13,31 +13,29 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './sort-item.view',
-  '../sort/sort.hbs',
-], function(Marionette, _, $, CustomElements, queryItemView, template) {
-  return Marionette.CollectionView.extend({
-    childView: queryItemView,
-    tagName: CustomElements.register('sort-item-collection'),
-    initialize: function(options) {
-      if (this.collection.length === 0) {
-        this.collection.add({
-          attribute: 'title',
-          direction: 'ascending',
-        })
-      }
-    },
-    childViewOptions: function(model, index) {
-      return {
-        collection: this.collection,
-        childIndex: index,
-        showBestTextOption: this.options.showBestTextOption,
-      }
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const queryItemView = require('./sort-item.view')
+const template = require('../sort/sort.hbs')
+
+module.exports = Marionette.CollectionView.extend({
+  childView: queryItemView,
+  tagName: CustomElements.register('sort-item-collection'),
+  initialize: function(options) {
+    if (this.collection.length === 0) {
+      this.collection.add({
+        attribute: 'title',
+        direction: 'ascending',
+      })
+    }
+  },
+  childViewOptions: function(model, index) {
+    return {
+      collection: this.collection,
+      childIndex: index,
+      showBestTextOption: this.options.showBestTextOption,
+    }
+  },
 })

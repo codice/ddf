@@ -13,29 +13,27 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.workspace-interactions.hbs',
-  'component/workspace-interactions/workspace-interactions.view',
-], function(Marionette, _, $, DropdownView, template, ComponentView) {
-  return DropdownView.extend({
-    template: template,
-    className: 'is-workspaceInteractions',
-    componentToShow: ComponentView,
-    initializeComponentModel: function() {
-      //override if you need more functionality
-      this.modelForComponent = this.options.modelForComponent
-    },
-    listenToComponent: function() {
-      //override if you need more functionality
-    },
-    isCentered: true,
-    getCenteringElement: function() {
-      return this.el
-    },
-    hasTail: true,
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.workspace-interactions.hbs')
+const ComponentView = require('component/workspace-interactions/workspace-interactions.view')
+
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-workspaceInteractions',
+  componentToShow: ComponentView,
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.options.modelForComponent
+  },
+  listenToComponent: function() {
+    //override if you need more functionality
+  },
+  isCentered: true,
+  getCenteringElement: function() {
+    return this.el
+  },
+  hasTail: true,
 })

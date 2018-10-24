@@ -13,24 +13,22 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './query-item.view',
-  'js/store',
-], function(Marionette, _, $, CustomElements, queryItemView, store) {
-  return Marionette.CollectionView.extend({
-    setDefaultCollection: function() {
-      this.collection = store.getCurrentQueries()
-    },
-    tagName: CustomElements.register('query-item-collection'),
-    childView: queryItemView,
-    initialize: function(options) {
-      if (!options.collection) {
-        this.setDefaultCollection()
-      }
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const queryItemView = require('./query-item.view')
+const store = require('js/store')
+
+module.exports = Marionette.CollectionView.extend({
+  setDefaultCollection: function() {
+    this.collection = store.getCurrentQueries()
+  },
+  tagName: CustomElements.register('query-item-collection'),
+  childView: queryItemView,
+  initialize: function(options) {
+    if (!options.collection) {
+      this.setDefaultCollection()
+    }
+  },
 })

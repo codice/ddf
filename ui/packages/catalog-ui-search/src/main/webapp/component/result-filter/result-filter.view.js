@@ -13,98 +13,86 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-filter.hbs',
-  'js/CustomElements',
-  'component/singletons/user-instance',
-  'component/filter-builder/filter-builder.view',
-  'component/filter-builder/filter-builder',
-  'js/cql',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  user,
-  FilterBuilderView,
-  FilterBuilderModel,
-  cql
-) {
-  return Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('result-filter'),
-    modelEvents: {
-      change: 'render',
-    },
-    events: {
-      'click > .editor-footer .footer-remove': 'removeFilter',
-      'click > .editor-footer .footer-save': 'saveFilter',
-    },
-    ui: {},
-    regions: {
-      editorProperties: '.editor-properties',
-    },
-    initialize: function() {},
-    getResultFilter: function() {
-      return user
-        .get('user')
-        .get('preferences')
-        .get('resultFilter')
-    },
-    onRender: function() {
-      this.editorProperties.show(
-        new FilterBuilderView({
-          model: new FilterBuilderModel({ isResultFilter: true }),
-        })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./result-filter.hbs')
+const CustomElements = require('js/CustomElements')
+const user = require('component/singletons/user-instance')
+const FilterBuilderView = require('component/filter-builder/filter-builder.view')
+const FilterBuilderModel = require('component/filter-builder/filter-builder')
+const cql = require('js/cql')
+
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('result-filter'),
+  modelEvents: {
+    change: 'render',
+  },
+  events: {
+    'click > .editor-footer .footer-remove': 'removeFilter',
+    'click > .editor-footer .footer-save': 'saveFilter',
+  },
+  ui: {},
+  regions: {
+    editorProperties: '.editor-properties',
+  },
+  initialize: function() {},
+  getResultFilter: function() {
+    return user
+      .get('user')
+      .get('preferences')
+      .get('resultFilter')
+  },
+  onRender: function() {
+    this.editorProperties.show(
+      new FilterBuilderView({
+        model: new FilterBuilderModel({ isResultFilter: true }),
+      })
+    )
+    this.editorProperties.currentView.turnOnEditing()
+    this.editorProperties.currentView.turnOffNesting()
+    var resultFilter = this.getResultFilter()
+    if (resultFilter) {
+      this.editorProperties.currentView.deserialize(
+        cql.simplify(cql.read(resultFilter))
       )
-      this.editorProperties.currentView.turnOnEditing()
-      this.editorProperties.currentView.turnOffNesting()
-      var resultFilter = this.getResultFilter()
-      if (resultFilter) {
-        this.editorProperties.currentView.deserialize(
-          cql.simplify(cql.read(resultFilter))
-        )
-      } else {
-        this.editorProperties.currentView.deserialize({
-          property: 'anyText',
-          value: '',
-          type: 'ILIKE',
-        })
-      }
-      this.handleFilter()
-    },
-    getFilter: function() {
-      return this.editorProperties.currentView.transformToCql()
-    },
-    removeFilter: function() {
-      user
-        .get('user')
-        .get('preferences')
-        .set('resultFilter', undefined)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    saveFilter: function() {
-      user
-        .get('user')
-        .get('preferences')
-        .set('resultFilter', this.getFilter())
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    handleFilter: function() {
-      var resultFilter = this.getResultFilter()
-      this.$el.toggleClass('has-filter', Boolean(resultFilter))
-    },
-  })
+    } else {
+      this.editorProperties.currentView.deserialize({
+        property: 'anyText',
+        value: '',
+        type: 'ILIKE',
+      })
+    }
+    this.handleFilter()
+  },
+  getFilter: function() {
+    return this.editorProperties.currentView.transformToCql()
+  },
+  removeFilter: function() {
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultFilter', undefined)
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  saveFilter: function() {
+    user
+      .get('user')
+      .get('preferences')
+      .set('resultFilter', this.getFilter())
+    user
+      .get('user')
+      .get('preferences')
+      .savePreferences()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  handleFilter: function() {
+    var resultFilter = this.getResultFilter()
+    this.$el.toggleClass('has-filter', Boolean(resultFilter))
+  },
 })

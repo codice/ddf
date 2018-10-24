@@ -13,122 +13,109 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../editor.view',
-  'js/store',
-  'component/property/property.collection.view',
-  'component/loading-companion/loading-companion.view',
-  'component/alert/alert',
-  'component/singletons/metacard-definitions',
-  'js/ResultUtils',
-], function(
-  Marionette,
-  _,
-  $,
-  EditorView,
-  store,
-  PropertyCollectionView,
-  LoadingCompanionView,
-  alertInstance,
-  metacardDefinitions,
-  ResultUtils
-) {
-  return EditorView.extend({
-    className: 'is-metacards-basic',
-    setDefaultModel: function() {
-      this.model = this.selectionInterface.getSelectedResults()
-    },
-    selectionInterface: store,
-    initialize: function(options) {
-      this.selectionInterface =
-        options.selectionInterface || this.selectionInterface
-      EditorView.prototype.initialize.call(this, options)
-    },
-    onBeforeShow: function() {
-      var results = this.selectionInterface.getSelectedResults()
-      var metacards = results.map(function(result) {
-        return result.get('metacard>properties').toJSON()
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const EditorView = require('../editor.view')
+const store = require('js/store')
+const PropertyCollectionView = require('component/property/property.collection.view')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const alertInstance = require('component/alert/alert')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+const ResultUtils = require('js/ResultUtils')
+
+module.exports = EditorView.extend({
+  className: 'is-metacards-basic',
+  setDefaultModel: function() {
+    this.model = this.selectionInterface.getSelectedResults()
+  },
+  selectionInterface: store,
+  initialize: function(options) {
+    this.selectionInterface =
+      options.selectionInterface || this.selectionInterface
+    EditorView.prototype.initialize.call(this, options)
+  },
+  onBeforeShow: function() {
+    var results = this.selectionInterface.getSelectedResults()
+    var metacards = results.map(function(result) {
+      return result.get('metacard>properties').toJSON()
+    })
+    this.editorProperties.show(
+      PropertyCollectionView.generatePropertyCollectionView(metacards)
+    )
+    this.editorProperties.currentView.$el.addClass('is-list')
+    this.getValidation()
+    EditorView.prototype.onBeforeShow.call(this)
+  },
+  getEditorActionsOptions: function() {
+    return {
+      summary: false,
+    }
+  },
+  getValidation: function() {
+    var results = this.selectionInterface.getSelectedResults()
+    var self = this
+    self.editorProperties.currentView.clearValidation()
+    results
+      .filter(function(result) {
+        return !result.isRemote()
       })
-      this.editorProperties.show(
-        PropertyCollectionView.generatePropertyCollectionView(metacards)
-      )
-      this.editorProperties.currentView.$el.addClass('is-list')
-      this.getValidation()
-      EditorView.prototype.onBeforeShow.call(this)
-    },
-    getEditorActionsOptions: function() {
-      return {
-        summary: false,
-      }
-    },
-    getValidation: function() {
-      var results = this.selectionInterface.getSelectedResults()
-      var self = this
-      self.editorProperties.currentView.clearValidation()
-      results
-        .filter(function(result) {
-          return !result.isRemote()
-        })
-        .forEach(function(result) {
-          ;(function(id) {
-            $.get({
-              url: './internal/metacard/' + id + '/attribute/validation',
-              customErrorHandling: true,
-            }).then(function(response) {
-              if (!self.isDestroyed && self.editorProperties.currentView) {
-                response.forEach(function(issue) {
-                  issue.id = id
-                })
-                self.editorProperties.currentView.updateValidation(response)
-              }
-            })
-          })(
-            result
-              .get('metacard')
-              .get('properties')
-              .get('id')
-          )
-        })
-    },
-    afterCancel: function() {
-      //this.getValidation();
-    },
-    afterSave: function(editorJSON) {
-      if (editorJSON.length > 0) {
-        var payload = [
-          {
-            ids: this.model.map(function(metacard) {
-              return metacard.get('metacard').get('id')
-            }),
-            attributes: editorJSON,
-          },
-        ]
-        LoadingCompanionView.beginLoading(this)
-        var self = this
-        setTimeout(function() {
-          $.ajax({
-            url: './internal/metacards',
-            type: 'PATCH',
-            data: JSON.stringify(payload),
-            contentType: 'application/json',
+      .forEach(function(result) {
+        ;(function(id) {
+          $.get({
+            url: './internal/metacard/' + id + '/attribute/validation',
+            customErrorHandling: true,
+          }).then(function(response) {
+            if (!self.isDestroyed && self.editorProperties.currentView) {
+              response.forEach(function(issue) {
+                issue.id = id
+              })
+              self.editorProperties.currentView.updateValidation(response)
+            }
           })
-            .then(function(response) {
-              ResultUtils.updateResults(self.model, response)
-            })
-            .always(function() {
-              setTimeout(function() {
-                //let solr flush
-                LoadingCompanionView.endLoading(self)
-                if (!self.isDestroyed) {
-                  self.onBeforeShow()
-                }
-              }, 1000)
-            })
-        }, 1000)
-      }
-    },
-  })
+        })(
+          result
+            .get('metacard')
+            .get('properties')
+            .get('id')
+        )
+      })
+  },
+  afterCancel: function() {
+    //this.getValidation();
+  },
+  afterSave: function(editorJSON) {
+    if (editorJSON.length > 0) {
+      var payload = [
+        {
+          ids: this.model.map(function(metacard) {
+            return metacard.get('metacard').get('id')
+          }),
+          attributes: editorJSON,
+        },
+      ]
+      LoadingCompanionView.beginLoading(this)
+      var self = this
+      setTimeout(function() {
+        $.ajax({
+          url: './internal/metacards',
+          type: 'PATCH',
+          data: JSON.stringify(payload),
+          contentType: 'application/json',
+        })
+          .then(function(response) {
+            ResultUtils.updateResults(self.model, response)
+          })
+          .always(function() {
+            setTimeout(function() {
+              //let solr flush
+              LoadingCompanionView.endLoading(self)
+              if (!self.isDestroyed) {
+                self.onBeforeShow()
+              }
+            }, 1000)
+          })
+      }, 1000)
+    }
+  },
 })

@@ -13,47 +13,41 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.result-form-selector.hbs',
-  'component/result-form-selector/result-form-selector.view',
-  'js/store',
-], function(Marionette, _, $, DropdownView, template, ResultForms, store) {
-  return DropdownView.extend({
-    template: template,
-    className: 'is-search-form-selector',
-    componentToShow: ResultForms,
-    initialize: function() {
-      DropdownView.prototype.initialize.call(this)
-      this.handleSchedule()
-      this.listenTo(
-        this.options.modelForComponent,
-        'change',
-        this.handleSchedule
-      )
-      this.listenTo(this.model, 'change:isOpen', this.handleClose)
-    },
-    handleClose: function() {
-      if (!this.model.get('isOpen')) {
-        this.onDestroy()
-        this.initializeDropdown()
-      }
-    },
-    initializeComponentModel: function() {
-      //override if you need more functionality
-      this.modelForComponent = this.options.modelForComponent
-    },
-    listenToComponent: function() {
-      //override if you need more functionality
-    },
-    handleSchedule: function() {
-      this.$el.toggleClass(
-        'is-polling',
-        this.options.modelForComponent.get('polling')
-      )
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.result-form-selector.hbs')
+const ResultForms = require('component/result-form-selector/result-form-selector.view')
+const store = require('js/store')
+
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-search-form-selector',
+  componentToShow: ResultForms,
+  initialize: function() {
+    DropdownView.prototype.initialize.call(this)
+    this.handleSchedule()
+    this.listenTo(this.options.modelForComponent, 'change', this.handleSchedule)
+    this.listenTo(this.model, 'change:isOpen', this.handleClose)
+  },
+  handleClose: function() {
+    if (!this.model.get('isOpen')) {
+      this.onDestroy()
+      this.initializeDropdown()
+    }
+  },
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.options.modelForComponent
+  },
+  listenToComponent: function() {
+    //override if you need more functionality
+  },
+  handleSchedule: function() {
+    this.$el.toggleClass(
+      'is-polling',
+      this.options.modelForComponent.get('polling')
+    )
+  },
 })

@@ -13,17 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  './workspaces-menu.hbs',
-  'js/CustomElements',
-  'properties',
-], function(Marionette, template, CustomElements, properties) {
-  return Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('workspaces-menu'),
-    serializeData: function() {
-      return properties
-    },
-  })
+const Marionette = require('marionette')
+const template = require('./workspaces-menu.hbs')
+const CustomElements = require('js/CustomElements')
+const properties = require('properties')
+
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('workspaces-menu'),
+  serializeData: function() {
+    return properties
+  },
 })
