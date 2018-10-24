@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -74,11 +75,11 @@ public class MetricsEndpoint {
   public static final String DEFAULT_METRICS_DIR =
       new AbsolutePathResolver("data" + File.separator + "metrics" + File.separator).getPath();
 
-  static final Map<String, Long> TIME_RANGES = new HashMap<String, Long>();
+  static final Map<String, Long> TIME_RANGES = new HashMap<>();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
 
-  private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
+  private static final String METRICS_SERVICE_BASE_URL = "/services/internal/metrics";
 
   private static final String RRD_FILE_EXTENSION = ".rrd";
 
@@ -90,7 +91,7 @@ public class MetricsEndpoint {
 
   private static final int MILLISECONDS_PER_SECOND = 1000;
 
-  private static final long FIFTEEN_MINUTES_IN_SECONDS = 15 * 60;
+  private static final long FIFTEEN_MINUTES_IN_SECONDS = TimeUnit.MINUTES.toSeconds(15);
 
   private static final long ONE_HOUR_IN_SECONDS = 4 * FIFTEEN_MINUTES_IN_SECONDS;
 
