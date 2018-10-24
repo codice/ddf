@@ -57,14 +57,14 @@ public class ObjectAdapter extends XmlAdapter<ObjectElement, Attribute> {
   public static Attribute unmarshalFrom(ObjectElement element) {
     AttributeImpl attribute = null;
     for (Serializable value : element.getValue()) {
-      try {
-        value =
-            (Serializable)
-                new ObjectInputStream(new ByteArrayInputStream((byte[]) value)).readObject();
-      } catch (IOException | ClassNotFoundException e) {
-        LOGGER.debug("Could not unmarshal Metacard Object from Base64 encoded string", e);
+      if (value instanceof byte[]) {
+        try (ObjectInputStream objectInputStream =
+            new ObjectInputStream(new ByteArrayInputStream((byte[]) value))) {
+          value = (Serializable) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+          LOGGER.debug("Could not unmarshal Metacard Object from Base64 encoded string", e);
+        }
       }
-
       if (attribute == null) {
         attribute = new AttributeImpl(element.getName(), value);
       } else {
