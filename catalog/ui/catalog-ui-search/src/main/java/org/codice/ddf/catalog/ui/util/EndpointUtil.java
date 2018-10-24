@@ -133,6 +133,8 @@ public class EndpointUtil {
 
   private final Random random = new Random();
 
+  private List<String> whitelistedMetacardTypes = Collections.emptyList();
+
   private ObjectMapper objectMapper =
       JsonFactory.create(
           new JsonParserFactory(), new JsonSerializerFactory().includeNulls().includeEmpty());
@@ -155,6 +157,14 @@ public class EndpointUtil {
     this.attributeRegistry = attributeRegistry;
     this.config = config;
     registerGeoToolsFunctionFactory();
+  }
+
+  public List<String> getWhiteListedMetacardTypes() {
+    return whitelistedMetacardTypes;
+  }
+
+  public void setWhiteListedMetacardTypes(List<String> whitelistedMetacardTypes) {
+    this.whitelistedMetacardTypes = whitelistedMetacardTypes;
   }
 
   @SuppressWarnings("squid:S1604") // generics cannot be lambdas
@@ -344,9 +354,19 @@ public class EndpointUtil {
     return properties;
   }
 
+  private List<MetacardType> getFilteredMetacardTypes() {
+    if (!whitelistedMetacardTypes.isEmpty()) {
+      return metacardTypes
+          .stream()
+          .filter(metacardType -> whitelistedMetacardTypes.contains(metacardType.getName()))
+          .collect(Collectors.toList());
+    }
+    return metacardTypes;
+  }
+
   public Map<String, Object> getMetacardTypeMap() {
     Map<String, Object> resultTypes = new HashMap<>();
-    for (MetacardType metacardType : metacardTypes) {
+    for (MetacardType metacardType : getFilteredMetacardTypes()) {
       Map<String, Object> attributes = new HashMap<>();
       for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
         Map<String, Object> attributeProperties = new HashMap<>();
