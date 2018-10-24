@@ -21,7 +21,9 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.AccessController;
 import java.security.Principal;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -294,7 +296,11 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     Dispatch<StreamSource> dispatch = null;
     if (service != null) {
       dispatch =
-          service.createDispatch(QName.valueOf(portName), StreamSource.class, Service.Mode.MESSAGE);
+          AccessController.doPrivileged(
+              (PrivilegedAction<Dispatch<StreamSource>>)
+                  () ->
+                      service.createDispatch(
+                          QName.valueOf(portName), StreamSource.class, Service.Mode.MESSAGE));
       dispatch
           .getRequestContext()
           .put(Dispatch.ENDPOINT_ADDRESS_PROPERTY, externalAttributeStoreUrl);
