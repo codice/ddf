@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
-import static org.codice.ddf.catalog.ui.query.suggestion.LatLon.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -32,242 +31,248 @@ public class LatLonCoordinateProcessorTest {
 
   @Test
   public void testProcessorIgnoresSingleValue() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "0");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "0");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresSingleValueWithTrailingPeriod() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "0.");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "0.");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorDetectsOrigin() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "0 0");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(0.0, 0.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "0 0");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(0.0, 0.0)));
   }
 
   @Test
   public void testProcessorDetectsOriginWithLeadingDecimals() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), ".0 .0");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(0.0, 0.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), ".0 .0");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(0.0, 0.0)));
   }
 
   @Test
   public void testProcessorDetectsWholeNumbers() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 123");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(50.0, 123.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 123");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(50.0, 123.0)));
   }
 
   @Test
   public void testProcessorIgnoresTooLargeLonWholeNumber() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 1234");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 1234");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresTooSmallLonWholeNumber() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 -1234");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 -1234");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresTooLargeLonDecimal() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 1234.1234");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 1234.1234");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresTooSmallLonDecimal() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 -1234.1234");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 -1234.1234");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorDetectsNegativeLonWholeNumber() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 -123");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(50.0, -123.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 -123");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(50.0, -123.0)));
   }
 
   @Test
   public void testProcessorDetectsLonDecimalWithoutWhole() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 .1234");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(50.0, 0.1234)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 .1234");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(50.0, 0.1234)));
   }
 
   @Test
   public void testProcessorDetectsNegativeLonDecimalWithoutWhole() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 -.1234");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(50.0, -0.1234)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 -.1234");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(50.0, -0.1234)));
   }
 
   @Test
   public void testProcessorDetectsLonDecimal() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "50 123.1234");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(50.0, 123.1234)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "50 123.1234");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(50.0, 123.1234)));
   }
 
   @Test
   public void testProcessorIgnoresTooLargeLatWholeNumber() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "95, 34");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "95, 34");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresTooSmallLatWholeNumber() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "-95 34");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "-95 34");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresTooLargeLatDecimal() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "1234.1234 34");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "1234.1234 34");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorIgnoresTooSmallLatDecimal() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "-1234.1234 34");
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "-1234.1234 34");
     assertThat(suggestions, empty());
   }
 
   @Test
   public void testProcessorDetectsNegativeLatWholeNumber() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "-56, 34");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(-56.0, 34.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "-56, 34");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(-56.0, 34.0)));
   }
 
   @Test
   public void testProcessorDetectsLatDecimalWithoutWhole() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), ".1234 34");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(0.1234, 34.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), ".1234 34");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(0.1234, 34.0)));
   }
 
   @Test
   public void testProcessorDetectsNegativeLatDecimalWithoutWhole() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "-.1234 34");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(-0.1234, 34.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "-.1234 34");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(-0.1234, 34.0)));
   }
 
   @Test
   public void testProcessorDetectsLatDecimal() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "56.789 34");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(56.789, 34.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "56.789 34");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(56.789, 34.0)));
   }
 
   @Test
   public void testProcessorDetectsAndGracefullyHandlesMassiveDecimals() {
     String massiveDecimal = "50.123456789012345678901234567890123456789012345678901234567890";
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), massiveDecimal + " " + massiveDecimal);
+        enhanceAndReturn(new LinkedList<>(), massiveDecimal + " " + massiveDecimal);
     assertThat(suggestions, hasSize(1));
   }
 
   @Test
   public void testProcessorHandlesOddNumberOfInputs() {
-    List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "89, 110, -46, 67, -120");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(89.0, 110.0), from(-46.0, 67.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "89, 110, -46, 67, -120");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(89.0, 110.0), coord(-46.0, 67.0)));
   }
 
   @Test
   public void testProcessorHandlesOddNumberOfInputsInvalidLatitudeInMiddle() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "89 46 99 67 -120");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(89.0, 46.0), from(67.0, -120.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "89 46 99 67 -120");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(89.0, 46.0), coord(67.0, -120.0)));
   }
 
   @Test
   public void testProcessorHandlesOddNumberOfInputsInvalidLatitudeAtBeginning() {
-    List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "99, 89, 46, 67, -120");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(89.0, 46.0), from(67.0, -120.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "99, 89, 46, 67, -120");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(89.0, 46.0), coord(67.0, -120.0)));
   }
 
   @Test
   public void testProcessorHandlesOddNumberOfInvalidLongitudeAtEnd() {
-    List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "-38, 89, 46, 189, -120");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(-38.0, 89.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "-38, 89, 46, 189, -120");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(-38.0, 89.0)));
   }
 
   @Test
   public void testProcessorIgnoresInvalidLongitudeInMiddle() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "38, 189, -46, 89");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(-46.0, 89.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "38, 189, -46, 89");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(-46.0, 89.0)));
   }
 
   @Test
   public void testProcessorIgnoresInvalidLongitudeAtEnd() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "89, 46, 67, -220");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(89.0, 46.0)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "89, 46, 67, -220");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(89.0, 46.0)));
   }
 
   @Test
   public void testRegexDetectsLatLonCommaSpaced() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "12.153, -39.0352");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(12.153, -39.0352)));
+    List<Suggestion> suggestions = enhanceAndReturn(new LinkedList<>(), "12.153, -39.0352");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(12.153, -39.0352)));
   }
 
   @Test
   public void testRegexDetectsLatLonParentheses() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "(12.153, -39.0352), (21.098, 19.148)");
+        enhanceAndReturn(new LinkedList<>(), "(12.153, -39.0352), (21.098, 19.148)");
     assertThat(
-        cast(suggestions).get(0), hasCoordinates(from(12.153, -39.0352), from(21.098, 19.148)));
+        cast(suggestions).get(0), hasCoordinates(coord(12.153, -39.0352), coord(21.098, 19.148)));
   }
 
   @Test
   public void testRegexDetectsLatLonBrackets() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "[12.153, -39.0352], [21.098, 19.148]");
+        enhanceAndReturn(new LinkedList<>(), "[12.153, -39.0352], [21.098, 19.148]");
     assertThat(
-        cast(suggestions).get(0), hasCoordinates(from(12.153, -39.0352), from(21.098, 19.148)));
+        cast(suggestions).get(0), hasCoordinates(coord(12.153, -39.0352), coord(21.098, 19.148)));
   }
 
   @Test
   public void testRegexDetectsLatLonCurlyBraces() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "{12.153, -39.0352}, {21.098, 19.148}");
+        enhanceAndReturn(new LinkedList<>(), "{12.153, -39.0352}, {21.098, 19.148}");
     assertThat(
-        cast(suggestions).get(0), hasCoordinates(from(12.153, -39.0352), from(21.098, 19.148)));
+        cast(suggestions).get(0), hasCoordinates(coord(12.153, -39.0352), coord(21.098, 19.148)));
   }
 
   @Test
   public void testRegexDetectsScatteredCoords() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "blah;;;3g-12j.098     4.1");
-    assertThat(cast(suggestions).get(0), hasCoordinates(from(3.0, -12.0), from(0.098, 4.1)));
+        enhanceAndReturn(new LinkedList<>(), "blah;;;3g-12j.098     4.1");
+    assertThat(cast(suggestions).get(0), hasCoordinates(coord(3.0, -12.0), coord(0.098, 4.1)));
   }
 
   @Test
   // TODO DDF-4242: Future improvement ... allow whitespace between relevant symbols: "- 14" & ".12"
   public void testRegexIgnoresStandaloneSymbols() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "blah10.19205123gagne . - -.12 . 12 - 14");
+        enhanceAndReturn(new LinkedList<>(), "blah10.19205123gagne . - -.12 . 12 - 14");
     // The below assertion's latter coord would change from 12.0 & 14.0 --> 0.12 & -14.0
     assertThat(
-        cast(suggestions).get(0), hasCoordinates(from(10.19205123, -0.12), from(12.0, 14.0)));
+        cast(suggestions).get(0), hasCoordinates(coord(10.19205123, -0.12), coord(12.0, 14.0)));
   }
 
   @Test
   public void testRegexIgnoresStandaloneSymbolsChainedTwice() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "blah10.19205123gagne .. -- -.12 . 12 - 14");
+        enhanceAndReturn(new LinkedList<>(), "blah10.19205123gagne .. -- -.12 . 12 - 14");
     assertThat(
-        cast(suggestions).get(0), hasCoordinates(from(10.19205123, -0.12), from(12.0, 14.0)));
+        cast(suggestions).get(0), hasCoordinates(coord(10.19205123, -0.12), coord(12.0, 14.0)));
   }
 
   @Test
   public void testRegexIgnoresStandaloneSymbolsChainedThrice() {
     List<Suggestion> suggestions =
-        processor.enhanceResults(new LinkedList<>(), "blah10.19205123gagne ... --- -.12 . 12 - 14");
+        enhanceAndReturn(new LinkedList<>(), "blah10.19205123gagne ... --- -.12 . 12 - 14");
     assertThat(
-        cast(suggestions).get(0), hasCoordinates(from(10.19205123, -0.12), from(12.0, 14.0)));
+        cast(suggestions).get(0), hasCoordinates(coord(10.19205123, -0.12), coord(12.0, 14.0)));
+  }
+
+  private List<Suggestion> enhanceAndReturn(List<Suggestion> input, String query) {
+    processor.enhanceResults(input, query);
+    return input;
   }
 
   private static List<LiteralSuggestion> cast(List<Suggestion> suggestions) {
     return suggestions.stream().map(LiteralSuggestion.class::cast).collect(Collectors.toList());
+  }
+
+  private static LatLon coord(Double lat, Double lon) {
+    return new LatLon(lat, lon);
   }
 
   private static org.hamcrest.Matcher<LiteralSuggestion> hasCoordinates(LatLon... coords) {

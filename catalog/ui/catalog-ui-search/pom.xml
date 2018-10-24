@@ -346,19 +346,20 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.usng4j</groupId>
-            <artifactId>usng4j-api</artifactId>
-            <version>${usng4j.version}</version>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.usng4j</groupId>
+            <artifactId>platform-usng4j-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.usng4j</groupId>
             <artifactId>usng4j-impl</artifactId>
             <version>${usng4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>tika-bundle</artifactId>
-            <version>${tika.thirdparty.bundle.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -420,9 +421,7 @@
                             versioning-common,
                             filter-v_2_0,
                             ows-v_1_1_0-schema,
-                            jaxb2-basics-runtime,
-                            usng4j-api,
-                            usng4j-impl
+                            jaxb2-basics-runtime
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
@@ -491,12 +490,12 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.38</minimum>
+                                            <minimum>0.40</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.34</minimum>
+                                            <minimum>0.36</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>

@@ -58,7 +58,7 @@ public class QueryApplication implements SparkApplication, Function {
 
   private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
-  private final MgrsCoordinateProcessor mgrsCoordinateProcessor = new MgrsCoordinateProcessor();
+  private final MgrsCoordinateProcessor mgrsCoordinateProcessor;
 
   private FeatureService featureService;
 
@@ -76,8 +76,12 @@ public class QueryApplication implements SparkApplication, Function {
 
   private EndpointUtil util;
 
-  public QueryApplication(CqlTransformHandler cqlTransformHandler) {
-    this.latLonCoordinateProcessor = new LatLonCoordinateProcessor();
+  public QueryApplication(
+      CqlTransformHandler cqlTransformHandler,
+      LatLonCoordinateProcessor latLonCoordinateProcessor,
+      MgrsCoordinateProcessor mgrsCoordinateProcessor) {
+    this.latLonCoordinateProcessor = latLonCoordinateProcessor;
+    this.mgrsCoordinateProcessor = mgrsCoordinateProcessor;
     this.cqlTransformHandler = cqlTransformHandler;
   }
 
@@ -128,10 +132,10 @@ public class QueryApplication implements SparkApplication, Function {
         (req, res) -> {
           String query = req.queryParams("q");
           List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
-          results = new LinkedList<>(results);
-          this.mgrsCoordinateProcessor.enhanceResults(results, query);
-          this.latLonCoordinateProcessor.enhanceResults(results, query);
-          return mapper.toJson(results);
+          List<Suggestion> efficientPrependingResults = new LinkedList<>(results);
+          this.mgrsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
+          this.latLonCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
+          return mapper.toJson(efficientPrependingResults);
         });
 
     get(

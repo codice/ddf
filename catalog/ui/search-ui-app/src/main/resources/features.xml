@@ -26,6 +26,8 @@
         <feature>spatial-app</feature>
         <feature>camel-http</feature>
         <feature>catalog-ui-search-api</feature>
+        <feature>platform-usng4j</feature>
+
         <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.config" override="false">
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>

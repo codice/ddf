@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
-import static org.codice.ddf.catalog.ui.query.suggestion.LatLon.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
@@ -24,12 +23,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.codice.ddf.spatial.geocoding.Suggestion;
+import org.codice.usng4j.impl.CoordinateSystemTranslatorImpl;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 public class MgrsCoordinateProcessorTest {
-  private final MgrsCoordinateProcessor processor = new MgrsCoordinateProcessor();
+  private final MgrsCoordinateProcessor processor =
+      new MgrsCoordinateProcessor(new CoordinateSystemTranslatorImpl());
 
   @Test
   public void testProcessorDetectsZone() {
@@ -259,14 +260,70 @@ public class MgrsCoordinateProcessorTest {
   }
 
   @Test
-  public void testProcessorIgnoresDuplicateZone() {
-    String query = "1D 1D"; // Should yield 2 points
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), query);
-    List<String> detectedMgrsStrings = processor.getMgrsCoordinateStrings(query);
-    assertThat(detectedMgrsStrings, both(hasSize(2)).and(contains("1D", "1D")));
+  public void testProcessorIsNotCaseSensitive() {
+    List<String> detectedMgrsStrings = processor.getMgrsCoordinateStrings("4qFj123456");
+    assertThat(detectedMgrsStrings, both(hasSize(1)).and(contains("4QFJ0012300456")));
+  }
+
+  @Test
+  public void testProcessorIsNotSymbolSensitive() {
+    List<String> detectedMgrsStrings =
+        processor.getMgrsCoordinateStrings("39U VR 283 391, 39U VR 283 392");
     assertThat(
-        cast(suggestions).get(0).getGeo(),
-        hasSize(4)); // Yields 4 since 1 MGRS match returns a bbox, proving deduplication
+        detectedMgrsStrings, both(hasSize(2)).and(contains("39UVR0028300391", "39UVR0028300392")));
+  }
+
+  @Test
+  public void testProcessorSymbolsOverrideWhitespace() {
+    List<String> detectedMgrsStrings =
+        processor.getMgrsCoordinateStrings("39U VR 283,391, 39U VR 283 392");
+    assertThat(
+        detectedMgrsStrings,
+        both(hasSize(3)).and(contains("39UVR0000200008", "39UVR0000300009", "39UVR0028300392")));
+  }
+
+  @Test
+  public void testProcessorIgnoresInvalidZoneLetters() {
+    List<String> zoneWithA = processor.getMgrsCoordinateStrings("14A");
+    List<String> zoneWithB = processor.getMgrsCoordinateStrings("14B");
+    List<String> zoneWithI = processor.getMgrsCoordinateStrings("14I");
+    List<String> zoneWithO = processor.getMgrsCoordinateStrings("14O");
+    List<String> zoneWithY = processor.getMgrsCoordinateStrings("14Y");
+    List<String> zoneWithZ = processor.getMgrsCoordinateStrings("14Z");
+
+    assertThat(zoneWithA, hasSize(0));
+    assertThat(zoneWithB, hasSize(0));
+    assertThat(zoneWithI, hasSize(0));
+    assertThat(zoneWithO, hasSize(0));
+    assertThat(zoneWithY, hasSize(0));
+    assertThat(zoneWithZ, hasSize(0));
+  }
+
+  @Test
+  public void testProcessorIgnoresInvalid100KmLetters() {
+    List<String> kmIJ = processor.getMgrsCoordinateStrings("14Q IJ");
+    List<String> kmOJ = processor.getMgrsCoordinateStrings("14Q OJ");
+    List<String> kmJI = processor.getMgrsCoordinateStrings("14Q JI");
+    List<String> kmJO = processor.getMgrsCoordinateStrings("14Q JO");
+    List<String> kmJW = processor.getMgrsCoordinateStrings("14Q JW");
+    List<String> kmJX = processor.getMgrsCoordinateStrings("14Q JX");
+    List<String> kmJY = processor.getMgrsCoordinateStrings("14Q JY");
+    List<String> kmJZ = processor.getMgrsCoordinateStrings("14Q JZ");
+
+    assertThat(kmIJ, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmOJ, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmJI, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmJO, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmJW, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmJX, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmJY, both(hasSize(1)).and(contains("14Q")));
+    assertThat(kmJZ, both(hasSize(1)).and(contains("14Q")));
+  }
+
+  @Test
+  public void testProcessorIgnoresDuplicateZone() {
+    List<String> detectedMgrsStrings = processor.getMgrsCoordinateStrings("1D 1D");
+    assertThat(detectedMgrsStrings, both(hasSize(1)).and(contains("1D")));
   }
 
   @Test
@@ -293,15 +350,8 @@ public class MgrsCoordinateProcessorTest {
 
   @Test
   public void testProcessorDetectsDuplicateCoordsWithZoneReuse() {
-    String query = "1D FJ 1 2 1 2 1 2"; // Should yield 3 points
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), query);
-    List<String> detectedMgrsStrings = processor.getMgrsCoordinateStrings(query);
-    assertThat(
-        detectedMgrsStrings,
-        both(hasSize(3)).and(contains("1DFJ0000100002", "1DFJ0000100002", "1DFJ0000100002")));
-    assertThat(
-        cast(suggestions).get(0).getGeo(),
-        hasSize(4)); // Yields 4 since 1 MGRS match returns a bbox, proving deduplication
+    List<String> detectedMgrsStrings = processor.getMgrsCoordinateStrings("1D FJ 1 2 1 2 1 2");
+    assertThat(detectedMgrsStrings, both(hasSize(1)).and(contains("1DFJ0000100002")));
   }
 
   @Test
@@ -318,11 +368,12 @@ public class MgrsCoordinateProcessorTest {
 
   @Test
   public void testProcessorDetectsMultipleMgrsCoordinatesWithDelimiter() {
-    List<Suggestion> suggestions = processor.enhanceResults(new LinkedList<>(), "4Q, 1D");
+    List<Suggestion> suggestions = new LinkedList<>();
+    processor.enhanceResults(suggestions, "4Q, 1D");
     validateHasCoordinates(
         suggestions,
-        from(19.828721744493368, -163.77046585527026),
-        from(-67.19807978145084, -188.61742944126627));
+        coord(19.828721744493368, -163.77046585527026),
+        coord(-67.19807978145084, -188.61742944126627));
   }
 
   private static void validateHasCoordinates(List<Suggestion> suggestions, LatLon... lls) {
@@ -334,6 +385,10 @@ public class MgrsCoordinateProcessorTest {
 
   private static List<LiteralSuggestion> cast(List<Suggestion> suggestions) {
     return suggestions.stream().map(LiteralSuggestion.class::cast).collect(Collectors.toList());
+  }
+
+  private static LatLon coord(Double lat, Double lon) {
+    return new LatLon(lat, lon);
   }
 
   private static org.hamcrest.Matcher<LiteralSuggestion> hasCoordinates(LatLon... coords) {
