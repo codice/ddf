@@ -133,7 +133,7 @@ public class EndpointUtil {
 
   private final Random random = new Random();
 
-  private List<String> whitelistedMetacardTypes = Collections.emptyList();
+  private List<String> whiteListedMetacardTypes = Collections.emptyList();
 
   private ObjectMapper objectMapper =
       JsonFactory.create(
@@ -160,11 +160,11 @@ public class EndpointUtil {
   }
 
   public List<String> getWhiteListedMetacardTypes() {
-    return whitelistedMetacardTypes;
+    return whiteListedMetacardTypes;
   }
 
   public void setWhiteListedMetacardTypes(List<String> whitelistedMetacardTypes) {
-    this.whitelistedMetacardTypes = whitelistedMetacardTypes;
+    this.whiteListedMetacardTypes = whitelistedMetacardTypes;
   }
 
   @SuppressWarnings("squid:S1604") // generics cannot be lambdas
@@ -355,13 +355,10 @@ public class EndpointUtil {
   }
 
   private List<MetacardType> getFilteredMetacardTypes() {
-    if (!whitelistedMetacardTypes.isEmpty()) {
-      return metacardTypes
-          .stream()
-          .filter(metacardType -> whitelistedMetacardTypes.contains(metacardType.getName()))
-          .collect(Collectors.toList());
-    }
-    return metacardTypes;
+    return metacardTypes
+        .stream()
+        .filter(metacardType -> whiteListedMetacardTypes.contains(metacardType.getName()))
+        .collect(Collectors.toList());
   }
 
   public Map<String, Object> getMetacardTypeMap() {

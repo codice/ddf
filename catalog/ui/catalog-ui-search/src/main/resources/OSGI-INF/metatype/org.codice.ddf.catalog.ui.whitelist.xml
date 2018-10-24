@@ -21,7 +21,6 @@
             description="List of metacard types that are whitelisted and not filtered. NOTE: This will directly filter out metacard types rendered from metacard application. An empty list will whitelist everything"
             type="String"
             cardinality="1000"
-            default="tester"
             required="false"/>
     </OCD>
 
