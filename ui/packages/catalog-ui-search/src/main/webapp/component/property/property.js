@@ -211,6 +211,10 @@ define(['underscore', 'backbone', 'moment', 'js/CQLUtils'], function(
         value: this.getInitialValue(),
       })
     },
+    setType: function(type) {
+      this.set('type', type)
+      this._setCalculatedType()
+    },
     _setInitialValue: function() {
       this.set('_initialValue', this.getValue())
     },
@@ -257,6 +261,9 @@ define(['underscore', 'backbone', 'moment', 'js/CQLUtils'], function(
           break
         case 'NEAR':
           calculatedType = 'near'
+          break
+        case 'PASSWORD':
+          calculatedType = 'password'
           break
         case 'STRING':
         case 'XML':

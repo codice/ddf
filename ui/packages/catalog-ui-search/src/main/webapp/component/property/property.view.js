@@ -53,6 +53,7 @@ define([
       modelEvents: {
         'change:hasChanged': 'handleRevert',
         'change:isEditing': 'handleEdit',
+        'change:calculatedType': 'handleCalculatedType',
       },
       regions: {
         propertyValue: '.property-value',
@@ -90,6 +91,7 @@ define([
             model: this.model,
           })
         )
+        this.handleCalculatedType()
       },
       hide: function() {
         this.$el.toggleClass('is-hidden', true)
@@ -108,6 +110,12 @@ define([
           'has-conflicting-definitions',
           this.model.hasConflictingDefinitions()
         )
+      },
+      handleCalculatedType: function() {
+        const input = this.$el.find('input')
+        if (input !== undefined) {
+          input.attr('type', this.model.get('calculatedType'))
+        }
       },
       handleReadOnly: function() {
         this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
