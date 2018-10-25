@@ -13,107 +13,105 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  './paging.hbs',
-  'lodash/debounce',
-], function(Marionette, _, $, CustomElements, template, _debounce) {
-  return Marionette.ItemView.extend({
-    tagName: CustomElements.register('paging'),
-    template: template,
-    initialize: function(options) {
-      this.listenTo(this.model, 'reset', this.render)
-      this.listenTo(
-        this.model.fullCollection,
-        'add remove update',
-        this.updateSelectionInterfaceComplete
-      )
-      this.updateSelectionInterface = _debounce(
-        this.updateSelectionInterface,
-        200,
-        { leading: true, trailing: true }
-      )
-      this.updateSelectionInterfaceComplete = _debounce(
-        this.updateSelectionInterfaceComplete,
-        200,
-        { leading: true, trailing: true }
-      )
-      this.updateSelectionInterfaceComplete()
-    },
-    updateSelectionInterfaceComplete: function() {
-      this.options.selectionInterface.setCompleteActiveSearchResults(
-        this.model.fullCollection.reduce(function(results, result) {
-          results.push(result)
-          if (result.duplicates) {
-            results = results.concat(result.duplicates)
-          }
-          return results
-        }, [])
-      )
-    },
-    updateSelectionInterface: function() {
-      this.options.selectionInterface.setActiveSearchResults(
-        this.model.reduce(function(results, result) {
-          results.push(result)
-          if (result.duplicates) {
-            results = results.concat(result.duplicates)
-          }
-          return results
-        }, [])
-      )
-    },
-    events: {
-      'click .first': 'firstPage',
-      'click .previous': 'previousPage',
-      'click .next': 'nextPage',
-      'click .last': 'lastPage',
-      'click .server-previous': 'previousServerPage',
-      'click .server-next': 'nextServerPage',
-    },
-    firstPage: function() {
-      this.model.getFirstPage()
-    },
-    previousPage: function() {
-      this.model.getPreviousPage()
-      this.updateResultsRange()
-    },
-    nextPage: function() {
-      this.model.getNextPage()
-      this.updateResultsRange()
-    },
-    lastPage: function() {
-      this.model.getLastPage()
-    },
-    previousServerPage: function() {
-      this.getQuery().getPreviousServerPage()
-    },
-    nextServerPage: function() {
-      this.getQuery().getNextServerPage()
-    },
-    onRender: function() {
-      this.updateSelectionInterface()
-    },
-    serializeData: function() {
-      var query = this.getQuery()
-      var resultsCollection = this.model
-      return {
-        pages: query.getResultsRangeLabel(this.model),
-        hasPreviousPage: resultsCollection.hasPreviousPage(),
-        hasNextPage: resultsCollection.hasNextPage(),
-        showNextServerPage:
-          !resultsCollection.hasNextPage() && query.hasNextServerPage(),
-        showPreviousServerPage:
-          !resultsCollection.hasPreviousPage() && query.hasPreviousServerPage(),
-      }
-    },
-    getQuery: function() {
-      return this.options.selectionInterface.getCurrentQuery()
-    },
-    updateResultsRange: function() {
-      this.$('.status').text(this.getQuery().getResultsRangeLabel(this.model))
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const template = require('./paging.hbs')
+const _debounce = require('lodash/debounce')
+
+module.exports = Marionette.ItemView.extend({
+  tagName: CustomElements.register('paging'),
+  template: template,
+  initialize: function(options) {
+    this.listenTo(this.model, 'reset', this.render)
+    this.listenTo(
+      this.model.fullCollection,
+      'add remove update',
+      this.updateSelectionInterfaceComplete
+    )
+    this.updateSelectionInterface = _debounce(
+      this.updateSelectionInterface,
+      200,
+      { leading: true, trailing: true }
+    )
+    this.updateSelectionInterfaceComplete = _debounce(
+      this.updateSelectionInterfaceComplete,
+      200,
+      { leading: true, trailing: true }
+    )
+    this.updateSelectionInterfaceComplete()
+  },
+  updateSelectionInterfaceComplete: function() {
+    this.options.selectionInterface.setCompleteActiveSearchResults(
+      this.model.fullCollection.reduce(function(results, result) {
+        results.push(result)
+        if (result.duplicates) {
+          results = results.concat(result.duplicates)
+        }
+        return results
+      }, [])
+    )
+  },
+  updateSelectionInterface: function() {
+    this.options.selectionInterface.setActiveSearchResults(
+      this.model.reduce(function(results, result) {
+        results.push(result)
+        if (result.duplicates) {
+          results = results.concat(result.duplicates)
+        }
+        return results
+      }, [])
+    )
+  },
+  events: {
+    'click .first': 'firstPage',
+    'click .previous': 'previousPage',
+    'click .next': 'nextPage',
+    'click .last': 'lastPage',
+    'click .server-previous': 'previousServerPage',
+    'click .server-next': 'nextServerPage',
+  },
+  firstPage: function() {
+    this.model.getFirstPage()
+  },
+  previousPage: function() {
+    this.model.getPreviousPage()
+    this.updateResultsRange()
+  },
+  nextPage: function() {
+    this.model.getNextPage()
+    this.updateResultsRange()
+  },
+  lastPage: function() {
+    this.model.getLastPage()
+  },
+  previousServerPage: function() {
+    this.getQuery().getPreviousServerPage()
+  },
+  nextServerPage: function() {
+    this.getQuery().getNextServerPage()
+  },
+  onRender: function() {
+    this.updateSelectionInterface()
+  },
+  serializeData: function() {
+    var query = this.getQuery()
+    var resultsCollection = this.model
+    return {
+      pages: query.getResultsRangeLabel(this.model),
+      hasPreviousPage: resultsCollection.hasPreviousPage(),
+      hasNextPage: resultsCollection.hasNextPage(),
+      showNextServerPage:
+        !resultsCollection.hasNextPage() && query.hasNextServerPage(),
+      showPreviousServerPage:
+        !resultsCollection.hasPreviousPage() && query.hasPreviousServerPage(),
+    }
+  },
+  getQuery: function() {
+    return this.options.selectionInterface.getCurrentQuery()
+  },
+  updateResultsRange: function() {
+    this.$('.status').text(this.getQuery().getResultsRangeLabel(this.model))
+  },
 })

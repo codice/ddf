@@ -13,76 +13,51 @@
  *
  **/
 /*global define, window*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  '../content.view',
-  'properties',
-  'component/tabs/workspace-content/tabs-workspace-content',
-  'component/tabs/workspace-content/tabs-workspace-content.view',
-  'component/tabs/query/tabs-query.view',
-  'js/store',
-  'component/tabs/metacard/tabs-metacard.view',
-  'component/tabs/metacards/tabs-metacards.view',
-  'js/Common',
-  'component/metacard-title/metacard-title.view',
-  'component/alert/alert',
-  'component/result-selector/result-selector.view',
-  'component/golden-layout/golden-layout.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  CustomElements,
-  ContentView,
-  properties,
-  WorkspaceContentTabs,
-  WorkspaceContentTabsView,
-  QueryTabsView,
-  store,
-  MetacardTabsView,
-  MetacardsTabsView,
-  Common,
-  MetacardTitleView,
-  alertInstance,
-  ResultSelectorView,
-  VisualizationView
-) {
-  return ContentView.extend({
-    className: 'is-alert',
-    initialize: function() {
-      this._mapView = new VisualizationView({
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const ContentView = require('../content.view')
+const properties = require('properties')
+const WorkspaceContentTabs = require('component/tabs/workspace-content/tabs-workspace-content')
+const WorkspaceContentTabsView = require('component/tabs/workspace-content/tabs-workspace-content.view')
+const QueryTabsView = require('component/tabs/query/tabs-query.view')
+const store = require('js/store')
+const MetacardTabsView = require('component/tabs/metacard/tabs-metacard.view')
+const MetacardsTabsView = require('component/tabs/metacards/tabs-metacards.view')
+const Common = require('js/Common')
+const MetacardTitleView = require('component/metacard-title/metacard-title.view')
+const alertInstance = require('component/alert/alert')
+const ResultSelectorView = require('component/result-selector/result-selector.view')
+const VisualizationView = require('component/golden-layout/golden-layout.view')
+
+module.exports = ContentView.extend({
+  className: 'is-alert',
+  initialize: function() {
+    this._mapView = new VisualizationView({
+      selectionInterface: alertInstance,
+      configName: 'goldenLayoutAlert',
+    })
+  },
+  onFirstRender() {
+    this.listenTo(alertInstance, 'change:currentAlert', this.updateContentLeft)
+  },
+  onRender: function() {
+    this.updateContentLeft()
+    if (this._mapView) {
+      this.contentRight.show(this._mapView)
+    }
+  },
+  updateContentLeft: function() {
+    this.contentLeft.show(
+      new ResultSelectorView({
+        model: alertInstance.get('currentQuery'),
         selectionInterface: alertInstance,
-        configName: 'goldenLayoutAlert',
       })
-    },
-    onFirstRender() {
-      this.listenTo(
-        alertInstance,
-        'change:currentAlert',
-        this.updateContentLeft
-      )
-    },
-    onRender: function() {
-      this.updateContentLeft()
-      if (this._mapView) {
-        this.contentRight.show(this._mapView)
-      }
-    },
-    updateContentLeft: function() {
-      this.contentLeft.show(
-        new ResultSelectorView({
-          model: alertInstance.get('currentQuery'),
-          selectionInterface: alertInstance,
-        })
-      )
-    },
-    unselectQueriesAndResults: function() {
-      alertInstance.clearSelectedResults()
-    },
-  })
+    )
+  },
+  unselectQueriesAndResults: function() {
+    alertInstance.clearSelectedResults()
+  },
 })

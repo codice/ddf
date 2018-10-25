@@ -199,9 +199,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.catalog.transformer</groupId>
+                <groupId>ddf.jaxb</groupId>
                 <artifactId>catalog-transformer-xml-binding</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf</groupId>

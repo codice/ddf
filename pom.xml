@@ -65,6 +65,9 @@
         <acdebugger.version>1.5</acdebugger.version>
         <!--temporary codice version of pax web-->
         <pax.web.codice.version>7.2.4.CODICE</pax.web.codice.version>
+        <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
+        <ddf.jaxb.version>1.0.0</ddf.jaxb.version>
+
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
@@ -111,6 +114,9 @@
         <gib.baseBranch>HEAD</gib.baseBranch>
         <gib.enabled>false</gib.enabled>
         <gib.failOnError>false</gib.failOnError>
+
+        <!-- Version properties for this repository live in this repository -->
+        <org.rrd4j.version>3.3.1</org.rrd4j.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
@@ -133,8 +139,7 @@
             <dependency>
                 <groupId>org.rrd4j</groupId>
                 <artifactId>rrd4j</artifactId>
-                <!-- See DDF-1397 for issues with the upgrade to 2.2.1-->
-                <version>2.2</version>
+                <version>${org.rrd4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-fileupload</groupId>
@@ -399,11 +404,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>3.0.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.jvnet.jaxb2.maven2</groupId>
-                    <artifactId>maven-jaxb2-plugin</artifactId>
-                    <version>0.13.3</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>

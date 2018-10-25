@@ -13,17 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.hide-attribute.hbs',
-  'component/hide-attribute/hide-attribute.view',
-], function(Marionette, _, $, DropdownView, template, HideAttributeView) {
-  return DropdownView.extend({
-    template: template,
-    className: 'is-hideAttribute',
-    componentToShow: HideAttributeView,
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.hide-attribute.hbs')
+const HideAttributeView = require('component/hide-attribute/hide-attribute.view')
+
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-hideAttribute',
+  componentToShow: HideAttributeView,
 })

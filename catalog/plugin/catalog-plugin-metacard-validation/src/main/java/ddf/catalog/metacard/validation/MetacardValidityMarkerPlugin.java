@@ -51,9 +51,9 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
   private final Predicate<Object> didNotFailEnforcedValidator = Objects::nonNull;
 
-  static final String INVALID_TAG = "INVALID";
+  private static final String INVALID_TAG = "INVALID";
 
-  static final String VALID_TAG = "VALID";
+  private static final String VALID_TAG = "VALID";
 
   private List<String> enforcedMetacardValidators;
 
@@ -101,8 +101,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
       T item, Function<T, Metacard> itemToMetacard, Map<String, Integer> counter) {
     Set<Serializable> newErrors = new HashSet<>();
     Set<Serializable> newWarnings = new HashSet<>();
-    Set<String> errorValidators = new HashSet<>();
-    Set<String> warningValidators = new HashSet<>();
+    Set<Serializable> errorValidators = new HashSet<>();
+    Set<Serializable> warningValidators = new HashSet<>();
 
     Metacard metacard = itemToMetacard.apply(item);
     Set<String> tags = metacard.getTags();
@@ -150,7 +150,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
       newWarnings.addAll(existingWarnings.getValues());
     }
 
-    if (newErrors.size() > 0 || newWarnings.size() > 0) {
+    if (!newErrors.isEmpty() || !newWarnings.isEmpty()) {
       valid = INVALID_TAG;
     }
 
@@ -159,20 +159,18 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
     metacard.setAttribute(
         new AttributeImpl(
-            Validation.VALIDATION_ERRORS,
-            (List<Serializable>) new ArrayList<Serializable>(newErrors)));
+            Validation.VALIDATION_ERRORS, (List<Serializable>) new ArrayList<>(newErrors)));
     metacard.setAttribute(
         new AttributeImpl(
-            Validation.VALIDATION_WARNINGS,
-            (List<Serializable>) new ArrayList<Serializable>(newWarnings)));
+            Validation.VALIDATION_WARNINGS, (List<Serializable>) new ArrayList<>(newWarnings)));
     metacard.setAttribute(
         new AttributeImpl(
             Validation.FAILED_VALIDATORS_WARNINGS,
-            (List<Serializable>) new ArrayList<Serializable>(warningValidators)));
+            (List<Serializable>) new ArrayList<>(warningValidators)));
     metacard.setAttribute(
         new AttributeImpl(
             Validation.FAILED_VALIDATORS_ERRORS,
-            (List<Serializable>) new ArrayList<Serializable>(errorValidators)));
+            (List<Serializable>) new ArrayList<>(errorValidators)));
 
     return item;
   }
@@ -182,8 +180,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
       ValidationException e,
       Set<Serializable> errors,
       Set<Serializable> warnings,
-      Set<String> errorValidators,
-      Set<String> warningValidators,
+      Set<Serializable> errorValidators,
+      Set<Serializable> warningValidators,
       Map<String, Integer> counter) {
     boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
     boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
@@ -235,7 +233,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             .map(this::getValidatorName)
             .collect(Collectors.toList());
 
-    if (validatorsNoDescribable.size() > 0) {
+    if (!validatorsNoDescribable.isEmpty()) {
       LOGGER.debug(
           "Metacard validators SHOULD implement Describable. Validators in error: {}",
           validatorsNoDescribable);

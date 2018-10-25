@@ -13,109 +13,95 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './metacard-quality.hbs',
-  'js/CustomElements',
-  'component/loading-companion/loading-companion.view',
-  'js/store',
-  'js/Common',
-], function(
-  Marionette,
-  _,
-  $,
-  template,
-  CustomElements,
-  LoadingCompanionView,
-  store,
-  Common
-) {
-  var selectedVersion
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./metacard-quality.hbs')
+const CustomElements = require('js/CustomElements')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const store = require('js/store')
+const Common = require('js/Common')
 
-  return Marionette.ItemView.extend({
-    setDefaultModel: function() {
-      this.model = this.selectionInterface.getSelectedResults().first()
-    },
-    template: template,
-    tagName: CustomElements.register('metacard-quality'),
-    events: {},
-    ui: {},
-    selectionInterface: store,
-    initialize: function(options) {
-      this.selectionInterface =
-        options.selectionInterface || this.selectionInterface
-      if (!options.model) {
-        this.setDefaultModel()
-      }
-      this.loadData()
-    },
-    loadData: function() {
-      LoadingCompanionView.beginLoading(this)
-      var self = this
-      setTimeout(function() {
-        $.when(
-          $.get(
-            './internal/metacard/' +
-              self.model.get('metacard').id +
-              '/attribute/validation'
-          ).then(function(response) {
-            self._attributeValidation = response
-          }),
-          $.get(
-            './internal/metacard/' +
-              self.model.get('metacard').id +
-              '/validation'
-          ).then(function(response) {
-            self._metacardValidation = response
+var selectedVersion
+
+module.exports = Marionette.ItemView.extend({
+  setDefaultModel: function() {
+    this.model = this.selectionInterface.getSelectedResults().first()
+  },
+  template: template,
+  tagName: CustomElements.register('metacard-quality'),
+  events: {},
+  ui: {},
+  selectionInterface: store,
+  initialize: function(options) {
+    this.selectionInterface =
+      options.selectionInterface || this.selectionInterface
+    if (!options.model) {
+      this.setDefaultModel()
+    }
+    this.loadData()
+  },
+  loadData: function() {
+    LoadingCompanionView.beginLoading(this)
+    var self = this
+    setTimeout(function() {
+      $.when(
+        $.get(
+          './internal/metacard/' +
+            self.model.get('metacard').id +
+            '/attribute/validation'
+        ).then(function(response) {
+          self._attributeValidation = response
+        }),
+        $.get(
+          './internal/metacard/' + self.model.get('metacard').id + '/validation'
+        ).then(function(response) {
+          self._metacardValidation = response
+        })
+      ).always(function() {
+        self.checkForDuplicate()
+        LoadingCompanionView.endLoading(self)
+        if (!self.isDestroyed) {
+          self.render()
+        }
+      })
+    }, 1000)
+  },
+  checkForDuplicate: function() {
+    if (this._metacardValidation) {
+      this._metacardValidation.forEach(function(validationIssue) {
+        if (
+          validationIssue.message.indexOf('Duplicate data found in catalog') ===
+          0
+        ) {
+          var idRegEx = new RegExp('{(.*?)}')
+          var ids = idRegEx.exec(validationIssue.message)[1].split(', ')
+          ids.forEach(function(metacardId) {
+            validationIssue.message = validationIssue.message.replace(
+              metacardId,
+              '<a href="#metacards/' + metacardId + '">' + metacardId + '</a>'
+            )
           })
-        ).always(function() {
-          self.checkForDuplicate()
-          LoadingCompanionView.endLoading(self)
-          if (!self.isDestroyed) {
-            self.render()
-          }
-        })
-      }, 1000)
-    },
-    checkForDuplicate: function() {
-      if (this._metacardValidation) {
-        this._metacardValidation.forEach(function(validationIssue) {
-          if (
-            validationIssue.message.indexOf(
-              'Duplicate data found in catalog'
-            ) === 0
-          ) {
-            var idRegEx = new RegExp('{(.*?)}')
-            var ids = idRegEx.exec(validationIssue.message)[1].split(', ')
-            ids.forEach(function(metacardId) {
-              validationIssue.message = validationIssue.message.replace(
-                metacardId,
-                '<a href="#metacards/' + metacardId + '">' + metacardId + '</a>'
-              )
-            })
-          }
-        })
-      }
-    },
-    onRender: function() {},
-    serializeData: function() {
-      var self = this
-      var hasMetacardValidation = false
-      var hasAttributeValidation = false
-      if (this._metacardValidation) {
-        hasMetacardValidation = this._metacardValidation.length > 0
-      }
-      if (this._attributeValidation) {
-        hasAttributeValidation = this._attributeValidation.length > 0
-      }
-      return {
-        attributeValidation: this._attributeValidation,
-        hasAttributeValidation: hasAttributeValidation,
-        hasMetacardValidation: hasMetacardValidation,
-        metacardValidation: this._metacardValidation,
-      }
-    },
-  })
+        }
+      })
+    }
+  },
+  onRender: function() {},
+  serializeData: function() {
+    var self = this
+    var hasMetacardValidation = false
+    var hasAttributeValidation = false
+    if (this._metacardValidation) {
+      hasMetacardValidation = this._metacardValidation.length > 0
+    }
+    if (this._attributeValidation) {
+      hasAttributeValidation = this._attributeValidation.length > 0
+    }
+    return {
+      attributeValidation: this._attributeValidation,
+      hasAttributeValidation: hasAttributeValidation,
+      hasMetacardValidation: hasMetacardValidation,
+      metacardValidation: this._metacardValidation,
+    }
+  },
 })

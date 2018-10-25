@@ -13,298 +13,265 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './result-selector.hbs',
-  'js/CustomElements',
-  'properties',
-  'js/Common',
-  'component/result-item/result-item.collection.view',
-  'component/paging/paging.view',
-  'component/dropdown/result-display/dropdown.result-display.view',
-  'component/dropdown/result-filter/dropdown.result-filter.view',
-  'component/dropdown/dropdown',
-  'js/cql',
-  'component/dropdown/result-sort/dropdown.result-sort.view',
-  'component/singletons/user-instance',
-  'component/result-status/result-status.view',
-  'behaviors/selection.behavior',
-], function(
-  Marionette,
-  _,
-  $,
-  resultSelectorTemplate,
-  CustomElements,
-  properties,
-  Common,
-  ResultItemCollectionView,
-  PagingView,
-  DropdownView,
-  ResultFilterDropdownView,
-  DropdownModel,
-  cql,
-  ResultSortDropdownView,
-  user,
-  ResultStatusView
-) {
-  function mixinBlackListCQL(originalCQL) {
-    var blackListCQL = {
-      filters: [
-        {
-          filters: user
-            .get('user')
-            .get('preferences')
-            .get('resultBlacklist')
-            .map(function(blacklistItem) {
-              return {
-                property: '"id"',
-                type: '!=',
-                value: blacklistItem.id,
-              }
-            }),
-          type: 'AND',
-        },
-      ],
-      type: 'AND',
-    }
-    if (originalCQL) {
-      blackListCQL.filters.push(originalCQL)
-    }
-    return blackListCQL
-  }
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const resultSelectorTemplate = require('./result-selector.hbs')
+const CustomElements = require('js/CustomElements')
+const properties = require('properties')
+const Common = require('js/Common')
+const ResultItemCollectionView = require('component/result-item/result-item.collection.view')
+const PagingView = require('component/paging/paging.view')
+const DropdownView = require('component/dropdown/result-display/dropdown.result-display.view')
+const ResultFilterDropdownView = require('component/dropdown/result-filter/dropdown.result-filter.view')
+const DropdownModel = require('component/dropdown/dropdown')
+const cql = require('js/cql')
+const ResultSortDropdownView = require('component/dropdown/result-sort/dropdown.result-sort.view')
+const user = require('component/singletons/user-instance')
+const ResultStatusView = require('component/result-status/result-status.view')
+require('behaviors/selection.behavior')
 
-  var ResultSelector = Marionette.LayoutView.extend({
-    template: resultSelectorTemplate,
-    tagName: CustomElements.register('result-selector'),
-    events: {
-      'click > .resultSelector-new .merge': 'mergeNewResults',
-      'click > .resultSelector-new .ignore': 'ignoreNewResults',
-    },
-    behaviors: function() {
-      return {
-        selection: {
-          selectionInterface: this.options.selectionInterface,
-          selectionSelector: `${CustomElements.getNamespace()}result-item`,
-        },
-      }
-    },
-    regions: {
-      resultStatus: '.resultSelector-status',
-      resultList: '.resultSelector-list',
-      resultPaging: '.resultSelector-paging',
-      resultDisplay: '.menu-resultDisplay',
-      resultFilter: '.menu-resultFilter',
-      resultSort: '.menu-resultSort',
-    },
-    initialize: function(options) {
-      if (!this.model.get('result')) {
-        this.model.startSearch()
-      }
-      this.model.get('result').set('currentlyViewed', true)
-      this.options.selectionInterface.setCurrentQuery(this.model)
-      this.startListeningToFilter()
-      this.startListeningToSort()
-      this.startListeningToResult()
-      this.startListeningToMerged()
-      this.startListeningToStatus()
-    },
-    mergeNewResults: function() {
-      this.model.get('result').mergeNewResults()
-    },
-    ignoreNewResults: function() {
-      this.$el.toggleClass('ignore-new', true)
-    },
-    handleMerged: function() {
-      this.$el.toggleClass('ignore-new', false)
-      this.$el.toggleClass(
-        'has-unmerged',
-        this.model.get('result').isUnmerged()
-      )
-    },
-    startListeningToMerged: function() {
-      this.listenTo(
-        this.model.get('result'),
-        'change:merged',
-        this.handleMerged
-      )
-    },
-    handleStatus: function() {
-      this.$el.toggleClass(
-        'is-searching',
-        this.model.get('result').isSearching()
-      )
-    },
-    startListeningToStatus: function() {
-      this.listenTo(
-        this.model.get('result'),
-        'sync request error',
-        this.handleStatus
-      )
-    },
-    startListeningToBlacklist: function() {
-      this.listenTo(
-        user
+function mixinBlackListCQL(originalCQL) {
+  var blackListCQL = {
+    filters: [
+      {
+        filters: user
           .get('user')
           .get('preferences')
-          .get('resultBlacklist'),
-        'add remove update reset',
-        this.onBeforeShow
-      )
-    },
-    startListeningToResult: function() {
-      this.listenTo(
-        this.model.get('result'),
-        'reset:results',
-        this.onBeforeShow
-      )
-    },
-    startListeningToFilter: function() {
-      this.listenTo(
-        user.get('user').get('preferences'),
-        'change:resultFilter',
-        this.onBeforeShow
-      )
-    },
-    startListeningToSort: function() {
-      this.listenTo(
-        user.get('user').get('preferences'),
-        'change:resultSort',
-        this.onBeforeShow
-      )
-    },
-    scrollIntoView: function(metacard) {
-      var result = this.$el.find(
-        '.resultSelector-list ' +
-          resultItemSelector +
-          '[data-resultid="' +
-          metacard.id +
-          metacard.get('properties>source-id') +
-          '"]'
-      )
-      if (result && result.length > 0) {
-        //result[0].scrollIntoView();
-      }
-    },
-    onBeforeShow: function() {
-      var resultFilter = user
+          .get('resultBlacklist')
+          .map(function(blacklistItem) {
+            return {
+              property: '"id"',
+              type: '!=',
+              value: blacklistItem.id,
+            }
+          }),
+        type: 'AND',
+      },
+    ],
+    type: 'AND',
+  }
+  if (originalCQL) {
+    blackListCQL.filters.push(originalCQL)
+  }
+  return blackListCQL
+}
+
+var ResultSelector = Marionette.LayoutView.extend({
+  template: resultSelectorTemplate,
+  tagName: CustomElements.register('result-selector'),
+  events: {
+    'click > .resultSelector-new .merge': 'mergeNewResults',
+    'click > .resultSelector-new .ignore': 'ignoreNewResults',
+  },
+  behaviors: function() {
+    return {
+      selection: {
+        selectionInterface: this.options.selectionInterface,
+        selectionSelector: `${CustomElements.getNamespace()}result-item`,
+      },
+    }
+  },
+  regions: {
+    resultStatus: '.resultSelector-status',
+    resultList: '.resultSelector-list',
+    resultPaging: '.resultSelector-paging',
+    resultDisplay: '.menu-resultDisplay',
+    resultFilter: '.menu-resultFilter',
+    resultSort: '.menu-resultSort',
+  },
+  initialize: function(options) {
+    if (!this.model.get('result')) {
+      this.model.startSearch()
+    }
+    this.model.get('result').set('currentlyViewed', true)
+    this.options.selectionInterface.setCurrentQuery(this.model)
+    this.startListeningToFilter()
+    this.startListeningToSort()
+    this.startListeningToResult()
+    this.startListeningToMerged()
+    this.startListeningToStatus()
+  },
+  mergeNewResults: function() {
+    this.model.get('result').mergeNewResults()
+  },
+  ignoreNewResults: function() {
+    this.$el.toggleClass('ignore-new', true)
+  },
+  handleMerged: function() {
+    this.$el.toggleClass('ignore-new', false)
+    this.$el.toggleClass('has-unmerged', this.model.get('result').isUnmerged())
+  },
+  startListeningToMerged: function() {
+    this.listenTo(this.model.get('result'), 'change:merged', this.handleMerged)
+  },
+  handleStatus: function() {
+    this.$el.toggleClass('is-searching', this.model.get('result').isSearching())
+  },
+  startListeningToStatus: function() {
+    this.listenTo(
+      this.model.get('result'),
+      'sync request error',
+      this.handleStatus
+    )
+  },
+  startListeningToBlacklist: function() {
+    this.listenTo(
+      user
         .get('user')
         .get('preferences')
-        .get('resultFilter')
-      if (resultFilter) {
-        resultFilter = cql.simplify(cql.read(resultFilter))
-      }
-      resultFilter = mixinBlackListCQL(resultFilter)
-      var filteredResults = this.model
-        .get('result')
-        .get('results')
-        .generateFilteredVersion(resultFilter)
-      var collapsedResults = filteredResults.collapseDuplicates()
-      collapsedResults.updateSorting(
-        user
-          .get('user')
-          .get('preferences')
-          .get('resultSort')
-      )
-      this.showResultPaging(collapsedResults)
-      this.showResultList(collapsedResults)
-      this.showResultStatus(collapsedResults)
-      this.showResultDisplayDropdown()
-      this.showResultFilterDropdown()
-      this.showResultSortDropdown()
-      this.handleFiltering(collapsedResults)
-      this.handleMerged()
-      this.handleStatus()
-      let resultCountOnly =
-        this.model.get('result').get('resultCountOnly') === true
-      this.regionManager.forEach(region => {
-        region.currentView.$el.toggleClass('is-hidden', resultCountOnly)
+        .get('resultBlacklist'),
+      'add remove update reset',
+      this.onBeforeShow
+    )
+  },
+  startListeningToResult: function() {
+    this.listenTo(this.model.get('result'), 'reset:results', this.onBeforeShow)
+  },
+  startListeningToFilter: function() {
+    this.listenTo(
+      user.get('user').get('preferences'),
+      'change:resultFilter',
+      this.onBeforeShow
+    )
+  },
+  startListeningToSort: function() {
+    this.listenTo(
+      user.get('user').get('preferences'),
+      'change:resultSort',
+      this.onBeforeShow
+    )
+  },
+  scrollIntoView: function(metacard) {
+    var result = this.$el.find(
+      '.resultSelector-list ' +
+        resultItemSelector +
+        '[data-resultid="' +
+        metacard.id +
+        metacard.get('properties>source-id') +
+        '"]'
+    )
+    if (result && result.length > 0) {
+      //result[0].scrollIntoView();
+    }
+  },
+  onBeforeShow: function() {
+    var resultFilter = user
+      .get('user')
+      .get('preferences')
+      .get('resultFilter')
+    if (resultFilter) {
+      resultFilter = cql.simplify(cql.read(resultFilter))
+    }
+    resultFilter = mixinBlackListCQL(resultFilter)
+    var filteredResults = this.model
+      .get('result')
+      .get('results')
+      .generateFilteredVersion(resultFilter)
+    var collapsedResults = filteredResults.collapseDuplicates()
+    collapsedResults.updateSorting(
+      user
+        .get('user')
+        .get('preferences')
+        .get('resultSort')
+    )
+    this.showResultPaging(collapsedResults)
+    this.showResultList(collapsedResults)
+    this.showResultStatus(collapsedResults)
+    this.showResultDisplayDropdown()
+    this.showResultFilterDropdown()
+    this.showResultSortDropdown()
+    this.handleFiltering(collapsedResults)
+    this.handleMerged()
+    this.handleStatus()
+    let resultCountOnly =
+      this.model.get('result').get('resultCountOnly') === true
+    this.regionManager.forEach(region => {
+      region.currentView.$el.toggleClass('is-hidden', resultCountOnly)
+    })
+  },
+  handleFiltering: function(resultCollection) {
+    this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0)
+  },
+  showResultStatus: function(resultCollection) {
+    this.resultStatus.show(
+      new ResultStatusView({
+        model: resultCollection,
       })
-    },
-    handleFiltering: function(resultCollection) {
-      this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0)
-    },
-    showResultStatus: function(resultCollection) {
-      this.resultStatus.show(
-        new ResultStatusView({
-          model: resultCollection,
-        })
-      )
-    },
-    showResultPaging: function(resultCollection) {
-      this.resultPaging.show(
-        new PagingView({
-          model: resultCollection,
-          selectionInterface: this.options.selectionInterface,
-        })
-      )
-    },
-    showResultList: function(resultCollection) {
-      this.resultList.show(
-        new ResultItemCollectionView({
-          collection: resultCollection,
-          selectionInterface: this.options.selectionInterface,
-        })
-      )
-    },
-    showResultFilterDropdown: function() {
-      this.resultFilter.show(
-        new ResultFilterDropdownView({
-          model: new DropdownModel(),
-        })
-      )
-    },
-    showResultSortDropdown: function() {
-      this.resultSort.show(
-        new ResultSortDropdownView({
-          model: new DropdownModel(),
-        })
-      )
-    },
-    showResultDisplayDropdown: function() {
-      this.resultDisplay.show(
-        DropdownView.createSimpleDropdown({
-          list: [
-            {
-              label: 'List',
-              value: 'List',
-            },
-            {
-              label: 'Gallery',
-              value: 'Grid',
-            },
-          ],
-          defaultSelection: [
-            user
-              .get('user')
-              .get('preferences')
-              .get('resultDisplay'),
-          ],
-        })
-      )
-      this.stopListening(this.resultDisplay.currentView.model)
-      this.listenTo(
-        this.resultDisplay.currentView.model,
-        'change:value',
-        function() {
-          var prefs = user.get('user').get('preferences')
-          var value = this.resultDisplay.currentView.model.get('value')[0]
-          prefs.set('resultDisplay', value)
-          prefs.savePreferences()
+    )
+  },
+  showResultPaging: function(resultCollection) {
+    this.resultPaging.show(
+      new PagingView({
+        model: resultCollection,
+        selectionInterface: this.options.selectionInterface,
+      })
+    )
+  },
+  showResultList: function(resultCollection) {
+    this.resultList.show(
+      new ResultItemCollectionView({
+        collection: resultCollection,
+        selectionInterface: this.options.selectionInterface,
+      })
+    )
+  },
+  showResultFilterDropdown: function() {
+    this.resultFilter.show(
+      new ResultFilterDropdownView({
+        model: new DropdownModel(),
+      })
+    )
+  },
+  showResultSortDropdown: function() {
+    this.resultSort.show(
+      new ResultSortDropdownView({
+        model: new DropdownModel(),
+      })
+    )
+  },
+  showResultDisplayDropdown: function() {
+    this.resultDisplay.show(
+      DropdownView.createSimpleDropdown({
+        list: [
+          {
+            label: 'List',
+            value: 'List',
+          },
+          {
+            label: 'Gallery',
+            value: 'Grid',
+          },
+        ],
+        defaultSelection: [
+          user
+            .get('user')
+            .get('preferences')
+            .get('resultDisplay'),
+        ],
+      })
+    )
+    this.stopListening(this.resultDisplay.currentView.model)
+    this.listenTo(
+      this.resultDisplay.currentView.model,
+      'change:value',
+      function() {
+        var prefs = user.get('user').get('preferences')
+        var value = this.resultDisplay.currentView.model.get('value')[0]
+        prefs.set('resultDisplay', value)
+        prefs.savePreferences()
+      }
+    )
+  },
+  onDestroy: function() {
+    Common.queueExecution(
+      function() {
+        if (this.model.get('result')) {
+          this.model.get('result').set('currentlyViewed', false)
         }
-      )
-    },
-    onDestroy: function() {
-      Common.queueExecution(
-        function() {
-          if (this.model.get('result')) {
-            this.model.get('result').set('currentlyViewed', false)
-          }
-        }.bind(this)
-      )
-    },
-  })
-
-  return ResultSelector
+      }.bind(this)
+    )
+  },
 })
+
+module.exports = ResultSelector

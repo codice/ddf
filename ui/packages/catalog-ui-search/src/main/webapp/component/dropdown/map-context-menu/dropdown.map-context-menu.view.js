@@ -13,17 +13,15 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.map-context-menu.hbs',
-  'component/map-context-menu/map-context-menu.view',
-], function(Marionette, _, $, DropdownView, template, MapContextMenuView) {
-  return DropdownView.extend({
-    template: template,
-    className: 'is-mapContextMenu',
-    componentToShow: MapContextMenuView,
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.map-context-menu.hbs')
+const MapContextMenuView = require('component/map-context-menu/map-context-menu.view')
+
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-mapContextMenu',
+  componentToShow: MapContextMenuView,
 })

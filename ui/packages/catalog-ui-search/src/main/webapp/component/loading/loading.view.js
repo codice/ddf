@@ -13,51 +13,49 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './loading.hbs',
-  'js/CustomElements',
-], function(Marionette, _, $, template, CustomElements) {
-  return Marionette.ItemView.extend({
-    template: template,
-    tagName: CustomElements.register('loading'),
-    initialize: function() {
-      this.render()
-      $('body').append(this.el)
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./loading.hbs')
+const CustomElements = require('js/CustomElements')
+
+module.exports = Marionette.ItemView.extend({
+  template: template,
+  tagName: CustomElements.register('loading'),
+  initialize: function() {
+    this.render()
+    $('body').append(this.el)
+    this.$el.animate(
+      {
+        opacity: 0.6,
+      },
+      500,
+      function() {
+        this.shown = true
+        this.$el.trigger('shown.' + this.cid)
+      }.bind(this)
+    )
+  },
+  shown: false,
+  remove: function() {
+    if (this.shown) {
       this.$el.animate(
         {
-          opacity: 0.6,
+          opacity: 0,
         },
         500,
         function() {
-          this.shown = true
-          this.$el.trigger('shown.' + this.cid)
+          this.destroy()
+          this.$el.remove()
         }.bind(this)
       )
-    },
-    shown: false,
-    remove: function() {
-      if (this.shown) {
-        this.$el.animate(
-          {
-            opacity: 0,
-          },
-          500,
-          function() {
-            this.destroy()
-            this.$el.remove()
-          }.bind(this)
-        )
-      } else {
-        this.$el.one(
-          'shown.' + this.cid,
-          function() {
-            this.remove()
-          }.bind(this)
-        )
-      }
-    },
-  })
+    } else {
+      this.$el.one(
+        'shown.' + this.cid,
+        function() {
+          this.remove()
+        }.bind(this)
+      )
+    }
+  },
 })

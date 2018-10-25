@@ -178,10 +178,12 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
       // Get ManagedService instances
       serviceList = getServices(ManagedService.class.getName(), serviceFilter, true);
 
+      Map<String, ObjectClassDefinition> configPidToOcdMap =
+          getPidObjectClasses(metaTypeInformationByBundle);
+
       // Get ManagedService Metatypes
       List<Metatype> metatypeList =
-          addMetaTypeNamesToMap(
-              getPidObjectClasses(metaTypeInformationByBundle), serviceFilter, SERVICE_PID);
+          addMetaTypeNamesToMap(configPidToOcdMap, serviceFilter, SERVICE_PID);
 
       // Get ManagedServiceFactory instances
       serviceFactoryList =
@@ -212,7 +214,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
                     + service.getId()
                     + "_disabled))");
         if (configs != null) {
-          addConfigurationData(service, configs);
+          addConfigurationData(service, configs, configPidToOcdMap);
         }
       }
 
@@ -228,7 +230,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
         Configuration[] configs =
             configurationAdmin.listConfigurations("(" + SERVICE_PID + "=" + service.getId() + ")");
         if (configs != null) {
-          addConfigurationData(service, configs);
+          addConfigurationData(service, configs, configPidToOcdMap);
         }
       }
 
@@ -249,7 +251,10 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     }
   }
 
-  private void addConfigurationData(Service service, Configuration[] configs) {
+  private void addConfigurationData(
+      Service service,
+      Configuration[] configs,
+      Map<String, ObjectClassDefinition> objectClassDefinitions) {
     for (Configuration config : configs) {
       // ignore configuration object if it is invalid
       final String pid = config.getPid();
@@ -265,7 +270,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
       }
       // insert an entry for the PID
       try {
-        ObjectClassDefinition ocd = getObjectClassDefinition(config);
+        ObjectClassDefinition ocd = objectClassDefinitions.get(config.getPid());
         if (ocd != null) {
           configData.setName(ocd.getName());
         } else {
@@ -435,7 +440,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    *
    * @return see the method description
    */
-  private Map<String, Object> getPidObjectClasses(
+  private Map<String, ObjectClassDefinition> getPidObjectClasses(
       Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
     return getObjectClassDefinitions(PID_GETTER, metaTypeInformationByBundle);
   }
@@ -450,9 +455,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    * @return Map of <code>ObjectClassDefinition</code> objects indexed by the PID (or factory PID)
    *     to which they pertain
    */
-  private Map<String, Object> getObjectClassDefinitions(
+  private Map<String, ObjectClassDefinition> getObjectClassDefinitions(
       final IdGetter idGetter, Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
-    final Map<String, Object> objectClassesDefinitions = new HashMap<>();
+    final Map<String, ObjectClassDefinition> objectClassesDefinitions = new HashMap<>();
     final MetaTypeService mts = this.getMetaTypeService();
     if (mts == null) {
       return objectClassesDefinitions;
@@ -467,11 +472,12 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     return objectClassesDefinitions;
   }
 
-  private Map<String, Object> findOcdById(IdGetter idGetter, MetaTypeInformation mti) {
+  private Map<String, ObjectClassDefinition> findOcdById(
+      IdGetter idGetter, MetaTypeInformation mti) {
     if (mti == null) {
       return Collections.emptyMap();
     }
-    Map<String, Object> objectClassesDefinitions = new HashMap<>();
+    Map<String, ObjectClassDefinition> objectClassesDefinitions = new HashMap<>();
     final String[] idList = idGetter.getIds(mti);
     for (int j = 0; idList != null && j < idList.length; j++) {
       // After getting the list of PIDs, a configuration might be
@@ -588,7 +594,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    *
    * @return see the method description
    */
-  private Map<String, Object> getFactoryPidObjectClasses(
+  private Map<String, ObjectClassDefinition> getFactoryPidObjectClasses(
       Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
     return getObjectClassDefinitions(FACTORY_PID_GETTER, metaTypeInformationByBundle);
   }
@@ -637,7 +643,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
   }
 
   private List<Metatype> addMetaTypeNamesToMap(
-      final Map<String, Object> ocdCollection, final String filterSpec, final String type) {
+      final Map<String, ObjectClassDefinition> objectClassDefinitions,
+      final String filterSpec,
+      final String type) {
     Filter filter = null;
     if (filterSpec != null) {
       try {
@@ -648,9 +656,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     }
 
     List<Metatype> metatypeList = new ArrayList<>();
-    for (Entry<String, Object> ociEntry : ocdCollection.entrySet()) {
+    for (Entry<String, ObjectClassDefinition> ociEntry : objectClassDefinitions.entrySet()) {
       final String pid = ociEntry.getKey();
-      final ObjectClassDefinition ocd = (ObjectClassDefinition) ociEntry.getValue();
+      final ObjectClassDefinition ocd = ociEntry.getValue();
       if (filter == null) {
         AttributeDefinition[] defs = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
         metatypeList.add(new MetatypeImpl(pid, ocd.getName(), createMetatypeMap(defs)));

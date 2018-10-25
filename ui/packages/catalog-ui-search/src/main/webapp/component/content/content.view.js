@@ -13,90 +13,69 @@
  *
  **/
 /*global define, window*/
-define([
-  'wreqr',
-  'marionette',
-  'underscore',
-  'jquery',
-  './content.hbs',
-  'js/CustomElements',
-  'properties',
-  'component/tabs/workspace-content/tabs-workspace-content',
-  'component/tabs/workspace-content/tabs-workspace-content.view',
-  'component/tabs/query/tabs-query.view',
-  'js/store',
-  'component/tabs/metacard/tabs-metacard.view',
-  'component/tabs/metacards/tabs-metacards.view',
-  'js/Common',
-  'component/metacard-title/metacard-title.view',
-  'component/visualization/visualization.view',
-  'component/query-title/query-title.view',
-  'component/golden-layout/golden-layout.view',
-], function(
-  wreqr,
-  Marionette,
-  _,
-  $,
-  contentTemplate,
-  CustomElements,
-  properties,
-  WorkspaceContentTabs,
-  WorkspaceContentTabsView,
-  QueryTabsView,
-  store,
-  MetacardTabsView,
-  MetacardsTabsView,
-  Common,
-  MetacardTitleView,
-  VisualizationView,
-  QueryTitleView,
-  GoldenLayoutView
-) {
-  var ContentView = Marionette.LayoutView.extend({
-    template: contentTemplate,
-    tagName: CustomElements.register('content'),
-    regions: {
-      contentLeft: '.content-left',
-      contentRight: '.content-right',
-    },
-    initialize: function() {
-      this._mapView = new GoldenLayoutView({
-        selectionInterface: store.get('content'),
-        configName: 'goldenLayout',
-      })
-    },
-    onFirstRender() {
-      this.listenTo(
-        store.get('content'),
-        'change:currentWorkspace',
-        this.updateContentLeft
-      )
-    },
-    onRender: function() {
-      this.updateContentLeft()
-      if (this._mapView) {
-        this.contentRight.show(this._mapView)
-      }
-    },
-    updateContentLeft: function(workspace) {
-      if (workspace) {
-        if (
-          Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'
-        ) {
-          this.updateContentLeft()
-          store.clearSelectedResults()
-        }
-      } else {
-        this.contentLeft.show(
-          new WorkspaceContentTabsView({
-            model: new WorkspaceContentTabs(),
-            selectionInterface: store.get('content'),
-          })
-        )
-      }
-    },
-    _mapView: undefined,
-  })
+const wreqr = require('wreqr')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const contentTemplate = require('./content.hbs')
+const CustomElements = require('js/CustomElements')
+const properties = require('properties')
+const WorkspaceContentTabs = require('component/tabs/workspace-content/tabs-workspace-content')
+const WorkspaceContentTabsView = require('component/tabs/workspace-content/tabs-workspace-content.view')
+const QueryTabsView = require('component/tabs/query/tabs-query.view')
+const store = require('js/store')
+const MetacardTabsView = require('component/tabs/metacard/tabs-metacard.view')
+const MetacardsTabsView = require('component/tabs/metacards/tabs-metacards.view')
+const Common = require('js/Common')
+const MetacardTitleView = require('component/metacard-title/metacard-title.view')
+const VisualizationView = require('component/visualization/visualization.view')
+const QueryTitleView = require('component/query-title/query-title.view')
+const GoldenLayoutView = require('component/golden-layout/golden-layout.view')
 
-  return ContentView
+var ContentView = Marionette.LayoutView.extend({
+  template: contentTemplate,
+  tagName: CustomElements.register('content'),
+  regions: {
+    contentLeft: '.content-left',
+    contentRight: '.content-right',
+  },
+  initialize: function() {
+    this._mapView = new GoldenLayoutView({
+      selectionInterface: store.get('content'),
+      configName: 'goldenLayout',
+    })
+  },
+  onFirstRender() {
+    this.listenTo(
+      store.get('content'),
+      'change:currentWorkspace',
+      this.updateContentLeft
+    )
+  },
+  onRender: function() {
+    this.updateContentLeft()
+    if (this._mapView) {
+      this.contentRight.show(this._mapView)
+    }
+  },
+  updateContentLeft: function(workspace) {
+    if (workspace) {
+      if (
+        Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'
+      ) {
+        this.updateContentLeft()
+        store.clearSelectedResults()
+      }
+    } else {
+      this.contentLeft.show(
+        new WorkspaceContentTabsView({
+          model: new WorkspaceContentTabs(),
+          selectionInterface: store.get('content'),
+        })
+      )
+    }
+  },
+  _mapView: undefined,
 })
+
+module.exports = ContentView

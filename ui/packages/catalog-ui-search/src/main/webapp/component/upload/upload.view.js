@@ -13,35 +13,27 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  './upload.hbs',
-  'js/CustomElements',
-  'component/content/upload/content.upload.view',
-  'component/upload/upload',
-], function(
-  Marionette,
-  template,
-  CustomElements,
-  uploadContentView,
-  uploadInstance
-) {
-  return Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('upload'),
-    regions: {
-      uploadDetails: '.upload-details',
-    },
-    onFirstRender: function() {
-      this.listenTo(uploadInstance, 'change:currentUpload', this.onBeforeShow)
-    },
-    onBeforeShow: function() {
-      if (uploadInstance.get('currentUpload')) {
-        this.showSubViews()
-      }
-    },
-    showSubViews: function() {
-      this.uploadDetails.show(new uploadContentView())
-    },
-  })
+const Marionette = require('marionette')
+const template = require('./upload.hbs')
+const CustomElements = require('js/CustomElements')
+const uploadContentView = require('component/content/upload/content.upload.view')
+const uploadInstance = require('component/upload/upload')
+
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('upload'),
+  regions: {
+    uploadDetails: '.upload-details',
+  },
+  onFirstRender: function() {
+    this.listenTo(uploadInstance, 'change:currentUpload', this.onBeforeShow)
+  },
+  onBeforeShow: function() {
+    if (uploadInstance.get('currentUpload')) {
+      this.showSubViews()
+    }
+  },
+  showSubViews: function() {
+    this.uploadDetails.show(new uploadContentView())
+  },
 })

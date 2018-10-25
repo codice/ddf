@@ -10,6 +10,5 @@
  *
  **/
 /*global define*/
-define(['js/model/Sources'], function(Sources) {
-  return new Sources()
-})
+const Sources = require('js/model/Sources')
+module.exports = new Sources()

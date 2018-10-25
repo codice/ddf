@@ -13,18 +13,16 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  '../dropdown.view',
-  './dropdown.workspaces-sort.hbs',
-], function(Marionette, _, $, DropdownView, template) {
-  return DropdownView.extend({
-    template: template,
-    className: 'is-workspacesSort',
-    getCenteringElement: function() {
-      return this.el
-    },
-  })
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.workspaces-sort.hbs')
+
+module.exports = DropdownView.extend({
+  template: template,
+  className: 'is-workspacesSort',
+  getCenteringElement: function() {
+    return this.el
+  },
 })

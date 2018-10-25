@@ -10,56 +10,55 @@
  *
  **/
 /*global define*/
-define([], function() {
-  function getRandomColor() {
-    var letters = '789ABCD'
-    var color = '#'
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 6)]
+
+function getRandomColor() {
+  var letters = '789ABCD'
+  var color = '#'
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 6)]
+  }
+  return color
+}
+
+module.exports = {
+  getNewGenerator: function() {
+    var colors = [
+      // 10 best taken from here: https://ux.stackexchange.com/questions/94696/color-palette-for-all-types-of-color-blindness
+      // http://mkweb.bcgsc.ca/colorblind/
+      '#004949', //dark turquoise
+      '#009292', //turquoise
+      '#ff6db6', //pink
+      //  '#ffb677',  //lightpink
+      '#490092', //darkpurple
+      '#006ddb', //darkblue
+      '#b66dff', //purple
+      '#6db6ff', //blue
+      '#b6dbff', //lightblue
+      '#924900', //brown
+      // '#dbd100',  //orange
+      '#24ff24', //green
+      // '#ffff6d'  //yellow
+    ]
+    var idToColor = {}
+
+    return {
+      getColor: function(id) {
+        if (idToColor[id] === undefined) {
+          if (colors.length === 0) {
+            idToColor[id] = undefined
+            //throw "Generator is out of colors to assign.";
+          }
+          idToColor[id] = colors.pop()
+        }
+        return idToColor[id]
+      },
+      removeColor: function(id) {
+        var color = idToColor[id]
+        if (color !== undefined) {
+          colors.push(color)
+          delete idToColor[id]
+        }
+      },
     }
-    return color
-  }
-
-  return {
-    getNewGenerator: function() {
-      var colors = [
-        // 10 best taken from here: https://ux.stackexchange.com/questions/94696/color-palette-for-all-types-of-color-blindness
-        // http://mkweb.bcgsc.ca/colorblind/
-        '#004949', //dark turquoise
-        '#009292', //turquoise
-        '#ff6db6', //pink
-        //  '#ffb677',  //lightpink
-        '#490092', //darkpurple
-        '#006ddb', //darkblue
-        '#b66dff', //purple
-        '#6db6ff', //blue
-        '#b6dbff', //lightblue
-        '#924900', //brown
-        // '#dbd100',  //orange
-        '#24ff24', //green
-        // '#ffff6d'  //yellow
-      ]
-      var idToColor = {}
-
-      return {
-        getColor: function(id) {
-          if (idToColor[id] === undefined) {
-            if (colors.length === 0) {
-              idToColor[id] = undefined
-              //throw "Generator is out of colors to assign.";
-            }
-            idToColor[id] = colors.pop()
-          }
-          return idToColor[id]
-        },
-        removeColor: function(id) {
-          var color = idToColor[id]
-          if (color !== undefined) {
-            colors.push(color)
-            delete idToColor[id]
-          }
-        },
-      }
-    },
-  }
-})
+  },
+}

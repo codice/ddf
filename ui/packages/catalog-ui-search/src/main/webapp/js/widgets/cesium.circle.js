@@ -11,306 +11,288 @@
  **/
 /*global define*/
 
-define([
-  'marionette',
-  'backbone',
-  'cesium',
-  'underscore',
-  'wreqr',
-  'js/widgets/cesium.bbox',
-  'maptype',
-  './notification.view',
-  '@turf/turf',
-  '@turf/circle',
-  './drawing.controller',
-  'js/DistanceUtils',
-], function(
-  Marionette,
-  Backbone,
-  Cesium,
-  _,
-  wreqr,
-  DrawBbox,
-  maptype,
-  NotificationView,
-  Turf,
-  TurfCircle,
-  DrawingController,
-  DistanceUtils
-) {
-  'use strict'
-  var DrawCircle = {}
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const Cesium = require('cesium')
+const _ = require('underscore')
+const wreqr = require('wreqr')
+const DrawBbox = require('js/widgets/cesium.bbox')
+const maptype = require('maptype')
+const NotificationView = require('./notification.view')
+const Turf = require('@turf/turf')
+const TurfCircle = require('@turf/circle')
+const DrawingController = require('./drawing.controller')
+const DistanceUtils = require('js/DistanceUtils')
 
-  DrawCircle.CircleModel = Backbone.Model.extend({
-    defaults: {
-      lat: undefined,
-      lon: undefined,
-      radius: undefined,
-    },
-  })
-  var defaultAttrs = ['lat', 'lon', 'radius']
-  DrawCircle.CircleView = Marionette.View.extend({
-    initialize: function() {
-      this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
-        this.options.map.scene.canvas
-      )
+var DrawCircle = {}
 
-      this.listenTo(
-        this.model,
-        'change:lat change:lon change:radius change:radiusUnits',
-        this.updatePrimitive
-      )
-      this.updatePrimitive(this.model)
-    },
-    enableInput: function() {
-      var controller = this.options.map.scene.screenSpaceCameraController
-      controller.enableTranslate = true
-      controller.enableZoom = true
-      controller.enableRotate = true
-      controller.enableTilt = true
-      controller.enableLook = true
-    },
-    disableInput: function() {
-      var controller = this.options.map.scene.screenSpaceCameraController
-      controller.enableTranslate = false
-      controller.enableZoom = false
-      controller.enableRotate = false
-      controller.enableTilt = false
-      controller.enableLook = false
-    },
+DrawCircle.CircleModel = Backbone.Model.extend({
+  defaults: {
+    lat: undefined,
+    lon: undefined,
+    radius: undefined,
+  },
+})
+var defaultAttrs = ['lat', 'lon', 'radius']
+DrawCircle.CircleView = Marionette.View.extend({
+  initialize: function() {
+    this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
+      this.options.map.scene.canvas
+    )
 
-    setCircleRadius: function(mn, mx) {
-      var startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
-          mn
-        ),
-        stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
-          mx
-        ),
-        radius = Math.abs(
-          Cesium.Cartesian3.distance(startCartographic, stopCart)
-        )
+    this.listenTo(
+      this.model,
+      'change:lat change:lon change:radius change:radiusUnits',
+      this.updatePrimitive
+    )
+    this.updatePrimitive(this.model)
+  },
+  enableInput: function() {
+    var controller = this.options.map.scene.screenSpaceCameraController
+    controller.enableTranslate = true
+    controller.enableZoom = true
+    controller.enableRotate = true
+    controller.enableTilt = true
+    controller.enableLook = true
+  },
+  disableInput: function() {
+    var controller = this.options.map.scene.screenSpaceCameraController
+    controller.enableTranslate = false
+    controller.enableZoom = false
+    controller.enableRotate = false
+    controller.enableTilt = false
+    controller.enableLook = false
+  },
 
-      var modelProp = {
-        lat: ((mn.latitude * 180) / Math.PI).toFixed(14),
-        lon: ((mn.longitude * 180) / Math.PI).toFixed(14),
-        radius: DistanceUtils.getDistanceFromMeters(
-          radius,
-          this.model.get('radiusUnits')
-        ),
-      }
+  setCircleRadius: function(mn, mx) {
+    var startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
+        mn
+      ),
+      stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
+        mx
+      ),
+      radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart))
 
-      this.model.set(modelProp)
-    },
+    var modelProp = {
+      lat: ((mn.latitude * 180) / Math.PI).toFixed(14),
+      lon: ((mn.longitude * 180) / Math.PI).toFixed(14),
+      radius: DistanceUtils.getDistanceFromMeters(
+        radius,
+        this.model.get('radiusUnits')
+      ),
+    }
 
-    isModelReset: function(modelProp) {
-      if (
-        _.every(defaultAttrs, function(val) {
-          return _.isUndefined(modelProp[val])
-        }) ||
-        _.isEmpty(modelProp)
-      ) {
-        return true
-      }
-      return false
-    },
+    this.model.set(modelProp)
+  },
 
-    updatePrimitive: function(model) {
-      var modelProp = model.toJSON()
-      if (this.isModelReset(modelProp)) {
-        this.options.map.scene.primitives.remove(this.primitive)
-        this.stopListening()
-        return
-      }
+  isModelReset: function(modelProp) {
+    if (
+      _.every(defaultAttrs, function(val) {
+        return _.isUndefined(modelProp[val])
+      }) ||
+      _.isEmpty(modelProp)
+    ) {
+      return true
+    }
+    return false
+  },
 
-      if (modelProp.radius === 0 || isNaN(modelProp.radius)) {
-        modelProp.radius = 1
-      }
-
-      this.drawBorderedCircle(model)
-    },
-    drawBorderedCircle: function(model) {
-      // if model has been reset
-
-      var modelProp = model.toJSON()
-
-      // first destroy old one
-      if (this.primitive && !this.primitive.isDestroyed()) {
-        this.options.map.scene.primitives.remove(this.primitive)
-      }
-
-      if (
-        this.isModelReset(modelProp) ||
-        modelProp.lat === undefined ||
-        modelProp.lon === undefined
-      ) {
-        return
-      }
-
-      var color = this.model.get('color')
-
-      var centerPt = Turf.point([modelProp.lon, modelProp.lat])
-      var circleToCheck = new TurfCircle(
-        centerPt,
-        DistanceUtils.getDistanceInMeters(
-          modelProp.radius,
-          modelProp.radiusUnits
-        ),
-        64,
-        'meters'
-      )
-
-      this.primitive = new Cesium.PolylineCollection()
-      this.primitive.add({
-        width: 8,
-        material: Cesium.Material.fromType('PolylineOutline', {
-          color: color
-            ? Cesium.Color.fromCssColorString(color)
-            : Cesium.Color.KHAKI,
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 4,
-        }),
-        id: 'userDrawing',
-        positions: Cesium.Cartesian3.fromDegreesArray(
-          _.flatten(circleToCheck.geometry.coordinates)
-        ),
-      })
-
-      this.options.map.scene.primitives.add(this.primitive)
-    },
-    handleRegionStop: function() {
-      this.enableInput()
-      if (!this.mouseHandler.isDestroyed()) {
-        this.mouseHandler.destroy()
-      }
-      this.drawBorderedCircle(this.model)
-      this.stopListening(
-        this.model,
-        'change:lat change:lon change:radius',
-        this.updatePrimitive
-      )
-      this.listenTo(
-        this.model,
-        'change:lat change:lon change:radius',
-        this.drawBorderedCircle
-      )
-      this.model.trigger('EndExtent', this.model)
-      wreqr.vent.trigger('search:circledisplay', this.model)
-    },
-    handleRegionInter: function(movement) {
-      var cartesian = this.options.map.scene.camera.pickEllipsoid(
-          movement.endPosition,
-          this.options.map.scene.globe.ellipsoid
-        ),
-        cartographic
-      if (cartesian) {
-        cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
-          cartesian
-        )
-        this.setCircleRadius(this.click1, cartographic)
-      }
-    },
-    handleRegionStart: function(movement) {
-      var cartesian = this.options.map.scene.camera.pickEllipsoid(
-          movement.position,
-          this.options.map.scene.globe.ellipsoid
-        ),
-        that = this
-      if (cartesian) {
-        this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
-          cartesian
-        )
-        this.mouseHandler.setInputAction(function() {
-          that.handleRegionStop()
-        }, Cesium.ScreenSpaceEventType.LEFT_UP)
-        this.mouseHandler.setInputAction(function(movement) {
-          that.handleRegionInter(movement)
-        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-      }
-    },
-    start: function() {
-      this.disableInput()
-
-      var that = this
-
-      // Now wait for start
-      this.mouseHandler.setInputAction(function(movement) {
-        that.handleRegionStart(movement)
-      }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
-    },
-    stop: function() {
+  updatePrimitive: function(model) {
+    var modelProp = model.toJSON()
+    if (this.isModelReset(modelProp)) {
+      this.options.map.scene.primitives.remove(this.primitive)
       this.stopListening()
-      this.enableInput()
-    },
+      return
+    }
 
-    drawStop: function() {
-      this.enableInput()
+    if (modelProp.radius === 0 || isNaN(modelProp.radius)) {
+      modelProp.radius = 1
+    }
+
+    this.drawBorderedCircle(model)
+  },
+  drawBorderedCircle: function(model) {
+    // if model has been reset
+
+    var modelProp = model.toJSON()
+
+    // first destroy old one
+    if (this.primitive && !this.primitive.isDestroyed()) {
+      this.options.map.scene.primitives.remove(this.primitive)
+    }
+
+    if (
+      this.isModelReset(modelProp) ||
+      modelProp.lat === undefined ||
+      modelProp.lon === undefined
+    ) {
+      return
+    }
+
+    var color = this.model.get('color')
+
+    var centerPt = Turf.point([modelProp.lon, modelProp.lat])
+    var circleToCheck = new TurfCircle(
+      centerPt,
+      DistanceUtils.getDistanceInMeters(
+        modelProp.radius,
+        modelProp.radiusUnits
+      ),
+      64,
+      'meters'
+    )
+
+    this.primitive = new Cesium.PolylineCollection()
+    this.primitive.add({
+      width: 8,
+      material: Cesium.Material.fromType('PolylineOutline', {
+        color: color
+          ? Cesium.Color.fromCssColorString(color)
+          : Cesium.Color.KHAKI,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 4,
+      }),
+      id: 'userDrawing',
+      positions: Cesium.Cartesian3.fromDegreesArray(
+        _.flatten(circleToCheck.geometry.coordinates)
+      ),
+    })
+
+    this.options.map.scene.primitives.add(this.primitive)
+  },
+  handleRegionStop: function() {
+    this.enableInput()
+    if (!this.mouseHandler.isDestroyed()) {
       this.mouseHandler.destroy()
-    },
+    }
+    this.drawBorderedCircle(this.model)
+    this.stopListening(
+      this.model,
+      'change:lat change:lon change:radius',
+      this.updatePrimitive
+    )
+    this.listenTo(
+      this.model,
+      'change:lat change:lon change:radius',
+      this.drawBorderedCircle
+    )
+    this.model.trigger('EndExtent', this.model)
+    wreqr.vent.trigger('search:circledisplay', this.model)
+  },
+  handleRegionInter: function(movement) {
+    var cartesian = this.options.map.scene.camera.pickEllipsoid(
+        movement.endPosition,
+        this.options.map.scene.globe.ellipsoid
+      ),
+      cartographic
+    if (cartesian) {
+      cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
+        cartesian
+      )
+      this.setCircleRadius(this.click1, cartographic)
+    }
+  },
+  handleRegionStart: function(movement) {
+    var cartesian = this.options.map.scene.camera.pickEllipsoid(
+        movement.position,
+        this.options.map.scene.globe.ellipsoid
+      ),
+      that = this
+    if (cartesian) {
+      this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
+        cartesian
+      )
+      this.mouseHandler.setInputAction(function() {
+        that.handleRegionStop()
+      }, Cesium.ScreenSpaceEventType.LEFT_UP)
+      this.mouseHandler.setInputAction(function(movement) {
+        that.handleRegionInter(movement)
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+    }
+  },
+  start: function() {
+    this.disableInput()
 
-    destroyPrimitive: function() {
-      if (!this.mouseHandler.isDestroyed()) {
-        this.mouseHandler.destroy()
-      }
-      if (this.primitive && !this.primitive.isDestroyed()) {
-        this.options.map.scene.primitives.remove(this.primitive)
-      }
-    },
-    destroy: function() {
-      this.destroyPrimitive()
-      this.remove() // backbone cleanup.
-    },
-  })
+    var that = this
 
-  DrawCircle.Controller = DrawingController.extend({
-    drawingType: 'circle',
-    show: function(model) {
-      if (this.enabled) {
-        var circleModel = model || new DrawCircle.CircleModel()
+    // Now wait for start
+    this.mouseHandler.setInputAction(function(movement) {
+      that.handleRegionStart(movement)
+    }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
+  },
+  stop: function() {
+    this.stopListening()
+    this.enableInput()
+  },
 
-        var existingView = this.getViewForModel(model)
-        if (existingView) {
-          existingView.drawStop()
-          existingView.destroyPrimitive()
-          existingView.updatePrimitive(model)
-        } else {
-          var view = new DrawCircle.CircleView({
-            map: this.options.map,
-            model: circleModel,
-          })
-          view.updatePrimitive(model)
-          this.addView(view)
-        }
+  drawStop: function() {
+    this.enableInput()
+    this.mouseHandler.destroy()
+  },
 
-        return circleModel
-      }
-    },
-    draw: function(model) {
-      if (this.enabled) {
-        var circleModel = model || new DrawCircle.CircleModel()
+  destroyPrimitive: function() {
+    if (!this.mouseHandler.isDestroyed()) {
+      this.mouseHandler.destroy()
+    }
+    if (this.primitive && !this.primitive.isDestroyed()) {
+      this.options.map.scene.primitives.remove(this.primitive)
+    }
+  },
+  destroy: function() {
+    this.destroyPrimitive()
+    this.remove() // backbone cleanup.
+  },
+})
+
+DrawCircle.Controller = DrawingController.extend({
+  drawingType: 'circle',
+  show: function(model) {
+    if (this.enabled) {
+      var circleModel = model || new DrawCircle.CircleModel()
+
+      var existingView = this.getViewForModel(model)
+      if (existingView) {
+        existingView.drawStop()
+        existingView.destroyPrimitive()
+        existingView.updatePrimitive(model)
+      } else {
         var view = new DrawCircle.CircleView({
           map: this.options.map,
           model: circleModel,
         })
-
-        var existingView = this.getViewForModel(model)
-        if (existingView) {
-          existingView.stop()
-          existingView.destroyPrimitive()
-          this.removeView(existingView)
-        }
-        view.start()
+        view.updatePrimitive(model)
         this.addView(view)
-        this.notificationView = new NotificationView({
-          el: this.options.notificationEl,
-        }).render()
-        this.listenToOnce(circleModel, 'EndExtent', function() {
-          this.notificationView.destroy()
-        })
-
-        return circleModel
       }
-    },
-  })
 
-  return DrawCircle
+      return circleModel
+    }
+  },
+  draw: function(model) {
+    if (this.enabled) {
+      var circleModel = model || new DrawCircle.CircleModel()
+      var view = new DrawCircle.CircleView({
+        map: this.options.map,
+        model: circleModel,
+      })
+
+      var existingView = this.getViewForModel(model)
+      if (existingView) {
+        existingView.stop()
+        existingView.destroyPrimitive()
+        this.removeView(existingView)
+      }
+      view.start()
+      this.addView(view)
+      this.notificationView = new NotificationView({
+        el: this.options.notificationEl,
+      }).render()
+      this.listenToOnce(circleModel, 'EndExtent', function() {
+        this.notificationView.destroy()
+      })
+
+      return circleModel
+    }
+  },
 })
+
+module.exports = DrawCircle

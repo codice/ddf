@@ -32,14 +32,14 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
+                <groupId>ddf.jaxb</groupId>
                 <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.jaxb.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
+                <groupId>ddf.jaxb</groupId>
                 <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
@@ -94,11 +94,6 @@
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-v1_0_0-schema-webapp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

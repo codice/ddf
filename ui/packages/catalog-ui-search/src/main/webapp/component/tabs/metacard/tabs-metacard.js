@@ -10,46 +10,31 @@
  *
  **/
 /*global define*/
-define([
-  'underscore',
-  '../tabs',
-  'js/store',
-  'component/editor/metacard-basic/metacard-basic.view',
-  'component/editor/metacard-advanced/metacard-advanced.view',
-  'component/metacard-history/metacard-history.view',
-  'component/metacard-associations/metacard-associations.view',
-  'component/metacard-quality/metacard-quality.view',
-  'component/metacard-actions/metacard-actions.view',
-  'component/metacard-archive/metacard-archive.view',
-  'component/metacard-overwrite/metacard-overwrite.view',
-  'component/metacard-preview/metacard-preview.view',
-], function(
-  _,
-  Tabs,
-  store,
-  MetacardBasicView,
-  MetacardAdvancedView,
-  MetacardHistoryView,
-  MetacardAssociationsView,
-  MetacardQualityView,
-  MetacardActionsView,
-  MetacardArchiveView,
-  MetacardOverwriteView,
-  MetacardPreviewView
-) {
-  return Tabs.extend({
-    defaults: {
-      tabs: {
-        Summary: MetacardBasicView,
-        Details: MetacardAdvancedView,
-        Preview: MetacardPreviewView,
-        History: MetacardHistoryView,
-        Associations: MetacardAssociationsView,
-        Quality: MetacardQualityView,
-        Actions: MetacardActionsView,
-        Archive: MetacardArchiveView,
-        Overwrite: MetacardOverwriteView,
-      },
+const _ = require('underscore')
+const Tabs = require('../tabs')
+const store = require('js/store')
+const MetacardBasicView = require('component/editor/metacard-basic/metacard-basic.view')
+const MetacardAdvancedView = require('component/editor/metacard-advanced/metacard-advanced.view')
+const MetacardHistoryView = require('component/metacard-history/metacard-history.view')
+const MetacardAssociationsView = require('component/metacard-associations/metacard-associations.view')
+const MetacardQualityView = require('component/metacard-quality/metacard-quality.view')
+const MetacardActionsView = require('component/metacard-actions/metacard-actions.view')
+const MetacardArchiveView = require('component/metacard-archive/metacard-archive.view')
+const MetacardOverwriteView = require('component/metacard-overwrite/metacard-overwrite.view')
+const MetacardPreviewView = require('component/metacard-preview/metacard-preview.view')
+
+module.exports = Tabs.extend({
+  defaults: {
+    tabs: {
+      Summary: MetacardBasicView,
+      Details: MetacardAdvancedView,
+      Preview: MetacardPreviewView,
+      History: MetacardHistoryView,
+      Associations: MetacardAssociationsView,
+      Quality: MetacardQualityView,
+      Actions: MetacardActionsView,
+      Archive: MetacardArchiveView,
+      Overwrite: MetacardOverwriteView,
     },
-  })
+  },
 })

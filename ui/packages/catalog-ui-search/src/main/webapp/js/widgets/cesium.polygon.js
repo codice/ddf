@@ -16,7 +16,6 @@ const Turf = require('@turf/turf')
 const DistanceUtils = require('js/DistanceUtils')
 
 const { GeometryRenderView, GeometryController } = require('./cesium.base.line')
-;('use strict')
 
 const createBufferedPolygonPoints = (polygonPoints, model) => {
   const width =

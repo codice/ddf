@@ -23,8 +23,8 @@ import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureValidationFilterPlugin;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -282,8 +282,8 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Before
   public void setup() throws Exception {
-    configureShowInvalidMetacards("true", "true", getAdminConfig());
-    configureValidationFilterPlugin(Arrays.asList("invalid-state=guest"), getAdminConfig());
+    configureFilterInvalidMetacards("false", "false", getAdminConfig());
+    configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=guest"), getAdminConfig());
     clearCatalogAndWait();
   }
 

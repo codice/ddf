@@ -25,6 +25,11 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
+            <groupId>ddf.jaxb</groupId>
+            <artifactId>security-cas-tokenvalidator</artifactId>
+            <version>${ddf.jaxb.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
             <scope>provided</scope>
@@ -63,30 +68,14 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <schemaDirectory>src/main/resources/META-INF</schemaDirectory>
-                    <schemaIncludes>
-                        <include>cas/cas2.xsd</include>
-                    </schemaIncludes>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            cas-client-core
+                            cas-client-core,
+                            security-cas-tokenvalidator
                         </Embed-Dependency>
                         <Import-Package>
                             *

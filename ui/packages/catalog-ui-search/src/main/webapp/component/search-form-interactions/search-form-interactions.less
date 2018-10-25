@@ -22,11 +22,18 @@
   .interaction-text {
     display: inline-block;
   }
+
+  .interaction-clear {
+    display: none;
+  }
 }
 
 @{customElementNamespace}search-form-interactions.is-current-template {
   > .interaction-default {
     display: none;
+  }
+  > .interaction-clear {
+    display: block;
   }
 }
 
