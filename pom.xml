@@ -55,7 +55,10 @@
         <reports.repository.url />
         <project.scm.id>github</project.scm.id>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.14</ddf.support.version>
+        <ddf.support.version>2.3.16</ddf.support.version>
+        <!-- Must MANUALLY update this if the codice-maven project's version changes -->
+        <codice-maven.version>0.1</codice-maven.version>
+
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.5</acdebugger.version>
         <!--temporary codice version of pax web-->
@@ -454,9 +457,9 @@ are essentially embedding a slightly modified version of felix -->
                     <version>${maven-jacoco-plugin.version}</version>
                     <dependencies>
                         <dependency>
-                            <groupId>ddf.support</groupId>
-                            <artifactId>support-jacoco</artifactId>
-                            <version>${ddf.support.version}</version>
+                            <groupId>org.codice.maven</groupId>
+                            <artifactId>jacoco</artifactId>
+                            <version>${codice-maven.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -782,6 +785,11 @@ are essentially embedding a slightly modified version of felix -->
                                     <artifactId>support-checkstyle</artifactId>
                                     <version>${ddf.support.version}</version>
                                     <optional>true</optional>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.puppycrawl.tools</groupId>
+                                    <artifactId>checkstyle</artifactId>
+                                    <version>8.13</version>
                                 </dependency>
                             </dependencies>
                             <executions>
