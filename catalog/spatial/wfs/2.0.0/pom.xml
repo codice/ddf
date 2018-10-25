@@ -23,7 +23,6 @@
     <name>DDF :: Spatial :: WFS :: 2.0.0</name>
     <packaging>pom</packaging>
     <modules>
-        <module>spatial-wfs-v2_0_0-schema-bindings</module>
         <module>spatial-wfs-v2_0_0-common</module>
         <module>spatial-wfs-v2_0_0-converter</module>
         <module>spatial-wfs-v2_0_0-source</module>

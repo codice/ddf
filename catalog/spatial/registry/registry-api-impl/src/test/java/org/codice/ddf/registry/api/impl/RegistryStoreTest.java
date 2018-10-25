@@ -198,13 +198,12 @@ public class RegistryStoreTest {
     registryStore.setFilterBuilder(filterBuilder);
     registryStore.setFilterAdapter(filterAdapter);
     registryStore.setConfigAdmin(configAdmin);
-    registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
+    registryStore.setMetacardMarshaller(marshaller);
     registryStore.setSchemaTransformerManager(transformer);
     registryStore.setAutoPush(true);
     registryStore.setRegistryUrl("http://test.url:0101/example");
     properties = new Hashtable<>();
     properties.put(RegistryStoreImpl.ID, "registryId");
-    registryStore.setMetacardMarshaller(marshaller);
 
     when(configAdmin.getConfiguration(any())).thenReturn(configuration);
     when(configuration.getProperties()).thenReturn(properties);
