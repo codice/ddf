@@ -48,7 +48,7 @@ public class ObjectAdapter extends XmlAdapter<ObjectElement, Attribute> {
               "Could not transform Metacard to XML.  Could not serialize Attribute Object value.",
               e);
         }
-        ((ObjectElement) element).getValue().add(baos.toByteArray());
+        element.getValue().add(baos.toByteArray());
       }
     }
     return element;
@@ -56,19 +56,21 @@ public class ObjectAdapter extends XmlAdapter<ObjectElement, Attribute> {
 
   public static Attribute unmarshalFrom(ObjectElement element) {
     AttributeImpl attribute = null;
-    for (Serializable value : element.getValue()) {
-      if (value instanceof byte[]) {
-        try (ObjectInputStream objectInputStream =
-            new ObjectInputStream(new ByteArrayInputStream((byte[]) value))) {
-          value = (Serializable) objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-          LOGGER.debug("Could not unmarshal Metacard Object from Base64 encoded string", e);
-        }
+    String elementName = element.getName();
+
+    for (byte[] value : element.getValue()) {
+      Serializable unmarshalledValue = value;
+      try (ObjectInputStream objectInputStream =
+          new ObjectInputStream(new ByteArrayInputStream(value))) {
+        unmarshalledValue = (Serializable) objectInputStream.readObject();
+      } catch (IOException | ClassNotFoundException | RuntimeException e) {
+        LOGGER.debug("Could not unmarshal Metacard object for attribute: {}", elementName, e);
       }
+
       if (attribute == null) {
-        attribute = new AttributeImpl(element.getName(), value);
+        attribute = new AttributeImpl(elementName, unmarshalledValue);
       } else {
-        attribute.addValue(value);
+        attribute.addValue(unmarshalledValue);
       }
     }
     return attribute;
