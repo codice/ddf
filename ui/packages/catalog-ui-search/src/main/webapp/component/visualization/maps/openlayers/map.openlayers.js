@@ -605,13 +605,7 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
-      var styles = [
-        new Openlayers.style.Style({
-          stroke: new Openlayers.style.Stroke({
-            color: 'white',
-            width: 8,
-          }),
-        }),
+      const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
             color: locationModel.get('color') || defaultColor,
@@ -639,13 +633,7 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
-      var styles = [
-        new Openlayers.style.Style({
-          stroke: new Openlayers.style.Stroke({
-            color: 'white',
-            width: 8,
-          }),
-        }),
+      const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
             color: locationModel.get('color') || defaultColor,
