@@ -48,7 +48,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.3</version>
     </parent>
     <properties>
         <!--  default URL properties -->
