@@ -356,7 +356,12 @@
             <artifactId>security-rest-cxfwrapper</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
@@ -458,6 +463,7 @@
                             ddf.mime,
                             ddf.security,
                             ddf.security.assertion,
+                            ddf.security.encryption,
                             ddf.security.permission,
                             ddf.security.service,
                             javax.activation,

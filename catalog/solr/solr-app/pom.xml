@@ -87,5 +87,12 @@
             <artifactId>catalog-solr-solrclient</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--[ERROR] found missing dependencies: /repos/connexta/ddf/catalog/solr/solr-app/pom.xml-->
+        <!--[ERROR]     mvn:ddf.security.encryption/security-encryption-api/${project.version}-->
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
