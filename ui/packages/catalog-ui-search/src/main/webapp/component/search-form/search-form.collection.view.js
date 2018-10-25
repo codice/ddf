@@ -14,11 +14,8 @@
  **/
 /*global require*/
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const SearchFormView = require('./search-form.view')
-const SearchFormCollection = require('./search-form-collection-instance')
-const CustomElements = require('../../js/CustomElements.js')
+const CustomElements = require('../../js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,
@@ -28,7 +25,6 @@ module.exports = Marionette.CollectionView.extend({
   childViewOptions: function() {
     return {
       queryModel: this.options.queryModel,
-      sharingLightboxTitle: 'Search Form Sharing',
       collectionWrapperModel: this.options.collectionWrapperModel,
       hideInteractionMenu: this.options.hideInteractionMenu,
     }

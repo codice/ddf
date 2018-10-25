@@ -352,6 +352,9 @@ User.Response = Backbone.AssociatedModel.extend({
   getEmail() {
     return this.get('user').getEmail()
   },
+  getRoles() {
+    return this.get('user').get('roles')
+  },
   getUserName() {
     return this.get('user').getUserName()
   },
@@ -408,6 +411,32 @@ User.Response = Backbone.AssociatedModel.extend({
         ),
       }
     }
+  },
+  canRead: function(perms) {
+    return (
+      perms.owner === undefined ||
+      perms.owner === this.getEmail() ||
+      perms.accessIndividuals.includes(this.getEmail()) ||
+      perms.accessIndividualsRead.includes(this.getEmail()) ||
+      perms.accessGroups.some(group => this.getRoles().includes(group)) ||
+      perms.accessGroupsRead.some(group => this.getRoles().includes(group)) ||
+      perms.accessAdministrators.includes(this.getEmail())
+    )
+  },
+  canWrite: function(perms) {
+    return (
+      perms.owner === undefined ||
+      perms.owner === this.getEmail() ||
+      perms.accessIndividuals.includes(this.getEmail()) ||
+      perms.accessGroups.some(group => this.getRoles().includes(group)) ||
+      perms.accessAdministrators.includes(this.getEmail())
+    )
+  },
+  canShare: function(perms) {
+    return (
+      perms.owner === this.getEmail() ||
+      perms.accessAdministrators.includes(this.getEmail())
+    )
   },
 })
 

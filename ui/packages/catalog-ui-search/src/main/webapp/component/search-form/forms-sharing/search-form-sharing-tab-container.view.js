@@ -36,7 +36,7 @@ const Root = styled.div`
 module.exports = Marionette.LayoutView.extend({
   className: 'customElement',
   regions: {
-    collection: '.collection',
+    collectionView: '.collection',
   },
   template() {
     return (
@@ -46,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   initialize: function() {
-    this.searchFormSharingCollection = new SearchFormSharingCollection()
+    this.searchFormSharingCollection = SearchFormSharingCollection
     this.listenTo(
       this.searchFormSharingCollection,
       'change:doneLoading',
@@ -54,7 +54,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
-    this.collection.show(
+    this.collectionView.show(
       new SearchFormCollectionView({
         collection: this.searchFormSharingCollection.getCollection(),
         model: this.model,
@@ -63,13 +63,6 @@ module.exports = Marionette.LayoutView.extend({
     )
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
-  },
-  showCollection: function() {
-    if (
-      this.collection.currentView.searchFormSharingCollection.getDoneLoading()
-    ) {
-      this.$el.find('.loading').hide()
-    }
   },
   handleLoadingSpinner: function() {
     if (this.searchFormSharingCollection.getDoneLoading()) {

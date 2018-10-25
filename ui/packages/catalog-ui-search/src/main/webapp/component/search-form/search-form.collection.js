@@ -87,7 +87,7 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.isDestroyed) {
       cachedTemplates.forEach(
         function(value, index) {
-          if (this.checkIfOwner(value)) {
+          if (value.creator === user.getEmail()) {
             var utcSeconds = value.created / 1000
             var d = new Date(0)
             d.setUTCSeconds(utcSeconds)
@@ -100,8 +100,10 @@ module.exports = Backbone.AssociatedModel.extend({
                 type: 'custom',
                 filterTemplate: JSON.stringify(value.filterTemplate),
                 accessIndividuals: value.accessIndividuals,
+                accessIndividualsRead: value.accessIndividualsRead,
                 accessAdministrators: value.accessAdministrators,
                 accessGroups: value.accessGroups,
+                accessGroupsRead: value.accessGroupsRead,
                 createdBy: value.creator,
                 owner: value.owner,
                 querySettings: value.querySettings,
@@ -120,9 +122,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   getDoneLoading: function() {
     return this.get('doneLoading')
-  },
-  checkIfOwner: function(template) {
-    return user.get('user').get('email') === template.creator
   },
   doneLoading: function() {
     this.set('doneLoading', true)

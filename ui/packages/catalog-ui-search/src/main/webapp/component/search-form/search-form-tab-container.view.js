@@ -14,7 +14,6 @@
  **/
 /*global require*/
 const Marionette = require('marionette')
-const $ = require('jquery')
 const template = require('./search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form.collection.view')
 const SearchFormCollection = require('./search-form-collection-instance')

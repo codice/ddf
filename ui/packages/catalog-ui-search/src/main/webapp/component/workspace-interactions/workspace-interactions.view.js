@@ -12,12 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window*/
+/*global window*/
+import React from 'react'
+import Sharing from 'component/sharing/sharing.view'
 
 const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./workspace-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
@@ -25,7 +25,6 @@ const router = require('../router/router.js')
 const user = require('../singletons/user-instance.js')
 const LoadingView = require('../loading/loading.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-const WorkspaceSharing = require('../workspace-sharing/workspace-sharing.view.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -50,27 +49,26 @@ module.exports = Marionette.ItemView.extend({
   ui: {},
   initialize: function() {},
   onRender: function() {
-    this.checkIfSubscribed()
-    this.handleLocal()
-    this.handleShareable()
-  },
-  handleLocal: function() {
-    this.$el.toggleClass('is-local', this.model.isLocal())
-  },
-  handleShareable: function() {
-    const notShareable = function(that) {
-      const userLogin = user.get('user').get('email')
-      if (that.model.get('metacard.owner') === userLogin) {
-        return false
-      }
-      const accessAdministrators =
-        that.model.get('security.access-administrators') || []
-      return !accessAdministrators.includes(userLogin)
-    }
-    this.$el.toggleClass('is-not-shareable', notShareable(this))
-  },
-  checkIfSubscribed: function() {
     this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')))
+    this.$el.toggleClass('is-local', this.model.isLocal())
+    this.$el.toggleClass(
+      'is-not-shareable',
+      !user.canShare({
+        owner: this.model.get('metacard.owner'),
+        accessAdministrators:
+          this.model.get('security.access-administrators') || [],
+      })
+    )
+    this.$el.toggleClass(
+      'is-not-editable',
+      !user.canWrite({
+        owner: this.model.get('metacard.owner'),
+        accessIndividuals: this.model.get('security.access-individuals') || [],
+        accessGroups: this.model.get('security.access-groups') || [],
+        accessAdministrators:
+          this.model.get('security.access-administrators') || [],
+      })
+    )
   },
   handleSave: function() {
     this.model.save()
@@ -96,12 +94,16 @@ module.exports = Marionette.ItemView.extend({
     window.open('./#workspaces/' + this.model.id)
   },
   handleShare: function() {
-    lightboxInstance.model.updateTitle('Workspace Sharing')
+    lightboxInstance.model.updateTitle(
+      'Workspace Sharing: ' + this.model.get('title')
+    )
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      new WorkspaceSharing({
-        model: this.model,
-      })
+      <Sharing
+        key={this.model.id}
+        id={this.model.id}
+        lightbox={lightboxInstance}
+      />
     )
   },
   handleDetails: function() {

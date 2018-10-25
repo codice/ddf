@@ -49,7 +49,11 @@ public class CommonTemplate {
 
   private List<Serializable> accessGroups;
 
+  private List<Serializable> accessGroupsRead;
+
   private List<Serializable> accessIndividuals;
+
+  private List<Serializable> accessIndividualsRead;
 
   private List<Serializable> accessAdministrators;
 
@@ -74,7 +78,11 @@ public class CommonTemplate {
 
     this.accessIndividuals =
         securityAttributes.getOrDefault(Security.ACCESS_INDIVIDUALS, new ArrayList<>());
+    this.accessIndividualsRead =
+        securityAttributes.getOrDefault(Security.ACCESS_INDIVIDUALS_READ, new ArrayList<>());
     this.accessGroups = securityAttributes.getOrDefault(Security.ACCESS_GROUPS, new ArrayList<>());
+    this.accessGroupsRead =
+        securityAttributes.getOrDefault(Security.ACCESS_GROUPS_READ, new ArrayList<>());
     this.accessAdministrators =
         securityAttributes.getOrDefault(Security.ACCESS_ADMINISTRATORS, new ArrayList<>());
   }
@@ -119,8 +127,16 @@ public class CommonTemplate {
     return accessGroups;
   }
 
+  public List<Serializable> getAccessGroupsRead() {
+    return accessGroupsRead;
+  }
+
   public List<Serializable> getAccessIndividuals() {
     return accessIndividuals;
+  }
+
+  public List<Serializable> getAccessIndividualsRead() {
+    return accessIndividualsRead;
   }
 
   public List<Serializable> getAccessAdministrators() {

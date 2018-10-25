@@ -12,6 +12,7 @@
 import React from 'react'
 import styled from '../../react-component/styles/styled-components'
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
+
 const Marionette = require('marionette')
 const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
 const Router = require('../router/router.js')
@@ -90,51 +91,56 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender() {
     const [id] = Router.get('args')
-    const queryModel =
-      id === 'create'
-        ? new QueryModel.Model()
-        : SearchFormsCollection.getCollection().get(id)
-    if (queryModel) {
-      this.model = queryModel
-      const collection = SearchFormsCollection.getCollection()
-      this.map.show(
-        new MapView({
-          selectionInterface: new SelectionInterface(),
-        })
-      ),
-        this.editor.show(
-          new QueryAdvanced({
-            model: this.model,
-            isForm: true,
-            isFormBuilder: true,
-            isSearchFormEditor: true,
-            onSave: () => {
-              if (this.model.get('title').trim() !== '') {
-                this.saveTemplateToBackend(collection, id)
-                this.navigateToForms()
-              } else {
-                announcement.announce(
-                  {
-                    title: 'Some fields need your attention',
-                    message: 'Search form title cannot be blank.',
-                    type: 'error',
-                  },
-                  2500
-                )
-              }
-            },
-            onCancel: () => {
-              this.navigateToForms()
-            },
-          })
-        )
-      this.queryTitle.show(
-        new QueryTitle({
-          model: this.model,
-          isSearchFormEditor: true,
-        })
-      )
+    if (!id) return
+
+    let collection = SearchFormsCollection.getCollection()
+    if (id === 'create') {
+      this.model = new QueryModel.Model()
+    } else {
+      this.model = SearchFormsCollection.getCollection().get(id)
+      if (!this.model) {
+        collection = SearchFormSharingCollection.getCollection()
+        this.model = SearchFormSharingCollection.getCollection().get(id)
+      }
     }
+
+    this.map.show(
+      new MapView({
+        selectionInterface: new SelectionInterface(),
+      })
+    )
+    this.editor.show(
+      new QueryAdvanced({
+        model: this.model,
+        isForm: true,
+        isFormBuilder: true,
+        isSearchFormEditor: true,
+        onSave: () => {
+          if (this.model.get('title').trim() !== '') {
+            this.saveTemplateToBackend(collection, id)
+            this.navigateToForms()
+          } else {
+            announcement.announce(
+              {
+                title: 'Some fields need your attention',
+                message: 'Search form title cannot be blank.',
+                type: 'error',
+              },
+              2500
+            )
+          }
+        },
+        onCancel: () => {
+          this.navigateToForms()
+        },
+      })
+    )
+    this.queryTitle.show(
+      new QueryTitle({
+        model: this.model,
+        isSearchFormEditor: true,
+      })
+    )
   },
   getQueryAsQueryTemplate: function(collection, id) {
     const formModel = collection.get(id) || new SearchFormModel()
