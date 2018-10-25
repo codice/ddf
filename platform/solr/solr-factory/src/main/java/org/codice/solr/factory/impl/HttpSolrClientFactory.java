@@ -53,9 +53,6 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.solr.factory.SolrClientFactory;
-import org.codice.solr.factory.impl.HttpSolrClientFactory.ServiceFetcher.SolrPasswordException;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +87,11 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private final Map<String, String> propertyCache = new HashMap<>();
+  private EncryptionService encryptionService;
+
+  HttpSolrClientFactory(EncryptionService encryptionService) {
+    this.encryptionService = encryptionService;
+  }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
@@ -137,7 +139,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server secure HTTP address
    */
   public static String getDefaultHttpsAddress() {
-    return new HttpSolrClientFactory().getSolrUrl();
+    return new HttpSolrClientFactory(null).getSolrUrl();
   }
 
   private SSLContext getSslContext() {
@@ -255,7 +257,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedCipherSuites() {
-    return commaSeparatedToArray(new HttpSolrClientFactory().getProperty(HTTPS_CIPHER_SUITES));
+    return commaSeparatedToArray(new HttpSolrClientFactory(null).getProperty(HTTPS_CIPHER_SUITES));
   }
 
   /**
@@ -266,7 +268,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedProtocols() {
-    return commaSeparatedToArray(new HttpSolrClientFactory().getProperty(HTTPS_PROTOCOLS));
+    return commaSeparatedToArray(new HttpSolrClientFactory(null).getProperty(HTTPS_PROTOCOLS));
   }
 
   private boolean useBasicAuth() {
@@ -284,13 +286,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private CredentialsProvider getCredentialsProvider() {
     String username = getProperty("solr.username");
     String encryptedPassword = getProperty("solr.password");
-    Optional<EncryptionService> encryptionService =
-        ServiceFetcher.getService(EncryptionService.class);
-    String password =
-        encryptionService
-            .map(s -> s.decrypt(encryptedPassword))
-            .orElseThrow(SolrPasswordException::new);
-
+    String password = encryptionService.decryptValue(encryptedPassword);
     CredentialsProvider provider = new BasicCredentialsProvider();
     org.apache.http.auth.UsernamePasswordCredentials credentials =
         new org.apache.http.auth.UsernamePasswordCredentials(username, password);
@@ -324,21 +320,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
     return Optional.ofNullable(commaDelimitedString)
-        .map((x) -> (x.split("\\s*,\\s*")))
+        .map(x -> (x.split("\\s*,\\s*")))
         .orElse(new String[0]);
-  }
-
-  public static class ServiceFetcher {
-
-    public static <T> Optional<T> getService(Class<T> serviceInterface) {
-      Optional<BundleContext> bundleContext =
-          Optional.ofNullable(
-              FrameworkUtil.getBundle(HttpSolrClientFactory.class).getBundleContext());
-      return bundleContext
-          .map(bc -> bc.getServiceReference(serviceInterface))
-          .map(sr -> bundleContext.get().getService(sr));
-    }
-
-    public static class SolrPasswordException extends RuntimeException {}
   }
 }

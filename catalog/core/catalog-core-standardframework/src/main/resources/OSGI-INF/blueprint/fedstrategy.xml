@@ -33,7 +33,11 @@
         <argument ref="federationStrategyThreadFactory"/>
     </bean>
 
-    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl"/>
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
+    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+        <argument ref="encryptionService"/>
+    </bean>
 
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">

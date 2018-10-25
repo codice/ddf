@@ -16,6 +16,7 @@ package org.codice.solr.factory.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
@@ -27,11 +28,18 @@ import org.codice.solr.factory.SolrClientFactory;
  * solr.client} system property.
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
+
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
+  private EncryptionService encryptionService;
 
   @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl() {
     this((factory, core) -> factory.newClient(core));
+  }
+
+  public SolrClientFactoryImpl(EncryptionService encryptionService) {
+    this();
+    this.encryptionService = encryptionService;
   }
 
   @VisibleForTesting
@@ -53,7 +61,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      factory = new HttpSolrClientFactory();
+      factory = new HttpSolrClientFactory(encryptionService);
     }
 
     return newClientFunction.apply(factory, core);

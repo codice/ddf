@@ -86,11 +86,11 @@
             <artifactId>gt-cql</artifactId>
             <version>${opengis.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security.encryption</groupId>
-            <artifactId>security-encryption-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>ddf.security.encryption</groupId>-->
+            <!--<artifactId>security-encryption-api</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
@@ -169,7 +169,7 @@
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
-                            ddf.security.encryption,
+                            <!--ddf.security.encryption,-->
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,
