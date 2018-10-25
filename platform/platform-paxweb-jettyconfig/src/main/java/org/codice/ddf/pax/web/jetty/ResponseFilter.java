@@ -11,23 +11,24 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.platform.response.filter;
+package org.codice.ddf.pax.web.jetty;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codice.ddf.platform.filter.AuthenticationException;
-import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Servlet filter that adds security information to the http response header. */
-public class ResponseFilter implements SecurityFilter {
+public class ResponseFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ResponseFilter.class);
 
@@ -78,14 +79,14 @@ public class ResponseFilter implements SecurityFilter {
   }
 
   @Override
-  public void init() {
+  public void init(FilterConfig filterConfig) throws ServletException {
     LOGGER.trace("Initializing Response Security Filter.");
   }
 
   @Override
   public void doFilter(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-      throws IOException, AuthenticationException {
+      throws IOException, ServletException {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
     addCommonHeaders(response);

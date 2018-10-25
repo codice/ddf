@@ -453,14 +453,12 @@
     <feature name="catalog-client-info" version="${project.version}"
              description="Places client-specific information from the servlet API into request and response properties">
         <feature>catalog-core-api</feature>
-        <feature>clientinfo-filter</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-clientinfo/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-metacardingest-network" version="${project.version}"
              description="Conditional attribute enhancement to metacards during ingest using client network information">
         <feature>catalog-core-api</feature>
-        <feature>clientinfo-filter</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}
         </bundle>
     </feature>

@@ -73,7 +73,6 @@
         <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
-        <feature>platform-filter-response</feature>
         <feature>platform-email</feature>
         <feature>util-uuidgenerator</feature>
         <feature>platform-alerts</feature>

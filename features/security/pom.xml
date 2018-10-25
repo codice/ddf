@@ -30,11 +30,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-filter-response</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
             <artifactId>security-filter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -51,11 +46,6 @@
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-commands</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-filter-clientinfo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -221,11 +211,6 @@
         <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-basic</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.filter</groupId>
-            <artifactId>security-filter-csrf</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
