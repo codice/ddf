@@ -626,11 +626,11 @@ module.exports = Backbone.AssociatedModel.extend({
     }
     this.set(utmUpsResult)
 
-      const { lat, lon } = utmUpsResult
-      if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
-        this.set({ usng: undefined })
-        return
-      }
+    const { lat, lon } = utmUpsResult
+    if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
+      this.set({ usng: undefined })
+      return
+    }
 
     const usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision)
 
@@ -706,10 +706,10 @@ module.exports = Backbone.AssociatedModel.extend({
     const lat = (upperLeft.lat + lowerRight.lat) / 2
     const lon = (upperLeft.lon + lowerRight.lon) / 2
 
-      if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
-        this.set('usngbb', undefined)
-        return
-      }
+    if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
+      this.set('usngbb', undefined)
+      return
+    }
 
     var usngsStr = converter.LLBboxtoUSNG(
       upperLeft.lat,
