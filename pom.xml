@@ -68,6 +68,8 @@
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
         <ddf.jaxb.version>1.0.0</ddf.jaxb.version>
 
+	<tika.thirdparty.bundle.version>1.18.0_3</tika.thirdparty.bundle.version>
+
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
