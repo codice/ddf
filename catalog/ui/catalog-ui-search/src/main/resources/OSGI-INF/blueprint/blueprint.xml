@@ -364,6 +364,7 @@
         <argument ref="configurationApplication"/>
         <argument ref="noteUtil"/>
         <argument ref="subjectIdentity"/>
+        <argument ref="accessControlSecurityConfiguration"/>
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">

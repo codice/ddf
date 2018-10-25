@@ -88,6 +88,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -129,6 +130,7 @@ import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration;
 import org.codice.ddf.catalog.ui.security.Constants;
 import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -185,6 +187,8 @@ public class MetacardApplication implements SparkApplication {
 
   private final NoteUtil noteUtil;
 
+  private final List<String> systemUserList = new ArrayList<>();
+
   public MetacardApplication(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
@@ -199,7 +203,8 @@ public class MetacardApplication implements SparkApplication {
       AttributeRegistry attributeRegistry,
       ConfigurationApplication configuration,
       NoteUtil noteUtil,
-      SubjectIdentity subjectIdentity) {
+      SubjectIdentity subjectIdentity,
+      AccessControlSecurityConfiguration accessControlSecurityConfiguration) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.util = endpointUtil;
@@ -214,6 +219,8 @@ public class MetacardApplication implements SparkApplication {
     this.configuration = configuration;
     this.noteUtil = noteUtil;
     this.subjectIdentity = subjectIdentity;
+    this.systemUserList.addAll(
+        Arrays.asList(accessControlSecurityConfiguration.getSystemUserAttributeValue().split(",")));
   }
 
   private String getSubjectEmail() {
@@ -226,7 +233,7 @@ public class MetacardApplication implements SparkApplication {
 
   // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
   private boolean isElevatedUser(List<String> subjectRoles) {
-    return subjectRoles.contains("system-user");
+    return !Collections.disjoint(subjectRoles, systemUserList);
   }
 
   private String getSubjectIdentifier() {
@@ -480,7 +487,7 @@ public class MetacardApplication implements SparkApplication {
             workspaceMetacards = util.getMetacardsByTag(WorkspaceConstants.WORKSPACE_TAG);
           } else {
             Map<String, Collection<String>> attributeMap = new HashMap<>();
-            if (email != null) {
+            if (StringUtils.isNotEmpty(email)) {
               attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
               attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
               attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
