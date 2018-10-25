@@ -16,13 +16,12 @@ package org.codice.ddf.platform.filter.clientinfo;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,9 @@ public class ClientInfoFilter implements SecurityFilter {
   public static final String SERVLET_CONTEXT_PATH = "contextPath";
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {}
+  public void init() {
+    LOGGER.trace("Initializing Client Info Filter.");
+  }
 
   @Override
   public void destroy() {}
@@ -66,7 +67,7 @@ public class ClientInfoFilter implements SecurityFilter {
   @Override
   public void doFilter(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     ThreadContext.put(CLIENT_INFO_KEY, createClientInfoMap(servletRequest));
     try {
       filterChain.doFilter(servletRequest, servletResponse);

@@ -20,8 +20,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -32,6 +30,9 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.filter.AuthenticationChallengeException;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.eclipse.jetty.http.HttpMethod;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class CsrfFilter implements SecurityFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init() {
     LOGGER.debug("Starting CSRF filter.");
 
     // internal authority system properties
@@ -119,7 +120,7 @@ public class CsrfFilter implements SecurityFilter {
    */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     LOGGER.debug("Performing doFilter() on CsrfFilter");
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -130,14 +131,15 @@ public class CsrfFilter implements SecurityFilter {
     // Begin CSRF checks if request is accessing a Cross-Site protected context
     if (protectedContexts.stream().anyMatch(targetContextPath::startsWith)
         && doBrowserProtectionFilter(httpRequest, httpResponse, targetContextPath, requestMethod)) {
-      return;
+      throw new AuthenticationChallengeException(
+          "Request is accessing a Cross-Site protected context");
     }
 
     // Execute CSRF check if user is accessing /services
     if (targetContextPath.startsWith(SERVICE_CONTEXT)
         && doSystemProtectionFilter(
             httpRequest, httpResponse, targetContextPath, requestMethod, userAgentHeader)) {
-      return;
+      throw new AuthenticationChallengeException("User is accessing /services");
     }
 
     // All checks passed

@@ -49,7 +49,7 @@ grant
 }
 
 grant
-  codeBase "file:/security-migratable/catalog-rest-endpoint/registry-publication-action-provider" {
+  codeBase "file:/security-migratable/catalog-rest-endpoint/registry-publication-action-provider/platform-paxweb-jettyconfig/pax-web-jetty" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
@@ -283,7 +283,7 @@ grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jo
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
-grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core/org.eclipse.jetty.io/org.eclipse.jetty.security/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-runtime/org.apache.cxf.cxf-rt-transports-http/org.eclipse.jetty.servlet/org.eclipse.jetty.util/platform-filter-clientinfo/platform-filter-delegate/platform-filter-response/security-certificate-generator/security-filter-authorization/security-filter-login/security-filter-web-sso/org.eclipse.jetty.websocket.server" {
+grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core/org.eclipse.jetty.io/org.eclipse.jetty.security/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.ops4j.pax.web.pax-web-extender-whiteboard/pax-web-jetty/platform-paxweb-jettyconfig/org.ops4j.pax.web.pax-web-runtime/org.apache.cxf.cxf-rt-transports-http/org.eclipse.jetty.servlet/org.eclipse.jetty.util/platform-filter-clientinfo/platform-filter-response/security-certificate-generator/security-filter-authorization/security-filter-login/security-filter-web-sso/org.eclipse.jetty.websocket.server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
@@ -303,7 +303,7 @@ grant codeBase "file:/security-rest-authn-impl/security-core-api/security-core-s
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
-grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api/security-filter-csrf" {
+grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/pax-web-jetty/platform-paxweb-jettyconfig/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api/security-filter-csrf" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";

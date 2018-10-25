@@ -24,11 +24,10 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.wss4j.common.ext.WSSecurityException;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
@@ -38,7 +37,7 @@ public class GuestHandlerTest {
 
   /** This test ensures the proper functionality of GuestHandler's method, getNormalizedToken(). */
   @Test
-  public void testGetNormalizedToken() throws WSSecurityException {
+  public void testGetNormalizedToken() throws AuthenticationException {
     GuestHandler handler = new GuestHandler();
     PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
     handler.setTokenFactory(tokenFactory);
@@ -59,7 +58,7 @@ public class GuestHandlerTest {
   }
 
   @Test
-  public void testHandleError() throws ServletException, IOException {
+  public void testHandleError() throws IOException {
     GuestHandler handler = new GuestHandler();
     PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
     handler.setTokenFactory(tokenFactory);

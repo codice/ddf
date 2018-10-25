@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-filter-delegate</artifactId>
+            <artifactId>security-filter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -106,17 +106,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.69</minimum>
+                                            <minimum>0.86</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
+                                            <minimum>0.66</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.45</minimum>
+                                            <minimum>0.58</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

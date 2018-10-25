@@ -14,13 +14,14 @@
 package ddf.security;
 
 import java.io.Serializable;
+import java.security.Principal;
 
 /**
- * This class extends {@link org.apache.shiro.subject.Subject} and {@link java.io.Serializable} in
- * order for the Subject to be accessible through the {@link ddf.catalog.operation.Operation}
- * property map.
+ * This class extends {@link org.apache.shiro.subject.Subject}, {@link java.io.Serializable}, and
+ * {@link java.security.Principal} in order for the Subject to be accessible through the {@link
+ * ddf.catalog.operation.Operation} property map.
  */
-public interface Subject extends org.apache.shiro.subject.Subject, Serializable {
+public interface Subject extends org.apache.shiro.subject.Subject, Serializable, Principal {
 
   /**
    * Returns true if the Subject is guest

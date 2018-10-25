@@ -16,14 +16,13 @@ package org.codice.ddf.security.handler.basic;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -90,8 +89,7 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
 
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException {
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     doAuthPrompt(realm, (HttpServletResponse) servletResponse);
     HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);

@@ -317,6 +317,11 @@ public class SecureCxfClientFactoryTest {
     public boolean isGuest() {
       return false;
     }
+
+    @Override
+    public String getName() {
+      return "Dummy Subject";
+    }
   }
 
   private class MockWrapper<T> extends SecureCxfClientFactoryImpl<T> {

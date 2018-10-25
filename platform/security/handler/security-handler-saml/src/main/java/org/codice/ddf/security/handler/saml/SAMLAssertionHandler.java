@@ -24,8 +24,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Pattern;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
@@ -35,6 +33,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
@@ -190,12 +189,10 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
    * @param servletResponse http servlet response
    * @param chain rest of the request chain to be invoked after security handling
    * @return result containing the potential credentials and status
-   * @throws ServletException
    */
   @Override
   public HandlerResult handleError(
-      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-      throws ServletException {
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     HandlerResult result = new HandlerResult();
 
     HttpServletRequest httpRequest =

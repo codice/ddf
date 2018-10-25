@@ -93,16 +93,6 @@
         <sha1>686EF3410BCF4AB8CE7FD0B899E832AABA5FACF7</sha1>
         <cve>CVE-2014-0114</cve>
     </suppress>
-    <suppress>
-        <notes>
-            false positive CVE is unrelated. owasp is confusing the platform-filter-delegate with
-            the DeleGate library
-            file name: platform-filter-delegate-*.jar
-        </notes>
-        <cve>CVE-2005-0036</cve>
-        <cve>CVE-1999-1338</cve>
-        <cve>CVE-2005-0861</cve>
-    </suppress>
 
     <!-- proxy-camel-servlet false positives - these are all because the proxy-camel-servlet is getting confused with the camel-servlet-->
     <suppress>
