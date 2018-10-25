@@ -65,39 +65,18 @@ public class BasicTypes {
   static {
     Map<String, AttributeType> attributeTypeMap = new HashMap<>();
 
-    DATE_TYPE = addAttributeType("DATE_TYPE", AttributeFormat.DATE, Date.class, attributeTypeMap);
-
-    STRING_TYPE =
-        addAttributeType("STRING_TYPE", AttributeFormat.STRING, String.class, attributeTypeMap);
-
-    XML_TYPE = addAttributeType("XML_TYPE", AttributeFormat.XML, String.class, attributeTypeMap);
-
-    LONG_TYPE = addAttributeType("LONG_TYPE", AttributeFormat.LONG, Long.class, attributeTypeMap);
-
-    BINARY_TYPE =
-        addAttributeType("BINARY_TYPE", AttributeFormat.BINARY, byte[].class, attributeTypeMap);
-
-    GEO_TYPE =
-        addAttributeType("GEO_TYPE", AttributeFormat.GEOMETRY, String.class, attributeTypeMap);
-
-    BOOLEAN_TYPE =
-        addAttributeType("BOOLEAN_TYPE", AttributeFormat.BOOLEAN, Boolean.class, attributeTypeMap);
-
-    DOUBLE_TYPE =
-        addAttributeType("DOUBLE_TYPE", AttributeFormat.DOUBLE, Double.class, attributeTypeMap);
-
-    FLOAT_TYPE =
-        addAttributeType("FLOAT_TYPE", AttributeFormat.FLOAT, Float.class, attributeTypeMap);
-
-    INTEGER_TYPE =
-        addAttributeType("INTEGER_TYPE", AttributeFormat.INTEGER, Integer.class, attributeTypeMap);
-
-    OBJECT_TYPE =
-        addAttributeType(
-            "OBJECT_TYPE", AttributeFormat.OBJECT, Serializable.class, attributeTypeMap);
-
-    SHORT_TYPE =
-        addAttributeType("SHORT_TYPE", AttributeFormat.SHORT, Short.class, attributeTypeMap);
+    DATE_TYPE = addAttributeType(AttributeFormat.DATE, Date.class, attributeTypeMap);
+    STRING_TYPE = addAttributeType(AttributeFormat.STRING, String.class, attributeTypeMap);
+    XML_TYPE = addAttributeType(AttributeFormat.XML, String.class, attributeTypeMap);
+    LONG_TYPE = addAttributeType(AttributeFormat.LONG, Long.class, attributeTypeMap);
+    BINARY_TYPE = addAttributeType(AttributeFormat.BINARY, byte[].class, attributeTypeMap);
+    GEO_TYPE = addAttributeType(AttributeFormat.GEOMETRY, String.class, attributeTypeMap);
+    BOOLEAN_TYPE = addAttributeType(AttributeFormat.BOOLEAN, Boolean.class, attributeTypeMap);
+    DOUBLE_TYPE = addAttributeType(AttributeFormat.DOUBLE, Double.class, attributeTypeMap);
+    FLOAT_TYPE = addAttributeType(AttributeFormat.FLOAT, Float.class, attributeTypeMap);
+    INTEGER_TYPE = addAttributeType(AttributeFormat.INTEGER, Integer.class, attributeTypeMap);
+    OBJECT_TYPE = addAttributeType(AttributeFormat.OBJECT, Serializable.class, attributeTypeMap);
+    SHORT_TYPE = addAttributeType(AttributeFormat.SHORT, Short.class, attributeTypeMap);
 
     ATTRIBUTE_TYPE_MAP = Collections.unmodifiableMap(attributeTypeMap);
   }
@@ -105,10 +84,7 @@ public class BasicTypes {
   private BasicTypes() {}
 
   private static <T extends Serializable> AttributeType<T> addAttributeType(
-      final String typeName,
-      final AttributeFormat format,
-      final Class<T> bindingClass,
-      Map<String, AttributeType> map) {
+      final AttributeFormat format, final Class<T> bindingClass, Map<String, AttributeType> map) {
     final AttributeType<T> attributeType =
         new AttributeType<T>() {
           private static final long serialVersionUID = 1L;
@@ -124,7 +100,7 @@ public class BasicTypes {
           }
         };
 
-    map.put(typeName, attributeType);
+    map.put(format.name(), attributeType);
 
     return attributeType;
   }
