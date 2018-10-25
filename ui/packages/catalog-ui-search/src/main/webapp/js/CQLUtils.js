@@ -26,6 +26,10 @@ function sanitizeForCql(text) {
     .join('')
 }
 
+function sanitizeStringForCql(text) {
+  return typeof text === 'string' ? text.trim() : text
+}
+
 function lineToCQLLine(model) {
   var cqlLINE = model.map(function(point) {
     return point[0] + ' ' + point[1]
@@ -228,7 +232,7 @@ function generateFilter(type, property, value, metacardDefinitions) {
       return {
         type: type,
         property: '"' + property + '"',
-        value: value,
+        value: sanitizeStringForCql(value),
       }
   }
 }
