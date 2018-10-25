@@ -253,6 +253,9 @@ module.exports = Backbone.Model.extend({
       case 'NEAR':
         calculatedType = 'near'
         break
+      case 'PASSWORD':
+        calculatedType = 'password'
+        break
       case 'STRING':
       case 'XML':
       default:

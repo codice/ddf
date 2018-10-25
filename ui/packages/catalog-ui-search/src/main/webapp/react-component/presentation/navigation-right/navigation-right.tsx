@@ -132,7 +132,7 @@ const Root = styled<Props, 'div'>('div')`
 `
 
 const toggleAlerts = () => {
-  SlideoutRightViewInstance.updateContent(new UserNotifications())
+  SlideoutRightViewInstance.updateContent(UserNotifications)
   SlideoutRightViewInstance.open()
 }
 
@@ -141,7 +141,7 @@ const toggleHelp = () => {
 }
 
 const toggleUserSettings = () => {
-  SlideoutViewInstance.updateContent(new UserSettings())
+  SlideoutViewInstance.updateContent(UserSettings)
   SlideoutViewInstance.open()
 }
 

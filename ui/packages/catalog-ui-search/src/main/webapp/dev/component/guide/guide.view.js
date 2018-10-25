@@ -25,6 +25,7 @@ import Enum from '../enum'
 import InputWithParam from '../input-with-param'
 import Textarea from '../textarea'
 import MultiEnum from '../multi-enum'
+import Password from '../password'
 import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
 import React from 'react'
 
@@ -124,6 +125,10 @@ module.exports = Marionette.LayoutView.extend({
           value: 'JSX',
         },
         {
+          label: 'Password',
+          value: 'Password',
+        },
+        {
           label: 'Regions (Layout Views)',
           value: 'Regions',
         },
@@ -215,6 +220,9 @@ module.exports = Marionette.LayoutView.extend({
         break
       case 'textarea':
         componentToShow = Textarea
+        break
+      case 'Password':
+        componentToShow = Password
         break
       case 'Dropdowns':
         componentToShow = DropdownGuideView

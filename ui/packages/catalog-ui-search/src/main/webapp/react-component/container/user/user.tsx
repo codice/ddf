@@ -76,14 +76,14 @@ class UserContainer extends React.Component<{}, State> {
         '../../logout/?prevurl=' + encodeURI(window.location.pathname)
     })
   }
-  handleUsernameChange(e: React.FormEvent<HTMLInputElement>) {
+  handleUsernameChange(value: string) {
     this.setState({
-      username: e.currentTarget.value,
+      username: value,
     })
   }
-  handlePasswordChange(e: React.FormEvent<HTMLInputElement>) {
+  handlePasswordChange(value: string) {
     this.setState({
-      password: e.currentTarget.value,
+      password: value,
     })
   }
   render() {

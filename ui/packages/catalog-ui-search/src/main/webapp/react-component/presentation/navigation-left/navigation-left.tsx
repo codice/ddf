@@ -157,7 +157,7 @@ const getClassesFromProps = (props: Props) => {
 }
 
 const openNavigator = () => {
-  SlideoutLeftViewInstance.updateContent(new NavigatorView())
+  SlideoutLeftViewInstance.updateContent(NavigatorView)
   SlideoutLeftViewInstance.open()
 }
 
