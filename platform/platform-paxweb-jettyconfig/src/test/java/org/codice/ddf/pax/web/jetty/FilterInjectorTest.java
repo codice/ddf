@@ -21,6 +21,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.servlet.Filter;
@@ -56,18 +57,18 @@ public class FilterInjectorTest {
   public void testInjectFilter() {
     SecurityJavaSubjectFilter filter = mock(SecurityJavaSubjectFilter.class);
     executorService = mock(ScheduledExecutorService.class);
-    FilterInjector injector = new FilterInjector(filter, executorService);
+    FilterInjector injector = new FilterInjector(Arrays.asList(filter), executorService);
     updateMockReference();
 
     injector.event(curEvent, null);
 
-    verify(curContext).addFilter("security-java-subject-filter", filter);
+    verify(curContext).addFilter(filter.getClass().getName(), filter);
   }
 
   @Test
   public void testInjectFilterHandlesOnlyServletContext() {
     SecurityJavaSubjectFilter filter = mock(SecurityJavaSubjectFilter.class);
-    FilterInjector injector = new FilterInjector(filter, executorService);
+    FilterInjector injector = new FilterInjector(Arrays.asList(filter), executorService);
     curEvent = mock(ServiceEvent.class);
     curReference = mock(ServiceReference.class);
     curContext = mock(ServletContext.class);
@@ -89,7 +90,7 @@ public class FilterInjectorTest {
   @Test
   public void testInjectFilterIgnoresUnregisteringEvents() {
     SecurityJavaSubjectFilter filter = mock(SecurityJavaSubjectFilter.class);
-    FilterInjector injector = new FilterInjector(filter, executorService);
+    FilterInjector injector = new FilterInjector(Arrays.asList(filter), executorService);
     curEvent = mock(ServiceEvent.class);
     when(curEvent.getType()).thenReturn(ServiceEvent.UNREGISTERING);
 
@@ -101,7 +102,7 @@ public class FilterInjectorTest {
   @Test
   public void testInjectFilterIgnoresModifiedEvents() {
     SecurityJavaSubjectFilter filter = mock(SecurityJavaSubjectFilter.class);
-    FilterInjector injector = new FilterInjector(filter, executorService);
+    FilterInjector injector = new FilterInjector(Arrays.asList(filter), executorService);
     curEvent = mock(ServiceEvent.class);
     when(curEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
 
@@ -113,7 +114,7 @@ public class FilterInjectorTest {
   @Test
   public void testInjectFilterIgnoresModifiedEndMatchEvents() {
     SecurityJavaSubjectFilter filter = mock(SecurityJavaSubjectFilter.class);
-    FilterInjector injector = new FilterInjector(filter, executorService);
+    FilterInjector injector = new FilterInjector(Arrays.asList(filter), executorService);
     curEvent = mock(ServiceEvent.class);
     when(curEvent.getType()).thenReturn(ServiceEvent.MODIFIED_ENDMATCH);
 
