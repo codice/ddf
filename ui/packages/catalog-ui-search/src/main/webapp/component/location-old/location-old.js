@@ -394,23 +394,11 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setBboxLatLon: function() {
-    const north = this.get('north'),
-      south = this.get('south'),
-      west = this.get('west'),
-      east = this.get('east')
-    if (
-      north === undefined ||
-      south === undefined ||
-      east === undefined ||
-      west === undefined
-    ) {
-      return
-    }
-
-    const lat = (parseFloat(north) + parseFloat(south)) / 2
-    const lon = (parseFloat(east) + parseFloat(west)) / 2
-
-    if (!this.isLatLonValid(lat, lon)) {
+    const north = parseFloat(this.get('north')),
+      south = parseFloat(this.get('south')),
+      west = parseFloat(this.get('west')),
+      east = parseFloat(this.get('east'))
+    if (!this.isLatLonValid(north, west) || !this.isLatLonValid(south, east)) {
       return
     }
 
@@ -430,6 +418,8 @@ module.exports = Backbone.AssociatedModel.extend({
       this.repositionLatLon()
     }
 
+    const lat = (north + south) / 2
+    const lon = (east + west) / 2
     if (this.isInUpsSpace(lat, lon)) {
       this.set('usngbb', undefined)
       return
@@ -581,6 +571,8 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   isLatLonValid: function(lat, lon) {
+    lat = parseFloat(lat)
+    lon = parseFloat(lon)
     return (
       lat !== undefined &&
       lon !== undefined &&
@@ -594,9 +586,11 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   isInUpsSpace: function(lat, lon) {
+    lat = parseFloat(lat)
+    lon = parseFloat(lon)
     return (
-      (this.isLatLonValid(lat, lon) && (lat > 84 && lat < 90)) ||
-      (lat < -80 && lat > -90)
+      this.isLatLonValid(lat, lon) &&
+      ((lat > 84 && lat < 90) || (lat < -80 && lat > -90))
     )
   },
 
@@ -832,6 +826,8 @@ module.exports = Backbone.AssociatedModel.extend({
   //   zoneNumber : INTEGER (>=0 and <= 60)
   //   hemisphere : STRING (NORTHERN or SOUTHERN)
   LLtoUtmUps: function(lat, lon) {
+    lat = parseFloat(lat)
+    lon = parseFloat(lon)
     if (!this.isLatLonValid(lat, lon)) {
       return undefined
     }
@@ -878,21 +874,21 @@ module.exports = Backbone.AssociatedModel.extend({
       return undefined
     }
 
-    let results = converter.UTMUPStoLL(utmUpsParts)
+    let { lat, lon } = converter.UTMUPStoLL(utmUpsParts)
 
-    if (!this.isLatLonValid(results.lat, results.lon)) {
+    if (!this.isLatLonValid(lat, lon)) {
       return undefined
     }
 
-    results.lon = results.lon % 360
+    lon = lon % 360
 
-    if (results.lon < -180) {
-      results.lon = results.lon + 360
+    if (lon < -180) {
+      lon = lon + 360
     }
-    if (results.lon > 180) {
-      results.lon = results.lon - 360
+    if (lon > 180) {
+      lon = lon - 360
     }
-    return results
+    return { lat, lon }
   },
 
   // Return true if the current location type is UTM/UPS, otherwise false.
