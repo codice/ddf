@@ -305,7 +305,7 @@ public class ValidationParser implements ArtifactInstaller {
               entry.getValue().stored,
               entry.getValue().tokenized,
               entry.getValue().multivalued,
-              BasicTypes.getAttributeType(entry.getValue().type));
+              BasicTypes.getAttributeType(entry.getValue().type.replace("_TYPE", "")));
 
       staged.add(
           () -> {
