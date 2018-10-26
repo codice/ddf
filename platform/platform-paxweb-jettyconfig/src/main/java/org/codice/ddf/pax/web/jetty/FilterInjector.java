@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.pax.web.jetty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -50,6 +51,8 @@ public class FilterInjector implements EventListenerHook {
 
   private final List<Filter> filterList;
 
+  private final List<Filter> referenceFilterList;
+
   private final ScheduledExecutorService executorService;
 
   /**
@@ -58,8 +61,12 @@ public class FilterInjector implements EventListenerHook {
    * @param filterList filters that should be injected.
    * @param executorService used to check for missed servlet contexts
    */
-  public FilterInjector(List<Filter> filterList, ScheduledExecutorService executorService) {
+  public FilterInjector(
+      List<Filter> filterList,
+      List<Filter> referenceFilterList,
+      ScheduledExecutorService executorService) {
     this.filterList = filterList;
+    this.referenceFilterList = referenceFilterList;
     this.executorService = executorService;
   }
 
@@ -100,12 +107,17 @@ public class FilterInjector implements EventListenerHook {
       }
       Collection<ServiceReference<ServletContext>> references =
           context.getServiceReferences(ServletContext.class, null);
+
+      List<Filter> allFilterList = new ArrayList<>();
+      allFilterList.addAll(filterList);
+      allFilterList.addAll(referenceFilterList);
+
       for (ServiceReference<ServletContext> reference : references) {
         Bundle refBundle = reference.getBundle();
         BundleContext bundlectx = refBundle.getBundleContext();
         ServletContext service = bundlectx.getService(reference);
 
-        for (Filter filter : filterList) {
+        for (Filter filter : allFilterList) {
           if (service.getFilterRegistration(filter.getClass().getName()) == null) {
             LOGGER.error(
                 "Security filter failed to start in time to inject itself into {} {}. This means the {} servlet will not properly attach the user subject to requests. A system restart is recommended.",
@@ -145,7 +157,11 @@ public class FilterInjector implements EventListenerHook {
           "Failed trying to set the cookie config path to /. This can usually be ignored", e);
     }
 
-    for (Filter filter : filterList) {
+    List<Filter> allFilterList = new ArrayList<>();
+    allFilterList.addAll(filterList);
+    allFilterList.addAll(referenceFilterList);
+
+    for (Filter filter : allFilterList) {
       try {
 
         FilterRegistration filterReg = context.addFilter(filter.getClass().getName(), filter);
