@@ -78,6 +78,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.CommonParams;
 import org.codice.solr.client.solrj.SolrClient;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -100,6 +101,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
       "catalog.zeroPageSizeCompatibility";
+
+  private static final String GET_QUERY_HANDLER = "/get";
+
+  private static final String IDS_KEY = "ids";
 
   public static final String SORT_FIELD_KEY = "sfield";
 
@@ -141,7 +146,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       return new QueryResponseImpl(request, new ArrayList<>(), true, 0L);
     }
 
-    SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
+    SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(resolver);
+    SolrQuery query = getSolrQuery(request, solrFilterDelegate);
 
     List<Result> results = new ArrayList<>();
     Map<String, Serializable> responseProps = new HashMap<>();
@@ -190,7 +196,15 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     long totalHits = 0;
 
     try {
-      QueryResponse solrResponse = client.query(query, METHOD.POST);
+      QueryResponse solrResponse;
+
+      if (solrFilterDelegate.isIdQuery()) {
+        LOGGER.debug("Performing real time query");
+        SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
+        solrResponse = client.query(realTimeQuery, METHOD.POST);
+      } else {
+        solrResponse = client.query(query, METHOD.POST);
+      }
 
       SolrDocumentList docs = solrResponse.getResults();
       if (docs != null) {
@@ -421,6 +435,38 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
     return postAdapt(request, solrFilterDelegate, query);
+  }
+
+  private SolrQuery getRealTimeQuery(SolrQuery originalQuery, Collection<String> ids) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("originalQuery: {}", getQueryParams(originalQuery));
+    }
+    SolrQuery realTimeQuery = new SolrQuery();
+    for (Map.Entry<String, String[]> entry : originalQuery.getMap().entrySet()) {
+      if (CommonParams.Q.equals(entry.getKey())) {
+        realTimeQuery.set(CommonParams.FQ, entry.getValue());
+      } else {
+        realTimeQuery.set(entry.getKey(), entry.getValue());
+      }
+    }
+    realTimeQuery.set(CommonParams.QT, GET_QUERY_HANDLER);
+    realTimeQuery.set(IDS_KEY, ids.toArray(new String[ids.size()]));
+
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("realTimeQuery: {}", getQueryParams(realTimeQuery));
+    }
+
+    return realTimeQuery;
+  }
+
+  private String getQueryParams(SolrQuery query) {
+    StringBuilder builder = new StringBuilder();
+    for (Map.Entry<String, String[]> entry : query.getMap().entrySet()) {
+      builder.append(
+          String.format(
+              "param: %s; value: %s%n", entry.getKey(), Arrays.toString(entry.getValue())));
+    }
+    return builder.toString();
   }
 
   protected SolrQuery postAdapt(

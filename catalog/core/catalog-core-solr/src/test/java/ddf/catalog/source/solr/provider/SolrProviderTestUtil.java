@@ -34,7 +34,6 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.SolrCatalogProvider;
-import ddf.catalog.source.solr.SolrProviderTest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -47,23 +46,21 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SolrProviderTestBase {
+public class SolrProviderTestUtil {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderQuery.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderTestUtil.class);
 
-  static final int ONE_HIT = 1;
+  public static final int ONE_HIT = 1;
 
-  static final int ALL_RESULTS = -1;
+  public static final int ALL_RESULTS = -1;
 
-  static final String DEFAULT_TEST_ESCAPE = "\\";
+  public static final String DEFAULT_TEST_ESCAPE = "\\";
 
-  static final String DEFAULT_TEST_SINGLE_WILDCARD = "?";
+  public static final String DEFAULT_TEST_SINGLE_WILDCARD = "?";
 
-  static final String DEFAULT_TEST_WILDCARD = "*";
+  public static final String DEFAULT_TEST_WILDCARD = "*";
 
-  protected static SolrCatalogProvider provider = SolrProviderTest.getProvider();
-
-  protected static SolrFilterBuilder filterBuilder = new SolrFilterBuilder();
+  private static SolrFilterBuilder filterBuilder = new SolrFilterBuilder();
 
   private static final int TEST_METHOD_NAME_INDEX = 3;
 
@@ -73,11 +70,12 @@ public abstract class SolrProviderTestBase {
 
   private static final int A_LITTLE_WHILE = TIME_STEP_10SECONDS;
 
-  protected static void deleteAll() throws IngestException, UnsupportedQueryException {
-    deleteAll(TEST_METHOD_NAME_INDEX);
+  public static void deleteAll(SolrCatalogProvider provider)
+      throws IngestException, UnsupportedQueryException {
+    deleteAll(TEST_METHOD_NAME_INDEX, provider);
   }
 
-  protected static void deleteAll(int methodNameIndex)
+  public static void deleteAll(int methodNameIndex, SolrCatalogProvider provider)
       throws IngestException, UnsupportedQueryException {
     messageBreak(Thread.currentThread().getStackTrace()[methodNameIndex].getMethodName() + "()");
 
@@ -99,11 +97,12 @@ public abstract class SolrProviderTestBase {
     LOGGER.info("Deletion complete. -----------");
   }
 
-  QueryRequest quickQuery(Filter filter) {
+  public static QueryRequest quickQuery(Filter filter) {
     return new QueryRequestImpl(new QueryImpl(filter));
   }
 
-  void queryAndVerifyCount(int count, Filter filter) throws UnsupportedQueryException {
+  public static void queryAndVerifyCount(int count, Filter filter, SolrCatalogProvider provider)
+      throws UnsupportedQueryException {
     Query query = new QueryImpl(filter);
     QueryRequest request = new QueryRequestImpl(query);
     SourceResponse response = provider.query(request);
@@ -111,59 +110,71 @@ public abstract class SolrProviderTestBase {
     assertEquals(count, response.getResults().size());
   }
 
-  protected DeleteResponse delete(String identifier) throws IngestException {
-    return delete(new String[] {identifier});
+  public static DeleteResponse delete(String identifier, SolrCatalogProvider provider)
+      throws IngestException {
+    return delete(new String[] {identifier}, provider);
   }
 
-  protected DeleteResponse delete(String[] identifier) throws IngestException {
+  public static DeleteResponse delete(String[] identifier, SolrCatalogProvider provider)
+      throws IngestException {
     return provider.delete(new DeleteRequestImpl(identifier));
   }
 
-  protected UpdateResponse update(String id, Metacard metacard) throws IngestException {
+  public static UpdateResponse update(String id, Metacard metacard, SolrCatalogProvider provider)
+      throws IngestException {
     String[] ids = {id};
-    return update(ids, Collections.singletonList(metacard));
+    return update(ids, Collections.singletonList(metacard), provider);
   }
 
-  protected UpdateResponse update(String[] ids, List<Metacard> list) throws IngestException {
+  public static UpdateResponse update(
+      String[] ids, List<Metacard> list, SolrCatalogProvider provider) throws IngestException {
     return provider.update(new UpdateRequestImpl(ids, list));
   }
 
-  protected CreateResponse create(Metacard metacard) throws IngestException {
-    return create(Collections.singletonList(metacard));
+  public static CreateResponse create(Metacard metacard, SolrCatalogProvider provider)
+      throws IngestException {
+    return create(Collections.singletonList(metacard), provider);
   }
 
-  protected CreateResponse create(List<Metacard> metacards) throws IngestException {
+  public static CreateResponse create(List<Metacard> metacards, SolrCatalogProvider provider)
+      throws IngestException {
     return createIn(metacards, provider);
   }
 
-  void addMetacardWithModifiedDate(DateTime now) throws IngestException {
+  public static SolrFilterBuilder getFilterBuilder() {
+    return filterBuilder;
+  }
+
+  public static void addMetacardWithModifiedDate(DateTime now, SolrCatalogProvider provider)
+      throws IngestException {
     List<Metacard> list = new ArrayList<>();
     MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
     m.setEffectiveDate(dateNow(now));
     list.add(m);
-    create(list);
+    create(list, provider);
   }
 
-  List<Result> getResultsForFilteredQuery(Filter filter) throws UnsupportedQueryException {
+  public static List<Result> getResultsForFilteredQuery(Filter filter, SolrCatalogProvider provider)
+      throws UnsupportedQueryException {
     QueryImpl query = new QueryImpl(filter);
 
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
     return sourceResponse.getResults();
   }
 
-  Date dateAfterNow(DateTime now) {
+  public static Date dateAfterNow(DateTime now) {
     return now.plusSeconds(A_LITTLE_WHILE).toDate();
   }
 
-  Date dateBeforeNow(DateTime now) {
+  public static Date dateBeforeNow(DateTime now) {
     return now.minusSeconds(A_LITTLE_WHILE).toDate();
   }
 
-  Date dateNow(DateTime now) {
+  public static Date dateNow(DateTime now) {
     return now.toDate();
   }
 
-  Set<AttributeDescriptor> numericalDescriptors(
+  public static Set<AttributeDescriptor> numericalDescriptors(
       String doubleField, String floatField, String intField, String longField, String shortField) {
     Set<AttributeDescriptor> descriptors = new HashSet<>();
     descriptors.add(
