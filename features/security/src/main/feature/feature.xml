@@ -55,12 +55,6 @@
         </bundle>
     </feature>
 
-    <feature name="platform-filter-response" version="${project.version}"
-             description="Response Filter for outgoing HTTP messages.">
-        <feature>security-filter-api</feature>
-        <bundle>mvn:ddf.platform/platform-filter-response/${project.version}</bundle>
-    </feature>
-
     <feature name="security-filter-api" version="${project.version}">
         <feature prerequisite="true" version="${project.version}">kernel</feature>
         <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
@@ -79,13 +73,6 @@
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
-    </feature>
-
-    <feature name="clientinfo-filter" version="${project.version}"
-             description="Servlet filter to extract client information from the request">
-        <feature>security-core-api</feature>
-        <feature>security-filter-api</feature>
-        <bundle>mvn:ddf.platform/platform-filter-clientinfo/${project.version}</bundle>
     </feature>
 
     <feature name="web-container" version="${project.version}">
@@ -360,13 +347,6 @@
         <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-csrf" version="${project.version}"
-             description="CSRF Filter for web applications.">
-        <feature>security-core-api</feature>
-        <feature>security-filter-api</feature>
-        <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
-    </feature>
-
     <feature name="security-filter-login" version="${project.version}"
              description="Login Filter for web applications.">
         <feature>security-core</feature>
@@ -623,7 +603,6 @@
         <feature>security-expansion-metacard-attributes</feature>
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
-        <feature>security-filter-csrf</feature>
         <feature>security-filter-login</feature>
         <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>
