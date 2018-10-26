@@ -271,7 +271,7 @@
         <feature>security-core-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
-        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.2.RELEASE</bundle>
+        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/2.3.2.RELEASE</bundle>
     </feature>
 
     <feature name="security-sts-server" version="${project.version}"
