@@ -88,7 +88,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -187,7 +186,7 @@ public class MetacardApplication implements SparkApplication {
 
   private final NoteUtil noteUtil;
 
-  private final List<String> systemUserList = new ArrayList<>();
+  private final AccessControlSecurityConfiguration accessControlSecurityConfiguration;
 
   public MetacardApplication(
       CatalogFramework catalogFramework,
@@ -219,8 +218,7 @@ public class MetacardApplication implements SparkApplication {
     this.configuration = configuration;
     this.noteUtil = noteUtil;
     this.subjectIdentity = subjectIdentity;
-    this.systemUserList.addAll(
-        Arrays.asList(accessControlSecurityConfiguration.getSystemUserAttributeValue().split(",")));
+    this.accessControlSecurityConfiguration = accessControlSecurityConfiguration;
   }
 
   private String getSubjectEmail() {
@@ -233,6 +231,11 @@ public class MetacardApplication implements SparkApplication {
 
   // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
   private boolean isElevatedUser(List<String> subjectRoles) {
+    List<String> systemUserList =
+        StringUtils.isNotEmpty(accessControlSecurityConfiguration.getSystemUserAttributeValue())
+            ? Collections.singletonList(
+                accessControlSecurityConfiguration.getSystemUserAttributeValue())
+            : Collections.EMPTY_LIST;
     return !Collections.disjoint(subjectRoles, systemUserList);
   }
 
