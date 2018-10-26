@@ -11,23 +11,27 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.filter.delegate;
+package ddf.catalog.metacard.validation;
 
-import ddf.catalog.data.types.Validation;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.List;
 
 public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
 
+  private String validationType;
+
+  public ValidationQueryDelegate(String validationType) {
+    this.validationType = validationType;
+  }
   /**
    * These three Boolean operations AND, OR, and NOT are not boolean operations in the traditional
    * sense They should return true if any of the operands are true. This is because we want the
-   * delegate to return true whenever VALIDATION_WARNINGS or VALIDATION_ERRORS occur in the filter
-   * For example: if we get a filter that is like [ validation-warnings is test ] AND [ AnyText is *
-   * ] we want {@link ValidationQueryDelegate#and} to return true, so we need an or operation
-   * underneath if we get a filter that is like [ validation-warnings is test ] OR [ AnyText is * ]
-   * we want {@link ValidationQueryDelegate#or} to return true, so we need an or operation
-   * underneath if we get a filter this is like NOT [ validation-warnings is test ] we want {@link
+   * delegate to return true whenever {@link #validationType} occur in the filter For example: if we
+   * get a filter that is like [ validation-warnings is test ] AND [ AnyText is * ] we want {@link
+   * ValidationQueryDelegate#and} to return true, so we need an or operation underneath if we get a
+   * filter that is like [ validation-warnings is test ] OR [ AnyText is * ] we want {@link
+   * ValidationQueryDelegate#or} to return true, so we need an or operation underneath if we get a
+   * filter this is like NOT [ validation-warnings is test ] we want {@link
    * ValidationQueryDelegate#not} to return true, so we need to pass the operand as is
    */
   @Override
@@ -52,39 +56,33 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
   }
 
   /*
-   *The three propertyIs... methods return true if the propertyName (the property they are filtering for) is either VALIDATION_ERRORS
-   * or VALIDATION_WARNINGS. This boolean is used to determine whether the query needs to be modified to query for only valid metacards or not
+   *The three propertyIs... methods return true if the propertyName (the property they are filtering for)
+   * match validationType. This boolean is used to determine whether
+   * the query needs to be modified to query for only valid metacards or not
    *
-   * If the original query does not have a "true" return value from this FilterDelegate, it means the query and its filters do not specify the validity of metacards they are searching for,
-   * and therefore the query needs to only query for valid metacards by adding a propertyIsNull filter for both VALIDATION_ERRORS and VALIDATION_WARNINGS
+   * If the original query does not have a "true" return value from this FilterDelegate,
+   * it means the query and its filters do not specify the validity of metacards they are searching for,
+   * and therefore the query needs to only query for valid metacards by adding a propertyIsNull
+   * filter for both VALIDATION_ERRORS and VALIDATION_WARNINGS
    */
 
   @Override
   public Boolean propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
-    return propertyName.equals(Validation.VALIDATION_ERRORS)
-        || propertyName.equals(Validation.VALIDATION_WARNINGS);
+    return propertyName.equals(validationType);
   }
 
   @Override
   public Boolean propertyIsNull(String propertyName) {
-    return propertyName.equals(Validation.VALIDATION_ERRORS)
-        || propertyName.equals(Validation.VALIDATION_WARNINGS);
+    return propertyName.equals(validationType);
   }
 
   @Override
   public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-    return propertyName.equals(Validation.VALIDATION_ERRORS)
-        || propertyName.equals(Validation.VALIDATION_WARNINGS);
+    return propertyName.equals(validationType);
   }
 
   @Override
   public Boolean propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
-    return arguments != null
-        && arguments
-            .stream()
-            .anyMatch(
-                a ->
-                    a.equals(Validation.VALIDATION_ERRORS)
-                        || a.equals(Validation.VALIDATION_WARNINGS));
+    return arguments != null && arguments.stream().anyMatch(a -> a.equals(validationType));
   }
 }

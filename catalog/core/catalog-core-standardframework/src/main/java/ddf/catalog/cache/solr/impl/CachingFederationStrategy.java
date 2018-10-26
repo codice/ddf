@@ -36,7 +36,6 @@ import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.RelevanceResultComparator;
@@ -56,7 +55,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.Validate;
-import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,13 +139,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
   private boolean cacheRemoteIngests = false;
 
-  private ValidationQueryFactory validationQueryFactory;
-
   private CacheQueryFactory cacheQueryFactory;
-
-  private boolean showErrors = false;
-
-  private boolean showWarnings = true;
 
   /**
    * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
@@ -160,7 +152,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
       List<PostFederatedQueryPlugin> postQuery,
       SolrCache cache,
       ExecutorService cacheExecutorService,
-      ValidationQueryFactory validationQueryFactory,
       CacheQueryFactory cacheQueryFactory) {
 
     Validate.notNull(queryExecutorService, "Valid queryExecutorService required.");
@@ -170,7 +161,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     Validate.noNullElements(postQuery, "postQuery cannot contain null elements.");
     Validate.notNull(cache, "Valid SolrCache required.");
     Validate.notNull(cacheExecutorService, "Valid cacheExecutorService required.");
-    Validate.notNull(validationQueryFactory, "Valid ValidationQueryFactory required.");
     Validate.notNull(cacheQueryFactory, "Valid CacheQueryFactory required.");
 
     this.queryExecutorService = queryExecutorService;
@@ -181,7 +171,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     this.cacheExecutorService = cacheExecutorService;
     cacheCommitPhaser = new CacheCommitPhaser(cache);
     cacheBulkProcessor = new CacheBulkProcessor(cache);
-    this.validationQueryFactory = validationQueryFactory;
     this.cacheQueryFactory = cacheQueryFactory;
     cacheSource = new SolrCacheSource(cache);
   }
@@ -281,13 +270,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
           }
         } catch (StopProcessingException e) {
           LOGGER.info("Plugin stopped processing", e);
-        }
-
-        if (source instanceof CatalogProvider && SystemInfo.getSiteName().equals(source.getId())) {
-          // TODO RAP 12 Jul 16: DDF-2294 - Extract into a new PreFederatedQueryPlugin
-          sourceQueryRequest =
-              validationQueryFactory.getQueryRequestWithValidationFilter(
-                  sourceQueryRequest, showErrors, showWarnings);
         }
 
         futures.put(
@@ -463,22 +445,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
   public void shutdown() {
     cacheCommitPhaser.shutdown();
     cacheBulkProcessor.shutdown();
-  }
-
-  public boolean getShowErrors() {
-    return showErrors;
-  }
-
-  public void setShowErrors(boolean showErrors) {
-    this.showErrors = showErrors;
-  }
-
-  public boolean getShowWarnings() {
-    return showWarnings;
-  }
-
-  public void setShowWarnings(boolean showWarnings) {
-    this.showWarnings = showWarnings;
   }
 
   static class OffsetResultHandler implements Runnable {

@@ -23,6 +23,8 @@ import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -61,6 +63,7 @@ import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -271,9 +274,17 @@ public class TestSpatial extends AbstractIntegrationTest {
       loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
       getServiceManager().startFeature(true, "spatial-wps");
       getServiceManager().startFeature(true, "sample-process");
+
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to start required apps: ");
     }
+  }
+
+  @Before
+  public void setup() throws Exception {
+    configureFilterInvalidMetacards("false", "false", getAdminConfig());
+    configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=guest"), getAdminConfig());
+    clearCatalogAndWait();
   }
 
   private void setupMockServer() throws IOException {
@@ -612,6 +623,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Test
   public void testWfs11Wildcard() {
+    ingestMetacards(metacardIds);
     String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src=" + WFS_11_SOURCE_ID;
     String responseXml = given().request().get(queryUrl).andReturn().body().asString();
     assertMetacards(responseXml, 3, WFS_11_SOURCE_ID, "roads");
@@ -619,6 +631,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Test
   public void testWfs11Keyword() {
+    ingestMetacards(metacardIds);
     String queryUrl = OPENSEARCH_PATH + "?q=roads.1&format=xml&src=" + WFS_11_SOURCE_ID;
     String responseXml = given().request().get(queryUrl).andReturn().body().asString();
     assertMetacards(responseXml, 1, WFS_11_SOURCE_ID, "roads");
@@ -626,6 +639,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Test
   public void testWfs11Boolean() {
+    ingestMetacards(metacardIds);
     String queryUrl = OPENSEARCH_PATH + "?q=roads.2 AND roads.3&format=xml&src=" + WFS_11_SOURCE_ID;
     String responseXml = given().request().get(queryUrl).andReturn().body().asString();
     assertMetacards(responseXml, 2, WFS_11_SOURCE_ID, "roads");
@@ -633,6 +647,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Test
   public void testWfs11Id() {
+    ingestMetacards(metacardIds);
     String queryUrl = REST_PATH.getUrl() + "sources/" + WFS_11_SOURCE_ID + "/roads.1";
     String responseXml = given().request().get(queryUrl).andReturn().body().asString();
     assertMetacard(responseXml, WFS_11_SOURCE_ID, "roads");
@@ -640,6 +655,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Test
   public void testWfs11Geo() {
+    ingestMetacards(metacardIds);
     String queryUrl =
         OPENSEARCH_PATH + "?lat=90&lon=90&radius=1000&format=xml&src=" + WFS_11_SOURCE_ID;
     String responseXml = given().request().get(queryUrl).andReturn().body().asString();
