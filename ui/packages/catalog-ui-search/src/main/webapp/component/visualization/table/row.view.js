@@ -131,10 +131,6 @@ module.exports = Marionette.LayoutView.extend({
       .get('user')
       .get('preferences')
       .get('columnOrder')
-    var hiddenColumns = user
-      .get('user')
-      .get('preferences')
-      .get('columnHide')
     var availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
     var result = this.model.toJSON()
     return {
