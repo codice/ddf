@@ -15,6 +15,7 @@ package ddf.catalog.source.solr;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.vividsolutions.jts.geom.Geometry;
@@ -44,6 +45,8 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -113,6 +116,10 @@ public class DynamicSchemaResolver {
 
   protected static final XMLInputFactory XML_INPUT_FACTORY;
 
+  protected static final int FIVE_MEGABYTES = 5 * 1024 * 1024;
+
+  private static final String METADATA_SIZE_LIMIT = "metadata.size.limit";
+
   private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
   private static final String COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES =
@@ -131,6 +138,8 @@ public class DynamicSchemaResolver {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
   private Function<TinyTree, TinyBinary> tinyBinaryFunction;
+
+  private static int metadataMaximumBytes;
 
   private static final ObjectMapper METACARD_TYPE_MAPPER =
       MetacardTypeMapperFactory.newObjectMapper();
@@ -176,6 +185,7 @@ public class DynamicSchemaResolver {
   public DynamicSchemaResolver(List<String> additionalFields) {
     this.tinyBinaryFunction = this::newTinyBinary;
     this.schemaFields = new SchemaFields();
+    metadataMaximumBytes = getMetadataSizeLimit();
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
@@ -344,14 +354,21 @@ public class DynamicSchemaResolver {
 
     if (!ConfigurationStore.getInstance().isDisableTextPath()
         && StringUtils.isNotBlank(metacard.getMetadata())) {
-      try {
-        byte[] luxXml = createTinyBinary(metacard.getMetadata());
-        solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
-      } catch (XMLStreamException | SaxonApiException | IOException | RuntimeException e) {
+      String metadata = metacard.getMetadata();
+      if (metadata.getBytes().length < metadataMaximumBytes) {
+        try {
+          byte[] luxXml = createTinyBinary(metadata);
+          solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
+        } catch (XMLStreamException | SaxonApiException | IOException | RuntimeException e) {
+          LOGGER.debug(
+              "Unable to parse metadata field.  XPath support unavailable for metacard {}",
+              metacard.getId(),
+              e);
+        }
+      } else {
         LOGGER.debug(
-            "Unable to parse metadata field.  XPath support unavailable for metacard {}",
-            metacard.getId(),
-            e);
+            "Can't create binary data from metadata larger than metadata size limit. ID: {}",
+            metacard.getId());
       }
     }
 
@@ -836,5 +853,28 @@ public class DynamicSchemaResolver {
 
   public Stream<String> anyTextFields() {
     return anyTextFieldsCache.stream();
+  }
+
+  /**
+   * Get the metadata size limit from custom.system.properties. Defaults to {@link #FIVE_MEGABYTES}.
+   *
+   * @return Integer metadata size limit in bytes
+   */
+  @VisibleForTesting
+  static Integer getMetadataSizeLimit() {
+    String sizeLimit =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>)
+                () -> System.getProperty(METADATA_SIZE_LIMIT, String.valueOf(FIVE_MEGABYTES)));
+    if (StringUtils.isNumeric(sizeLimit)) {
+      try {
+        return Integer.parseInt(sizeLimit);
+      } catch (NumberFormatException e) {
+        LOGGER.info("Metadata size limit set in system properties is out of range: {}", sizeLimit);
+      }
+    } else {
+      LOGGER.info("User set metadata size limit is not numeric: {}", sizeLimit);
+    }
+    return FIVE_MEGABYTES;
   }
 }
