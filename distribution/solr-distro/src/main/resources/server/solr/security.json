@@ -4,9 +4,6 @@
     "class": "solr.BasicAuthPlugin",
     "credentials": {
       "ddf": "aMp++h2DCQ8EbF+g1Rh6pRSRrDsU+WcUZk+TNHEJ4FA= 4PZmryDswuG+Vaau+sEYIkuqY+QpCINK7QxxOWy+yAk="
-    },
-    "": {
-      "v": 0
     }
   },
   "authorization": {

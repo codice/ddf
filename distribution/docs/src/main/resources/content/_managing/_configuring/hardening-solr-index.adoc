@@ -1,20 +1,48 @@
-:title: Hardening Solr Index
+:title: Hardening Solr
 :type: subConfiguration
 :status: published
 :parent: Configuring Solr
-:summary: Hardening Solr Index.
+:summary: Hardening Solr.
 :order: 02
 
 == {title}
 
-The following sections provide hardening guidance for Solr; however, they are to serve only as reference and other an additional security requirements may be added.
+The following sections provide hardening guidance for Solr; however,
+they are to serve only as reference and other an additional security requirements may be added.
 
-=== Hardening Solr Server Configuration
+=== Changin Default Solr Server Password
 
-The Solr server configuration is configured to be secure by default. No additional
-hardening should be necessary. The default configuration starts Solr with TLS enabled and
-requires client authentication. That means ${branding} must trust Solr's PKI certificate and Solr
-must also trust ${branding}'s PKI certificate.
+The Solr server configuration included with the ${branding} uses
+a default password that is insecure. To harden the Solr server,
+the default password must be changed to a secure password.
+
+. Complete the ${branding} installation process.
+. ${branding} and the Solr server should be running.
+. Choose a password that meets to your organization's requirements so secure passwords.
+. Update the Sold server user's password to the new password you have chosen. See below for
+platform-specific instructions. Note that changing the password will prevent ${branding}
+from communicating with Solr server until the ${branding} configuration is updated in
+subsequent steps.
+. Use the ${command-console} to encrypt the password. This is necessary to protect
+the password because the encrypted password is stored in a file.
+
+ .. `${branding-lowercase}${at-symbol}local>encrypt <PASSWORD>`
+
+. Copy the encrypted string. Include the `ENC(` and the closing parenthesis `)`.
+For example, copy the string:
+
+ ENC(AOROh0hmIfqJseeLzt30aCrAjzBvZRbLTv_pszuctKaaD4UHqDVoL-gDyQRaOE3FJdRmz3Oc5hTe)
+
+. Change the Solr password in the `custom.system.properties` files.
+Modify the property `solr.password`. For example:
+
+  solr.password=ENC(AOROh0hmIfqJseeLzt30aCrAjzBvZRbLTv_pszuctKaaD4UHqDVoL-gDyQRaOE3FJdRmz3Oc5hTe)
+
+. Save your changes to the `custom.system.properties` and restart ${branding}. After a restart,
+${branding} should be communicating normally with Solr server.
+
+
+
 
 === Configuring Solr Encryption
 
