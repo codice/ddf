@@ -15,6 +15,10 @@ package ddf.catalog.source.solr.provider;
 
 import static com.google.common.truth.Truth.assertThat;
 import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.create;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBuilder;
+import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.numericalDescriptors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -29,6 +33,8 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,6 +48,7 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -50,7 +57,7 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SolrProviderSorting extends SolrProviderTestBase {
+public class SolrProviderSorting {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderSorting.class);
 
@@ -72,11 +79,18 @@ public class SolrProviderSorting extends SolrProviderTestBase {
   private static final int FACTOR = 5;
   private static final int NUMBERIC_METACARD_COUNT = 5;
 
+  private static SolrCatalogProvider provider;
+
+  @BeforeClass
+  public static void setUp() {
+    provider = SolrProviderTest.getProvider();
+  }
+
   /** Test for a specific IRAD problem. */
   @Test
   public void testSortById() throws Exception {
 
-    deleteAll();
+    deleteAll(provider);
 
     List<Metacard> list = new ArrayList<>();
 
@@ -84,10 +98,10 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     generateMockMetacards(list, now);
 
-    create(list);
+    create(list, provider);
 
     Filter filter =
-        filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
+        getFilterBuilder().attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
 
     QueryImpl query = new QueryImpl(filter);
 
@@ -122,7 +136,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
   @Test
   public void testTextualSort() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     List<Metacard> list = new ArrayList<>();
 
@@ -139,7 +153,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
       list.add(m);
     }
 
-    create(list);
+    create(list, provider);
 
     Filter filter;
     QueryImpl query;
@@ -147,7 +161,8 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     // Sort all Textual ASCENDING
 
-    filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
+    filter =
+        getFilterBuilder().attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
 
     query = new QueryImpl(filter);
 
@@ -181,7 +196,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
   }
 
   private void setupNumericMetacards() throws UnsupportedQueryException, IngestException {
-    deleteAll();
+    deleteAll(provider);
 
     List<Metacard> list = new ArrayList<>();
 
@@ -202,7 +217,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
       list.add(customMetacard1);
     }
 
-    create(list);
+    create(list, provider);
   }
 
   @Test
@@ -301,7 +316,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
       throws UnsupportedQueryException, IngestException {
     setupNumericMetacards();
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text("*");
+    Filter filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).like().text("*");
     QueryImpl query = new QueryImpl(filter);
     SourceResponse sourceResponse;
 
@@ -320,7 +335,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
   @Test
   public void testSorting() throws Exception {
 
-    deleteAll();
+    deleteAll(provider);
 
     List<Metacard> list = new ArrayList<>();
 
@@ -328,7 +343,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     generateMockMetacards(list, now);
 
-    create(list);
+    create(list, provider);
 
     Filter filter;
     QueryImpl query;
@@ -336,7 +351,8 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     // Sort all TEMPORAL DESC
 
-    filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
+    filter =
+        getFilterBuilder().attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
 
     query = new QueryImpl(filter);
 
@@ -370,7 +386,8 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     // Sort all Relevancy score DESC
 
-    filter = filterBuilder.attribute(Metacard.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
+    filter =
+        getFilterBuilder().attribute(Metacard.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
 
     query = new QueryImpl(filter);
 
@@ -389,7 +406,8 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     // Sort all Relevancy score DESC
 
-    filter = filterBuilder.attribute(Metacard.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
+    filter =
+        getFilterBuilder().attribute(Metacard.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
 
     query = new QueryImpl(filter);
 
@@ -409,7 +427,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
   @Test
   public void testSortingMultipleAttributes() throws Exception {
-    deleteAll();
+    deleteAll(provider);
     List<Metacard> list = new ArrayList<>();
     DateTime now = new DateTime();
 
@@ -421,16 +439,17 @@ public class SolrProviderSorting extends SolrProviderTestBase {
       list.add(m);
     }
 
-    create(list);
+    create(list, provider);
 
     Filter filter;
     QueryImpl query;
     SourceResponse sourceResponse;
 
     filter =
-        filterBuilder.allOf(
-            filterBuilder.attribute(Metacard.ANY_GEO).nearestTo().wkt("POINT(1 1)"),
-            filterBuilder.attribute(Metacard.TITLE).like().text("Record"));
+        getFilterBuilder()
+            .allOf(
+                getFilterBuilder().attribute(Metacard.ANY_GEO).nearestTo().wkt("POINT(1 1)"),
+                getFilterBuilder().attribute(Metacard.TITLE).like().text("Record"));
 
     query = new QueryImpl(filter);
 
@@ -456,7 +475,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
   @Test
   public void testSortingMultipleAttributesGeoAndRelevance() throws Exception {
-    deleteAll();
+    deleteAll(provider);
     List<Metacard> list = new ArrayList<>();
     DateTime now = new DateTime();
 
@@ -468,16 +487,17 @@ public class SolrProviderSorting extends SolrProviderTestBase {
       list.add(m);
     }
 
-    create(list);
+    create(list, provider);
 
     Filter filter;
     QueryImpl query;
     SourceResponse sourceResponse;
 
     filter =
-        filterBuilder.allOf(
-            filterBuilder.attribute(Metacard.TITLE).like().text("Record"),
-            filterBuilder.attribute(Metacard.ANY_GEO).nearestTo().wkt("POINT(1 1)"));
+        getFilterBuilder()
+            .allOf(
+                getFilterBuilder().attribute(Metacard.TITLE).like().text("Record"),
+                getFilterBuilder().attribute(Metacard.ANY_GEO).nearestTo().wkt("POINT(1 1)"));
 
     query = new QueryImpl(filter);
 
@@ -503,7 +523,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
   @Test
   public void testStartIndexWithSorting() throws Exception {
-    deleteAll();
+    deleteAll(provider);
 
     List<Metacard> metacards = new ArrayList<>();
 
@@ -531,7 +551,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
     calculatedDates.toArray(dates);
 
     // CREATE
-    CreateResponse response = create(metacards);
+    CreateResponse response = create(metacards, provider);
 
     LOGGER.info("CREATED {} records.", response.getCreatedMetacards().size());
 
@@ -601,7 +621,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
   private QueryImpl query(
       String property, String value, int startIndex, int pageSize, SortBy sortBy) {
     return new QueryImpl(
-        filterBuilder.attribute(property).is().equalTo().text(value),
+        getFilterBuilder().attribute(property).is().equalTo().text(value),
         startIndex,
         pageSize,
         sortBy,
