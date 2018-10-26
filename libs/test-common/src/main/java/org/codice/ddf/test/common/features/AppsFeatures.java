@@ -30,7 +30,13 @@ public class AppsFeatures {
               .classifier("features")
               .version(DependencyVersionResolver.resolver()));
 
+  public static final String SECURITY_SERVICES_APP = "security-services-app";
+
   public static FeatureRepo featureRepo() {
     return FEATURE_COORDINATES;
+  }
+
+  public static Feature securityServicesApp() {
+    return new FeatureImpl(FEATURE_COORDINATES.getFeatureFileUrl(), SECURITY_SERVICES_APP);
   }
 }

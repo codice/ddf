@@ -13,33 +13,62 @@
  */
 package org.codice.ddf.test.common.options;
 
+import static org.codice.ddf.test.common.options.TestResourcesOptions.getTestResource;
+
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Properties;
 import org.codice.ddf.test.common.configurators.PortFinder;
 
 /** Base class for common test options logic. */
 public abstract class BasicOptions {
 
-  private static final Path CONFIGURATION_LOG_PATH = Paths.get("target", "test-configuration.log");
-
   private static final PortFinder PORT_FINDER = new PortFinder();
-
-  public static void recordConfiguration(String format, String... args) {
-    try {
-      Files.write(
-          CONFIGURATION_LOG_PATH,
-          String.format(format + System.lineSeparator(), args).getBytes(),
-          StandardOpenOption.CREATE,
-          StandardOpenOption.APPEND);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   public static PortFinder getPortFinder() {
     return PORT_FINDER;
+  }
+
+  public static void recordConfiguration(String key, String value) {
+    try (OutputStream os =
+        Files.newOutputStream(getConfigurationPath(), StandardOpenOption.CREATE)) {
+      Properties props = getProperties();
+      props.setProperty(key, value);
+      props.store(os, null);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to save properties to configuration file.", e);
+    }
+  }
+
+  public static void appendConfiguration(String key, String value) {
+    recordConfiguration(key, getProperties().getProperty(key) + "," + value);
+  }
+
+  public static String getConfiguration(String key) {
+    return getProperties().getProperty(key);
+  }
+
+  protected static Properties getProperties() {
+    if (!getConfigurationPath().toFile().exists()) {
+      return new Properties();
+    }
+
+    try (FileInputStream is = new FileInputStream(getConfigurationPath().toFile())) {
+      Properties props = new Properties();
+      props.load(is);
+      return props;
+
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load properties from configuration file.", e);
+    }
+  }
+
+  protected static Path getConfigurationPath() {
+    return Paths.get(getTestResource("/exam.config"));
   }
 }

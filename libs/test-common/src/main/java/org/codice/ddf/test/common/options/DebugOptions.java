@@ -43,7 +43,7 @@ public class DebugOptions extends BasicOptions {
    */
   public static Option keepRuntimeFolder() {
     String keepRuntimeFolder = System.getProperty(KEEP_RUNTIME_FOLDER_FLAG, "true");
-    recordConfiguration("keepRuntimeFolder=%s", keepRuntimeFolder);
+    recordConfiguration(KEEP_RUNTIME_FOLDER_FLAG, keepRuntimeFolder);
     return when(Boolean.valueOf(keepRuntimeFolder))
         .useOptions(org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder());
   }
@@ -56,7 +56,7 @@ public class DebugOptions extends BasicOptions {
    */
   public static Option enableRemoteDebugging() {
     String port = getPortFinder().getPortAsString(DEBUG_PORT_KEY);
-    recordConfiguration("%s=%s", DEBUG_PORT_KEY, port);
+    recordConfiguration(DEBUG_PORT_KEY, port);
     final String DEBUG_OPTS =
         format(
             "-Xrunjdwp:transport=dt_socket,server=y,suspend=%s,address=%s",
@@ -84,7 +84,7 @@ public class DebugOptions extends BasicOptions {
       return null;
     }
 
-    recordConfiguration("custom logging: %s", customLogging);
+    appendConfiguration("custom_logging", customLogging);
     Map<String, String> parsedCustomLogging = parseCustomLogging(customLogging);
 
     List<Option> options =

@@ -35,12 +35,12 @@ public class LoggingOptions extends BasicOptions {
   }
 
   public static Option ddfLoggingLevel(String logLevel) {
-    recordConfiguration("ddf packages log level: %s=%s", DEFAULT_DDF_PKG, logLevel);
+    recordConfiguration("ddf_log_level", DEFAULT_DDF_PKG + "=" + logLevel);
     return logLevelOption(DEFAULT_DDF_PKG, logLevel);
   }
 
   public static Option codiceLoggingLevel(String logLevel) {
-    recordConfiguration("alliance packages log level: %s=%s", DEFAULT_CODICE_PKG, logLevel);
+    recordConfiguration("alliance_log_level", DEFAULT_CODICE_PKG + "=" + logLevel);
     return logLevelOption(DEFAULT_CODICE_PKG, logLevel);
   }
 
