@@ -89,7 +89,7 @@ module.exports = Marionette.LayoutView.extend({
         .get('metacard')
         .get('properties')
         .get('thumbnail') &&
-      !_.includes(hiddenColumns, 'thumbnail')
+      !this.isHidden('thumbnail')
     ) {
       this.resultThumbnail.show(
         new HoverPreviewDropdown({
@@ -143,7 +143,7 @@ module.exports = Marionette.LayoutView.extend({
         .filter(function(property) {
           return availableAttributes.indexOf(property) !== -1
         })
-        .map(function(property) {
+        .map(property => {
           var value = result.metacard.properties[property]
           if (value === undefined) {
             value = ''
@@ -172,12 +172,21 @@ module.exports = Marionette.LayoutView.extend({
             property: property,
             value: value,
             class: className,
-            hidden:
-              hiddenColumns.indexOf(property) >= 0 ||
-              properties.isHidden(property) ||
-              metacardDefinitions.isHiddenTypeExceptThumbnail(property),
+            hidden: this.isHidden(property),
           }
         }),
     }
+  },
+  isHidden: function(property) {
+    const hiddenColumns = user
+      .get('user')
+      .get('preferences')
+      .get('columnHide')
+
+    return (
+      hiddenColumns.indexOf(property) >= 0 ||
+      properties.isHidden(property) ||
+      metacardDefinitions.isHiddenTypeExceptThumbnail(property)
+    )
   },
 })
