@@ -10,7 +10,7 @@
 The following sections provide hardening guidance for Solr; however,
 they are to serve only as reference and other an additional security requirements may be added.
 
-=== Changin Default Solr Server Password
+=== Changing Default Solr Server Password
 
 The Solr server configuration included with the ${branding} uses
 a default password that is insecure. To harden the Solr server,
@@ -18,15 +18,22 @@ the default password must be changed to a secure password.
 
 . Complete the ${branding} installation process.
 . ${branding} and the Solr server should be running.
-. Choose a password that meets to your organization's requirements so secure passwords.
-. Update the Sold server user's password to the new password you have chosen. See below for
-platform-specific instructions. Note that changing the password will prevent ${branding}
-from communicating with Solr server until the ${branding} configuration is updated in
+. Choose a password that meets to your organization's requirements for secure passwords.
+. Update the Sold server user's password to the new password you have chosen. Note that
+changing the password will prevent ${branding} from communicating with Solr server
+until the ${branding} configuration is updated in
 subsequent steps.
+  .. Use a utility like curl to send an HTTP request to the Solr server
+  change the password.
+
+  curl --insecure --user ddf:changeit http://localhost:8983/solr/admin/authentication
+  -H 'Content-type:application/json'
+  -d '{ "set-user": {"ddf" : "PASSWORD"}}'
+
 . Use the ${command-console} to encrypt the password. This is necessary to protect
 the password because the encrypted password is stored in a file.
 
- .. `${branding-lowercase}${at-symbol}local>encrypt <PASSWORD>`
+ .. `${branding-lowercase}${at-symbol}local>encrypt PASSWORD`
 
 . Copy the encrypted string. Include the `ENC(` and the closing parenthesis `)`.
 For example, copy the string:
@@ -41,7 +48,7 @@ Modify the property `solr.password`. For example:
 . Save your changes to the `custom.system.properties` and restart ${branding}. After a restart,
 ${branding} should be communicating normally with Solr server.
 
-
+==== Chan
 
 
 === Configuring Solr Encryption
