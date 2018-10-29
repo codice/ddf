@@ -13,20 +13,36 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.4.0">
 
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <!--<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>-->
 
     <bean id="solrFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
-        <argument ref="encryptionService"/>
+        <argument ref="solrUsernamePasswordCredentials"/>
     </bean>
 
     <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">
-        <argument ref="solrFactory" />
+        <argument ref="solrFactory"/>
     </bean>
-    
+
     <service ref="persistentStore" id="persistentStoreService"
-             interface="org.codice.ddf.persistence.PersistentStore">
+        interface="org.codice.ddf.persistence.PersistentStore">
     </service>
+
+
+    <bean id="solrUsernamePasswordCredentials"
+        class="org.codice.solr.factory.impl.SolrUsernamePasswordCredentials">
+        <cm:managed-properties
+            persistent-id="org.codice.solr.factory.impl.SolrUsernamePasswordCredentials"
+            update-strategy="container-managed"/>
+        <property name="username" value="ddf"/>
+        <property name="password" value="changeit"/>
+    </bean>
+
+    <service ref="solrUsernamePasswordCredentials"
+        interface="org.codice.solr.factory.impl.SolrUsernamePasswordCredentials">
+    </service>
+
 
 </blueprint>

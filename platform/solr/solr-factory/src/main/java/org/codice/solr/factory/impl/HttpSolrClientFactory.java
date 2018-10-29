@@ -57,15 +57,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class used to create new {@link HttpSolrClient} instances. <br>
- * Uses the following system properties when creating an instance:
+ * Factory class used to create new {@link HttpSolrClient} instances. <br> Uses the following system
+ * properties when creating an instance:
  *
  * <ul>
- *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
- *   <li>solr.http.url: Solr server URL
- *   <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
- *   <li>https.protocols: Secure protocols supported by the Solr server
- *   <li>https.cipherSuites: Cipher suites supported by the Solr server
+ * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
+ * <li>solr.http.url: Solr server URL
+ * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
+ * <li>https.protocols: Secure protocols supported by the Solr server
+ * <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  *
  * @deprecated This class may be removed in the future
@@ -87,10 +87,15 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private final Map<String, String> propertyCache = new HashMap<>();
+  private SolrUsernamePasswordCredentials usernamePasswordCredentials = null;
   private EncryptionService encryptionService;
 
-  HttpSolrClientFactory(EncryptionService encryptionService) {
-    this.encryptionService = encryptionService;
+  //  HttpSolrClientFactory(EncryptionService encryptionService) {
+  //    this.encryptionService = encryptionService;
+  //  }
+
+  HttpSolrClientFactory(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
+    this.usernamePasswordCredentials = usernamePasswordCredentials;
   }
 
   @Override
@@ -284,12 +289,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private CredentialsProvider getCredentialsProvider() {
-    String username = getProperty("solr.username");
-    String encryptedPassword = getProperty("solr.password");
-    String password = encryptionService.decryptValue(encryptedPassword);
     CredentialsProvider provider = new BasicCredentialsProvider();
     org.apache.http.auth.UsernamePasswordCredentials credentials =
-        new org.apache.http.auth.UsernamePasswordCredentials(username, password);
+        new org.apache.http.auth.UsernamePasswordCredentials(
+            usernamePasswordCredentials.getUsername(), usernamePasswordCredentials.getPassword());
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }

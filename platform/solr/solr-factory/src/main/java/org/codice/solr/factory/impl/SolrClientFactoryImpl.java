@@ -30,6 +30,7 @@ import org.codice.solr.factory.SolrClientFactory;
 public final class SolrClientFactoryImpl implements SolrClientFactory {
 
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
+  private SolrUsernamePasswordCredentials usernamePasswordCredentials;
   private EncryptionService encryptionService;
 
   @SuppressWarnings("unused" /* used by blueprint */)
@@ -37,9 +38,14 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     this((factory, core) -> factory.newClient(core));
   }
 
-  public SolrClientFactoryImpl(EncryptionService encryptionService) {
+  //  public SolrClientFactoryImpl(EncryptionService encryptionService) {
+  //    this();
+  //    this.encryptionService = encryptionService;
+  //  }
+
+  public SolrClientFactoryImpl(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
     this();
-    this.encryptionService = encryptionService;
+    this.usernamePasswordCredentials = usernamePasswordCredentials;
   }
 
   @VisibleForTesting
@@ -61,7 +67,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      factory = new HttpSolrClientFactory(encryptionService);
+      factory = new HttpSolrClientFactory(usernamePasswordCredentials);
     }
 
     return newClientFunction.apply(factory, core);

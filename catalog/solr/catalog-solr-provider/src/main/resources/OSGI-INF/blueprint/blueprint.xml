@@ -15,10 +15,14 @@
 		   xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
 
-	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+	<reference id="solrUsernamePasswordCredentials"
+		interface="org.codice.solr.factory.impl.SolrUsernamePasswordCredentials">
+	</reference>
+
+	<!--<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>-->
 
 	<bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
-	<argument ref="encryptionService"/>
+	<argument ref="solrUsernamePasswordCredentials"/>
 	</bean>
 
 	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
