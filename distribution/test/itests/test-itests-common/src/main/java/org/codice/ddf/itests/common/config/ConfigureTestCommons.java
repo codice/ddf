@@ -100,7 +100,7 @@ public class ConfigureTestCommons {
   public static Dictionary<String, Object> configureAuthZRealm(
       List<String> attributes, AdminConfig configAdmin) throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("matchOneMap", attributes);
+    properties.put("matchOneMappings", attributes);
     return configureAuthZRealm(properties, configAdmin);
   }
 
