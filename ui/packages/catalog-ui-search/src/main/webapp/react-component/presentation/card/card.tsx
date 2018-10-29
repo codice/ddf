@@ -14,7 +14,7 @@ import styled from '../../styles/styled-components'
 
 const Root = styled.div`
   width: 100%;
-  height: auto;
+  height: 100%;
   display: inline-block;
   cursor: pointer;
   text-align: left;

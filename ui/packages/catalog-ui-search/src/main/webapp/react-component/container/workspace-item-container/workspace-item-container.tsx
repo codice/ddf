@@ -37,7 +37,7 @@ const getStateFromWorkspace = (workspace: any) => {
   }
 }
 
-class WorkspacesItemsContainer extends React.Component<Props, State> {
+class WorkspacesItemContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = getStateFromWorkspace(this.props.workspace)
@@ -75,4 +75,4 @@ class WorkspacesItemsContainer extends React.Component<Props, State> {
   }
 }
 
-export default withListenTo(WorkspacesItemsContainer)
+export default withListenTo(WorkspacesItemContainer)

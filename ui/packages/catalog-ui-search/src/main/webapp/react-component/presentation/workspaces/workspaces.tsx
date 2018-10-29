@@ -77,14 +77,10 @@ const Root = styled<RootProps, 'div'>('div')`
 
 const Workspaces = (props: Props & RootProps) => {
   return (
-    <Root
-      hasUnsaved={props.hasUnsaved}
-    >
+    <Root hasUnsaved={props.hasUnsaved}>
       <div className="home-content">
         <div className="home-templates">
-          <WorkspacesTemplatesContainer
-            hasUnsaved={props.hasUnsaved}
-          />
+          <WorkspacesTemplatesContainer hasUnsaved={props.hasUnsaved} />
         </div>
         <div className="home-items">
           <WorkspacesItemsContainer />

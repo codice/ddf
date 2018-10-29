@@ -13,6 +13,7 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import WorkspaceItemContainer from '../../container/workspace-item-container'
+import WorkspaceCreateItem from '../workspace-create-item'
 
 type Props = {
   filterDropdown: React.ReactNode
@@ -63,6 +64,7 @@ const Root = styled.div`
 
 const WorkspaceItemRoot = styled.div`
   width: 18rem;
+  height: 8.5rem;
   overflow: hidden;
   display: inline-block;
   margin-bottom: ${props => props.theme.minimumSpacing};
@@ -89,6 +91,9 @@ const WorkspacesItems = (props: Props) => {
           </div>
         </div>
         <div className="home-items-choices is-list is-inline has-list-highlighting">
+          <WorkspaceItemRoot>
+            <WorkspaceCreateItem />
+          </WorkspaceItemRoot>
           {props.workspaces.map(workspace => {
             return (
               <WorkspaceItemRoot key={workspace.id}>

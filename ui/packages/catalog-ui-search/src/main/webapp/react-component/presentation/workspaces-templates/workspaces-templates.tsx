@@ -23,7 +23,7 @@ type Props = {
   placeholder: string
 }
 
-const Root = styled<null, 'div'>('div')`
+const Root = styled.div`
     ${CustomElement}
     ${props => ChangeBackground(props.theme.backgroundAccentContent)}
     height: calc(2.5 * ${props => props.theme.minimumButtonSize} + ${props =>

@@ -29,7 +29,7 @@ class WorkspacesContainer extends React.Component<WithBackboneProps, State> {
   constructor(props: WithBackboneProps) {
     super(props)
     this.state = {
-      hasUnsaved: hasUnsaved()
+      hasUnsaved: hasUnsaved(),
     }
   }
   componentDidMount() {
