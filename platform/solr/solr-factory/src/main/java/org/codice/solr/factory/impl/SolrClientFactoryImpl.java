@@ -31,18 +31,14 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
 
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
   private SolrUsernamePasswordCredentials usernamePasswordCredentials;
-  private EncryptionService encryptionService;
 
   @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl() {
     this((factory, core) -> factory.newClient(core));
   }
 
-  //  public SolrClientFactoryImpl(EncryptionService encryptionService) {
-  //    this();
-  //    this.encryptionService = encryptionService;
-  //  }
 
+  @SuppressWarnings("unused")
   public SolrClientFactoryImpl(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
     this();
     this.usernamePasswordCredentials = usernamePasswordCredentials;

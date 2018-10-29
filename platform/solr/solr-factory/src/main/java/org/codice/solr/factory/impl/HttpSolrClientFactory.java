@@ -14,7 +14,6 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.security.encryption.EncryptionService;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -87,15 +86,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private final Map<String, String> propertyCache = new HashMap<>();
-  private SolrUsernamePasswordCredentials usernamePasswordCredentials = null;
-  private EncryptionService encryptionService;
+  private SolrUsernamePasswordCredentials usernamePasswordCredentials;
 
-  //  HttpSolrClientFactory(EncryptionService encryptionService) {
-  //    this.encryptionService = encryptionService;
-  //  }
-
-  HttpSolrClientFactory(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
+  public HttpSolrClientFactory(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
     this.usernamePasswordCredentials = usernamePasswordCredentials;
+  }
+
+  HttpSolrClientFactory() {
+    this(null);
   }
 
   @Override
@@ -144,7 +142,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server secure HTTP address
    */
   public static String getDefaultHttpsAddress() {
-    return new HttpSolrClientFactory(null).getSolrUrl();
+    return new HttpSolrClientFactory().getSolrUrl();
   }
 
   private SSLContext getSslContext() {
@@ -262,7 +260,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedCipherSuites() {
-    return commaSeparatedToArray(new HttpSolrClientFactory(null).getProperty(HTTPS_CIPHER_SUITES));
+    return commaSeparatedToArray(new HttpSolrClientFactory().getProperty(HTTPS_CIPHER_SUITES));
   }
 
   /**
@@ -273,7 +271,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedProtocols() {
-    return commaSeparatedToArray(new HttpSolrClientFactory(null).getProperty(HTTPS_PROTOCOLS));
+    return commaSeparatedToArray(new HttpSolrClientFactory().getProperty(HTTPS_PROTOCOLS));
   }
 
   private boolean useBasicAuth() {
