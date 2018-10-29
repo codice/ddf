@@ -13,12 +13,15 @@
  */
 package org.codice.ddf.catalog.ui.util;
 
+import static ddf.catalog.data.AttributeType.AttributeFormat.STRING;
 import static ddf.catalog.data.types.Security.ACCESS_ADMINISTRATORS;
 import static ddf.catalog.data.types.Security.ACCESS_GROUPS;
 import static ddf.catalog.data.types.Security.ACCESS_GROUPS_READ;
 import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS;
 import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS_READ;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -30,10 +33,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -57,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
@@ -85,6 +91,12 @@ public class EndpointUtilTest {
 
   private Result resultMock;
 
+  private AttributeType attributeTypeMock;
+
+  private MetacardType metacardTypeMock;
+
+  private AttributeRegistry attributeRegistryMock;
+
   CatalogFramework catalogFrameworkMock;
 
   @Before
@@ -95,13 +107,13 @@ public class EndpointUtilTest {
     List<InjectableAttribute> injectableAttributeList = new ArrayList<>();
 
     // mocks
-    MetacardType metacardTypeMock = mock(MetacardType.class);
+    metacardTypeMock = mock(MetacardType.class);
 
     catalogFrameworkMock = mock(CatalogFramework.class);
 
     InjectableAttribute injectableAttributeMock = mock(InjectableAttribute.class);
 
-    AttributeRegistry attributeRegistryMock = mock(AttributeRegistry.class);
+    attributeRegistryMock = mock(AttributeRegistry.class);
 
     Filter filterMock = mock(Filter.class);
 
@@ -118,6 +130,7 @@ public class EndpointUtilTest {
     responseMock = mock(QueryResponse.class);
     metacardMock = mock(Metacard.class);
     resultMock = mock(Result.class);
+    attributeTypeMock = mock(AttributeType.class);
 
     metacardTypeList.add(metacardTypeMock);
     injectableAttributeList.add(injectableAttributeMock);
@@ -163,6 +176,39 @@ public class EndpointUtilTest {
     Map<String, Result> result = endpointUtil.getMetacardsByTag(tagFilter);
 
     assertThat(result.keySet(), hasSize(expected));
+  }
+
+  @Test
+  public void testGetMetacardTypeMapFiltered() {
+    AttributeDescriptor mockAttrDescriptor = mock(AttributeDescriptor.class);
+    when(mockAttrDescriptor.getName()).thenReturn("first");
+    when(mockAttrDescriptor.getType()).thenReturn(attributeTypeMock);
+    when(mockAttrDescriptor.isMultiValued()).thenReturn(false);
+
+    when(metacardTypeMock.getName()).thenReturn("mockType");
+    when(attributeTypeMock.getAttributeFormat()).thenReturn(STRING);
+    when(attributeRegistryMock.lookup(any())).thenReturn(Optional.ofNullable(mockAttrDescriptor));
+
+    endpointUtil.setWhiteListedMetacardTypes(ImmutableList.of("otherType"));
+    Map<String, Object> metacardTypes = endpointUtil.getMetacardTypeMap();
+
+    assertThat(metacardTypes, anEmptyMap());
+    assertThat(metacardTypes.containsKey("mockType"), is(false));
+  }
+
+  @Test
+  public void testGetMetacardTypeMapNonFiltered() {
+    AttributeDescriptor mockAttrDescriptor = mock(AttributeDescriptor.class);
+    when(mockAttrDescriptor.getName()).thenReturn("first");
+    when(mockAttrDescriptor.getType()).thenReturn(attributeTypeMock);
+    when(mockAttrDescriptor.isMultiValued()).thenReturn(false);
+
+    when(metacardTypeMock.getName()).thenReturn("mockType");
+    when(attributeTypeMock.getAttributeFormat()).thenReturn(STRING);
+    when(attributeRegistryMock.lookup(any())).thenReturn(Optional.ofNullable(mockAttrDescriptor));
+
+    Map<String, Object> metacardTypes = endpointUtil.getMetacardTypeMap();
+    assertThat(metacardTypes, hasKey("mockType"));
   }
 
   @Test

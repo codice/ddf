@@ -193,6 +193,9 @@
     </bean>
 
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.whitelist"
+            update-strategy="container-managed"/>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
@@ -205,6 +208,9 @@
             <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
         </argument>
         <argument ref="configurationApplication"/>
+        <property name="whiteListedMetacardTypes">
+            <array />
+        </property>
     </bean>
 
     <bean id="noteUtil" class="org.codice.ddf.catalog.ui.metacard.notes.NoteUtil">
