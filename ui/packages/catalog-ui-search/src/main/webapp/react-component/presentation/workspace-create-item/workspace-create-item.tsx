@@ -54,7 +54,7 @@ class WorkspaceCreateItem extends React.Component {
     return (
       <Root onClick={this.createBlankWorkspace.bind(this)}>
         <div className="fa fa-plus-circle fa-4x" />
-        <Header>New Workspace</Header>
+        <Header>Add New Workspace</Header>
       </Root>
     )
   }
