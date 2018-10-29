@@ -48,8 +48,6 @@ Modify the property `solr.password`. For example:
 . Save your changes to the `custom.system.properties` and restart ${branding}. After a restart,
 ${branding} should be communicating normally with Solr server.
 
-==== Chan
-
 
 === Configuring Solr Encryption
 
