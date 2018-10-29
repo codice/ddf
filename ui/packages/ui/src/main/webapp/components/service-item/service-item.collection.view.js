@@ -17,7 +17,7 @@ define([
   'marionette',
   './service-item.view',
   'js/CustomElements',
-  'text!./service-item.collection.empty.hbs',
+  './service-item.collection.empty.hbs',
 ], function(Marionette, ServiceItemView, CustomElements, emptyTemplate) {
   return Marionette.CollectionView.extend({
     itemView: ServiceItemView,

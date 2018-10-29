@@ -16,17 +16,15 @@
 define([
   'backbone',
   'marionette',
-  'icanhaz',
   'js/wreqr',
   'jquery',
   'underscore',
   './application-item.view',
   'js/CustomElements',
-  'text!./application-item.collection.empty.hbs',
+  './application-item.collection.empty.hbs',
 ], function(
   Backbone,
   Marionette,
-  ich,
   wreqr,
   $,
   _,

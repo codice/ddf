@@ -20,7 +20,7 @@ define([
   'backbone',
   'js/wreqr.js',
   'jquery',
-  'text!./configuration-field-multivalue-header.hbs',
+  './configuration-field-multivalue-header.hbs',
   'components/configuration-field-multivalue/configuration-field-multivalue.collection.view',
   'js/CustomElements',
 ], function(

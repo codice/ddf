@@ -14,7 +14,7 @@
 <div class="form-group has-feedback">
     <div class="input-group btn-group col-xs-4 item">
         <span class="input-group-addon">Profile</span>
-            <select id="profile" name="profile" class="profile">
+            <select id="profile" name="profile" class="profile form-control input-sm">
                 {{#each profileNames}}
                     <option value="{{this}}" {{#is this ../curProfile}}selected="selected"{{/is}}>{{this}}</option>
                 {{/each}}

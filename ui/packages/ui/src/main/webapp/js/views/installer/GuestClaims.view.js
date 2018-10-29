@@ -23,12 +23,12 @@ define([
   'js/wreqr.js',
   'jquery',
   '../Modal',
-  'text!templates/installer/guestClaims.handlebars',
-  'text!templates/installer/guestClaimProfiles.handlebars',
-  'text!templates/installer/guestClaimsListHeader.handlebars',
-  'text!templates/installer/guestClaimsList.handlebars',
-  'text!templates/installer/guestWarningModal.handlebars',
-  'text!templates/installer/guestClaimsTable.handlebars',
+  'templates/installer/guestClaims.handlebars',
+  'templates/installer/guestClaimProfiles.handlebars',
+  'templates/installer/guestClaimsListHeader.handlebars',
+  'templates/installer/guestClaimsList.handlebars',
+  'templates/installer/guestWarningModal.handlebars',
+  'templates/installer/guestClaimsTable.handlebars',
 ], function(
   Marionette,
   ich,
@@ -63,9 +63,6 @@ define([
       this.configuration.get('properties').set('attributes', profile)
       this.configuration.get('properties').set('profile', profileName)
       wreqr.vent.trigger('profileChanged')
-    },
-    onRender: function() {
-      this.$('select').multiselect('refresh')
     },
   })
 
@@ -403,13 +400,9 @@ define([
           configuration: this.configObj,
         })
       )
-      _.defer(function() {
-        view.$('.scroll-area').perfectScrollbar({ useKeyboard: false })
-      })
     },
     onClose: function() {
       this.stopListening(this.navigationModel)
-      this.$('.scroll-area').perfectScrollbar('destroy')
     },
     next: function() {
       var view = this

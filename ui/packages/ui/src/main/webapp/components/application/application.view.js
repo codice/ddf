@@ -17,7 +17,7 @@ define([
   'backbone',
   'marionette',
   'js/wreqr',
-  'text!./application.hbs',
+  './application.hbs',
   'js/CustomElements',
 ], function(Backbone, Marionette, wreqr, template, CustomElements) {
   'use strict'
