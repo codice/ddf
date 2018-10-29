@@ -19,7 +19,7 @@ define([
   'marionette',
   'components/configuration-edit/configuration-edit.view',
   'js/wreqr.js',
-  'text!./configuration-item.hbs',
+  './configuration-item.hbs',
   'js/CustomElements',
 ], function(
   ich,

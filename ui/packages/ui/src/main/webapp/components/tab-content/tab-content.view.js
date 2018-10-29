@@ -13,20 +13,27 @@
  *
  **/
 /* global define */
+import { iframeResizer } from 'iframe-resizer'
+
 define([
   'require',
   'marionette',
   'backbone',
   'components/iframe/iframe.view.js',
-  'text!./tab-content.hbs',
+  'components/application-services/application-services.view',
+  'components/features/features.view',
+  'components/system-information/system-information.view',
+  './tab-content.hbs',
   'js/wreqr.js',
   'js/CustomElements',
-  'iframeresizer',
 ], function(
   require,
   Marionette,
   Backbone,
   IFrameView,
+  ApplicationServicesView,
+  FeaturesView,
+  SystemInformationView,
   template,
   wreqr,
   CustomElements
@@ -51,10 +58,23 @@ define([
       var iframeLocation = view.model.get('iframeLocation')
       var jsLocation = view.model.get('javascriptLocation')
       if (jsLocation) {
-        require([jsLocation], function(TabView) {
-          var newView = new TabView({ model: view.applicationModel })
-          view.tabContentInner.show(newView)
-        })
+        let newView
+        switch (jsLocation) {
+          case 'components/application-services/application-services.view':
+            newView = ApplicationServicesView
+            break
+          case 'components/features/features.view.js':
+            newView = FeaturesView
+            break
+          case 'components/system-information/system-information.view.js':
+            newView = SystemInformationView
+            break
+          default:
+            console.log('todo: what do we do?')
+            break
+        }
+        var newView = new newView({ model: view.applicationModel })
+        view.tabContentInner.show(newView)
       } else if (iframeLocation) {
         view.tabContentInner.show(
           new IFrameView({
@@ -70,7 +90,7 @@ define([
     },
     handleTabShown: function(id) {
       if (id === this.model.id) {
-        this.$('iframe').iFrameResize()
+        iframeResizer(null, 'iframe')
         if (
           this.tabContentInner.currentView &&
           this.tabContentInner.currentView.focus

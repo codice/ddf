@@ -17,18 +17,18 @@ define([
   'backbone',
   'marionette',
   'icanhaz',
-  'handlebars',
+  'ace/handlebars',
   'jquery',
   'poller',
   'js/wreqr',
   'js/models/Module',
-  'text!templates/tabs.handlebars',
-  'text!templates/appHeader.handlebars',
-  'text!templates/header.handlebars',
-  'text!templates/footer.handlebars',
+  'templates/tabs.handlebars',
+  'templates/appHeader.handlebars',
+  'templates/header.handlebars',
+  'templates/footer.handlebars',
   'js/controllers/Modal.controller',
   'js/controllers/SystemUsage.controller',
-  'text!templates/moduleTab.handlebars',
+  'templates/moduleTab.handlebars',
   'properties',
 ], function(
   _,
@@ -60,11 +60,8 @@ define([
     }
     if (typeof ich[template] === 'function') {
       return ich[template](data)
-    } else if (typeof cachedTemplates[template] === 'function') {
-      return cachedTemplates[template](data)
     } else {
-      cachedTemplates[template] = hbs.compile(template)
-      return cachedTemplates[template](data)
+      return template(data)
     }
   }
 
@@ -91,6 +88,10 @@ define([
     modalRegion: '#modalRegion',
     sessionTimeoutModalRegion: '#sessionTmeoutModalRegion',
     alertsRegion: '.alerts',
+    applications: '#applications',
+    docs: '#docs',
+    installation: '#installation',
+    configuration: '#configurations',
   })
 
   //setup models

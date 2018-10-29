@@ -18,7 +18,7 @@ define([
   'js/views/Modal',
   'js/models/SessionTimeout',
   'properties',
-  'text!templates/sessionTimeoutModal.handlebars',
+  'templates/sessionTimeoutModal.handlebars',
 ], function(
   $,
   ich,

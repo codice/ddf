@@ -17,8 +17,8 @@
 define([
   'marionette',
   'icanhaz',
-  'text!./installer-navigation.hbs',
-  'text!./installer-navigation-buttons.hbs',
+  './installer-navigation.hbs',
+  './installer-navigation-buttons.hbs',
   'backbone',
   'js/CustomElements',
   'modelbinder',

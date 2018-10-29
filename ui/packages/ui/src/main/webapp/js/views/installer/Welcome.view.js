@@ -17,7 +17,7 @@
 define([
   'marionette',
   'icanhaz',
-  'text!templates/installer/welcome.handlebars',
+  'templates/installer/welcome.handlebars',
 ], function(Marionette, ich, welcomeTemplate) {
   ich.addTemplate('welcomeTemplate', welcomeTemplate)
 

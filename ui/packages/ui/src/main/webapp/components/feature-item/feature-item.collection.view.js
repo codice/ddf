@@ -17,7 +17,7 @@ define([
   'marionette',
   './feature-item.view',
   'js/CustomElements',
-  'text!./feature-item.collection.empty.hbs',
+  './feature-item.collection.empty.hbs',
 ], function(Marionette, FeatureItemView, CustomElements, emptyTemplate) {
   return Marionette.CollectionView.extend({
     initialize: function() {

@@ -15,7 +15,7 @@
 /*global define*/
 define([
   'marionette',
-  'text!templates/alerts.handlebars',
+  'templates/alerts.handlebars',
   'icanhaz',
   'jquery',
   'underscore',

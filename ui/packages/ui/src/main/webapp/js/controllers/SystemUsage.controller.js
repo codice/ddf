@@ -17,7 +17,7 @@ define([
   'js/wreqr',
   'properties',
   'js/views/SystemUsageModal.view',
-  'jsCookie',
+  'js-cookie',
 ], function($, _, Marionette, wreqr, properties, SystemUsageModal, Cookies) {
   'use strict'
   var SystemUsageController

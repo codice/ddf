@@ -20,13 +20,11 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'text!templates/installer/configuration.handlebars',
-  'text!templates/installer/configurationItem.handlebars',
+  'templates/installer/configuration.handlebars',
+  'templates/installer/configurationItem.handlebars',
   './Certificate.view.js',
   '../../models/installer/CertsModel.js',
   'modelbinder',
-  'perfectscrollbar',
-  'multiselect',
 ], function(
   Marionette,
   ich,
@@ -184,12 +182,6 @@ define([
 
       this.configurationItems.show(sysPropsView)
       this.certificates.show(certificateView)
-
-      _.defer(function() {
-        view
-          .$('#system-configuration-settings')
-          .perfectScrollbar({ useKeyboard: false })
-      })
     },
     saveProperties: function() {
       var layout = this

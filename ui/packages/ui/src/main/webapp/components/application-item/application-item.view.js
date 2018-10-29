@@ -15,12 +15,11 @@
 /*global define*/
 define([
   'marionette',
-  'icanhaz',
   'underscore',
   'js/wreqr.js',
-  'text!./application-item.hbs',
+  './application-item.hbs',
   'js/CustomElements',
-], function(Marionette, ich, _, wreqr, template, CustomElements) {
+], function(Marionette, _, wreqr, template, CustomElements) {
   'use strict'
 
   // List of apps that cannot have any actions performed on them through
