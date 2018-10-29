@@ -14,13 +14,16 @@
 package org.codice.ddf.rest.service;
 
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.codice.ddf.attachment.AttachmentInfo;
 
 /** Catalog service interface */
 public interface CatalogService {
@@ -91,6 +94,9 @@ public interface CatalogService {
       String transformerParam,
       InputStream message)
       throws CatalogServiceException;
+
+  Pair<AttachmentInfo, Metacard> parseAttachments(
+      List<AttachmentInfo> contentParts, String transformerParam);
 
   /** Deletes a record from the catalog. */
   void deleteDocument(String id) throws CatalogServiceException;

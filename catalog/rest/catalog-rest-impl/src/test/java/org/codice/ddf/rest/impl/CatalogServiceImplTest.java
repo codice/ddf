@@ -415,7 +415,8 @@ public class CatalogServiceImplTest {
     attachments.add(attachment1);
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseAttachments(attachments, "xml");
+        catalogServiceImpl.parseAttachments(
+            catalogServiceImpl.attachmentToInfo(attachments), "xml");
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
 
     ContentDisposition contentDisposition2 =
@@ -433,7 +434,9 @@ public class CatalogServiceImplTest {
         new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
     attachments.add(attachment3);
 
-    attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
+    attachmentInfoAndMetacard =
+        catalogServiceImpl.parseAttachments(
+            catalogServiceImpl.attachmentToInfo(attachments), "xml");
 
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("<meta>beta</meta>"));
     assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
@@ -557,7 +560,7 @@ public class CatalogServiceImplTest {
     attachments.add(attachment3);
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseAttachments(attachments, null);
+        catalogServiceImpl.parseAttachments(catalogServiceImpl.attachmentToInfo(attachments), null);
     Metacard metacard = attachmentInfoAndMetacard.getRight();
 
     assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
@@ -662,7 +665,8 @@ public class CatalogServiceImplTest {
     attachments.add(attachment1);
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        catalogServiceImpl.parseAttachments(attachments, "xml");
+        catalogServiceImpl.parseAttachments(
+            catalogServiceImpl.attachmentToInfo(attachments), "xml");
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
 
     ContentDisposition contentDisposition2 =
@@ -680,7 +684,9 @@ public class CatalogServiceImplTest {
         new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
     attachments.add(attachment3);
 
-    attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
+    attachmentInfoAndMetacard =
+        catalogServiceImpl.parseAttachments(
+            catalogServiceImpl.attachmentToInfo(attachments), "xml");
 
     // Ensure that the metadata was not overriden because it was too large to be parsed
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));

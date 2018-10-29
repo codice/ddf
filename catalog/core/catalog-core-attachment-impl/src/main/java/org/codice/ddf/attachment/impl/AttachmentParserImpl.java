@@ -86,7 +86,7 @@ public class AttachmentParserImpl implements AttachmentParser {
       }
     }
 
-    return new AttachmentInfoImpl(inputStream, filename, contentType);
+    return new AttachmentInfoImpl(inputStream, filename, contentType, submittedFilename);
   }
 
   private String contentTypeFromFilename(String filename) {

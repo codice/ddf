@@ -23,11 +23,13 @@ public class AttachmentInfoImpl implements AttachmentInfo {
   private final String filename;
 
   private final String contentType;
+  private String name;
 
-  public AttachmentInfoImpl(InputStream stream, String filename, String contentType) {
+  public AttachmentInfoImpl(InputStream stream, String filename, String contentType, String name) {
     this.stream = stream;
     this.filename = filename;
     this.contentType = contentType;
+    this.name = name;
   }
 
   public InputStream getStream() {
@@ -36,6 +38,11 @@ public class AttachmentInfoImpl implements AttachmentInfo {
 
   public String getFilename() {
     return filename;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   public String getContentType() {

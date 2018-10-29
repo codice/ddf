@@ -363,8 +363,7 @@
         <argument>
             <bean class="org.codice.ddf.catalog.ui.metacard.impl.SplitterLocatorImpl"/>
         </argument>
-        <argument ref="attachmentParser"/>
-        <argument ref="attributeRegistry"/>
+        <argument ref="catalogService"/>
     </bean>
 
     <reference id="securityAuthenticationService"

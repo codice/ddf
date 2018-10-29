@@ -579,7 +579,8 @@ public class CatalogServiceImpl implements CatalogService {
     if (multipartBody != null) {
       List<Attachment> contentParts = multipartBody.getAllAttachments();
       if (CollectionUtils.isNotEmpty(contentParts)) {
-        attachmentInfoAndMetacard = parseAttachments(contentParts, transformerParam);
+        attachmentInfoAndMetacard =
+            parseAttachments(attachmentToInfo(contentParts), transformerParam);
       } else {
         LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
       }
@@ -686,13 +687,49 @@ public class CatalogServiceImpl implements CatalogService {
     if (multipartBody != null) {
       List<Attachment> contentParts = multipartBody.getAllAttachments();
       if (CollectionUtils.isNotEmpty(contentParts)) {
-        attachmentInfoAndMetacard = parseAttachments(contentParts, transformerParam);
+        attachmentInfoAndMetacard =
+            parseAttachments(attachmentToInfo(contentParts), transformerParam);
       } else {
         LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
       }
     }
 
     return addDocument(attachmentInfoAndMetacard, contentTypeList, transformerParam, message);
+  }
+
+  List<AttachmentInfo> attachmentToInfo(List<Attachment> attachments) {
+    return attachments
+        .stream()
+        .map(
+            a ->
+                new AttachmentInfo() {
+
+                  @Override
+                  public InputStream getStream() {
+                    try {
+                      return a.getDataHandler().getInputStream();
+                    } catch (IOException e) {
+                      LOGGER.debug("Failed to read stream.", e);
+                      return null;
+                    }
+                  }
+
+                  @Override
+                  public String getFilename() {
+                    return a.getContentDisposition().getFilename();
+                  }
+
+                  @Override
+                  public String getName() {
+                    return a.getContentDisposition().getParameter("name");
+                  }
+
+                  @Override
+                  public String getContentType() {
+                    return a.getContentType().toString();
+                  }
+                })
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -794,27 +831,20 @@ public class CatalogServiceImpl implements CatalogService {
     }
   }
 
-  Pair<AttachmentInfo, Metacard> parseAttachments(
-      List<Attachment> contentParts, String transformerParam) {
+  @Override
+  public Pair<AttachmentInfo, Metacard> parseAttachments(
+      List<AttachmentInfo> contentParts, String transformerParam) {
 
     if (contentParts.size() == 1) {
-      Attachment contentPart = contentParts.get(0);
+      AttachmentInfo contentPart = contentParts.get(0);
 
       InputStream attachmentInputStream = null;
 
-      try {
-        attachmentInputStream = contentPart.getDataHandler().getInputStream();
-      } catch (IOException e) {
-        LOGGER.debug("IOException reading stream from file attachment in multipart body.", e);
-      }
+      attachmentInputStream = contentPart.getStream();
 
       return new ImmutablePair<>(
           attachmentParser.generateAttachmentInfo(
-              attachmentInputStream,
-              contentPart.getContentType().toString(),
-              contentPart
-                  .getContentDisposition()
-                  .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)),
+              attachmentInputStream, contentPart.getContentType(), contentPart.getFilename()),
           null);
     }
 
@@ -822,33 +852,22 @@ public class CatalogServiceImpl implements CatalogService {
     Metacard metacard = null;
     AttachmentInfo attachmentInfo = null;
 
-    for (Attachment attachment : contentParts) {
-      String name = attachment.getContentDisposition().getParameter("name");
+    for (AttachmentInfo attachment : contentParts) {
+      String name = attachment.getName();
       String parsedName = (name.startsWith("parse.")) ? name.substring(6) : name;
-      try {
-        InputStream inputStream = attachment.getDataHandler().getInputStream();
-        switch (name) {
-          case "parse.resource":
-            attachmentInfo =
-                attachmentParser.generateAttachmentInfo(
-                    inputStream,
-                    attachment.getContentType().toString(),
-                    attachment
-                        .getContentDisposition()
-                        .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME));
-            break;
-          case "parse.metadata":
-            metacard = parseMetadata(transformerParam, metacard, attachment, inputStream);
-            break;
-          default:
-            parseOverrideAttributes(attributeMap, parsedName, inputStream);
-            break;
-        }
-      } catch (IOException e) {
-        LOGGER.debug(
-            "Unable to get input stream for mime attachment. Ignoring override attribute: {}",
-            name,
-            e);
+      InputStream inputStream = attachment.getStream();
+      switch (name) {
+        case "parse.resource":
+          attachmentInfo =
+              attachmentParser.generateAttachmentInfo(
+                  inputStream, attachment.getContentType(), attachment.getFilename());
+          break;
+        case "parse.metadata":
+          metacard = parseMetadata(transformerParam, metacard, attachment, inputStream);
+          break;
+        default:
+          parseOverrideAttributes(attributeMap, parsedName, inputStream);
+          break;
       }
     }
     if (attachmentInfo == null) {
@@ -1042,13 +1061,16 @@ public class CatalogServiceImpl implements CatalogService {
   }
 
   private Metacard parseMetadata(
-      String transformerParam, Metacard metacard, Attachment attachment, InputStream inputStream) {
+      String transformerParam,
+      Metacard metacard,
+      AttachmentInfo attachment,
+      InputStream inputStream) {
     String transformer = DEFAULT_METACARD_TRANSFORMER;
     if (transformerParam != null) {
       transformer = transformerParam;
     }
     try {
-      MimeType mimeType = new MimeType(attachment.getContentType().toString());
+      MimeType mimeType = new MimeType(attachment.getContentType());
       metacard = generateMetacard(mimeType, null, inputStream, transformer);
     } catch (MimeTypeParseException | MetacardCreationException e) {
       LOGGER.debug("Unable to parse metadata {}", attachment.getContentType());
