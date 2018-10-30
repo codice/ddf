@@ -137,11 +137,13 @@ class Gazetteer extends React.Component {
     }
   }
   async suggesterWithLiteralSupport(input) {
-    const res = await this.fetch(`./internal/geofeature/suggestions?q=${input}`)
+    const res = await this.fetch(
+      `./internal/geofeature/suggestions?q=${encodeURIComponent(input)}`
+    )
     return await res.json()
   }
   async geofeatureWithLiteralSupport(suggestion) {
-    if (suggestion.id === 'LITERAL') {
+    if (suggestion.id.startsWith('LITERAL')) {
       return this.extractGeo(suggestion)
     }
     const { id } = suggestion
@@ -182,7 +184,9 @@ class Gazetteer extends React.Component {
   }
   async suggester(input) {
     const res = await window.fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${input}`
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        input
+      )}`
     )
     const suggestions = await res.json()
     return suggestions.map(place => {

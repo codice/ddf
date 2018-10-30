@@ -14,21 +14,28 @@
 package org.codice.ddf.catalog.ui.query.suggestion;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.codice.ddf.spatial.geocoding.Suggestion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * The {@link LatLonCoordinateProcessor} enables search suggestions for coordinate literals in a
- * variety of formats.
+ * The {@link LatLonCoordinateProcessor} enables search suggestions for Lat/Lon coordinate literals
+ * whenever a pair of decimal numbers is encountered within the expected bounds. The general policy
+ * is to be as forgiving as possible without sacrificing determinism.
  */
 public class LatLonCoordinateProcessor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(LatLonCoordinateProcessor.class);
+
   private static final String REGEX_LAT_LON = "[-]?(([\\d]+(\\.[\\d]+)?)|(\\.[\\d]+))";
 
   private static final Pattern PATTERN_LAT_LON = Pattern.compile(REGEX_LAT_LON);
+
+  // This key tells the UI that the geo is on the suggestion itself
+  private static final String LITERAL_SUGGESTION_ID = "LITERAL-LAT-LON";
 
   /**
    * Given a list of {@link Suggestion}s and the query that yielded them, enhance the list with
@@ -37,13 +44,12 @@ public class LatLonCoordinateProcessor {
    * @param results the list to add results to.
    * @param query the query string with potential coordinate literals present.
    */
-  public List<Suggestion> enhanceResults(List<Suggestion> results, String query) {
-    LinkedList<Suggestion> enhanced = new LinkedList<>(results);
-    LiteralSuggestion literal = getLatLonSuggestions(query);
+  public void enhanceResults(List<Suggestion> results, String query) {
+    final LiteralSuggestion literal = getLatLonSuggestions(query);
     if (literal != null && literal.hasGeo()) {
-      enhanced.addFirst(literal);
+      LOGGER.trace("Adding the Lat/Lon suggestion to results [{}]", literal);
+      results.add(0, literal);
     }
-    return enhanced;
   }
 
   private LiteralSuggestion getLatLonSuggestions(String query) {
@@ -53,12 +59,13 @@ public class LatLonCoordinateProcessor {
       numbers.add(Double.parseDouble(matcher.group()));
     }
     if (numbers.size() <= 1) {
+      LOGGER.trace("Not enough numbers found to suggest a Lat/Lon");
       return null;
     }
     List<LatLon> latLonList = getLatLonList(numbers);
     String name =
         "Lat/Lon: " + latLonList.stream().map(LatLon::toString).collect(Collectors.joining(", "));
-    return new LiteralSuggestion("LITERAL", name, latLonList);
+    return new LiteralSuggestion(LITERAL_SUGGESTION_ID, name, latLonList);
   }
 
   private List<LatLon> getLatLonList(List<Double> numbers) {
@@ -69,7 +76,7 @@ public class LatLonCoordinateProcessor {
 
         double longitude = numbers.get(index + 1);
         if (LatLon.isValidLongitude(longitude)) {
-          latLons.add(LatLon.from(latitude, longitude));
+          latLons.add(new LatLon(latitude, longitude));
           ++index;
         }
       }

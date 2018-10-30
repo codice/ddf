@@ -17,11 +17,7 @@ class LatLon {
   private final Double lat;
   private final Double lon;
 
-  static LatLon from(Double lat, Double lon) {
-    return new LatLon(lat, lon);
-  }
-
-  private LatLon(Double lat, Double lon) {
+  LatLon(Double lat, Double lon) {
     this.lat = lat;
     this.lon = lon;
   }
@@ -58,11 +54,11 @@ class LatLon {
     return "(" + getLat() + ", " + getLon() + ")";
   }
 
-  public static boolean isValidLatitude(double latitude) {
+  static boolean isValidLatitude(double latitude) {
     return latitude >= -90 && latitude <= 90;
   }
 
-  public static boolean isValidLongitude(double longitude) {
+  static boolean isValidLongitude(double longitude) {
     return longitude >= -180 && longitude <= 180;
   }
 }
