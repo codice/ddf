@@ -456,5 +456,3 @@ Query.Model = Backbone.AssociatedModel.extend({
   },
 })
 module.exports = Query
-
-module.exports = Query
