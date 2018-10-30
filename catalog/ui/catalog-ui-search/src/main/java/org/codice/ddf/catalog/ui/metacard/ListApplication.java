@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -110,8 +109,7 @@ public class ListApplication implements SparkApplication {
 
           List<Part> parts = new ArrayList<>(request.raw().getParts());
 
-          Pair<AttachmentInfo, Metacard> attachmentInfo =
-              catalogService.parseAttachments(partsToInfo(parts), null);
+          Pair<AttachmentInfo, Metacard> attachmentInfo = catalogService.parseParts(parts, null);
 
           if (attachmentInfo == null) {
             String exceptionMessage = "Unable to parse the attachments.";
@@ -138,40 +136,6 @@ public class ListApplication implements SparkApplication {
         });
   }
 
-  private List<AttachmentInfo> partsToInfo(List<Part> parts) {
-    return parts.stream().map(this::toInfo).collect(Collectors.toList());
-  }
-
-  private AttachmentInfo toInfo(Part p) {
-    return new AttachmentInfo() {
-
-      @Override
-      public InputStream getStream() {
-        try {
-          return p.getInputStream();
-        } catch (IOException e) {
-          LOGGER.debug("Failed to read stream.", e);
-          return null;
-        }
-      }
-
-      @Override
-      public String getFilename() {
-        return p.getSubmittedFileName();
-      }
-
-      @Override
-      public String getName() {
-        return p.getName();
-      }
-
-      @Override
-      public String getContentType() {
-        return p.getContentType();
-      }
-    };
-  }
-
   private boolean attemptToSplitAndStore(
       Response response,
       String listType,
@@ -191,8 +155,7 @@ public class ListApplication implements SparkApplication {
           new AttachmentInfoImpl(
               temporaryInputStream,
               attachmentInfo.getLeft().getFilename(),
-              attachmentInfo.getLeft().getContentType(),
-              attachmentInfo.getLeft().getName());
+              attachmentInfo.getLeft().getContentType());
 
       try (Stream<StorableResource> stream =
           createStream(temporaryAttachmentInfo, splitter, listType)) {
@@ -266,8 +229,7 @@ public class ListApplication implements SparkApplication {
         storableResource.getFilename(),
         storableResource
             .getMimeType()
-            .orElse(contentTypeFromFilename(storableResource.getFilename())),
-        storableResource.getFilename());
+            .orElse(contentTypeFromFilename(storableResource.getFilename())));
   }
 
   private String contentTypeFromFilename(String filename) {
@@ -355,13 +317,11 @@ public class ListApplication implements SparkApplication {
     private InputStream inputStream;
     private String filename;
     private String contentType;
-    private String name;
 
-    AttachmentInfoImpl(InputStream inputStream, String filename, String contentType, String name) {
+    AttachmentInfoImpl(InputStream inputStream, String filename, String contentType) {
       this.inputStream = inputStream;
       this.filename = filename;
       this.contentType = contentType;
-      this.name = name;
     }
 
     @Override
@@ -372,11 +332,6 @@ public class ListApplication implements SparkApplication {
     @Override
     public String getFilename() {
       return filename;
-    }
-
-    @Override
-    public String getName() {
-      return name;
     }
 
     @Override

@@ -51,10 +51,7 @@ public class AttachmentParserImpl implements AttachmentParser {
 
   @Override
   public AttachmentInfo generateAttachmentInfo(
-      InputStream inputStream,
-      String contentType,
-      String submittedFilename,
-      String attachmentName) {
+      InputStream inputStream, String contentType, String submittedFilename) {
 
     try {
       if (inputStream != null && inputStream.available() == 0) {
@@ -89,7 +86,7 @@ public class AttachmentParserImpl implements AttachmentParser {
       }
     }
 
-    return new AttachmentInfoImpl(inputStream, filename, contentType, attachmentName);
+    return new AttachmentInfoImpl(inputStream, filename, contentType);
   }
 
   private String contentTypeFromFilename(String filename) {

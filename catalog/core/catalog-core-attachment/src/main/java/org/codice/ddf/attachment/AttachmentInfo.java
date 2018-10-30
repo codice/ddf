@@ -25,7 +25,5 @@ public interface AttachmentInfo {
 
   String getFilename();
 
-  String getName();
-
   String getContentType();
 }

@@ -18,8 +18,10 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
@@ -95,8 +97,7 @@ public interface CatalogService {
       InputStream message)
       throws CatalogServiceException;
 
-  Pair<AttachmentInfo, Metacard> parseAttachments(
-      List<AttachmentInfo> contentParts, String transformerParam);
+  Pair<AttachmentInfo, Metacard> parseParts(Collection<Part> contentParts, String transformerParam);
 
   /** Deletes a record from the catalog. */
   void deleteDocument(String id) throws CatalogServiceException;
