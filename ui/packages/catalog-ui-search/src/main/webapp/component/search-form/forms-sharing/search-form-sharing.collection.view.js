@@ -21,7 +21,7 @@ module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,
   tagName: CustomElements.register('my-shared-search-forms'),
   className: 'is-list is-inline has-list-highlighting',
-  initialize: function(options) {},
+  initialize: function() {},
   childViewOptions: function() {
     return {
       queryModel: this.options.model,

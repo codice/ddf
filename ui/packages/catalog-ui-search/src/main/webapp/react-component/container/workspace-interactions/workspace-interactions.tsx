@@ -13,6 +13,7 @@ import * as React from 'react'
 import WorkspaceInteractionsPresentation from '../../presentation/workspace-interactions'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+import { Sharing } from '../sharing'
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
@@ -85,9 +86,11 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     lightboxInstance.model.updateTitle('Workspace Sharing')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      new WorkspaceSharing({
-        model: this.props.workspace,
-      })
+      <Sharing
+        key={this.props.workspace.id}
+        id={this.props.workspace.id}
+        lightbox={lightboxInstance}
+      />
     )
   }
   viewDetails = () => {

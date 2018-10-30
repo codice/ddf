@@ -91,17 +91,25 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender() {
     const [id] = Router.get('args')
-    if (!id) return
+    if (!id) {
+      return
+    }
 
-    let collection = SearchFormsCollection.getCollection()
+    let collection
+
     if (id === 'create') {
+      collection = SearchFormsCollection.getCollection()
       this.model = new QueryModel.Model()
-    } else {
-      this.model = SearchFormsCollection.getCollection().get(id)
-      if (!this.model) {
-        collection = SearchFormSharingCollection.getCollection()
-        this.model = SearchFormSharingCollection.getCollection().get(id)
-      }
+    }
+
+    if (!this.model) {
+      collection = SearchFormsCollection.getCollection()
+      this.model = collection.get(id)
+    }
+
+    if (!this.model) {
+      collection = SearchFormSharingCollection.getCollection()
+      this.model = collection.get(id)
     }
 
     this.map.show(

@@ -294,6 +294,9 @@ User.Model = Backbone.AssociatedModel.extend({
   getEmail() {
     return this.get('email')
   },
+  getUserId() {
+    return this.get('userid')
+  },
   getUserName() {
     return this.get('username')
   },
@@ -351,6 +354,9 @@ User.Response = Backbone.AssociatedModel.extend({
   },
   getEmail() {
     return this.get('user').getEmail()
+  },
+  getUserId() {
+    return this.get('user').getUserId()
   },
   getRoles() {
     return this.get('user').get('roles')
@@ -415,27 +421,27 @@ User.Response = Backbone.AssociatedModel.extend({
   canRead: function(perms) {
     return (
       perms.owner === undefined ||
-      perms.owner === this.getEmail() ||
-      perms.accessIndividuals.includes(this.getEmail()) ||
-      perms.accessIndividualsRead.includes(this.getEmail()) ||
+      perms.owner === this.getUserId() ||
+      perms.accessIndividuals.includes(this.getUserId()) ||
+      perms.accessIndividualsRead.includes(this.getUserId()) ||
       perms.accessGroups.some(group => this.getRoles().includes(group)) ||
       perms.accessGroupsRead.some(group => this.getRoles().includes(group)) ||
-      perms.accessAdministrators.includes(this.getEmail())
+      perms.accessAdministrators.includes(this.getUserId())
     )
   },
   canWrite: function(perms) {
     return (
       perms.owner === undefined ||
-      perms.owner === this.getEmail() ||
-      perms.accessIndividuals.includes(this.getEmail()) ||
+      perms.owner === this.getUserId() ||
+      perms.accessIndividuals.includes(this.getUserId()) ||
       perms.accessGroups.some(group => this.getRoles().includes(group)) ||
-      perms.accessAdministrators.includes(this.getEmail())
+      perms.accessAdministrators.includes(this.getUserId())
     )
   },
   canShare: function(perms) {
     return (
-      perms.owner === this.getEmail() ||
-      perms.accessAdministrators.includes(this.getEmail())
+      perms.owner === this.getUserId() ||
+      perms.accessAdministrators.includes(this.getUserId())
     )
   },
 })
