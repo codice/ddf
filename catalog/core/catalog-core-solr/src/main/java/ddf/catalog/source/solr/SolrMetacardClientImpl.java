@@ -52,6 +52,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +68,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -124,6 +127,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
+
+  private static final String SOLR_COMMIT_NRT_METACARDTYPES = "solr.commit.nrt.metacardTypes";
+
+  private final Set<String> commitNrtMetacardType =
+      Sets.newHashSet(accessProperty(SOLR_COMMIT_NRT_METACARDTYPES, "").split("\\s*,\\s*"));
+
+  private static final String SOLR_COMMIT_NRT_COMMITWITHINMS = "solr.commit.nrt.commitWithinMs";
+
+  private final int commitNrtCommitWithinMs =
+      Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
   public SolrMetacardClientImpl(
       SolrClient client,
@@ -697,13 +710,21 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       return Collections.emptyList();
     }
 
+    boolean isNrtCommit = false;
     List<SolrInputDocument> docs = new ArrayList<>();
     for (Metacard metacard : metacards) {
       docs.add(getSolrInputDocument(metacard));
+      if (commitNrtMetacardType.contains(metacard.getMetacardType().getName())) {
+        isNrtCommit = true;
+      }
     }
 
     if (!forceAutoCommit) {
-      client.add(docs);
+      if (isNrtCommit) {
+        client.add(docs, commitNrtCommitWithinMs);
+      } else {
+        client.add(docs);
+      }
     } else {
       softCommit(docs);
     }
@@ -771,6 +792,14 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       queryBuilder.append(fieldName).append(":").append(QUOTE).append(id).append(QUOTE);
     }
     return queryBuilder.toString();
+  }
+
+  private static String accessProperty(String key, String defaultValue) {
+    String value =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(key, defaultValue));
+    LOGGER.debug("Read system property [{}] with value [{}]", key, value);
+    return value;
   }
 
   private org.apache.solr.client.solrj.response.UpdateResponse softCommit(
