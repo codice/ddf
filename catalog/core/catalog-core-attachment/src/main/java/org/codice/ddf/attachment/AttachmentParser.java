@@ -29,8 +29,12 @@ public interface AttachmentParser {
    * @param stream
    * @param contentType
    * @param submittedFilename
+   * @param attachmentName
    * @return attachment details
    */
   AttachmentInfo generateAttachmentInfo(
-      InputStream stream, @Nullable String contentType, @Nullable String submittedFilename);
+      InputStream stream,
+      @Nullable String contentType,
+      @Nullable String submittedFilename,
+      String attachmentName);
 }

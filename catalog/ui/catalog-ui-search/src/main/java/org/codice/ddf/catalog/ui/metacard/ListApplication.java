@@ -139,38 +139,37 @@ public class ListApplication implements SparkApplication {
   }
 
   private List<AttachmentInfo> partsToInfo(List<Part> parts) {
-    return parts
-        .stream()
-        .map(
-            p ->
-                new AttachmentInfo() {
+    return parts.stream().map(this::toInfo).collect(Collectors.toList());
+  }
 
-                  @Override
-                  public InputStream getStream() {
-                    try {
-                      return p.getInputStream();
-                    } catch (IOException e) {
-                      LOGGER.debug("Failed to read stream.", e);
-                      return null;
-                    }
-                  }
+  private AttachmentInfo toInfo(Part p) {
+    return new AttachmentInfo() {
 
-                  @Override
-                  public String getFilename() {
-                    return p.getSubmittedFileName();
-                  }
+      @Override
+      public InputStream getStream() {
+        try {
+          return p.getInputStream();
+        } catch (IOException e) {
+          LOGGER.debug("Failed to read stream.", e);
+          return null;
+        }
+      }
 
-                  @Override
-                  public String getName() {
-                    return p.getName();
-                  }
+      @Override
+      public String getFilename() {
+        return p.getSubmittedFileName();
+      }
 
-                  @Override
-                  public String getContentType() {
-                    return p.getContentType();
-                  }
-                })
-        .collect(Collectors.toList());
+      @Override
+      public String getName() {
+        return p.getName();
+      }
+
+      @Override
+      public String getContentType() {
+        return p.getContentType();
+      }
+    };
   }
 
   private boolean attemptToSplitAndStore(
@@ -225,10 +224,10 @@ public class ListApplication implements SparkApplication {
       Consumer<String> idConsumer,
       Consumer<String> errorMessageConsumer,
       StorableResource storableResource,
-      Metacard right) {
+      Metacard metacard) {
 
     try {
-      store(getAttachmentInfo(storableResource), idConsumer, errorMessageConsumer, right);
+      store(getAttachmentInfo(storableResource), idConsumer, errorMessageConsumer, metacard);
     } catch (IOException e) {
       LOGGER.debug("Unable to create AttachmentInfo: ", e);
     } finally {
@@ -295,7 +294,7 @@ public class ListApplication implements SparkApplication {
       AttachmentInfo createInfo,
       Consumer<String> idConsumer,
       Consumer<String> errorMessageConsumer,
-      Metacard right) {
+      Metacard metacard) {
 
     CreateStorageRequest streamCreateRequest =
         new CreateStorageRequestImpl(
@@ -305,7 +304,7 @@ public class ListApplication implements SparkApplication {
                     createInfo.getStream(),
                     createInfo.getContentType(),
                     createInfo.getFilename(),
-                    right)),
+                    metacard)),
             null);
     try {
       CreateResponse createResponse = catalogFramework.create(streamCreateRequest);

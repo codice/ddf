@@ -698,38 +698,37 @@ public class CatalogServiceImpl implements CatalogService {
   }
 
   List<AttachmentInfo> attachmentToInfo(List<Attachment> attachments) {
-    return attachments
-        .stream()
-        .map(
-            a ->
-                new AttachmentInfo() {
+    return attachments.stream().map(this::toInfo).collect(Collectors.toList());
+  }
 
-                  @Override
-                  public InputStream getStream() {
-                    try {
-                      return a.getDataHandler().getInputStream();
-                    } catch (IOException e) {
-                      LOGGER.debug("Failed to read stream.", e);
-                      return null;
-                    }
-                  }
+  private AttachmentInfo toInfo(Attachment a) {
+    return new AttachmentInfo() {
 
-                  @Override
-                  public String getFilename() {
-                    return a.getContentDisposition().getFilename();
-                  }
+      @Override
+      public InputStream getStream() {
+        try {
+          return a.getDataHandler().getInputStream();
+        } catch (IOException e) {
+          LOGGER.debug("Failed to read stream.", e);
+          return null;
+        }
+      }
 
-                  @Override
-                  public String getName() {
-                    return a.getContentDisposition().getParameter("name");
-                  }
+      @Override
+      public String getFilename() {
+        return a.getContentDisposition().getFilename();
+      }
 
-                  @Override
-                  public String getContentType() {
-                    return a.getContentType().toString();
-                  }
-                })
-        .collect(Collectors.toList());
+      @Override
+      public String getName() {
+        return a.getContentDisposition().getParameter("name");
+      }
+
+      @Override
+      public String getContentType() {
+        return a.getContentType().toString();
+      }
+    };
   }
 
   @Override
@@ -844,7 +843,10 @@ public class CatalogServiceImpl implements CatalogService {
 
       return new ImmutablePair<>(
           attachmentParser.generateAttachmentInfo(
-              attachmentInputStream, contentPart.getContentType(), contentPart.getFilename()),
+              attachmentInputStream,
+              contentPart.getContentType(),
+              contentPart.getFilename(),
+              contentPart.getName()),
           null);
     }
 
@@ -860,7 +862,10 @@ public class CatalogServiceImpl implements CatalogService {
         case "parse.resource":
           attachmentInfo =
               attachmentParser.generateAttachmentInfo(
-                  inputStream, attachment.getContentType(), attachment.getFilename());
+                  inputStream,
+                  attachment.getContentType(),
+                  attachment.getFilename(),
+                  attachment.getName());
           break;
         case "parse.metadata":
           metacard = parseMetadata(transformerParam, metacard, attachment, inputStream);
@@ -907,7 +912,8 @@ public class CatalogServiceImpl implements CatalogService {
             attachmentParser.generateAttachmentInfo(
                 inputStream,
                 part.getContentType(),
-                contentDisposition.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)),
+                contentDisposition.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME),
+                part.getName()),
             null);
 
       } catch (IOException e) {
@@ -932,7 +938,8 @@ public class CatalogServiceImpl implements CatalogService {
                 attachmentParser.generateAttachmentInfo(
                     inputStream,
                     part.getContentType(),
-                    contentDisposition.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME));
+                    contentDisposition.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME),
+                    part.getName());
             break;
           case "parse.metadata":
             metacard = parseMetacard(transformerParam, metacard, part, inputStream);

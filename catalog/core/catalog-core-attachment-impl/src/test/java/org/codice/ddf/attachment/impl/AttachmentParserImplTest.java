@@ -33,6 +33,7 @@ public class AttachmentParserImplTest {
   private static final String FULL_FILENAME = "myFile.txt";
   private static final String TEXT_PLAIN = "text/plain";
   private static final String TEXT_EXT = "txt";
+  private static final String ATTACHMENT_NAME = "parse.foobar";
 
   private AttachmentParser attachmentParser;
 
@@ -50,11 +51,13 @@ public class AttachmentParserImplTest {
     try (InputStream inputStream = createTestInputStream()) {
 
       AttachmentInfo attachmentInfo =
-          attachmentParser.generateAttachmentInfo(inputStream, TEXT_PLAIN, FULL_FILENAME);
+          attachmentParser.generateAttachmentInfo(
+              inputStream, TEXT_PLAIN, FULL_FILENAME, ATTACHMENT_NAME);
 
       assertThat(attachmentInfo.getFilename(), is(FULL_FILENAME));
       assertThat(attachmentInfo.getContentType(), is(TEXT_PLAIN));
       assertThat(attachmentInfo.getStream(), is(inputStream));
+      assertThat(attachmentInfo.getName(), is(ATTACHMENT_NAME));
     }
   }
 
@@ -64,11 +67,12 @@ public class AttachmentParserImplTest {
     try (InputStream inputStream = createTestInputStream()) {
 
       AttachmentInfo attachmentInfo =
-          attachmentParser.generateAttachmentInfo(inputStream, TEXT_PLAIN, null);
+          attachmentParser.generateAttachmentInfo(inputStream, TEXT_PLAIN, null, ATTACHMENT_NAME);
 
       assertThat(attachmentInfo.getFilename(), is("file." + TEXT_EXT));
       assertThat(attachmentInfo.getContentType(), is(TEXT_PLAIN));
       assertThat(attachmentInfo.getStream(), is(inputStream));
+      assertThat(attachmentInfo.getName(), is(ATTACHMENT_NAME));
     }
   }
 
@@ -80,11 +84,13 @@ public class AttachmentParserImplTest {
     try (InputStream inputStream = createTestInputStream()) {
 
       AttachmentInfo attachmentInfo =
-          attachmentParser.generateAttachmentInfo(inputStream, unrecognizedContentType, null);
+          attachmentParser.generateAttachmentInfo(
+              inputStream, unrecognizedContentType, null, ATTACHMENT_NAME);
 
       assertThat(attachmentInfo.getFilename(), is("file.bin"));
       assertThat(attachmentInfo.getContentType(), is(unrecognizedContentType));
       assertThat(attachmentInfo.getStream(), is(inputStream));
+      assertThat(attachmentInfo.getName(), is(ATTACHMENT_NAME));
     }
   }
 
