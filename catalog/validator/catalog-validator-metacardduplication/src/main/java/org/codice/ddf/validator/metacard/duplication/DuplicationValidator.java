@@ -202,12 +202,15 @@ public class DuplicationValidator
             collectionToString(uniqueAttributeNames));
       }
 
-      SourceResponse response = query(uniqueAttributes, metacard.getId());
+      SourceResponse response = query(uniqueAttributes);
       if (response != null) {
-        response.getResults().forEach(result -> duplicates.add(result.getMetacard().getId()));
+        response
+            .getResults()
+            .stream()
+            .filter(result -> !result.getMetacard().getId().equals(metacard.getId()))
+            .forEach(result -> duplicates.add(result.getMetacard().getId()));
       }
       if (!duplicates.isEmpty()) {
-
         violation = createViolation(uniqueAttributeNames, duplicates, severity);
         LOGGER.debug(violation.getMessage());
       }
@@ -233,13 +236,9 @@ public class DuplicationValidator
         .toArray(Filter[]::new);
   }
 
-  private SourceResponse query(Set<Attribute> attributes, String originalId) {
+  private SourceResponse query(Set<Attribute> attributes) {
 
-    final Filter filter =
-        filterBuilder.allOf(
-            filterBuilder.anyOf(buildFilters(attributes)),
-            filterBuilder.not(
-                filterBuilder.attribute(Metacard.ID).is().equalTo().text(originalId)));
+    final Filter filter = filterBuilder.allOf(filterBuilder.anyOf(buildFilters(attributes)));
 
     LOGGER.debug("filter {}", filter);
 
