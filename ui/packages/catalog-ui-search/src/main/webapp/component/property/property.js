@@ -90,9 +90,6 @@ define([
             if(this.get('transformValue')) {
                 this.transformValue();
             }
-            if (this.get('transformValue')) {
-                this.transformValue();
-            }
             this._setInitialValue();
             this.setDefaultLabel();
             this.listenTo(this, 'change:value', this.updateHasChanged);

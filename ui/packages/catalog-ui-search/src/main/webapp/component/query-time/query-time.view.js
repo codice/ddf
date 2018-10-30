@@ -234,27 +234,16 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     setupTimeRelative: function () {
-        let currentUnit, currentLast;
+        let currentValue;
         if (this.options.filter.anyDate) {
             this.options.filter.anyDate.forEach(function (subfilter) {
                 if (subfilter.type === '=') {
-                    var duration = subfilter.value.substring(9, subfilter.value.length - 1).match(/(T?\d+)./)[0];
-                    currentUnit = duration.substring(duration.length - 1, duration.length);
-                    currentLast = duration.match(/\d+/);
-
-                    currentUnit = currentUnit.toLowerCase();
-                    if (duration.indexOf('T') === -1 && currentUnit === 'm') {
-                        //must capitalize months
-                        currentUnit = currentUnit.toUpperCase();
-                    }
+                    currentValue = subfilter.value;
                 }
             });
         }
         this.basicTimeRelative.show(new RelativeTimeView({
-            value: {
-                currentLast,
-                currentUnit
-            }
+            value: currentValue
         }));
     }
 });
