@@ -42,9 +42,9 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
+            <groupId>ddf.jaxb</groupId>
             <artifactId>platform-parser-test-domain</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.jaxb.version}</version>
             <scope>test</scope>
         </dependency>
       <dependency>

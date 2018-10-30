@@ -23,7 +23,6 @@
     <name>DDF :: Platform :: Parser</name>
     <packaging>pom</packaging>
     <modules>
-        <module>test-domain</module>
         <module>api</module>
         <module>xml</module>
     </modules>

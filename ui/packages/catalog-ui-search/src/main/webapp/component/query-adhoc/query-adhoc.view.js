@@ -13,128 +13,111 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-  'marionette',
-  'backbone',
-  'underscore',
-  'jquery',
-  './query-adhoc.hbs',
-  'js/CustomElements',
-  'js/store',
-  'component/property/property.view',
-  'component/property/property',
-  'component/singletons/user-instance',
-  'js/Common',
-  'properties',
-  'js/CQLUtils',
-], function(
-  Marionette,
-  Backbone,
-  _,
-  $,
-  template,
-  CustomElements,
-  store,
-  PropertyView,
-  Property,
-  user,
-  Common,
-  properties,
-  CQLUtils
-) {
-  return Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('query-adhoc'),
-    modelEvents: {},
-    events: {
-      'click .editor-edit': 'turnOnEditing',
-      'click .editor-cancel': 'cancel',
-      'click .editor-save': 'save',
-    },
-    regions: {
-      textField: '.properties-text',
-    },
-    ui: {},
-    focus: function() {
-      this.textField.currentView.focus()
-    },
-    initialize: function() {
-      this.model = this.model._cloneOf
-        ? store.getQueryById(this.model._cloneOf)
-        : this.model
-    },
-    onBeforeShow: function() {
-      this.setupTextField()
-      this.turnOnEditing()
-    },
-    setupTextField: function() {
-      this.textField.show(
-        PropertyView.getPropertyView({
-          id: 'Text',
-          value: [this.options.text !== undefined ? this.options.text : ''],
-          label: '',
-          type: 'STRING',
-          showValidationIssues: false,
-          showLabel: false,
-          placeholder:
-            'Search ' + properties.branding + ' ' + properties.product,
-        })
-      )
-      this.textField.currentView.$el.keyup(event => {
-        switch (event.keyCode) {
-          case 13:
-            this.$el.trigger('saveQuery.' + CustomElements.getNamespace())
-            break
-          default:
-            break
-        }
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-adhoc.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const user = require('component/singletons/user-instance')
+const Common = require('js/Common')
+const properties = require('properties')
+const CQLUtils = require('js/CQLUtils')
+
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('query-adhoc'),
+  modelEvents: {},
+  events: {
+    'click .editor-edit': 'turnOnEditing',
+    'click .editor-cancel': 'cancel',
+    'click .editor-save': 'save',
+  },
+  regions: {
+    textField: '.properties-text',
+  },
+  ui: {},
+  focus: function() {
+    this.textField.currentView.focus()
+  },
+  initialize: function() {
+    this.model = this.model._cloneOf
+      ? store.getQueryById(this.model._cloneOf)
+      : this.model
+  },
+  onBeforeShow: function() {
+    this.setupTextField()
+    this.turnOnEditing()
+  },
+  setupTextField: function() {
+    this.textField.show(
+      PropertyView.getPropertyView({
+        id: 'Text',
+        value: [this.options.text !== undefined ? this.options.text : ''],
+        label: '',
+        type: 'STRING',
+        showValidationIssues: false,
+        showLabel: false,
+        placeholder: 'Search ' + properties.branding + ' ' + properties.product,
       })
-      this.listenTo(
-        this.textField.currentView.model,
-        'change:value',
-        this.saveToModel
-      )
-    },
-    turnOnEditing: function() {
-      this.$el.addClass('is-editing')
-      this.regionManager.forEach(function(region) {
-        if (region.currentView && region.currentView.turnOnEditing) {
-          region.currentView.turnOnEditing()
-        }
-      })
-      this.focus()
-    },
-    edit: function() {
-      this.$el.addClass('is-editing')
-      this.turnOnEditing()
-    },
-    cancel: function() {
-      this.$el.removeClass('is-editing')
-      this.onBeforeShow()
-    },
-    saveToModel: function() {
-      var text = this.textField.currentView.model.getValue()[0]
-      var cql
-      if (text.length === 0) {
-        cql = CQLUtils.generateFilter('ILIKE', 'anyText', '*')
-      } else {
-        cql = CQLUtils.generateFilter('ILIKE', 'anyText', text)
+    )
+    this.textField.currentView.$el.keyup(event => {
+      switch (event.keyCode) {
+        case 13:
+          this.$el.trigger('saveQuery.' + CustomElements.getNamespace())
+          break
+        default:
+          break
       }
-      this.model.set('cql', CQLUtils.transformFilterToCQL(cql))
-    },
-    save: function() {
-      this.$el.find('form')[0].submit()
-      this.saveToModel()
-    },
-    isValid: function() {
-      return this.textField.currentView.isValid()
-    },
-    setDefaultTitle: function() {
-      var title = this.textField.currentView.model.getValue()[0]
-      if (title.length === 0) {
-        title = '*'
+    })
+    this.listenTo(
+      this.textField.currentView.model,
+      'change:value',
+      this.saveToModel
+    )
+  },
+  turnOnEditing: function() {
+    this.$el.addClass('is-editing')
+    this.regionManager.forEach(function(region) {
+      if (region.currentView && region.currentView.turnOnEditing) {
+        region.currentView.turnOnEditing()
       }
-      this.model.set('title', title)
-    },
-  })
+    })
+    this.focus()
+  },
+  edit: function() {
+    this.$el.addClass('is-editing')
+    this.turnOnEditing()
+  },
+  cancel: function() {
+    this.$el.removeClass('is-editing')
+    this.onBeforeShow()
+  },
+  saveToModel: function() {
+    var text = this.textField.currentView.model.getValue()[0]
+    var cql
+    if (text.length === 0) {
+      cql = CQLUtils.generateFilter('ILIKE', 'anyText', '*')
+    } else {
+      cql = CQLUtils.generateFilter('ILIKE', 'anyText', text)
+    }
+    this.model.set('cql', CQLUtils.transformFilterToCQL(cql))
+  },
+  save: function() {
+    this.$el.find('form')[0].submit()
+    this.saveToModel()
+  },
+  isValid: function() {
+    return this.textField.currentView.isValid()
+  },
+  setDefaultTitle: function() {
+    var title = this.textField.currentView.model.getValue()[0]
+    if (title.length === 0) {
+      title = '*'
+    }
+    this.model.set('title', title)
+  },
 })

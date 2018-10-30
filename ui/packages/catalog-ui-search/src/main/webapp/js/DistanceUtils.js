@@ -11,67 +11,66 @@
  **/
 /*global define*/
 /*jshint bitwise: false*/
-define([], function() {
-  var EARTH_MEAN_RADIUS_METERS = 6371008.7714
 
-  var DEGREES_TO_RADIANS = Math.PI / 180
-  var RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS
+var EARTH_MEAN_RADIUS_METERS = 6371008.7714
 
-  var METERS_KILOMETERS = 1000
-  var METERS_FEET = 0.3048
-  var METERS_YARDS = 0.9144
-  var METERS_MILES = 1609.344
-  var METERS_NAUTICAL_MILES = 1852
+var DEGREES_TO_RADIANS = Math.PI / 180
+var RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS
 
-  return {
-    distToDegrees: function(distanceInMeters) {
-      return this.toDegrees(this.distToRadians(distanceInMeters))
-    },
-    distToRadians: function(distanceInMeters) {
-      return distanceInMeters / EARTH_MEAN_RADIUS_METERS
-    },
-    toDegrees: function(distanceInRadians) {
-      return distanceInRadians * RADIANS_TO_DEGREES
-    },
-    getDistanceInMeters: function(distance, units) {
-      distance = distance || 0
-      switch (units) {
-        case 'kilometers':
-          return distance * METERS_KILOMETERS
-        case 'feet':
-          return distance * METERS_FEET
-        case 'yards':
-          return distance * METERS_YARDS
-        case 'miles':
-          return distance * METERS_MILES
-        case 'nautical miles':
-          return distance * METERS_NAUTICAL_MILES
-        case 'meters':
-        default:
-          return distance
-      }
-    },
-    getDistanceFromMeters: function(distance, units) {
-      distance = distance || 0
-      switch (units) {
-        case 'kilometers':
-          return distance / METERS_KILOMETERS
-        case 'feet':
-          return distance / METERS_FEET
-        case 'yards':
-          return distance / METERS_YARDS
-        case 'miles':
-          return distance / METERS_MILES
-        case 'nautical miles':
-          return distance / METERS_NAUTICAL_MILES
-        case 'meters':
-        default:
-          return distance
-      }
-    },
-    altitudeRound: function(value) {
-      // round the value, don't need picometer precision.
-      return Math.round(value)
-    },
-  }
-})
+var METERS_KILOMETERS = 1000
+var METERS_FEET = 0.3048
+var METERS_YARDS = 0.9144
+var METERS_MILES = 1609.344
+var METERS_NAUTICAL_MILES = 1852
+
+module.exports = {
+  distToDegrees: function(distanceInMeters) {
+    return this.toDegrees(this.distToRadians(distanceInMeters))
+  },
+  distToRadians: function(distanceInMeters) {
+    return distanceInMeters / EARTH_MEAN_RADIUS_METERS
+  },
+  toDegrees: function(distanceInRadians) {
+    return distanceInRadians * RADIANS_TO_DEGREES
+  },
+  getDistanceInMeters: function(distance, units) {
+    distance = distance || 0
+    switch (units) {
+      case 'kilometers':
+        return distance * METERS_KILOMETERS
+      case 'feet':
+        return distance * METERS_FEET
+      case 'yards':
+        return distance * METERS_YARDS
+      case 'miles':
+        return distance * METERS_MILES
+      case 'nautical miles':
+        return distance * METERS_NAUTICAL_MILES
+      case 'meters':
+      default:
+        return distance
+    }
+  },
+  getDistanceFromMeters: function(distance, units) {
+    distance = distance || 0
+    switch (units) {
+      case 'kilometers':
+        return distance / METERS_KILOMETERS
+      case 'feet':
+        return distance / METERS_FEET
+      case 'yards':
+        return distance / METERS_YARDS
+      case 'miles':
+        return distance / METERS_MILES
+      case 'nautical miles':
+        return distance / METERS_NAUTICAL_MILES
+      case 'meters':
+      default:
+        return distance
+    }
+  },
+  altitudeRound: function(value) {
+    // round the value, don't need picometer precision.
+    return Math.round(value)
+  },
+}

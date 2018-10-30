@@ -10,6 +10,5 @@
  *
  **/
 /*global define*/
-define(['./Lightbox'], function(Lightbox) {
-  return new Lightbox()
-})
+const Lightbox = require('./Lightbox')
+module.exports = new Lightbox()

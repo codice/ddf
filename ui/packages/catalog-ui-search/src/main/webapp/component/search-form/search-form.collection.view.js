@@ -35,8 +35,7 @@ module.exports = Marionette.CollectionView.extend({
   filter: function(child) {
     if (this.options.hideNewForm) {
       return child.get('type') !== 'new-form'
-    } else {
-      return true
     }
+    return child.get('type') !== 'basic' && child.get('type') !== 'text'
   },
 })

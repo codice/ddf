@@ -10,8 +10,9 @@
  *
  **/
 /*global define*/
-define(['underscore', 'backbone', './value'], function(_, Backbone, Value) {
-  return Backbone.Collection.extend({
-    model: Value,
-  })
+const _ = require('underscore')
+const Backbone = require('backbone')
+const Value = require('./value')
+module.exports = Backbone.Collection.extend({
+  model: Value,
 })

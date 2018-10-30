@@ -13,89 +13,85 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  './filter-comparator.hbs',
-  'js/CustomElements',
-  'component/singletons/metacard-definitions',
-], function(Marionette, _, $, template, CustomElements, metacardDefinitions) {
-  var geometryComparators = ['INTERSECTS']
-  var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE']
-  var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
-  var numberComparators = ['>', '<', '=', '>=', '<=']
-  var booleanComparators = ['=']
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./filter-comparator.hbs')
+const CustomElements = require('js/CustomElements')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
 
-  return Marionette.ItemView.extend({
-    template: template,
-    tagName: CustomElements.register('filter-comparator'),
-    className: 'is-action-list',
-    modelEvents: {
-      change: 'render',
-    },
-    events: {
-      'click .choice': 'handleChoice',
-    },
-    ui: {},
-    initialize: function() {},
-    onRender: function() {
-      this.handleValue()
-    },
-    handleValue: function() {
-      this.$el.find('[data-value]').removeClass('is-selected')
-      this.$el
-        .find('[data-value="' + this.model.get('comparator') + '"]')
-        .addClass('is-selected')
-    },
-    handleChoice: function(e) {
-      var value = $(e.currentTarget).attr('data-value')
-      this.model.set('comparator', value)
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    serializeData: function() {
-      switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
-        case 'LOCATION':
-        case 'GEOMETRY':
-          if (
-            geometryComparators.indexOf(this.model.get('comparator')) === -1
-          ) {
-            this.model.set('comparator', geometryComparators[0])
-          }
-          return geometryComparators
-        case 'DATE':
-          if (dateComparators.indexOf(this.model.get('comparator')) === -1) {
-            this.model.set('comparator', dateComparators[0])
-          }
-          return dateComparators
-        case 'BOOLEAN':
-          if (booleanComparators.indexOf(this.model.get('comparator')) === -1) {
-            this.model.set('comparator', booleanComparators[0])
-          }
-          return booleanComparators
-        case 'LONG':
-        case 'DOUBLE':
-        case 'FLOAT':
-        case 'INTEGER':
-        case 'SHORT':
-          if (numberComparators.indexOf(this.model.get('comparator')) === -1) {
-            this.model.set('comparator', numberComparators[0])
-          }
-          return numberComparators
-        default:
-          if (stringComparators.indexOf(this.model.get('comparator')) === -1) {
-            this.model.set('comparator', stringComparators[0])
-          }
-          if (this.model.get('isResultFilter')) {
-            // if this view is being used as an ad hoc search results filter
-            // (as opposed to a filter saved on a search), don't include
-            // complex comparators like NEAR
-            return stringComparators.filter(function(comparator) {
-              return comparator !== 'NEAR'
-            })
-          }
-          return stringComparators
-      }
-    },
-  })
+var geometryComparators = ['INTERSECTS']
+var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE']
+var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
+var numberComparators = ['>', '<', '=', '>=', '<=']
+var booleanComparators = ['=']
+
+module.exports = Marionette.ItemView.extend({
+  template: template,
+  tagName: CustomElements.register('filter-comparator'),
+  className: 'is-action-list',
+  modelEvents: {
+    change: 'render',
+  },
+  events: {
+    'click .choice': 'handleChoice',
+  },
+  ui: {},
+  initialize: function() {},
+  onRender: function() {
+    this.handleValue()
+  },
+  handleValue: function() {
+    this.$el.find('[data-value]').removeClass('is-selected')
+    this.$el
+      .find('[data-value="' + this.model.get('comparator') + '"]')
+      .addClass('is-selected')
+  },
+  handleChoice: function(e) {
+    var value = $(e.currentTarget).attr('data-value')
+    this.model.set('comparator', value)
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  serializeData: function() {
+    switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
+      case 'LOCATION':
+      case 'GEOMETRY':
+        if (geometryComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', geometryComparators[0])
+        }
+        return geometryComparators
+      case 'DATE':
+        if (dateComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', dateComparators[0])
+        }
+        return dateComparators
+      case 'BOOLEAN':
+        if (booleanComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', booleanComparators[0])
+        }
+        return booleanComparators
+      case 'LONG':
+      case 'DOUBLE':
+      case 'FLOAT':
+      case 'INTEGER':
+      case 'SHORT':
+        if (numberComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', numberComparators[0])
+        }
+        return numberComparators
+      default:
+        if (stringComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', stringComparators[0])
+        }
+        if (this.model.get('isResultFilter')) {
+          // if this view is being used as an ad hoc search results filter
+          // (as opposed to a filter saved on a search), don't include
+          // complex comparators like NEAR
+          return stringComparators.filter(function(comparator) {
+            return comparator !== 'NEAR'
+          })
+        }
+        return stringComparators
+    }
+  },
 })

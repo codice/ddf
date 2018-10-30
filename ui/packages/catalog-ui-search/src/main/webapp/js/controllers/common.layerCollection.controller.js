@@ -12,23 +12,21 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-define(['marionette'], function(Marionette) {
-  'use strict'
+const Marionette = require('marionette')
 
-  var Controller = Marionette.Object.extend({
-    initialize: function(options) {
-      this.collection = options.collection
-      this.layerForCid = {}
+var Controller = Marionette.Object.extend({
+  initialize: function(options) {
+    this.collection = options.collection
+    this.layerForCid = {}
 
-      this.listenTo(this.collection, 'change:alpha', this.setAlpha)
-      this.listenTo(this.collection, 'change:show change:alpha', this.setShow)
+    this.listenTo(this.collection, 'change:alpha', this.setAlpha)
+    this.listenTo(this.collection, 'change:show change:alpha', this.setShow)
 
-      // subclasses must implement reIndexLayers()
-      this.listenTo(this.collection, 'sort', this.reIndexLayers)
-      this.listenTo(this.collection, 'add', this.addLayer)
-      this.listenTo(this.collection, 'remove', this.removeLayer)
-    },
-  })
-
-  return Controller
+    // subclasses must implement reIndexLayers()
+    this.listenTo(this.collection, 'sort', this.reIndexLayers)
+    this.listenTo(this.collection, 'add', this.addLayer)
+    this.listenTo(this.collection, 'remove', this.removeLayer)
+  },
 })
+
+module.exports = Controller

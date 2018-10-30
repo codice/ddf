@@ -1,0 +1,101 @@
+:title:  Contributing to Documentation
+:type: developingComponent
+:status: published
+:link: _contributing_to_documentation
+:summary: Updating documentation.
+:order: 99
+
+${branding} documentation is included in the source code, so it is edited and maintained in much the same way.
+
+`src/main/resources`
+
+.Documentation Directory Structure and Contents
+[cols="1m,3" options="headers"]
+|===
+|Directory
+|Contents
+
+|content
+|Asciidoctor-formatted files containing documentation contents and the header information needed to organize them.
+
+|images
+|Screenshots, icons, and other image files used in documentation.
+
+|templates
+|Template files used to compile the documentation for display.
+
+|jbake.properties
+|Properties file defining content types and other parameters.
+|===
+
+==== Editing Existing Documentation
+
+Update existing content when code behavior changes, new capabilities are added to features, or the configuration process changes.
+Content is organized within the `content` directory in sub directories according to the audience and purpose for each document in the documentation library.
+Use this list to determine placement of new content.
+
+.Documentation Sections
+Introduction/Core Concepts:: This section is intended to be a high-level, executive summary of the features and capabilities of ${branding}. Content here should be written at a non-technical level.
+
+Quick Start:: This section is intended for getting set up with a test, demonstration, or trial instance of ${branding}. This is the place for non-production shortcuts or workarounds that would not be used in a secured, hardened installation.
+
+Managing:: The managing section covers "how-to" instructions to be used to install, configure, and maintain an instance of ${branding} in a production environment. This content should be aimed at system administrators. Security hardening should be integrated into these sections.
+
+Using:: This section is primarily aimed at the final end users who will be performing tasks with ${branding}. This content should guide users through common tasks and user interfaces.
+
+Integrating:: This section guides developers building other projects looking to connect to new or existing instances of ${branding}.
+
+Developing:: This section provides guidance and best practices on developing custom implementations of ${branding} components, especially ones that may be contributed into the code baseline.
+
+Architecture:: This section is a detailed description of the architectural design of ${branding} and how components work together.
+
+Reference:: This section is a comprehensive list of features and possible configurations.
+
+Metadata Reference:: This section details how metadata is extracted and normalized by ${branding}.
+
+Documentation:: This is a collection of all of the individual documentation pages in one html or pdf file.
+
+See the https://codice.atlassian.net/wiki/spaces/DDF/pages/6291516/Documentation+Style+Guide[style guide] for more guidance on stylistic and formatting concerns.
+
+==== Adding New Documentation Content
+
+If creating a new section is required, there are some minimal requirements for a new `.adoc` file.
+
+.Header content
+The templates scan the header information to place it into the correct place within the documentation.
+Different sections have different headers required, but some common attributes are always required.
+
+* `type`: roughly maps to the section or subSection of the documentation.
+* `title`: title of the section or subsection contained in the file.
+* `status`: set to `published` to include within the documentation, set to `draft` to hide a work-in-progress section.
+* `order`: used in sections where order needs to be enforced.
+* `summary`: brief summary of section contents. Some, but not all, summaries are included by templates.
+
+==== Creating a New Documentation Template
+
+To create a new, standalone documentation page, create a new template in the `templates` directory.
+Optionally, this template can `include` some of the internal templates in the `templates/build` directory, but this is not required.
+
+For guidance on using the freemarker syntax, see the https://freemarker.apache.org/docs/ref.html[Freemarker documentation].
+
+==== Extending Documentation in Downstream Distributions
+
+By mimicking the build and directory structure of the documentation, downstream projects are able to leverage the existing documentation and insert content before and after sections of the ${branding} documentation.
+
+.Documentation Module Directory Structure
+[source]
+----
+-docs
+  -src
+    -main
+      -resources
+        -content
+        -images
+        -templates
+----
+
+`content`:: Contains the .adoc files that make up the content.
+Sub-directories are organized according to the documents that make up the main library.
+`images`:: any pre-existing images, such as screenshots, to be included in the documentation.
+`templates`:: template files used to create documentation artifacts.
+A `build` sub-directory holds the templates that will not be standalone documents to render specific sections.

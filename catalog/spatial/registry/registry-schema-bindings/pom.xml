@@ -55,6 +55,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.jaxb</groupId>
+            <artifactId>registry-schema-bindings</artifactId>
+            <version>${ddf.jaxb.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
@@ -109,62 +114,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <catalog>src/main/resources/catalog.xml</catalog>
-                            <schemaIncludes>
-                                <value>csw-ebrim/*/csw-ebrim.xsd</value>
-                                <value>gml/*/base/gml.xsd</value>
-                            </schemaIncludes>
-                            <episodes>
-                                <episode>
-                                    <groupId>org.jvnet.ogc</groupId>
-                                    <artifactId>gml-v_3_1_1-schema</artifactId>
-                                </episode>
-                                <episode>
-                                    <groupId>org.codice.thirdparty</groupId>
-                                    <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-                                </episode>
-                                <episode>
-                                    <groupId>org.jvnet.ogc</groupId>
-                                    <artifactId>ows-v_1_0_0-schema</artifactId>
-                                </episode>
-                                <episode>
-                                    <groupId>org.codice.ddf.spatial</groupId>
-                                    <artifactId>spatial-csw-schema-bindings</artifactId>
-                                </episode>
-                            </episodes>
-                            <strict>false</strict>
-                            <extension>true</extension>
-                            <args>
-                                <arg>-XtoString</arg>
-                                <arg>-Xequals</arg>
-                                <arg>-XhashCode</arg>
-                                <arg>-Xcopyable</arg>
-                                <arg>-Xmergeable</arg>
-                                <arg>-Xsetters</arg>
-                                <arg>-Xwildcard</arg>
-                                <arg>-Xinject-code</arg>
-                                <arg>-Xinheritance</arg>
-                            </args>
-                            <plugins>
-                                <plugin>
-                                    <groupId>org.jvnet.jaxb2_commons</groupId>
-                                    <artifactId>jaxb2-basics</artifactId>
-                                    <version>${jaxb2.version}</version>
-                                </plugin>
-                            </plugins>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -175,7 +124,8 @@
                             registry-common,
                             catalog-core-api-impl;scope=!test,
                             commons-lang3,
-                            geospatial
+                            geospatial,
+                            registry-schema-bindings
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>

@@ -10,11 +10,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-
-    <bean id="securityJavaSubjectFilter"
-          class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
+    <bean id="responseFilter" class="org.codice.ddf.pax.web.jetty.ResponseFilter">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.platform.response.filter.ResponseHeaderConfig"
+                update-strategy="container-managed"/>
+    </bean>
 
     <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor">
         <argument ref="securityJavaSubjectThreadFactory"/>
@@ -22,7 +25,43 @@
 
     <bean id="filterInjector" class="org.codice.ddf.pax.web.jetty.FilterInjector" init-method="init"
           destroy-method="destroy">
-        <argument ref="securityJavaSubjectFilter"/>
+        <argument type="java.util.List">
+            <list value-type="javax.servlet.Filter">
+                <bean class="org.codice.ddf.pax.web.jetty.ClientInfoFilter"/>
+                <bean class="org.codice.ddf.pax.web.jetty.CsrfFilter">
+                    <property name="whiteListContexts">
+                        <array value-type="java.lang.String">
+                            <value>/services[/]?$=GET</value>
+                            <value>/services/admin/config[/]?$=GET</value>
+                            <value>/services/content[/]?$=GET</value>
+                            <value>/services/catalog/query[/]?$=GET</value> <!-- Simple Search -->
+                            <value>/services/catalog/sources.*=GET</value> <!-- REST Action providers -->
+                            <value>/services/internal/catalog/download/cache.*=GET</value>
+                            <value>/services/internal/session.*=GET</value>
+                            <value>/services/internal/metrics.*=GET</value>
+                            <value>/services/idp/login[/]?$=GET</value>
+                            <value>/services/idp/login[/]?$=POST</value>
+                            <value>/services/idp/login/metadata[/]?$=GET</value>
+                            <value>/services/idp/login/sso[/]?$=GET</value>
+                            <value>/services/idp/logout[/]?$=GET</value>
+                            <value>/services/login[/]?$=POST</value>
+                            <value>/services/logout/actions[/]?$=GET</value>
+                            <value>/services/logout/local[/]?$=GET</value>
+                            <value>/services/platform/config/ui[/]?$=GET</value>
+                            <value>/services/saml/logout[/]?$=GET</value>
+                            <value>/services/saml/logout/request[/]?$=GET</value>
+                            <value>/services/saml/sso[/]?$=POST</value>
+                            <value>/services/saml/sso/metadata[/]?$=GET</value>
+                            <value>/services/SecurityTokenService[/]?$=GET</value>
+                            <value>/services/SecurityTokenService[/]?$=POST</value>
+                            <value>/services/store/config[/]?$=GET</value>
+                        </array>
+                    </property>
+                </bean>
+                <ref component-id="responseFilter"/>
+                <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
+            </list>
+        </argument>
         <argument ref="executor"/>
     </bean>
 

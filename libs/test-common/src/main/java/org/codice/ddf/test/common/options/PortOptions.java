@@ -60,49 +60,53 @@ public class PortOptions extends BasicOptions {
 
   public static Option httpsPort() {
     String port = getPortFinder().getPortAsString(HTTPS_PORT_KEY);
-    recordConfiguration("%s=%s", HTTPS_PORT_KEY, port);
+    recordConfiguration(HTTPS_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         SystemProperties.SYSTEM_PROPERTIES_FILE_PATH, SystemProperties.HTTPS_PORT_PROPERTY, port);
   }
 
   public static Option httpPort() {
     String port = getPortFinder().getPortAsString(HTTP_PORT_KEY);
-    recordConfiguration("%s=%s", HTTP_PORT_KEY, port);
+    recordConfiguration(HTTP_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         SystemProperties.SYSTEM_PROPERTIES_FILE_PATH, SystemProperties.HTTP_PORT_PROPERTY, port);
   }
 
   public static Option ftpPort() {
     String port = getPortFinder().getPortAsString(FTP_PORT_KEY);
-    recordConfiguration("%s=%s", FTP_PORT_KEY, port);
+    recordConfiguration(FTP_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         SystemProperties.SYSTEM_PROPERTIES_FILE_PATH, SystemProperties.FTP_PORT_PROPERTY, port);
   }
 
   public static Option rmiRegistryPort() {
     String port = getPortFinder().getPortAsString(RMI_REG_PORT_KEY);
-    recordConfiguration("%s=%s", RMI_REG_PORT_KEY, port);
+    recordConfiguration(RMI_REG_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         KARAF_MGMT_CFG_FILE_PATH, RMI_REGISTRY_PORT_PROPERTY, port);
   }
 
   public static Option rmiServerPort() {
     String port = getPortFinder().getPortAsString(RMI_SERVER_PORT_KEY);
-    recordConfiguration("%s=%s", RMI_SERVER_PORT_KEY, port);
+    recordConfiguration(RMI_SERVER_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         KARAF_MGMT_CFG_FILE_PATH, RMI_SERVER_PORT_PROPERTY, port);
   }
 
   public static Option sshPort() {
     String port = getPortFinder().getPortAsString(SSH_PORT_KEY);
-    recordConfiguration("%s=%s", SSH_PORT_KEY, port);
+    recordConfiguration(SSH_PORT_KEY, port);
     return KarafDistributionOption.editConfigurationFilePut(
         KARAF_SHELL_CFG_FILE_PATH, SSH_PORT_PROPERTY, port);
   }
 
   public static Option solrPort() {
     String port = getPortFinder().getPortAsString(SSH_PORT_KEY);
-    recordConfiguration("%s=%s", SOLR_PORT_KEY, port);
+    recordConfiguration(SOLR_PORT_KEY, port);
     return editConfigurationFilePut(SYSTEM_PROPERTIES_FILE_PATH, "solr.http.port", port);
+  }
+
+  public static String getHttpsPort() {
+    return getConfiguration(HTTPS_PORT_KEY);
   }
 }

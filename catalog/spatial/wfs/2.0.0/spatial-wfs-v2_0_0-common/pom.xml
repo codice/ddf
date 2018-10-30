@@ -74,8 +74,9 @@
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
+            <groupId>ddf.jaxb</groupId>
             <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
+            <version>${ddf.jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

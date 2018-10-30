@@ -37,7 +37,7 @@ public class DocumentationTest {
 
   private static final String UNRESOLVED_DIRECTORY_MSG = "Unresolved directive";
 
-  private static final String FREEMARKER_MSG = "freemarker";
+  private static final String FREEMARKER_MSG = "freemarker template error";
 
   private static final String DOCS_DIRECTORY = "docs";
 

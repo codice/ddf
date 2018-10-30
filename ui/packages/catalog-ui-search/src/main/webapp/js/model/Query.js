@@ -455,5 +455,6 @@ Query.Model = Backbone.AssociatedModel.extend({
     return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
   },
 })
+module.exports = Query
 
 module.exports = Query

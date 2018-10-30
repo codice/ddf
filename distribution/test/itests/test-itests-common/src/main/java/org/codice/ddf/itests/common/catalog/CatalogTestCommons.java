@@ -31,12 +31,10 @@ import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Map;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
@@ -54,6 +52,8 @@ public class CatalogTestCommons {
   private static final String CSW_RESOURCE_ROOT = "/TestSpatial/";
 
   private static final String CSW_METACARD = "CswRecord.xml";
+
+  private CatalogTestCommons() {}
 
   /**
    * Ingests the provided metacard
@@ -119,11 +119,9 @@ public class CatalogTestCommons {
    *
    * @param resourceName - The relative path of the resource file
    * @return metacard id
-   * @throws IOException
    */
-  public static String ingestXmlFromResourceAndWait(String resourceName) throws IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
+  public static String ingestXmlFromResourceAndWait(String resourceName) {
+    String content = getFileContent(resourceName);
     String[] id = new String[1];
     // ingest might not succeed the first time due to the async nature of some configurations
     // Will try several times before considering it failed.
@@ -134,7 +132,7 @@ public class CatalogTestCommons {
         .ignoreExceptions()
         .until(
             () -> {
-              id[0] = ingest(writer.toString(), "text/xml", true);
+              id[0] = ingest(content, "text/xml", true);
               return true;
             });
     with()
@@ -202,7 +200,6 @@ public class CatalogTestCommons {
   }
 
   public static String ingestCswRecord(String cswRecord) {
-
     String transactionRequest = getCswInsertRequest("csw:Record", cswRecord);
 
     ValidatableResponse response =
@@ -229,13 +226,7 @@ public class CatalogTestCommons {
    * @param mimeType - content type header value
    */
   public static void update(String id, String data, String mimeType) {
-    given()
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
-        .body(data)
-        .expect()
-        .statusCode(HttpStatus.SC_OK)
-        .when()
-        .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
+    update(id, data, mimeType, HttpStatus.SC_OK);
   }
 
   /**

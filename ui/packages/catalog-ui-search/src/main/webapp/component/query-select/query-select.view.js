@@ -13,41 +13,39 @@
  *
  **/
 /*global define, alert*/
-define([
-  'marionette',
-  'underscore',
-  'jquery',
-  'js/CustomElements',
-  'js/store',
-  'component/query-item/query-item.collection.view',
-], function(Marionette, _, $, CustomElements, store, QueryItemCollectionView) {
-  var eventsHash = {
-    click: 'handleClick',
-  }
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const QueryItemCollectionView = require('component/query-item/query-item.collection.view')
 
-  var namespace = CustomElements.getNamespace()
-  var queryItemClickEvent = 'click ' + namespace + 'query-item'
-  eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
+var eventsHash = {
+  click: 'handleClick',
+}
 
-  return QueryItemCollectionView.extend({
-    className: 'is-query-select composed-menu',
-    events: eventsHash,
-    onBeforeShow: function() {
-      this.handleValue()
-    },
-    handleQueryItemClick: function(event) {
-      this.model.set('value', $(event.currentTarget).attr('data-queryid'))
-      this.handleValue()
-      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    },
-    handleValue: function() {
-      var queryId = this.model.get('value')
-      this.$el.find(namespace + 'query-item').removeClass('is-selected')
-      if (queryId) {
-        this.$el
-          .find(namespace + 'query-item[data-queryid="' + queryId + '"]')
-          .addClass('is-selected')
-      }
-    },
-  })
+var namespace = CustomElements.getNamespace()
+var queryItemClickEvent = 'click ' + namespace + 'query-item'
+eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
+
+module.exports = QueryItemCollectionView.extend({
+  className: 'is-query-select composed-menu',
+  events: eventsHash,
+  onBeforeShow: function() {
+    this.handleValue()
+  },
+  handleQueryItemClick: function(event) {
+    this.model.set('value', $(event.currentTarget).attr('data-queryid'))
+    this.handleValue()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  handleValue: function() {
+    var queryId = this.model.get('value')
+    this.$el.find(namespace + 'query-item').removeClass('is-selected')
+    if (queryId) {
+      this.$el
+        .find(namespace + 'query-item[data-queryid="' + queryId + '"]')
+        .addClass('is-selected')
+    }
+  },
 })

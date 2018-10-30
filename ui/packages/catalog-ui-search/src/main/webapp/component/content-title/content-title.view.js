@@ -13,79 +13,77 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'underscore',
-  'js/CustomElements',
-  'js/store',
-  'component/unsaved-indicator/workspace/workspace-unsaved-indicator.view',
-  'react',
-  'behaviors/region.behavior',
-], function(Marionette, _, CustomElements, store, UnsavedIndicatorView, React) {
-  return Marionette.LayoutView.extend({
-    setDefaultModel: function() {
-      this.model = store.get('content')
-    },
-    behaviors() {
-      const view = this
-      return {
-        region: {
-          regions: [
-            {
-              selector: '.title-saved',
-              view() {
-                if (view.model.get('currentWorkspace')) {
-                  return UnsavedIndicatorView
-                }
-                return undefined
-              },
-              viewOptions() {
-                return {
-                  model: view.model.get('currentWorkspace'),
-                }
-              },
-              shouldRegionUpdate(currentView) {
-                if (
-                  currentView &&
-                  currentView.model !== view.model.get('currentWorkspace')
-                ) {
-                  return true
-                }
-                return false
-              },
+const Marionette = require('marionette')
+const _ = require('underscore')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const UnsavedIndicatorView = require('component/unsaved-indicator/workspace/workspace-unsaved-indicator.view')
+const React = require('react')
+require('behaviors/region.behavior')
+
+module.exports = Marionette.LayoutView.extend({
+  setDefaultModel: function() {
+    this.model = store.get('content')
+  },
+  behaviors() {
+    const view = this
+    return {
+      region: {
+        regions: [
+          {
+            selector: '.title-saved',
+            view() {
+              if (view.model.get('currentWorkspace')) {
+                return UnsavedIndicatorView
+              }
+              return undefined
             },
-          ],
-        },
-      }
-    },
-    template(data) {
-      return (
-        <React.Fragment
-          key={data.currentWorkspace ? data.currentWorkspace.id : 0}
-        >
-          <input
-            placeholder="Workspace Title"
-            value={data.currentWorkspace ? data.currentWorkspace.title : ''}
-            data-help="This is the title of the workspace you are currently in.
+            viewOptions() {
+              return {
+                model: view.model.get('currentWorkspace'),
+              }
+            },
+            shouldRegionUpdate(currentView) {
+              if (
+                currentView &&
+                currentView.model !== view.model.get('currentWorkspace')
+              ) {
+                return true
+              }
+              return false
+            },
+          },
+        ],
+      },
+    }
+  },
+  template(data) {
+    return (
+      <React.Fragment
+        key={data.currentWorkspace ? data.currentWorkspace.id : 0}
+      >
+        <input
+          placeholder="Workspace Title"
+          value={data.currentWorkspace ? data.currentWorkspace.title : ''}
+          data-help="This is the title of the workspace you are currently in.
                     If you have permission, you can click here to start editing the title."
-            onChange={this.updateWorkspaceName.bind(this)}
-          />
-          <pre className="title-display">
-            {data.currentWorkspace ? data.currentWorkspace.title : ''}
-          </pre>
-          <div className="title-saved" />
-        </React.Fragment>
-      )
-    },
-    tagName: CustomElements.register('content-title'),
-    initialize: function(options) {
-      if (options.model === undefined) {
-        this.setDefaultModel()
-      }
-      this.listenTo(this.model, 'change:currentWorkspace', this.render)
-    },
-    updateWorkspaceName: function(e) {
-      this.model.get('currentWorkspace').set('title', e.currentTarget.value)
-    },
-  })
+          onChange={this.updateWorkspaceName.bind(this)}
+        />
+        <pre className="title-display">
+          {data.currentWorkspace ? data.currentWorkspace.title : ''}
+        </pre>
+        <div className="title-saved" />
+      </React.Fragment>
+    )
+  },
+  tagName: CustomElements.register('content-title'),
+  initialize: function(options) {
+    if (options.model === undefined) {
+      this.setDefaultModel()
+    }
+    this.listenTo(this.model, 'change:currentWorkspace', this.render)
+  },
+  updateWorkspaceName: function(e) {
+    this.model.get('currentWorkspace').set('title', e.currentTarget.value)
+  },
 })

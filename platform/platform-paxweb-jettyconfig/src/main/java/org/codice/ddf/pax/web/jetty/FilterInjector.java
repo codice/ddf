@@ -15,11 +15,13 @@ package org.codice.ddf.pax.web.jetty;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
@@ -35,10 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Injects the {@link SecurityJavaSubjectFilter} into the {@link ServletContext} with properties
- * filterName = {@link FilterInjector#SECURITY_JAVA_SUBJECT_FILTER}, urlPatterns = {@link
- * FilterInjector#ALL_URLS}, and no servlet name as the {@link ServletContext} is being created.
- * Sets up all {@link javax.servlet.Servlet}s with the {@link SecurityJavaSubjectFilter} in the
+ * Injects the {@link Filter} into the {@link ServletContext} with properties filterName,
+ * urlPatterns = {@link FilterInjector#ALL_URLS}, and no servlet name as the {@link ServletContext}
+ * is being created. Sets up all {@link javax.servlet.Servlet}s with the {@link Filter} in the
  * {@link javax.servlet.FilterChain}.
  */
 public class FilterInjector implements EventListenerHook {
@@ -47,22 +48,18 @@ public class FilterInjector implements EventListenerHook {
 
   private static final String ALL_URLS = "/*";
 
-  private static final String SECURITY_JAVA_SUBJECT_FILTER = "security-java-subject-filter";
-
-  private final SecurityJavaSubjectFilter securityJavaSubjectFilter;
+  private final List<Filter> filterList;
 
   private final ScheduledExecutorService executorService;
 
   /**
    * Creates a new filter injector with the specified {@link SecurityJavaSubjectFilter}.
    *
-   * @param securityJavaSubjectFilter filter that should be injected.
+   * @param filterList filters that should be injected.
    * @param executorService used to check for missed servlet contexts
    */
-  public FilterInjector(
-      SecurityJavaSubjectFilter securityJavaSubjectFilter,
-      ScheduledExecutorService executorService) {
-    this.securityJavaSubjectFilter = securityJavaSubjectFilter;
+  public FilterInjector(List<Filter> filterList, ScheduledExecutorService executorService) {
+    this.filterList = filterList;
     this.executorService = executorService;
   }
 
@@ -108,12 +105,14 @@ public class FilterInjector implements EventListenerHook {
         BundleContext bundlectx = refBundle.getBundleContext();
         ServletContext service = bundlectx.getService(reference);
 
-        if (service.getFilterRegistration(SECURITY_JAVA_SUBJECT_FILTER) == null) {
-          LOGGER.error(
-              "Security java subject filter failed to start in time to inject itself into {} {}. This means the {} servlet will not properly attach the user subject to requests. A system restart is recommended.",
-              refBundle.getSymbolicName(),
-              refBundle.getBundleId(),
-              refBundle.getSymbolicName());
+        for (Filter filter : filterList) {
+          if (service.getFilterRegistration(filter.getClass().getName()) == null) {
+            LOGGER.error(
+                "Security filter failed to start in time to inject itself into {} {}. This means the {} servlet will not properly attach the user subject to requests. A system restart is recommended.",
+                refBundle.getSymbolicName(),
+                refBundle.getBundleId(),
+                refBundle.getSymbolicName());
+          }
         }
       }
 
@@ -146,24 +145,26 @@ public class FilterInjector implements EventListenerHook {
           "Failed trying to set the cookie config path to /. This can usually be ignored", e);
     }
 
-    try {
+    for (Filter filter : filterList) {
+      try {
 
-      FilterRegistration filterReg =
-          context.addFilter(SECURITY_JAVA_SUBJECT_FILTER, securityJavaSubjectFilter);
+        FilterRegistration filterReg = context.addFilter(filter.getClass().getName(), filter);
 
-      if (filterReg == null) {
-        filterReg = context.getFilterRegistration(SECURITY_JAVA_SUBJECT_FILTER);
-      } else {
-        ((FilterRegistration.Dynamic) filterReg).setAsyncSupported(true);
+        if (filterReg == null) {
+          filterReg = context.getFilterRegistration(filter.getClass().getName());
+        } else {
+          ((FilterRegistration.Dynamic) filterReg).setAsyncSupported(true);
+        }
+
+        filterReg.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, ALL_URLS);
+      } catch (IllegalStateException ise) {
+        LOGGER.error(
+            "Could not inject {} into {} because the servlet was already initialized. This means that SecurityJavaSubjectFilter will not be included in {}.",
+            filter.getClass(),
+            refBundle.getSymbolicName(),
+            refBundle.getSymbolicName(),
+            ise);
       }
-
-      filterReg.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, ALL_URLS);
-    } catch (IllegalStateException ise) {
-      LOGGER.error(
-          "Could not inject SecurityJavaSubjectFilter into {} because the servlet was already initialized. This means that SecurityJavaSubjectFilter will not be included in {}.",
-          refBundle.getSymbolicName(),
-          refBundle.getSymbolicName(),
-          ise);
     }
   }
 }
