@@ -12105,6 +12105,7 @@
       "type": "Feature",
       "id": "CHN",
       "properties": {
+        "geometryType": "country-shape",
         "name": "China"
       },
       "geometry": {
