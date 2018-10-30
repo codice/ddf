@@ -13,13 +13,15 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import WorkspaceItemContainer from '../../container/workspace-item-container'
-import WorkspaceCreateItem from '../workspace-create-item'
+import { Button, buttonTypeEnum } from '../button'
+import { hot } from 'react-hot-loader'
 
 type Props = {
   filterDropdown: React.ReactNode
   sortDropdown: React.ReactNode
   byDate: boolean
   workspaces: Backbone.Model[]
+  createBlankWorkspace: () => void
 }
 
 const Root = styled.div`
@@ -64,14 +66,21 @@ const Root = styled.div`
 
 const WorkspaceItemRoot = styled.div`
   width: 18rem;
-  height: 8.5rem;
+  height: calc(4.5 * ${props => props.theme.minimumLineSize});
   overflow: hidden;
   display: inline-block;
   margin-bottom: ${props => props.theme.minimumSpacing};
   margin-right: ${props => props.theme.largeSpacing};
 `
 
+const ModifiedButton = WorkspaceItemRoot.withComponent(Button)
+
+const Icon = styled.div`
+  margin-top: ${props => props.theme.mediumSpacing};
+`
+
 const WorkspacesItems = (props: Props) => {
+  const { createBlankWorkspace } = props
   return (
     <Root>
       <div className="home-items-center">
@@ -91,9 +100,16 @@ const WorkspacesItems = (props: Props) => {
           </div>
         </div>
         <div className="home-items-choices is-list is-inline has-list-highlighting">
-          <WorkspaceItemRoot>
-            <WorkspaceCreateItem />
-          </WorkspaceItemRoot>
+          <ModifiedButton
+            buttonType={buttonTypeEnum.neutral}
+            fadeUntilHover
+            onClick={createBlankWorkspace}
+          >
+            <Icon>
+              <span className="fa fa-plus-circle fa-3x" />
+            </Icon>
+            <div style={{ 'font-weight': 'bolder' }}>Add New Workspace</div>
+          </ModifiedButton>
           {props.workspaces.map(workspace => {
             return (
               <WorkspaceItemRoot key={workspace.id}>
@@ -107,4 +123,4 @@ const WorkspacesItems = (props: Props) => {
   )
 }
 
-export default WorkspacesItems
+export default hot(module)(WorkspacesItems)
