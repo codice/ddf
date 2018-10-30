@@ -16,7 +16,6 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:ddf.thirdparty/rest-assured/${project.version}/xml/feature</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
 
     <feature name="test-common" version="${project.version}"
@@ -50,5 +49,14 @@
 
         <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/3.5.0</bundle>
         <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/3.0.0</bundle>
+    </feature>
+
+    <feature name="rest-assured" version="${project.version}">
+        <bundle>mvn:ddf.thirdparty/rest-assured/${project.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
+        </bundle>
     </feature>
 </features>

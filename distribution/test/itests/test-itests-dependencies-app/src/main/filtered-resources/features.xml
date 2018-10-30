@@ -17,7 +17,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:ddf.thirdparty/rest-assured/${project.version}/xml/feature</repository>
+    <repository>mvn:ddf.features/test-utilities/${project.version}/xml/features</repository>
 
     <feature name="ddf-itest-dependencies" version="${project.version}">
         <feature prerequisite="true">wrap</feature>
@@ -27,11 +27,7 @@
 
     <feature name="ddf-dependencies" version="${project.version}">
         <feature>catalog-core</feature>
-
-        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
-        <bundle>mvn:ddf.thirdparty/rest-assured/${project.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
+        <feature>rest-assured</feature>
 
         <bundle>
             wrap:mvn:ddf.security/ddf-security-common/${project.version}$Bundle-SymbolicName=itest-test-security-common

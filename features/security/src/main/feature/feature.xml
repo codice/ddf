@@ -57,7 +57,6 @@
     </feature>
 
     <feature name="security-filter-api" version="${project.version}">
-        <feature prerequisite="true" version="${project.version}">kernel</feature>
         <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
         <bundle>mvn:ddf.platform/security-filter-api/${project.version}</bundle>
     </feature>

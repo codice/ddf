@@ -38,11 +38,9 @@
 
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
-        <!--Added prerequisite to kernel since it starts up features that must be started before others such as wrap and blueprint -->
-        <feature prerequisite="true">kernel</feature>
-        <feature prerequisite="true">platform-paxweb-jettyconfig</feature>
-        <!--Added prerequisite to make sure the security filter injector is running before any other contexts get registered-->
-        <feature prerequisite="true">security-services-app</feature>
+        <feature>kernel</feature>
+        <feature>platform-paxweb-jettyconfig</feature>
+        <feature>security-services-app</feature>
         <feature>ddf-branding</feature>
         <feature>platform-app</feature>
         <feature>admin-app</feature>
@@ -79,8 +77,7 @@
 
     <feature name="security-services-app" version="${project.version}"
              description="The Security Application provides Authentication, Authorization, and Auditing services.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::Security">
-        <!--Added prerequisite to make sure the security filter injector is running before any other contexts get registered-->
-        <feature prerequisite="true">web-container</feature>
+        <feature>web-container</feature>
         <feature>security-core</feature>
         <feature>security-policy-context</feature>
         <feature>security-web-sso-defaults</feature>
