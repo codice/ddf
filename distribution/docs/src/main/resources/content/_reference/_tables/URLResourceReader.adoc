@@ -19,7 +19,7 @@
 |followRedirects
 |Boolean
 |Check the box if you want the Resource Reader to automatically follow server issued redirects (HTTP Response Code 300 series).
-|false
+|true
 
 
 |Root Resource Directories
