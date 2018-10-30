@@ -235,7 +235,7 @@ public class MetacardApplication implements SparkApplication {
         StringUtils.isNotEmpty(accessControlSecurityConfiguration.getSystemUserAttributeValue())
             ? Collections.singletonList(
                 accessControlSecurityConfiguration.getSystemUserAttributeValue())
-            : Collections.EMPTY_LIST;
+            : Collections.emptyList();
     return !Collections.disjoint(subjectRoles, systemUserList);
   }
 
