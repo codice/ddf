@@ -108,7 +108,7 @@ const WorkspacesItems = (props: Props) => {
             <Icon>
               <span className="fa fa-plus-circle fa-3x" />
             </Icon>
-            <div style={{ 'font-weight': 'bolder' }}>Add New Workspace</div>
+            <div>Add New Workspace</div>
           </ModifiedButton>
           {props.workspaces.map(workspace => {
             return (
