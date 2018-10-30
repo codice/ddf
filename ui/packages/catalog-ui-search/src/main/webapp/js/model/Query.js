@@ -11,19 +11,19 @@
  **/
 /*global define*/
 
-var Backbone = require('backbone')
-var $ = require('jquery')
-var _ = require('underscore')
-var properties = require('properties')
-var QueryResponse = require('js/model/QueryResponse')
-var ResultSort = require('js/model/ResultSort')
-var Sources = require('component/singletons/sources-instance')
-var Common = require('js/Common')
-var CacheSourceSelector = require('js/CacheSourceSelector')
-var announcement = require('component/announcement')
-var CQLUtils = require('js/CQLUtils')
-var user = require('component/singletons/user-instance')
-var _merge = require('lodash/merge')
+const Backbone = require('backbone')
+const $ = require('jquery')
+const _ = require('underscore')
+const properties = require('properties')
+const QueryResponse = require('js/model/QueryResponse')
+const ResultSort = require('js/model/ResultSort')
+const Sources = require('component/singletons/sources-instance')
+const Common = require('js/Common')
+const CacheSourceSelector = require('js/CacheSourceSelector')
+const announcement = require('component/announcement')
+const CQLUtils = require('js/CQLUtils')
+const user = require('component/singletons/user-instance')
+const _merge = require('lodash/merge')
 require('backbone-associations')
 
 var Query = {}
