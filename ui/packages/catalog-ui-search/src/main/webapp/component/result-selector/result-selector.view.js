@@ -82,6 +82,11 @@ var ResultSelector = Marionette.LayoutView.extend({
   },
   initialize: function(options) {
     if (!this.model.get('result')) {
+      if (options.tieredSearchIds) {
+        this.model.startTieredSearch(options.tieredSearchIds)
+      } else {
+        this.model.startSearch()
+      }
       this.model.startSearch()
     }
     this.model.get('result').set('currentlyViewed', true)
