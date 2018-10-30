@@ -17,10 +17,18 @@ import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.create;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBuilder;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.queryAndVerifyCount;
+import static org.awaitility.Awaitility.await;
 
+import com.google.common.collect.Lists;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.solr.provider.Library;
 import ddf.catalog.source.solr.provider.MockMetacard;
 import java.nio.file.Paths;
@@ -49,6 +57,8 @@ import org.slf4j.LoggerFactory;
 public class SolrProviderRealTimeQueryTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderRealTimeQueryTest.class);
+
+  private static final String COMMIT_NRT_TYPE = "CommitNrtType";
 
   @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
 
@@ -82,6 +92,8 @@ public class SolrProviderRealTimeQueryTest {
     System.setProperty(
         "solr.autoSoftCommit.maxTime", String.valueOf(TimeUnit.MINUTES.toMillis(30)));
     System.setProperty("solr.autoCommit.maxTime", String.valueOf(TimeUnit.MINUTES.toMillis((45))));
+    System.setProperty("solr.commit.nrt.metacardTypes", COMMIT_NRT_TYPE);
+    System.setProperty("solr.commit.nrt.commitWithinMs", "1");
 
     SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
     solrClient = solrClientFactory.newClient("catalog");
@@ -109,6 +121,8 @@ public class SolrProviderRealTimeQueryTest {
     System.clearProperty("solr.cloud.zookeeper");
     System.clearProperty("solr.autoSoftCommit.maxTime");
     System.clearProperty("solr.autoCommit.maxTime");
+    System.clearProperty("solr.commit.nrt.metacardTypes");
+    System.clearProperty("solr.commit.nrt.commitWithinMs");
 
     if (miniSolrCloud != null) {
       miniSolrCloud.shutdown();
@@ -260,5 +274,36 @@ public class SolrProviderRealTimeQueryTest {
 
     // Verify a "not ID query" does not return the result.
     queryAndVerifyCount(0, filter, provider);
+  }
+
+  @Test
+  public void testCommitNrt() throws Exception {
+
+    final String nrtTitle = "testCommitNrt";
+    final String nonNrtTitle = "testCommitNonNrt";
+
+    deleteAll(provider);
+
+    MetacardType nrtMetacardType =
+        new MetacardTypeImpl(
+            COMMIT_NRT_TYPE, MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
+
+    MockMetacard nrtMetacard = new MockMetacard(Library.getFlagstaffRecord(), nrtMetacardType);
+    nrtMetacard.setTitle(nrtTitle);
+
+    MockMetacard nonNrtMetacard = new MockMetacard(Library.getFlagstaffRecord());
+    nonNrtMetacard.setTitle(nonNrtTitle);
+
+    create(Lists.newArrayList(nrtMetacard, nonNrtMetacard), provider);
+
+    QueryRequest request =
+        new QueryRequestImpl(
+            new QueryImpl(
+                getFilterBuilder().attribute(Metacard.TITLE).is().like().text("testCommit*Nrt")));
+
+    await()
+        .pollInterval(100, TimeUnit.MILLISECONDS)
+        .atMost(30, TimeUnit.SECONDS)
+        .until(() -> provider.query(request).getResults().size() == 2);
   }
 }
