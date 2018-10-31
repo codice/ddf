@@ -258,7 +258,7 @@
         <argument ref="STSProperties"/>
         <cm:managed-properties persistent-id="ddf.security.sts"
                                update-strategy="container-managed"/>
-        <property name="issuer" value="https://${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}${org.codice.ddf.system.rootContext}/idp/login"/>
+        <property name="issuer" value="${org.codice.ddf.system.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.httpsPort}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/idp/login"/>
         <property name="signatureUsername" value="${org.codice.ddf.system.hostname}"/>
         <property name="encryptionUsername" value="${org.codice.ddf.system.hostname}"/>
     </bean>

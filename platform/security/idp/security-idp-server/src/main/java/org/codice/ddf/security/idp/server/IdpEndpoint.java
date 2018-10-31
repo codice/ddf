@@ -109,6 +109,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -1247,8 +1248,17 @@ public class IdpEndpoint implements Idp, SessionHandler {
         validator.setRequestId(requestId);
       }
 
-      validator.buildAndValidate(
-          request.getRequestURL().toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
+      String destination = request.getRequestURL().toString();
+      try {
+        URL url = new URL(destination);
+        if (Strings.isNotBlank(SystemBaseUrl.EXTERNAL.getRootContext())
+            && !url.getPath().startsWith(SystemBaseUrl.EXTERNAL.getRootContext())) {
+          destination = SystemBaseUrl.EXTERNAL.constructUrl(url.getPath());
+        }
+      } catch (MalformedURLException e) {
+        LOGGER.error("Unable to convert request URL to URL object.");
+      }
+      validator.buildAndValidate(destination, SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
     }
   }
 
@@ -1307,8 +1317,18 @@ public class IdpEndpoint implements Idp, SessionHandler {
       if (requestId != null) {
         validator.setRequestId(requestId);
       }
-      validator.buildAndValidate(
-          request.getRequestURL().toString(), SamlProtocol.Binding.HTTP_POST, samlObject);
+
+      String destination = request.getRequestURL().toString();
+      try {
+        URL url = new URL(destination);
+        if (Strings.isNotBlank(SystemBaseUrl.EXTERNAL.getRootContext())
+            && !url.getPath().startsWith(SystemBaseUrl.EXTERNAL.getRootContext())) {
+          destination = SystemBaseUrl.EXTERNAL.constructUrl(url.getPath());
+        }
+      } catch (MalformedURLException e) {
+        LOGGER.error("Unable to convert request URL to URL object.");
+      }
+      validator.buildAndValidate(destination, SamlProtocol.Binding.HTTP_POST, samlObject);
     }
   }
 
