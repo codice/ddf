@@ -13,6 +13,7 @@
  */
 package ddf.platform.solr.credentials.impl;
 
+import com.sun.istack.internal.Nullable;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 
 
@@ -26,7 +27,7 @@ public class SolrUsernamePasswordCredentialsImpl implements SolrUsernamePassword
   private String username;
 
   @Override
-  public synchronized String getUsername() {
+  public synchronized @Nullable String getUsername() {
     return username;
   }
 
@@ -36,7 +37,7 @@ public class SolrUsernamePasswordCredentialsImpl implements SolrUsernamePassword
   }
 
   @Override
-  public synchronized String getPassword() {
+  public synchronized @Nullable String getPassword() {
     return password;
   }
 
