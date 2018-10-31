@@ -462,6 +462,13 @@ zookeeperhost3:2181
 |true
 |Yes
 
+|Use basic authentication for Solr server
+|solr.useBasicAuth
+|Boolean
+|If true, the HTTP Solr Client sends a username and password when sending requests to Solr server
+|true
+|Yes
+
 |Solr server HTTP port
 |solr.http.port
 |Integer

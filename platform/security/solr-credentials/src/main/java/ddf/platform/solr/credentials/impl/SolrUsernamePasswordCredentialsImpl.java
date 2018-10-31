@@ -11,29 +11,31 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl;
+package ddf.platform.solr.credentials.impl;
 
-public class SolrUsernamePasswordCredentials {
+import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
+
+public class SolrUsernamePasswordCredentialsImpl implements SolrUsernamePasswordCredentials {
 
   private String password;
   private String username;
 
-  @SuppressWarnings("unused")
+  @Override
   public String getUsername() {
     return username;
   }
 
-  @SuppressWarnings("unused")
+  @Override
   public void setUsername(String username) {
     this.username = username;
   }
 
-  @SuppressWarnings("unused")
+  @Override
   public String getPassword() {
     return password;
   }
 
-  @SuppressWarnings("unused")
+  @Override
   public void setPassword(String password) {
     this.password = password;
   }

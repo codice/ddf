@@ -11,35 +11,31 @@
  *
  **/
 -->
-<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-		   xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.4.0"
+    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <reference id="solrUsernamePasswordCredentials"
+        interface="ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials"/>
 
-	<reference id="solrUsernamePasswordCredentials"
-		interface="org.codice.solr.factory.impl.SolrUsernamePasswordCredentials">
-	</reference>
+    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+        <argument ref="solrUsernamePasswordCredentials"/>
+    </bean>
 
-	<!--<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>-->
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-	<bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
-	<argument ref="solrUsernamePasswordCredentials"/>
-	</bean>
-
-	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
-
-	<bean id="solrCatalogProvider" class="ddf.catalog.solr.provider.SolrCatalogProvider"
-          destroy-method="shutdown">
-		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
-		and have the setter call the update method. -->
+    <bean id="solrCatalogProvider" class="ddf.catalog.solr.provider.SolrCatalogProvider"
+        destroy-method="shutdown">
+        <!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
+        and have the setter call the update method. -->
         <cm:managed-properties persistent-id="ddf.catalog.solr.provider.SolrCatalogProvider"
-                               update-strategy="container-managed"/>
-		<argument ref="filterAdapter"/>
-        <argument ref="solrClientFactory" />
-		<argument>
-			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
-		</argument>
-	</bean>
+            update-strategy="container-managed"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="solrClientFactory"/>
+        <argument>
+            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+        </argument>
+    </bean>
 
-	<service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
+    <service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
 
 </blueprint>

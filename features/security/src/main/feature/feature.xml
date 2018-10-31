@@ -620,4 +620,13 @@
              description="Verifies that the installation is located in a secure directory.">
         <bundle>mvn:ddf.platform.security/secure-boot/${project.version}</bundle>
     </feature>
+
+
+    <feature name="solr-credentials" version="${project.version}" description="Solr Credentials Implementation">
+        <bundle>mvn:ddf.platform.solr/solr-credentials-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.solr/solr-credentials/${project.version}</bundle>
+    </feature>
+
+
+
 </features>

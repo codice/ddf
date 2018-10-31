@@ -86,11 +86,14 @@
             <artifactId>gt-cql</artifactId>
             <version>${opengis.version}</version>
         </dependency>
+
+        <!--new dependency-->
         <dependency>
-            <groupId>ddf.security.encryption</groupId>
-            <artifactId>security-encryption-api</artifactId>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-credentials-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
@@ -148,6 +151,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
@@ -169,7 +173,7 @@
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
-                            ddf.security.encryption,
+                            ddf.platform.solr.credentials.api,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,

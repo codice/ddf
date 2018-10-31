@@ -19,35 +19,24 @@ the default password must be changed to a secure password.
 . Complete the ${branding} installation process.
 . ${branding} and the Solr server should be running.
 . Choose a password that meets to your organization's requirements for secure passwords.
-. Update the Sold server user's password to the new password you have chosen. Note that
+. Update the Solr server password to the new password you have chosen. Note that
 changing the password will prevent ${branding} from communicating with Solr server
 until the ${branding} configuration is updated in
 subsequent steps.
   .. Use a utility like curl to send an HTTP request to the Solr server
   change the password.
 
-  curl --insecure --user ddf:changeit http://localhost:8983/solr/admin/authentication
-  -H 'Content-type:application/json'
-  -d '{ "set-user": {"ddf" : "PASSWORD"}}'
+  curl -k -u "ddf:changeit" "https://localhost:8994/solr/admin/authentication" -H 'Content-type:application/json' -d "{ 'set-user': {'ddf' : 'PASSWORD'}}"
 
-. Use the ${command-console} to encrypt the password. This is necessary to protect
-the password because the encrypted password is stored in a file.
+. Now give the new password to ${branding} by updating the system configuration.
+ .. Navigate to the *${admin-console}*.
+ .. Select the  *${ddf-security}* application.
+ .. Select the *Configuration* tab.
+ .. Find and select the entry *Solr Basic Authentication Credentials*.
+ .. Enter the new password.
+ .. Select *Save changes*.
 
- .. `${branding-lowercase}${at-symbol}local>encrypt PASSWORD`
-
-. Copy the encrypted string. Include the `ENC(` and the closing parenthesis `)`.
-For example, copy the string:
-
- ENC(AOROh0hmIfqJseeLzt30aCrAjzBvZRbLTv_pszuctKaaD4UHqDVoL-gDyQRaOE3FJdRmz3Oc5hTe)
-
-. Change the Solr password in the `custom.system.properties` files.
-Modify the property `solr.password`. For example:
-
-  solr.password=ENC(AOROh0hmIfqJseeLzt30aCrAjzBvZRbLTv_pszuctKaaD4UHqDVoL-gDyQRaOE3FJdRmz3Oc5hTe)
-
-. Save your changes to the `custom.system.properties` and restart ${branding}. After a restart,
-${branding} should be communicating normally with Solr server.
-
+ . Restart the system for the changes to take effect.
 
 === Configuring Solr Encryption
 

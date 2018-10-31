@@ -90,6 +90,7 @@
         <feature>security-certificate</feature>
         <feature>security-rest-authentication</feature>
         <feature>security-command-listener</feature>
+        <feature>solr-credentials</feature>
     </feature>
 
     <feature name="branding-app" version="${project.version}">

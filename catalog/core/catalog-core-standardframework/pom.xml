@@ -357,17 +357,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.security.encryption</groupId>
-            <artifactId>security-encryption-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>3.0.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-credentials-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -461,9 +460,9 @@
                             ddf.security.common.audit;version="2.0",
                             ddf.measure;version="2.0",
                             ddf.mime,
+                            ddf.platform.solr.credentials.api,
                             ddf.security,
                             ddf.security.assertion,
-                            ddf.security.encryption,
                             ddf.security.permission,
                             ddf.security.service,
                             javax.activation,

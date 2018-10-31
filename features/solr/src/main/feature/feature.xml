@@ -30,7 +30,7 @@
 
     <feature name="persistence-core-api" version="${project.version}"
              description="Internal Persistence Core API">
-        <feature>security-encryption</feature>
+        <bundle>mvn:ddf.platform.solr/solr-credentials-api/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
     </feature>
 

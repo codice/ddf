@@ -52,11 +52,6 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.security.encryption</groupId>
-            <artifactId>security-encryption-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -102,6 +97,7 @@
                             ddf.catalog.source;version="[2.0,3)",
                             ddf.catalog.util;version="[2.0,3)",
                             ddf.measure;version="[2.0,3)",
+                            ddf.platform.solr.credentials.api,
                             javax.annotation,
                             javax.crypto,
                             javax.crypto.spec,
@@ -146,8 +142,7 @@
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.ext,
-                            org.xml.sax.helpers,
-                            ddf.security.encryption
+                            org.xml.sax.helpers
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -166,7 +161,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>58.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>68_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

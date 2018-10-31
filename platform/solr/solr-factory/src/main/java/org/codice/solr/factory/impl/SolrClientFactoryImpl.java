@@ -16,7 +16,7 @@ package org.codice.solr.factory.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.security.encryption.EncryptionService;
+import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
@@ -36,7 +36,6 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   public SolrClientFactoryImpl() {
     this((factory, core) -> factory.newClient(core));
   }
-
 
   @SuppressWarnings("unused")
   public SolrClientFactoryImpl(SolrUsernamePasswordCredentials usernamePasswordCredentials) {

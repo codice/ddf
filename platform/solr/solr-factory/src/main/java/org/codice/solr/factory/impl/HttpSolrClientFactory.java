@@ -14,6 +14,7 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -56,15 +57,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class used to create new {@link HttpSolrClient} instances. <br> Uses the following system
- * properties when creating an instance:
+ * Factory class used to create new {@link HttpSolrClient} instances. <br>
+ * Uses the following system properties when creating an instance:
  *
  * <ul>
- * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
- * <li>solr.http.url: Solr server URL
- * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
- * <li>https.protocols: Secure protocols supported by the Solr server
- * <li>https.cipherSuites: Cipher suites supported by the Solr server
+ *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
+ *   <li>solr.http.url: Solr server URL
+ *   <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
+ *   <li>https.protocols: Secure protocols supported by the Solr server
+ *   <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  *
  * @deprecated This class may be removed in the future
@@ -92,9 +93,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     this.usernamePasswordCredentials = usernamePasswordCredentials;
   }
 
-  HttpSolrClientFactory() {
-    this(null);
-  }
+  HttpSolrClientFactory() {}
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
