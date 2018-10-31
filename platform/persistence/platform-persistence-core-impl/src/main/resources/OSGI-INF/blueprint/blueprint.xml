@@ -13,9 +13,7 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.4.0">
-
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="solrUsernamePasswordCredentials"
         interface="ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials"/>
@@ -32,19 +30,5 @@
     <service ref="persistentStore" id="persistentStoreService"
         interface="org.codice.ddf.persistence.PersistentStore">
     </service>
-
-
-    <!--<bean id="solrUsernamePasswordCredentials"-->
-    <!--class="SolrUsernamePasswordCredentials">-->
-    <!--<cm:managed-properties-->
-    <!--persistent-id="SolrUsernamePasswordCredentials"-->
-    <!--update-strategy="container-managed"/>-->
-    <!--<property name="username" value="ddf"/>-->
-    <!--<property name="password" value="changeit"/>-->
-    <!--</bean>-->
-
-    <!--<service ref="solrUsernamePasswordCredentials"-->
-    <!--interface="SolrUsernamePasswordCredentials">-->
-    <!--</service>-->
 
 </blueprint>

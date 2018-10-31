@@ -33,13 +33,8 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   private SolrUsernamePasswordCredentials usernamePasswordCredentials;
 
   @SuppressWarnings("unused" /* used by blueprint */)
-  public SolrClientFactoryImpl() {
-    this((factory, core) -> factory.newClient(core));
-  }
-
-  @SuppressWarnings("unused")
   public SolrClientFactoryImpl(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
-    this();
+    this((factory, core) -> factory.newClient(core));
     this.usernamePasswordCredentials = usernamePasswordCredentials;
   }
 

@@ -15,28 +15,33 @@ package ddf.platform.solr.credentials.impl;
 
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 
+
+/**
+ * A class for collecting username and password for authentication to Solr.
+ */
+
 public class SolrUsernamePasswordCredentialsImpl implements SolrUsernamePasswordCredentials {
 
   private String password;
   private String username;
 
   @Override
-  public String getUsername() {
+  public synchronized String getUsername() {
     return username;
   }
 
   @Override
-  public void setUsername(String username) {
+  public synchronized void setUsername(String username) {
     this.username = username;
   }
 
   @Override
-  public String getPassword() {
+  public synchronized String getPassword() {
     return password;
   }
 
   @Override
-  public void setPassword(String password) {
+  public synchronized void setPassword(String password) {
     this.password = password;
   }
 }

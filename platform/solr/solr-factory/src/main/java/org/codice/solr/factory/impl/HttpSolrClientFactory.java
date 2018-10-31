@@ -28,7 +28,6 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
@@ -85,15 +84,18 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   public static final String SOLR_USE_BASIC_AUTH = "solr.useBasicAuth";
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private final Map<String, String> propertyCache = new HashMap<>();
-  private SolrUsernamePasswordCredentials usernamePasswordCredentials;
+  private final SolrUsernamePasswordCredentials usernamePasswordCredentials;
 
   public HttpSolrClientFactory(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
     this.usernamePasswordCredentials = usernamePasswordCredentials;
   }
 
-  HttpSolrClientFactory() {}
+  HttpSolrClientFactory() {
+    this.usernamePasswordCredentials = null;
+  }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
@@ -116,17 +118,17 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
     try (final Closer closer = new Closer()) {
 
-      createSolrCore(coreName, httpClientBuilder.build());
+      createSolrCore(coreName, closer.with(httpClientBuilder.build()));
 
       CloseableHttpClient noRetryHttpClient = httpClientBuilder.build();
-      final HttpSolrClient noRetrySolrClient =
-          closer.with(solrClientBuilder.withHttpClient(noRetryHttpClient).build());
-
+      closer.with(noRetryHttpClient);
       CloseableHttpClient yesRetryHttpClient =
           httpClientBuilder.setRetryHandler(new SolrHttpRequestRetryHandler(coreName)).build();
+      closer.with(yesRetryHttpClient);
+      final HttpSolrClient noRetrySolrClient =
+          solrClientBuilder.withHttpClient(noRetryHttpClient).build();
       final HttpSolrClient retrySolrClient =
-          closer.with(solrClientBuilder.withHttpClient(yesRetryHttpClient).build());
-
+          solrClientBuilder.withHttpClient(yesRetryHttpClient).build();
       return closer.returning(new PingAwareSolrClientProxy(retrySolrClient, noRetrySolrClient));
     }
   }
@@ -319,8 +321,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
-    return Optional.ofNullable(commaDelimitedString)
-        .map(x -> (x.split("\\s*,\\s*")))
-        .orElse(new String[0]);
+
+    return (commaDelimitedString != null) ? commaDelimitedString.split("\\s*,\\s*") : new String[0];
   }
 }

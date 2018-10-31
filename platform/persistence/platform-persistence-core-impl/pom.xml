@@ -86,14 +86,11 @@
             <artifactId>gt-cql</artifactId>
             <version>${opengis.version}</version>
         </dependency>
-
-        <!--new dependency-->
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-credentials-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
@@ -151,7 +148,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>3.5.1</version>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
