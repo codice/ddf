@@ -33,6 +33,7 @@ module.exports = Marionette.CollectionView.extend({
     return {
       queryModel: this.options.model,
       sharingLightboxTitle: 'Search Form Sharing',
+      hideInteractionMenu: this.options.hideInteractionMenu,
     }
   },
 })
