@@ -10,8 +10,8 @@ priority "grant";
 // formatting and readability.
 
 // When adding permissions for directories, trailing slashes have no effect on the permissions granted.
-// For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms
-// "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
+// For example, adding a permission for "${/}test${/}path" and "${/}test${/}path${/}" are equivalent. The recursive forms
+// "${/}test${/}path${/}-", and "${/}test${/}path${/}${/}-" are also equivalent.
 
 // IMPORTANT! - Adding new permissions requires a system restart to take affect.
 
@@ -38,8 +38,8 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // Add required CDM permissions here.
 
     // Example:
-    // permission java.io.FilePermission "/test/some/monitored/directory", "read";
-    // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
+    // permission java.io.FilePermission "${/}test${/}some${/}monitored${/}directory", "read";
+    // permission java.io.FilePermission "${/}test${/}some${/}monitored${/}directory${/}-", "read, write";
 }
 
 //                        URL Resource Reader Permissions
@@ -60,8 +60,8 @@ grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
     // Add required URL Resource Reader permissions here.
 
     // Example:
-    // permission java.io.FilePermission "/test/some/directory", "read";
-    // permission java.io.FilePermission "/test/some/directory${/}-", "read";
+    // permission java.io.FilePermission "${/}test${/}some${/}directory", "read";
+    // permission java.io.FilePermission "${/}test${/}some${/}directory${/}-", "read";
 }
 
 //                       Security-Hardening: Backup Log File Permissions
@@ -76,6 +76,6 @@ grant codeBase "file:/pax-logging-log4j2" {
     //  Add required permissions here.
 
     //  Example:
-    //  permission java.io.FilePermission "/the/new/log/directory/-", "read, write";
-    //  permission java.io.FilePermission "/the/new/log/directory", "read, write";
+    //  permission java.io.FilePermission "${/}the${/}new${/}log${/}directory${/}-", "read, write";
+    //  permission java.io.FilePermission "${/}the${/}new${/}log${/}directory", "read, write";
 }
