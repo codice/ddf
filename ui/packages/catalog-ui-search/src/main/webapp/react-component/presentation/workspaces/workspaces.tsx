@@ -18,13 +18,10 @@ import WorkspacesItemsContainer from '../../container/workspaces-items-container
 import { Button, buttonTypeEnum } from '../button'
 
 type Props = {
-  closeTemplates: () => void
-  toggleExpansion: () => void
   saveAllWorkspaces: () => void
 }
 
 type RootProps = {
-  hasTemplatesExpanded: boolean
   hasUnsaved: boolean
 }
 
@@ -80,18 +77,10 @@ const Root = styled<RootProps, 'div'>('div')`
 
 const Workspaces = (props: Props & RootProps) => {
   return (
-    <Root
-      hasUnsaved={props.hasUnsaved}
-      hasTemplatesExpanded={props.hasTemplatesExpanded}
-    >
+    <Root hasUnsaved={props.hasUnsaved}>
       <div className="home-content">
         <div className="home-templates">
-          <WorkspacesTemplatesContainer
-            closeTemplates={props.closeTemplates}
-            hasUnsaved={props.hasUnsaved}
-            hasTemplatesExpanded={props.hasTemplatesExpanded}
-            toggleExpansion={props.toggleExpansion}
-          />
+          <WorkspacesTemplatesContainer hasUnsaved={props.hasUnsaved} />
         </div>
         <div className="home-items">
           <WorkspacesItemsContainer />
