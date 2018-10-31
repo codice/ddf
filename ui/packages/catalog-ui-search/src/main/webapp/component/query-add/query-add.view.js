@@ -207,7 +207,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.queryContent.currentView.save()
     this.queryTitle.currentView.save()
-    if (this.model.get('title') === 'Search Name') {
+    if (this.model.get('title') === '') {
       this.setDefaultTitle()
     }
     if (store.getCurrentQueries().canAddQuery()) {
