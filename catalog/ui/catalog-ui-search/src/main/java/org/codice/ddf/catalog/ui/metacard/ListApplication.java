@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.activation.MimeType;
@@ -45,7 +46,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.catalog.ui.metacard.impl.StorableResourceImpl;
 import org.codice.ddf.catalog.ui.metacard.internal.Splitter;
@@ -109,7 +109,8 @@ public class ListApplication implements SparkApplication {
 
           List<Part> parts = new ArrayList<>(request.raw().getParts());
 
-          Pair<AttachmentInfo, Metacard> attachmentInfo = catalogService.parseParts(parts, null);
+          Map.Entry<AttachmentInfo, Metacard> attachmentInfo =
+              catalogService.parseParts(parts, null);
 
           if (attachmentInfo == null) {
             String exceptionMessage = "Unable to parse the attachments.";
@@ -121,16 +122,16 @@ public class ListApplication implements SparkApplication {
           try (TemporaryFileBackedOutputStream temporaryFileBackedOutputStream =
               new TemporaryFileBackedOutputStream()) {
 
-            IOUtils.copy(attachmentInfo.getLeft().getStream(), temporaryFileBackedOutputStream);
+            IOUtils.copy(attachmentInfo.getKey().getStream(), temporaryFileBackedOutputStream);
 
-            for (Splitter splitter : lookupSplitters(attachmentInfo.getLeft().getContentType())) {
+            for (Splitter splitter : lookupSplitters(attachmentInfo.getKey().getContentType())) {
               if (attemptToSplitAndStore(
                   response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
                 break;
             }
           }
 
-          IOUtils.closeQuietly(attachmentInfo.getLeft().getStream());
+          IOUtils.closeQuietly(attachmentInfo.getKey().getStream());
 
           return "";
         });
@@ -139,7 +140,7 @@ public class ListApplication implements SparkApplication {
   private boolean attemptToSplitAndStore(
       Response response,
       String listType,
-      Pair<AttachmentInfo, Metacard> attachmentInfo,
+      Map.Entry<AttachmentInfo, Metacard> attachmentInfo,
       TemporaryFileBackedOutputStream temporaryFileBackedOutputStream,
       Splitter splitter)
       throws IOException {
@@ -154,8 +155,8 @@ public class ListApplication implements SparkApplication {
       AttachmentInfo temporaryAttachmentInfo =
           new AttachmentInfoImpl(
               temporaryInputStream,
-              attachmentInfo.getLeft().getFilename(),
-              attachmentInfo.getLeft().getContentType());
+              attachmentInfo.getKey().getFilename(),
+              attachmentInfo.getKey().getContentType());
 
       try (Stream<StorableResource> stream =
           createStream(temporaryAttachmentInfo, splitter, listType)) {
@@ -167,7 +168,7 @@ public class ListApplication implements SparkApplication {
             .forEach(
                 storableResource ->
                     storeAndClose(
-                        ids::add, errorMessages::add, storableResource, attachmentInfo.getRight()));
+                        ids::add, errorMessages::add, storableResource, attachmentInfo.getValue()));
       } catch (IOException e) {
         LOGGER.debug("Failed to split the incoming data. Trying the next splitter.", e);
       }

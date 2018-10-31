@@ -20,10 +20,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import javax.ws.rs.core.MultivaluedMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.attachment.AttachmentInfo;
 
@@ -97,7 +97,8 @@ public interface CatalogService {
       InputStream message)
       throws CatalogServiceException;
 
-  Pair<AttachmentInfo, Metacard> parseParts(Collection<Part> contentParts, String transformerParam);
+  Map.Entry<AttachmentInfo, Metacard> parseParts(
+      Collection<Part> contentParts, String transformerParam);
 
   /** Deletes a record from the catalog. */
   void deleteDocument(String id) throws CatalogServiceException;
