@@ -82,12 +82,15 @@ import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -107,7 +110,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.NotFoundException;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -227,16 +230,6 @@ public class MetacardApplication implements SparkApplication {
 
   private List<String> getSubjectRoles() {
     return SubjectUtils.getAttribute(SecurityUtils.getSubject(), Constants.ROLES_CLAIM_URI);
-  }
-
-  // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
-  private boolean isElevatedUser(List<String> subjectRoles) {
-    List<String> systemUserList =
-        StringUtils.isNotEmpty(accessControlSecurityConfiguration.getSystemUserAttributeValue())
-            ? Collections.singletonList(
-                accessControlSecurityConfiguration.getSystemUserAttributeValue())
-            : Collections.emptyList();
-    return !Collections.disjoint(subjectRoles, systemUserList);
   }
 
   private String getSubjectIdentifier() {
@@ -481,14 +474,28 @@ public class MetacardApplication implements SparkApplication {
     get(
         "/workspaces",
         (req, res) -> {
-          Map<String, Result> workspaceMetacards;
           String email = getSubjectEmail();
-          List<String> subjectRoles = getSubjectRoles();
+          Map<String, Result> workspaceMetacards;
 
           // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
-          if (isElevatedUser(subjectRoles)) {
+          Map<String, Set<String>> permissions = new HashMap<>();
+          if (!StringUtils.isNotEmpty(
+              accessControlSecurityConfiguration.getSystemUserAttributeValue())) {
+            Set<String> systemUserSet =
+                new HashSet<>(
+                    Arrays.asList(
+                        accessControlSecurityConfiguration.getSystemUserAttributeValue()));
+            permissions.put(ACCESS_GROUPS, systemUserSet);
+            permissions.put(ACCESS_GROUPS_READ, systemUserSet);
+          }
+
+          KeyValueCollectionPermission securityPermission =
+              new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, permissions);
+
+          if (SecurityUtils.getSubject().isPermitted(securityPermission)) {
             workspaceMetacards = util.getMetacardsByTag(WorkspaceConstants.WORKSPACE_TAG);
           } else {
+            List<String> subjectRoles = getSubjectRoles();
             Map<String, Collection<String>> attributeMap = new HashMap<>();
             if (StringUtils.isNotEmpty(email)) {
               attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
