@@ -237,7 +237,7 @@ module.exports = Backbone.AssociatedModel.extend({
         var thumbnailAction = _.findWhere(result.actions, {
           id: 'catalog.data.metacard.thumbnail',
         })
-        if (result.hasThumbnail && thumbnailAction) {
+        if (thumbnailAction) {
           result.metacard.properties.thumbnail = generateThumbnailUrl(
             thumbnailAction.url
           )
