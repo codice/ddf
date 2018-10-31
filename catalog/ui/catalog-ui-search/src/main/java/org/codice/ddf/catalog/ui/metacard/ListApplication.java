@@ -301,8 +301,8 @@ public class ListApplication implements SparkApplication {
         InputStream inputStream,
         String mimeTypeRawData,
         String filename,
-        Metacard right) {
-      super(uuidGenerator.generateUuid(), null, mimeTypeRawData, filename, 0L, right);
+        Metacard metacard) {
+      super(uuidGenerator.generateUuid(), null, mimeTypeRawData, filename, 0L, metacard);
       this.inputStream = inputStream;
     }
 
