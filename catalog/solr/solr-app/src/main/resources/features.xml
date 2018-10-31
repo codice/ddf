@@ -31,11 +31,7 @@
     <feature name="catalog-solr-provider" version="${project.version}"
         description="Catalog Provider to interface with Solr ${solr.version}">
         <feature>persistence-core</feature>
-
-        <!--Caused by: java.lang.ClassNotFoundException: ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials cannot be found by catalog-solr-provider_2.14.0.SNAPSHOT-->
         <feature>solr-credentials</feature>
-
-
         <bundle>mvn:ddf.catalog.solr/catalog-solr-provider/${project.version}</bundle>
     </feature>
 
