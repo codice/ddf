@@ -63,26 +63,6 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('has-feature', this.model.get('target') !== undefined)
   },
   serializeData: function() {
-    let testData = {}
-    if (this.model.attributes.targetMetacard !== undefined) {
-      testData = {
-        id: this.model
-          .get('targetMetacard')
-          .get('metacard')
-          .get('properties')
-          .get('resource-download-url'),
-        created: this.model
-          .get('targetMetacard')
-          .get('metacard')
-          .get('properties')
-          .get('created'),
-        type: this.model
-          .get('targetMetacard')
-          .get('metacard')
-          .get('properties')
-          .get('metacard-type'),
-      }
-    }
     const that = this
     let modelJSON = this.model.toJSON()
     let summaryModel = {}
