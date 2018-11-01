@@ -18,6 +18,7 @@ var template = require('./map-info.hbs')
 var CustomElements = require('js/CustomElements')
 var mtgeo = require('mt-geo')
 var user = require('component/singletons/user-instance')
+var props = require('properties')
 
 function getCoordinateFormat() {
   return user
@@ -62,8 +63,41 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('has-feature', this.model.get('target') !== undefined)
   },
   serializeData: function() {
+    let testData = {}
+    if (this.model.attributes.targetMetacard !== undefined) {
+      testData = {
+        id: this.model
+          .get('targetMetacard')
+          .get('metacard')
+          .get('properties')
+          .get('resource-download-url'),
+        created: this.model
+          .get('targetMetacard')
+          .get('metacard')
+          .get('properties')
+          .get('created'),
+        type: this.model
+          .get('targetMetacard')
+          .get('metacard')
+          .get('properties')
+          .get('metacard-type'),
+      }
+    }
+    const that = this
     let modelJSON = this.model.toJSON()
+    let summaryModel = {}
+    const summary = props.summaryShow
+    summary.forEach(function(attribute) {
+      if (that.model.get('targetMetacard') !== undefined)
+        summaryModel[attribute] = that.model
+          .get('targetMetacard')
+          .get('metacard')
+          .get('properties')
+          .get(attribute)
+    })
+
     let viewData = {
+      summary: summaryModel,
       target: modelJSON.target,
       lat: modelJSON.mouseLat,
       lon: modelJSON.mouseLon,
