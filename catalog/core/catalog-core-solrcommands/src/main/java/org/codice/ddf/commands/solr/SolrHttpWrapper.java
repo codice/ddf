@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.commands.solr;
 
+import static org.codice.solr.factory.impl.SolrHttpSettings.getSupportedCipherSuites;
+import static org.codice.solr.factory.impl.SolrHttpSettings.getSupportedProtocols;
+
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,7 +36,6 @@ import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +50,8 @@ public class SolrHttpWrapper implements HttpWrapper {
     SSLConnectionSocketFactory sslConnectionSocketFactory =
         new SSLConnectionSocketFactory(
             getSslContext(),
-            getProtocols(),
-            getCipherSuites(),
+            getSupportedProtocols(),
+            getSupportedCipherSuites(),
             SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 
     solrClient =
@@ -73,11 +75,6 @@ public class SolrHttpWrapper implements HttpWrapper {
     }
 
     return keyStore;
-  }
-
-  private static String[] getCipherSuites() {
-
-    return HttpSolrClientFactory.getSupportedCipherSuites();
   }
 
   @Override
@@ -134,10 +131,5 @@ public class SolrHttpWrapper implements HttpWrapper {
     sslContext.getDefaultSSLParameters().setWantClientAuth(true);
 
     return sslContext;
-  }
-
-  private String[] getProtocols() {
-
-    return HttpSolrClientFactory.getSupportedProtocols();
   }
 }

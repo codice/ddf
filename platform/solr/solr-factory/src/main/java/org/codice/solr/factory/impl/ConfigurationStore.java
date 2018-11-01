@@ -78,11 +78,18 @@ public class ConfigurationStore {
   }
 
   public String getDataDirectoryPath() {
-    return dataDirectoryPath;
+
+    return SolrFactorySettings.getSolrDataDir();
+    // TODO: Remove this method
+    // return dataDirectoryPath;
   }
 
   public void setDataDirectoryPath(String dataDirectoryPath) {
-    this.dataDirectoryPath = dataDirectoryPath;
+
+    // TODO: Remove this method
+    dataDirectoryPath = getDataDirectoryPath();
+    // this.dataDirectoryPath = dataDirectoryPath;
+
   }
 
   public Double getNearestNeighborDistanceLimit() {

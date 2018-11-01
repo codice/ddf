@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.commands.solr;
 
+import static org.codice.solr.factory.impl.SolrHttpSettings.getDefaultHttpsAddress;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,7 +32,6 @@ import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.osgi.service.cm.Configuration;
 
 @Service
@@ -185,7 +186,7 @@ public class BackupCommand extends SolrCommands {
   }
 
   private String getBackupUrl(String coreName) {
-    String backupUrl = HttpSolrClientFactory.getDefaultHttpsAddress();
+    String backupUrl = getDefaultHttpsAddress();
 
     if (configurationAdmin != null) {
       try {
@@ -204,9 +205,7 @@ public class BackupCommand extends SolrCommands {
                       SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
               LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
             } else {
-              LOGGER.info(
-                  "No Solr url configured, defaulting to: {}",
-                  HttpSolrClientFactory.getDefaultHttpsAddress());
+              LOGGER.info("No Solr url configured, defaulting to: {}", getDefaultHttpsAddress());
             }
           }
         }
