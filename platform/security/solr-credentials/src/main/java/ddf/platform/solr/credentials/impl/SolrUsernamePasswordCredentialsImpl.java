@@ -16,11 +16,7 @@ package ddf.platform.solr.credentials.impl;
 import com.sun.istack.internal.Nullable;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 
-
-/**
- * A class for collecting username and password for authentication to Solr.
- */
-
+/** A class for collecting username and password for authentication to Solr. */
 public class SolrUsernamePasswordCredentialsImpl implements SolrUsernamePasswordCredentials {
 
   private String password;

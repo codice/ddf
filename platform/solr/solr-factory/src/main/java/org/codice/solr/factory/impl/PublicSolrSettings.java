@@ -14,41 +14,45 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.stream.Stream;
+import java.io.File;
+import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Class to offload configuration-related tasks from the HttpSolrClientFactory. Some methods
- * are package private to protect keystore or other password information.
+ * Convenience class for aggregating information about how the application is configured to
+ * communicate with Solr. Several system properties are stored here for convenience and to
+ * centralize validator of mandatory properties. The static variables are not final variables
+ * initialized in a static block because that makes testing difficult or impossible. Instead, the
+ * variables are private, with package-private getters methods and no setter methods. Restricting
+ * access is important because they may contain sensetive information.
  */
-public class SolrHttpSettings extends SolrFactorySettings {
+public class PublicSolrSettings {
 
-  private static String keyStoreType;
-  private static String solrUseBasicAuth;
-  private static String httpsCipherSuites;
-  private static String httpsProtocols;
-  private static String keyStore;
-  private static String keyStorePass;
-  private static String solrHttpUrl;
-  private static String trustStore;
-  private static String trustStorePass;
+  private static final String DEFAULT_SCHEMA_XML = "schema.xml";
+  private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
+  protected static String solrUseBasicAuth;
+  protected static String httpsCipherSuites;
+  protected static String httpsProtocols;
+  protected static String solrHttpUrl;
+  private static String solrDataDir;
+
 
   static {
     loadSystemProperties();
   }
 
   {
+    solrDataDir = getProperty("solr.data.dir");
     solrHttpUrl = getProperty("solr.http.url");
     solrUseBasicAuth = getProperty("solr.useBasicAuth");
-    trustStore = getProperty("javax.net.ssl.trustStore");
-    trustStorePass = getProperty("javax.net.ssl.trustStorePassword");
     httpsCipherSuites = getProperty("https.cipherSuites");
     httpsProtocols = getProperty("https.protocols");
-    keyStore = getProperty("javax.net.ssl.keyStore");
-    keyStorePass = getProperty("javax.net.ssl.keyStorePassword");
-    keyStoreType = getProperty("javax.net.ssl.keyStoreType");
   }
+
+  PublicSolrSettings() {}
 
   /**
    * After settings the system properties in a test method, invoke this method to read those
@@ -56,8 +60,44 @@ public class SolrHttpSettings extends SolrFactorySettings {
    */
   @VisibleForTesting
   static void loadSystemProperties() {
-    SolrFactorySettings.loadSystemProperties();
-    new SolrHttpSettings();
+    new PublicSolrSettings();
+  }
+
+  static String getProperty(String propertyName) {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(propertyName));
+  }
+
+  static String concatenatePaths(String first, String more) {
+    return Paths.get(first, more).toString();
+  }
+
+  static String getDefaultSchemaXml() {
+    return DEFAULT_SCHEMA_XML;
+  }
+
+  static String getDefaultSolrconfigXml() {
+    return DEFAULT_SOLRCONFIG_XML;
+  }
+
+  static String getSolrDataDir() {
+    return solrDataDir;
+  }
+
+  static boolean isSolrDataDirWritable() {
+    return StringUtils.isNotEmpty(getSolrDataDir()) && new File(getSolrDataDir()).canWrite();
+  }
+
+  static String getCoreUrl(String coreName) {
+    return getSolrHttpUrl() + "/" + coreName;
+  }
+
+  static String getCoreDataDir(String coreName) {
+    return concatenatePaths(getCoreDir(coreName), "data");
+  }
+
+  static String getCoreDir(String coreName) {
+    return concatenatePaths(getSolrDataDir(), coreName);
   }
 
   /**
@@ -68,7 +108,7 @@ public class SolrHttpSettings extends SolrFactorySettings {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedCipherSuites() {
-    return commaSeparatedToArray(getHttpsCipherSuites());
+    return commaSeparatedToArray(PublicSolrSettings.getHttpsCipherSuites());
   }
 
   /**
@@ -79,7 +119,7 @@ public class SolrHttpSettings extends SolrFactorySettings {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedProtocols() {
-    return commaSeparatedToArray(getHttpsProtocols());
+    return commaSeparatedToArray(PublicSolrSettings.getHttpsProtocols());
   }
 
   /**
@@ -92,20 +132,16 @@ public class SolrHttpSettings extends SolrFactorySettings {
   }
 
   static boolean useBasicAuth() {
-    return Boolean.valueOf(getSolrUseBasicAuth());
-  }
-
-  static boolean isSslConfigured() {
-    return Stream.of(getKeyStore(), getKeyStorePass(), getTrustStore(), getTrustStorePass())
-        .noneMatch(StringUtils::isNotEmpty);
+    return Boolean.valueOf(PublicSolrSettings.getSolrUseBasicAuth());
   }
 
   static boolean useTls() {
     return StringUtils.startsWithIgnoreCase(getSolrHttpUrl(), "https");
   }
 
-  static String getKeyStoreType() {
-    return keyStoreType;
+  private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
+
+    return (commaDelimitedString != null) ? commaDelimitedString.split("\\s*,\\s*") : new String[0];
   }
 
   static String getSolrUseBasicAuth() {
@@ -120,28 +156,7 @@ public class SolrHttpSettings extends SolrFactorySettings {
     return httpsProtocols;
   }
 
-  static String getKeyStore() {
-    return keyStore;
-  }
-
-  static String getKeyStorePass() {
-    return keyStorePass;
-  }
-
   static String getSolrHttpUrl() {
     return solrHttpUrl;
-  }
-
-  static String getTrustStore() {
-    return trustStore;
-  }
-
-  static String getTrustStorePass() {
-    return trustStorePass;
-  }
-
-  private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
-
-    return (commaDelimitedString != null) ? commaDelimitedString.split("\\s*,\\s*") : new String[0];
   }
 }

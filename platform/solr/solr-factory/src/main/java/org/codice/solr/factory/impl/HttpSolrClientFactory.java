@@ -13,22 +13,22 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.codice.solr.factory.impl.SolrFactorySettings.getCoreDataDir;
-import static org.codice.solr.factory.impl.SolrFactorySettings.getCoreDir;
-import static org.codice.solr.factory.impl.SolrFactorySettings.getCoreUrl;
-import static org.codice.solr.factory.impl.SolrFactorySettings.getDefaultSchemaXml;
-import static org.codice.solr.factory.impl.SolrFactorySettings.getDefaultSolrconfigXml;
-import static org.codice.solr.factory.impl.SolrFactorySettings.isSolrDataDirWritable;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getKeyStorePass;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getKeyStoreType;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getSolrHttpUrl;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getSupportedCipherSuites;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getSupportedProtocols;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getTrustStore;
-import static org.codice.solr.factory.impl.SolrHttpSettings.getTrustStorePass;
-import static org.codice.solr.factory.impl.SolrHttpSettings.isSslConfigured;
-import static org.codice.solr.factory.impl.SolrHttpSettings.useBasicAuth;
-import static org.codice.solr.factory.impl.SolrHttpSettings.useTls;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDataDir;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDir;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreUrl;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSchemaXml;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSolrconfigXml;
+import static org.codice.solr.factory.impl.PublicSolrSettings.isSolrDataDirWritable;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStorePass;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStoreType;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSolrHttpUrl;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedCipherSuites;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedProtocols;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStore;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStorePass;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.isSslConfigured;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.useBasicAuth;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.useTls;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
@@ -117,7 +117,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     }
 
     KeyStore trustStore = getKeyStore(getTrustStore(), getTrustStorePass());
-    KeyStore keyStore = getKeyStore(SolrHttpSettings.getKeyStore(), getKeyStorePass());
+    KeyStore keyStore = getKeyStore(ProtectedSolrSettings.getKeyStore(), getKeyStorePass());
     SSLContext sslContext;
     try {
       sslContext =

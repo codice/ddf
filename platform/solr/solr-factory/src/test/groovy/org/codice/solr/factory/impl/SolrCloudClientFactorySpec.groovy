@@ -287,7 +287,7 @@ class SolrCloudClientFactorySpec extends Specification {
       createdClient.is(cloudClient)
 
     and: "it is being connected"
-      1 * cloudClient.connect() >> null
+    1 * cloudClient.connect() >> null
 
     then: "verify zookeeper is consulted to see if the configuration exists"
       1 * zkClient.exists("/configs/$CORE", true) >> false

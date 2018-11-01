@@ -13,32 +13,12 @@
  */
 package org.codice.solr.factory.impl
 
-import net.jodah.failsafe.FailsafeException
-import net.jodah.failsafe.RetryPolicy
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.solr.client.solrj.SolrServerException
-import org.apache.solr.client.solrj.impl.CloudSolrClient
-import org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider
-import org.apache.solr.client.solrj.request.CollectionAdminRequest
-import org.apache.solr.client.solrj.response.SolrPingResponse
-import org.apache.solr.common.SolrException
-import org.apache.solr.common.cloud.ClusterState
-import org.apache.solr.common.cloud.DocCollection
-import org.apache.solr.common.cloud.SolrZkClient
-import org.apache.solr.common.cloud.ZkStateReader
-import org.apache.solr.common.util.NamedList
-import org.apache.zookeeper.KeeperException
-import org.codice.spock.ClearInterruptions
+
 import org.codice.spock.Supplemental
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-import spock.lang.Timeout
-import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
-
-import static java.util.concurrent.TimeUnit.SECONDS
-import static org.apache.solr.common.SolrException.ErrorCode.BAD_REQUEST
 
 @RestoreSystemProperties
 @Supplemental
@@ -47,9 +27,63 @@ class SolrFactorySettingsSpec extends Specification {
     @Rule
     TemporaryFolder tempFolder = new TemporaryFolder();
 
+    def 'solr dir is null'() {
 
-    def setup() {
-        tempFolder.create();
-        ConfigurationStore.instance.dataDirectoryPath = tempFolder.root.absolutePath
+        given:
+        System.clearProperty("solr.data.dir")
+        PublicSolrSettings.loadSystemProperties()
+
+        expect:
+        !PublicSolrSettings.isSolrDataDirWritable()
+    }
+
+
+    def 'solr dir is valid'() {
+        given:
+        setTestProperty("solr.data.dir", tempFolder.root.getAbsolutePath())
+
+        expect:
+        tempFolder.root.canWrite()
+        PublicSolrSettings.isSolrDataDirWritable()
+    }
+
+
+    def 'solr dir does not exist'() {
+        given:
+        setTestProperty("solr.data.dir", "!!!!!")
+
+        expect:
+        !PublicSolrSettings.isSolrDataDirWritable()
+    }
+
+
+    def 'solr dir exists, but is not writable'() {
+        given:
+        def readOnlyFolder = tempFolder.newFolder()
+        readOnlyFolder.setReadOnly();
+        setTestProperty("solr.data.dir", readOnlyFolder.getAbsolutePath());
+
+        expect:
+        readOnlyFolder.canRead();
+        !readOnlyFolder.canWrite();
+        !PublicSolrSettings.isSolrDataDirWritable()
+    }
+
+
+    def 'core directory'() {
+        given:
+        setTestProperty("solr.data.dir", "/")
+        setTestProperty("solr.http.url", "bork")
+
+
+        expect:
+        PublicSolrSettings.getCoreDir("test").equals("/test")
+        PublicSolrSettings.getCoreUrl("test").equals("bork/test")
+        PublicSolrSettings.getCoreDataDir("test").equals("/test/data")
+    }
+
+    def setTestProperty(propertyName, propertyValue) {
+        System.setProperty(propertyName, propertyValue);
+        PublicSolrSettings.loadSystemProperties();
     }
 }

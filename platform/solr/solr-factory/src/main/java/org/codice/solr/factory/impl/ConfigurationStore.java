@@ -79,7 +79,7 @@ public class ConfigurationStore {
 
   public String getDataDirectoryPath() {
 
-    return SolrFactorySettings.getSolrDataDir();
+    return PublicSolrSettings.getSolrDataDir();
     // TODO: Remove this method
     // return dataDirectoryPath;
   }

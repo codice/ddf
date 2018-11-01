@@ -13,9 +13,7 @@
  */
 package ddf.platform.solr.credentials.api;
 
-/**
- * Provides a pure interface for collecting username and password for authentication to Solr.
- */
+/** Provides a pure interface for collecting username and password for authentication to Solr. */
 public interface SolrUsernamePasswordCredentials {
 
   String getUsername();

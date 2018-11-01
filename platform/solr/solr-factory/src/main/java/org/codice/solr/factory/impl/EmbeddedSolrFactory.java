@@ -58,8 +58,8 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     }
     return newClient(
         core,
-        SolrFactorySettings.getDefaultSolrconfigXml(),
-        SolrFactorySettings.getDefaultSchemaXml(),
+        PublicSolrSettings.getDefaultSolrconfigXml(),
+        PublicSolrSettings.getDefaultSchemaXml(),
         configStore,
         new ConfigurationFileProxy(configStore));
   }

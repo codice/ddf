@@ -134,7 +134,7 @@ class HttpSolrClientFactorySpec extends Specification {
     and:
       System.setProperty("solr.http.url", SOLR_URL)
       System.setProperty("solr.data.dir", DATA_DIR)
-      SolrHttpSettings.loadSystemProperties();
+      ProtectedSolrSettings.loadSystemProperties();
 
     when:
       def client = factory.newClient(CORE)
@@ -170,7 +170,7 @@ class HttpSolrClientFactorySpec extends Specification {
 //    and:
 //      System.setProperty("solr.http.url", SOLR_URL)
 //    System.clearProperty("solr.data.dir")
-//    SolrFactorySettings.loadSystemProperties();
+//    PublicSolrSettings.loadSystemProperties();
 //
 //    when:
 //      factory.newClient(CORE)

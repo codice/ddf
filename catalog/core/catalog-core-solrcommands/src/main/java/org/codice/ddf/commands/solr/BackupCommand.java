@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.solr.factory.impl.SolrHttpSettings.getDefaultHttpsAddress;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getDefaultHttpsAddress;
 
 import java.io.IOException;
 import java.net.URI;
