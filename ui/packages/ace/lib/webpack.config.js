@@ -178,26 +178,7 @@ const base = ({ alias = {}, env }) => ({
   }
 })
 
-const handleProxyRes = (proxyRes, req, res) => {
-  // remove so we can still login in through http
-  delete proxyRes.headers['x-xss-protection']
-  const cookie = proxyRes.headers['set-cookie']
-  if (cookie !== undefined) {
-    // force the cookie to be insecure since the proxy is over http
-    proxyRes.headers['set-cookie'] = cookie[0].replace(new RegExp(/;\w?Secure/), '')
-  }
-}
-
-const proxyConfig = ({target = 'https://localhost:8993', auth}) => ({
-  target,
-  ws: true,
-  secure: false,
-  changeOrigin: false,
-  onProxyRes: handleProxyRes,
-  auth
-})
-
-const dev = (base, { main, auth, publicPath }) => merge.smart(base, {
+const dev = (base, { main }) => merge.smart(base, {
   mode: 'development',
   devtool: 'cheap-module-eval-source-map',
   entry: [
@@ -205,20 +186,6 @@ const dev = (base, { main, auth, publicPath }) => merge.smart(base, {
     nodeResolve('console-polyfill'),
     resolve(main)
   ],
-  devServer: {
-    hotOnly: true,
-    inline: true,
-    disableHostCheck: true,
-    historyApiFallback: true,
-    contentBase: resolve('src/main/resources/'),
-    publicPath,
-    proxy: {
-      '/admin/**': proxyConfig({auth}),
-      '/**': proxyConfig({auth}),
-      '/services/**': proxyConfig({auth}),
-      '/webjars/**': proxyConfig({auth})
-    }
-  },
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
@@ -238,10 +205,6 @@ const test = (base, { main }) => merge.smart(base, {
   output: {
     path: resolve('target/test/'),
     filename: 'test.js'
-  },
-  devServer: {
-    hot: true,
-    disableHostCheck: true
   },
   plugins: [
     new HtmlWebpackPlugin(),
@@ -293,8 +256,32 @@ const prod = (base, { main }) => merge.smart(base, {
   ]
 })
 
+const devServer = ({ auth, target, publicPath }) => ({
+  publicPath,
+  hotOnly: true,
+  inline: true,
+  disableHostCheck: true,
+  historyApiFallback: true,
+  contentBase: resolve('src/main/resources/'),
+  proxy: [
+    '/admin',
+    '/search',
+    '/services',
+    '/webjars'
+  ].reduce((o, url) => {
+    o[url] = {
+      auth,
+      target,
+      ws: true,
+      secure: false,
+      headers: { Origin: target }
+    }
+    return o
+  }, {})
+})
+
 module.exports = (opts) => {
-  const { env = 'development', main, auth, publicPath } = opts
+  const { env = 'development', main, auth, proxy, publicPath } = opts
   const alias = Object.keys(opts.alias || {}).reduce((o, key) => {
     const [pkg, ...rest] = opts.alias[key].split('/')
 
@@ -309,12 +296,16 @@ module.exports = (opts) => {
 
     return o
   }, {})
-  const b = base({ env, alias })
+
+  const b = {
+    ...base({ env, alias }),
+    devServer: devServer({ auth, publicPath, target: proxy })
+  }
 
   switch (env) {
     case 'production': return prod(b, { main })
     case 'test': return test(b, { main })
     case 'development':
-    default: return dev(b, { main, auth, publicPath })
+    default: return dev(b, { main })
   }
 }

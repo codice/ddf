@@ -5,13 +5,15 @@
   "version": "0.0.1",
   "license": "LGPL-3.0",
   "scripts": {
-    "startplus": "ace start --open",
+    "prestart": "ace disable-idp",
     "start": "ace start",
     "pretest": "ace bundle --env=test",
     "test": "ace test ./target/test/index.html",
-    "testplus": "ace start --env=test --open",
+    "start:test": "ace start --env=test",
     "build": "ace bundle",
-    "postbuild": "ace package"
+    "postbuild": "ace package",
+    "m2": "yarn install:m2",
+    "install:m2": "ace clean && ace bundle && ace package && ace install"
   },
   "repository": {
     "type": "git",
