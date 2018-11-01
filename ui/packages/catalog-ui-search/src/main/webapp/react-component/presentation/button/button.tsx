@@ -215,6 +215,14 @@ type BaseButtonProps = {
    * Whether to appear faded when not hovered (helps avoid distracting the user)
    */
   fadeUntilHover?: boolean
+  /**
+   * Allow passing in a class
+   */
+  rootClassName?: string
+  /**
+   * Allow passing in styles
+   */
+  rootStyle?: React.CSSProperties
 } & React.HTMLProps<HTMLButtonElement>
 
 export const Button = ({
@@ -223,12 +231,17 @@ export const Button = ({
   icon,
   text,
   inText,
+  rootClassName,
+  rootStyle,
   ...otherProps
 }: BaseButtonProps) => {
   return (
     <Root
       inText={inText}
       buttonType={buttonType}
+      className={rootClassName}
+      // @ts-ignore
+      style={rootStyle}
       {...otherProps as JSX.IntrinsicAttributes}
     >
       {children ? children : ''}

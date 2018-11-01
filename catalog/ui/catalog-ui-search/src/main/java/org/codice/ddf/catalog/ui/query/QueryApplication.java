@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler;
 import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor;
+import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -56,6 +58,8 @@ public class QueryApplication implements SparkApplication, Function {
 
   private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
+  private final MgrsCoordinateProcessor mgrsCoordinateProcessor;
+
   private FeatureService featureService;
 
   private CqlTransformHandler cqlTransformHandler;
@@ -72,8 +76,12 @@ public class QueryApplication implements SparkApplication, Function {
 
   private EndpointUtil util;
 
-  public QueryApplication(CqlTransformHandler cqlTransformHandler) {
-    this.latLonCoordinateProcessor = new LatLonCoordinateProcessor();
+  public QueryApplication(
+      CqlTransformHandler cqlTransformHandler,
+      LatLonCoordinateProcessor latLonCoordinateProcessor,
+      MgrsCoordinateProcessor mgrsCoordinateProcessor) {
+    this.latLonCoordinateProcessor = latLonCoordinateProcessor;
+    this.mgrsCoordinateProcessor = mgrsCoordinateProcessor;
     this.cqlTransformHandler = cqlTransformHandler;
   }
 
@@ -124,8 +132,10 @@ public class QueryApplication implements SparkApplication, Function {
         (req, res) -> {
           String query = req.queryParams("q");
           List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
-          List<Suggestion> enhanced = latLonCoordinateProcessor.enhanceResults(results, query);
-          return mapper.toJson(enhanced);
+          List<Suggestion> efficientPrependingResults = new LinkedList<>(results);
+          this.mgrsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
+          this.latLonCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
+          return mapper.toJson(efficientPrependingResults);
         });
 
     get(

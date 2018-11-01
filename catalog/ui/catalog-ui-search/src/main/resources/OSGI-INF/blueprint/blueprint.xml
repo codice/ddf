@@ -372,10 +372,23 @@
         <argument ref="subjectIdentity"/>
     </bean>
 
+    <reference id="coordinateSystemTranslator" interface="org.codice.usng4j.CoordinateSystemTranslator"
+               filter="(isNad83Datum=true)" />
+
+    <bean id="latLonCoordinateProcessor"
+          class="org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor"/>
+
+    <bean id="mgrsCoordinateProcessor"
+          class="org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor">
+        <argument ref="coordinateSystemTranslator"/>
+    </bean>
+
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
         <argument ref="cqlTransformHandler"/>
+        <argument ref="latLonCoordinateProcessor"/>
+        <argument ref="mgrsCoordinateProcessor"/>
     </bean>
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>

@@ -30,6 +30,8 @@
         <feature version="${karaf.version}">jasypt-encryption</feature>
         <feature version="${karaf.version}">http</feature>
         <feature>sync-installer</feature>
+        <!--Added wrap at the end so features before this can startup up while we block on the wrap feature-->
+        <feature prerequisite="true">wrap</feature>
     </feature>
 
     <feature name="sync-installer" version="${project.version}">

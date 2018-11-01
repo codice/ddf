@@ -21,6 +21,8 @@ const user = require('component/singletons/user-instance')
 const store = require('js/store')
 
 const preferences = user.get('user').get('preferences')
+const LoadingView = require('component/loading/loading.view')
+const wreqr = require('wreqr')
 
 interface State {
   filterDropdown: Marionette.View<any>
@@ -148,6 +150,22 @@ class WorkspacesItemsContainer extends React.Component<
       prefs.savePreferences()
     }
   }
+  prepForNewWorkspace = () => {
+    var loadingview = new LoadingView()
+    store.get('workspaces').once('sync', function(workspace: any) {
+      loadingview.remove()
+      wreqr.vent.trigger('router:navigate', {
+        fragment: 'workspaces/' + workspace.id,
+        options: {
+          trigger: true,
+        },
+      })
+    })
+  }
+  createBlankWorkspace = () => {
+    this.prepForNewWorkspace()
+    store.get('workspaces').createWorkspace()
+  }
   render() {
     return (
       <WorkspacesItems
@@ -159,6 +177,7 @@ class WorkspacesItemsContainer extends React.Component<
           <MarionetteRegionContainer view={this.state.sortDropdown} />
         }
         workspaces={this.state.workspaces}
+        createBlankWorkspace={this.createBlankWorkspace}
       />
     )
   }

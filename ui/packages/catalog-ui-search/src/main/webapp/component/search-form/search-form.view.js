@@ -48,7 +48,9 @@ module.exports = Marionette.LayoutView.extend({
       this.model.get('type') === 'basic' ||
       this.model.get('type') === 'text' ||
       this.model.get('type') === 'new-form' ||
-      this.model.get('type') === 'new-result'
+      this.model.get('type') === 'new-result' ||
+      (this.model.get('type') === 'result' &&
+        this.model.get('createdBy') === 'system')
     ) {
       this.$el.addClass('is-static')
     } else {

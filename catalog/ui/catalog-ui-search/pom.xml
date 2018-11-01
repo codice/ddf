@@ -340,16 +340,27 @@
             <artifactId>spatial-csw-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-      <dependency>
-        <groupId>ddf.mime.core</groupId>
-        <artifactId>mime-core-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codice.thirdparty</groupId>
-        <artifactId>tika-bundle</artifactId>
-        <version>${tika.thirdparty.bundle.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>ddf.mime.core</groupId>
+            <artifactId>mime-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.usng4j</groupId>
+            <artifactId>platform-usng4j-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.usng4j</groupId>
+            <artifactId>usng4j-impl</artifactId>
+            <version>${usng4j.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -453,7 +464,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>5.5_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
@@ -479,12 +490,12 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.38</minimum>
+                                            <minimum>0.40</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.34</minimum>
+                                            <minimum>0.36</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>

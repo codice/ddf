@@ -217,7 +217,7 @@ public class RestEndpointIT extends AbstractComponentTest {
             .addFeatures("org.apache.cxf.karaf", "apache-cxf", cxfFeatures)
             .addFeatures("ddf.features", "utilities", utilitiesFeatures)
             .addFeatures("ddf.features", "kernel", kernelFeatures)
-            .addFeatureFrom("ddf.thirdparty", "rest-assured", "feature", "rest-assured")
+            .addFeatureFrom("ddf.features", "test-utilities", "features", "rest-assured")
             .addFeatureFrom(
                 "ddf.platform.util", "util-uuidgenerator-api", "feature", "uuidgenerator-api")
             .addFeatureFrom("ddf.mime.core", "mime-core-api", "feature", "mime-core-api-only")

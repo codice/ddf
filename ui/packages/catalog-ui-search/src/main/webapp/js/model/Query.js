@@ -75,7 +75,6 @@ Query.Model = Backbone.AssociatedModel.extend({
         cql: "anyText ILIKE ''",
         filterTree: '{"property":"anyText","value":"","type":"ILIKE"}',
         associatedFormModel: undefined,
-        title: 'Search Name',
         excludeUnnecessaryAttributes: true,
         count: properties.resultCount,
         start: 1,
