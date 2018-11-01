@@ -1,9 +1,9 @@
 :title: Managing Certificate Revocation List (CRL)
 :type: configuration
 :status: published
-:parent: Managing Keystores and Certificates
+:parent: Configuring User Access
 :summary: Managing certificate revocation list.
-:order: 01
+:order: 09
 
 == {title}
 

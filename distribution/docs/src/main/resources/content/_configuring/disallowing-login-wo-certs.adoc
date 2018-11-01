@@ -1,9 +1,9 @@
 :title: Disallowing Login Without Certificates
 :type: configuration
 :status: published
-:parent: Managing Keystores and Certificates
+:parent: Configuring User Access
 :summary: Requiring certificate to log in.
-:order: 01
+:order: 09
 
 == {title}
 

@@ -37,12 +37,12 @@ include::${ii.file}[]
 <#list installings?sort_by("order") as installing>
 <#if (installing.project == "${branding}" && installing.status == "published")>
 
-include::${installing.file}[]
+include::${installing.file}[leveloffset=+1]
 
 <#list subInstallings?sort_by("order") as subInstalling>
 <#if (subInstalling.parent == installing.title)>
 
-include::${subInstalling.file}[]
+include::${subInstalling.file}[leveloffset=+2]
 
 </#if>
 </#list>
