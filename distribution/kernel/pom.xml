@@ -328,7 +328,8 @@
     <dependencies>
         <!--
         We are overriding the pax-web version of these four bundles in ddf-common.
-        Kernel needs to know them to replace them.
+        Kernel needs to know them to replace them. These should be removed when pax-web
+        releases their version of 7.2.4
         -->
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
