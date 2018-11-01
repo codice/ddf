@@ -370,6 +370,7 @@
         <argument ref="configurationApplication"/>
         <argument ref="noteUtil"/>
         <argument ref="subjectIdentity"/>
+        <argument ref="accessControlSecurityConfiguration"/>
     </bean>
 
     <reference id="coordinateSystemTranslator" interface="org.codice.usng4j.CoordinateSystemTranslator"
