@@ -49,7 +49,7 @@ public class DescriptionTemplateHelper {
               Metacard.THUMBNAIL,
               Metacard.CONTENT_TYPE_VERSION));
 
-  private FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZ");
+  private final FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private ActionProvider resourceActionProvider;
 
