@@ -155,8 +155,8 @@
     <bean id="accessControlSecurityConfiguration"
           class="org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.security"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.security"
+                update-strategy="container-managed"/>
     </bean>
 
     <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
@@ -393,7 +393,8 @@
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+               filter="(id=uuidGenerator)"/>
 
     <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
 
@@ -404,7 +405,7 @@
         <argument>
             <bean class="org.codice.ddf.catalog.ui.metacard.impl.SplitterLocatorImpl"/>
         </argument>
-        <argument ref="attachmentParser"/>
+        <argument ref="catalogService"/>
     </bean>
 
     <reference id="securityAuthenticationService"
@@ -572,7 +573,8 @@
         <property name="maxSubscriptions" value="100"/>
     </bean>
 
-    <bean id="workspacePersistentStore" class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
+    <bean id="workspacePersistentStore"
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
         <argument ref="persistentStore"/>
     </bean>
 
@@ -589,11 +591,11 @@
           class="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"
+                update-strategy="container-managed"/>
 
         <argument
-            value="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
+                value="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
         <argument value="Workspace '%[attribute=title]' notification"/>
         <argument value="donotreply@example.com"/>
         <argument>
@@ -617,8 +619,8 @@
           destroy-method="destroy">
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"
+                update-strategy="container-managed"/>
         <property name="queryTimeoutMinutes" value="5"/>
         <property name="queryTimeInterval" value="1440"/>
         <argument>
