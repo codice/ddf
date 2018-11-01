@@ -335,14 +335,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   deleteInvalidFilters: function() {
-    const multiValueView = this.filterInput.currentView
-    const valueCollectionView = multiValueView.values.currentView
-    let allValid = valueCollectionView.children.every(function(valueView) {
-      const inputView = valueView.input.currentView
-      return inputView.isValid()
-    })
-
-    if (!allValid) {
+    if (!this.filterInput.currentView.isValid()) {
       this.delete()
     }
   },

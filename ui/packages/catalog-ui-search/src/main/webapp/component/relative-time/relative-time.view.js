@@ -161,4 +161,8 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
+  isValid: function() {
+    const value = this.getModelValue()
+    return value.last !== undefined && value.unit !== undefined
+  },
 })
