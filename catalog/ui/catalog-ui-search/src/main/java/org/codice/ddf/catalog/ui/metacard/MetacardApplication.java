@@ -82,12 +82,15 @@ import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -107,7 +110,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.NotFoundException;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -129,6 +132,7 @@ import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration;
 import org.codice.ddf.catalog.ui.security.Constants;
 import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -185,6 +189,8 @@ public class MetacardApplication implements SparkApplication {
 
   private final NoteUtil noteUtil;
 
+  private final AccessControlSecurityConfiguration accessControlSecurityConfiguration;
+
   public MetacardApplication(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
@@ -199,7 +205,8 @@ public class MetacardApplication implements SparkApplication {
       AttributeRegistry attributeRegistry,
       ConfigurationApplication configuration,
       NoteUtil noteUtil,
-      SubjectIdentity subjectIdentity) {
+      SubjectIdentity subjectIdentity,
+      AccessControlSecurityConfiguration accessControlSecurityConfiguration) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.util = endpointUtil;
@@ -214,6 +221,7 @@ public class MetacardApplication implements SparkApplication {
     this.configuration = configuration;
     this.noteUtil = noteUtil;
     this.subjectIdentity = subjectIdentity;
+    this.accessControlSecurityConfiguration = accessControlSecurityConfiguration;
   }
 
   private String getSubjectEmail() {
@@ -467,24 +475,44 @@ public class MetacardApplication implements SparkApplication {
         "/workspaces",
         (req, res) -> {
           String email = getSubjectEmail();
-          List<String> subjectRoles = getSubjectRoles();
-          Map<String, Collection<String>> attributeMap = new HashMap<>();
-          if (email != null) {
-            attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
-            attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
-            attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
-            attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));
+          Map<String, Result> workspaceMetacards;
+
+          // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
+          Map<String, Set<String>> permissions = new HashMap<>();
+          if (StringUtils.isNotEmpty(
+              accessControlSecurityConfiguration.getSystemUserAttributeValue())) {
+            Set<String> systemUserSet =
+                new HashSet<>(
+                    Arrays.asList(
+                        accessControlSecurityConfiguration.getSystemUserAttributeValue()));
+            permissions.put(ACCESS_GROUPS, systemUserSet);
+            permissions.put(ACCESS_GROUPS_READ, systemUserSet);
           }
 
-          if (CollectionUtils.isNotEmpty(subjectRoles)) {
-            attributeMap.put(ACCESS_GROUPS_READ, subjectRoles);
-            attributeMap.put(ACCESS_GROUPS, subjectRoles);
+          KeyValueCollectionPermission securityPermission =
+              new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, permissions);
+
+          if (SecurityUtils.getSubject().isPermitted(securityPermission)) {
+            workspaceMetacards = util.getMetacardsByTag(WorkspaceConstants.WORKSPACE_TAG);
+          } else {
+            List<String> subjectRoles = getSubjectRoles();
+            Map<String, Collection<String>> attributeMap = new HashMap<>();
+            if (StringUtils.isNotEmpty(email)) {
+              attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
+              attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
+              attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
+              attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));
+            }
+
+            if (CollectionUtils.isNotEmpty(subjectRoles)) {
+              attributeMap.put(ACCESS_GROUPS_READ, subjectRoles);
+              attributeMap.put(ACCESS_GROUPS, subjectRoles);
+            }
+
+            workspaceMetacards =
+                util.getMetacardsWithTagByLikeAttributes(
+                    attributeMap, WorkspaceConstants.WORKSPACE_TAG);
           }
-
-          Map<String, Result> workspaceMetacards =
-              util.getMetacardsWithTagByLikeAttributes(
-                  attributeMap, WorkspaceConstants.WORKSPACE_TAG);
-
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
           Set<String> ids =
               isEmpty(email) ? Collections.emptySet() : subscriptions.getSubscriptions(email);
