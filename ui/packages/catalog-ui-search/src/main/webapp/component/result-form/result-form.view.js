@@ -187,6 +187,26 @@ module.exports = Marionette.LayoutView.extend({
       },
       error: _this.cleanup(),
     })
+      .done((data, textStatus, jqxhr) => {
+        announcement.announce(
+          {
+            title: 'Success!',
+            message: 'Result form successfully saved',
+            type: 'success',
+          },
+          1500
+        )
+      })
+      .fail((jqxhr, textStatus, errorThrown) => {
+        announcement.announce(
+          {
+            title: 'Result Form Failed to be Saved',
+            message: jqxhr.responseJSON.message,
+            type: 'error',
+          },
+          2500
+        )
+      })
   },
   message: function(title, message, type) {
     announcement.announce({
