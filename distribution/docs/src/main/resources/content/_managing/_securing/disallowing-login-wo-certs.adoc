@@ -1,20 +1,21 @@
 :title: Disallowing Login Without Certificates
-:type: subSecuring
+:type: configuration
 :status: published
-:parent: Managing Keystores and Certificates
+:parent: Configuring User Access
 :summary: Requiring certificate to log in.
-:order: 01
+:order: 09
 
 == {title}
 
 ${branding} can be configured to prevent login without a valid PKI certificate.
 
-* Navigate to *${admin-console}*
-* Under *${ddf-security}*, select -> *Web Context Policy Manager*
-* Add a policy for each context requiring restriction
+* Navigate to the *${admin-console}*.
+* Select *${ddf-security}*.
+* Select *Web Context Policy Manager*.
+* Add a policy for each context requiring restriction.
 ** For example: `/search=SAML|PKI` will disallow login without certificates to the Search UI.
 ** The format for the policy should be: `/<CONTEXT>=SAML|PKI`
-* Click *Save*
+* Click *Save*.
 
 [NOTE]
 ====
