@@ -9,8 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
-type Subtract<T, K> = Omit<T, keyof K> // so the user of the wrapped component doesn't have to pass in listenTo!
+import { Subtract } from '../../../../typescript'
 
 import * as React from 'react'
 import MarionetteRegionContainer from '../../marionette-region-container'
