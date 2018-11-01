@@ -604,7 +604,7 @@ public class CatalogServiceImpl implements CatalogService {
       throw new CatalogServiceException(errorResponseString);
     }
 
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
     try {
       if (httpServletRequest != null) {
         Collection<Part> contentParts = httpServletRequest.getParts();
@@ -622,7 +622,7 @@ public class CatalogServiceImpl implements CatalogService {
   }
 
   private void updateDocument(
-      Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard,
+      Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard,
       String id,
       List<String> contentTypeList,
       String transformerParam,
@@ -641,11 +641,11 @@ public class CatalogServiceImpl implements CatalogService {
                 Collections.singletonList(
                     new IncomingContentItem(
                         id,
-                        attachmentInfoAndMetacard.getLeft().getStream(),
-                        attachmentInfoAndMetacard.getLeft().getContentType(),
-                        attachmentInfoAndMetacard.getLeft().getFilename(),
+                        attachmentInfoAndMetacard.getKey().getStream(),
+                        attachmentInfoAndMetacard.getKey().getContentType(),
+                        attachmentInfoAndMetacard.getKey().getFilename(),
                         0,
-                        attachmentInfoAndMetacard.getRight())),
+                        attachmentInfoAndMetacard.getValue())),
                 null);
         catalogFramework.update(streamUpdateRequest);
       }
@@ -710,7 +710,7 @@ public class CatalogServiceImpl implements CatalogService {
       throw new CatalogServiceException(errorMessage);
     }
 
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
     try {
       if (httpServletRequest != null) {
         Collection<Part> contentParts = httpServletRequest.getParts();
@@ -728,7 +728,7 @@ public class CatalogServiceImpl implements CatalogService {
   }
 
   private String addDocument(
-      Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard,
+      Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard,
       List<String> contentTypeList,
       String transformerParam,
       InputStream message)
@@ -744,9 +744,9 @@ public class CatalogServiceImpl implements CatalogService {
         createResponse = catalogFramework.create(createRequest);
       } else {
         String id =
-            attachmentInfoAndMetacard.getRight() == null
+            attachmentInfoAndMetacard.getValue() == null
                 ? null
-                : attachmentInfoAndMetacard.getRight().getId();
+                : attachmentInfoAndMetacard.getValue().getId();
         if (id == null) {
           id = uuidGenerator.generateUuid();
         }
@@ -755,11 +755,11 @@ public class CatalogServiceImpl implements CatalogService {
                 Collections.singletonList(
                     new IncomingContentItem(
                         id,
-                        attachmentInfoAndMetacard.getLeft().getStream(),
-                        attachmentInfoAndMetacard.getLeft().getContentType(),
-                        attachmentInfoAndMetacard.getLeft().getFilename(),
+                        attachmentInfoAndMetacard.getKey().getStream(),
+                        attachmentInfoAndMetacard.getKey().getContentType(),
+                        attachmentInfoAndMetacard.getKey().getFilename(),
                         0L,
-                        attachmentInfoAndMetacard.getRight())),
+                        attachmentInfoAndMetacard.getValue())),
                 null);
         createResponse = catalogFramework.create(streamCreateRequest);
       }
@@ -876,7 +876,8 @@ public class CatalogServiceImpl implements CatalogService {
     return new ImmutablePair<>(attachmentInfo, metacard);
   }
 
-  Pair<AttachmentInfo, Metacard> parseParts(
+  @Override
+  public Map.Entry<AttachmentInfo, Metacard> parseParts(
       Collection<Part> contentParts, String transformerParam) {
     if (contentParts.size() == 1) {
       Part part = Iterables.get(contentParts, 0);

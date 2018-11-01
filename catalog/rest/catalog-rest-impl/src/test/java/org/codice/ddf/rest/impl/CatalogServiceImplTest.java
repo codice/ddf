@@ -416,7 +416,7 @@ public class CatalogServiceImplTest {
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
         catalogServiceImpl.parseAttachments(attachments, "xml");
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
     ContentDisposition contentDisposition2 =
         new ContentDisposition("form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
@@ -435,8 +435,8 @@ public class CatalogServiceImplTest {
 
     attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
 
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("<meta>beta</meta>"));
-    assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("<meta>beta</meta>"));
+    assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
   }
 
   @Test
@@ -488,9 +488,9 @@ public class CatalogServiceImplTest {
     HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
     when(httpServletRequest.getParts()).thenReturn(parts);
 
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
         catalogServiceImpl.parseParts(parts, "xml");
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
     Part part2 =
         createPart(
@@ -508,8 +508,8 @@ public class CatalogServiceImplTest {
 
     attachmentInfoAndMetacard = catalogServiceImpl.parseParts(parts, "xml");
 
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("<meta>beta</meta>"));
-    assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("<meta>beta</meta>"));
+    assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
   }
 
   @Test
@@ -558,7 +558,7 @@ public class CatalogServiceImplTest {
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
         catalogServiceImpl.parseAttachments(attachments, null);
-    Metacard metacard = attachmentInfoAndMetacard.getRight();
+    Metacard metacard = attachmentInfoAndMetacard.getValue();
 
     assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
     assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
@@ -606,9 +606,9 @@ public class CatalogServiceImplTest {
     HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
     when(httpServletRequest.getParts()).thenReturn(parts);
 
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
         catalogServiceImpl.parseParts(parts, null);
-    Metacard metacard = attachmentInfoAndMetacard.getRight();
+    Metacard metacard = attachmentInfoAndMetacard.getValue();
 
     assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
     assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
@@ -663,7 +663,7 @@ public class CatalogServiceImplTest {
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
         catalogServiceImpl.parseAttachments(attachments, "xml");
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
     ContentDisposition contentDisposition2 =
         new ContentDisposition("form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
@@ -683,8 +683,8 @@ public class CatalogServiceImplTest {
     attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
 
     // Ensure that the metadata was not overriden because it was too large to be parsed
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
-    assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
+    assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
   }
 
   @Test
@@ -736,9 +736,9 @@ public class CatalogServiceImplTest {
     HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
     when(httpServletRequest.getParts()).thenReturn(parts);
 
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
         catalogServiceImpl.parseParts(parts, "xml");
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
 
     Part part2 =
         createPart(
@@ -757,8 +757,8 @@ public class CatalogServiceImplTest {
     attachmentInfoAndMetacard = catalogServiceImpl.parseParts(parts, "xml");
 
     // Ensure that the metadata was not overriden because it was too large to be parsed
-    assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
-    assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
+    assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
+    assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
   }
 
   /** Tests getting source information */
