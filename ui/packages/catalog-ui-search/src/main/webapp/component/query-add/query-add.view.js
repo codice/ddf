@@ -34,9 +34,7 @@ const SearchFormModel = require('component/search-form/search-form.js')
 const properties = require('properties')
 const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view')
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()
-const QueryResult = properties.hasExperimentalEnabled()
-  ? require('component/result-form/result-form.view')
-  : {}
+const QueryResult = require('component/result-form/result-form.view')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
