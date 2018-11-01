@@ -479,7 +479,7 @@ public class MetacardApplication implements SparkApplication {
 
           // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
           Map<String, Set<String>> permissions = new HashMap<>();
-          if (!StringUtils.isNotEmpty(
+          if (StringUtils.isNotEmpty(
               accessControlSecurityConfiguration.getSystemUserAttributeValue())) {
             Set<String> systemUserSet =
                 new HashSet<>(
