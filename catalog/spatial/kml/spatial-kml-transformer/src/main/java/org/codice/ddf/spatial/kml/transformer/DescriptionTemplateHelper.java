@@ -29,6 +29,7 @@ import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class DescriptionTemplateHelper {
               Metacard.THUMBNAIL,
               Metacard.CONTENT_TYPE_VERSION));
 
-  private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+  private FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private ActionProvider resourceActionProvider;
 

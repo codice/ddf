@@ -51,6 +51,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
@@ -120,7 +121,7 @@ public class MetricsEndpoint {
     TIME_RANGES.put("1y", ONE_YEAR_IN_SECONDS);
   }
 
-  private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+  private final FastDateFormat dateFormatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZ");
 
   private static final String DEFAULTED_TO_ENDTIME = "Defaulted endTime to {}";
 
