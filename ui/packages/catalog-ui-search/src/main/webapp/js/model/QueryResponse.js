@@ -9,11 +9,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+const $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('underscore')
 var metacardDefinitions = require('component/singletons/metacard-definitions')
-var Sources = require('component/singletons/sources-instance')
-var moment = require('moment')
 var properties = require('properties')
 var user = require('component/singletons/user-instance')
 var Common = require('js/Common')
@@ -173,7 +172,15 @@ module.exports = Backbone.AssociatedModel.extend({
           }
         },
         promise() {
-          return promise
+          const d = $.Deferred()
+          promise
+            .then(value => {
+              d.resolve(value)
+            })
+            .catch(err => {
+              d.reject(err)
+            })
+          return d
         },
       }
     } else {
