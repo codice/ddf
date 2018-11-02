@@ -13,11 +13,11 @@
  *
  **/
 /*global define*/
-define([
-  'icanhaz',
-  'marionette',
-  'text!templates/sourceOrganization.hbs',
-], function(ich, Marionette, sourceOrganization) {
+define(['icanhaz', 'marionette', 'templates/sourceOrganization.hbs'], function(
+  ich,
+  Marionette,
+  sourceOrganization
+) {
   if (!ich.sourceOrganization) {
     ich.addTemplate('sourceOrganization', sourceOrganization)
   }
