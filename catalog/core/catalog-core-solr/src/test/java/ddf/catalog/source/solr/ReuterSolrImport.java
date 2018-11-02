@@ -30,8 +30,6 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationFileProxy;
-import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.EmbeddedSolrFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,16 +52,8 @@ public class ReuterSolrImport implements Runnable {
     this.arrayOfFile = arrayOfFile;
 
     try {
-      final ConfigurationStore configStore = ConfigurationStore.getInstance();
 
-      this.solr =
-          new EmbeddedSolrFactory()
-              .newClient(
-                  "catalog",
-                  "solrconfigSoft.xml",
-                  "schema.xml",
-                  configStore,
-                  new ConfigurationFileProxy(configStore));
+      this.solr = new EmbeddedSolrFactory().newClient("catalog");
 
       this.solrProvider =
           new SolrCatalogProvider(

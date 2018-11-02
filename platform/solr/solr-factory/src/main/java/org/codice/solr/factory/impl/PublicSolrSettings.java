@@ -38,18 +38,31 @@ public class PublicSolrSettings {
   protected static String httpsProtocols;
   protected static String solrHttpUrl;
   private static String solrDataDir;
-
+  private static boolean disableTextPath;
+  private static boolean inMemory;
+  private static Double nearestNeighborDistanceLimit;
+  private static boolean forceAutoCommit;
 
   static {
     loadSystemProperties();
   }
 
   {
-    solrDataDir = getProperty("solr.data.dir");
-    solrHttpUrl = getProperty("solr.http.url");
-    solrUseBasicAuth = getProperty("solr.useBasicAuth");
-    httpsCipherSuites = getProperty("https.cipherSuites");
-    httpsProtocols = getProperty("https.protocols");
+    solrDataDir =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.data.dir"));
+    solrHttpUrl =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
+    solrUseBasicAuth =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.useBasicAuth"));
+    httpsCipherSuites =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("https.cipherSuites"));
+    httpsProtocols =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("https.protocols"));
   }
 
   PublicSolrSettings() {}
@@ -61,11 +74,6 @@ public class PublicSolrSettings {
   @VisibleForTesting
   static void loadSystemProperties() {
     new PublicSolrSettings();
-  }
-
-  static String getProperty(String propertyName) {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(propertyName));
   }
 
   static String concatenatePaths(String first, String more) {
@@ -80,16 +88,21 @@ public class PublicSolrSettings {
     return DEFAULT_SOLRCONFIG_XML;
   }
 
-  static String getSolrDataDir() {
+  /**
+   * Return the value of the system property for Solr data directory. This is the root of where the
+   * data for individual cores exist. Individual cores have their own data directories. * @return
+   * String representation of a file path.
+   */
+  static String getRootDataDir() {
     return solrDataDir;
   }
 
   static boolean isSolrDataDirWritable() {
-    return StringUtils.isNotEmpty(getSolrDataDir()) && new File(getSolrDataDir()).canWrite();
+    return StringUtils.isNotEmpty(getRootDataDir()) && new File(getRootDataDir()).canWrite();
   }
 
   static String getCoreUrl(String coreName) {
-    return getSolrHttpUrl() + "/" + coreName;
+    return getUrl() + "/" + coreName;
   }
 
   static String getCoreDataDir(String coreName) {
@@ -97,7 +110,7 @@ public class PublicSolrSettings {
   }
 
   static String getCoreDir(String coreName) {
-    return concatenatePaths(getSolrDataDir(), coreName);
+    return concatenatePaths(getRootDataDir(), coreName);
   }
 
   /**
@@ -108,7 +121,7 @@ public class PublicSolrSettings {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedCipherSuites() {
-    return commaSeparatedToArray(PublicSolrSettings.getHttpsCipherSuites());
+    return commaSeparatedToArray(httpsCipherSuites);
   }
 
   /**
@@ -119,24 +132,24 @@ public class PublicSolrSettings {
    * @return supported cipher suites as an array
    */
   public static String[] getSupportedProtocols() {
-    return commaSeparatedToArray(PublicSolrSettings.getHttpsProtocols());
+    return commaSeparatedToArray(httpsProtocols);
   }
 
   /**
-   * Gets the default Solr server secure HTTP address.
+   * Gets the Solr server HTTP address.
    *
-   * @return Solr server secure HTTP address
+   * @return Solr server HTTP address
    */
-  public static String getDefaultHttpsAddress() {
-    return getSolrHttpUrl();
+  public static String getUrl() {
+    return solrHttpUrl;
   }
 
   static boolean useBasicAuth() {
-    return Boolean.valueOf(PublicSolrSettings.getSolrUseBasicAuth());
+    return Boolean.valueOf(solrUseBasicAuth);
   }
 
   static boolean useTls() {
-    return StringUtils.startsWithIgnoreCase(getSolrHttpUrl(), "https");
+    return StringUtils.startsWithIgnoreCase(getUrl(), "https");
   }
 
   private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
@@ -144,19 +157,40 @@ public class PublicSolrSettings {
     return (commaDelimitedString != null) ? commaDelimitedString.split("\\s*,\\s*") : new String[0];
   }
 
-  static String getSolrUseBasicAuth() {
-    return solrUseBasicAuth;
+  public static void setDisableTextPath(boolean bool) {
+    disableTextPath = bool;
   }
 
-  static String getHttpsCipherSuites() {
-    return httpsCipherSuites;
+  public static boolean isDisableTextPath() {
+    return disableTextPath;
   }
 
-  static String getHttpsProtocols() {
-    return httpsProtocols;
+  public static boolean isInMemory() {
+    return inMemory;
   }
 
-  static String getSolrHttpUrl() {
-    return solrHttpUrl;
+  public static void setInMemory(boolean bool) {
+    inMemory = bool;
+  }
+
+  public static Double getNearestNeighborDistanceLimit() {
+    return nearestNeighborDistanceLimit;
+  }
+
+  public static void setNearestNeighborDistanceLimit(Double value) {
+    nearestNeighborDistanceLimit = Math.abs(value);
+  }
+
+  /** @return true, if forcing auto commit is turned on */
+  public static boolean isForceAutoCommit() {
+    return forceAutoCommit;
+  }
+
+  /**
+   * @param bool When set to true, this will force a soft commit upon every solr transaction such as
+   *     insert, delete,
+   */
+  public static void setForceAutoCommit(boolean bool) {
+    forceAutoCommit = bool;
   }
 }

@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.PublicSolrSettings;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -385,7 +385,7 @@ public class SolrProviderCreate extends SolrProviderTestBase {
   @Test
   public void testCreatePendingNrtIndex() throws Exception {
     deleteAll();
-    ConfigurationStore.getInstance().setForceAutoCommit(false);
+    PublicSolrSettings.setForceAutoCommit(false);
 
     try {
       MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
@@ -407,7 +407,7 @@ public class SolrProviderCreate extends SolrProviderTestBase {
       assertThat(titleResponse.getResults().size(), is(0));
       assertThat(idResponse.getResults().size(), is(1));
     } finally {
-      ConfigurationStore.getInstance().setForceAutoCommit(true);
+      PublicSolrSettings.setForceAutoCommit(true);
     }
   }
 }

@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getDefaultHttpsAddress;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getUrl;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,75 +36,75 @@ import org.osgi.service.cm.Configuration;
 
 @Service
 @Command(
-  scope = SolrCommands.NAMESPACE,
-  name = "backup",
-  description = "Makes a backup of the selected Solr core/collection."
+    scope = SolrCommands.NAMESPACE,
+    name = "backup",
+    description = "Makes a backup of the selected Solr core/collection."
 )
 public class BackupCommand extends SolrCommands {
 
   @Option(
-    name = "-d",
-    aliases = {"--dir"},
-    multiValued = false,
-    required = false,
-    description =
-        "Full path to location where backups will be written. If this option is not supplied "
-            + " for single node Solr backups, the backup will be written in the data directory "
-            + " for the selected core. For SolrCloud  backups, the backup location must be shared "
-            + " by all Solr nodes."
+      name = "-d",
+      aliases = {"--dir"},
+      multiValued = false,
+      required = false,
+      description =
+          "Full path to location where backups will be written. If this option is not supplied "
+              + " for single node Solr backups, the backup will be written in the data directory "
+              + " for the selected core. For SolrCloud  backups, the backup location must be shared "
+              + " by all Solr nodes."
   )
   String backupLocation;
 
   @Option(
-    name = "-c",
-    aliases = {"--coreName"},
-    multiValued = false,
-    required = false,
-    description =
-        "Name of the Solr core/collection to be backed up. If not specified, the 'catalog' core/collection will be backed up."
+      name = "-c",
+      aliases = {"--coreName"},
+      multiValued = false,
+      required = false,
+      description =
+          "Name of the Solr core/collection to be backed up. If not specified, the 'catalog' core/collection will be backed up."
   )
   String coreName = DEFAULT_CORE_NAME;
 
   @Option(
-    name = "-a",
-    aliases = {"--asyncBackup"},
-    multiValued = false,
-    required = false,
-    description = "Perform an asynchronous backup of SolrCloud."
+      name = "-a",
+      aliases = {"--asyncBackup"},
+      multiValued = false,
+      required = false,
+      description = "Perform an asynchronous backup of SolrCloud."
   )
   boolean asyncBackup;
 
   @Option(
-    name = "-s",
-    aliases = {"--asyncBackupStatus"},
-    multiValued = false,
-    required = false,
-    description =
-        "Get the status of a SolrCloud asynchronous backup. Used in conjunction with --asyncBackupReqId."
+      name = "-s",
+      aliases = {"--asyncBackupStatus"},
+      multiValued = false,
+      required = false,
+      description =
+          "Get the status of a SolrCloud asynchronous backup. Used in conjunction with --asyncBackupReqId."
   )
   boolean asyncBackupStatus;
 
   @Option(
-    name = "-i",
-    aliases = {"--asyncBackupReqId"},
-    multiValued = false,
-    required = false,
-    description =
-        "Request Id returned after performing a SolrCloud asynchronous backup. This request Id is used to track"
-            + " the status of a given backup. When requesting a backup status, --asyncBackupStatus and --asyncBackupReqId"
-            + " are both required options."
+      name = "-i",
+      aliases = {"--asyncBackupReqId"},
+      multiValued = false,
+      required = false,
+      description =
+          "Request Id returned after performing a SolrCloud asynchronous backup. This request Id is used to track"
+              + " the status of a given backup. When requesting a backup status, --asyncBackupStatus and --asyncBackupReqId"
+              + " are both required options."
   )
   String asyncBackupReqId;
 
   @Option(
-    name = "-n",
-    aliases = {"--numToKeep"},
-    multiValued = false,
-    required = false,
-    description =
-        "Number of backups to be maintained. If this backup opertion will result"
-            + " in exceeding this threshold, the oldest backup will be deleted. This option is not supported"
-            + " when backing up SolrCloud."
+      name = "-n",
+      aliases = {"--numToKeep"},
+      multiValued = false,
+      required = false,
+      description =
+          "Number of backups to be maintained. If this backup opertion will result"
+              + " in exceeding this threshold, the oldest backup will be deleted. This option is not supported"
+              + " when backing up SolrCloud."
   )
   int numberToKeep = 0;
 
@@ -186,7 +186,7 @@ public class BackupCommand extends SolrCommands {
   }
 
   private String getBackupUrl(String coreName) {
-    String backupUrl = getDefaultHttpsAddress();
+    String backupUrl = getUrl();
 
     if (configurationAdmin != null) {
       try {
@@ -205,7 +205,7 @@ public class BackupCommand extends SolrCommands {
                       SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
               LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
             } else {
-              LOGGER.info("No Solr url configured, defaulting to: {}", getDefaultHttpsAddress());
+              LOGGER.info("No Solr url configured, defaulting to: {}", getUrl());
             }
           }
         }

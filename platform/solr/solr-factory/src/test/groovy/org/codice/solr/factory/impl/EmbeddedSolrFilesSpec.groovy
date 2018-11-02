@@ -315,9 +315,7 @@ class EmbeddedSolrFilesSpec extends Specification {
   @Unroll
   def 'test retrieving the data directory path when data directory is #data_dir_is'() {
     given:
-      def configStore = Mock(ConfigurationStore) {
-        isInMemory() >> false
-      }
+
       def configProxy = Mock(ConfigurationFileProxy) {
         getResource(*_) >>> [CONFIG_URL, SCHEMA_URL]
         getDataDirectory() >> data_dir

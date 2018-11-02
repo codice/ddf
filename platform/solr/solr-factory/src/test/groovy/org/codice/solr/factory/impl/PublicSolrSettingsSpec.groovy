@@ -22,7 +22,7 @@ import spock.util.environment.RestoreSystemProperties
 
 @RestoreSystemProperties
 @Supplemental
-class SolrFactorySettingsSpec extends Specification {
+class PublicSolrSettingsSpec extends Specification {
 
     @Rule
     TemporaryFolder tempFolder = new TemporaryFolder();
@@ -86,4 +86,15 @@ class SolrFactorySettingsSpec extends Specification {
         System.setProperty(propertyName, propertyValue);
         PublicSolrSettings.loadSystemProperties();
     }
+
+
+    //TODO: add this test
+//    @Test
+//    public void nearestNeighborLimitIsAlwaysPositive() {
+//        PublicSolrSettings.setNearestNeighborDistanceLimit(-1.0);
+//
+//        assertThat(PublicSolrSettings.getNearestNeighborDistanceLimit(), closeTo(1.0, 0.00001));
+//    }
+
+
 }

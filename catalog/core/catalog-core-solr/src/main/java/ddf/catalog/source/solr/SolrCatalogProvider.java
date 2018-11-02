@@ -66,7 +66,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.PublicSolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -547,7 +547,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   }
 
   public boolean isForcedAutoCommit() {
-    return ConfigurationStore.getInstance().isForceAutoCommit();
+    return PublicSolrSettings.isForceAutoCommit();
   }
 
   public void shutdown() {

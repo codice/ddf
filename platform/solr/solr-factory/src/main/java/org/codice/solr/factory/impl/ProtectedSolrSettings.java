@@ -14,6 +14,8 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 
@@ -34,11 +36,22 @@ final class ProtectedSolrSettings extends PublicSolrSettings {
   }
 
   {
-    trustStore = getProperty("javax.net.ssl.trustStore");
-    trustStorePass = getProperty("javax.net.ssl.trustStorePassword");
-    keyStore = getProperty("javax.net.ssl.keyStore");
-    keyStorePass = getProperty("javax.net.ssl.keyStorePassword");
-    keyStoreType = getProperty("javax.net.ssl.keyStoreType");
+    trustStore =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.trustStore"));
+    trustStorePass =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>)
+                () -> System.getProperty("javax.net.ssl.trustStorePassword"));
+    keyStore =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore"));
+    keyStorePass =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword"));
+    keyStoreType =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStoreType"));
   }
 
   /**
@@ -75,5 +88,4 @@ final class ProtectedSolrSettings extends PublicSolrSettings {
   static String getTrustStorePass() {
     return trustStorePass;
   }
-
 }

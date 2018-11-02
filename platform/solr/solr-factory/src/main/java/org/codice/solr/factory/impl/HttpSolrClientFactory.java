@@ -13,22 +13,22 @@
  */
 package org.codice.solr.factory.impl;
 
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStorePass;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStoreType;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedCipherSuites;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedProtocols;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStore;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStorePass;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.getUrl;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.isSslConfigured;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.useBasicAuth;
+import static org.codice.solr.factory.impl.ProtectedSolrSettings.useTls;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDataDir;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDir;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreUrl;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSchemaXml;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSolrconfigXml;
 import static org.codice.solr.factory.impl.PublicSolrSettings.isSolrDataDirWritable;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStorePass;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStoreType;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSolrHttpUrl;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedCipherSuites;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedProtocols;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStore;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStorePass;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.isSslConfigured;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.useBasicAuth;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.useTls;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
@@ -155,7 +155,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     Args.check(
         isSolrDataDirWritable(),
         "The solr data dir is not configured or is not writable. Cannot create HTTP solr client.");
-    String solrUrl = getSolrHttpUrl();
+    String solrUrl = getUrl();
     try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
         HttpSolrClient client =
             (httpClient != null
@@ -164,8 +164,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
       HttpResponse ping = client.getHttpClient().execute(new HttpHead(solrUrl));
       if (ping != null && ping.getStatusLine().getStatusCode() == 200) {
-        ConfigurationFileProxy configProxy =
-            new ConfigurationFileProxy(ConfigurationStore.getInstance());
+        ConfigurationFileProxy configProxy = new ConfigurationFileProxy();
         configProxy.writeSolrConfiguration(coreName);
         if (!solrCoreExists(client, coreName)) {
           LOGGER.debug("Solr({}): Creating Solr core", coreName);

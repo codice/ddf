@@ -26,7 +26,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.util.Arrays;
 import java.util.List;
-import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.PublicSolrSettings;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -36,7 +36,7 @@ public class SolrProviderXpath extends SolrProviderTestBase {
   @Test
   public void testXpathCompoundContextualQuery() throws Exception {
 
-    ConfigurationStore.getInstance().setDisableTextPath(false);
+    PublicSolrSettings.setDisableTextPath(false);
     deleteAll();
 
     String nonexistentXpath = "/this/xpath[does/not/@ex:exist]";
@@ -128,7 +128,7 @@ public class SolrProviderXpath extends SolrProviderTestBase {
   @Test
   public void testXpathNestedXpathQuery() throws Exception {
 
-    ConfigurationStore.getInstance().setDisableTextPath(false);
+    PublicSolrSettings.setDisableTextPath(false);
     deleteAll();
 
     String explicitXpath1 = "//rss/channel/itunes:explicit";
@@ -183,7 +183,7 @@ public class SolrProviderXpath extends SolrProviderTestBase {
   @Test
   public void testXpathNestedNegativeXpathQuery() throws Exception {
 
-    ConfigurationStore.getInstance().setDisableTextPath(false);
+    PublicSolrSettings.setDisableTextPath(false);
     deleteAll();
 
     String explicitXpath1 = "//rss/channel/itunes:explicit";
@@ -402,7 +402,7 @@ public class SolrProviderXpath extends SolrProviderTestBase {
 
   private void prepareXPath(boolean isXpathDisabled)
       throws IngestException, UnsupportedQueryException {
-    ConfigurationStore.getInstance().setDisableTextPath(isXpathDisabled);
+    PublicSolrSettings.setDisableTextPath(isXpathDisabled);
 
     deleteAll();
 

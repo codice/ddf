@@ -47,7 +47,7 @@ class HttpSolrClientFactorySpec extends Specification {
 
   def cleanup() {
     // reset the config store
-    ConfigurationStore.instance.dataDirectoryPath = null
+//    ConfigurationStore.instance.dataDirectoryPath = null
   }
 
   @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
@@ -77,9 +77,6 @@ class HttpSolrClientFactorySpec extends Specification {
       System.setPropertyIfNotNull("org.codice.ddf.system.httpsPort", system_port)
       System.setPropertyIfNotNull("org.codice.ddf.system.rootContext", system_context)
 
-    and:
-      System.setProperty("solr.data.dir", DATA_DIR)
-
     when:
       def client = factory.newClient(CORE)
 
@@ -100,9 +97,6 @@ class HttpSolrClientFactorySpec extends Specification {
 
     and: "the underlying client should never be closed"
       0 * httpClient.close()
-
-    and: "the config store is initialized and has its data directory updated"
-      ConfigurationStore.instance.dataDirectoryPath == DATA_DIR
 
     where:
       solr_url_is   || solr_http_url | system_host | system_port | system_context || solr_url  | core_url

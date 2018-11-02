@@ -60,15 +60,11 @@ public class ConfigurationFileProxy {
 
   private File dataDirectory = null;
 
-  /**
-   * Constructor.
-   *
-   * @param configurationStore configuration store that will be used to retrieve the configuration
-   *     information
-   */
-  public ConfigurationFileProxy(ConfigurationStore configurationStore) {
+  /** Constructor. */
+  @Deprecated
+  public ConfigurationFileProxy() {
     LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
-    String storedDataDirectoryPath = configurationStore.getDataDirectoryPath();
+    String storedDataDirectoryPath = PublicSolrSettings.getRootDataDir();
 
     if (isNotBlank(storedDataDirectoryPath)) {
       this.dataDirectory = new File(storedDataDirectoryPath);

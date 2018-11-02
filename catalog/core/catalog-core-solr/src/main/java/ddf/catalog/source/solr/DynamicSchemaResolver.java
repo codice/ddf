@@ -80,7 +80,7 @@ import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.PublicSolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,8 +336,7 @@ public class DynamicSchemaResolver {
       }
     }
 
-    if (!ConfigurationStore.getInstance().isDisableTextPath()
-        && StringUtils.isNotBlank(metacard.getMetadata())) {
+    if (!PublicSolrSettings.isDisableTextPath() && StringUtils.isNotBlank(metacard.getMetadata())) {
       try {
         byte[] luxXml = createTinyBinary(metacard.getMetadata());
         solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);

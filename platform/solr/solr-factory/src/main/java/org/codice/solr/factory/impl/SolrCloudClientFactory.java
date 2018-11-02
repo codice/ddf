@@ -171,13 +171,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
 
     if (!configExistsInZk) {
-      ConfigurationStore configStore = ConfigurationStore.getInstance();
 
-      if (System.getProperty("solr.data.dir") != null) {
-        configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
-      }
-
-      ConfigurationFileProxy configProxy = new ConfigurationFileProxy(configStore);
+      ConfigurationFileProxy configProxy = new ConfigurationFileProxy();
       configProxy.writeSolrConfiguration(collection);
       Path configPath =
           Paths.get(configProxy.getDataDirectory().getAbsolutePath(), collection, "conf");

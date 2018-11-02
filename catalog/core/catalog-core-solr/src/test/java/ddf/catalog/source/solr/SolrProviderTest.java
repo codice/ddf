@@ -30,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationFileProxy;
-import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.MockSolrProperty;
 import org.codice.solr.factory.impl.SolrCloudClientFactory;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
@@ -77,12 +76,12 @@ public class SolrProviderTest {
   public static void beforeClass() throws Exception {
     LOGGER.info("RUNNING one-time setup.");
 
-    ConfigurationStore store = ConfigurationStore.getInstance();
-    store.setForceAutoCommit(true);
+    //    ConfigurationStore store = ConfigurationStore.getInstance();
+    //    store.setForceAutoCommit(true);
     String solrDataPath = Paths.get("target/surefire/solr").toString();
-    System.getProperty("solr.data.dir", solrDataPath);
-    store.setDataDirectoryPath(solrDataPath);
-    ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(store);
+    MockSolrProperty.setProperty("solr.data.dir", solrDataPath);
+    //    store.setDataDirectoryPath(solrDataPath);
+    //    ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy();
 
     miniSolrCloud =
         new MiniSolrCloudCluster(

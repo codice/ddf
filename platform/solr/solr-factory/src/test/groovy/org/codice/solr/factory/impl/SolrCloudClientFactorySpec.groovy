@@ -60,12 +60,7 @@ class SolrCloudClientFactorySpec extends Specification {
 
   def setup() {
     tempFolder.create();
-    ConfigurationStore.instance.dataDirectoryPath = tempFolder.root.absolutePath
-  }
-
-  def cleanup() {
-    // reset the config store
-    ConfigurationStore.instance.dataDirectoryPath = null
+    MockSolrProperty.setProperty("solr.data.dir", tempFolder.root.absolutePath)
   }
 
   @Timeout(SolrCloudClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
@@ -266,7 +261,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     and:
-      def initialDataDir = ConfigurationStore.instance.dataDirectoryPath
+//      def initialDataDir = ConfigurationStore.instance.dataDirectoryPath
       def zkClient = Mock(SolrZkClient)
       def listResponse = Mock(NamedList)
       def zkStateProvider = Mock(ZkClientClusterStateProvider)
