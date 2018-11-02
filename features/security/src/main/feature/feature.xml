@@ -182,7 +182,7 @@
         <feature>security-core-api</feature>
         <feature>action-core-impl</feature>
 
-        <bundle>wrap:mvn:org.jasig.cas.client/cas-client-core/${cas.client.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}</bundle>
     </feature>
