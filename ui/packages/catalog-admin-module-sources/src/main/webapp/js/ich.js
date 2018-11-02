@@ -38,7 +38,7 @@
  **/
 /*global define*/
 
-define(['handlebars', 'jquery'], function(Handlebars, $) {
+define(['ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
   'use strict'
   var ich = {}
 
@@ -47,11 +47,11 @@ define(['handlebars', 'jquery'], function(Handlebars, $) {
   // public function for adding templates
   // We're enforcing uniqueness to avoid accidental template overwrites.
   // If you want a different template, it should have a different name.
-  ich.addTemplate = function(name, templateString) {
+  ich.addTemplate = function(name, compiledTemplate) {
     if (ich[name]) throw 'Invalid name: ' + name + '.'
     if (ich.templates[name]) throw 'Template " + name + " exists'
 
-    ich.templates[name] = Handlebars.compile(templateString)
+    ich.templates[name] = compiledTemplate
     ich[name] = function(data, raw) {
       data = data || {}
       var result = ich.templates[name](data)
