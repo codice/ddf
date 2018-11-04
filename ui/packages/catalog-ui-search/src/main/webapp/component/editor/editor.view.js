@@ -16,7 +16,7 @@
 var filter = ''
 
 function convertArrayToModels(array) {
-  module.exports = array.map(key => {
+  return array.map(key => {
     return {
       id: key,
     }
@@ -24,20 +24,20 @@ function convertArrayToModels(array) {
 }
 
 function getDifference(collection, array) {
-  module.exports = collection.filter(model => array.indexOf(model.id) === -1)
+  return collection.filter(model => array.indexOf(model.id) === -1)
 }
 
 function intersect(collection, array) {
   var difference = getDifference(collection, array)
   collection.remove(difference)
-  module.exports = difference
+  return difference
 }
 
 function sync(collection, array) {
   var difference = getDifference(collection, array)
   collection.remove(difference)
   collection.add(convertArrayToModels(array))
-  module.exports = difference
+  return difference
 }
 
 const Backbone = require('backbone')
