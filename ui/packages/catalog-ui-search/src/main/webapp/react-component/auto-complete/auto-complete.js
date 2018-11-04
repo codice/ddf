@@ -56,7 +56,7 @@ class AutoComplete extends React.Component {
 
     return (
       <Dropdown label={this.props.value || this.props.placeholder}>
-        <div style={{ padding: '0 5px' }}>
+        <div style={{ padding: 5 }}>
           <TextField
             autoFocus
             value={input}

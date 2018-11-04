@@ -8,7 +8,6 @@ const { expect } = require('chai')
 Enzyme.configure({ adapter: new Adapter() })
 
 const Keyword = require('./keyword')
-const AutoComplete = require('../auto-complete')
 
 const { shallow } = Enzyme
 

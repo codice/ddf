@@ -26,6 +26,7 @@ const user = require('../../component/singletons/user-instance.js')
 const _merge = require('lodash/merge')
 require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
+const plugin = require('plugins/query')
 
 var Query = {}
 
@@ -209,6 +210,9 @@ Query.Model = PartialAssociatedModel.extend({
       }
     })
   },
+  preQueryPlugin: function(data) {
+    return data
+  },
   startSearch: function(options) {
     this.set('isOutdated', false)
     if (this.get('cql') === '') {
@@ -300,6 +304,9 @@ Query.Model = PartialAssociatedModel.extend({
         src === 'cache'
           ? CacheSourceSelector.trimCacheSources(cqlString, sources)
           : cqlString
+
+      data = this.preQueryPlugin(data)
+
       var payload = JSON.stringify(data)
 
       return result.fetch({
@@ -328,7 +335,7 @@ Query.Model = PartialAssociatedModel.extend({
           response.options = options
         },
       })
-    })
+    }, this)
     return this.currentSearches
   },
   currentSearches: [],
@@ -466,4 +473,4 @@ Query.Model = PartialAssociatedModel.extend({
     return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
   },
 })
-module.exports = Query
+module.exports = plugin(Query)
