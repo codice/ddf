@@ -123,45 +123,27 @@ define([
             });
             layout.navigationModel.set('redirectUrl', './index.html');
 
-
             if (!hasErrors) {
+              if(hostChange){
+                var certSave = layout.certificateModel.save();
+                if(certSave){
+                   certSave.done(function () {
+                      if(!_.isEmpty(layout.certificateModel.get('certErrors'))){
+                        layout.navigationModel.nextStep('Unable to save certificates. Check error messages.', 0);
+                      } else{
+                        layout.saveProperties();
+                      }
+                   });
 
-                var propertySave = this.model.save();
-                if (propertySave) {
-                    propertySave.done(function () {
-                        if (hostChange) {
-
-                            var certSave = layout.certificateModel.save();
-                            if (certSave) {
-
-                                certSave.done(function () {
-                                    if(_.isEmpty(layout.certificateModel.get('certErrors'))){
-                                        layout.navigationModel.nextStep('', 100);
-                                    } else {
-                                        layout.navigationModel.nextStep('Unable to save certificates. Check errors messages.', 0);
-                                    }
-                                });
-
-                                certSave.fail(function () {
-                                    layout.navigationModel.nextStep('Unable to save certificates: check logs', 0);
-                                });
-
-                            } else {
-                                layout.navigationModel.nextStep('Certificate validation failed. Check inputs', 0);
-                            }
-
-                        } else {
-                            layout.navigationModel.nextStep('', 100);
-                        }
-                    });
-
-                    propertySave.fail(function () {
-                        layout.navigationModel.nextStep('Unable to Save Configuration: check logs', 0);
-                    });
-
+                   certSave.fail(function () {
+                    layout.navigationModel.nextStep('Unable to save certificates. Check logs.', 0);
+                   });
                 } else {
-                    layout.navigationModel.nextStep('System property validation failed. Check inputs.', 0);
+                  layout.navigationModel.nextStep('Certificate validation failed. Check inputs.', 0);
                 }
+              } else {
+                layout.saveProperties();
+              }
             } else {
                 layout.navigationModel.nextStep('System property validation failed. Check inputs.', 0);
             }
@@ -183,6 +165,21 @@ define([
             _.defer(function () {
                 view.$('#system-configuration-settings').perfectScrollbar({useKeyboard: false});
             });
+        },
+        saveProperties: function () {
+          var layout = this;
+          var propertySave = this.model.save();
+          if (propertySave) {
+            propertySave.done(function () {
+              layout.navigationModel.nextStep('', 100);
+            });
+
+            propertySave.fail(function () {
+              layout.navigationModel.nextStep('Unable to Save Configuration. Check logs.', 0);
+            });
+          } else {
+            layout.navigationModel.nextStep('System property validation failed. Check inputs.', 0);
+          }
         }
     });
 
