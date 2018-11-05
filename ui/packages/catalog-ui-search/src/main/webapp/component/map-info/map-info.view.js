@@ -35,6 +35,22 @@ function leftPad(numToPad, size) {
     .slice(-size)
 }
 
+function massageData(attribute, metacardAttribute) {
+  if (
+    attribute === 'created' ||
+    attribute === 'modified' ||
+    attribute === 'effective' ||
+    attribute === 'metacard.created' ||
+    attribute === 'metacard.modified'
+  ) {
+    const date = metacardAttribute.split('-')
+    return (
+      attribute.toUpperCase() + ': ' + date[1] + '/' + date[2].substring(0, 2) + '/' + date[0]
+    )
+  }
+  return attribute.toUpperCase() + ': ' + metacardAttribute
+}
+
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('map-info'),
@@ -63,22 +79,23 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('has-feature', this.model.get('target') !== undefined)
   },
   serializeData: function() {
-    const that = this
     let modelJSON = this.model.toJSON()
     let summaryModel = {}
     const summary = props.summaryShow
-    summary.forEach(function(attribute) {
-      if (that.model.get('targetMetacard') !== undefined)
-        summaryModel[attribute] = that.model
-          .get('targetMetacard')
-          .get('metacard')
-          .get('properties')
-          .get(attribute)
+    summary.forEach(attribute => {
+      if (this.model.get('targetMetacard') !== undefined)
+        summaryModel[attribute] = massageData(
+          attribute,
+          this.model
+            .get('targetMetacard')
+            .get('metacard')
+            .get('properties')
+            .get(attribute)
+        )
     })
 
     let viewData = {
       summary: summaryModel,
-      target: modelJSON.target,
       lat: modelJSON.mouseLat,
       lon: modelJSON.mouseLon,
     }
