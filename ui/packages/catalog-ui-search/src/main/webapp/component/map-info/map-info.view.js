@@ -18,7 +18,9 @@ var template = require('./map-info.hbs')
 var CustomElements = require('js/CustomElements')
 var mtgeo = require('mt-geo')
 var user = require('component/singletons/user-instance')
-var props = require('properties')
+var properties = require('properties')
+const Common = require('js/Common')
+const dateAttributes = new Set(['created','modified','effective','metacard.created','metacard.modified'])
 
 function getCoordinateFormat() {
   return user
@@ -35,20 +37,11 @@ function leftPad(numToPad, size) {
     .slice(-size)
 }
 
-function massageData(attribute, metacardAttribute) {
-  if (
-    attribute === 'created' ||
-    attribute === 'modified' ||
-    attribute === 'effective' ||
-    attribute === 'metacard.created' ||
-    attribute === 'metacard.modified'
-  ) {
-    const date = metacardAttribute.split('-')
-    return (
-      attribute.toUpperCase() + ': ' + date[1] + '/' + date[2].substring(0, 2) + '/' + date[0]
-    )
+function massageData(attributeName, attributeValue) {
+  if (dateAttributes.has(attributeName)) {
+    return attributeName.toUpperCase() + ': ' +  Common.getHumanReadableDateTime(attributeValue)
   }
-  return attribute.toUpperCase() + ': ' + metacardAttribute
+  return attributeName.toUpperCase() + ': ' + attributeValue
 }
 
 module.exports = Marionette.LayoutView.extend({
@@ -81,7 +74,7 @@ module.exports = Marionette.LayoutView.extend({
   serializeData: function() {
     let modelJSON = this.model.toJSON()
     let summaryModel = {}
-    const summary = props.summaryShow
+    const summary = properties.summaryShow
     summary.forEach(attribute => {
       if (this.model.get('targetMetacard') !== undefined)
         summaryModel[attribute] = massageData(
