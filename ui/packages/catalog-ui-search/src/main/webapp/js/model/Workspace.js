@@ -159,10 +159,11 @@ module.exports = Backbone.AssociatedModel.extend({
     this.trigger('sync', this, options)
   },
   save: function(options) {
-    this.set('saved', true)
     if (this.get('localStorage')) {
+      this.set('saved', true)
       this.saveLocal(options)
     } else {
+      this.once('sync', workspce => workspce.set('saved', true))
       const unsavedQueries = getUnsavedQueries(this.changedAttributes(this))
       unsavedQueries.forEach(query => query.save())
 
@@ -213,9 +214,9 @@ module.exports = Backbone.AssociatedModel.extend({
 
     if (!data.queries || data.queries.length < 1) return data
 
-    const curretQueries = this.get('queries')
+    const currentQueries = this.get('queries')
     const deltaQueries = data.queries.map(id =>
-      curretQueries.find(query => query.id === id)
+      currentQueries.find(query => query.id === id)
     )
     return { ...data, queries: deltaQueries }
   },

@@ -25,6 +25,13 @@ const loadQueries = async id => {
   return response.json()
 }
 
+/**
+ * Create a Query.Model object from the JSON payload that comes from the service call.
+ * @param {*} json
+ */
+const createQueryModelFromJSONResponse = json =>
+  new Query.Model({ ...json, hasBeenSaved: true })
+
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,
   url: './internal/workspaces',
@@ -153,10 +160,11 @@ module.exports = Backbone.Collection.extend({
       await Promise.all(
         workspaces.map(async workspace => {
           const queries = await loadQueries(workspace.get('id'))
-          workspace.set(
-            { queries: queries.map(query => new Query.Model(query)) },
-            { silent: true }
-          )
+          queries &&
+            workspace.set(
+              { queries: queries.map(createQueryModelFromJSONResponse) },
+              { silent: true }
+            )
         })
       )
     })

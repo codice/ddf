@@ -14,7 +14,6 @@
 const Backbone = require('backbone')
 const _ = require('underscore')
 const properties = require('properties')
-const cql = require('js/cql')
 const QueryResponse = require('js/model/QueryResponse')
 const ResultSort = require('js/model/ResultSort')
 const Sources = require('component/singletons/sources-instance')
