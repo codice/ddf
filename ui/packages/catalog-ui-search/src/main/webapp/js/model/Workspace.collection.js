@@ -9,6 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import fetch from '../../react-component/utils/fetch'
 var $ = require('jquery')
 var _ = require('underscore')
 var Backbone = require('backbone')
@@ -18,6 +19,11 @@ var user = require('component/singletons/user-instance')
 var moment = require('moment')
 require('backbone-associations')
 var WorkspaceModel = require('js/model/Workspace')
+
+const loadQueries = async id => {
+  const response = await fetch(`./internal/workspace/${id}/queries`)
+  return response.json()
+}
 
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,
@@ -63,15 +69,9 @@ module.exports = Backbone.Collection.extend({
     })
   },
   createWorkspaceWithQuery: function(queryModel) {
-    this.create({
-      title: 'New Workspace',
-      queries: [queryModel],
-    })
-      .get('queries')
-      .first()
-      .startSearch()
+    this.createWorkspaceAndStartSearch('New Workspace', queryModel)
   },
-  createAdhocWorkspace: function(text) {
+  createAdhocWorkspace(text) {
     var cqlQuery
     var title = text
     if (text.length === 0) {
@@ -85,13 +85,7 @@ module.exports = Backbone.Collection.extend({
       cql: cqlQuery,
       type: 'text',
     })
-    this.create({
-      title: title,
-      queries: [queryForWorkspace.toJSON()],
-    })
-      .get('queries')
-      .first()
-      .startSearch()
+    this.createWorkspaceAndStartSearch(title, queryForWorkspace)
   },
   createLocalWorkspace: function() {
     var queryForWorkspace = new Query.Model({
@@ -101,13 +95,7 @@ module.exports = Backbone.Collection.extend({
       cql: "anyText ILIKE '%'",
       type: 'basic',
     })
-    this.create({
-      title: 'Template Local',
-      queries: [queryForWorkspace.toJSON()],
-    })
-      .get('queries')
-      .first()
-      .startSearch()
+    this.createWorkspaceAndStartSearch('Template Local', queryForWorkspace)
   },
   createAllWorkspace: function() {
     var queryForWorkspace = new Query.Model({
@@ -117,13 +105,7 @@ module.exports = Backbone.Collection.extend({
       cql: "anyText ILIKE '%'",
       type: 'basic',
     })
-    this.create({
-      title: 'Template Federated',
-      queries: [queryForWorkspace.toJSON()],
-    })
-      .get('queries')
-      .first()
-      .startSearch()
+    this.createWorkspaceAndStartSearch('Template Federated', queryForWorkspace)
   },
   createGeoWorkspace: function() {
     var queryForWorkspace = new Query.Model({
@@ -133,13 +115,7 @@ module.exports = Backbone.Collection.extend({
         "anyText ILIKE '%' AND INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))",
       type: 'basic',
     })
-    this.create({
-      title: 'Template Location',
-      queries: [queryForWorkspace.toJSON()],
-    })
-      .get('queries')
-      .first()
-      .startSearch()
+    this.createWorkspaceAndStartSearch('Template Location', queryForWorkspace)
   },
   createLatestWorkspace: function() {
     var queryForWorkspace = new Query.Model({
@@ -153,9 +129,12 @@ module.exports = Backbone.Collection.extend({
         ')',
       type: 'basic',
     })
+    this.createWorkspaceAndStartSearch('Template Temporal', queryForWorkspace)
+  },
+  createWorkspaceAndStartSearch(title, queryModel) {
     this.create({
-      title: 'Template Temporal',
-      queries: [queryForWorkspace.toJSON()],
+      title: title,
+      queries: [(queryModel.toJSON && queryModel.toJSON()) || queryModel],
     })
       .get('queries')
       .first()
@@ -167,6 +146,21 @@ module.exports = Backbone.Collection.extend({
       _.omit(query, 'isLocal', 'id')
     )
     this.create(duplicateWorkspace)
+  },
+  fetch() {
+    //NOTE: This isn't terribly efficient and actual query retrieval should probably happen when the workspace is actually clicked on
+    this.once('sync', async workspaces => {
+      await Promise.all(
+        workspaces.map(async workspace => {
+          const queries = await loadQueries(workspace.get('id'))
+          workspace.set(
+            { queries: queries.map(query => new Query.Model(query)) },
+            { silent: true }
+          )
+        })
+      )
+    })
+    Backbone.Collection.prototype.fetch.apply(this, arguments)
   },
   saveAll: function() {
     this.forEach(function(workspace) {
@@ -208,7 +202,7 @@ module.exports = Backbone.Collection.extend({
     return {}
   },
   // override parse to merge server response with local storage
-  parse: function(resp) {
+  parse(resp) {
     var localWorkspaces = _.map(this.getLocalWorkspaces())
     return resp.concat(localWorkspaces)
   },

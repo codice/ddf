@@ -57,6 +57,7 @@ function limitToHistoric(cqlString) {
 }
 
 Query.Model = Backbone.AssociatedModel.extend({
+  urlRoot: './internal/query',
   relations: [
     {
       type: Backbone.One,
@@ -90,6 +91,7 @@ Query.Model = Backbone.AssociatedModel.extend({
         type: 'text',
         isLocal: false,
         isOutdated: false,
+        hasBeenSaved: false,
         'detail-level': undefined,
       },
       user.getQuerySettings().toJSON()
@@ -100,6 +102,7 @@ Query.Model = Backbone.AssociatedModel.extend({
       'isLocal',
       'serverPageIndex',
       'result',
+      'hasBeenSaved'
     ])
     this.set(_merge(defaults, overridenDefaults))
     this.trigger('resetToDefaults')
@@ -124,6 +127,13 @@ Query.Model = Backbone.AssociatedModel.extend({
       this.handleChangeResultCount
     )
     this.listenTo(this, 'change:cql', () => this.set('isOutdated', true))
+  },
+  isNew() {
+    return !this.get('hasBeenSaved')
+  },
+  save() {
+    this.once('sync', query => query.set('hasBeenSaved', true))
+    Backbone.AssociatedModel.prototype.save.apply(this, arguments)
   },
   buildSearchData: function() {
     var data = this.toJSON()

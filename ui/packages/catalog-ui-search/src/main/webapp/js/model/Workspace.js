@@ -42,7 +42,7 @@ const workspaceShouldBeResaved = model =>
 
 const WorkspaceQueryCollection = Backbone.Collection.extend({
   model: Query.Model,
-  initialize: function() {
+  initialize() {
     var searchList = this
     this._colorGenerator = ColorGenerator.getNewGenerator()
     this.listenTo(this, 'add', function(query) {
@@ -58,6 +58,10 @@ const WorkspaceQueryCollection = Backbone.Collection.extend({
     return this.length < 10
   },
 })
+
+const getUnsavedQueries = changedAttributes => {
+  return changedAttributes && changedAttributes.get('queries').map()
+}
 
 const WorkspaceListCollection = Backbone.Collection.extend({
   model: List,
@@ -159,6 +163,9 @@ module.exports = Backbone.AssociatedModel.extend({
     if (this.get('localStorage')) {
       this.saveLocal(options)
     } else {
+      const unsavedQueries = getUnsavedQueries(this.changedAttributes(this))
+      unsavedQueries.map(query => query.save())
+
       Backbone.AssociatedModel.prototype.save.apply(this, arguments)
     }
   },
@@ -200,6 +207,29 @@ module.exports = Backbone.AssociatedModel.extend({
         this.set('subscribed', false)
       }.bind(this)
     )
+  },
+  parse(data) {
+    if (!this.get('queries')) return data
+
+    if (!data.queries || data.queries.length < 1) return data
+    
+    const curretQueries = this.get('queries')
+    const deltaQueries = data.queries.map(id =>
+      curretQueries.find(query => query.id === id)
+    )
+    return { ...data, queries: deltaQueries }
+  },
+  toJSON() {
+    const json = Backbone.AssociatedModel.prototype.toJSON.apply(
+      this,
+      arguments
+    )
+    const queries = json.queries
+
+    return {
+      ...json,
+      queries: (queries && queries.map(query => query.id)) || [],
+    }
   },
   clearResults: function() {
     this.get('queries').forEach(function(queryModel) {

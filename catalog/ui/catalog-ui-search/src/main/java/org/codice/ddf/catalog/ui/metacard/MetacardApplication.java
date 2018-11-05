@@ -632,7 +632,6 @@ public class MetacardApplication implements SparkApplication {
 
     put(
         "/query/:id",
-        APPLICATION_JSON,
         (req, res) -> {
           String queryId = req.params("id");
           Map<String, Object> body = mapper.parser().parseMap(util.safeGetBody(req));
