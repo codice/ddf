@@ -56,7 +56,13 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
      // permission java.io.FilePermission "/test/some/directory${/}-", "read";
 // }
 
-    // Example:
+grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
+    //# Add permission to read the directory
+    // permission java.io.FilePermission "${/}test${/}some${/}directory", "read";
+    
+    //# Add permission to recursively read the files and sub directories
+    // permission java.io.FilePermission "${/}test${/}some${/}directory${/}-", "read";
+}
     // permission java.io.FilePermission "${/}test${/}some${/}directory", "read";
     // permission java.io.FilePermission "${/}test${/}some${/}directory${/}-", "read";
 }
