@@ -20,7 +20,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -56,23 +54,16 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BackupCommandTest {
+public class BackupCommandTest extends SolrCommandTest {
 
   private static final String DEFAULT_CORE_NAME = "catalog";
-
-  private static final String SOLR_CLOUD_CLIENT_TYPE = "CloudSolrClient";
-
-  private static final String SOLR_CLIENT_PROP = "solr.client";
 
   private static final String INVALID_COLLECTION_NAME = "myInvalidCollection";
 
@@ -81,17 +72,6 @@ public class BackupCommandTest {
   private static final Pattern ASCII_COLOR_CODES_REGEX = Pattern.compile("\u001B\\[[;\\d]*m");
 
   private static final long TIMEOUT_IN_MINUTES = 1;
-
-  private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
-
-  private static final String DEFAULT_ZK_HOSTS =
-      "zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181";
-
-  private static final String DDF_HOME_PROP = "ddf.home";
-
-  private static final String DDF_ETC_PROP = "ddf.etc";
-
-  private static final String DEFAULT_DDF_HOME = "/opt/ddf";
 
   private static final Path SYSTEM_PROPERTIES_PATH =
       Paths.get(DEFAULT_DDF_HOME, "etc", "custom.system.properties");
@@ -102,14 +82,8 @@ public class BackupCommandTest {
   private static final int SUCCESS_STATUS_CODE = 0;
 
   private static final int FAILURE_STATUS_CODE = 500;
-  @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
-  @Rule @ClassRule public static TemporaryFolder backupLocation = new TemporaryFolder();
-  private static MiniSolrCloudCluster miniSolrCloud;
-  private static String cipherSuites;
-  private static String protocols;
+
   @Rule public ExpectedException expectedException = ExpectedException.none();
-  ConsoleOutput consoleOutput;
-  @Mock SolrClient mockSolrClient;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
@@ -117,67 +91,6 @@ public class BackupCommandTest {
     setDdfEtc();
     createDefaultMiniSolrCloudCluster();
     addDocument("1");
-  }
-
-  @AfterClass
-  public static void afterClass() throws Exception {
-    if (miniSolrCloud != null) {
-      miniSolrCloud.getSolrClient().close();
-      miniSolrCloud.shutdown();
-    }
-  }
-
-  private static void createDefaultMiniSolrCloudCluster() throws Exception {
-    createMiniSolrCloudCluster();
-    uploadDefaultConfigset();
-    createDefaultCollection();
-  }
-
-  private static void createMiniSolrCloudCluster() throws Exception {
-    miniSolrCloud =
-        new MiniSolrCloudCluster(
-            1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
-    miniSolrCloud.getSolrClient().connect();
-  }
-
-  private static void uploadDefaultConfigset() throws Exception {
-    miniSolrCloud.uploadConfigSet(
-        new File(BackupCommandTest.class.getClassLoader().getResource("configset").getPath())
-            .toPath(),
-        DEFAULT_CONFIGSET);
-  }
-
-  private static void createDefaultCollection() throws Exception {
-    CollectionAdminRequest.Create create =
-        CollectionAdminRequest.createCollection(DEFAULT_CORE_NAME, DEFAULT_CONFIGSET, 1, 1);
-    CollectionAdminResponse response = create.process(miniSolrCloud.getSolrClient());
-    if (response.getStatus() != 0 || response.getErrorMessages() != null) {
-      fail("Could not create collection. Response: " + response.toString());
-    }
-
-    List<String> collections =
-        CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
-    assertThat(collections.size(), is(1));
-    miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
-  }
-
-  private static void addDocument(String uniqueId) throws Exception {
-    SolrInputDocument doc = new SolrInputDocument();
-    doc.setField("id", uniqueId);
-    miniSolrCloud.getSolrClient().add(doc);
-    miniSolrCloud.getSolrClient().commit();
-  }
-
-  private static Path getBaseDirPath() {
-    return baseDir.getRoot().toPath();
-  }
-
-  private static void setDdfHome() {
-    System.setProperty(DDF_HOME_PROP, DEFAULT_DDF_HOME);
-  }
-
-  private static void setDdfEtc() {
-    System.setProperty(DDF_ETC_PROP, Paths.get(DEFAULT_DDF_HOME, "etc").toString());
   }
 
   @Before
@@ -188,17 +101,18 @@ public class BackupCommandTest {
         "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
     protocols = System.getProperty("https.protocols");
     System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
-    System.setProperty("solr.http.url", "https://localhost:8994/solr");
     consoleOutput = new ConsoleOutput();
     consoleOutput.interceptSystemOut();
+
+    mockHttpWrapper = mock(HttpWrapper.class);
   }
 
   @After
   public void after() {
     consoleOutput.resetSystemOut();
 
-    System.clearProperty(SOLR_CLIENT_PROP);
-    System.clearProperty(ZOOKEEPER_HOSTS_PROP);
+    System.clearProperty(SolrCommands.SOLR_CLIENT_PROP);
+    System.clearProperty(SolrCommands.ZOOKEEPER_HOSTS_PROP);
 
     if (cipherSuites != null) {
       System.setProperty("https.cipherSuites", cipherSuites);
@@ -212,16 +126,26 @@ public class BackupCommandTest {
     }
   }
 
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (miniSolrCloud != null) {
+      miniSolrCloud.getSolrClient().close();
+      miniSolrCloud.shutdown();
+    }
+  }
+
   @Test
   public void testNoArgBackup() throws Exception {
 
+    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
+
     BackupCommand backupCommand =
         new BackupCommand() {
-          HttpResponse sendGetRequest(URI backupUri) {
-            return mockResponse(HttpStatus.SC_OK, "");
+          @Override
+          protected HttpWrapper getHttpClient() {
+            return mockHttpWrapper;
           }
         };
-
     backupCommand.execute();
 
     assertThat(
@@ -233,10 +157,13 @@ public class BackupCommandTest {
   public void testBackupSpecificCore() throws Exception {
     final String coreName = "core";
 
+    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
+
     BackupCommand backupCommand =
         new BackupCommand() {
-          HttpResponse sendGetRequest(URI backupUri) {
-            return mockResponse(HttpStatus.SC_OK, "");
+          @Override
+          protected HttpWrapper getHttpClient() {
+            return mockHttpWrapper;
           }
         };
 
@@ -252,10 +179,14 @@ public class BackupCommandTest {
   public void testBackupInvalidCore() throws Exception {
     final String coreName = "badCoreName";
 
+    when(mockHttpWrapper.execute(any(URI.class)))
+        .thenReturn(mockResponse(HttpStatus.SC_NOT_FOUND, ""));
+
     BackupCommand backupCommand =
         new BackupCommand() {
-          HttpResponse sendGetRequest(URI backupUri) {
-            return mockResponse(HttpStatus.SC_NOT_FOUND, "");
+          @Override
+          protected HttpWrapper getHttpClient() {
+            return mockHttpWrapper;
           }
         };
 
@@ -264,7 +195,7 @@ public class BackupCommandTest {
 
     assertThat(
         consoleOutput.getOutput(),
-        containsString(String.format("Backup request failed: %d", HttpStatus.SC_NOT_FOUND)));
+        containsString(String.format("Backup command failed due to: %d", HttpStatus.SC_NOT_FOUND)));
   }
 
   @Test
@@ -274,10 +205,13 @@ public class BackupCommandTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
+    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
+
     BackupCommand backupCommand =
         new BackupCommand() {
-          HttpResponse sendGetRequest(URI backupUri) {
-            return mockResponse(HttpStatus.SC_OK, "");
+          @Override
+          protected HttpWrapper getHttpClient() {
+            return mockHttpWrapper;
           }
         };
     backupCommand.asyncBackup = true;
@@ -285,11 +219,18 @@ public class BackupCommandTest {
     backupCommand.execute();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testSystemPropertiesNotSet() throws Exception {
+
+    BackupCommand backupCommand = new BackupCommand();
+    backupCommand.execute();
+  }
+
   @Test
   public void testPerformSolrCloudSynchronousBackup() throws Exception {
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
@@ -320,7 +261,7 @@ public class BackupCommandTest {
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
@@ -338,7 +279,7 @@ public class BackupCommandTest {
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
@@ -352,7 +293,7 @@ public class BackupCommandTest {
   public void testPerformSolrCloudSynchronousBackupNoCollection() throws Exception {
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
@@ -378,7 +319,7 @@ public class BackupCommandTest {
   public void testPerformSolrCloudSynchronousBackupInvalidCollectionName() throws Exception {
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
@@ -414,38 +355,13 @@ public class BackupCommandTest {
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
         getSynchronousBackupCommand(
             getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
     backupCommand.numberToKeep = 3;
-
-    // Perform Test
-    backupCommand.execute();
-  }
-
-  @Test
-  public void testPerformSolrCloudAsynchronousBackupWithAsyncStatusOptionsSupplied()
-      throws Exception {
-
-    // Setup exception expectations
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
-
-    // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
-
-    // Setup BackupCommand
-    BackupCommand backupCommand =
-        getBackupCommand(
-            getBackupLocation(),
-            DEFAULT_CORE_NAME,
-            true,
-            true,
-            "myRequestId1",
-            miniSolrCloud.getSolrClient());
 
     // Perform Test
     backupCommand.execute();
@@ -459,7 +375,7 @@ public class BackupCommandTest {
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand =
@@ -475,7 +391,7 @@ public class BackupCommandTest {
   public void testPerformSolrCloudAsynchronousBackup() throws Exception {
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand for async backup
     BackupCommand backupCommand =
@@ -499,7 +415,7 @@ public class BackupCommandTest {
   public void testPerformSolrCloudAsynchronousBackupStatus() throws Exception {
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand for async backup
     BackupCommand backupCommand =
@@ -529,10 +445,11 @@ public class BackupCommandTest {
   public void testGetSolrCloudAsynchronousBackupStatusNoRequestId() throws Exception {
     // Setup exception expectations
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
+    expectedException.expectMessage(
+        "asyncBackupReqId must not be empty when checking on async status of a backup.");
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand for status lookup
     BackupCommand statusBackupCommand = getStatusBackupCommand(null, miniSolrCloud.getSolrClient());
@@ -548,7 +465,7 @@ public class BackupCommandTest {
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
     // Set system properties
-    setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+    setupSystemProperties(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand (ie. solr:backup -i <request Id>)
     BackupCommand invalidBackupStatusCommand =
@@ -565,11 +482,11 @@ public class BackupCommandTest {
     expectedException.expectMessage(
         String.format(
             "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-            ZOOKEEPER_HOSTS_PROP, SYSTEM_PROPERTIES_PATH));
+            SolrCommands.ZOOKEEPER_HOSTS_PROP, SYSTEM_PROPERTIES_PATH));
 
     // Set the solr client type system property so that the
     // BackupCommand knows that it needs to backup solr cloud.
-    setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     // Setup BackupCommand
     BackupCommand backupCommand = new BackupCommand();
@@ -587,7 +504,7 @@ public class BackupCommandTest {
 
     // Set the solr client type system property so that the
     // BackupCommand knows that it needs to backup solr cloud.
-    setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     setupMockSolrClientForBackupFailure(DEFAULT_CORE_NAME, getErrorMessages(2));
 
@@ -621,7 +538,7 @@ public class BackupCommandTest {
 
     // Set the solr client type system property so that the
     // BackupCommand knows that it needs to backup solr cloud.
-    setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     BackupCommand backupCommand =
         getAsnychronousBackupCommand(
@@ -653,9 +570,9 @@ public class BackupCommandTest {
         consoleOutput.getOutput(),
         containsString(
             String.format(
-                "Backup status for request Id [%s] is [%s].",
+                "Status for request Id [%s] is [%s].",
                 requestId, RequestStatusState.FAILED.getKey())));
-    assertThat(consoleOutput.getOutput(), containsString("Backup status failed."));
+    assertThat(consoleOutput.getOutput(), containsString("Status failed."));
     assertThat(
         consoleOutput.getOutput(),
         containsString("1. Error Name: error name 1; Error Value: error value 1"));
@@ -666,7 +583,7 @@ public class BackupCommandTest {
 
     // Set the solr client type system property so that the
     // BackupCommand knows that it needs to backup solr cloud.
-    setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     BackupCommand backupCommand =
         getAsnychronousBackupCommand(
@@ -684,7 +601,7 @@ public class BackupCommandTest {
     // Perform backup status request
     backupStatusCommand.execute();
 
-    assertThat(consoleOutput.getOutput(), containsString("Backup status failed."));
+    assertThat(consoleOutput.getOutput(), containsString("Status failed."));
   }
 
   /**
@@ -696,7 +613,7 @@ public class BackupCommandTest {
 
     // Set the solr client type system property so that the
     // BackupCommand knows that it needs to backup solr cloud.
-    setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     setupMockSolrClientForCollectionOptimization(DEFAULT_CORE_NAME, FAILURE_STATUS_CODE);
 
@@ -730,7 +647,7 @@ public class BackupCommandTest {
    */
   @Test
   public void testSolrCloudBackupFailsDuringOptimizationThrowsException() throws Exception {
-    setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
 
     setupMockSolrClientForCollectionOptimizationThrowsException(DEFAULT_CORE_NAME);
 
@@ -766,18 +683,6 @@ public class BackupCommandTest {
       String collection, NamedList<String> backupErrorMessages) throws Exception {
     setupMockSolrClientForBackup(
         collection, SUCCESS_STATUS_CODE, FAILURE_STATUS_CODE, backupErrorMessages);
-  }
-
-  /**
-   * See
-   * https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection
-   * for requests and responses.
-   */
-  private NamedList<Object> getResponseHeader(int statusCode) {
-    NamedList<Object> responseHeader = new NamedList<>();
-    responseHeader.add("status", statusCode);
-    responseHeader.add("QTime", 345);
-    return responseHeader;
   }
 
   /**
@@ -824,8 +729,7 @@ public class BackupCommandTest {
   private void setupMockSolrClientForBackupStatusFailure(NamedList<String> backupErrorMessages)
       throws Exception {
     NamedList<Object> response =
-        getResponseForBackupStatus(
-            FAILURE_STATUS_CODE, RequestStatusState.FAILED, backupErrorMessages);
+        getResponseForStatus(FAILURE_STATUS_CODE, RequestStatusState.FAILED, backupErrorMessages);
     when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class))).thenReturn(response);
   }
 
@@ -834,61 +738,14 @@ public class BackupCommandTest {
         .thenThrow(SolrServerException.class);
   }
 
-  /**
-   * See
-   * https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection
-   * for requests and responses.
-   */
-  private NamedList<Object> getResponseForBackupStatus(
-      int statusCode, RequestStatusState requestStatusState, NamedList<String> errorMessages) {
-    NamedList<Object> responseHeader = getResponseHeader(statusCode);
-    NamedList<String> status = getStatus(requestStatusState);
-    NamedList<Object> response = new NamedList<>();
-    response.add("status", status);
-    response.add("responseHeader", responseHeader);
-    if (errorMessages != null) {
-      response.add("failure", errorMessages);
-    } else {
-      response.add("success", new Object());
-    }
-
-    return response;
-  }
-
-  /**
-   * On https://github.com/apache/lucene-solr see
-   * CollectionAdminRequest.RequestStatusResponse.getRequestStatus() for example usage.
-   * https://github.com/apache/lucene-solr/blob/master/solr/solrj/src/java/org/apache/solr/client/solrj/request/CollectionAdminRequest.java#L1343-L1346
-   */
-  private NamedList<String> getStatus(RequestStatusState requestStatusState) {
-    NamedList<String> status = new NamedList();
-    if (requestStatusState == RequestStatusState.FAILED) {
-      status.add("state", RequestStatusState.FAILED.getKey());
-    } else if (requestStatusState == RequestStatusState.COMPLETED) {
-      status.add("state", RequestStatusState.COMPLETED.getKey());
-    } else if (requestStatusState == RequestStatusState.NOT_FOUND) {
-      status.add("state", RequestStatusState.NOT_FOUND.getKey());
-    } else if (requestStatusState == RequestStatusState.RUNNING) {
-      status.add("state", RequestStatusState.RUNNING.getKey());
-    } else if (requestStatusState == RequestStatusState.SUBMITTED) {
-      status.add("state", RequestStatusState.SUBMITTED.getKey());
-    }
-    return status;
-  }
-
   private UpdateResponse getMockOptimizationResponse(int status) {
     UpdateResponse mockOptimizationResponse = mock(UpdateResponse.class);
     when(mockOptimizationResponse.getStatus()).thenReturn(status);
     return mockOptimizationResponse;
   }
 
-  private HttpResponse mockResponse(int statusCode, String responseBody) {
-    StatusLine mockStatusLine = mock(StatusLine.class);
-    doReturn(statusCode).when(mockStatusLine).getStatusCode();
-    doReturn(responseBody).when(mockStatusLine).getReasonPhrase();
-    HttpResponse mockResponse = mock(HttpResponse.class);
-    doReturn(mockStatusLine).when(mockResponse).getStatusLine();
-    return mockResponse;
+  private ResponseWrapper mockResponse(int statusCode, String responseBody) {
+    return new ResponseWrapper(prepareResponse(statusCode, responseBody));
   }
 
   private HttpResponse prepareResponse(int statusCode, String responseBody) {
@@ -903,6 +760,47 @@ public class BackupCommandTest {
     }
 
     return httpResponse;
+  }
+
+  private static void createDefaultMiniSolrCloudCluster() throws Exception {
+    createMiniSolrCloudCluster();
+    uploadDefaultConfigset();
+    createDefaultCollection();
+  }
+
+  private static void createMiniSolrCloudCluster() throws Exception {
+    miniSolrCloud =
+        new MiniSolrCloudCluster(
+            1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
+    miniSolrCloud.getSolrClient().connect();
+  }
+
+  private static void uploadDefaultConfigset() throws Exception {
+    miniSolrCloud.uploadConfigSet(
+        new File(BackupCommandTest.class.getClassLoader().getResource("configset").getPath())
+            .toPath(),
+        DEFAULT_CONFIGSET);
+  }
+
+  private static void createDefaultCollection() throws Exception {
+    CollectionAdminRequest.Create create =
+        CollectionAdminRequest.createCollection(DEFAULT_CORE_NAME, DEFAULT_CONFIGSET, 1, 1);
+    CollectionAdminResponse response = create.process(miniSolrCloud.getSolrClient());
+    if (response.getStatus() != 0 || response.getErrorMessages() != null) {
+      fail("Could not create collection. Response: " + response.toString());
+    }
+
+    List<String> collections =
+        CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
+    assertThat(collections.size(), is(1));
+    miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
+  }
+
+  private static void addDocument(String uniqueId) throws Exception {
+    SolrInputDocument doc = new SolrInputDocument();
+    doc.setField("id", uniqueId);
+    miniSolrCloud.getSolrClient().add(doc);
+    miniSolrCloud.getSolrClient().commit();
   }
 
   private BackupCommand getSynchronousBackupCommand(
@@ -1000,22 +898,5 @@ public class BackupCommandTest {
     }
 
     return status;
-  }
-
-  private String getBackupLocation() {
-    return backupLocation.getRoot().getPath().toString();
-  }
-
-  private void setupSystemProperties(String solrClientType) {
-    setupSolrClientType(solrClientType);
-    setupZkHost();
-  }
-
-  private void setupSolrClientType(String solrClientType) {
-    System.setProperty(SOLR_CLIENT_PROP, solrClientType);
-  }
-
-  private void setupZkHost() {
-    System.setProperty(ZOOKEEPER_HOSTS_PROP, DEFAULT_ZK_HOSTS);
   }
 }

@@ -17,13 +17,28 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest;
+import org.apache.solr.client.solrj.response.CollectionAdminResponse;
+import org.apache.solr.client.solrj.response.RequestStatusState;
+import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.util.NamedList;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +55,21 @@ public abstract class SolrCommands implements Action {
 
   @Reference protected ConfigurationAdmin configurationAdmin;
 
-  private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+  protected static final String DEFAULT_CORE_NAME = "catalog";
+
+  protected static final String SEE_COMMAND_USAGE_MESSAGE =
+      "Invalid Argument(s). Please see command usage for details.";
+
+  protected static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+
+  private static final String SOLR_URL_PROP = "solr.http.url";
 
   protected static final Path SYSTEM_PROPERTIES_PATH =
       Paths.get(System.getProperty("ddf.etc"), "custom.system.properties");
+
+  protected static final String SOLR_CLIENT_PROP = "solr.client";
+
+  protected static final String CLOUD_SOLR_CLIENT_TYPE = "CloudSolrClient";
 
   private static final Color ERROR_COLOR = Ansi.Color.RED;
 
@@ -82,10 +108,17 @@ public abstract class SolrCommands implements Action {
 
   protected SolrClient getCloudSolrClient() {
     String zkHosts = System.getProperty(ZOOKEEPER_HOSTS_PROP);
+    String solrUrl = System.getProperty(SOLR_URL_PROP);
     LOGGER.debug("Zookeeper hosts: {}", zkHosts);
 
-    if (zkHosts != null) {
-      SolrClient client = new CloudSolrClient.Builder().withZkHost(zkHosts).build();
+    if (StringUtils.isNotBlank(zkHosts)) {
+      String[] zkHostArr = zkHosts.split(",");
+      List<String> zkHostsList = Arrays.asList(zkHostArr);
+      SolrClient client = new CloudSolrClient.Builder(zkHostsList, Optional.empty()).build();
+      LOGGER.debug("Created solr client: {}", client);
+      return client;
+    } else if (StringUtils.isNotBlank(solrUrl)) {
+      SolrClient client = new CloudSolrClient.Builder(Collections.singletonList(solrUrl)).build();
       LOGGER.debug("Created solr client: {}", client);
       return client;
     } else {
@@ -101,5 +134,116 @@ public abstract class SolrCommands implements Action {
       LOGGER.debug("Closing solr client");
       client.close();
     }
+  }
+
+  protected boolean isSystemConfiguredWithSolrCloud() {
+    String solrClientType = System.getProperty(SOLR_CLIENT_PROP);
+    LOGGER.debug("Solr client type: {}", solrClientType);
+    if (solrClientType != null) {
+      return StringUtils.equals(solrClientType, CLOUD_SOLR_CLIENT_TYPE);
+    } else {
+      printErrorMessage(
+          String.format(
+              "Could not determine Solr Client Type. Please verify that the system property %s is configured in %s.",
+              SOLR_CLIENT_PROP, SYSTEM_PROPERTIES_PATH));
+      return false;
+    }
+  }
+
+  protected String getCoreUrl(String coreName) {
+    return getBackupUrl() + "/" + coreName;
+  }
+
+  protected String getBackupUrl() {
+    if (configurationAdmin != null) {
+      try {
+        Configuration solrConfig =
+            configurationAdmin.getConfiguration(
+                "(service.pid=ddf.catalog.solr.external.SolrHttpCatalogProvider)");
+        if (solrConfig != null
+            && solrConfig.getProperties() != null
+            && solrConfig.getProperties().get("url") != null) {
+          String backupUrl = (String) solrConfig.getProperties().get("url");
+          LOGGER.debug("Using url property from configuration admin: {}", backupUrl);
+          return backupUrl;
+        }
+      } catch (IOException e) {
+        LOGGER.debug("Unable to get Solr url from bundle config.", e);
+      }
+    }
+    LOGGER.debug("No Solr config found, checking System settings");
+    if (System.getProperty("hostContext") != null) {
+      String backupUrl =
+          SystemBaseUrl.INTERNAL.constructUrl(
+              SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
+      LOGGER.debug("Using system configured URL instead: {}", backupUrl);
+      return backupUrl;
+    }
+
+    String backupUrl = HttpSolrClientFactory.getDefaultHttpsAddress();
+    LOGGER.debug("No Solr url configured, defaulting to: {}", backupUrl);
+    return backupUrl;
+  }
+
+  protected String getReplicationUrl(String coreName) {
+    return getCoreUrl(coreName) + "/replication";
+  }
+
+  protected void optimizeCollection(SolrClient client, String collection)
+      throws IOException, SolrServerException {
+    LOGGER.debug("Optimization of collection [{}] is in progress.", collection);
+    printInfoMessage(String.format("Optimizing of collection [%s] is in progress.", collection));
+    UpdateResponse updateResponse = client.optimize(collection);
+    LOGGER.debug("Optimization status: {}", updateResponse.getStatus());
+    if (updateResponse.getStatus() != 0) {
+      throw new SolrServerException(
+          String.format("Unable to optimize collection [%s].", collection));
+    }
+  }
+
+  protected void printStatus(SolrClient client, String requestId) {
+    try {
+      CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
+          CollectionAdminRequest.requestStatus(requestId).process(client);
+      RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
+      printInfoMessage(
+          String.format("Status for request Id [%s] is [%s].", requestId, requestStatus.getKey()));
+      LOGGER.debug("Status: {}", requestStatus.getKey());
+      if (requestStatus == RequestStatusState.FAILED) {
+        printErrorMessage("Status failed. ");
+        printResponseErrorMessages(requestStatusResponse);
+      }
+    } catch (Exception e) {
+      String message = e.getMessage() != null ? e.getMessage() : "Unable to get status.";
+      printErrorMessage(String.format("Status failed. %s", message));
+      LOGGER.debug("Unable to get status.", e);
+    }
+  }
+
+  protected void printResponseErrorMessages(CollectionAdminResponse response) {
+    NamedList<String> errorMessages = response.getErrorMessages();
+    if (errorMessages != null) {
+      for (int i = 0; i < errorMessages.size(); i++) {
+        String name = errorMessages.getName(i);
+        String value = errorMessages.getVal(i);
+        printErrorMessage(
+            String.format("\t%d. Error Name: %s; Error Value: %s", i + 1, name, value));
+      }
+    }
+  }
+
+  protected static boolean collectionExists(SolrClient client, String collection)
+      throws IOException, SolrServerException {
+    CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
+
+    if (response.getResponse() == null) {
+      return false;
+    }
+    List<String> existingCollections = (List<String>) response.getResponse().get("collections");
+
+    if (CollectionUtils.isNotEmpty(existingCollections)) {
+      return existingCollections.contains(collection);
+    }
+    return false;
   }
 }

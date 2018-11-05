@@ -29,7 +29,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +75,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
       String url, String coreName, String configFileName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
 
-    try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
+    try (CloseableHttpClient closeableHttpClient = httpClient;
         HttpSolrClient client =
             (httpClient != null
-                ? new HttpSolrClient.Builder(url).withHttpClient(httpClient).build()
+                ? new HttpSolrClient.Builder(url).withHttpClient(closeableHttpClient).build()
                 : new HttpSolrClient.Builder(url).build())) {
 
       HttpResponse ping = client.getHttpClient().execute(new HttpHead(url));

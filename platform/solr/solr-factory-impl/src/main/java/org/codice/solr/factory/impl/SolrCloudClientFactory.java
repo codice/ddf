@@ -114,7 +114,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     return new RetryPolicy().withMaxRetries(30).withDelay(1, TimeUnit.SECONDS);
   }
 
-  private void createCollection(String collection, CloudSolrClient client)
+  public void createCollection(String collection, CloudSolrClient client)
       throws SolrFactoryException {
     try {
       CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);

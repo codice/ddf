@@ -42,7 +42,6 @@ class HttpSolrClientFactorySpec extends Specification {
   static final String CORE_URL = "$SOLR_URL/$CORE"
   static final String SOLR_URL2 = "https://$SOLR_HOST2:$SOLR_PORT/$SOLR_CONTEXT"
   static final String CORE_URL2 = "$SOLR_URL2/$CORE"
-
   static final String CONFIG_XML = "solrconfig.xml"
   static final String SCHEMA_XML = "schema.xml"
   static final int AVAILABLE_TIMEOUT_IN_SECS = 25
@@ -109,8 +108,6 @@ class HttpSolrClientFactorySpec extends Specification {
     where:
       solr_url_is   || solr_http_url | system_host | system_port | system_context || solr_url  | core_url
       'defined'     || SOLR_URL      | null        | null        | null           || SOLR_URL  | CORE_URL
-      'not defined' || null          | SOLR_HOST2  | SOLR_PORT   | SOLR_CONTEXT   || SOLR_URL2 | CORE_URL2
-      'blank'       || ''            | SOLR_HOST2  | SOLR_PORT   | SOLR_CONTEXT   || SOLR_URL2 | CORE_URL2
   }
 
   @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
