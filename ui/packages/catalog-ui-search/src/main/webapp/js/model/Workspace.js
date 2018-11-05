@@ -164,7 +164,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.saveLocal(options)
     } else {
       const unsavedQueries = getUnsavedQueries(this.changedAttributes(this))
-      unsavedQueries.map(query => query.save())
+      unsavedQueries.forEach(query => query.save())
 
       Backbone.AssociatedModel.prototype.save.apply(this, arguments)
     }
@@ -212,7 +212,7 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.get('queries')) return data
 
     if (!data.queries || data.queries.length < 1) return data
-    
+
     const curretQueries = this.get('queries')
     const deltaQueries = data.queries.map(id =>
       curretQueries.find(query => query.id === id)
