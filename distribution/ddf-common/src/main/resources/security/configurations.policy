@@ -63,9 +63,6 @@ grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
     //# Add permission to recursively read the files and sub directories
     // permission java.io.FilePermission "${/}test${/}some${/}directory${/}-", "read";
 }
-    // permission java.io.FilePermission "${/}test${/}some${/}directory", "read";
-    // permission java.io.FilePermission "${/}test${/}some${/}directory${/}-", "read";
-}
 
 //                       Security-Hardening: Backup Log File Permissions
 //  Adding required permissions to the logger for read and write access to modified backup log files
