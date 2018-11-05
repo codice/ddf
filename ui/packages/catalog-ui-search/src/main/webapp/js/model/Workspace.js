@@ -57,10 +57,16 @@ const WorkspaceQueryCollection = Backbone.Collection.extend({
   canAddQuery: function() {
     return this.length < 10
   },
+  remove(query) {
+    const queryToRemove = this.find({ id: query.get('id') })
+
+    this.once('remove', () => queryToRemove.destroy())
+    Backbone.Collection.prototype.remove.apply(this, arguments)
+  },
 })
 
 const getUnsavedQueries = changedAttributes => {
-  return changedAttributes && changedAttributes.get('queries').map()
+  return changedAttributes && changedAttributes.get('queries')
 }
 
 const WorkspaceListCollection = Backbone.Collection.extend({
@@ -163,7 +169,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('saved', true)
       this.saveLocal(options)
     } else {
-      this.once('sync', workspce => workspce.set('saved', true))
+      this.once('sync', workspace => workspace.set('saved', true))
       const unsavedQueries = getUnsavedQueries(this.changedAttributes(this))
       unsavedQueries.forEach(query => query.save())
 
@@ -215,8 +221,8 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!data.queries || data.queries.length < 1) return data
 
     const currentQueries = this.get('queries')
-    const deltaQueries = data.queries.map(id =>
-      currentQueries.find(query => query.id === id)
+    const deltaQueries = data.queries.map(partialQuery =>
+      currentQueries.find(query => query.id === partialQuery.id)
     )
     return { ...data, queries: deltaQueries }
   },
@@ -229,7 +235,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     return {
       ...json,
-      queries: (queries && queries.map(query => query.id)) || [],
+      queries: (queries && queries.map(query => ({ id: query.id }))) || [],
     }
   },
   clearResults: function() {
