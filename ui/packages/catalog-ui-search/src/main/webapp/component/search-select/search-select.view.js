@@ -86,7 +86,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   triggerQuery: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-    $(CustomElements.getNamespace() + 'dropdown.is-query')
+    $('.content-adhoc')
       .mousedown()
       .click()
   },

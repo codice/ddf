@@ -16,6 +16,15 @@ const SlideoutLeftViewInstance = require('component/singletons/slideout.left.vie
 const NavigatorView = require('component/navigator/navigator.view')
 import { Button, buttonTypeEnum } from '../button'
 const HandlebarsHelpers = require('../../../js/HandlebarsHelpers')
+import { hot } from 'react-hot-loader'
+
+const StyledUnsavedIndicator = styled(UnsavedIndicator)`
+  position: absolute;
+  left: ${props => {
+    return props.theme.minimumButtonSize
+  }};
+  top: -0.3125rem;
+`
 
 export interface Props {
   hasUnsaved: boolean
@@ -109,15 +118,7 @@ const Root = styled<Props, 'div'>('div')`
     }
   }
 
-  &.has-unsaved {
-    .navigation-indicator {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
   &.has-unavailable.has-unsaved {
-    .navigation-indicator,
     .navigation-sources {
       opacity: 0;
       transform: scale(2);
@@ -161,7 +162,7 @@ const openNavigator = () => {
   SlideoutLeftViewInstance.open()
 }
 
-export default function NavigationLeft(props: Props) {
+function NavigationLeft(props: Props) {
   return (
     <Root
       className={`${getClassesFromProps(props)}`}
@@ -174,7 +175,9 @@ export default function NavigationLeft(props: Props) {
         fadeUntilHover={true}
       >
         <span className="fa fa-bars" />
-        <UnsavedIndicator shown={props.hasUnsaved && !props.hasUnavailable} />
+        <StyledUnsavedIndicator
+          shown={props.hasUnsaved && !props.hasUnavailable}
+        />
         <span className="navigation-sources fa fa-bolt" />
         <span className="navigation-multiple fa fa-exclamation" />
         {props.hasLogo ? (
@@ -187,3 +190,5 @@ export default function NavigationLeft(props: Props) {
     </Root>
   )
 }
+
+export default hot(module)(NavigationLeft)

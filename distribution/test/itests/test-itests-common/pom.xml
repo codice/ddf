@@ -64,12 +64,9 @@
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.itests</groupId>
-            <artifactId>itests</artifactId>
+            <artifactId>common</artifactId>
             <version>${karaf.version}</version>
             <type>jar</type>
-            <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
-                See: https://issues.apache.org/jira/browse/MDEP-587 -->
-            <classifier>tests</classifier>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -193,7 +190,7 @@
                         <Embed-Dependency>
                             admin-core-impl,
                             catalog-core-api-impl,
-                            itests,
+                            common,
                             pax-exam-container-karaf,
                             platform-util
                         </Embed-Dependency>

@@ -112,7 +112,7 @@ const Root = styled<RootProps, 'button'>('button')`
     max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
     display: inline-block;
     border: none;
     padding: ${props =>
@@ -124,8 +124,13 @@ const Root = styled<RootProps, 'button'>('button')`
       props.inText ? 'inherit !important' : props.theme.largeFontSize};
     line-height: ${props =>
       props.inText ? 'inherit !important' : props.theme.minimumButtonSize};
-    height: ${props =>
-      props.inText ? 'auto !important' : props.theme.minimumButtonSize};
+    height: ${props => {
+      if (props.inText) {
+        return 'auto'
+      } else {
+        return props.theme.minimumButtonSize
+      }
+    }};
     min-width: ${props =>
       props.inText ? '0px !important' : props.theme.minimumButtonSize};
     min-height: ${props =>

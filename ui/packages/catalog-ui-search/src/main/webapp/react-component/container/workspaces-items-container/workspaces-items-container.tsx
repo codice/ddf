@@ -14,8 +14,11 @@ import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { sortBy } from 'lodash'
 import WorkspacesItems from '../../presentation/workspaces-items'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
+import Dropdown from '../../presentation/dropdown'
+import NavigationBehavior from '../../presentation/navigation-behavior'
+import MenuSelection from '../../presentation/menu-selection'
+import { hot } from 'react-hot-loader'
 
-const FilterDropdownView = require('component/dropdown/workspaces-filter/dropdown.workspaces-filter.view')
 const SortDropdownView = require('component/dropdown/workspaces-filter/dropdown.workspaces-filter.view')
 const user = require('component/singletons/user-instance')
 const store = require('js/store')
@@ -25,8 +28,8 @@ const LoadingView = require('component/loading/loading.view')
 const wreqr = require('wreqr')
 
 interface State {
-  filterDropdown: Marionette.View<any>
   sortDropdown: Marionette.View<any>
+  homeFilter: string
   byDate: boolean
   workspaces: Array<Backbone.Model[keyof Backbone.Model]>
 }
@@ -71,23 +74,6 @@ class WorkspacesItemsContainer extends React.Component<
   constructor(props: WithBackboneProps) {
     super(props)
     this.state = {
-      filterDropdown: FilterDropdownView.createSimpleDropdown({
-        list: [
-          {
-            label: 'Owned by anyone',
-            value: 'Owned by anyone',
-          },
-          {
-            label: 'Owned by me',
-            value: 'Owned by me',
-          },
-          {
-            label: 'Not owned by me',
-            value: 'Not owned by me',
-          },
-        ],
-        defaultSelection: [preferences.get('homeFilter')],
-      }),
       sortDropdown: SortDropdownView.createSimpleDropdown({
         list: [
           {
@@ -101,6 +87,7 @@ class WorkspacesItemsContainer extends React.Component<
         ],
         defaultSelection: [preferences.get('homeSort')],
       }),
+      homeFilter: preferences.get('homeFilter'),
       byDate: preferences.get('homeSort') === 'Last modified',
       workspaces: determineWorkspaces(store.get('workspaces')),
     }
@@ -121,15 +108,11 @@ class WorkspacesItemsContainer extends React.Component<
       'change:homeSort',
       this.handleSort.bind(this)
     )
+    this.props.listenTo(preferences, 'change:homeFilter', this.handleHomeFilter)
     this.props.listenTo(
       this.state.sortDropdown.model,
       'change:value',
       this.save('homeSort')
-    )
-    this.props.listenTo(
-      this.state.filterDropdown.model,
-      'change:value',
-      this.save('homeFilter')
     )
   }
   updateWorkspaces() {
@@ -141,6 +124,11 @@ class WorkspacesItemsContainer extends React.Component<
     this.setState({
       workspaces: determineWorkspaces(store.get('workspaces')),
       byDate: preferences.get('homeSort') === 'Last modified',
+    })
+  }
+  handleHomeFilter = () => {
+    this.setState({
+      homeFilter: preferences.get('homeFilter'),
     })
   }
   save(key: string) {
@@ -166,12 +154,54 @@ class WorkspacesItemsContainer extends React.Component<
     this.prepForNewWorkspace()
     store.get('workspaces').createWorkspace()
   }
+  reactComponentSave(key: string, value: string) {
+    return function() {
+      var prefs = user.get('user').get('preferences')
+      prefs.set(key, value)
+      prefs.savePreferences()
+    }
+  }
   render() {
     return (
       <WorkspacesItems
         byDate={this.state.byDate}
         filterDropdown={
-          <MarionetteRegionContainer view={this.state.filterDropdown} />
+          <Dropdown
+            content={context => (
+              <NavigationBehavior>
+                <MenuSelection
+                  onClick={() => {
+                    this.reactComponentSave('homeFilter', 'Owned by anyone')()
+                    context.closeAndRefocus()
+                  }}
+                  isSelected={this.state.homeFilter === 'Owned by anyone'}
+                >
+                  Owned by Anyone
+                </MenuSelection>
+                <MenuSelection
+                  onClick={() => {
+                    this.reactComponentSave('homeFilter', 'Owned by me')()
+                    context.closeAndRefocus()
+                  }}
+                  isSelected={this.state.homeFilter === 'Owned by me'}
+                >
+                  Owned by Me
+                </MenuSelection>
+                <MenuSelection
+                  onClick={() => {
+                    this.reactComponentSave('homeFilter', 'Not owned by me')()
+                    context.closeAndRefocus()
+                  }}
+                  isSelected={this.state.homeFilter === 'Not owned by me'}
+                >
+                  Not Owned by Me
+                </MenuSelection>
+              </NavigationBehavior>
+            )}
+          >
+            {this.state.homeFilter}
+            <span className="fa-filter fa" />
+          </Dropdown>
         }
         sortDropdown={
           <MarionetteRegionContainer view={this.state.sortDropdown} />
@@ -183,4 +213,4 @@ class WorkspacesItemsContainer extends React.Component<
   }
 }
 
-export default withListenTo(WorkspacesItemsContainer)
+export default hot(module)(withListenTo(WorkspacesItemsContainer))

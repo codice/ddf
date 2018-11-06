@@ -80,6 +80,10 @@ export type ThemeColorInterface = {
   backgroundSlideout: string
 }
 
+type Current = {
+  background: string
+}
+
 type ThemeName = {
   theme: string
 }
@@ -101,4 +105,5 @@ export type ThemeInterface = SizingInterface &
   Opacity &
   ThemeColorInterface &
   ThemeName &
-  Helpers
+  Helpers &
+  Current

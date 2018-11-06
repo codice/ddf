@@ -13,7 +13,6 @@ import * as React from 'react'
 import * as Marionette from 'backbone.marionette'
 import styled from '../../styles/styled-components'
 const intervalToCheck = 20
-import { CustomElement } from '../../styles/mixins'
 import { hot } from 'react-hot-loader'
 
 type Props = {
@@ -21,10 +20,13 @@ type Props = {
   viewOptions?: object
   replaceElement?: boolean
   className?: string
-} & React.HTMLProps<HTMLDivElement>
+  style?: React.CSSProperties
+} & React.HTMLProps<HTMLDivElement> &
+  JSX.IntrinsicAttributes
 
 const RegionContainer = styled.div`
-  ${CustomElement};
+  width: 100%;
+  height: 100%;
 `
 export default hot(module)(
   class MarionetteRegionContainer extends React.Component<Props, {}> {
@@ -87,13 +89,14 @@ export default hot(module)(
       }
     }
     render() {
-      const { className, ...otherProps } = this.props
+      const { className, style, ...otherProps } = this.props
       return (
         <RegionContainer
           className={`marionette-region-container ${
             className ? className : ''
           }`}
           innerRef={this.regionRef as any}
+          style={style as any}
           {...otherProps as JSX.IntrinsicAttributes}
         />
       )

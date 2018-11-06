@@ -222,6 +222,7 @@ const sharedState: ThemeInterface = {
   screenBelow: (specifiedSize: string) => {
     return sharedState.screenSize < parseFloat(specifiedSize)
   },
+  background: 'black',
   ...updateTheme(
     user
       .get('user')

@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,13 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="content-title">
-</div><!--
---><div class="content-save">
-</div><!--
---><div class="content-interactions is-button" title="Shows a list of actions to take on the workspace.">
-    
-</div><!--
---><div class="content-adhoc is-button">
-</div>
+export { default } from './portal'

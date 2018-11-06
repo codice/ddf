@@ -23,6 +23,9 @@
             <excludes>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
+                <!-- These boot jar exclusions are needed until Karaf 4.2.2+ (https://issues.apache.org/jira/browse/KARAF-5912) -->
+                <exclude>lib/boot/jaxb*</exclude>
+                <exclude>lib/boot/activation*</exclude>
                 <!-- Don't copy over config files that are customized -->
                 <exclude>etc/custom.properties</exclude>
                 <exclude>etc/jetty.xml</exclude>
@@ -197,6 +200,11 @@
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
 
+        <fileSet>
+            <directory>${setup.folder}/boot</directory>
+            <outputDirectory>/lib/boot</outputDirectory>
+        </fileSet>
+
         <!-- Deployable Files -->
         <fileSet>
             <directory>${setup.folder}/deploy</directory>
@@ -354,6 +362,15 @@
             </outputDirectory>
             <includes>
                 <include>org.codice.acdebugger:acdebugger-backdoor:jar:${acdebugger.version}
+                </include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/org/apache/felix/org.apache.felix.scr/${felix.scr.version}
+            </outputDirectory>
+            <includes>
+                <include>org.apache.felix:org.apache.felix.scr:jar:${felix.scr.version}
                 </include>
             </includes>
         </dependencySet>

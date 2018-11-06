@@ -93,7 +93,7 @@ var QuerySelector = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-empty', this.model.isEmpty())
   },
   triggerQuery: function() {
-    $(CustomElements.getNamespace() + 'dropdown.is-query')
+    $('.content-adhoc')
       .mousedown()
       .click()
   },

@@ -17,12 +17,14 @@ import styled from '../../styles/styled-components'
 
 interface Props {
   shown: boolean
+  className?: string
+  style?: React.CSSProperties
 }
 
 const Root = styled<Props, 'span'>('span')`
   display: inline-block;
   line-height: inherit;
-
+  vertical-align: top;
   color: ${props => {
     return props.theme.warningColor
   }};
@@ -40,14 +42,13 @@ const Root = styled<Props, 'span'>('span')`
   opacity: ${props => {
     return props.shown ? 1 : 0
   }};
-
-  position: absolute;
-  left: ${props => {
-    return props.theme.minimumButtonSize
-  }};
-  top: -0.3125rem;
 `
 
 export default function UnsavedIndicator(props: Props) {
-  return <Root {...props}>*</Root>
+  const { className, style, ...otherProps } = props
+  return (
+    <Root className={className} style={style as any} {...otherProps}>
+      *
+    </Root>
+  )
 }
