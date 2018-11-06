@@ -60,11 +60,9 @@ define([
         },
         listenForChange: function(){
             this.$el.on('change keyup input', function(){
-                var input = this.$el.find('input');
-
                 // only applies to anyText filters
-                if (input.attr('name') === 'anyText') {
-                    if (input.val() === '') {
+                if (this.$el.attr('data-id') === 'anyText') {
+                    if (this.$el.find('input').val() === '') {
                         this.$el.addClass('has-warnings');
                     } else {
                         this.$el.removeClass('has-warnings');
