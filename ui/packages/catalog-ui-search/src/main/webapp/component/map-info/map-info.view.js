@@ -20,6 +20,7 @@ var mtgeo = require('mt-geo')
 var user = require('component/singletons/user-instance')
 var properties = require('properties')
 const Common = require('js/Common')
+const hbHelper = require('js/HandlebarsHelpers')
 const dateAttributes = new Set([
   'created',
   'modified',
@@ -86,6 +87,7 @@ module.exports = Marionette.LayoutView.extend({
     let summaryModel = {}
     const summary = properties.summaryShow
     summary.forEach(attribute => {
+      attribute = hbHelper.getAlias(attribute)
       if (this.model.get('targetMetacard') !== undefined)
         summaryModel[attribute] = massageData(
           attribute,
