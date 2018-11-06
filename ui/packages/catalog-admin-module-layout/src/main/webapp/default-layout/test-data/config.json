@@ -50,7 +50,7 @@
           ],
           "typeNameMapping": [],
           "isEditingAllowed": true,
-          "summaryShow": ["title", "created", "modified", "thumbnail"],
+          "summaryShow": ["created", "modified", "thumbnail"],
           "gazetteer": true,
           "readOnly": [
             "^checksum$",
