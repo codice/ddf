@@ -192,6 +192,10 @@
              description="Synchronizes config admin with the etc directory">
         <feature>io</feature>
         <feature>admin-core</feature>
+
+        <!--TODO: Ask someone why the admin-config-updater suddenly need the encryption feature-->
+        <!--Unable to resolve root: missing requirement [root] osgi.identity; osgi.identity=admin-config-updater; type=karaf.feature; version="[2.14.0.SNAPSHOT,2.14.0.SNAPSHOT]"; filter:="(&(osgi.identity=admin-config-updater)(type=karaf.feature)(version>=2.14.0.SNAPSHOT)(version<=2.14.0.SNAPSHOT))" [caused by: Unable to resolve admin-config-updater/2.14.0.SNAPSHOT: missing requirement [admin-config-updater/2.14.0.SNAPSHOT] osgi.identity; osgi.identity=admin-configuration-configupdater; type=osgi.bundle; version="[2.14.0.SNAPSHOT,2.14.0.SNAPSHOT]"; resolution:=mandatory [caused by: Unable to resolve admin-configuration-configupdater/2.14.0.SNAPSHOT: missing requirement [admin-configuration-configupdater/2.14.0.SNAPSHOT] osgi.wiring.package; filter:="(&(osgi.wiring.package=ddf.security.encryption)(version>=1.0.0)(!(version>=2.0.0)))"]]-->
+        <feature>security-encryption</feature>
         <bundle>mvn:ddf.admin/admin-configuration-configupdater/${project.version}</bundle>
     </feature>
 </features>

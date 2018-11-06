@@ -13,6 +13,7 @@
  */
 package org.codice.solr.factory.impl;
 
+/** Allow test classes in other modules to set properties for the purpose of testing. */
 public class MockSolrProperty {
 
   public static void setProperty(String name, String key) {

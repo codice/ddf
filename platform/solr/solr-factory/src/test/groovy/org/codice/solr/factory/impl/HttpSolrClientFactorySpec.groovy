@@ -152,7 +152,7 @@ class HttpSolrClientFactorySpec extends Specification {
       0 * httpClient.close()
 
 //    and: "the config store is initialized and its data directory was or wasn't updated"
-//      ConfigurationStore.instance.dataDirectoryPath == DATA_DIR
+//      ConfigurationStore.instance.dataDirectoryPath == dataDir
 
   }
 

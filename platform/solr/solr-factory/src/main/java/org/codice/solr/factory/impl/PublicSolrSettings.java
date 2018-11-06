@@ -23,11 +23,12 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Convenience class for aggregating information about how the application is configured to
- * communicate with Solr. Several system properties are stored here for convenience and to
- * centralize validator of mandatory properties. The static variables are not final variables
- * initialized in a static block because that makes testing difficult or impossible. Instead, the
- * variables are private, with package-private getters methods and no setter methods. Restricting
- * access is important because they may contain sensetive information.
+ * communicate with Solr. Several system properties are stored here for convenience, and to
+ * centralize validation of mandatory properties.
+ *
+ * <p>The static variables are not final variables for two reasons. First, it makes testing
+ * difficult or impossible. Second, some properties are set in a properties file, but others are
+ * configured at runtime.
  */
 public class PublicSolrSettings {
 
@@ -43,11 +44,23 @@ public class PublicSolrSettings {
   private static Double nearestNeighborDistanceLimit;
   private static boolean forceAutoCommit;
 
+  /**
+   * To make testing possible, thee variables are not initialized in a static block. Instead, they
+   * are initialized in a package private static method.
+   */
   static {
     loadSystemProperties();
   }
 
-  {
+  /** This class is not meant to be instantiated. */
+  private PublicSolrSettings() {}
+
+  /**
+   * After settings the system properties in a test method, invoke this method to read those
+   * properties. This method is not intended called by other classes in a production system.
+   */
+  @VisibleForTesting
+  static void loadSystemProperties() {
     solrDataDir =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.data.dir"));
@@ -63,17 +76,6 @@ public class PublicSolrSettings {
     httpsProtocols =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("https.protocols"));
-  }
-
-  PublicSolrSettings() {}
-
-  /**
-   * After settings the system properties in a test method, invoke this method to read those
-   * properties.
-   */
-  @VisibleForTesting
-  static void loadSystemProperties() {
-    new PublicSolrSettings();
   }
 
   static String concatenatePaths(String first, String more) {

@@ -38,11 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class used to create new {@link EmbeddedSolrServer} clients. <br> Uses the following
- * system properties when creating an instance:
+ * Factory class used to create new {@link EmbeddedSolrServer} clients. <br>
+ * Uses the following system properties when creating an instance:
  *
  * <ul>
- * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
+ *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
  * </ul>
  */
 @Deprecated
@@ -81,7 +81,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
       configProxy.writeSolrConfiguration(coreName);
     }
     final EmbeddedSolrFiles files =
-        newFiles(coreName, configXml, new String[]{schemaXml, "managed-schema"}, configProxy);
+        newFiles(coreName, configXml, new String[] {schemaXml, "managed-schema"}, configProxy);
 
     LOGGER.debug(
         "Solr({}): Retrieving embedded solr with the following properties: [{},{}]",
@@ -153,8 +153,8 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
 
   @VisibleForTesting
   @SuppressWarnings({
-      "squid:S00107", /* parameters are required by the SolrCore API */
-      "PMD.ExcessiveParameterList" /* parameters are required by the SolrCore API */
+    "squid:S00107", /* parameters are required by the SolrCore API */
+    "PMD.ExcessiveParameterList" /* parameters are required by the SolrCore API */
   })
   SolrCore newCore(
       SolrCoreContainer container,

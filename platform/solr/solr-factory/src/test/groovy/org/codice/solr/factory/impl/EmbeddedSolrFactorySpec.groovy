@@ -24,6 +24,8 @@ import org.apache.solr.schema.IndexSchema
 import org.codice.junit.DeFinalize
 import org.codice.junit.DeFinalizer
 import org.codice.spock.Supplemental
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
@@ -41,19 +43,29 @@ import static java.util.concurrent.TimeUnit.SECONDS
 @DeFinalize(SolrCore)
 class EmbeddedSolrFactorySpec extends Specification {
     static final String CORE = "test_core"
-    static final String DATA_DIR = "data_dir"
     static final String CONFIG_XML = "solrconfig.xml"
     static final String SCHEMA_XML = "schema.xml"
     static final int AVAILABLE_TIMEOUT_IN_SECS = 25
 
+    @Rule
+    TemporaryFolder tempFolder = new TemporaryFolder();
+
     @Shared
     ConfigurationFileProxy configFileProxy = Stub()
+
+    @Shared
+    String dataDir;
 
     EmbeddedSolrServer server = Stub()
     CoreDescriptor descriptor = Stub()
     Path configHomePath = Stub()
     Path instancePath = Stub()
     IndexSchema index = Stub()
+
+    def setup() {
+        dataDir = tempFolder.newFolder();
+    }
+
 
     def cleanup() {
         org.codice.solr.factory.impl.PublicSolrSettings.setInMemory(false);
@@ -106,12 +118,9 @@ class EmbeddedSolrFactorySpec extends Specification {
         and: "the underlying server should never be closed"
         0 * server.close()
 
-//    and: "the config store is initialized and its data directory was or wasn't updated"
-//      ConfigurationStore.instance.dataDirectoryPath == data_dir
-
         where:
         data_dir_is   || solr_data_dir || data_dir
-        'defined'     || DATA_DIR      || DATA_DIR
+        'defined'     || dataDir       || dataDir
         'not defined' || null          || null
     }
 
@@ -205,7 +214,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                 toPath() >> configHomePath
             }
             getConfig() >> config
-            getDataDirPath() >> DATA_DIR
+            getDataDirPath() >> dataDir
         }
 
         when:
@@ -227,7 +236,7 @@ class EmbeddedSolrFactorySpec extends Specification {
             1 * newLoader(configHomePath) >> loader
             1 * newContainer(loader) >> container
             1 * newDescriptor(CORE, instancePath, !null, false) >> descriptor
-            1 * newCore(container, CORE, DATA_DIR, config, index, null, descriptor, null, null, null, false) >> core
+            1 * newCore(container, CORE, dataDir, config, index, null, descriptor, null, null, null, false) >> core
             1 * newServer(container, CORE) >> server
         }
 
@@ -255,6 +264,7 @@ class EmbeddedSolrFactorySpec extends Specification {
 
     def 'test creating an embedded Solr server when the schema index was already cached'() {
         given:
+        MockSolrProperty.setProperty("solr.data.dir", dataDir)
         def files = Mock(EmbeddedSolrFiles) {
             getConfigHome() >> Mock(File) {
                 toPath() >> configHomePath
@@ -264,7 +274,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                     getInstancePath() >> instancePath
                 }
             }
-            getDataDirPath() >> DATA_DIR
+            getDataDirPath() >> dataDir
         }
         def factory = Spy(EmbeddedSolrFactory) {
             newLoader(*_) >> Stub(SolrResourceLoader)
@@ -303,7 +313,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                     getInstancePath() >> instancePath
                 }
             }
-            getDataDirPath() >> DATA_DIR
+            getDataDirPath() >> dataDir
         }
         def factory = Spy(EmbeddedSolrFactory) {
             newLoader(*_) >> Stub(SolrResourceLoader)
@@ -345,7 +355,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                         getInstancePath() >> instancePath
                     }
                 }
-                getDataDirPath() >> DATA_DIR
+                getDataDirPath() >> dataDir
             }
         }
 
@@ -381,7 +391,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                         getInstancePath() >> instancePath
                     }
                 }
-                getDataDirPath() >> DATA_DIR
+                getDataDirPath() >> dataDir
                 getSchemaIndex() >> index
             }
         }

@@ -21,9 +21,10 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Class to offload configuration-related tasks from the HttpSolrClientFactory. Some methods are
- * package private to protect keystore or other password information.
+ * package private to protect keystore or other password information. The class is final for the
+ * same reason.
  */
-final class ProtectedSolrSettings extends PublicSolrSettings {
+final class ProtectedSolrSettings {
 
   private static String keyStoreType;
   private static String keyStore;
@@ -35,7 +36,15 @@ final class ProtectedSolrSettings extends PublicSolrSettings {
     loadSystemProperties();
   }
 
-  {
+  /** This class is not meant to be instantiated. */
+  private ProtectedSolrSettings() {}
+
+  /**
+   * After settings the system properties in a test method, invoke this method to read those
+   * properties.
+   */
+  @VisibleForTesting
+  static void loadSystemProperties() {
     trustStore =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.trustStore"));
@@ -52,16 +61,6 @@ final class ProtectedSolrSettings extends PublicSolrSettings {
     keyStoreType =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStoreType"));
-  }
-
-  /**
-   * After settings the system properties in a test method, invoke this method to read those
-   * properties.
-   */
-  @VisibleForTesting
-  static void loadSystemProperties() {
-    PublicSolrSettings.loadSystemProperties();
-    new ProtectedSolrSettings();
   }
 
   static boolean isSslConfigured() {

@@ -15,20 +15,20 @@ package org.codice.solr.factory.impl;
 
 import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStorePass;
 import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStoreType;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedCipherSuites;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedProtocols;
 import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStore;
 import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStorePass;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getUrl;
 import static org.codice.solr.factory.impl.ProtectedSolrSettings.isSslConfigured;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.useBasicAuth;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.useTls;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDataDir;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDir;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreUrl;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSchemaXml;
 import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSolrconfigXml;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getSupportedCipherSuites;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getSupportedProtocols;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getUrl;
 import static org.codice.solr.factory.impl.PublicSolrSettings.isSolrDataDirWritable;
+import static org.codice.solr.factory.impl.PublicSolrSettings.useBasicAuth;
+import static org.codice.solr.factory.impl.PublicSolrSettings.useTls;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;

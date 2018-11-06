@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedCipherSuites;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getSupportedProtocols;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getSupportedCipherSuites;
+import static org.codice.solr.factory.impl.PublicSolrSettings.getSupportedProtocols;
 
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
