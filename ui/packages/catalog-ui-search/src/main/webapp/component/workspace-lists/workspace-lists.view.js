@@ -160,7 +160,7 @@ module.exports = Marionette.LayoutView.extend({
     this.model.remove(this.model.get(selectedListId))
   },
   triggerSearch: function() {
-    $(CustomElements.getNamespace() + 'dropdown.is-query')
+    $('.content-adhoc')
       .mousedown()
       .click()
   },

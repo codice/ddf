@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="notification-icon" title="Search {{branding}} {{product}}" data-help="Start a new search.">
-    <i class="fa fa-search"></i>
-    <span>Search {{branding}} {{product}}</span>
-</div>
+import * as React from 'react'
+import {
+  ThemeInterface,
+  withTheme,
+  ThemeProvider,
+} from '../../styles/styled-components'
+import { hot } from 'react-hot-loader'
+
+type Props = {
+  children?: any
+  theme: ThemeInterface
+  color: (theme: ThemeInterface) => string
+}
+
+const render = (props: Props) => {
+  const { children, color, theme } = props
+  const modifiedTheme = {
+    ...theme,
+    background: theme ? color(theme) : '',
+  }
+
+  return <ThemeProvider theme={modifiedTheme}>{children}</ThemeProvider>
+}
+
+export default hot(module)(withTheme(render))

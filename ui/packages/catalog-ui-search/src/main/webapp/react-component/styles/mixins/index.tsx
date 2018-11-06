@@ -11,3 +11,4 @@
  **/
 export { CustomElement } from './custom-element'
 export { ChangeBackground } from './change-background'
+export { Dropshadow, DropshadowLight } from './dropshadow'
