@@ -67,6 +67,23 @@ function getHiddenFields(): string[] {
     .get('columnHide')
 }
 
+function getHits(statuses: any[]): number {
+  return statuses
+    .filter(status => status.id !== 'cache')
+    .reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
+}
+
+function getCount(exportSize: string, selectionInterface: any): number {
+  const result = selectionInterface.getCurrentQuery().get('result')
+  return exportSize === 'all'
+    ? getHits(result.get('status').toJSON())
+    : result.get('results').length
+}
+
+function getSorts(selectionInterface: any) {
+  return selectionInterface.getCurrentQuery().get('sorts')
+}
+
 type Props = {
   selectionInterface: () => void
 }
@@ -140,6 +157,8 @@ export default hot(module)(
             this.state.exportSize,
             this.props.selectionInterface
           ),
+          count: getCount(this.state.exportSize, this.props.selectionInterface),
+          sorts: getSorts(this.props.selectionInterface),
         }
         const response = await exportDataAs(url, payload, 'application/json')
 
@@ -191,6 +210,7 @@ export default hot(module)(
               )}
               handleExportSizeChange={this.handleExportSizeChange.bind(this)}
               onDownloadClick={this.onDownloadClick.bind(this)}
+              count={getCount(this.state.exportSize, this.props.selectionInterface)}
             />
           ) : null}
         </LoadingCompanion>
