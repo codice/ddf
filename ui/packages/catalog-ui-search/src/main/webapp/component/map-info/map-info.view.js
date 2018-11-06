@@ -107,6 +107,7 @@ module.exports = Marionette.LayoutView.extend({
 
     let viewData = {
       summary: summaryModel,
+      target: modelJSON.target,
       lat: modelJSON.mouseLat,
       lon: modelJSON.mouseLon,
     }
