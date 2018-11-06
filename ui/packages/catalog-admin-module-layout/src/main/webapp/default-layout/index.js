@@ -142,7 +142,6 @@ const ConfigEditor = ({buffer, onEdit, error}) => (
     <div key='ace' style={{ margin: '0 15px' }}>
       <Error errorText={error}>
         <AceEditor
-          readOnly
           mode='json'
           theme='github'
           fontSize={15}

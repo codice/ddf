@@ -78,7 +78,10 @@ export const message = (text, action) => ({
   text,
   action
 })
+
 export const update = (value) => (dispatch, getState) => {
+  updateLayout(value, getState)
+
   return dispatch({
     type: 'default-layout/UPDATE',
     value
@@ -86,21 +89,27 @@ export const update = (value) => (dispatch, getState) => {
 }
 
 export const reset = () => (dispatch, getState) => {
-  const state = getState()
-  const editor = getEditor(state)
-  const config = getConfig(state)
+  const config = getConfig(getState())
 
-  const settings = editor.config
-  settings.content = convertLayout(config.get('defaultLayout'), true)
-  editor.destroy()
-  editor.config = settings
-  editor.init()
+  updateLayout(config.get('defaultLayout'), getState)
 
   return dispatch({
     type: 'default-layout/RESET',
     value: config
   })
 }
+
+export const updateLayout = (value, getState) => {
+  const state = getState()
+  const editor = getEditor(state)
+
+  const settings = editor.config
+  settings.content = convertLayout(value, true)
+  editor.destroy()
+  editor.config = settings
+  editor.init()
+}
+
 export const rendered = () => (dispatch, getState) => {}
 export const fetch = () => (dispatch, getState) => {
   dispatch(start())
