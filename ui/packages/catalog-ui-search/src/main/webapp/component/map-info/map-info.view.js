@@ -27,7 +27,10 @@ const dateAttributes = new Set([
   'effective',
   'metacard.created',
   'metacard.modified',
+  'datetime.end',
+  'datetime.start',
 ])
+
 
 function getCoordinateFormat() {
   return user
@@ -86,17 +89,14 @@ module.exports = Marionette.LayoutView.extend({
     let modelJSON = this.model.toJSON()
     let summaryModel = {}
     const summary = properties.summaryShow
+
     summary.forEach(attribute => {
-      attribute = hbHelper.getAlias(attribute)
-      if (this.model.get('targetMetacard') !== undefined)
-        summaryModel[attribute] = massageData(
-          attribute,
-          this.model
-            .get('targetMetacard')
-            .get('metacard')
-            .get('properties')
-            .get(attribute)
-        )
+      if (this.model.get('targetMetacard') !== undefined){
+        const attributeName = hbHelper.getAlias(attribute)
+        const attributeValue = this.model.get('targetMetacard').get('metacard').get('properties').get(attributeName)
+        if(attributeValue !== undefined)
+          summaryModel[attributeName] = massageData(attributeName, attributeValue)
+      }
     })
 
     let viewData = {
