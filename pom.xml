@@ -316,6 +316,7 @@ are essentially embedding a slightly modified version of felix -->
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
         <javax.inject.version>1</javax.inject.version>
         <fabric8.version>3.0.12</fabric8.version>
+        <felix.scr.version>2.0.14</felix.scr.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
