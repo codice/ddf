@@ -48,7 +48,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.3</version>
     </parent>
     <properties>
         <!--  default URL properties -->
@@ -119,6 +119,7 @@
 
         <!-- Version properties for this repository live in this repository -->
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
+        <felix.scr.version>2.0.14</felix.scr.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined

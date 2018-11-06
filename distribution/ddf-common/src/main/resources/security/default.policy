@@ -199,7 +199,7 @@ grant codebase "file:/org.apache.karaf.log.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read,write";
 }
 
-grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication" {
+grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
