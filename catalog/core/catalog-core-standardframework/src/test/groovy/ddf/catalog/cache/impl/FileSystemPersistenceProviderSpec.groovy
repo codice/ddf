@@ -2,14 +2,15 @@ package ddf.catalog.cache.impl
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.nio.file.Path
-import java.nio.file.Paths
 
 class FileSystemPersistenceProviderSpec extends Specification {
 
     private Path cachePath
+
     private FileSystemPersistenceProvider provider
 
     @Rule
@@ -24,20 +25,25 @@ class FileSystemPersistenceProviderSpec extends Specification {
     def "test storing an item"() {
         setup:
         File expectedPath = getCachedFilePath("foo.ser")
+
         when:
         provider.store("foo", ["foo", "bar"])
+
         then:
         expectedPath.exists()
         expectedPath.text.contains("foo")
         expectedPath.text.contains("bar")
     }
 
+    @Ignore("DDF-4119")
     def "test storing an item when storage is not writable"() {
         setup:
         File expectedPath = getCachedFilePath("foo.ser")
         cachePath.toFile().setWritable(false)
+
         when:
         provider.store("foo", ["foo", "bar"])
+
         then:
         notThrown IOException
         !expectedPath.exists()
@@ -47,8 +53,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         setup:
         File item1 = getCachedFilePath("foo.ser")
         File item2 = getCachedFilePath("bar.ser")
+
         when:
         provider.storeAll([foo: "foo", bar: "bar"])
+
         then:
         item1.exists()
         item1.text.contains("foo")
@@ -61,8 +69,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         File expectedPath = getCachedFilePath("foo.bar")
         provider.store("foo", ["foo"])
         expectedPath.exists()
+
         when:
         provider.delete("foo")
+
         then:
         !expectedPath.exists()
     }
@@ -73,8 +83,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         File item2 = getCachedFilePath("bar.ser")
         item1.createNewFile()
         item2.createNewFile()
+
         when:
         provider.deleteAll(["foo", "bar"])
+
         then:
         !item1.exists()
         !item2.exists()
@@ -86,10 +98,12 @@ class FileSystemPersistenceProviderSpec extends Specification {
         Map loaded
         String loadedItem1
         String loadedItem2
+
         when:
         loaded = provider.loadAll(["foo", "bar"])
         loadedItem1 = loaded.get("foo")
         loadedItem2 = loaded.get("bar")
+
         then:
         loadedItem1.contains("foo")
         loadedItem2.contains("bar")
@@ -100,22 +114,27 @@ class FileSystemPersistenceProviderSpec extends Specification {
         provider.storeAll([foo: "foo"])
         Map loaded
         String loadedItem1
+
         when:
         loaded = provider.loadAll(["foo", "bar"])
         loadedItem1 = loaded.get("foo")
+
         then:
         loadedItem1.contains("foo")
         loaded.get("bar") == null
     }
 
+    @Ignore("DDF-4119")
     def "test loading file when file is not readable"() {
         setup:
         File file = getCachedFilePath("foo.ser")
         provider.store("foo", ["bar"])
         file.setReadable(false)
         Map loaded
+
         when:
         loaded = provider.loadAll(["foo"])
+
         then:
         loaded.get("foo") == null
     }
@@ -127,8 +146,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         item1.createNewFile()
         item2.createNewFile()
         Set keys
+
         when:
         keys = provider.loadAllKeys()
+
         then:
         keys.contains("foo")
         keys.contains("bar")
@@ -140,8 +161,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         getCachedFilePath("bar.ser").createNewFile()
         getCachedFilePath("fake.notcached").createNewFile()
         Set keys
+
         when:
         keys = provider.loadAllKeys()
+
         then:
         keys.contains("foo")
         keys.contains("bar")
@@ -154,8 +177,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         File item2 = getCachedFilePath("bar.ser")
         item1.createNewFile()
         item2.createNewFile()
+
         when:
         provider.clear()
+
         then:
         !item1.exists()
         !item2.exists()
@@ -167,8 +192,10 @@ class FileSystemPersistenceProviderSpec extends Specification {
         File fake = getCachedFilePath("fake.notcached")
         item1.createNewFile()
         fake.createNewFile()
+
         when:
         provider.clear()
+
         then:
         !item1.exists()
         fake.exists()
