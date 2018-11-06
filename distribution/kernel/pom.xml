@@ -324,6 +324,31 @@
     </build>
     <dependencies>
         <!--
+        We are overriding the pax-web version of these four bundles in ddf-common.
+        Kernel needs to know them to replace them. These should be removed when pax-web
+        releases their version of 7.2.4
+        -->
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-api</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-jetty</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-runtime</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-spi</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
+        <!--
         Depends on the base Apache Karaf Unix and Windows distribution zip files.
         This is from where all of the Karaf .cfg, .properties, and other files are extracted.
         -->
