@@ -60,6 +60,17 @@ define([
         },
         listenForChange: function(){
             this.$el.on('change keyup input', function(){
+                var input = this.$el.find('input');
+
+                // only applies to anyText filters
+                if (input.attr('name') === 'anyText') {
+                    if (input.val() === '') {
+                        this.$el.addClass('has-warnings');
+                    } else {
+                        this.$el.removeClass('has-warnings');
+                    }
+                }
+
                 this.model.set('value', this.getCurrentValue());
                 this.validate();
             }.bind(this));
@@ -93,7 +104,13 @@ define([
             this.$el.find('input').select();
         },
         hasChanged: function(){
+            var input = this.$el.find('input');
             var value = this.$el.find('input').val();
+
+            if (input.attr('name') === 'anyText' && value === '') {
+                input.addClass('has-validation-issues');
+            }
+
             return value !== this.model.getInitialValue();
         },
         getCurrentValue: function(){
