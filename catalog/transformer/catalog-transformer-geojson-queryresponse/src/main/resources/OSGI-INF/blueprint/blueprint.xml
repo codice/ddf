@@ -29,6 +29,7 @@
             <!-- shortname only exists for backwards compatibility -->
             <entry key="shortname" value="geojson"/>
 			<entry key="mime-type" value="application/json"/>
+			<entry key="export-resultset" value="true"/>
 		</service-properties>
 	</service>
   

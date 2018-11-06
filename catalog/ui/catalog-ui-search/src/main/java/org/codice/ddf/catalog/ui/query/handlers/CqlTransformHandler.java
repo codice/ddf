@@ -56,6 +56,7 @@ import spark.utils.IOUtils;
 public class CqlTransformHandler implements Route {
 
   public static final String TRANSFORMER_ID_PROPERTY = "id";
+  public static final String TRANFORMER_EXPORT_PROPERTY = "export-resultset";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlTransformHandler.class);
   private static final String GZIP = "gzip";

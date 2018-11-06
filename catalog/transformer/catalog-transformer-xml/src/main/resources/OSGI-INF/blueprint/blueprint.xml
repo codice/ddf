@@ -78,6 +78,7 @@
             <entry key="shortname" value="xml"/>
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
+            <entry key="export-resultset" value="true"/>
         </service-properties>
     </service>
 
