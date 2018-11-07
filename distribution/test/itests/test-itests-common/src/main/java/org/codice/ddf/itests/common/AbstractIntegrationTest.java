@@ -469,7 +469,7 @@ public abstract class AbstractIntegrationTest {
         karafDistributionConfiguration(
                 maven()
                     .groupId("org.codice.ddf")
-                    .artifactId("ddf")
+                    .artifactId("kernel")
                     .type("zip")
                     .versionAsInProject()
                     .getURL(),
@@ -668,6 +668,14 @@ public abstract class AbstractIntegrationTest {
                 .classifier("features")
                 .versionAsInProject(),
             "ddf-itest-dependencies"),
+        features(
+            maven()
+                .groupId("ddf.features")
+                .artifactId("install-profiles")
+                .type("xml")
+                .classifier("features")
+                .versionAsInProject(),
+            "ddf-boot-features"),
         // Adds sdk-app to the features repo
         features(
             maven("ddf.distribution", "sdk-app")
