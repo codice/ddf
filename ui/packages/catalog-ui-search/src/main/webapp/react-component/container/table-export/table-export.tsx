@@ -67,10 +67,10 @@ function getHiddenFields(): string[] {
     .get('columnHide')
 }
 
-function getHits(statuses: any[]): number {
-  return statuses
-    .filter(status => status.id !== 'cache')
-    .reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
+function getHits(sources: Source[]): number {
+  return sources
+    .filter(source => source.id !== 'cache')
+    .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
 }
 
 function getCount(exportSize: string, selectionInterface: any): number {
@@ -98,6 +98,11 @@ type State = {
   exportSizes: Option[]
   exportFormat: string
   exportSize: string
+}
+
+type Source = {
+  id: string
+  hits: number
 }
 
 export default hot(module)(
@@ -210,7 +215,10 @@ export default hot(module)(
               )}
               handleExportSizeChange={this.handleExportSizeChange.bind(this)}
               onDownloadClick={this.onDownloadClick.bind(this)}
-              count={getCount(this.state.exportSize, this.props.selectionInterface)}
+              count={getCount(
+                this.state.exportSize,
+                this.props.selectionInterface
+              )}
             />
           ) : null}
         </LoadingCompanion>
