@@ -19,17 +19,9 @@ var CustomElements = require('js/CustomElements')
 var mtgeo = require('mt-geo')
 var user = require('component/singletons/user-instance')
 var properties = require('properties')
+var metacardDefinitions = require('component/singletons/metacard-definitions')
 const Common = require('js/Common')
 const hbHelper = require('js/HandlebarsHelpers')
-const dateAttributes = new Set([
-  'created',
-  'modified',
-  'effective',
-  'metacard.created',
-  'metacard.modified',
-  'datetime.end',
-  'datetime.start',
-])
 
 function getCoordinateFormat() {
   return user
@@ -47,7 +39,7 @@ function leftPad(numToPad, size) {
 }
 
 function massageData(attributeName, attributeValue) {
-  if (dateAttributes.has(attributeName)) {
+  if (metacardDefinitions.metacardTypes[attributeName].type === 'DATE') {
     return (
       attributeName.toUpperCase() +
       ': ' +
