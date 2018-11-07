@@ -225,6 +225,7 @@ public class MetacardApplication implements SparkApplication {
   }
 
   private String getSubjectEmail() {
+    System.out.println("Hi");
     return SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
   }
 

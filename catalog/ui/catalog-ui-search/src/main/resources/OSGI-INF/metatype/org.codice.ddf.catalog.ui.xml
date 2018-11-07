@@ -220,8 +220,8 @@
             name="Summary Metacard Attributes"
             description="List of metacard attributes to display in the summary view."
             type="String"
-            cardinality="10"
-            default="title,created,modified,thumbnail"
+            cardinality="10000"
+            default="created,modified,thumbnail"
             required="false"/>
 
         <AD id="resultShow"
