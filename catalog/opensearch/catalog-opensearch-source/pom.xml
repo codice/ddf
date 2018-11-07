@@ -111,6 +111,17 @@
         <artifactId>geo-formatter</artifactId>
         <version>${project.version}</version>
       </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codice.thirdparty</groupId>
+                    <artifactId>gt-opengis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -129,6 +140,7 @@
                             ddf-security-common,
                             catalog-core-api-impl,
                             security-core-impl,
+                            geospatial,
                             platform-util
                         </Embed-Dependency>
                         <Import-Package>

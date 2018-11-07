@@ -13,17 +13,28 @@
  */
 package org.codice.ddf.libs.geo.util;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
+import javax.measure.Measure;
+import javax.measure.quantity.Length;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.libs.geo.GeoFormatException;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
@@ -262,5 +273,67 @@ public class GeospatialUtil {
       throw new GeoFormatException("Unable to convert coordinate to " + EPSG_4326, e);
     }
     return transformedGeometry;
+  }
+
+  /**
+   * Create a circular polygon from a lat, lon, radius, vertices, and distanceTolerance.
+   *
+   * @param lat - latitude in EPSG:4326 decimal degrees
+   * @param lon - longitude in EPSG:4326 decimal degrees
+   * @return radius - distance from the center point in meters
+   * @return maxVertices - the maximum number of vertices in the finished circle polygon
+   * @return distanceTolerance - the maximum distance from the original vertices a reduced vertex
+   *     may lie on a simplified circular polygon
+   */
+  public static Geometry createCirclePolygon(
+      double lat, double lon, double radius, int maxVertices, double distanceTolerance) {
+    double step = distanceTolerance;
+    Measure measure = Measure.valueOf(radius, SI.METER);
+    Point jtsPoint = new GeometryFactory().createPoint(new Coordinate(lon, lat));
+
+    Geometry bufferedCircle =
+        createBufferedCircleFromPoint(measure, DefaultGeographicCRS.WGS84, jtsPoint);
+    Geometry simplifiedCircle =
+        createBufferedCircleFromPoint(measure, DefaultGeographicCRS.WGS84, jtsPoint);
+
+    int maxVerticesWithClosedPoint = maxVertices + 1;
+
+    while (simplifiedCircle.getCoordinates().length > maxVerticesWithClosedPoint) {
+      simplifiedCircle = TopologyPreservingSimplifier.simplify(bufferedCircle, distanceTolerance);
+      distanceTolerance += step;
+    }
+
+    return simplifiedCircle;
+  }
+
+  private static Geometry createBufferedCircleFromPoint(
+      Measure<Double, Length> distance, CoordinateReferenceSystem origCRS, Geometry point) {
+    Geometry pointGeo = point;
+    MathTransform toTransform, fromTransform = null;
+
+    Unit<Length> unit = distance.getUnit();
+    if (!(origCRS instanceof ProjectedCRS)) {
+
+      double x = point.getCoordinate().x;
+      double y = point.getCoordinate().y;
+
+      String crsCode = "AUTO:42001," + x + "," + y;
+
+      CoordinateReferenceSystem utmCrs;
+
+      try {
+        utmCrs = CRS.decode(crsCode);
+        toTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, utmCrs);
+        fromTransform = CRS.findMathTransform(utmCrs, DefaultGeographicCRS.WGS84);
+        pointGeo = JTS.transform(point, toTransform);
+        return JTS.transform(pointGeo.buffer(distance.doubleValue(SI.METER)), fromTransform);
+      } catch (MismatchedDimensionException | TransformException | FactoryException e) {
+        LOGGER.debug("Unable to transform original CRS to UTM.", e);
+      }
+    } else {
+      unit = (Unit<Length>) origCRS.getCoordinateSystem().getAxis(0).getUnit();
+    }
+
+    return pointGeo.buffer(distance.doubleValue(unit));
   }
 }

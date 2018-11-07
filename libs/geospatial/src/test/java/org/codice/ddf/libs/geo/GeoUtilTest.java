@@ -16,6 +16,8 @@ package org.codice.ddf.libs.geo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.nullValue;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -23,15 +25,23 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 public class GeoUtilTest {
+
+  private static final int DEFAULT_DISTANCE_TOLERANCE = 100;
+
+  private static final int DEFAULT_MAX_VERTICES = 32;
 
   @Test
   public void testDMSLatNorth() throws GeoFormatException {
@@ -250,5 +260,36 @@ public class GeoUtilTest {
   public void testLonRangeInvalidMax() throws GeoFormatException {
     String invalidLon = "181:00:00.0W";
     GeospatialUtil.parseDMSLongitudeWithDecimalSeconds(invalidLon);
+  }
+
+  @Test
+  public void testConvertPointRadiusToCirclePolygon() throws ParseException {
+    double lat = 43.25;
+    double lon = -123.45;
+    double radius = 100;
+
+    WKTReader reader = new WKTReader();
+    Geometry expectedCircle =
+        reader.read(
+            "POLYGON ((-123.44876816366177 43.250004839118525, -123.44879054324761 43.24982907875929, -123.44885940119903 43.24965988702688, -123.44897209100492 43.24950376578656, -123.44912428182974 43.249366714570776, -123.44931012498019 43.24925400003869, -123.44952247868014 43.249169953603044, -123.44975318251424 43.24911780499826, -123.44999337099466 43.24909955818223, -123.45023381420664 43.24911591433818, -123.45046527244881 43.24916624493329, -123.45067885124946 43.24924861586916, -123.4508663431246 43.24935986179615, -123.45102054295182 43.24949570773787, -123.45113552484636 43.249650933354495, -123.45120686990035 43.24981957353561, -123.45123183603215 43.249995147617355, -123.4512094634135 43.25017090841798, -123.45114061141513 43.25034010152336, -123.45102792564194 43.250496224859205, -123.45087573631548 43.25063327857405, -123.45068989190095 43.250745995628286, -123.45047753436687 43.250830044225154, -123.45024682471237 43.25088219430127, -123.45000662931133 43.250900441674666, -123.4497661791322 43.25088408507735, -123.44953471493693 43.25083375310927, -123.44932113210359 43.25075138007788, -123.44913363873012 43.25064013165182, -123.44897944016698 43.250504283187965, -123.44886446210654 43.250349055410105, -123.44879312287296 43.25018041375767, -123.44876816366177 43.250004839118525))");
+    Geometry circle =
+        GeospatialUtil.createCirclePolygon(
+            lat, lon, radius, DEFAULT_MAX_VERTICES, DEFAULT_DISTANCE_TOLERANCE);
+    Assert.assertThat(
+        circle.getCoordinates().length,
+        Is.is(equalTo(DEFAULT_MAX_VERTICES + 1))); // additional coordinate for closing the polygon
+    Assert.assertThat(circle, Is.is(equalTo(expectedCircle)));
+  }
+
+  @Test
+  public void testReduceVertices() {
+    double lat = 43.25;
+    double lon = -123.45;
+    double radius = 500000;
+    int maxVertices = 10;
+
+    Geometry circle = GeospatialUtil.createCirclePolygon(lat, lon, radius, maxVertices, 0.5);
+
+    Assert.assertThat(circle.getCoordinates().length, Is.is(lessThan(maxVertices + 1)));
   }
 }
