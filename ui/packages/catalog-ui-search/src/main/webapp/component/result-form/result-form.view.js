@@ -131,15 +131,31 @@ module.exports = Marionette.LayoutView.extend({
       'value'
     )[0]
     let title = this.basicTitle.currentView.model.getValue()[0]
-    if (title === '') {
-      let $validationElement = this.basicTitle.currentView.$el.find(
-        '> .property-label .property-validation'
-      )
-      $validationElement
-        .removeClass('is-hidden')
-        .removeClass('is-warning')
-        .addClass('is-error')
-      $validationElement.attr('title', 'Name field cannot be blank')
+    const $titleValidationElement = this.basicTitle.currentView.$el.find('> .property-label .property-validation')
+    const $attributeValidationElement = this.basicAttributeSpecific.currentView.$el.find('> .property-label .property-validation')
+    const titleEmpty = title === ''
+    const attributesEmpty = descriptors.length < 1
+    if (titleEmpty || attributesEmpty) {
+      if(titleEmpty) {
+        if(!attributesEmpty) {
+          $attributeValidationElement.addClass('is-hidden')
+        }
+        $titleValidationElement
+          .removeClass('is-hidden')
+          .removeClass('is-warning')
+          .addClass('is-error')
+        $titleValidationElement.attr('title', 'Name field cannot be blank')
+      }
+      if(attributesEmpty) {
+        if(!titleEmpty) {
+          $titleValidationElement.addClass('is-hidden')
+        }
+        $attributeValidationElement
+          .removeClass('is-hidden')
+          .removeClass('is-warning')
+          .addClass('is-error')
+        $attributeValidationElement.attr('title', 'Select at least one attribute')
+      }
       Loading.endLoading(view)
       return
     }
@@ -188,24 +204,10 @@ module.exports = Marionette.LayoutView.extend({
       error: _this.cleanup(),
     })
       .done((data, textStatus, jqxhr) => {
-        announcement.announce(
-          {
-            title: 'Success!',
-            message: 'Result form successfully saved',
-            type: 'success',
-          },
-          1500
-        )
+        this.message('Success!', 'Result form successfully saved', 'success')
       })
       .fail((jqxhr, textStatus, errorThrown) => {
-        announcement.announce(
-          {
-            title: 'Result Form Failed to be Saved',
-            message: jqxhr.responseJSON.message,
-            type: 'error',
-          },
-          2500
-        )
+        this.message('Result form failed to be saved', jqxhr.responseJSON.message, 'error')
       })
   },
   message: function(title, message, type) {
