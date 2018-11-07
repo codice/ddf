@@ -112,6 +112,8 @@
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jetty/${pax.web.codice.version}</bundle>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-runtime/${pax.web.codice.version}</bundle>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-spi/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.codice.version}</bundle>
+        <bundle>mvn:javax.el/javax.el-api/3.0.0</bundle>
         <feature>pax-jetty</feature>
         <feature>session-invalidator</feature>
         <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
