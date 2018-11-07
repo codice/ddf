@@ -143,6 +143,9 @@
         <feature>catalog-solr-provider</feature>
         <feature>spatial-geocoding-endpoint</feature>
         <feature>catalog-core-plugins</feature>
+        <bundle>mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
+        <bundle>mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+        <bundle>mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
         <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
