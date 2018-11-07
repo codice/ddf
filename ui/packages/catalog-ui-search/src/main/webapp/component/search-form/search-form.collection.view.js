@@ -30,6 +30,7 @@ module.exports = Marionette.CollectionView.extend({
       queryModel: this.options.queryModel,
       sharingLightboxTitle: 'Search Form Sharing',
       collectionWrapperModel: this.options.collectionWrapperModel,
+      hideInteractionMenu: this.options.hideInteractionMenu,
     }
   },
   filter: function(child) {

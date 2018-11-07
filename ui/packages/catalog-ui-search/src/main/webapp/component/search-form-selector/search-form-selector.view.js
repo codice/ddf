@@ -32,6 +32,7 @@ module.exports = Marionette.LayoutView.extend({
       new SearchFormsView({
         queryModel: this.model,
         hideNewForm: true,
+        hideInteractionMenu: true,
       })
     )
   },

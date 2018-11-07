@@ -49,23 +49,6 @@
 
         <!-- In-container depedencies -->
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>ddf</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <!--
-                If we don't exclude transitives here, we end up polluting the classpath with every
-                transitive dependency of every dependency in the entire codebase. This can cause
-                unpredictable behavior in things like XML clients.
-            -->
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.apache.karaf.bundle</groupId>
             <artifactId>org.apache.karaf.bundle.core</artifactId>
             <version>${karaf.version}</version>
@@ -157,6 +140,20 @@
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>install-profiles</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>test</scope>
         </dependency>
 
         <!-- Test/Pax Exam Runner dependencies -->

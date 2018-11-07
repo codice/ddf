@@ -54,17 +54,19 @@ module.exports = Marionette.LayoutView.extend({
     ) {
       this.$el.addClass('is-static')
     } else {
-      this.searchFormActions.show(
-        new SearchFormInteractionsDropdownView({
-          model: new DropdownModel(),
-          modelForComponent: this.model,
-          collectionWrapperModel: this.options.collectionWrapperModel,
-          queryModel: this.options.queryModel,
-          dropdownCompanionBehaviors: {
-            navigation: {},
-          },
-        })
-      )
+      if (!this.options.hideInteractionMenu) {
+        this.searchFormActions.show(
+          new SearchFormInteractionsDropdownView({
+            model: new DropdownModel(),
+            modelForComponent: this.model,
+            collectionWrapperModel: this.options.collectionWrapperModel,
+            queryModel: this.options.queryModel,
+            dropdownCompanionBehaviors: {
+              navigation: {},
+            },
+          })
+        )
+      }
     }
   },
   changeView: function() {
