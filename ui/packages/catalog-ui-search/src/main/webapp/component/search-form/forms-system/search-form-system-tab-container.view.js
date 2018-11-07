@@ -17,14 +17,18 @@ import React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 const Marionette = require('marionette')
 const $ = require('jquery')
-const SearchFormCollectionView = require('./search-form-sharing.collection.view')
-const SearchFormSharingCollection = require('./search-form-sharing.collection')
+const SystemSearchFormCollectionView = require('./search-form-system.collection.view')
+const SearchFormSystemCollection = require('./search-form-system-collection-instance')
 const CustomElements = require('js/CustomElements')
 const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const Router = require('component/router/router')
 
 const Root = styled.div`
-  height: 100%;
-  width: 100%;
+  > .title {
+    text-align: center;
+    font-size: 20px;
+    padding: 15px;
+  }
   > .collection {
     margin: auto;
     max-width: 1020px;
@@ -32,31 +36,40 @@ const Root = styled.div`
     overflow: auto;
   }
 `
-
 module.exports = Marionette.LayoutView.extend({
   className: 'customElement',
   regions: {
     collection: '.collection',
   },
-  template() {
-    return (
-      <Root>
-        <div className="collection" />
-      </Root>
-    )
-  },
   initialize: function() {
-    this.searchFormSharingCollection = new SearchFormSharingCollection()
+    this.searchFormSystemCollection = SearchFormSystemCollection
     this.listenTo(
-      this.searchFormSharingCollection,
+      this.searchFormSystemCollection,
       'change:doneLoading',
       this.handleLoadingSpinner
     )
   },
+  template() {
+    return (
+      <Root>
+        {Router.attributes.path === 'forms(/)' ? (
+          <React.Fragment>
+            <div className="title">
+              {' '}
+              These are system search forms and <b>cannot be changed</b>{' '}
+            </div>
+            <div className="collection" />{' '}
+          </React.Fragment>
+        ) : (
+          <div className="collection" />
+        )}
+      </Root>
+    )
+  },
   onRender: function() {
     this.collection.show(
-      new SearchFormCollectionView({
-        collection: this.searchFormSharingCollection.getCollection(),
+      new SystemSearchFormCollectionView({
+        collection: this.searchFormSystemCollection.getCollection(),
         model: this.model,
         hideInteractionMenu: this.options.hideInteractionMenu,
       })
@@ -64,15 +77,8 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
   },
-  showCollection: function() {
-    if (
-      this.collection.currentView.searchFormSharingCollection.getDoneLoading()
-    ) {
-      this.$el.find('.loading').hide()
-    }
-  },
   handleLoadingSpinner: function() {
-    if (this.searchFormSharingCollection.getDoneLoading()) {
+    if (this.searchFormSystemCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }
   },

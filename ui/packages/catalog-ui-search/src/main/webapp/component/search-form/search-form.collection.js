@@ -87,7 +87,7 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.isDestroyed) {
       cachedTemplates.forEach(
         function(value, index) {
-          if (this.checkIfOwnerOrSystem(value)) {
+          if (this.checkIfOwner(value)) {
             var utcSeconds = value.created / 1000
             var d = new Date(0)
             d.setUTCSeconds(utcSeconds)
@@ -121,10 +121,8 @@ module.exports = Backbone.AssociatedModel.extend({
   getDoneLoading: function() {
     return this.get('doneLoading')
   },
-  checkIfOwnerOrSystem: function(template) {
-    let myEmail = user.get('user').get('email')
-    let templateCreator = template.creator
-    return myEmail === templateCreator || templateCreator === 'system'
+  checkIfOwner: function(template) {
+    return user.get('user').get('email') === template.creator
   },
   doneLoading: function() {
     this.set('doneLoading', true)
