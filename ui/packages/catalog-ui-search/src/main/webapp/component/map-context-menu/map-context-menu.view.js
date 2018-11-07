@@ -188,6 +188,14 @@ module.exports = Marionette.LayoutView.extend({
     this.attachListenersToClipboard(
       new Clipboard(this.el.querySelector('.interaction-copy-dms'))
     )
+    if (this.options.mapModel.get('clickMgrs')) {
+      this.attachListenersToClipboard(
+        new Clipboard(this.el.querySelector('.interaction-copy-mgrs'))
+      )
+    }
+    this.attachListenersToClipboard(
+      new Clipboard(this.el.querySelector('.interaction-copy-utm-ups'))
+    )
   },
   attachListenersToClipboard: function(clipboard) {
     clipboard.on('success', function(e) {
