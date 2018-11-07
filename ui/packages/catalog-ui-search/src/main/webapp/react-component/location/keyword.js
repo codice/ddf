@@ -39,7 +39,6 @@ class Keyword extends React.Component {
       switch (geometry.type) {
         case 'Polygon': {
           const polygon = geometry.coordinates[0]
-          debugger
           this.props.setState({
             hasKeyword: true,
             locationType: 'latlon',
