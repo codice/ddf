@@ -167,7 +167,7 @@ install it into your local m2 using the maven coordinate
 `mvn:org.codice.ddf/ui/${project.version}/zip/packages`.
 
 To pull in the sources downstream, and deploy them to the target folder,
-do:
+add this to your pom.xml:
 
 ```xml
 <build>
