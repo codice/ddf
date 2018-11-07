@@ -13,6 +13,8 @@ class Keyword extends React.Component {
       value: '',
       loading: false,
       error: null,
+      polygonBufferUnits: props.polygonBufferUnits,
+      polygonBufferWidth: props.polygonBufferWidth,
     }
     this.fetch = this.props.fetch || fetch
   }
@@ -37,6 +39,7 @@ class Keyword extends React.Component {
       switch (geometry.type) {
         case 'Polygon': {
           const polygon = geometry.coordinates[0]
+          debugger
           this.props.setState({
             hasKeyword: true,
             locationType: 'latlon',
@@ -76,7 +79,12 @@ class Keyword extends React.Component {
   }
   render() {
     const suggester = this.props.suggester || (input => this.suggester(input))
-    const { polygon, cursor } = this.props
+    const {
+      polygon,
+      cursor,
+      polygonBufferWidth,
+      polygonBufferUnits,
+    } = this.props
     const { value, loading, error } = this.state
     return (
       <div>
@@ -94,7 +102,12 @@ class Keyword extends React.Component {
         ) : null}
         {!loading && error !== null ? <div>{error}</div> : null}
         {!loading && polygon !== undefined ? (
-          <Polygon polygon={polygon} cursor={cursor} />
+          <Polygon
+            polygon={polygon}
+            cursor={cursor}
+            polygonBufferWidth={polygonBufferWidth}
+            polygonBufferUnits={polygonBufferUnits}
+          />
         ) : null}
       </div>
     )
