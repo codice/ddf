@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
@@ -41,7 +44,13 @@ import org.codice.ddf.spatial.geocoding.GeoNamesRemoteDownloadException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 
 public class GeoNamesFileExtractor implements GeoEntryExtractor {
+
   private static final int BUFFER_SIZE = 4096;
+
+  private static final String[] SCHEMES = {"http", "https"};
+
+  private static final UrlValidator URL_VALIDATOR =
+      new UrlValidator(SCHEMES, UrlValidator.ALLOW_LOCAL_URLS);
 
   private GeoEntryCreator geoEntryCreator;
 
@@ -144,15 +153,21 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
   private InputStream getInputStreamFromResource(
       String resource, ProgressCallback extractionCallback)
       throws GeoEntryExtractionException, GeoNamesRemoteDownloadException {
-
-    if (FilenameUtils.isExtension(resource, "zip")) {
+    boolean resourceIsValidUrl = URL_VALIDATOR.isValid(resource);
+    if (!resourceIsValidUrl && FilenameUtils.isExtension(resource, "zip")) {
       InputStream inputStream = getFileInputStream(resource);
       return unZipInputStream(resource, inputStream);
 
-    } else if (FilenameUtils.isExtension(resource, "txt")) {
+    } else if (!resourceIsValidUrl && FilenameUtils.isExtension(resource, "txt")) {
       return getFileInputStream(resource);
 
-    } else if (StringUtils.isAlphanumeric(resource)) {
+    } else if (StringUtils.isNotBlank(resource)) {
+
+      if (!StringUtils.isAlphanumeric(resource) && !resourceIsValidUrl) {
+        throw new GeoEntryExtractionException(
+            String.format(
+                "Unable to update the index. %s is not a supported file path.", resource));
+      }
 
       // Support the "all" keyword
       if (resource.equalsIgnoreCase("all")) {
@@ -161,7 +176,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
       } else if (resource.matches("((?i)cities[0-9]+)")) {
         resource = resource.toLowerCase();
         // Support case insensitive country codes
-      } else if (!resource.equalsIgnoreCase("allCountries")) {
+      } else if (!resource.equalsIgnoreCase("allCountries") && !resourceIsValidUrl) {
         resource = resource.toUpperCase();
       }
 
@@ -248,10 +263,14 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
   }
 
   public Response createConnection(String resource) {
-    webClient = WebClient.create(url + resource + ".zip");
-    webClient.path(url + resource + ".zip");
-    Response response = webClient.get();
-    return response;
+    if (URL_VALIDATOR.isValid(resource)) {
+      webClient = WebClient.create(resource);
+      webClient.path(resource);
+    } else {
+      webClient = WebClient.create(url + resource + ".zip");
+      webClient.path(url + resource + ".zip");
+    }
+    return webClient.get();
   }
 
   public InputStream getUrlInputStreamFromWebClient() throws GeoNamesRemoteDownloadException {
@@ -278,10 +297,16 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
     FileInputStream fileInputStream;
 
     try {
-      File file = new File(resource);
+      URI fileUri;
+      if (resource.startsWith("file://")) {
+        fileUri = new URI(resource);
+      } else {
+        fileUri = new URI("file://" + resource);
+      }
+      File file = new File(fileUri);
       fileSize = file.getTotalSpace();
       fileInputStream = new FileInputStream(file);
-    } catch (FileNotFoundException e) {
+    } catch (FileNotFoundException | URISyntaxException e) {
       throw new GeoEntryExtractionException(resource + " cannot be found", e);
     }
     return fileInputStream;

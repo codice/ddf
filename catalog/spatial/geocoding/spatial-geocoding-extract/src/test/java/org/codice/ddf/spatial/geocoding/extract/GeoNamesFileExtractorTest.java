@@ -23,6 +23,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -69,60 +70,6 @@ public class GeoNamesFileExtractorTest extends TestBase {
     geoNamesFileExtractor = Mockito.spy(new GeoNamesFileExtractor());
     geoNamesFileExtractor.setGeoEntryCreator(new GeoNamesCreator());
     geoNamesFileExtractor.setUrl(URL);
-  }
-
-  private void verifyGeoEntryList(final List<GeoEntry> geoEntryList) {
-    assertEquals(3, geoEntryList.size());
-
-    verifyGeoEntry(
-        geoEntryList.get(0),
-        "Kingman",
-        35.18944,
-        -114.05301,
-        "PPLA2",
-        28068,
-        "IGM,Kingman,Kingmen,Kingmun",
-        "USA");
-    verifyGeoEntry(
-        geoEntryList.get(1),
-        "Lake Havasu City",
-        34.4839,
-        -114.32245,
-        "PPL",
-        52527,
-        "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti",
-        "USA");
-    verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961, "MZJ", "USA");
-  }
-
-  private void testFileExtractionAllAtOnce(
-      final String fileLocation, final ProgressCallback mockProgressCallback)
-      throws GeoEntryExtractionException, GeoNamesRemoteDownloadException {
-    final List<GeoEntry> geoEntryList =
-        geoNamesFileExtractor.getGeoEntries(fileLocation, mockProgressCallback);
-
-    if (mockProgressCallback != null) {
-      verify(mockProgressCallback, atLeastOnce()).updateProgress(anyInt());
-    }
-
-    verifyGeoEntryList(geoEntryList);
-  }
-
-  private void testFileExtractionStreaming(final String fileLocation)
-      throws GeoEntryExtractionException, GeoNamesRemoteDownloadException,
-          GeoEntryIndexingException {
-    final ExtractionCallback extractionCallback = mock(ExtractionCallback.class);
-
-    final ArgumentCaptor<GeoEntry> geoEntryArgumentCaptor = ArgumentCaptor.forClass(GeoEntry.class);
-
-    geoNamesFileExtractor.pushGeoEntriesToExtractionCallback(fileLocation, extractionCallback);
-
-    verify(extractionCallback, atLeastOnce()).updateProgress(anyInt());
-    verify(extractionCallback, times(3)).extracted(geoEntryArgumentCaptor.capture());
-
-    final List<GeoEntry> capturedGeoEntryList = geoEntryArgumentCaptor.getAllValues();
-
-    verifyGeoEntryList(capturedGeoEntryList);
   }
 
   @Test
@@ -233,6 +180,84 @@ public class GeoNamesFileExtractorTest extends TestBase {
     setMockConnection(404, 12345);
     doReturn(null).when(geoNamesFileExtractor).getUrlInputStreamFromWebClient();
     geoNamesFileExtractor.getGeoEntries("valid", mock(ProgressCallback.class));
+  }
+
+  @Test
+  public void testDownloadFromValidUrl() throws Exception {
+    setMockConnection(200, 192837);
+    setMockInputStream("/geonames/AU.zip");
+
+    List<GeoEntry> entries =
+        geoNamesFileExtractor.getGeoEntries("http://foo.bar/AU.zip", mock(ProgressCallback.class));
+    verifyGeoEntryList(entries);
+  }
+
+  @Test(expected = GeoNamesRemoteDownloadException.class)
+  public void testDownloadFailureFromUrl() throws Exception {
+    setMockConnection(404, 102938437);
+    doThrow(GeoNamesRemoteDownloadException.class)
+        .when(geoNamesFileExtractor)
+        .getUrlInputStreamFromWebClient();
+    geoNamesFileExtractor.getGeoEntries("http://fake.com/file.zip", mock(ProgressCallback.class));
+  }
+
+  @Test
+  public void testDownloadFromFileUrl() throws Exception {
+    testFileExtractionAllAtOnce("file://" + VALID_TEXT_FILE_PATH, mock(ProgressCallback.class));
+  }
+
+  private void verifyGeoEntryList(final List<GeoEntry> geoEntryList) {
+    assertEquals(3, geoEntryList.size());
+
+    verifyGeoEntry(
+        geoEntryList.get(0),
+        "Kingman",
+        35.18944,
+        -114.05301,
+        "PPLA2",
+        28068,
+        "IGM,Kingman,Kingmen,Kingmun",
+        "USA");
+    verifyGeoEntry(
+        geoEntryList.get(1),
+        "Lake Havasu City",
+        34.4839,
+        -114.32245,
+        "PPL",
+        52527,
+        "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti",
+        "USA");
+    verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961, "MZJ", "USA");
+  }
+
+  private void testFileExtractionAllAtOnce(
+      final String fileLocation, final ProgressCallback mockProgressCallback)
+      throws GeoEntryExtractionException, GeoNamesRemoteDownloadException {
+    final List<GeoEntry> geoEntryList =
+        geoNamesFileExtractor.getGeoEntries(fileLocation, mockProgressCallback);
+
+    if (mockProgressCallback != null) {
+      verify(mockProgressCallback, atLeastOnce()).updateProgress(anyInt());
+    }
+
+    verifyGeoEntryList(geoEntryList);
+  }
+
+  private void testFileExtractionStreaming(final String fileLocation)
+      throws GeoEntryExtractionException, GeoNamesRemoteDownloadException,
+          GeoEntryIndexingException {
+    final ExtractionCallback extractionCallback = mock(ExtractionCallback.class);
+
+    final ArgumentCaptor<GeoEntry> geoEntryArgumentCaptor = ArgumentCaptor.forClass(GeoEntry.class);
+
+    geoNamesFileExtractor.pushGeoEntriesToExtractionCallback(fileLocation, extractionCallback);
+
+    verify(extractionCallback, atLeastOnce()).updateProgress(anyInt());
+    verify(extractionCallback, times(3)).extracted(geoEntryArgumentCaptor.capture());
+
+    final List<GeoEntry> capturedGeoEntryList = geoEntryArgumentCaptor.getAllValues();
+
+    verifyGeoEntryList(capturedGeoEntryList);
   }
 
   private void setMockInputStream(String filePath)
