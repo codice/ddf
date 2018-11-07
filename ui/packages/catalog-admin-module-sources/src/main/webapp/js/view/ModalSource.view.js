@@ -379,6 +379,9 @@ define([
         )
         view.renderDetails(config)
         view.rebind(properties)
+        view.$el
+          .find('.control-group>.source-info')
+          .text(config.get('service').attributes.description)
       }
       view.$el.trigger('shown.bs.modal')
     },
