@@ -193,22 +193,25 @@ class EmbeddedSolrFactorySpec extends Specification {
     }
 
     // TODO: Ask Patrick for help with the class loader issue
-    /*
+
     @Unroll
     def 'test creating an embedded Solr server with a store that is #store_that_is'() {
         given:
+        PublicSolrSettings.setInMemory(in_memory)
         def factory = Spy(EmbeddedSolrFactory)
         def container = Mock(SolrCoreContainer)
+        factory.newContainer(_) >> container
         def loader = Mock(SolrResourceLoader)
         def core = Mock(SolrCore)
         def configFileProxy = Mock(ConfigurationFileProxy)
-        PublicSolrSettings.setInMemory(in_memory)
 
         def config = Mock(SolrConfig) {
             getResourceLoader() >> Mock(SolrResourceLoader) {
                 getInstancePath() >> instancePath
             }
         }
+        factory.getConfigProxy() >> configFileProxy
+
         def files = Mock(EmbeddedSolrFiles) {
             getConfigHome() >> Mock(File) {
                 toPath() >> configHomePath
@@ -260,7 +263,6 @@ class EmbeddedSolrFactorySpec extends Specification {
         'in memory'     || true      || 0
     }
 
-*/
 
     def 'test creating an embedded Solr server when the schema index was already cached'() {
         given:

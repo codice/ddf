@@ -41,6 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.net.ssl.SSLContext;
+import org.apache.commons.lang.Validate;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
@@ -53,7 +54,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.Args;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -81,7 +81,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
-    Args.notEmpty(coreName, "Solr core name is missing. Cannot create Solr client.");
+    Validate.notEmpty(coreName, "Solr core name is missing. Cannot create Solr client.");
     LOGGER.debug(
         "Solr({}): Creating an HTTP Solr client using url [{}]", coreName, getCoreUrl(coreName));
     return new SolrClientAdapter(coreName, () -> createSolrHttpClient(coreName));
@@ -150,11 +150,12 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     return keyStore;
   }
 
-  private void createSolrCore(String coreName, CloseableHttpClient httpClient)
+  @VisibleForTesting
+  void createSolrCore(String coreName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
-    Args.check(
+    Validate.isTrue(
         isSolrDataDirWritable(),
-        "The solr data dir is not configured or is not writable. Cannot create HTTP solr client.");
+        "The solr data dir is not configured or is not writable. Cannot create core.");
     String solrUrl = getUrl();
     try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
         HttpSolrClient client =

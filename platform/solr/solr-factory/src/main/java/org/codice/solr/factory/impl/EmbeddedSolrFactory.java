@@ -71,7 +71,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    */
   @VisibleForTesting
   EmbeddedSolrServer getEmbeddedSolrServer(String coreName) {
-    ConfigurationFileProxy configProxy = new ConfigurationFileProxy();
+    ConfigurationFileProxy configProxy = getConfigProxy();
     Validate.notNull(configProxy, "invalid null Solr config proxy");
     String schemaXml = getDefaultSchemaXml();
     String configXml = getDefaultSolrconfigXml();
@@ -122,6 +122,11 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     } finally {
       Thread.currentThread().setContextClassLoader(tccl);
     }
+  }
+
+  @VisibleForTesting
+  ConfigurationFileProxy getConfigProxy() {
+    return new ConfigurationFileProxy();
   }
 
   @VisibleForTesting

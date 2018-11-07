@@ -20,4 +20,9 @@ public class MockSolrProperty {
     System.setProperty(name, key);
     PublicSolrSettings.loadSystemProperties();
   }
+
+  public static void clearProperty(String name) {
+    System.clearProperty(name);
+    PublicSolrSettings.loadSystemProperties();
+  }
 }

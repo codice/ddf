@@ -45,11 +45,6 @@ class HttpSolrClientFactorySpec extends Specification {
 
   static final int AVAILABLE_TIMEOUT_IN_SECS = 25
 
-  def cleanup() {
-    // reset the config store
-//    ConfigurationStore.instance.dataDirectoryPath = null
-  }
-
   @Timeout(HttpSolrClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
   @Unroll
   def 'test new client becoming available when system property solr.http url is #solr_url_is'() {
@@ -128,7 +123,7 @@ class HttpSolrClientFactorySpec extends Specification {
     and:
       System.setProperty("solr.http.url", SOLR_URL)
       System.setProperty("solr.data.dir", DATA_DIR)
-      ProtectedSolrSettings.loadSystemProperties();
+      PublicSolrSettings.loadSystemProperties();
 
     when:
       def client = factory.newClient(CORE)
@@ -151,29 +146,25 @@ class HttpSolrClientFactorySpec extends Specification {
     and: "the underlying client should never be closed"
       0 * httpClient.close()
 
-//    and: "the config store is initialized and its data directory was or wasn't updated"
-//      ConfigurationStore.instance.dataDirectoryPath == dataDir
-
   }
 
 
-//  def 'test missing data directory'() {
-//    given:
-//      def factory = new HttpSolrClientFactory();
-//
-//    and:
-//      System.setProperty("solr.http.url", SOLR_URL)
-//    System.clearProperty("solr.data.dir")
-//    PublicSolrSettings.loadSystemProperties();
-//
-//    when:
-//      factory.newClient(CORE)
-//
-//    then:
-//      def e = thrown(IllegalArgumentException)
-//
-//      e.message.contains("data directory")
-//  }
+  def 'test missing data directory'() {
+    given:
+      def factory = new HttpSolrClientFactory();
+
+    and:
+      MockSolrProperty.setProperty("solr.http.url", SOLR_URL)
+      MockSolrProperty.clearProperty("solr.data.dir")
+
+    when:
+    factory.createSolrCore(CORE, null)
+
+    then:
+      def e = thrown(IllegalArgumentException)
+
+      e.message.contains("Cannot create core")
+  }
 
   def 'test new client with a null core'() {
     given:
