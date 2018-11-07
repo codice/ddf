@@ -102,13 +102,7 @@ define([
             this.$el.find('input').select();
         },
         hasChanged: function(){
-            var input = this.$el.find('input');
             var value = this.$el.find('input').val();
-
-            if (input.attr('name') === 'anyText' && value === '') {
-                input.addClass('has-validation-issues');
-            }
-
             return value !== this.model.getInitialValue();
         },
         getCurrentValue: function(){
