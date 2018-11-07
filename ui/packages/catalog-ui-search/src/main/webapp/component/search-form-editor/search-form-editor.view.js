@@ -107,9 +107,21 @@ module.exports = Marionette.LayoutView.extend({
             model: this.model,
             isForm: true,
             isFormBuilder: true,
+            isSearchFormEditor: true,
             onSave: () => {
-              this.saveTemplateToBackend(collection, id)
-              this.navigateToForms()
+              if (this.model.get('title').trim() !== '') {
+                this.saveTemplateToBackend(collection, id)
+                this.navigateToForms()
+              } else {
+                announcement.announce(
+                  {
+                    title: 'Some fields need your attention',
+                    message: 'Search form title cannot be blank.',
+                    type: 'error',
+                  },
+                  2500
+                )
+              }
             },
             onCancel: () => {
               this.navigateToForms()
