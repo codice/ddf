@@ -73,7 +73,7 @@ define([
             //that we have enough values to search
             defaults: function () {
                 return _merge({
-                    cql: "anyText ILIKE '*'",
+                    cql: "anyText ILIKE '%'",
                     filterTree: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
                     associatedFormModel: undefined,
                     title: 'Search Name',
