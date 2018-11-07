@@ -40,11 +40,7 @@ function leftPad(numToPad, size) {
 
 function massageData(attributeName, attributeValue) {
   if (metacardDefinitions.metacardTypes[attributeName].type === 'DATE') {
-    return (
-      attributeName.toUpperCase() +
-      ': ' +
-      Common.getHumanReadableDateTime(attributeValue)
-    )
+    attributeValue = Common.getHumanReadableDateTime(attributeValue)
   }
   return attributeName.toUpperCase() + ': ' + attributeValue
 }
