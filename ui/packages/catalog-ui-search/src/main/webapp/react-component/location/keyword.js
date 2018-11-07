@@ -13,8 +13,6 @@ class Keyword extends React.Component {
       value: '',
       loading: false,
       error: null,
-      polygonBufferUnits: props.polygonBufferUnits,
-      polygonBufferWidth: props.polygonBufferWidth,
     }
     this.fetch = this.props.fetch || fetch
   }
