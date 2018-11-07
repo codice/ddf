@@ -79,13 +79,25 @@ export const message = (text, action) => ({
   action
 })
 
-export const update = (value) => (dispatch, getState) => {
-  updateLayout(value, getState)
+export const validateJson = json => {
+  try {
+    JSON.parse(json)
+    return 'valid'
+  } catch (e) {
+    return 'invalid'
+  }
+}
 
-  return dispatch({
-    type: 'default-layout/UPDATE',
-    value
-  })
+export const update = value => (dispatch, getState) => {
+  const isValid = validateJson(value)
+  if (isValid === 'valid') {
+    updateLayout(value, getState)
+
+    return dispatch({
+      type: 'default-layout/UPDATE',
+      value
+    })
+  }
 }
 
 export const reset = () => (dispatch, getState) => {
@@ -104,10 +116,17 @@ export const updateLayout = (value, getState) => {
   const editor = getEditor(state)
 
   const settings = editor.config
-  settings.content = convertLayout(value, true)
-  editor.destroy()
-  editor.config = settings
-  editor.init()
+  const prevSettings = settings.content
+  try {
+    settings.content = convertLayout(value, true)
+    editor.destroy()
+    editor.config = settings
+    editor.init()
+  } catch (e) {
+    editor.destroy()
+    editor.config.content = prevSettings
+    editor.init()
+  }
 }
 
 export const rendered = () => (dispatch, getState) => {}
