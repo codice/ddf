@@ -103,14 +103,24 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
   public static final String CQL_KILOMETERS = "kilometers";
 
+  private static final String EXPRESSION_NOT_SUPPORTED =
+      " expression not supported by Filter Adapter.";
+
+  private static final String FILTER_NOT_SUPPORTED = " filter not supported by Filter Adapter.";
+
   private static final double ERROR_THRESHOLD = .000001;
 
   private static final FilterFactory FF = new FilterFactoryImpl();
 
-  // Does not support fractional values
-  private static final Pattern RELATIVE_TEMPORAL_MATCHER =
-      Pattern.compile(
-          "RELATIVE\\(P(?!$)(\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?(T(?=\\d)(\\d+H)?(\\d+M)?(\\d+S)?)?\\)");
+  // We shouldn't be using a regex here. This should be replaced by a function like the ones found
+  // in ddf.catalog.impl.filter
+  private static final String DECIMAL_REGEX = "\\\\d*\\\\.\\\\d+|\\\\d+\\\\.?\\\\d*";
+
+  private static final String SHORTENED_RELATIVE_TEMPORAL_REGEX =
+      "RELATIVE\\(P(?!$)(?:(dec)Y)?(?:(dec)M)?(?:(dec)W)?(?:(dec)D)?(?:T(?=dec)(?:(dec)H)?(?:(dec)M)?(?:(dec)S)?)?\\)";
+
+  private static final Pattern RELATIVE_TEMPORAL_REGEX =
+      Pattern.compile(SHORTENED_RELATIVE_TEMPORAL_REGEX.replaceAll("dec", DECIMAL_REGEX));
 
   public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
       throws UnsupportedQueryException {
@@ -128,15 +138,15 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
   public Object visit(NilExpression expression, Object delegate) {
     throw new UnsupportedOperationException(
-        NilExpression.class.getSimpleName() + " expression not supported by Filter Adapter.");
+        NilExpression.class.getSimpleName() + EXPRESSION_NOT_SUPPORTED);
   }
 
   public Object visit(Add expression, Object delegate) {
-    throw new UnsupportedOperationException(Add.NAME + " expression not supported.");
+    throw new UnsupportedOperationException(Add.NAME + EXPRESSION_NOT_SUPPORTED);
   }
 
   public Object visit(Divide expression, Object delegate) {
-    throw new UnsupportedOperationException(Divide.NAME + " expression not supported.");
+    throw new UnsupportedOperationException(Divide.NAME + EXPRESSION_NOT_SUPPORTED);
   }
 
   @Override
@@ -211,8 +221,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
   }
 
   public Object visit(Id filter, Object delegate) {
-    throw new UnsupportedOperationException(
-        Id.class.getSimpleName() + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(Id.class.getSimpleName() + FILTER_NOT_SUPPORTED);
   }
 
   @SuppressWarnings("unchecked")
@@ -319,22 +328,11 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     List<Object> functionArgs = filterValues.functionArgs;
 
     // Special case to handle relative temporal queries
-    if (literal instanceof String
-        && RELATIVE_TEMPORAL_MATCHER.matcher((String) literal).matches()) {
+    if (literal instanceof String && RELATIVE_TEMPORAL_REGEX.matcher((String) literal).matches()) {
       DateTime currentDateTime = new DateTime();
 
-      // Split out the ISO 8601 duration from the ECQL function
-      String duration = (((String) literal).split("[\\(\\)]"))[1];
-
-      org.joda.time.Period period = org.joda.time.Period.parse(duration);
-
-      DateTime pastDateTime =
-          currentDateTime
-              .minusYears(period.getYears())
-              .minusMonths(period.getMonths())
-              .minusDays(period.getDays())
-              .minusHours(period.getHours())
-              .minusMinutes(period.getMinutes());
+      org.joda.time.Period period = PeriodParser.parse((String) literal, RELATIVE_TEMPORAL_REGEX);
+      DateTime pastDateTime = currentDateTime.minus(period);
 
       return ((FilterDelegate<?>) delegate)
           .propertyIsBetween(propertyName, pastDateTime.toDate(), currentDateTime.toDate());
@@ -876,8 +874,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
   }
 
   public Object visit(AnyInteracts anyInteracts, Object delegate) {
-    throw new UnsupportedOperationException(
-        AnyInteracts.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(AnyInteracts.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(Begins begins, Object delegate) {
@@ -896,47 +893,39 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
   }
 
   public Object visit(BegunBy begunBy, Object delegate) {
-    throw new UnsupportedOperationException(
-        BegunBy.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(BegunBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(EndedBy endedBy, Object delegate) {
-    throw new UnsupportedOperationException(
-        EndedBy.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(EndedBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(Ends ends, Object delegate) {
-    throw new UnsupportedOperationException(Ends.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(Ends.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(Meets meets, Object delegate) {
-    throw new UnsupportedOperationException(
-        Meets.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(Meets.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(MetBy metBy, Object delegate) {
-    throw new UnsupportedOperationException(
-        MetBy.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(MetBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(OverlappedBy overlappedBy, Object delegate) {
-    throw new UnsupportedOperationException(
-        OverlappedBy.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(OverlappedBy.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(TContains contains, Object delegate) {
-    throw new UnsupportedOperationException(
-        TContains.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(TContains.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(TEquals equals, Object delegate) {
-    throw new UnsupportedOperationException(
-        TEquals.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(TEquals.NAME + FILTER_NOT_SUPPORTED);
   }
 
   public Object visit(TOverlaps contains, Object delegate) {
-    throw new UnsupportedOperationException(
-        TOverlaps.NAME + " filter not supported by Filter Adapter.");
+    throw new UnsupportedOperationException(TOverlaps.NAME + FILTER_NOT_SUPPORTED);
   }
 
   private ExpressionValues getExpressions(BinarySpatialOperator filter, Object delegate) {

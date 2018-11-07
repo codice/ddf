@@ -25,14 +25,18 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.delegate.FilterToTextDelegate;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.filter.proxy.adapter.PeriodParser;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.impl.filter.JTSGeometryWrapper;
 import ddf.catalog.source.UnsupportedQueryException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.regex.Pattern;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.geometry.GeometryBuilder;
@@ -98,6 +102,14 @@ public class FilterAdapterTest {
       new DefaultPeriod(EPOCH_INSTANT, EPOCH_PLUS_DAY_INSTANT);
 
   private static final PeriodDuration DAY_DURATION = new DefaultPeriodDuration(DAY_IN_MILLISECONDS);
+
+  private static final String DECIMAL_REGEX = "\\\\d*\\\\.\\\\d+|\\\\d+\\\\.?\\\\d*";
+
+  private static final String SHORTENED_RELATIVE_TEMPORAL_REGEX =
+      "RELATIVE\\(P(?!$)(?:(dec)Y)?(?:(dec)M)?(?:(dec)W)?(?:(dec)D)?(?:T(?=dec)(?:(dec)H)?(?:(dec)M)?(?:(dec)S)?)?\\)";
+
+  private static final Pattern RELATIVE_TEMPORAL_REGEX =
+      Pattern.compile(SHORTENED_RELATIVE_TEMPORAL_REGEX.replaceAll("dec", DECIMAL_REGEX));
 
   @Test
   public void testIncludeFilter() {
@@ -622,6 +634,25 @@ public class FilterAdapterTest {
     } catch (Exception e) {
       fail("The filter was not handled as a between query after generating literal dates.");
     }
+  }
+
+  @Test
+  public void testPeriodParser() {
+    BigDecimal yearsDecimal = new BigDecimal("0.1");
+    BigDecimal monthsDecimal = new BigDecimal("0.2");
+    BigDecimal secondsInAYear = new BigDecimal(ChronoUnit.YEARS.getDuration().getSeconds());
+    BigDecimal secondsInAMonth = new BigDecimal(ChronoUnit.MONTHS.getDuration().getSeconds());
+    int yearDecimalInSeconds = yearsDecimal.multiply(secondsInAYear).intValue();
+    int monthDecimalInSeconds = monthsDecimal.multiply(secondsInAMonth).intValue();
+    org.joda.time.Period period =
+        org.joda.time.Period.parse(
+            String.format("P8MT6H%dS", yearDecimalInSeconds + monthDecimalInSeconds));
+    assertThat(period, is(PeriodParser.parse("RELATIVE(P.1Y8.2MT6H)", RELATIVE_TEMPORAL_REGEX)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPeriodParserWithBadFormat() {
+    PeriodParser.parse("invalid.Text", RELATIVE_TEMPORAL_REGEX);
   }
 
   @Test

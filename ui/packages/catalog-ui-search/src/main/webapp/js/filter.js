@@ -20,6 +20,15 @@ var wkx = require('wkx');
 var moment = require('moment');
 var cql = require('js/cql');
 
+// strip extra quotes
+const stripQuotes = (value) => {
+    return value.replace(/^"(.+(?="$))"$/, '$1');
+}
+
+const getDurationFromRelativeValue = (value) => {
+    return value.substring(9, value.length - 1);
+}
+
 function checkTokenWithWildcard(token, filter) {
     var filterRegex = new RegExp(filter.split('*').join('.*'));
     return filterRegex.test(token);
@@ -212,6 +221,26 @@ function matchesAFTER(value, filter) {
     return false;
 }
 
+function matchesRelative(value, filter) {
+    const date1 = moment(value);
+    const date2 = moment().subtract(moment.duration(getDurationFromRelativeValue(filter.value)));
+    if (date1 >= date2) {
+        return true;
+    }
+    return false;
+}
+
+/*
+    Because the relative and = matchers use the same comparator we need to differentiate them by type
+*/
+function determineEqualsMatcher(filter) {
+    if (metacardDefinitions.metacardTypes[stripQuotes(filter.property)].type === 'DATE') {
+        return matchesRelative;
+    } else {
+        return matchesEQUALS;
+    }
+}
+
 function flattenMultivalueProperties(valuesToCheck) {
     return _.flatten(valuesToCheck, true);
 }
@@ -264,7 +293,7 @@ function matchesFilter(metacard, filter) {
                     }
                     break;
                 case '=':
-                    if (matchesEQUALS(valuesToCheck[i], filter)) {
+                    if (determineEqualsMatcher(filter)(valuesToCheck[i], filter)){
                         return true;
                     }
                     break;
