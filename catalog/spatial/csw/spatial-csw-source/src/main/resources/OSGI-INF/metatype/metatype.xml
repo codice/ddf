@@ -110,7 +110,7 @@
     </OCD>
 
     <OCD name="CSW Federation Profile Source"
-         description="Full fidelity CSW Federation Profile. Use this when federating to a DDF based system."
+         description="Full fidelity CSW Federation Profile. Use this when federating to a DDF-based system."
          id="Csw_Federation_Profile_Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"

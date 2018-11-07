@@ -15,7 +15,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="WFS v1.0.0 Federated Source" id="Wfs_v1_0_0_Federated_Source"
-         description="WFS v1.0.0 Federated Source">
+         description="Used to query a Web Feature Service (WFS) version 1.0.0 compliant service">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
             type="String" default="WFS_v1_0_0"/>
