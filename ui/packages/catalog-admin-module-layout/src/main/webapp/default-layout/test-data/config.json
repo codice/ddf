@@ -289,7 +289,7 @@
         "optionValues": []
       },
       {
-        "defaultValue": ["title","created", "modified", "thumbnail"],
+        "defaultValue": ["title", "created", "modified", "thumbnail"],
         "optionLabels": [],
         "name": "Summary Metacard Attributes",
         "description": "List of metacard attributes to display in the summary view.",
