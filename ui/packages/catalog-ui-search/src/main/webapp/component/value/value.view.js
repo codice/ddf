@@ -33,6 +33,7 @@ const InputGeometryView = require('component/input/geometry/input-geometry.view'
 const InputAutocompleteView = require('component/input/autocomplete/input-autocomplete.view')
 const InputColorView = require('component/input/color/input-color.view')
 const InputWithParamView = require('component/input/with-param/input-with-param.view')
+const InputPasswordView = require('component/input/password/input-password.view')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -149,6 +150,13 @@ module.exports = Marionette.LayoutView.extend({
         case 'near':
           this.input.show(
             new InputWithParamView({
+              model: this.model,
+            })
+          )
+          break
+        case 'password':
+          this.input.show(
+            new InputPasswordView({
               model: this.model,
             })
           )
