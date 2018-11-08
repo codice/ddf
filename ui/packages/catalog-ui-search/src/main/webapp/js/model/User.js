@@ -143,6 +143,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
       animation: true,
       hoverPreview: true,
       querySettings: new QuerySettings(),
+      mapHome: undefined,
     }
   },
   relations: [
@@ -192,6 +193,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'change:goldenLayoutUpload', this.savePreferences)
     this.listenTo(this, 'change:goldenLayoutMetacard', this.savePreferences)
     this.listenTo(this, 'change:goldenLayoutAlert', this.savePreferences)
+    this.listenTo(this, 'change:mapHome', this.savePreferences)
   },
   handleRemove: function() {
     this.savePreferences()

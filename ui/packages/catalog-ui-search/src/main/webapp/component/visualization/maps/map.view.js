@@ -250,7 +250,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   zoomToHome: function() {
     const home = [
-      user.get('user').get('mapHome'),
+      user
+        .get('user')
+        .get('preferences')
+        .get('mapHome'),
       homeBoundingBox,
       defaultHomeBoundingBox,
     ].find(element => element !== undefined)
@@ -259,7 +262,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   saveAsHome: function() {
     const boundingBox = this.map.getBoundingBox()
-    user.get('user').set('mapHome', boundingBox)
+    user
+      .get('user')
+      .get('preferences')
+      .set('mapHome', boundingBox)
   },
   addPanZoom: function() {
     const self = this
@@ -277,7 +283,7 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
-    // TODO replace Save button once this is refactored to React
+    // TODO combine home and save buttons once this is refactored to React: https://codice.atlassian.net/browse/DDF-4327
     this.$el
       .find('.cesium-viewer-toolbar')
       .append(
@@ -388,6 +394,7 @@ module.exports = Marionette.LayoutView.extend({
     this.addLayers()
     this.addSettings()
     this.endLoading()
+    this.zoomToHome()
   },
   addLayers: function() {
     this.$el
