@@ -224,7 +224,7 @@
         <javax-el.version>3.0.0</javax-el.version>
         <javax-mail.version>1.5.6</javax-mail.version>
         <jaxb.version>2.2.11</jaxb.version>
-        <jaxb2.version>0.9.4</jaxb2.version>
+        <jvnet.jaxb2.version>0.10.0</jvnet.jaxb2.version>
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
@@ -273,6 +273,7 @@
         <osgi.version>5.0.0</osgi.version>
         <owasp-html-sanitizer.version>20171016.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
+        <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <poi.version>3.17</poi.version>
         <protobuf.version>3.5.1</protobuf.version>
