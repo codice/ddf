@@ -43,11 +43,7 @@ module.exports = Marionette.ItemView.extend({
                 ) : (
                   <span className="fa fa-exclamation-triangle" />
                 )}
-                {source.local ? (
-                  <span className="fa source-icon fa-home" />
-                ) : (
-                  <span className="fa source-icon fa-cloud" />
-                )}
+                <span className={`fa source-icon ${source.local ? 'fa-home' : 'fa-cloud'}`} />
                 {source.id}
               </span>
             </div>
