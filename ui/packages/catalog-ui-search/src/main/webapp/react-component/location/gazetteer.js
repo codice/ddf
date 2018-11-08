@@ -197,7 +197,7 @@ class Gazetteer extends React.Component {
     })
   }
   isMultiPolygon(coordinates) {
-    return coordinates[0][0][0] !== null && coordinates[0][0][0][0] !== undefined
+    return coordinates[0][0][0] !== undefined && coordinates[0][0][0][0] !== undefined
   }
   async geofeature(suggestion) {
     const [type, id] = suggestion.id.split(':')
