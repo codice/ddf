@@ -1,9 +1,9 @@
 {
   "install-features": [
-    "platform-filter-response",
     "abdera",
     "catalog-client-info",
     "catalog-core-api",
+    "catalog-core",
     "catalog-core-content",
     "catalog-core-downloadaction",
     "catalog-core-validationparser",
@@ -11,6 +11,7 @@
     "catalog-plugin-expirationdate",
     "catalog-plugin-jpeg2000",
     "catalog-plugin-metacard-validation",
+    "catalog-transformer-geoformatter",
     "catalog-rest",
     "catalog-schematron-plugin",
     "catalog-security-filter",
@@ -34,6 +35,7 @@
     "catalog-transformer-thumbnail",
     "catalog-transformer-tika",
     "catalog-transformer-video",
+    "saxon",
     "catalog-transformer-xml",
     "catalog-transformer-xsltengine",
     "catalog-transformer-zip",
@@ -56,7 +58,6 @@
     "platform-commands",
     "platform-scheduler",
     "metrics-reporting",
-    "metrics-interceptor",
-    "platform-solr-server-standalone"
+    "metrics-interceptor"
   ]
 }
