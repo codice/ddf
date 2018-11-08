@@ -696,7 +696,7 @@ public class EndpointUtil {
     try {
       return dateFormat.parse(string).toInstant();
     } catch (ParseException e) {
-      LOGGER.debug("Failed to parse as a dateFormat time from a numeric: {}", string, e);
+      LOGGER.debug("Failed to parse as a dateFormat time from a date string: {}", string, e);
       return null;
     }
   }
