@@ -70,12 +70,22 @@ module.exports = {
       $dropdownEl
         .prevAll(`${CustomElements.getNamespace()}dropdown-companion`)
         .find(clickedElement)
+        .addBack(clickedElement).length > 0 ||
+      $dropdownEl
+        .closest('react-portal')
+        .prevAll(`${CustomElements.getNamespace()}dropdown-companion`)
+        .find(clickedElement)
         .addBack(clickedElement).length > 0
     )
   },
   withinParentDropdownBehavior($dropdownEl, clickedElement) {
     return (
       $dropdownEl
+        .prevAll('[data-behavior-dropdown]')
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0 ||
+      $dropdownEl
+        .closest('react-portal')
         .prevAll('[data-behavior-dropdown]')
         .find(clickedElement)
         .addBack(clickedElement).length > 0
@@ -85,6 +95,10 @@ module.exports = {
     return (
       $dropdownEl
         .closest('react-portal')
+        .prevAll('react-portal')
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0 ||
+      $dropdownEl
         .prevAll('react-portal')
         .find(clickedElement)
         .addBack(clickedElement).length > 0
