@@ -147,6 +147,7 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click .cluster-button': 'toggleClustering',
     'click .zoomToHome': 'zoomToHome',
+    'click .saveAsHome': 'saveAsHome',
   },
   clusterCollection: undefined,
   clusterCollectionView: undefined,
@@ -248,9 +249,17 @@ module.exports = Marionette.LayoutView.extend({
     this.setupMapInfo()
   },
   zoomToHome: function() {
-    this.map.zoomToBoundingBox(
-      homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox
-    )
+    const home = [
+      user.get('user').get('mapHome'),
+      homeBoundingBox,
+      defaultHomeBoundingBox,
+    ].find(element => element !== undefined)
+
+    this.map.zoomToBoundingBox(home)
+  },
+  saveAsHome: function() {
+    const boundingBox = this.map.getBoundingBox()
+    user.get('user').set('mapHome', boundingBox)
   },
   addPanZoom: function() {
     const self = this
@@ -268,12 +277,14 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
+    // TODO replace Save button once this is refactored to React
     this.$el
       .find('.cesium-viewer-toolbar')
       .append(
         '<div class="is-button zoomToHome">' +
           '<span>Home </span>' +
-          '<span class="cf cf-map-marker"></span></div>'
+          '<span class="cf cf-map-marker"></span></div>' +
+          '<div class="is-button saveAsHome"><span>Save </span></div>'
       )
   },
   addClustering: function() {
