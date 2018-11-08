@@ -70,7 +70,10 @@ public class RegistryPublicationManager implements EventHandler {
   }
 
   public void init() {
+    executorService.schedule(this::setPublications, 1, TimeUnit.MILLISECONDS);
+  }
 
+  public void setPublications() {
     try {
       List<Metacard> metacards =
           Security.getInstance()
@@ -93,10 +96,11 @@ public class RegistryPublicationManager implements EventHandler {
           publications.put(registryId, Collections.emptyList());
         }
       }
-    } catch (PrivilegedActionException e) {
+      executorService.shutdown();
+    } catch (PrivilegedActionException | RuntimeException e) {
       LOGGER.debug(
           "Error reading from local catalog. Catalog is probably not up yet. Will try again later");
-      executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
+      executorService.schedule(this::setPublications, RETRY_INTERVAL, TimeUnit.SECONDS);
     }
   }
 
