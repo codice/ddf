@@ -142,7 +142,6 @@ const ConfigEditor = ({buffer, onEdit, error}) => (
     <div key='ace' style={{ margin: '0 15px' }}>
       <Error errorText={error}>
         <AceEditor
-          readOnly
           mode='json'
           theme='github'
           fontSize={15}
@@ -183,6 +182,7 @@ const MapLayers = ({ onFetch, onRender, onUpdate, onSave, onAdd, onReset, onMess
           The advanced default window layout configuration is specified in
           the <Link target='_blank' href='http://www.json.org'>JSON</Link> format.
           A description of the configuration properties for the visualization windows within the default layout can be found at the provided documentation link.
+          NOTE: If the JSON is malformed or has invalid components, the visualization window will not update and changes will not be saved.
         </CardText>
         <ConfigEditor
           error={error}
