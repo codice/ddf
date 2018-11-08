@@ -142,6 +142,7 @@
              description="Offline gazetteer service utilizing a local GeoNames index.">
         <feature>catalog-solr-provider</feature>
         <feature>spatial-geocoding-endpoint</feature>
+        <feature>catalog-core-plugins</feature>
         <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
