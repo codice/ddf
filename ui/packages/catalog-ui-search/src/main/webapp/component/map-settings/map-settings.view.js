@@ -13,19 +13,35 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette')
-var template = require('./map-settings.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var Property = require('../property/property.js')
-var PropertyView = require('../property/property.view.js')
-var user = require('../singletons/user-instance.js')
-var mtgeo = require('mt-geo')
-var Common = require('../../js/Common.js')
+const Marionette = require('marionette')
+const template = require('./map-settings.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const Property = require('../property/property.js')
+const PropertyView = require('../property/property.view.js')
+const user = require('../singletons/user-instance.js')
+const mtgeo = require('mt-geo')
+const Common = require('../../js/Common.js')
 
-var exampleLat = '14.94'
-var exampleLon = '-11.875'
-var exampleDegrees = mtgeo.toLat(exampleLat) + ' ' + mtgeo.toLon(exampleLon)
-var exampleDecimal = exampleLat + ' ' + exampleLon
+const exampleLat = '14.94'
+const exampleLon = '-11.875'
+const exampleDegrees = mtgeo.toLat(exampleLat) + ' ' + mtgeo.toLon(exampleLon)
+const exampleDecimal = exampleLat + ' ' + exampleLon
+const exampleMgrs = '4Q FL 23009 12331'
+const exampleUtm = '14 1925mE 1513mN'
+
+function getExample(formatValue) {
+  switch (formatValue) {
+    case 'degrees':
+      return exampleDegrees
+    case 'decimal':
+      return exampleDecimal
+    case 'mgrs':
+      return exampleMgrs
+    case 'utm':
+      return exampleUtm
+  }
+  throw 'Unrecognized coordinate format value [' + formatValue + ']'
+}
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -58,9 +74,7 @@ module.exports = Marionette.LayoutView.extend({
       new PropertyView({
         model: new Property({
           label: 'Example Coordinates',
-          value: [
-            coordinateFormat === 'degrees' ? exampleDegrees : exampleDecimal,
-          ],
+          value: [getExample(coordinateFormat)],
           type: 'STRING',
         }),
       })
@@ -85,6 +99,14 @@ module.exports = Marionette.LayoutView.extend({
             {
               label: 'Decimal',
               value: 'decimal',
+            },
+            {
+              label: 'MGRS',
+              value: 'mgrs',
+            },
+            {
+              label: 'UTM/UPS',
+              value: 'utm',
             },
           ],
         }),
