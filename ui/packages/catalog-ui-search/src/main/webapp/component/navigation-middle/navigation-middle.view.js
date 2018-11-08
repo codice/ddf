@@ -14,17 +14,31 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var template = require('./navigation-middle.hbs')
 var CustomElements = require('../../js/CustomElements.js')
-const router = require('../router/router.js')
+const properties = require('properties')
+import * as React from 'react'
+import { IntlProvider, FormattedMessage } from 'react-intl'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template(props) {
+    return (
+      <div className={props.menuClass}>
+        <IntlProvider locale={navigator.language}>
+          <FormattedMessage
+            id="sourcesKeyword"
+            defaultMessage={props.menuText}
+          />
+        </IntlProvider>
+      </div>
+    )
+  },
   tagName: CustomElements.register('navigation-middle'),
   serializeData: function() {
+    const menuText = properties.keywords[this.options.text] || this.options.text
+
     return {
       menuClass: this.options.classes,
-      menuText: this.options.text,
+      menuText: menuText,
     }
   },
 })

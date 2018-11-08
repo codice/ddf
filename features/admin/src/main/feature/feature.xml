@@ -62,7 +62,16 @@
         <feature>branding-registry</feature>
         <feature>cxf-frontend-javascript</feature>
         <feature>pax-http-whiteboard</feature>
+        <feature>resource-bundle-locator</feature>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
+    </feature>
+
+    <feature name="resource-bundle-locator" version="${project.version}"
+        description="Keyword internationalization and replacement ">
+        <bundle>mvn:ddf.platform/resource-bundle-locator/${project.version}</bundle>
+        <configfile finalname="${ddf.etc}/i18n/SourceKeywordsBundle.properties">
+            mvn:ddf.platform/resource-bundle-locator/${project.version}/config/source-keyword-replacements
+        </configfile>
     </feature>
 
     <feature name="platform-scheduler" version="${project.version}" description="Schedules tasks">

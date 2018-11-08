@@ -77,6 +77,8 @@
 
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"/>
 
+    <reference id="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
+
     <bean id="configurationApplication"
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
@@ -106,6 +108,7 @@
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
         <property name="historianConfigurations" ref="historianConfigurations"/>
+        <property name="keywords" ref="resourceBundleLocator"/>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">

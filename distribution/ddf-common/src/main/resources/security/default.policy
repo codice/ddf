@@ -571,4 +571,12 @@ grant {
     permission java.io.FilePermission "/etc/hosts", "read";
     permission java.io.FilePermission "/etc/hostname", "read";
     permission java.io.FilePermission "/etc/resolv.conf", "read";
+
+    //Internationalization resource bundles
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}-", "read";
 };
+
+grant codeBase "file:/resource-bundle-locator/landing-page/catalog-ui-search" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}

@@ -24,15 +24,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.configuration.HistorianConfiguration;
+import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -227,6 +230,22 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
+
+  private Map<String, String> keywords;
+
+  public void setKeywords(ResourceBundleLocator resourceBundleLocator) {
+    ResourceBundle resourceBundle = resourceBundleLocator.getBundle("SourceKeywordsBundle");
+    Enumeration bundleKeys = resourceBundle.getKeys();
+
+    keywords = new HashMap<>();
+
+    while (bundleKeys.hasMoreElements()) {
+      String key = (String) bundleKeys.nextElement();
+      String value = resourceBundle.getString(key);
+
+      keywords.put(key, value);
+    }
+  }
 
   public Set<String> getEditorAttributes() {
     return editorAttributes;
@@ -511,6 +530,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("basicSearchTemporalSelectionDefault", basicSearchTemporalSelectionDefault);
     config.put("basicSearchMatchType", basicSearchMatchType);
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
+    config.put("keywords", keywords);
     return config;
   }
 

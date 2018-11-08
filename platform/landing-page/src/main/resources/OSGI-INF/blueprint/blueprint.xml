@@ -22,6 +22,8 @@
     <service id="resources" ref="resourceMapping"
              interface="org.ops4j.pax.web.service.whiteboard.ResourceMapping"/>
 
+    <reference id="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
+
     <bean id="landingPage" class="org.codice.ddf.landing.LandingPage">
         <cm:managed-properties persistent-id="org.codice.ddf.distribution.landingpage.properties"
                                update-strategy="container-managed"/>
@@ -41,6 +43,7 @@
         <property name="links">
             <list></list>
         </property>
+        <property name="sourceKeyword" ref="resourceBundleLocator"/>
     </bean>
 
     <service ref="landingPage" interface="javax.servlet.http.HttpServlet">

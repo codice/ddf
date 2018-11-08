@@ -20,6 +20,7 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
@@ -69,6 +71,8 @@ public class LandingPage extends HttpServlet {
 
   private String externalUrl;
 
+  private String sourceKeyword;
+
   private List<String> announcements;
 
   private String linksTitle;
@@ -101,6 +105,16 @@ public class LandingPage extends HttpServlet {
   private String background;
 
   private String foreground;
+
+  public void setSourceKeyword(ResourceBundleLocator resourceBundleLocator) {
+    ResourceBundle resourceBundle = resourceBundleLocator.getBundle("SourceKeywordsBundle");
+
+    if (resourceBundle.containsKey("Data Source")) {
+      this.sourceKeyword = (String) resourceBundle.getObject("Data Source");
+    } else {
+      this.sourceKeyword = "Data Source";
+    }
+  }
 
   public List<String> getAnnouncements() {
     return announcements;

@@ -12,6 +12,8 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
+import { FormattedMessage } from 'react-intl'
+const properties = require('properties')
 
 const Root = styled<{}, 'div'>('div')`
   display: block;
@@ -26,17 +28,22 @@ type Props = {
   amountDown: number
 }
 
-function getMessage(amountDown: number) {
-  switch (amountDown) {
-    case 0:
-      return 'All sources are currently up'
-    case 1:
-      return `${amountDown} source is currently down`
-    default:
-      return `${amountDown} sources are currently down`
-  }
-}
-
 export default hot(module)(({ amountDown }: Props) => {
-  return <Root>{getMessage(amountDown)}</Root>
+  return (
+    <Root>
+      {amountDown == 0 ? (
+        <p>All {properties.keywords.sources} are currently up</p>
+      ) : (
+        <FormattedMessage
+          id="sourceAvailability"
+          defaultMessage={`${amountDown} {amountDown, plural, one {{source} is} other {{sources} are}} currently down`}
+          values={{
+            amountDown: amountDown,
+            source: properties.keywords['source'],
+            sources: properties.keywords['sources'],
+          }}
+        />
+      )}
+    </Root>
+  )
 })
