@@ -399,9 +399,9 @@ module.exports = function CesiumMap(
     },
     getBoundingBox: function() {
       const viewRectangle = map.scene.camera.computeViewRectangle()
-      return _.mapObject(viewRectangle, function(val, key) {
-        return Cesium.Math.toDegrees(val)
-      })
+      return _.mapObject(viewRectangle, (val, key) =>
+        Cesium.Math.toDegrees(val)
+      )
     },
     overlayImage: function(model) {
       var metacardId = model.get('properties').get('id')
