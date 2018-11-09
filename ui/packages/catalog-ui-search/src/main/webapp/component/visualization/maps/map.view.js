@@ -163,6 +163,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing)
     this.handleDrawing()
     this.setupMouseLeave()
+    this.listenTo(store.get('workspaces'), 'add', this.zoomToHome)
   },
   setupMouseLeave: function() {
     this.$el.on('mouseleave', () => {
@@ -283,14 +284,17 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
-    // TODO combine home and save buttons once this is refactored to React: https://codice.atlassian.net/browse/DDF-4327
+    // TODO combine home and save buttons into a "split button dropdown" once this is refactored to React: DDF-4327
     this.$el
       .find('.cesium-viewer-toolbar')
       .append(
         '<div class="is-button zoomToHome">' +
           '<span>Home </span>' +
           '<span class="cf cf-map-marker"></span></div>' +
-          '<div class="is-button saveAsHome"><span>Save </span></div>'
+          '<div class="is-button saveAsHome">' +
+          '<span title="Save Current View as Home Location">Save </span>' +
+          '<span class="fa fa-floppy-o"/>' +
+          '</div>'
       )
   },
   addClustering: function() {
