@@ -21,7 +21,9 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.AccessController;
 import java.security.Principal;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -262,7 +264,11 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         URIResolver uriResolver = new URIResolver();
         uriResolver.resolve("", wsdlLocation, this.getClass());
         wsdlURL = uriResolver.isResolved() ? uriResolver.getURL() : new URL(wsdlLocation);
-        service = Service.create(wsdlURL, QName.valueOf(serviceName));
+        service =
+            AccessController.doPrivileged(
+                (PrivilegedAction<Service>)
+                    () -> Service.create(wsdlURL, QName.valueOf(serviceName)));
+
         auditRemoteConnection(wsdlURL);
       } catch (Exception e) {
         LOGGER.info(
