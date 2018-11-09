@@ -19,8 +19,9 @@ var template = require('./workspace-search.hbs')
 var ResultsView = require('component/results/results.view')
 var SearchesView = require('component/workspace-explore/workspace-explore.view')
 var store = require('js/store')
+const plugin = require('plugins/workspace-search')
 
-module.exports = Marionette.LayoutView.extend({
+const WorkspaceSearchView = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('workspace-search'),
   regions: {
@@ -39,3 +40,5 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
 })
+
+module.exports = plugin(WorkspaceSearchView)
