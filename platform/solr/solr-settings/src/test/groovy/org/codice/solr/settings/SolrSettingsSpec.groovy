@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl
+package org.codice.solr.settings
 
 
 import org.codice.spock.Supplemental
@@ -22,7 +22,7 @@ import spock.util.environment.RestoreSystemProperties
 
 @RestoreSystemProperties
 @Supplemental
-class PublicSolrSettingsSpec extends Specification {
+class SolrSettingsSpec extends Specification {
 
     @Rule
     TemporaryFolder tempFolder = new TemporaryFolder();
@@ -31,10 +31,10 @@ class PublicSolrSettingsSpec extends Specification {
 
         given:
         System.clearProperty("solr.data.dir")
-        PublicSolrSettings.loadSystemProperties()
+        SolrSettings.loadSystemProperties()
 
         expect:
-        !PublicSolrSettings.isSolrDataDirWritable()
+        !SolrSettings.isSolrDataDirWritable()
     }
 
 
@@ -44,7 +44,7 @@ class PublicSolrSettingsSpec extends Specification {
 
         expect:
         tempFolder.root.canWrite()
-        PublicSolrSettings.isSolrDataDirWritable()
+        SolrSettings.isSolrDataDirWritable()
     }
 
 
@@ -53,7 +53,7 @@ class PublicSolrSettingsSpec extends Specification {
         setTestProperty("solr.data.dir", "!!!!!")
 
         expect:
-        !PublicSolrSettings.isSolrDataDirWritable()
+        !SolrSettings.isSolrDataDirWritable()
     }
 
 
@@ -66,7 +66,7 @@ class PublicSolrSettingsSpec extends Specification {
         expect:
         readOnlyFolder.canRead();
         !readOnlyFolder.canWrite();
-        !PublicSolrSettings.isSolrDataDirWritable()
+        !SolrSettings.isSolrDataDirWritable()
     }
 
 
@@ -77,23 +77,23 @@ class PublicSolrSettingsSpec extends Specification {
 
 
         expect:
-        PublicSolrSettings.getCoreDir("test").equals("/test")
-        PublicSolrSettings.getCoreUrl("test").equals("bork/test")
-        PublicSolrSettings.getCoreDataDir("test").equals("/test/data")
+        SolrSettings.getCoreDir("test").equals("/test")
+        SolrSettings.getCoreUrl("test").equals("bork/test")
+        SolrSettings.getCoreDataDir("test").equals("/test/data")
     }
 
     def setTestProperty(propertyName, propertyValue) {
         System.setProperty(propertyName, propertyValue);
-        PublicSolrSettings.loadSystemProperties();
+        SolrSettings.loadSystemProperties();
     }
 
 
     //TODO: add this test
 //    @Test
 //    public void nearestNeighborLimitIsAlwaysPositive() {
-//        PublicSolrSettings.setNearestNeighborDistanceLimit(-1.0);
+//        SolrSettings.setNearestNeighborDistanceLimit(-1.0);
 //
-//        assertThat(PublicSolrSettings.getNearestNeighborDistanceLimit(), closeTo(1.0, 0.00001));
+//        assertThat(SolrSettings.getNearestNeighborDistanceLimit(), closeTo(1.0, 0.00001));
 //    }
 
 

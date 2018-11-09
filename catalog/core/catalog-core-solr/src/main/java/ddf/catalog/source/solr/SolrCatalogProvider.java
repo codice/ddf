@@ -66,7 +66,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.PublicSolrSettings;
+import org.codice.solr.settings.SolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -547,7 +547,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   }
 
   public boolean isForcedAutoCommit() {
-    return PublicSolrSettings.isForceAutoCommit();
+    return SolrSettings.isForceAutoCommit();
   }
 
   public void shutdown() {
@@ -585,6 +585,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   /** Solr client listener class to adapt to a source monitor class */
   private static class SolrClientListenerAdapter implements SolrClient.Listener {
+
     private final SourceMonitor callback;
 
     private SolrClientListenerAdapter(SourceMonitor callback) {

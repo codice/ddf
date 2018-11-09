@@ -626,4 +626,10 @@
         <bundle>mvn:ddf.platform.solr/solr-credentials/${project.version}</bundle>
     </feature>
 
+
+    <feature name="solr-change-password" version="${project.version}"
+             description="Attempt to change the Solr password to a secure value as part of the installation process.">
+        <bundle>mvn:ddf.platform.solr/solr-security/${project.version}</bundle>
+    </feature>
+
 </features>

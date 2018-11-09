@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.solr.factory.impl.PublicSolrSettings.getUrl;
+import static org.codice.solr.settings.SolrSettings.getUrl;
 
 import java.io.IOException;
 import java.net.URI;

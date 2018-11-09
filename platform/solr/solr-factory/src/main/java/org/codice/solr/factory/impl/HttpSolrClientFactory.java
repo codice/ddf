@@ -13,34 +13,38 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStorePass;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getKeyStoreType;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStore;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.getTrustStorePass;
-import static org.codice.solr.factory.impl.ProtectedSolrSettings.isSslConfigured;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDataDir;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreDir;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getCoreUrl;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSchemaXml;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSolrconfigXml;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getSupportedCipherSuites;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getSupportedProtocols;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getUrl;
-import static org.codice.solr.factory.impl.PublicSolrSettings.isSolrDataDirWritable;
-import static org.codice.solr.factory.impl.PublicSolrSettings.useBasicAuth;
-import static org.codice.solr.factory.impl.PublicSolrSettings.useTls;
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getKeyStorePass;
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getKeyStoreType;
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getTrustStore;
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getTrustStorePass;
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.isSslConfigured;
+import static org.codice.solr.settings.SolrSettings.getCoreDataDir;
+import static org.codice.solr.settings.SolrSettings.getCoreDir;
+import static org.codice.solr.settings.SolrSettings.getCoreUrl;
+import static org.codice.solr.settings.SolrSettings.getDefaultSchemaXml;
+import static org.codice.solr.settings.SolrSettings.getDefaultSolrconfigXml;
+import static org.codice.solr.settings.SolrSettings.getSupportedCipherSuites;
+import static org.codice.solr.settings.SolrSettings.getSupportedProtocols;
+import static org.codice.solr.settings.SolrSettings.getUrl;
+import static org.codice.solr.settings.SolrSettings.isSolrDataDirWritable;
+import static org.codice.solr.settings.SolrSettings.useBasicAuth;
+import static org.codice.solr.settings.SolrSettings.useTls;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.stream.Stream;
 import javax.net.ssl.SSLContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -227,5 +231,89 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
       throws IOException, SolrServerException {
     CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
     return response.getCoreStatus(coreName).get("instanceDir") != null;
+  }
+
+  /** Class to offload configuration-related tasks from the HttpSolrClientFactory. */
+  static final class ProtectedSolrSettings {
+
+    private static String keyStoreType;
+    private static String keyStore;
+    private static String keyStorePass;
+    private static String trustStore;
+    private static String trustStorePass;
+
+    static {
+      trustStore =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.trustStore"));
+      trustStorePass =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("javax.net.ssl.trustStorePassword"));
+      keyStore =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore"));
+      keyStorePass =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("javax.net.ssl.keyStorePassword"));
+      keyStoreType =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStoreType"));
+    }
+
+    /** This class is not meant to be instantiated. */
+    private ProtectedSolrSettings() {}
+
+    /**
+     * After settings the system properties in a test method, invoke this method to read those
+     * properties.
+     */
+    //    @VisibleForTesting
+    //    static void loadSystemProperties() {
+    //      trustStore =
+    //          AccessController.doPrivileged(
+    //              (PrivilegedAction<String>) () ->
+    // System.getProperty("javax.net.ssl.trustStore"));
+    //      trustStorePass =
+    //          AccessController.doPrivileged(
+    //              (PrivilegedAction<String>)
+    //                  () -> System.getProperty("javax.net.ssl.trustStorePassword"));
+    //      keyStore =
+    //          AccessController.doPrivileged(
+    //              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore"));
+    //      keyStorePass =
+    //          AccessController.doPrivileged(
+    //              (PrivilegedAction<String>) () -> System
+    //                  .getProperty("javax.net.ssl.keyStorePassword"));
+    //      keyStoreType =
+    //          AccessController.doPrivileged(
+    //              (PrivilegedAction<String>) () ->
+    // System.getProperty("javax.net.ssl.keyStoreType"));
+    //    }
+    static boolean isSslConfigured() {
+      return Stream.of(getKeyStore(), getKeyStorePass(), getTrustStore(), getTrustStorePass())
+          .allMatch(StringUtils::isNotEmpty);
+    }
+
+    static String getKeyStoreType() {
+      return keyStoreType;
+    }
+
+    static String getKeyStore() {
+      return keyStore;
+    }
+
+    static String getKeyStorePass() {
+      return keyStorePass;
+    }
+
+    static String getTrustStore() {
+      return trustStore;
+    }
+
+    static String getTrustStorePass() {
+      return trustStorePass;
+    }
   }
 }

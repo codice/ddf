@@ -13,9 +13,9 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSchemaXml;
-import static org.codice.solr.factory.impl.PublicSolrSettings.getDefaultSolrconfigXml;
-import static org.codice.solr.factory.impl.PublicSolrSettings.isInMemory;
+import static org.codice.solr.settings.SolrSettings.getDefaultSchemaXml;
+import static org.codice.solr.settings.SolrSettings.getDefaultSolrconfigXml;
+import static org.codice.solr.settings.SolrSettings.isInMemory;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.nio.file.Path;

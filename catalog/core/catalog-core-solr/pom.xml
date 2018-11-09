@@ -77,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-factory</artifactId>
+            <artifactId>solr-settings</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

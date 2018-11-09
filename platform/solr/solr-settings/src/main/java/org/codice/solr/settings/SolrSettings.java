@@ -11,26 +11,29 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl;
+package org.codice.solr.settings;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Convenience class for aggregating information about how the application is configured to
  * communicate with Solr. Several system properties are stored here for convenience, and to
- * centralize validation of mandatory properties.
+ * centralize validation of mandatory properties. Settings controls by metatypes are also available.
+ * Methods for validating and transforming the raw properties/settings are also collected here.
  *
  * <p>The static variables are not final variables for two reasons. First, it makes testing
  * difficult or impossible. Second, some properties are set in a properties file, but others are
  * configured at runtime.
  */
-public class PublicSolrSettings {
+public class SolrSettings {
 
   private static final String DEFAULT_SCHEMA_XML = "schema.xml";
   private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
@@ -43,6 +46,10 @@ public class PublicSolrSettings {
   private static boolean inMemory;
   private static Double nearestNeighborDistanceLimit;
   private static boolean forceAutoCommit;
+  private static String clientType;
+  private static EncryptionService encryptionService;
+  private static String encryptedPassword;
+  private static String username;
 
   /**
    * To make testing possible, thee variables are not initialized in a static block. Instead, they
@@ -51,9 +58,6 @@ public class PublicSolrSettings {
   static {
     loadSystemProperties();
   }
-
-  /** This class is not meant to be instantiated. */
-  private PublicSolrSettings() {}
 
   /**
    * After settings the system properties in a test method, invoke this method to read those
@@ -76,17 +80,28 @@ public class PublicSolrSettings {
     httpsProtocols =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("https.protocols"));
+    // TODO: HOW MANY OF SOLR'S SETTINGS SHOULD BE COLLECTED HERE? SOME? ALL?
+    //    clientType =
+    //        AccessController.doPrivileged(
+    //            (PrivilegedAction<String>) () -> System.getProperty("solr.client",
+    // "HttpSolrClient"));
+    encryptedPassword =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.password"));
+    username =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.username"));
   }
 
   static String concatenatePaths(String first, String more) {
     return Paths.get(first, more).toString();
   }
 
-  static String getDefaultSchemaXml() {
+  public static String getDefaultSchemaXml() {
     return DEFAULT_SCHEMA_XML;
   }
 
-  static String getDefaultSolrconfigXml() {
+  public static String getDefaultSolrconfigXml() {
     return DEFAULT_SOLRCONFIG_XML;
   }
 
@@ -95,23 +110,23 @@ public class PublicSolrSettings {
    * data for individual cores exist. Individual cores have their own data directories. * @return
    * String representation of a file path.
    */
-  static String getRootDataDir() {
+  public static String getRootDataDir() {
     return solrDataDir;
   }
 
-  static boolean isSolrDataDirWritable() {
+  public static boolean isSolrDataDirWritable() {
     return StringUtils.isNotEmpty(getRootDataDir()) && new File(getRootDataDir()).canWrite();
   }
 
-  static String getCoreUrl(String coreName) {
+  public static String getCoreUrl(String coreName) {
     return getUrl() + "/" + coreName;
   }
 
-  static String getCoreDataDir(String coreName) {
+  public static String getCoreDataDir(String coreName) {
     return concatenatePaths(getCoreDir(coreName), "data");
   }
 
-  static String getCoreDir(String coreName) {
+  public static String getCoreDir(String coreName) {
     return concatenatePaths(getRootDataDir(), coreName);
   }
 
@@ -146,11 +161,11 @@ public class PublicSolrSettings {
     return solrHttpUrl;
   }
 
-  static boolean useBasicAuth() {
+  public static boolean useBasicAuth() {
     return Boolean.valueOf(solrUseBasicAuth);
   }
 
-  static boolean useTls() {
+  public static boolean useTls() {
     return StringUtils.startsWithIgnoreCase(getUrl(), "https");
   }
 
@@ -163,6 +178,52 @@ public class PublicSolrSettings {
     disableTextPath = bool;
   }
 
+  /**
+   * Return the string that indicate what kind of Solr configuration the application should use.
+   * E.g. cloud, server, embedded.
+   *
+   * @return Name of Solr client
+   */
+  //  public static String getClientType() {
+  //    return clientType;
+  //  }
+  public static void setEncryptionService(EncryptionService service) {
+    encryptionService = service;
+  }
+
+  public static String getSolrUsername() {
+    return username;
+  }
+
+  public static String getPlainTextSolrPassword() {
+    Validate.notNull(
+        encryptionService,
+        "Provide class with the encryption service before invoking this method.");
+    return encryptionService.decrypt(encryptedPassword);
+  }
+
+  public static String encryptString(String plainText) {
+    Validate.notNull(
+        encryptionService,
+        "Provide class with the encryption service before invoking this method.");
+    return encryptionService.encrypt(plainText);
+  }
+
+  /**
+   * The properties inMemory, nearestNeighborLimitDistance, forceAutocommit, and disapblePathText
+   * are set in the RemoteSolrCatalogProvider object, which in turn is tied to the adminUI. The
+   * SolrProperties class (this class) is embedded in different places and that means the state is
+   * potentially invalid in one place or another. However, this class replaces an older singleton
+   * class (ConfigurationStore) which would have suffered from the same problem.
+   *
+   * <p>A solution is to inject the RemoteSolrCatalogProvider into the SolrClientFactoryImpl when a
+   * new instance of the SolrClientFactoryImpl is created. However, that could create a circular
+   * dependency because platform classes should not depend on catalog classes.
+   *
+   * <p>A solution to this second problem is to create a RemoteSolrCatalogSettings interface in the
+   * platform layer that both this class can reference and the RemoteSolrCatalogSettings can
+   * implement.
+   */
   public static boolean isDisableTextPath() {
     return disableTextPath;
   }

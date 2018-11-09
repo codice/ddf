@@ -13,6 +13,8 @@
  */
 package ddf.catalog.source.solr;
 
+import static org.codice.solr.settings.SolrSettings.isDisableTextPath;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.vividsolutions.jts.geom.Geometry;
@@ -80,7 +82,6 @@ import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.PublicSolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,7 +337,7 @@ public class DynamicSchemaResolver {
       }
     }
 
-    if (!PublicSolrSettings.isDisableTextPath() && StringUtils.isNotBlank(metacard.getMetadata())) {
+    if (!isDisableTextPath() && StringUtils.isNotBlank(metacard.getMetadata())) {
       try {
         byte[] luxXml = createTinyBinary(metacard.getMetadata());
         solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);

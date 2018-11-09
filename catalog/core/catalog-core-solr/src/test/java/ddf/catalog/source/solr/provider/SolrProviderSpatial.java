@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.codice.solr.factory.impl.PublicSolrSettings;
+import org.codice.solr.settings.SolrSettings;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
@@ -270,12 +270,12 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
   @Test
   public void testNearestNeighborBadConfig() {
-    PublicSolrSettings.setNearestNeighborDistanceLimit(1000d);
-    PublicSolrSettings.setNearestNeighborDistanceLimit((double) -3);
-    assertTrue(PublicSolrSettings.getNearestNeighborDistanceLimit() != -3);
-    PublicSolrSettings.setNearestNeighborDistanceLimit(12d);
-    assertTrue(PublicSolrSettings.getNearestNeighborDistanceLimit() == 12);
-    PublicSolrSettings.setNearestNeighborDistanceLimit(1000d);
+    SolrSettings.setNearestNeighborDistanceLimit(1000d);
+    SolrSettings.setNearestNeighborDistanceLimit((double) -3);
+    assertTrue(SolrSettings.getNearestNeighborDistanceLimit() != -3);
+    SolrSettings.setNearestNeighborDistanceLimit(12d);
+    assertTrue(SolrSettings.getNearestNeighborDistanceLimit() == 12);
+    SolrSettings.setNearestNeighborDistanceLimit(1000d);
   }
 
   @Test

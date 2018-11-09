@@ -14,6 +14,7 @@
 package org.codice.solr.factory.impl;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.codice.solr.settings.SolrSettings.getRootDataDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class ConfigurationFileProxy {
+
   public static final String DEFAULT_SOLR_CONFIG_PARENT_DIR = "etc";
 
   public static final String DEFAULT_SOLR_DATA_PARENT_DIR =
@@ -64,7 +66,7 @@ public class ConfigurationFileProxy {
   @Deprecated
   public ConfigurationFileProxy() {
     LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
-    String storedDataDirectoryPath = PublicSolrSettings.getRootDataDir();
+    String storedDataDirectoryPath = getRootDataDir();
 
     if (isNotBlank(storedDataDirectoryPath)) {
       this.dataDirectory = new File(storedDataDirectoryPath);

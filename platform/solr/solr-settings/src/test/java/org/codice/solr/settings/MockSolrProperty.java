@@ -11,18 +11,18 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl;
+package org.codice.solr.settings;
 
 /** Allow test classes in other modules to set properties for the purpose of testing. */
 public class MockSolrProperty {
 
   public static void setProperty(String name, String key) {
     System.setProperty(name, key);
-    PublicSolrSettings.loadSystemProperties();
+    SolrSettings.loadSystemProperties();
   }
 
   public static void clearProperty(String name) {
     System.clearProperty(name);
-    PublicSolrSettings.loadSystemProperties();
+    SolrSettings.loadSystemProperties();
   }
 }

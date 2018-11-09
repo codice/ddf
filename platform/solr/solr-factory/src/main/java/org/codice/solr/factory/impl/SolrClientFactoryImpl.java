@@ -17,11 +17,13 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
+import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.settings.SolrSettings;
 
 /**
  * Factory class used to create the proper {@link SolrClient} based on the current {@code
@@ -32,10 +34,17 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
   private SolrUsernamePasswordCredentials usernamePasswordCredentials;
 
+  // TODO: THIS CONSTRUCTOR NEED TO BE DELETED
   @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
     this((factory, core) -> factory.newClient(core));
     this.usernamePasswordCredentials = usernamePasswordCredentials;
+  }
+
+  @SuppressWarnings("unused" /* used by blueprint */)
+  public SolrClientFactoryImpl(EncryptionService encryptionService) {
+    this((factory, core) -> factory.newClient(core));
+    SolrSettings.setEncryptionService(encryptionService);
   }
 
   @VisibleForTesting
@@ -47,16 +56,17 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   public SolrClient newClient(String core) {
     notNull(core, "Solr core name cannot be null");
 
+    SolrClientFactory factory;
     String clientType =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
-    SolrClientFactory factory;
 
     if ("EmbeddedSolrServer".equals(clientType)) {
       factory = new EmbeddedSolrFactory();
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
+      // TODO: CHANGE THIS BACK TO A NO-ARG CONSTRUCTOR
       factory = new HttpSolrClientFactory(usernamePasswordCredentials);
     }
 

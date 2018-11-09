@@ -52,5 +52,7 @@
         <module>solr-schema</module>
         <module>solr-factory</module>
         <module>solr-appender</module>
+        <module>solr-security</module>
+        <module>solr-settings</module>
     </modules>
 </project>

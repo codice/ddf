@@ -23,6 +23,8 @@ import org.apache.solr.core.SolrResourceLoader
 import org.apache.solr.schema.IndexSchema
 import org.codice.junit.DeFinalize
 import org.codice.junit.DeFinalizer
+import org.codice.solr.settings.MockSolrProperty
+import org.codice.solr.settings.SolrSettings
 import org.codice.spock.Supplemental
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -68,7 +70,6 @@ class EmbeddedSolrFactorySpec extends Specification {
 
 
     def cleanup() {
-        org.codice.solr.factory.impl.PublicSolrSettings.setInMemory(false);
         // clear the cache of schema indexes
         EmbeddedSolrFactory.resetIndexCache(Collections.emptyMap())
     }
@@ -197,7 +198,7 @@ class EmbeddedSolrFactorySpec extends Specification {
     @Unroll
     def 'test creating an embedded Solr server with a store that is #store_that_is'() {
         given:
-        PublicSolrSettings.setInMemory(in_memory)
+        SolrSettings.setInMemory(in_memory)
         def factory = Spy(EmbeddedSolrFactory)
         def container = Mock(SolrCoreContainer)
         factory.newContainer(_) >> container

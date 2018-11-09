@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
+import org.codice.solr.settings.MockSolrProperty;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

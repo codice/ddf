@@ -43,7 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.codice.solr.factory.impl.PublicSolrSettings;
+import org.codice.solr.settings.SolrSettings;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 
@@ -242,7 +242,7 @@ public class SolrProviderDelete extends SolrProviderTestBase {
   @Test
   public void testDeletePendingNrtIndex() throws Exception {
     deleteAll();
-    PublicSolrSettings.setForceAutoCommit(false);
+    SolrSettings.setForceAutoCommit(false);
 
     try {
       MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
@@ -255,7 +255,7 @@ public class SolrProviderDelete extends SolrProviderTestBase {
 
       verifyDeletedRecord(metacard, createResponse, deleteResponse, deletedMetacard);
     } finally {
-      PublicSolrSettings.setForceAutoCommit(true);
+      SolrSettings.setForceAutoCommit(true);
     }
   }
 

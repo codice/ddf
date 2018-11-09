@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.util.NamedList
 import org.codice.junit.DeFinalize
 import org.codice.junit.DeFinalizer
+import org.codice.solr.settings.MockSolrProperty
 import org.codice.spock.Supplemental
 import org.junit.runner.RunWith
 import spock.lang.Specification
@@ -121,9 +122,8 @@ class HttpSolrClientFactorySpec extends Specification {
       }
 
     and:
-      System.setProperty("solr.http.url", SOLR_URL)
-      System.setProperty("solr.data.dir", DATA_DIR)
-      PublicSolrSettings.loadSystemProperties();
+    MockSolrProperty.setProperty("solr.http.url", SOLR_URL)
+    MockSolrProperty.setProperty("solr.data.dir", DATA_DIR)
 
     when:
       def client = factory.newClient(CORE)
@@ -154,7 +154,7 @@ class HttpSolrClientFactorySpec extends Specification {
       def factory = new HttpSolrClientFactory();
 
     and:
-      MockSolrProperty.setProperty("solr.http.url", SOLR_URL)
+    MockSolrProperty.setProperty("solr.http.url", SOLR_URL)
       MockSolrProperty.clearProperty("solr.data.dir")
 
     when:

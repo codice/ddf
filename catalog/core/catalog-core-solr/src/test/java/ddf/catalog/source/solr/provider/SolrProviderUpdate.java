@@ -46,7 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.codice.solr.factory.impl.PublicSolrSettings;
+import org.codice.solr.settings.SolrSettings;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -715,7 +715,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
   @Test
   public void testUpdatePendingNrtIndex() throws Exception {
     deleteAll();
-    PublicSolrSettings.setForceAutoCommit(false);
+    SolrSettings.setForceAutoCommit(false);
 
     try {
       MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
@@ -735,7 +735,7 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
       verifyContentTypeUpdate(firstUpdateResponse, MockMetacard.DEFAULT_TYPE, "first");
       verifyContentTypeUpdate(secondUpdateResponse, "first", "second");
     } finally {
-      PublicSolrSettings.setForceAutoCommit(true);
+      SolrSettings.setForceAutoCommit(true);
     }
   }
 
