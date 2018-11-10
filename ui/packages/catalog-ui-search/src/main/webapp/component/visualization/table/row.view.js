@@ -13,19 +13,19 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var _ = require('underscore')
 var template = require('./row.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var store = require('js/store')
+var CustomElements = require('../../../js/CustomElements.js')
+var store = require('../../../js/store.js')
 var $ = require('jquery')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-var Common = require('js/Common')
-var user = require('component/singletons/user-instance')
-var properties = require('properties')
-var HoverPreviewDropdown = require('component/dropdown/hover-preview/dropdown.hover-preview.view')
-var DropdownModel = require('component/dropdown/dropdown')
+var metacardDefinitions = require('../../singletons/metacard-definitions.js')
+var Common = require('../../../js/Common.js')
+var user = require('../../singletons/user-instance.js')
+var properties = require('../../../js/properties.js')
+var HoverPreviewDropdown = require('../../dropdown/hover-preview/dropdown.hover-preview.view.js')
+var DropdownModel = require('../../dropdown/dropdown.js')
 
 module.exports = Marionette.LayoutView.extend({
   className: 'is-tr',

@@ -11,9 +11,9 @@
  **/
 import * as React from 'react'
 import UserComponent from '../../presentation/user'
-const user = require('component/singletons/user-instance')
-const announcement = require('component/announcement')
-const logoutActions = require('component/singletons/logout-actions')
+const user = require('../../../component/singletons/user-instance.js')
+const announcement = require('../../../component/announcement/index.jsx')
+const logoutActions = require('../../../component/singletons/logout-actions.js')
 const $ = require('jquery')
 
 interface State {

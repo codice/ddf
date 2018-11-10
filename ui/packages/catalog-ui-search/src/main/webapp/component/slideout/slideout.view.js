@@ -16,10 +16,10 @@
 import React from 'react'
 var Marionette = require('marionette')
 var template = require('./slideout.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var $ = require('jquery')
-var router = require('component/router/router')
-var Common = require('js/Common')
+var router = require('../router/router.js')
+var Common = require('../../js/Common.js')
 
 var componentName = 'slideout'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'

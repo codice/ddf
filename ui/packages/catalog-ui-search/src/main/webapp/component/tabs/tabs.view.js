@@ -17,8 +17,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const TabsTemplate = require('./tabs.hbs')
-const CustomElements = require('js/CustomElements')
-const wreqr = require('wreqr')
+const CustomElements = require('../../js/CustomElements.js')
+const wreqr = require('../../js/wreqr.js')
 
 function namespacedEvent(event, view) {
   return event + '.' + view.cid

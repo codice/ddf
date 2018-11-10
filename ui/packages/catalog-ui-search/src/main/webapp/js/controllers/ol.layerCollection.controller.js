@@ -16,9 +16,9 @@ const _ = require('underscore')
 const $ = require('jquery')
 const Marionette = require('marionette')
 const ol = require('openlayers')
-const properties = require('properties')
-const CommonLayerController = require('js/controllers/common.layerCollection.controller')
-const user = require('component/singletons/user-instance')
+const properties = require('../properties.js')
+const CommonLayerController = require('./common.layerCollection.controller.js')
+const user = require('../../component/singletons/user-instance.js')
 
 const createTile = (
   { show, alpha, ...options },

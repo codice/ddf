@@ -13,9 +13,9 @@
 const _ = require('underscore')
 const Backbone = require('backbone')
 const usngs = require('usng.js')
-const store = require('js/store')
-const Common = require('js/Common')
-const dmsUtils = require('component/location-new/utils/dms-utils')
+const store = require('../../js/store.js')
+const Common = require('../../js/Common.js')
+const dmsUtils = require('../location-new/utils/dms-utils.js')
 
 var converter = new usngs.Converter()
 var minimumDifference = 0.0001

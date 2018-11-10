@@ -13,7 +13,7 @@
  *
  **/
 /*global require*/
-var SlideoutView = require('component/slideout/left/slideout.left.view')
+var SlideoutView = require('../slideout/left/slideout.left.view.js')
 var slideoutView = new SlideoutView()
 slideoutView.render()
 module.exports = slideoutView

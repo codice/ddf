@@ -13,7 +13,7 @@
  *
  **/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   template: require('./hint.hbs'),

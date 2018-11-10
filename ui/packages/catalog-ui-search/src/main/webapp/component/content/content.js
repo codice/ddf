@@ -13,11 +13,11 @@
 const $ = require('jquery')
 const _ = require('underscore')
 const Backbone = require('backbone')
-const wreqr = require('wreqr')
-const Metacard = require('js/model/Metacard')
-const Query = require('js/model/Query')
-const Workspace = require('js/model/Workspace')
-const QueryResult = require('js/model/QueryResult')
+const wreqr = require('../../js/wreqr.js')
+const Metacard = require('../../js/model/Metacard.js')
+const Query = require('../../js/model/Query.js')
+const Workspace = require('../../js/model/Workspace.js')
+const QueryResult = require('../../js/model/QueryResult.js')
 
 module.exports = Backbone.AssociatedModel.extend({
   relations: [

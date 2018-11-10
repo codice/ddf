@@ -15,9 +15,9 @@
 /*global require, setTimeout*/
 var Marionette = require('marionette')
 var template = require('./blacklist-item.hbs')
-var CustomElements = require('js/CustomElements')
-var user = require('component/singletons/user-instance')
-var wreqr = require('wreqr')
+var CustomElements = require('../../js/CustomElements.js')
+var user = require('../singletons/user-instance.js')
+var wreqr = require('../../js/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

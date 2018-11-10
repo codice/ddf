@@ -13,24 +13,24 @@
  *
  **/
 /*global define, window*/
-const wreqr = require('wreqr')
+const wreqr = require('../../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const ContentView = require('../content.view')
-const properties = require('properties')
-const WorkspaceContentTabs = require('component/tabs/workspace-content/tabs-workspace-content')
-const WorkspaceContentTabsView = require('component/tabs/workspace-content/tabs-workspace-content.view')
-const QueryTabsView = require('component/tabs/query/tabs-query.view')
-const store = require('js/store')
-const MetacardTabsView = require('component/tabs/metacard/tabs-metacard.view')
-const MetacardsTabsView = require('component/tabs/metacards/tabs-metacards.view')
-const Common = require('js/Common')
-const MetacardTitleView = require('component/metacard-title/metacard-title.view')
-const uploadInstance = require('component/upload/upload')
-const ResultSelectorView = require('component/result-selector/result-selector.view')
-const VisualizationView = require('component/golden-layout/golden-layout.view')
+const properties = require('../../../js/properties.js')
+const WorkspaceContentTabs = require('../../tabs/workspace-content/tabs-workspace-content.js')
+const WorkspaceContentTabsView = require('../../tabs/workspace-content/tabs-workspace-content.view.js')
+const QueryTabsView = require('../../tabs/query/tabs-query.view.js')
+const store = require('../../../js/store.js')
+const MetacardTabsView = require('../../tabs/metacard/tabs-metacard.view.js')
+const MetacardsTabsView = require('../../tabs/metacards/tabs-metacards.view.js')
+const Common = require('../../../js/Common.js')
+const MetacardTitleView = require('../../metacard-title/metacard-title.view.js')
+const uploadInstance = require('../../upload/upload.js')
+const ResultSelectorView = require('../../result-selector/result-selector.view.js')
+const VisualizationView = require('../../golden-layout/golden-layout.view.js')
 
 module.exports = ContentView.extend({
   className: 'is-upload',

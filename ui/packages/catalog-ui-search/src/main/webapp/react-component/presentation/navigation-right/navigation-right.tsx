@@ -15,12 +15,12 @@ import { keyframes } from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import { Button, buttonTypeEnum } from '../button'
 
-const HelpView = require('component/help/help.view')
-const UserSettings = require('component/user-settings/user-settings.view')
-const UserNotifications = require('component/user-notifications/user-notifications.view')
-const SlideoutViewInstance = require('component/singletons/slideout.view-instance.js')
-const SlideoutRightViewInstance = require('component/singletons/slideout.right.view-instance.js')
-const user = require('component/singletons/user-instance')
+const HelpView = require('../../../component/help/help.view.js')
+const UserSettings = require('../../../component/user-settings/user-settings.view.js')
+const UserNotifications = require('../../../component/user-notifications/user-notifications.view.js')
+const SlideoutViewInstance = require('../../../component/singletons/slideout.view-instance.js')
+const SlideoutRightViewInstance = require('../../../component/singletons/slideout.right.view-instance.js')
+const user = require('../../../component/singletons/user-instance.js')
 import UserView from '../../../react-component/container/user'
 export interface Props {
   username: string

@@ -13,15 +13,15 @@
  *
  **/
 /*global define, setTimeout*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./alert-item.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const Common = require('../../js/Common.js')
+const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

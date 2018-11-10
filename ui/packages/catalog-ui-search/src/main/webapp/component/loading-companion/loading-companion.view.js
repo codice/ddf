@@ -17,8 +17,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./loading-companion.hbs')
-const CustomElements = require('js/CustomElements')
-const Positioning = require('js/Positioning')
+const CustomElements = require('../../js/CustomElements.js')
+const Positioning = require('../../js/Positioning.js')
 
 var loadingCompanions = []
 

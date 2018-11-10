@@ -13,7 +13,7 @@ var Backbone = require('backbone')
 var _ = require('underscore')
 require('backbone-associations')
 
-var MetacardPropertiesModel = require('js/model/MetacardProperties')
+var MetacardPropertiesModel = require('./MetacardProperties.js')
 
 module.exports = Backbone.AssociatedModel.extend({
   hasGeometry: function(attribute) {

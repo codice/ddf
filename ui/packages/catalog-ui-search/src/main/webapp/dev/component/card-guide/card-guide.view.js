@@ -1,13 +1,13 @@
 const template = require('./card-guide.hbs')
-const CustomElements = require('js/CustomElements')
-const BaseGuideView = require('dev/component/base-guide/base-guide.view')
+const CustomElements = require('../../../js/CustomElements.js')
+const BaseGuideView = require('../base-guide/base-guide.view.js')
 
-const ResultItemView = require('component/result-item/result-item.view')
-const SelectionInterfaceModel = require('component/selection-interface/selection-interface.model.js')
-const QueryResultModel = require('js/model/QueryResult')
+const ResultItemView = require('../../../component/result-item/result-item.view.js')
+const SelectionInterfaceModel = require('../../../component/selection-interface/selection-interface.model.js')
+const QueryResultModel = require('../../../js/model/QueryResult.js')
 
-const QueryItemView = require('component/query-item/query-item.view')
-const QueryModel = require('js/model/Query')
+const QueryItemView = require('../../../component/query-item/query-item.view.js')
+const QueryModel = require('../../../js/model/Query.js')
 
 module.exports = BaseGuideView.extend({
   template: template,

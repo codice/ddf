@@ -19,8 +19,8 @@ const Marionette = require('marionette')
 const $ = require('jquery')
 const SearchFormCollectionView = require('./search-form-sharing.collection.view')
 const SearchFormSharingCollection = require('./search-form-sharing.collection')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const CustomElements = require('../../../js/CustomElements.js')
+const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 
 const Root = styled.div`
   height: 100%;

@@ -18,8 +18,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-form-selector.hbs')
-const SearchForms = require('component/search-form-selector/search-form-selector.view')
-const store = require('js/store')
+const SearchForms = require('../../search-form-selector/search-form-selector.view.js')
+const store = require('../../../js/store.js')
 
 module.exports = DropdownView.extend({
   template: template,

@@ -18,8 +18,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./result-indicator.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

@@ -15,14 +15,14 @@
 /*global define, window*/
 const Marionette = require('marionette')
 const template = require('./search-form-interactions.hbs')
-const CustomElements = require('js/CustomElements')
-const user = require('component/singletons/user-instance')
-const LoadingView = require('component/loading/loading.view')
-const announcement = require('component/announcement')
-const ConfirmationView = require('component/confirmation/confirmation.view')
-const lightboxInstance = require('component/lightbox/lightbox.view.instance')
-const QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view')
-const wreqr = require('exports/wreqr')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
+const LoadingView = require('../loading/loading.view.js')
+const announcement = require('../announcement/index.jsx')
+const ConfirmationView = require('../confirmation/confirmation.view.js')
+const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
+const QueryTemplateSharing = require('../query-template-sharing/query-template-sharing.view.js')
+const wreqr = require('../../exports/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

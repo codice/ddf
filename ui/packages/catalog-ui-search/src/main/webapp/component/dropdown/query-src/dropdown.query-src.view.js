@@ -18,9 +18,9 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.query-src.hbs')
-const ComponentView = require('component/query-src/query-src.view')
-const sources = require('component/singletons/sources-instance')
-const properties = require('properties')
+const ComponentView = require('../../query-src/query-src.view.js')
+const sources = require('../../singletons/sources-instance.js')
+const properties = require('../../../js/properties.js')
 
 module.exports = DropdownView.extend({
   template: template,

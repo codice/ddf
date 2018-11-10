@@ -16,8 +16,8 @@
 var Marionette = require('marionette')
 var _ = require('underscore')
 var template = require('./visualization-selector.hbs')
-var CustomElements = require('js/CustomElements')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var user = require('../singletons/user-instance.js')
 
 var configs = {
   openlayers: {

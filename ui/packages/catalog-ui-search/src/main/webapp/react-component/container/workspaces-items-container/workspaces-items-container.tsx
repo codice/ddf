@@ -19,13 +19,13 @@ import NavigationBehavior from '../../presentation/navigation-behavior'
 import MenuSelection from '../../presentation/menu-selection'
 import { hot } from 'react-hot-loader'
 
-const SortDropdownView = require('component/dropdown/workspaces-filter/dropdown.workspaces-filter.view')
-const user = require('component/singletons/user-instance')
-const store = require('js/store')
+const SortDropdownView = require('../../../component/dropdown/workspaces-filter/dropdown.workspaces-filter.view.js')
+const user = require('../../../component/singletons/user-instance.js')
+const store = require('../../../js/store.js')
 
 const preferences = user.get('user').get('preferences')
-const LoadingView = require('component/loading/loading.view')
-const wreqr = require('wreqr')
+const LoadingView = require('../../../component/loading/loading.view.js')
+const wreqr = require('../../../js/wreqr.js')
 
 interface State {
   sortDropdown: Marionette.View<any>

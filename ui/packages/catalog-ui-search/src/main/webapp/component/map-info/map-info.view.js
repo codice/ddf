@@ -15,9 +15,9 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./map-info.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var mtgeo = require('mt-geo')
-var user = require('component/singletons/user-instance')
+var user = require('../singletons/user-instance.js')
 
 function getCoordinateFormat() {
   return user

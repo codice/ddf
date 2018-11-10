@@ -12,10 +12,10 @@
 /*global require*/
 var _ = require('underscore')
 var Backbone = require('backbone')
-var Metacard = require('js/model/Metacard')
-var Query = require('js/model/Query')
-var QueryResponse = require('js/model/QueryResponse')
-var QueryResult = require('js/model/QueryResult')
+var Metacard = require('../../js/model/Metacard.js')
+var Query = require('../../js/model/Query.js')
+var QueryResponse = require('../../js/model/QueryResponse.js')
+var QueryResult = require('../../js/model/QueryResult.js')
 
 module.exports = Backbone.AssociatedModel.extend({
   relations: [

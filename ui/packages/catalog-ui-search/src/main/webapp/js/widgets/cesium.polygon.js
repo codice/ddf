@@ -11,9 +11,9 @@
  **/
 
 const Cesium = require('cesium')
-const ShapeUtils = require('js/ShapeUtils')
+const ShapeUtils = require('../ShapeUtils.js')
 const Turf = require('@turf/turf')
-const DistanceUtils = require('js/DistanceUtils')
+const DistanceUtils = require('../DistanceUtils.js')
 
 const { GeometryRenderView, GeometryController } = require('./cesium.base.line')
 

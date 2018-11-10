@@ -18,8 +18,8 @@ import ChangeBackground from '../change-background'
 import ButtonBehavior from '../button-behavior'
 import { SFC } from '../../hoc/utils'
 import { CSSProperties } from 'react'
-const CustomElements = require('js/CustomElements')
-const DropdownBehaviorUtility = require('behaviors/dropdown.behavior.utility')
+const CustomElements = require('../../../js/CustomElements.js')
+const DropdownBehaviorUtility = require('../../../behaviors/dropdown.behavior.utility.js')
 const $ = require('jquery')
 
 type Omit<T, K> = Pick<T, Exclude<keyof T, K>>

@@ -14,13 +14,13 @@
  **/
 /*global require, window, setTimeout*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var template = require('./notification-group.hbs')
-var NotificationListView = require('component/notification-list/notification-list.view')
-var userNotifications = require('component/singletons/user-notifications')
-var user = require('component/singletons/user-instance')
+var NotificationListView = require('../notification-list/notification-list.view.js')
+var userNotifications = require('../singletons/user-notifications.js')
+var user = require('../singletons/user-instance.js')
 var $ = require('jquery')
-var Common = require('js/Common')
+var Common = require('../../js/Common.js')
 
 function isEmpty(filter) {
   return userNotifications.filter(filter).length === 0

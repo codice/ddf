@@ -13,14 +13,14 @@
  *
  **/
 /*global define, alert*/
-const wreqr = require('wreqr')
+const wreqr = require('../../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const TabsView = require('../tabs.view')
 const MetacardTabsModel = require('./tabs-metacard')
-const store = require('js/store')
-const properties = require('properties')
+const store = require('../../../js/store.js')
+const properties = require('../../../js/properties.js')
 
 module.exports = TabsView.extend({
   className: 'is-metacard',

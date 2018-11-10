@@ -15,7 +15,7 @@
 /*global require*/
 var Marionette = require('marionette')
 var UploadItemView = require('./upload-item.view')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('upload-item-collection'),

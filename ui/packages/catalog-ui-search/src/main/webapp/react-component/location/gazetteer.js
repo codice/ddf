@@ -1,6 +1,6 @@
 const React = require('react')
-const Keyword = require('react-component/location/keyword.js')
-const properties = require('properties')
+const Keyword = require('./keyword.js')
+const properties = require('../../js/properties.js')
 
 import fetch from '../../react-component/utils/fetch'
 

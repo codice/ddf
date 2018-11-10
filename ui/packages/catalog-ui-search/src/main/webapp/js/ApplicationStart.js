@@ -13,15 +13,15 @@
 /*jslint nomen:false, -W064 */
 
 const $ = require('jquery')
-const app = require('application')
-const properties = require('properties')
-const store = require('store')
-const user = require('component/singletons/user-instance')
-require('js/MediaQueries')
-require('js/Theming')
-require('js/SystemUsage')
-require('component/singletons/session-auto-renew')
-require('js/SessionTimeout')
+const app = require('./application.js')
+const properties = require('./properties.js')
+const store = require('./store.js')
+const user = require('../component/singletons/user-instance.js')
+require('./MediaQueries.js')
+require('./Theming.js')
+require('./SystemUsage.js')
+require('../component/singletons/session-auto-renew.js')
+require('./SessionTimeout.js')
 
 var workspaces = store.get('workspaces')
 

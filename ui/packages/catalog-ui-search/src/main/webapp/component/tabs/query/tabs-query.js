@@ -12,12 +12,12 @@
 /*global define*/
 const _ = require('underscore')
 const Tabs = require('../tabs')
-const store = require('js/store')
-const QuerySettingsView = require('component/query-settings/query-settings.view')
-const QueryStatusView = require('component/query-status/query-status.view')
-const QueryScheduleView = require('component/query-schedule/query-schedule.view')
-const QueryEditorView = require('component/query-editor/query-editor.view')
-const QueryAnnotationsView = require('component/query-annotations/query-annotations.view')
+const store = require('../../../js/store.js')
+const QuerySettingsView = require('../../query-settings/query-settings.view.js')
+const QueryStatusView = require('../../query-status/query-status.view.js')
+const QueryScheduleView = require('../../query-schedule/query-schedule.view.js')
+const QueryEditorView = require('../../query-editor/query-editor.view.js')
+const QueryAnnotationsView = require('../../query-annotations/query-annotations.view.js')
 
 var WorkspaceContentTabs = Tabs.extend({
   defaults: {

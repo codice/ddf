@@ -1,5 +1,5 @@
-const CustomElements = require('js/CustomElements')
-const BaseGuideView = require('dev/component/base-guide/base-guide.view')
+const CustomElements = require('../../../js/CustomElements.js')
+const BaseGuideView = require('../base-guide/base-guide.view.js')
 
 const Example = require('./example.view')
 const RawExample = require('!raw-loader!./example.view.js')

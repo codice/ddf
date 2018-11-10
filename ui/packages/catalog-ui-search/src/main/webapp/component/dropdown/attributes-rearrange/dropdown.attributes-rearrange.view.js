@@ -17,7 +17,7 @@ var Marionette = require('marionette')
 var _ = require('underscore')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.attributes-rearrange.hbs')
-var ComponentView = require('component/attributes-rearrange/attributes-rearrange.view')
+var ComponentView = require('../../attributes-rearrange/attributes-rearrange.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

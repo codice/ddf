@@ -17,12 +17,12 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./query-advanced.hbs')
-const CustomElements = require('js/CustomElements')
-const FilterBuilderView = require('component/filter-builder/filter-builder.view')
-const FilterBuilderModel = require('component/filter-builder/filter-builder')
-const cql = require('js/cql')
-const store = require('js/store')
-const QuerySettingsView = require('component/query-settings/query-settings.view')
+const CustomElements = require('../../js/CustomElements.js')
+const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
+const FilterBuilderModel = require('../filter-builder/filter-builder.js')
+const cql = require('../../js/cql.js')
+const store = require('../../js/store.js')
+const QuerySettingsView = require('../query-settings/query-settings.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

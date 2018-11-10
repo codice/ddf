@@ -10,7 +10,7 @@
  *
  **/
 
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
 
 require('backbone-associations')
 require('backbone.paginator')

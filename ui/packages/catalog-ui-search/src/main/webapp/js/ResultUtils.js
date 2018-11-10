@@ -10,10 +10,10 @@
  *
  **/
 /*global require*/
-var store = require('js/store')
-var alert = require('component/alert/alert')
+var store = require('./store.js')
+var alert = require('../component/alert/alert.js')
 var _ = require('underscore')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 
 module.exports = {
   refreshResult: function(result) {

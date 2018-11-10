@@ -18,8 +18,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./multivalue.hbs')
-const CustomElements = require('js/CustomElements')
-const ValueCollection = require('component/value/value.collection.view')
+const CustomElements = require('../../js/CustomElements.js')
+const ValueCollection = require('../value/value.collection.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

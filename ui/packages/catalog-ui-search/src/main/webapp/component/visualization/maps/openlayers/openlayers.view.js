@@ -14,7 +14,7 @@
  **/
 /*global require*/
 var MapView = require('../map.view')
-var wreqr = require('wreqr')
+var wreqr = require('../../../../js/wreqr.js')
 var $ = require('jquery')
 
 module.exports = MapView.extend({

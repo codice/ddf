@@ -18,7 +18,7 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.metacard-interactions.hbs')
-const ComponentView = require('component/metacard-interactions/metacard-interactions.view')
+const ComponentView = require('../../metacard-interactions/metacard-interactions.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

@@ -19,9 +19,9 @@ const Marionette = require('marionette')
 const $ = require('jquery')
 const SystemSearchFormCollectionView = require('./search-form-system.collection.view')
 const SearchFormSystemCollection = require('./search-form-system-collection-instance')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-const Router = require('component/router/router')
+const CustomElements = require('../../../js/CustomElements.js')
+const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+const Router = require('../../router/router.js')
 
 const Root = styled.div`
   > .title {

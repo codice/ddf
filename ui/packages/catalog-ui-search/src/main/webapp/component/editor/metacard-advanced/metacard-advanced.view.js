@@ -17,12 +17,12 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const EditorView = require('../editor.view')
-const store = require('js/store')
-const PropertyCollectionView = require('component/property/property.collection.view')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-const alertInstance = require('component/alert/alert')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
-const ResultUtils = require('js/ResultUtils')
+const store = require('../../../js/store.js')
+const PropertyCollectionView = require('../../property/property.collection.view.js')
+const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+const alertInstance = require('../../alert/alert.js')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const ResultUtils = require('../../../js/ResultUtils.js')
 
 module.exports = EditorView.extend({
   className: 'is-metacard-advanced',

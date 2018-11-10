@@ -13,18 +13,18 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var _ = require('underscore')
 var template = require('./inspector.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var store = require('js/store')
+var CustomElements = require('../../../js/CustomElements.js')
+var store = require('../../../js/store.js')
 var $ = require('jquery')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-var Common = require('js/Common')
-var MetacardView = require('component/tabs/metacard/tabs-metacard.view')
-var MetacardsView = require('component/tabs/metacards/tabs-metacards.view')
-var MetacardTitleView = require('component/metacard-title/metacard-title.view')
+var metacardDefinitions = require('../../singletons/metacard-definitions.js')
+var Common = require('../../../js/Common.js')
+var MetacardView = require('../../tabs/metacard/tabs-metacard.view.js')
+var MetacardsView = require('../../tabs/metacards/tabs-metacards.view.js')
+var MetacardTitleView = require('../../metacard-title/metacard-title.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('inspector'),

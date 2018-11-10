@@ -15,7 +15,7 @@
 /*global require*/
 const Marionette = require('marionette')
 const template = require('./export-actions.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const _ = require('lodash')
 
 module.exports = Marionette.LayoutView.extend({

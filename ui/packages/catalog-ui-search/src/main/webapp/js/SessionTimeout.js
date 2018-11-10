@@ -10,9 +10,9 @@
  *
  **/
 /*global require, window*/
-var sessionTimeoutModel = require('component/singletons/session-timeout')
-var BlockingLightbox = require('component/lightbox/blocking/lightbox.blocking.view')
-var SessionTimeoutView = require('component/session-timeout/session-timeout.view')
+var sessionTimeoutModel = require('../component/singletons/session-timeout.js')
+var BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
+var SessionTimeoutView = require('../component/session-timeout/session-timeout.view.js')
 var blockingLightbox = BlockingLightbox.generateNewLightbox()
 
 function showPrompt() {
