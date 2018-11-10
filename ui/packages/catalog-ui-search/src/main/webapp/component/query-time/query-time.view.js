@@ -20,9 +20,9 @@ var PropertyView = require('../property/property.view.js')
 var Property = require('../property/property.js')
 var properties = require('../../js/properties.js')
 var CQLUtils = require('../../js/CQLUtils.js')
-var Common = require('../../js/Common.js')
 var metacardDefinitions = require('../singletons/metacard-definitions.js')
 const RelativeTimeView = require('../relative-time/relative-time.view.js')
+const BetweenTimeView = require('../between-time/between-time.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -33,8 +33,7 @@ module.exports = Marionette.LayoutView.extend({
     basicTemporalSelections: '.basic-temporal-selections',
     basicTimeBefore: '.basic-time-before',
     basicTimeAfter: '.basic-time-after',
-    basicTimeBetweenBefore: '.between-before',
-    basicTimeBetweenAfter: '.between-after',
+    basicTimeBetween: '.basic-time-between',
     basicTimeRelative: '.basic-time-relative',
   },
   onBeforeShow: function() {
@@ -65,7 +64,7 @@ module.exports = Marionette.LayoutView.extend({
     var timeRange = this.basicTime.currentView.model.getValue()[0]
     let timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0]
     timeSelection = !timeSelection.length ? undefined : timeSelection
-    let timeBefore, timeAfter, relativeFunction
+    let timeBefore, timeAfter, timeDuring, relativeFunction
     switch (timeRange) {
       case 'before':
         timeBefore = this.basicTimeBefore.currentView.model.getValue()[0]
@@ -74,12 +73,20 @@ module.exports = Marionette.LayoutView.extend({
         timeAfter = this.basicTimeAfter.currentView.model.getValue()[0]
         break
       case 'between':
-        timeBefore = this.basicTimeBetweenBefore.currentView.model.getValue()[0]
-        timeAfter = this.basicTimeBetweenAfter.currentView.model.getValue()[0]
+        timeDuring = this.basicTimeBetween.currentView.getViewValue()
         break
       case 'relative':
         relativeFunction = this.basicTimeRelative.currentView.getViewValue()
         break
+    }
+    if (timeDuring && timeSelection) {
+      const timeFilter = {
+        type: 'OR',
+        filters: timeSelection.map(selection =>
+          CQLUtils.generateFilter('DURING', selection, timeDuring)
+        ),
+      }
+      filters.push(timeFilter)
     }
     if (timeBefore && timeSelection) {
       var timeFilter = {
@@ -197,51 +204,27 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTimeBetween: function() {
-    var currentBefore = ''
-    var currentAfter = ''
+    var value = ''
 
     // Pre-fill the last edited value or the load value from query
     if (this.options.filter.anyDate) {
       this.options.filter.anyDate.forEach(function(subfilter) {
-        if (subfilter.type === 'BEFORE') {
-          currentBefore = subfilter.value
+        if (subfilter.type === 'DURING') {
+          value = `${subfilter.from}/${subfilter.to}`
         }
       })
     }
 
-    if (this.options.filter.anyDate) {
-      this.options.filter.anyDate.forEach(function(subfilter) {
-        if (subfilter.type === 'AFTER') {
-          currentAfter = subfilter.value
-        }
-      })
-    }
-
-    this.basicTimeBetweenBefore.show(
-      new PropertyView({
-        model: new Property({
-          value: [currentBefore],
-          id: 'To',
-          placeholder: 'Limit search to before this time.',
-          type: 'DATE',
-        }),
-      })
-    )
-    this.basicTimeBetweenAfter.show(
-      new PropertyView({
-        model: new Property({
-          value: [currentAfter],
-          id: 'From',
-          placeholder: 'Limit search to after this time.',
-          type: 'DATE',
-        }),
+    this.basicTimeBetween.show(
+      new BetweenTimeView({
+        value,
       })
     )
   },
   setupTimeInput: function() {
     var currentValue = 'any'
     if (this.options.filter.anyDate) {
-      if (this.options.filter.anyDate.length > 1) {
+      if (this.options.filter.anyDate[0].type === 'DURING') {
         currentValue = 'between'
       } else if (this.options.filter.anyDate[0].type === 'AFTER') {
         currentValue = 'after'

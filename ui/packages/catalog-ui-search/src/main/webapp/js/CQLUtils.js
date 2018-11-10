@@ -225,11 +225,19 @@ function generateFilter(type, property, value, metacardDefinitions) {
     case 'GEOMETRY':
       return generateAnyGeoFilter(property, value)
     default:
-      return {
-        type: type,
+      const filter = {
+        type,
         property: '"' + property + '"',
-        value: value,
+        value,
       }
+
+      if (type === 'DURING') {
+        const dates = value.split('/')
+        filter.from = dates[0]
+        filter.to = dates[1]
+      }
+
+      return filter
   }
 }
 
