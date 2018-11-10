@@ -334,8 +334,10 @@ function arrayFromPolygonWkt(wkt) {
   if (wkt.startsWith('POLYGON')) {
     const polygon = wkt.match(/\(\([^\(\)]+\)\)/g)
     return polygon.length === 1 ? arrayFromPartialWkt(polygon[0]) : []
+  } else if (wkt.startsWith('LINESTRING')) {
+    const lineString = '(' + wkt.slice(10) + ')'
+    return lineString !== '()' ? arrayFromPartialWkt(lineString) : []
   }
-
   // Handle MULTIPOLYGON with no internal rings (i.e. holes)
   let polygons = wkt.match(/\(\([^\(\)]+\)\)/g)
   if (polygons) {
