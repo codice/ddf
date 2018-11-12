@@ -13,6 +13,11 @@
  *
  **/
 /*global require*/
+import React from 'react'
+import Dropdown from '../../react-component/presentation/dropdown'
+import NavigationBehavior from '../../react-component/presentation/navigation-behavior'
+import MenuSelection from '../../react-component/presentation/menu-selection'
+
 var _ = require('underscore')
 var Marionette = require('marionette')
 var template = require('./map-context-menu.hbs')
@@ -25,7 +30,125 @@ var SelectionInterfaceModel = require('../selection-interface/selection-interfac
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template(props) {
+    return (
+      <React.Fragment>
+        <div
+          className="metacard-interaction interaction-copy-coordinates"
+          data-help="Copies the coordinates to your clipboard."
+          data-clipboard-text={props.clickLat + ' ' + props.clickLon}
+        >
+          <div className="interaction-icon fa fa-clipboard" />
+          <div className="interaction-text">
+            Copy Coordinates as Decimal Degrees (DD)
+            <div>
+              <span>{props.clickLat}</span>
+              <span>{props.clickLon}</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-copy-dms"
+          data-help="Copies the DMS coordinates to your clipboard."
+          data-clipboard-text={props.clickDms}
+        >
+          <div className="interaction-icon fa fa-clipboard" />
+          <div className="interaction-text">
+            Copy Coordinates as Degrees Minutes Seconds (DMS)
+            <div>
+              <span>{props.clickDms}</span>
+            </div>
+          </div>
+        </div>
+        {props.clickMgrs ? (
+          <div
+            className="metacard-interaction interaction-copy-mgrs"
+            data-help="Copies the MGRS coordinates to your clipboard."
+            data-clipboard-text={props.clickMgrs}
+          >
+            <div className="interaction-icon fa fa-clipboard" />
+            <div className="interaction-text">
+              Copy Coordinates as MGRS
+              <div>
+                <span>{props.clickMgrs}</span>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        <div
+          className="metacard-interaction interaction-copy-utm-ups"
+          data-help="Copies the UTM/UPS coordinates to your clipboard."
+          data-clipboard-text={props.clickUtmUps}
+        >
+          <div className="interaction-icon fa fa-clipboard" />
+          <div className="interaction-text">
+            Copy Coordinates as UTM/UPS
+            <div>
+              <span>{props.clickUtmUps}</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-copy-wkt"
+          data-help="Copies the WKT of the coordinates to your clipboard."
+          data-clipboard-text={`POINT (${props.clickLon} ${props.clickLat})`}
+        >
+          <div className="interaction-icon fa fa-clipboard" />
+          <div className="interaction-text">
+            Copy Coordinates as Well Known Text (WKT)
+            <div>
+              <span>
+                POINT ({props.clickLon} {props.clickLat})
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-histogram"
+          data-help="Open histogram of results."
+        >
+          <div className="interaction-icon fa fa-bar-chart" />
+          <div className="interaction-text">View Histogram</div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-details"
+          data-help="Open inspector for result."
+        >
+          <div className="interaction-icon fa fa-info" />
+          <div className="interaction-text">
+            View Inspector
+            <div>
+              <span>{props.target}</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-details-selection"
+          data-help="Open inspector for selected results."
+        >
+          <div className="interaction-icon fa fa-info" />
+          <div className="interaction-text">
+            View Inspector (Current Selection)
+            <div>
+              <span>{props.selectionCount} selected</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-histogram-selection"
+          data-help="Open histogram of selected results."
+        >
+          <div className="interaction-icon fa fa-bar-chart" />
+          <div className="interaction-text">
+            View Histogram (Current Selection)
+            <div>
+              <span>{props.selectionCount} selected</span>
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('map-context-menu'),
   className: 'composed-menu',
   modelEvents: {},
