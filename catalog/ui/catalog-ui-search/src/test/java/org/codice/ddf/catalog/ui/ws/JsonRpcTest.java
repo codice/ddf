@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -68,23 +67,9 @@ public class JsonRpcTest {
     return (Map<String, Object>) mapper.fromJson(captor.getValue());
   }
 
-  private Map<String, Object> onMessage(JsonRpc rpc, Map<String, Object> message)
-      throws IOException {
-    return onMessage(rpc, mapper.toJson(message));
-  }
-
-  private Map<String, Object> request(int id, String method, Object params) {
-    Map<String, Object> req = new HashMap<>();
-    req.put("jsonrpc", JsonRpc.VERSION);
-    req.put("id", id);
-    req.put("method", method);
-    req.put("params", params);
-    return req;
-  }
-
   @Test
   public void testRpcVersionInResponse() throws Exception {
-    Map<String, Object> response = onMessage(rpc, ImmutableMap.of());
+    Map<String, Object> response = onMessage(rpc, "{}");
     assertThat(response.get("jsonrpc"), is(JsonRpc.VERSION));
   }
 
@@ -95,20 +80,20 @@ public class JsonRpcTest {
 
   @Test
   public void testVersionCheck() throws Exception {
-    assertError(onMessage(rpc, ImmutableMap.of()), JsonRpc.INVALID_REQUEST);
+    assertError(onMessage(rpc, "{}"), JsonRpc.INVALID_REQUEST);
   }
 
   @Test
   public void testMethodNotFound() throws Exception {
-    Map<String, Object> req = request(0, "not-found", null);
-    assertError(onMessage(rpc, req), JsonRpc.METHOD_NOT_FOUND);
+    String message = "{\"method\":\"not-found\",\"id\":0,\"jsonrpc\":\"2.0\",\"params\":null}";
+    assertError(onMessage(rpc, message), JsonRpc.METHOD_NOT_FOUND);
   }
 
   @Test
   public void testSucessfulCall() throws Exception {
     List value = ImmutableList.of(0);
-    Map<String, Object> req = request(0, "id", value);
-    Map<String, Object> resp = onMessage(rpc, req);
+    String message = "{\"method\":\"id\",\"id\":0,\"jsonrpc\":\"2.0\",\"params\":[0]}";
+    Map<String, Object> resp = onMessage(rpc, message);
     assertThat(resp.get("id"), is(0));
     assertThat(resp.get("result"), is(value));
   }
