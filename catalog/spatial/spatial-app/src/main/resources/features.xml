@@ -131,6 +131,9 @@
     <feature name="webservice-gazetteer" version="${project.version}"
              description="Gazetteer service utilizing the Geonames.org web service.">
         <feature>spatial-geocoding-endpoint</feature>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-websearch/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
@@ -139,6 +142,7 @@
              description="Offline gazetteer service utilizing a local GeoNames index.">
         <feature>catalog-solr-provider</feature>
         <feature>spatial-geocoding-endpoint</feature>
+        <feature>catalog-core-plugins</feature>
         <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
