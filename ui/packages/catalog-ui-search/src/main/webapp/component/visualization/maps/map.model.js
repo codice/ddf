@@ -62,13 +62,12 @@ module.exports = Backbone.AssociatedModel.extend({
     const lat = this.get('mouseLat')
     const lon = this.get('mouseLon')
     const dms = `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`
+    // TODO: Move leaking defensive check knowledge to usng library (DDF-4335)
     const mgrs =
       lat > 84 || lat < -80
         ? undefined
         : converter.LLtoUSNG(lat, lon, usngPrecision)
-    const utmUps = converter.serializeUTMUPS(
-      converter.LLtoUTMUPSObject(lat, lon)
-    )
+    const utmUps = converter.LLtoUTMUPS(lat, lon)
 
     this.set({
       clickLat: lat,

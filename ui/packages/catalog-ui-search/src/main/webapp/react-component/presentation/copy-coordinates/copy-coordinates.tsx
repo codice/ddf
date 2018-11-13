@@ -48,14 +48,14 @@ const generateClipboardHandler = (
         return text
       },
     })
-    clipboardInstance.on('success', function(e: any) {
+    clipboardInstance.on('success', (e: any) => {
       announcement.announce({
         title: 'Copied to clipboard',
         message: e.text,
         type: 'success',
       })
     })
-    clipboardInstance.on('error', function(e: any) {
+    clipboardInstance.on('error', (e: any) => {
       announcement.announce({
         title: 'Press Ctrl+C to copy',
         message: e.text,

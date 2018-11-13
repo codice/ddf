@@ -29,10 +29,17 @@ const Choice = styled(ButtonBehavior)`
   padding: 0px ${props => props.theme.minimumSpacing};
 `
 
-const render = (props: Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>) => {
+const render = (
+  props: Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>
+) => {
   const { className, style, onClick, children, ...otherAttr } = props
   return (
-    <Choice onClick={onClick} className={className} style={style} {...otherAttr}>
+    <Choice
+      onClick={onClick}
+      className={className}
+      style={style}
+      {...otherAttr}
+    >
       {children}
     </Choice>
   )

@@ -35,31 +35,37 @@ const ModifiedMenuItem = styled<Props>(MenuItem)`
   }
 `
 
-const render = withDropdown((props: Props & withContext & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>) => {
-  const {
-    children,
-    onClick,
-    className,
-    style,
-    icon,
-    help,
-    dropdownContext,
-    ...otherAttr
-  } = props
-  return (
-    <ModifiedMenuItem
-      onClick={(e: any) => {
-        onClick && onClick(e, dropdownContext)
-      }}
-      className={className}
-      style={style}
-      data-help={help}
-      {...otherAttr}
-    >
-      <span className={`icon ${icon}`} />
-      <div>{children}</div>
-    </ModifiedMenuItem>
-  )
-})
+const render = withDropdown(
+  (
+    props: Props &
+      withContext &
+      Subtract<React.HTMLAttributes<HTMLDivElement>, Props>
+  ) => {
+    const {
+      children,
+      onClick,
+      className,
+      style,
+      icon,
+      help,
+      dropdownContext,
+      ...otherAttr
+    } = props
+    return (
+      <ModifiedMenuItem
+        onClick={(e: any) => {
+          onClick && onClick(e, dropdownContext)
+        }}
+        className={className}
+        style={style}
+        data-help={help}
+        {...otherAttr}
+      >
+        <span className={`icon ${icon}`} />
+        <div>{children}</div>
+      </ModifiedMenuItem>
+    )
+  }
+)
 
 export default hot(module)(render)

@@ -14,10 +14,6 @@
  **/
 /*global require*/
 import React from 'react'
-import Dropdown from '../../react-component/presentation/dropdown'
-import NavigationBehavior from '../../react-component/presentation/navigation-behavior'
-import MenuSelection from '../../react-component/presentation/menu-selection'
-import MenuAction from '../../react-component/presentation/menu-action'
 import CopyCoordinates from '../../react-component/presentation/copy-coordinates'
 
 var _ = require('underscore')

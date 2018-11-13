@@ -63,9 +63,14 @@ const handleKeyUp = (event: any) => {
   }
 }
 
-const render: React.ComponentType<Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>> = React.forwardRef(
+const render: React.ComponentType<
+  Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>
+> = React.forwardRef(
   // @ts-ignore
-  (props: Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>, ref?: React.Ref<HTMLDivElement>) => {
+  (
+    props: Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>,
+    ref?: React.Ref<HTMLDivElement>
+  ) => {
     const { children, onClick, className, style, ...otherAttr } = props
     return (
       <Root
