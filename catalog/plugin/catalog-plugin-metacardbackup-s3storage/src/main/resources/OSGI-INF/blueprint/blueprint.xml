@@ -35,6 +35,7 @@
             <property name="s3AccessKey" value="" />
             <property name="s3SecretKey" value="" />
             <property name="s3Endpoint" value="" />
+            <property name="s3Region" value="" />
             <property name="s3Bucket" value=""/>
             <property name="s3CannedAclName" value="BucketOwnerFullControl"/>
             <property name="backupMetacardTags">
