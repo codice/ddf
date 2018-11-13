@@ -33,13 +33,11 @@
         <argument ref="federationStrategyThreadFactory"/>
     </bean>
 
-    <reference id="solrUsernamePasswordCredentials"
-        interface="ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials">
-    </reference>
-
+    <reference id="encryptionSerivce"
+        interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
-        <argument ref="solrUsernamePasswordCredentials"/>
+        <argument ref="encryptionSerivce"/>
     </bean>
 
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"

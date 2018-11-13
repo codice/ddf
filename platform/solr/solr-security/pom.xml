@@ -21,7 +21,7 @@
         <version>2.14.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <packaging>bundle</packaging>
     <artifactId>solr-security</artifactId>
     <dependencies>
         <dependency>
@@ -47,5 +47,26 @@
             <artifactId>solr-settings</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Embed-Dependency>
+                            solr-settings,
+                            org.apache.felix.utils
+                        </Embed-Dependency>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>

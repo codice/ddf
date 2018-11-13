@@ -101,11 +101,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-credentials-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-settings</artifactId>
             <version>${project.version}</version>
         </dependency>

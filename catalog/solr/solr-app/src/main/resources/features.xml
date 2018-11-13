@@ -31,7 +31,6 @@
     <feature name="catalog-solr-provider" version="${project.version}"
         description="Catalog Provider to interface with Solr ${solr.version}">
         <feature>persistence-core</feature>
-        <feature>solr-credentials</feature>
         <bundle>mvn:ddf.catalog.solr/catalog-solr-provider/${project.version}</bundle>
     </feature>
 

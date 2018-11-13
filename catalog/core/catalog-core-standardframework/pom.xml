@@ -361,12 +361,6 @@
             <artifactId>awaitility</artifactId>
             <version>3.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-credentials-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>

@@ -87,11 +87,6 @@
             <version>${opengis.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-credentials-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
         </dependency>
@@ -137,6 +132,11 @@
             <version>${commons-collections4.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito-core.version}</version>
@@ -169,7 +169,7 @@
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
-                            ddf.platform.solr.credentials.api,
+                            ddf.security.encryption,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,

@@ -14,11 +14,11 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.4.0"
     xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="solrUsernamePasswordCredentials"
-        interface="ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials"/>
+    <reference id="encryptionSerivce"
+        interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
-        <argument ref="solrUsernamePasswordCredentials"/>
+        <argument ref="encryptionSerivce"/>
     </bean>
 
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>

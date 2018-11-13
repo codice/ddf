@@ -11,18 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.platform.solr.credentials.api;
+package ddf.platform.solr.security;
 
-/** Provides a pure interface for collecting username and password for authentication to Solr. */
-public interface SolrUsernamePasswordCredentials {
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-  String getUsername();
+import java.io.InputStream;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
-  @SuppressWarnings("unused")
-  void setUsername(String username);
+@Path("admin/authentication")
+public interface SolrAdminClient {
 
-  String getPassword();
-
-  @SuppressWarnings("unused")
-  void setPassword(String password);
+  @POST
+  @Produces(APPLICATION_JSON)
+  @Consumes(APPLICATION_JSON)
+  Response sendRequest(InputStream is);
 }

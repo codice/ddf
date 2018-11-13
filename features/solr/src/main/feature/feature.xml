@@ -36,7 +36,6 @@
     <feature name="persistence-core" version="${project.version}"
         description="Internal Persistence Core Implementation">
         <feature>persistence-core-api</feature>
-        <feature>solr-credentials</feature>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>

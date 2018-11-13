@@ -199,6 +199,7 @@ public class SolrSettings {
     Validate.notNull(
         encryptionService,
         "Provide class with the encryption service before invoking this method.");
+    Validate.notNull(encryptedPassword, "No password for Solr was set.");
     return encryptionService.decrypt(encryptedPassword);
   }
 
@@ -255,5 +256,9 @@ public class SolrSettings {
    */
   public static void setForceAutoCommit(boolean bool) {
     forceAutoCommit = bool;
+  }
+
+  public static boolean usingDefaultPassword() {
+    return getPlainTextSolrPassword().equals("changeit");
   }
 }

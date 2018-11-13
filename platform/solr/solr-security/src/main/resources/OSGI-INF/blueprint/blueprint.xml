@@ -23,7 +23,7 @@
     <bean id="executor" class="java.util.concurrent.Executors"
         factory-method="newSingleThreadScheduledExecutor"/>
     <bean id="solrBasicAuthenticationInstaller"
-        class="ddf.platform.solr.security.SolrBasicAuthenticationInstaller" init-method="run" destroy-method="stop">
+        class="ddf.platform.solr.security.SolrBasicAuthenticationInstaller" init-method="start" destroy-method="stop">
         <argument ref="uuidGenerator"/>
         <argument ref="encryptionService"/>
         <argument ref="clientFactoryFactory"/>

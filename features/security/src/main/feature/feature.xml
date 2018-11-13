@@ -621,12 +621,6 @@
         <bundle>mvn:ddf.platform.security/secure-boot/${project.version}</bundle>
     </feature>
 
-    <feature name="solr-credentials" version="${project.version}" description="Solr Credentials Implementation">
-        <bundle>mvn:ddf.platform.solr/solr-credentials-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.solr/solr-credentials/${project.version}</bundle>
-    </feature>
-
-
     <feature name="solr-change-password" version="${project.version}"
              description="Attempt to change the Solr password to a secure value as part of the installation process.">
         <bundle>mvn:ddf.platform.solr/solr-security/${project.version}</bundle>

@@ -232,8 +232,6 @@
         <module>expansion</module>
         <module>common</module>
         <module>core</module>
-        <module>solr-credentials-api</module>
-        <module>solr-credentials</module>
         <module>policy</module>
         <module>sts</module>
         <module>cas</module>

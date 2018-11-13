@@ -31,7 +31,6 @@ import static org.codice.solr.settings.SolrSettings.useBasicAuth;
 import static org.codice.solr.settings.SolrSettings.useTls;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.platform.solr.credentials.api.SolrUsernamePasswordCredentials;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.AccessController;
@@ -47,7 +46,6 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -77,11 +75,6 @@ import org.slf4j.LoggerFactory;
 public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
-  private final SolrUsernamePasswordCredentials usernamePasswordCredentials;
-
-  public HttpSolrClientFactory(SolrUsernamePasswordCredentials usernamePasswordCredentials) {
-    this.usernamePasswordCredentials = usernamePasswordCredentials;
-  }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
@@ -220,10 +213,12 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private CredentialsProvider getCredentialsProvider() {
     CredentialsProvider provider = new BasicCredentialsProvider();
-    org.apache.http.auth.UsernamePasswordCredentials credentials =
-        new org.apache.http.auth.UsernamePasswordCredentials(
-            usernamePasswordCredentials.getUsername(), usernamePasswordCredentials.getPassword());
-    provider.setCredentials(AuthScope.ANY, credentials);
+    //  TODO: GRAB USERNAME AND PASSWORD.
+    //    org.apache.http.auth.UsernamePasswordCredentials credentials =
+    //        new org.apache.http.auth.UsernamePasswordCredentials(
+    //            usernamePasswordCredentials.getUsername(),
+    // usernamePasswordCredentials.getPassword());
+    //    provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }
 
