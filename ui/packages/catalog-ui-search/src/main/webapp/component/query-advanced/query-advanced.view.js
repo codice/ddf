@@ -105,7 +105,9 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   save: function() {
-    this.$el.removeClass('is-editing')
+    if (!this.options.isSearchFormEditor) {
+      this.$el.removeClass('is-editing')
+    }
     this.querySettings.currentView.saveToModel()
 
     this.queryAdvanced.currentView.sortCollection()
