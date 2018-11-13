@@ -17,13 +17,12 @@ import React from 'react'
 import Dropdown from '../../react-component/presentation/dropdown'
 import NavigationBehavior from '../../react-component/presentation/navigation-behavior'
 import MenuSelection from '../../react-component/presentation/menu-selection'
+import MenuAction from '../../react-component/presentation/menu-action'
+import CopyCoordinates from '../../react-component/presentation/copy-coordinates'
 
 var _ = require('underscore')
 var Marionette = require('marionette')
-var template = require('./map-context-menu.hbs')
 var CustomElements = require('../../js/CustomElements.js')
-var Clipboard = require('clipboard')
-var announcement = require('../announcement/index.jsx')
 var InspectorView = require('../visualization/inspector/inspector.view.js')
 var HistogramView = require('../visualization/histogram/histogram.view.js')
 var SelectionInterfaceModel = require('../selection-interface/selection-interface.model.js')
@@ -33,76 +32,14 @@ module.exports = Marionette.LayoutView.extend({
   template(props) {
     return (
       <React.Fragment>
-        <div
-          className="metacard-interaction interaction-copy-coordinates"
-          data-help="Copies the coordinates to your clipboard."
-          data-clipboard-text={props.clickLat + ' ' + props.clickLon}
-        >
-          <div className="interaction-icon fa fa-clipboard" />
-          <div className="interaction-text">
-            Copy Coordinates as Decimal Degrees (DD)
-            <div>
-              <span>{props.clickLat}</span>
-              <span>{props.clickLon}</span>
-            </div>
-          </div>
-        </div>
-        <div
-          className="metacard-interaction interaction-copy-dms"
-          data-help="Copies the DMS coordinates to your clipboard."
-          data-clipboard-text={props.clickDms}
-        >
-          <div className="interaction-icon fa fa-clipboard" />
-          <div className="interaction-text">
-            Copy Coordinates as Degrees Minutes Seconds (DMS)
-            <div>
-              <span>{props.clickDms}</span>
-            </div>
-          </div>
-        </div>
-        {props.clickMgrs ? (
-          <div
-            className="metacard-interaction interaction-copy-mgrs"
-            data-help="Copies the MGRS coordinates to your clipboard."
-            data-clipboard-text={props.clickMgrs}
-          >
-            <div className="interaction-icon fa fa-clipboard" />
-            <div className="interaction-text">
-              Copy Coordinates as MGRS
-              <div>
-                <span>{props.clickMgrs}</span>
-              </div>
-            </div>
-          </div>
-        ) : null}
-        <div
-          className="metacard-interaction interaction-copy-utm-ups"
-          data-help="Copies the UTM/UPS coordinates to your clipboard."
-          data-clipboard-text={props.clickUtmUps}
-        >
-          <div className="interaction-icon fa fa-clipboard" />
-          <div className="interaction-text">
-            Copy Coordinates as UTM/UPS
-            <div>
-              <span>{props.clickUtmUps}</span>
-            </div>
-          </div>
-        </div>
-        <div
-          className="metacard-interaction interaction-copy-wkt"
-          data-help="Copies the WKT of the coordinates to your clipboard."
-          data-clipboard-text={`POINT (${props.clickLon} ${props.clickLat})`}
-        >
-          <div className="interaction-icon fa fa-clipboard" />
-          <div className="interaction-text">
-            Copy Coordinates as Well Known Text (WKT)
-            <div>
-              <span>
-                POINT ({props.clickLon} {props.clickLat})
-              </span>
-            </div>
-          </div>
-        </div>
+        <CopyCoordinates
+          clickDms={props.clickDms}
+          clickLat={props.clickLat}
+          clickLon={props.clickLon}
+          clickMgrs={props.clickMgrs}
+          clickUtmUps={props.clickUtmUps}
+          closeParent={this.triggerClick.bind(this)}
+        />
         <div
           className="metacard-interaction interaction-view-histogram"
           data-help="Open histogram of results."
@@ -159,10 +96,7 @@ module.exports = Marionette.LayoutView.extend({
     'click > .interaction-view-histogram-selection':
       'triggerHistogramSelection',
     'click > .interaction-view-histogram': 'triggerHistogram',
-    click: 'triggerClick',
   },
-  regions: {},
-  ui: {},
   initialize: function() {
     this.debounceUpdateSelectionInterface()
     this.selectionInterface = new SelectionInterfaceModel()
@@ -217,6 +151,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   triggerHistogram: function() {
+    this.triggerClick()
     lightboxInstance.model.updateTitle('Histogram')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -226,6 +161,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerHistogramSelection: function() {
+    this.triggerClick()
     this.stopListening(
       this.selectionInterface.getSelectedResults(),
       'update add remove reset',
@@ -252,6 +188,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerViewDetailsSelection: function() {
+    this.triggerClick()
     lightboxInstance.model.updateTitle('Inspector')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -261,6 +198,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerViewDetails: function() {
+    this.triggerClick()
     this.stopListening(
       this.selectionInterface.getSelectedResults(),
       'update add remove reset',
@@ -280,7 +218,6 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
-    this.setupClipboards()
     this.repositionDropdown()
     this.handleTarget()
     this.handleSelectionChange()
@@ -300,41 +237,6 @@ module.exports = Marionette.LayoutView.extend({
       'has-target',
       this.options.mapModel.get('target') !== undefined
     )
-  },
-  setupClipboards: function() {
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-coordinates'))
-    )
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-wkt'))
-    )
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-dms'))
-    )
-    if (this.options.mapModel.get('clickMgrs')) {
-      this.attachListenersToClipboard(
-        new Clipboard(this.el.querySelector('.interaction-copy-mgrs'))
-      )
-    }
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-utm-ups'))
-    )
-  },
-  attachListenersToClipboard: function(clipboard) {
-    clipboard.on('success', function(e) {
-      announcement.announce({
-        title: 'Copied to clipboard',
-        message: e.text,
-        type: 'success',
-      })
-    })
-    clipboard.on('error', function(e) {
-      announcement.announce({
-        title: 'Press Ctrl+C to copy',
-        message: e.text,
-        type: 'info',
-      })
-    })
   },
   serializeData: function() {
     var mapModelJSON = this.options.mapModel.toJSON()

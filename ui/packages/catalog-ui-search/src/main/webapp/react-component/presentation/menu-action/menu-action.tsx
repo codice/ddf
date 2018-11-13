@@ -14,6 +14,7 @@ import styled from '../../styles/styled-components'
 import MenuItem from '../menu-item'
 import { withDropdown, withContext, ContextType } from '../dropdown'
 import { hot } from 'react-hot-loader'
+import { Subtract } from '../../../typescript'
 
 type Props = {
   className?: string
@@ -34,7 +35,7 @@ const ModifiedMenuItem = styled<Props>(MenuItem)`
   }
 `
 
-const render = withDropdown((props: Props & withContext) => {
+const render = withDropdown((props: Props & withContext & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>) => {
   const {
     children,
     onClick,
@@ -43,6 +44,7 @@ const render = withDropdown((props: Props & withContext) => {
     icon,
     help,
     dropdownContext,
+    ...otherAttr
   } = props
   return (
     <ModifiedMenuItem
@@ -52,6 +54,7 @@ const render = withDropdown((props: Props & withContext) => {
       className={className}
       style={style}
       data-help={help}
+      {...otherAttr}
     >
       <span className={`icon ${icon}`} />
       <div>{children}</div>
