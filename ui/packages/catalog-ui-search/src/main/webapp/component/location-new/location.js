@@ -1,6 +1,6 @@
 const React = require('react')
 
-const { Radio, RadioItem } = require('react-component/radio')
+const { Radio, RadioItem } = require('../../react-component/radio/index.js')
 const { WKT, LatLongDD, LatLongDMS, USNG } = require('./geo-components')
 const produce = require('immer').default
 

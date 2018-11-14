@@ -18,8 +18,8 @@ var _ = require('underscore')
 var $ = require('jquery')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.list-select.hbs')
-var ListItemView = require('component/list-item/list-item.view')
-var ListSelectView = require('component/list-select/list-select.view')
+var ListItemView = require('../../list-item/list-item.view.js')
+var ListSelectView = require('../../list-select/list-select.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

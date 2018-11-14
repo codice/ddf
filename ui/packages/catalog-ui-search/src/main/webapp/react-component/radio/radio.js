@@ -1,6 +1,6 @@
 const React = require('react')
 
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const Component = CustomElements.registerReact('radio')
 
 const Radio = props => {

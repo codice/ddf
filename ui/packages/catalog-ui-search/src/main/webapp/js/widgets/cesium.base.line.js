@@ -13,7 +13,7 @@
 const Marionette = require('marionette')
 const Cesium = require('cesium')
 const _ = require('underscore')
-const wreqr = require('wreqr')
+const wreqr = require('../wreqr.js')
 const NotificationView = require('./notification.view')
 const DrawingController = require('./drawing.controller')
 

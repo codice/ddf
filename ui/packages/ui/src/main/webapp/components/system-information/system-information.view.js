@@ -18,7 +18,7 @@ define([
   'underscore',
   'jquery',
   'moment',
-  'text!./system-information.hbs',
+  './system-information.hbs',
   'js/util/TimeUtil',
   'js/util/UnitsUtil',
   'js/CustomElements',

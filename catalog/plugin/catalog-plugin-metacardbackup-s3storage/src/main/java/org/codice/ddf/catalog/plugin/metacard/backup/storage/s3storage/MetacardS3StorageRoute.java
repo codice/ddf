@@ -15,7 +15,13 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.s3storage;
 
 import static org.apache.camel.builder.PredicateBuilder.not;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,17 +50,13 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
   public static final String S3_ENDPOINT_PROP = "s3Endpoint";
 
+  public static final String S3_REGION_PROP = "s3Region";
+
   public static final String S3_BUCKET_PROP = "s3Bucket";
 
   public static final String S3_CANNED_ACL_NAME_PROP = "s3CannedAclName";
 
-  public static final String AWS_S3_ACCESS_KEY_PROP = "accessKey";
-
-  public static final String AWS_S3_SECRET_KEY_PROP = "secretKey";
-
   public static final String AWS_S3_CLIENT_PROP = "amazonS3Client";
-
-  public static final String AWS_S3_ENDPOINT_PROP = "amazonS3Endpoint";
 
   public static final String AWS_S3_DELETE_AFTER_WRITE_PROP = "deleteAfterWrite";
 
@@ -67,6 +69,8 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
   protected String s3SecretKey = "";
 
   protected String s3Endpoint;
+
+  protected String s3Region;
 
   protected String s3CannedAclName;
 
@@ -125,6 +129,14 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     this.s3Endpoint = s3Endpoint;
   }
 
+  public String getS3Region() {
+    return s3Region;
+  }
+
+  public void setS3Region(String s3Region) {
+    this.s3Region = s3Region;
+  }
+
   public String getS3CannedAclName() {
     return s3CannedAclName;
   }
@@ -139,20 +151,9 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
     StringBuilder options = new StringBuilder();
 
-    if (StringUtils.isNotBlank(s3AccessKey)) {
-      addQuotedOption(options, AWS_S3_ACCESS_KEY_PROP, s3AccessKey);
-    }
-    if (StringUtils.isNotBlank(s3SecretKey)) {
-      addQuotedOption(options, AWS_S3_SECRET_KEY_PROP, "RAW(" + s3SecretKey + ")");
-    }
+    registry.put("s3Client", getS3Client());
+    addOption(options, AWS_S3_CLIENT_PROP, "#s3Client");
 
-    if (options.length() == 0) {
-      AmazonS3Client s3Client = new AmazonS3Client();
-      registry.put("s3Client", s3Client);
-      addOption(options, AWS_S3_CLIENT_PROP, "#s3Client");
-    }
-
-    addOption(options, AWS_S3_ENDPOINT_PROP, s3Endpoint);
     addOption(options, AWS_S3_DELETE_AFTER_WRITE_PROP, "false");
 
     String s3Uri = "aws-s3://" + getS3Bucket();
@@ -233,6 +234,11 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
       setS3Endpoint((String) s3EndpointValue);
     }
 
+    Object s3RegionValue = properties.get(S3_REGION_PROP);
+    if (s3RegionValue instanceof String) {
+      setS3Region((String) s3RegionValue);
+    }
+
     Object s3BucketValue = properties.get(S3_BUCKET_PROP);
     if (s3BucketValue instanceof String) {
       setS3Bucket((String) s3BucketValue);
@@ -251,17 +257,26 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     return routeIds;
   }
 
-  private void addQuotedOption(StringBuilder options, String key, String value) {
-    if (options.length() > 0) {
-      options.append("&");
-    }
-    options.append(key).append("=\"").append(value).append("\"");
-  }
-
   private void addOption(StringBuilder options, String key, String value) {
     if (options.length() > 0) {
       options.append("&");
     }
     options.append(key).append("=").append(value);
+  }
+
+  private AmazonS3 getS3Client() {
+    AwsClientBuilder.EndpointConfiguration endpointConfiguration =
+        new AwsClientBuilder.EndpointConfiguration(s3Endpoint, getS3Region());
+    if (StringUtils.isNotBlank(s3AccessKey)) {
+      AWSCredentials awsCredentials = new BasicAWSCredentials(s3AccessKey, s3SecretKey);
+      AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(awsCredentials);
+      return AmazonS3ClientBuilder.standard()
+          .withCredentials(credentialsProvider)
+          .withEndpointConfiguration(endpointConfiguration)
+          .build();
+    }
+    return AmazonS3ClientBuilder.standard()
+        .withEndpointConfiguration(endpointConfiguration)
+        .build();
   }
 }

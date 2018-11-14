@@ -16,12 +16,12 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const DropdownCompanionView = require('./dropdown.companion.view')
 const DropdownModel = require('./dropdown')
 const template = require('./dropdown.hbs')
-const SelectView = require('component/select/select.collection.view')
-require('behaviors/button.behavior')
+const SelectView = require('../select/select.collection.view.js')
+require('../../behaviors/button.behavior.js')
 
 module.exports = Marionette.LayoutView.extend(
   {

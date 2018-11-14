@@ -15,15 +15,15 @@
 /*global define, setTimeout*/
 var Backbone = require('backbone')
 var Marionette = require('marionette')
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./associations-graph.hbs')
-var CustomElements = require('js/CustomElements')
-var store = require('js/store')
-var LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-var AssociationView = require('component/association/association.view')
-var Association = require('component/association/association')
+var CustomElements = require('../../js/CustomElements.js')
+var store = require('../../js/store.js')
+var LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+var AssociationView = require('../association/association.view.js')
+var Association = require('../association/association.js')
 var Vis = require('vis')
 
 function determineNodes(view) {

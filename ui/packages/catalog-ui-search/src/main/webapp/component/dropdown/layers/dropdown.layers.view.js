@@ -16,8 +16,8 @@
 var Marionette = require('marionette')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.layers.hbs')
-var LayersView = require('component/layers/layers.view')
-var user = require('component/singletons/user-instance')
+var LayersView = require('../../layers/layers.view.js')
+var user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   template: template,

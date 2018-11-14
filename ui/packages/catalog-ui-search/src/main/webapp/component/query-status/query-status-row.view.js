@@ -15,8 +15,8 @@
 /*global require*/
 var template = require('./query-status-row.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.ItemView.extend({
   className: 'is-tr',

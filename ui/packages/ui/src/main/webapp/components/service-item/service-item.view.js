@@ -20,7 +20,7 @@ define([
   'js/models/Service',
   'components/configuration-edit/configuration-edit.view',
   'js/wreqr.js',
-  'text!./service-item.hbs',
+  './service-item.hbs',
   'js/CustomElements',
   'components/configuration-item/configuration-item.collection.view',
 ], function(

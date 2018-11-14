@@ -17,12 +17,12 @@ var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./metacard-preview.hbs')
-var CustomElements = require('js/CustomElements')
-var LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-var store = require('js/store')
-var user = require('component/singletons/user-instance.js')
+var CustomElements = require('../../js/CustomElements.js')
+var LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+var store = require('../../js/store.js')
+var user = require('../singletons/user-instance.js')
 var preferences = user.get('user').get('preferences')
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 
 function getSrc(previewHtml, textColor) {
   return (

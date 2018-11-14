@@ -13,12 +13,12 @@ import * as React from 'react'
 import WorkspaceInteractionsPresentation from '../../presentation/workspace-interactions'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
-const user = require('component/singletons/user-instance')
-const store = require('js/store')
-const lightboxInstance = require('component/lightbox/lightbox.view.instance')
-const WorkspaceSharing = require('component/workspace-sharing/workspace-sharing.view')
-const wreqr = require('wreqr')
-const LoadingView = require('component/loading/loading.view')
+const user = require('../../../component/singletons/user-instance.js')
+const store = require('../../../js/store.js')
+const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
+const WorkspaceSharing = require('../../../component/workspace-sharing/workspace-sharing.view.js')
+const wreqr = require('../../../js/wreqr.js')
+const LoadingView = require('../../../component/loading/loading.view.js')
 
 type Props = {
   workspace: any

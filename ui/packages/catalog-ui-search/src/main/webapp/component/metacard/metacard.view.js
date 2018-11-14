@@ -13,14 +13,14 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard.hbs')
-const CustomElements = require('js/CustomElements')
-const metacardInstance = require('component/metacard/metacard')
-const GoldenLayoutMetacardView = require('component/golden-layout/golden-layout.view')
+const CustomElements = require('../../js/CustomElements.js')
+const metacardInstance = require('./metacard.js')
+const GoldenLayoutMetacardView = require('../golden-layout/golden-layout.view.js')
 
 let queryForMetacard
 

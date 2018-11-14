@@ -13,19 +13,37 @@
  *
  **/
 /* global require */
+import React from 'react'
+import styled from '../../../react-component/styles/styled-components'
 const Marionette = require('marionette')
 const $ = require('jquery')
-const template = require('../search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form-sharing.collection.view')
 const SearchFormSharingCollection = require('./search-form-sharing.collection')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const CustomElements = require('../../../js/CustomElements.js')
+const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+
+const Root = styled.div`
+  height: 100%;
+  width: 100%;
+  > .collection {
+    margin: auto;
+    max-width: 1020px;
+    height: 100%;
+    overflow: auto;
+  }
+`
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
-  tagName: CustomElements.register('search-form-sharing-collection'),
+  className: 'customElement',
   regions: {
     collection: '.collection',
+  },
+  template() {
+    return (
+      <Root>
+        <div className="collection" />
+      </Root>
+    )
   },
   initialize: function() {
     this.searchFormSharingCollection = new SearchFormSharingCollection()

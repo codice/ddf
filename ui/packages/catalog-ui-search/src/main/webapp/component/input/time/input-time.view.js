@@ -17,7 +17,7 @@ import React from 'react'
 const _ = require('lodash')
 const $ = require('jquery')
 const InputView = require('../input.view')
-const user = require('component/singletons/user-instance')
+const user = require('../../singletons/user-instance.js')
 const moment = require('moment-timezone')
 require('eonasdan-bootstrap-datetimepicker')
 

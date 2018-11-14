@@ -16,16 +16,22 @@
 import React from 'react'
 var Marionette = require('marionette')
 var template = require('./slideout.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var $ = require('jquery')
-var router = require('component/router/router')
-var Common = require('js/Common')
+var router = require('../router/router.js')
+var Common = require('../../js/Common.js')
 
 var componentName = 'slideout'
+import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    const ContentView = this.contentView || (() => null)
+    let ContentView = () => null
+    if (this.contentView) {
+      ContentView = this.contentView.prototype._isMarionetteView
+        ? () => <MarionetteRegionContainer view={this.contentView} />
+        : this.contentView
+    }
     return (
       <React.Fragment>
         <div className="slideout-cover" />
@@ -85,13 +91,8 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   updateContent: function(view) {
-    this.contentView = undefined
-    if (view._isMarionetteView === true) {
-      this.slideoutContent.show(view)
-    } else {
-      this.contentView = view
-      this.render()
-    }
+    this.contentView = view
+    this.render()
   },
   handleSpecialKeys: function(event) {
     var code = event.keyCode

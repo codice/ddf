@@ -11,11 +11,11 @@
  **/
 var Backbone = require('backbone')
 var _ = require('underscore')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
 var Turf = require('@turf/turf')
 var TurfMeta = require('@turf/meta')
 var wkx = require('wkx')
-var properties = require('properties')
+var properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({

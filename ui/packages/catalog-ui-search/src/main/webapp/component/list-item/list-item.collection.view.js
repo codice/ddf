@@ -14,7 +14,7 @@
  **/
 /*global define, alert*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var ListItemView = require('./list-item.view')
 
 module.exports = Marionette.CollectionView.extend({

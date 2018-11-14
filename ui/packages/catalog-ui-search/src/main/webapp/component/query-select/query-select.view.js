@@ -16,9 +16,9 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const QueryItemCollectionView = require('component/query-item/query-item.collection.view')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const QueryItemCollectionView = require('../query-item/query-item.collection.view.js')
 
 var eventsHash = {
   click: 'handleClick',

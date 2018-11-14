@@ -15,11 +15,11 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./query-altitude.hbs')
-var CustomElements = require('js/CustomElements')
-var PropertyView = require('component/property/property.view')
-var Property = require('component/property/property')
-var CQLUtils = require('js/CQLUtils')
-var DistanceUtils = require('js/DistanceUtils')
+var CustomElements = require('../../js/CustomElements.js')
+var PropertyView = require('../property/property.view.js')
+var Property = require('../property/property.js')
+var CQLUtils = require('../../js/CQLUtils.js')
+var DistanceUtils = require('../../js/DistanceUtils.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

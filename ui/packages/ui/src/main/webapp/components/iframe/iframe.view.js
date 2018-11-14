@@ -13,7 +13,7 @@
  *
  **/
 /* global define */
-define(['marionette', 'text!./iframe.hbs', 'js/CustomElements'], function(
+define(['marionette', './iframe.hbs', 'js/CustomElements'], function(
   Marionette,
   template,
   CustomElements

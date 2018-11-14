@@ -15,8 +15,8 @@
 /*global define*/
 const Marionette = require('marionette')
 const template = require('./workspaces-menu.hbs')
-const CustomElements = require('js/CustomElements')
-const properties = require('properties')
+const CustomElements = require('../../js/CustomElements.js')
+const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

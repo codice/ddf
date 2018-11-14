@@ -17,9 +17,9 @@ const Marionette = require('marionette')
 const _ = require('lodash')
 const $ = require('jquery')
 const template = require('./metacard-actions.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const MapActions = require('component/map-actions/map-actions.view')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const MapActions = require('../map-actions/map-actions.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel: function() {

@@ -13,16 +13,16 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard-title.hbs')
-const CustomElements = require('js/CustomElements')
-const IconHelper = require('js/IconHelper')
-const store = require('js/store')
-const PopoutView = require('component/dropdown/popout/dropdown.popout.view')
-const MetacardInteractionsView = require('component/metacard-interactions/metacard-interactions.view')
+const CustomElements = require('../../js/CustomElements.js')
+const IconHelper = require('../../js/IconHelper.js')
+const store = require('../../js/store.js')
+const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
+const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

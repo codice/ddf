@@ -18,8 +18,8 @@ import ChangeBackground from '../change-background'
 import ButtonBehavior from '../button-behavior'
 import { SFC } from '../../hoc/utils'
 import { CSSProperties } from 'react'
-const CustomElements = require('js/CustomElements')
-const DropdownBehaviorUtility = require('behaviors/dropdown.behavior.utility')
+const CustomElements = require('../../../js/CustomElements.js')
+const DropdownBehaviorUtility = require('../../../behaviors/dropdown.behavior.utility.js')
 const $ = require('jquery')
 
 type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
@@ -142,7 +142,12 @@ const DropdownWrapper = styled<{ open: boolean }, 'div'>('div')`
   ${props =>
     props.open
       ? `
-  transform: translate3d(0, 0, 0) scale(1);
+  &.is-bottom {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  &.is-top {
+    transform: translate3d(0, -100%, 0) scaleY(1);
+  }
   `
       : `
   transform: translate3d(-50%, -50%, 0) scale(0);

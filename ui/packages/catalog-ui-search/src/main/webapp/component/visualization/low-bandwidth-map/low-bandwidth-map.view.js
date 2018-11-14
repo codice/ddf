@@ -17,10 +17,10 @@ var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./low-bandwidth-map.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var CombinedMapView = require('component/visualization/combined-map/combined-map.view')
-var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view')
-var router = require('component/router/router')
+var CustomElements = require('../../../js/CustomElements.js')
+var CombinedMapView = require('../combined-map/combined-map.view.js')
+var OpenlayersView = require('../maps/openlayers/openlayers.view.js')
+var router = require('../../router/router.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('low-bandwidth-map'),

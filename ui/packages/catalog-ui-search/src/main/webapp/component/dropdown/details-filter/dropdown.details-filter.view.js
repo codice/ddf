@@ -17,7 +17,7 @@ var Marionette = require('marionette')
 var _ = require('underscore')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.details-filter.hbs')
-var ComponentView = require('component/details-filter/details-filter.view')
+var ComponentView = require('../../details-filter/details-filter.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

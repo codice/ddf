@@ -11,16 +11,16 @@
  **/
 /*global require*/
 var $ = require('jquery')
-var wreqr = require('wreqr')
+var wreqr = require('./wreqr.js')
 var _ = require('underscore')
-var user = require('component/singletons/user-instance.js')
+var user = require('../component/singletons/user-instance.js')
 var preferences = user.get('user').get('preferences')
 var Less = require('less')
 var lessStyles = require('./uncompiled-less.unless')
 var variableRegex = '/@(.*:[^;]*)/g'
 var variableRegexPrefix = '@'
 var variableRegexPostfix = '(.*:[^;]*)'
-var Common = require('js/Common')
+var Common = require('./Common.js')
 import { lessWorkerModel } from './../component/singletons/less.worker-instance'
 lessWorkerModel.subscribe(data => {
   if (data.method === 'render') {

@@ -15,7 +15,7 @@
 
 const Marionette = require('marionette')
 const RowView = require('./editable-row.view')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   childView: RowView,

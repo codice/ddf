@@ -12,8 +12,8 @@
 /*global require*/
 var UploadModel = require('./Upload')
 var Backbone = require('backbone')
-var Common = require('js/Common')
-var wreqr = require('wreqr')
+var Common = require('../Common.js')
+var wreqr = require('../wreqr.js')
 var _ = require('underscore')
 
 var updatePreferences = _.throttle(function() {

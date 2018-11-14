@@ -20,12 +20,12 @@ const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./query-template-sharing.hbs')
 const itemTemplate = require('./query-template-sharing.item.hbs')
-const CustomElements = require('js/CustomElements')
-const user = require('component/singletons/user-instance')
-const EditableRows = require('component/editable-rows/editable-rows.view')
-const DropdownView = require('component/dropdown/dropdown.view')
-const Loading = require('component/loading-companion/loading-companion.view')
-const announcement = require('component/announcement')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
+const EditableRows = require('../editable-rows/editable-rows.view.js')
+const DropdownView = require('../dropdown/dropdown.view.js')
+const Loading = require('../loading-companion/loading-companion.view.js')
+const announcement = require('../announcement/index.jsx')
 
 let Input = Marionette.ItemView.extend({
   template: '<input class="form-control" type="text"/>',

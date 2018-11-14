@@ -17,10 +17,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const LightboxTemplate = require('./Lightbox.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
 const Lightbox = require('./Lightbox.js')
-const router = require('component/router/router')
+const router = require('../router/router.js')
 const componentName = 'lightbox'
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'

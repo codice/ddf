@@ -10,6 +10,7 @@
     "test": "lerna run test",
     "format-fix": "yarn format -w -m",
     "format-fix-all": "yarn format -w",
+    "fmt": "ace format -w",
     "format": "ace format",
     "posttest": "ace pom",
     "prebuild": "ace clean --workspaces",

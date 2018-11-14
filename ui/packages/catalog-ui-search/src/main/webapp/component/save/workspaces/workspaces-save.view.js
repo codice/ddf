@@ -14,7 +14,7 @@
  **/
 /*global require*/
 
-var store = require('js/store')
+var store = require('../../../js/store.js')
 var SaveView = require('../save.view')
 
 module.exports = SaveView.extend({

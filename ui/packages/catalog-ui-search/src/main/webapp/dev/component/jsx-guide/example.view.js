@@ -1,4 +1,4 @@
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const Marionette = require('marionette')
 import React from 'react'
 

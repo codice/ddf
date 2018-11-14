@@ -16,10 +16,10 @@ const Backbone = require('backbone')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const EditableRowsTemplate = require('./editable-rows.hbs')
-const EditableRowsView = require('component/editable-row/editable-row.collection.view')
-const JsonView = require('component/json/json.view')
+const EditableRowsView = require('../editable-row/editable-row.collection.view.js')
+const JsonView = require('../json/json.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('editable-rows'),

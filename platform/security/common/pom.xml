@@ -26,6 +26,11 @@
     <name>DDF :: Security :: Common</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <!-- For maven-surefire-plugin -->
+        <surefire.argline.append>-javaagent:${powermock.agent}</surefire.argline.append>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -186,21 +191,12 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.32</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>${argLine} -javaagent:${powermock.agent} -Djava.awt.headless=true
-                        -noverify
-                    </argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>

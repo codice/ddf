@@ -16,18 +16,23 @@
 const Marionette = require('marionette')
 const $ = require('jquery')
 const template = require('./search-form.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance')
 const DropdownModel = require('../dropdown/dropdown')
 const SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view')
-const properties = require('properties')
-const wreqr = require('exports/wreqr')
-const Router = require('component/router/router')
+const properties = require('../../js/properties.js')
+const wreqr = require('../../exports/wreqr.js')
+const Router = require('../router/router.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('search-form'),
-  className: 'is-button',
+  className() {
+    return this.model.get('createdBy') === 'system' &&
+      Router.attributes.path === 'forms(/)'
+      ? 'systemSearchForm'
+      : 'is-button'
+  },
   events: {
     click: 'changeView',
   },
@@ -100,7 +105,10 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'text')
         break
       case 'custom':
-        if (Router.attributes.path === 'forms(/)') {
+        if (
+          Router.attributes.path === 'forms(/)' &&
+          this.model.get('createdBy') !== 'system'
+        ) {
           this.model.set({
             title: this.model.get('name'),
             filterTree: this.model.get('filterTemplate'),

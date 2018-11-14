@@ -17,20 +17,20 @@ define([
   'jquery',
   'marionette',
   'underscore',
-  'text!./feature-item.hbs',
+  './feature-item.hbs',
   'js/CustomElements',
 ], function($, Marionette, _, template, CustomElements) {
   'use strict'
 
   function testFilter(blob, filter) {
     var filtered = false
-    if (filter.name !== '') {
+    if (filter.name !== undefined && filter.name !== '') {
       if (blob.name.toLowerCase().indexOf(filter.name.toLowerCase()) === -1) {
         filtered = true
         return filtered
       }
     }
-    if (filter.status !== 'All') {
+    if (filter.status !== undefined && filter.status !== 'All') {
       if (blob.status.toLowerCase() !== filter.status.toLowerCase()) {
         filtered = true
         return filtered

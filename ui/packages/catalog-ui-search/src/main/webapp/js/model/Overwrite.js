@@ -11,7 +11,7 @@
  **/
 /*global require*/
 var Backbone = require('backbone')
-var ResultUtils = require('js/ResultUtils')
+var ResultUtils = require('../ResultUtils.js')
 
 module.exports = Backbone.Model.extend({
   defaults: function() {

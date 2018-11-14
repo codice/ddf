@@ -18,7 +18,7 @@ const _ = require('underscore')
 const $ = require('jquery')
 const SearchFormView = require('./search-form.view')
 const SearchFormCollection = require('./search-form-collection-instance')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,

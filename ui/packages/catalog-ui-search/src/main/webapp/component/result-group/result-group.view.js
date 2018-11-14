@@ -18,10 +18,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./result-group.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const Common = require('js/Common')
-const QueryResultCollection = require('js/model/QueryResult.collection')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const Common = require('../../js/Common.js')
+const QueryResultCollection = require('../../js/model/QueryResult.collection.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -34,7 +34,7 @@ module.exports = Marionette.LayoutView.extend({
   selectionInterface: store,
   initialize: function(options) {
     this.selectionInterface = options.selectionInterface || store
-    this.resultItemCollectionView = require('component/result-item/result-item.collection.view')
+    this.resultItemCollectionView = require('../result-item/result-item.collection.view.js')
   },
   onBeforeShow: function() {
     var resultCollection = new QueryResultCollection()

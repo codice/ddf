@@ -13,16 +13,16 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var $ = require('jquery')
 var _ = require('underscore')
 var template = require('./table-visibility.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var Common = require('js/Common')
-var user = require('component/singletons/user-instance')
-var properties = require('properties')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var CustomElements = require('../../../js/CustomElements.js')
+var Common = require('../../../js/Common.js')
+var user = require('../../singletons/user-instance.js')
+var properties = require('../../../js/properties.js')
+var metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

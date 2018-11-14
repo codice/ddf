@@ -11,7 +11,7 @@
  **/
 import * as React from 'react'
 import About from '../../presentation/about'
-const properties = require('properties')
+const properties = require('../../../js/properties.js')
 const moment = require('moment')
 
 class AboutContainer extends React.Component {

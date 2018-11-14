@@ -15,7 +15,7 @@
 /*global require*/
 var template = require('./query-status-header.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   className: 'is-thead',

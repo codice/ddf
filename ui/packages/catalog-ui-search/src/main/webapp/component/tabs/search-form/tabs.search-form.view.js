@@ -16,8 +16,8 @@
 const Marionette = require('marionette')
 const TabsView = require('../tabs.view')
 const SearchFormTabsModel = require('./tabs.search-form')
-const store = require('js/store')
-const Query = require('js/model/Query.js')
+const store = require('../../../js/store.js')
+const Query = require('../../../js/model/Query.js')
 
 module.exports = TabsView.extend({
   selectionInterface: store,

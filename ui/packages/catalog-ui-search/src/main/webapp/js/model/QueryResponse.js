@@ -11,16 +11,16 @@
  **/
 var Backbone = require('backbone')
 var _ = require('underscore')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-var Sources = require('component/singletons/sources-instance')
+var metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
+var Sources = require('../../component/singletons/sources-instance.js')
 var moment = require('moment')
-var properties = require('properties')
-var user = require('component/singletons/user-instance')
-var Common = require('js/Common')
+var properties = require('../properties.js')
+var user = require('../../component/singletons/user-instance.js')
+var Common = require('../Common.js')
 require('backbone-associations')
-var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus')
-var QueryResultCollection = require('js/model/QueryResult.collection')
-var ResultForm = require('component/result-form/result-form.js')
+var QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
+var QueryResultCollection = require('./QueryResult.collection.js')
+var ResultForm = require('../../component/result-form/result-form.js')
 
 let rpc = null
 

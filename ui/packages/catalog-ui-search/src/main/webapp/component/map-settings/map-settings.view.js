@@ -15,12 +15,12 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./map-settings.hbs')
-var CustomElements = require('js/CustomElements')
-var Property = require('component/property/property')
-var PropertyView = require('component/property/property.view')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var Property = require('../property/property.js')
+var PropertyView = require('../property/property.view.js')
+var user = require('../singletons/user-instance.js')
 var mtgeo = require('mt-geo')
-var Common = require('js/Common')
+var Common = require('../../js/Common.js')
 
 var exampleLat = '14.94'
 var exampleLon = '-11.875'

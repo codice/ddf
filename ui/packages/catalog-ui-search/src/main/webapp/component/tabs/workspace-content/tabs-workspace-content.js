@@ -12,8 +12,8 @@
 /*global define*/
 const _ = require('underscore')
 const Tabs = require('../tabs')
-const WorkspaceSearchView = require('component/workspace-search/workspace-search.view')
-const WorkspaceListsView = require('component/workspace-lists/workspace-lists.view')
+const WorkspaceSearchView = require('../../workspace-search/workspace-search.view.js')
+const WorkspaceListsView = require('../../workspace-lists/workspace-lists.view.js')
 
 var WorkspaceContentTabs = Tabs.extend({
   defaults: {

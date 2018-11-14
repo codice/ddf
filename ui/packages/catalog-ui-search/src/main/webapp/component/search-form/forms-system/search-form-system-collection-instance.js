@@ -9,14 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global requirejs*/
-;(function() {
-  'use strict'
 
-  requirejs.config({
-    paths: {
-      //module
-      moduleDetailLayout: 'templates/module/ModuleDetail.layout.handlebars',
-    },
-  })
-})()
+const SearchFormsSystemCollection = require('./search-form-system.collection')
+module.exports = new SearchFormsSystemCollection()

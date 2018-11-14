@@ -13,7 +13,7 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import WorkspaceInteractions from '../../container/workspace-interactions'
-const QueryAddView = require('component/query-add/query-add.view')
+const QueryAddView = require('../../../component/query-add/query-add.view.js')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import SaveButton from '../save-button'
 import WorkspaceTitle from '../workspace-title'

@@ -10,15 +10,15 @@
  *
  **/
 var _ = require('underscore')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 var Terraformer = require('terraformer')
 var TerraformerWKTParser = require('terraformer-wkt-parser')
-var CQLUtils = require('js/CQLUtils')
+var CQLUtils = require('./CQLUtils.js')
 var Turf = require('@turf/turf')
 var TurfMeta = require('@turf/meta')
 var wkx = require('wkx')
 var moment = require('moment')
-var cql = require('js/cql')
+var cql = require('./cql.js')
 
 // strip extra quotes
 const stripQuotes = value => {

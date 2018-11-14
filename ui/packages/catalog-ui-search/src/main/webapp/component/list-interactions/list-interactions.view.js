@@ -15,7 +15,7 @@
 /*global define*/
 var Marionette = require('marionette')
 var template = require('./list-interactions.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

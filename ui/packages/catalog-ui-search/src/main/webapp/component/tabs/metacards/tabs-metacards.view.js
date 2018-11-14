@@ -18,8 +18,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const TabsView = require('../tabs.view')
 const MetacardsTabsModel = require('./tabs-metacards')
-const store = require('js/store')
-const properties = require('properties')
+const store = require('../../../js/store.js')
+const properties = require('../../../js/properties.js')
 
 function getTypes(results) {
   var types = {}

@@ -13,7 +13,7 @@
 const _ = require('underscore')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
-const wreqr = require('wreqr')
+const wreqr = require('../wreqr.js')
 const geocoderTemplate = require('templates/geocoder.handlebars')
 const $ = require('jquery')
 

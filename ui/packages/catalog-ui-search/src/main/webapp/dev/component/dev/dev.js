@@ -13,11 +13,11 @@ import React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 import { readableColor, darken, lighten } from 'polished'
 import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
-const TabsModel = require('component/tabs/tabs')
-const TabsView = require('component/tabs/tabs.view')
-const GuideView = require('dev/component/guide/guide.view')
-const AboutView = require('dev/component/about/about.view')
-const VideosView = require('dev/component/videos/videos.view')
+const TabsModel = require('../../../component/tabs/tabs.js')
+const TabsView = require('../../../component/tabs/tabs.view.js')
+const GuideView = require('../guide/guide.view.js')
+const AboutView = require('../about/about.view.js')
+const VideosView = require('../videos/videos.view.js')
 
 const Root = styled.div`
     height: 100%;

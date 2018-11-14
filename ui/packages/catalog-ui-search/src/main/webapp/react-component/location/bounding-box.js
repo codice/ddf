@@ -10,9 +10,9 @@ const { Zone, Hemisphere } = require('./common')
 const {
   DmsLatitude,
   DmsLongitude,
-} = require('component/location-new/geo-components/coordinates')
-const DirectionInput = require('component/location-new/geo-components/direction')
-const { Direction } = require('component/location-new/utils/dms-utils')
+} = require('../../component/location-new/geo-components/coordinates.js')
+const DirectionInput = require('../../component/location-new/geo-components/direction.js')
+const { Direction } = require('../../component/location-new/utils/dms-utils.js')
 
 const minimumDifference = 0.0001
 

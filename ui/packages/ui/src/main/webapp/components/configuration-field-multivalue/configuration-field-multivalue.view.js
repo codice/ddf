@@ -15,10 +15,11 @@
 /*global define*/
 /** Main view page for add. */
 define([
+  'backbone',
   'marionette',
-  'text!./configuration-field-multivalue.hbs',
+  './configuration-field-multivalue.hbs',
   'js/CustomElements',
-], function(Marionette, template, CustomElements) {
+], function(Backbone, Marionette, template, CustomElements) {
   return Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('configuration-field-multivalue'),

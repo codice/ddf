@@ -10,7 +10,7 @@
  *
  **/
 import { BaseWorkerInstance } from './worker-instance.base';
-var LessWorker = require('js/workers/less.worker');
+var LessWorker = require('../../js/workers/less.worker.js');
 var instance = new BaseWorkerInstance(new LessWorker());
 
 import * as Backbone from 'backbone';

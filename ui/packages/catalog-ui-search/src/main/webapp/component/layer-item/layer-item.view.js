@@ -16,7 +16,7 @@
 const _ = require('underscore')
 const Marionette = require('marionette')
 const template = require('./layer-item.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

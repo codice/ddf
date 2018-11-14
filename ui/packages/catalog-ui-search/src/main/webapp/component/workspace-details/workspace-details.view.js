@@ -13,15 +13,15 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./workspace-details.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const moment = require('moment')
-const user = require('component/singletons/user-instance')
-const UnsavedIndicatorView = require('component/unsaved-indicator/workspace/workspace-unsaved-indicator.view')
+const user = require('../singletons/user-instance.js')
+const UnsavedIndicatorView = require('../unsaved-indicator/workspace/workspace-unsaved-indicator.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
