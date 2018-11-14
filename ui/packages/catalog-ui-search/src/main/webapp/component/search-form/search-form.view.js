@@ -23,6 +23,7 @@ const SearchFormInteractionsDropdownView = require('../dropdown/search-form-inte
 const properties = require('../../js/properties.js')
 const wreqr = require('../../exports/wreqr.js')
 const Router = require('../router/router.js')
+const announcement = require('../announcement')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -106,19 +107,31 @@ module.exports = Marionette.LayoutView.extend({
         break
       case 'custom':
         if (
-          !user.canWrite({
-            owner: this.model.get('owner'),
-            accessGroups: this.model.get('accessGroups'),
-            accessIndividuals: this.model.get('accessIndividuals'),
-            accessAdministrators: this.model.get('accessAdministrators'),
-          })
-        )
-          break
-
-        if (
           Router.attributes.path === 'forms(/)' &&
           this.model.get('createdBy') !== 'system'
         ) {
+          if (
+            !user.canWrite({
+              owner: this.model.get('owner'),
+              accessGroups: this.model.get('accessGroups'),
+              accessIndividuals: this.model.get('accessIndividuals'),
+              accessAdministrators: this.model.get('accessAdministrators'),
+            })
+          ) {
+            announcement.announce(
+              {
+                title: 'Error',
+                message:
+                  'You have read-only permission on search form ' +
+                  this.model.get('name') +
+                  '.',
+                type: 'error',
+              },
+              3000
+            )
+            break
+          }
+
           this.model.set({
             title: this.model.get('name'),
             filterTree: this.model.get('filterTemplate'),

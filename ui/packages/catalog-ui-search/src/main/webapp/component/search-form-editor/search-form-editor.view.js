@@ -100,18 +100,14 @@ module.exports = Marionette.LayoutView.extend({
     if (id === 'create') {
       collection = SearchFormsCollection.getCollection()
       this.model = new QueryModel.Model()
-    }
-
-    if (!this.model) {
+    } else {
       collection = SearchFormsCollection.getCollection()
       this.model = collection.get(id)
+      if (!this.model) {
+        collection = SearchFormSharingCollection.getCollection()
+        this.model = collection.get(id)
+      }
     }
-
-    if (!this.model) {
-      collection = SearchFormSharingCollection.getCollection()
-      this.model = collection.get(id)
-    }
-
     this.map.show(
       new MapView({
         selectionInterface: new SelectionInterface(),
