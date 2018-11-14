@@ -32,7 +32,7 @@ public class JsonProfile implements JsonValidatable {
    *
    * <p><i>Note:</i> This constructor is primarly defined for Json deserialization such that we end
    * up initializing the lists with empty collections. This will be helpful, for example, in case
-   * where no features were serialized in which case Boon would not be setting this attribute.
+   * where no features were serialized in which case parser would not be setting this attribute.
    */
   public JsonProfile() {
     this.features = new ArrayList<>();
