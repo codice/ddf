@@ -15,8 +15,18 @@ package ddf.catalog.validation.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
@@ -45,6 +55,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -57,6 +68,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -64,17 +76,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.fileinstall.ArtifactInstaller;
-import org.boon.core.value.LazyValueMap;
-import org.boon.core.value.ValueList;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
-import org.boon.json.annotations.JsonIgnore;
 import org.codice.ddf.configuration.DictionaryMap;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -83,17 +90,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ValidationParser implements ArtifactInstaller {
+
   private static final String METACARD_VALIDATORS_PROPERTY = "metacardvalidators";
 
   private static final String REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY = "requiredattributes";
 
-  private static final String REQUIRED_ATTRIBUTES_PROPERTY = "requiredattributes";
-
-  private static final String VALIDATOR_PROPERTY = "validator";
-
-  private static final String METACARD_TYPES_PROPERTY = "Metacard Types";
+  private static final String SINGLE_VALIDATOR_PROPERTY = "validator";
 
   private static final String VALIDATORS_PROPERTY = "validators";
+
+  private static final String METACARD_TYPES_PROPERTY = "Metacard Types";
 
   private static final String DEFAULTS_PROPERTY = "Defaults";
 
@@ -105,6 +111,9 @@ public class ValidationParser implements ArtifactInstaller {
 
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
+  public static final Type OUTER_VALIDATOR_TYPE =
+      new TypeToken<List<Outer.Validator>>() {}.getType();
+
   private final AttributeRegistry attributeRegistry;
 
   private final AttributeValidatorRegistry attributeValidatorRegistry;
@@ -112,6 +121,14 @@ public class ValidationParser implements ArtifactInstaller {
   private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
   private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeHierarchyAdapter(Outer.Validator.class, new ValidatorHierarchyAdapter())
+          .setLenient()
+          .create();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
@@ -147,8 +164,6 @@ public class ValidationParser implements ArtifactInstaller {
 
   private void apply(File file) throws Exception {
     String data;
-    ObjectMapper objectMapper = JsonFactory.create();
-
     try (InputStream input = new FileInputStream(file)) {
       data = IOUtils.toString(input, StandardCharsets.UTF_8.name());
       LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
@@ -158,17 +173,7 @@ public class ValidationParser implements ArtifactInstaller {
       return; /* nothing to install */
     }
 
-    Outer outer;
-    try {
-      outer = objectMapper.readValue(data, Outer.class);
-    } catch (ClassCastException e) {
-      throw new IllegalArgumentException("Cannot parse json [" + file.getAbsolutePath() + "]", e);
-    }
-
-    /* Must manually parse validators */
-    Map<String, Object> root = objectMapper.parser().parseMap(data);
-    parseValidators(root, outer);
-    parseMetacardValidators(root, outer);
+    Outer outer = GSON.fromJson(data, Outer.class);
 
     final String filename = file.getName();
     final Changeset changeset = new Changeset();
@@ -183,7 +188,7 @@ public class ValidationParser implements ArtifactInstaller {
     handleSection(
         changeset,
         METACARD_VALIDATORS_PROPERTY,
-        outer.metacardValidators,
+        outer.metacardvalidators,
         this::registerMetacardValidators);
   }
 
@@ -215,83 +220,6 @@ public class ValidationParser implements ArtifactInstaller {
         LOGGER.debug("Error adding staged item {}", staged, e);
       }
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private void parseValidators(Map<String, Object> root, Outer outer) {
-    if (root == null || root.get(VALIDATORS_PROPERTY) == null) {
-      return;
-    }
-
-    ObjectMapper objectMapper = JsonFactory.create();
-
-    Map<String, List<Outer.Validator>> validators = new HashMap<>();
-    ((Map<String, Object>) root.get(VALIDATORS_PROPERTY))
-        .forEach(
-            (attributeName, value) -> {
-              if (value instanceof ValueList) {
-                ValueList argumentList = (ValueList) value;
-                List<Outer.Validator> validatorList = new ArrayList<>();
-
-                for (Object object : argumentList) {
-                  if (object instanceof LazyValueMap) {
-                    LazyValueMap lazyValueMap = (LazyValueMap) object;
-                    final String comp = (String) lazyValueMap.get(VALIDATOR_PROPERTY);
-                    String json = objectMapper.toJson(object);
-                    Outer.Validator validator;
-
-                    switch (comp) {
-                        /* Switch is used with the intent that additional validators will be added in the future. */
-                      case MATCH_ANY:
-                        validator = objectMapper.readValue(json, Outer.ValidatorCollection.class);
-                        break;
-                      default:
-                        validator = objectMapper.readValue(json, Outer.Validator.class);
-                        break;
-                    }
-                    validatorList.add(validator);
-                  }
-                }
-                validators.put(attributeName, validatorList);
-              }
-            });
-    outer.validators = validators;
-  }
-
-  @SuppressWarnings("unchecked")
-  private void parseMetacardValidators(@Nullable Map<String, Object> root, Outer outer) {
-    if (root == null || root.get(METACARD_VALIDATORS_PROPERTY) == null) {
-      return;
-    }
-
-    List<MetacardValidatorDefinition> metacardValidators = new ArrayList<>();
-    Object metacardValidatorsObj = root.get(METACARD_VALIDATORS_PROPERTY);
-    if (!(metacardValidatorsObj instanceof List)) {
-      return;
-    }
-
-    List<Map<String, Object>> metacardValidatorsList =
-        (List<Map<String, Object>>) metacardValidatorsObj;
-    for (Map<String, Object> metacardTypeList : metacardValidatorsList) {
-      for (Map.Entry<String, Object> typeEntry : metacardTypeList.entrySet()) {
-        String metacardType = typeEntry.getKey();
-        Object validatorDefinitionObj = typeEntry.getValue();
-
-        if (!(validatorDefinitionObj instanceof List)) {
-          continue;
-        }
-
-        List<Map<String, Object>> validatorEntryList =
-            (List<Map<String, Object>>) validatorDefinitionObj;
-        for (Map<String, Object> metacardDefinitionMap : validatorEntryList) {
-          MetacardValidatorDefinition validatorDefinition = new MetacardValidatorDefinition();
-          validatorDefinition.metacardType = metacardType;
-          validatorDefinition.arguments = new HashMap<>(metacardDefinitionMap);
-          metacardValidators.add(validatorDefinition);
-        }
-      }
-    }
-    outer.metacardValidators = metacardValidators;
   }
 
   private List<Callable<Boolean>> parseAttributeTypes(
@@ -371,30 +299,36 @@ public class ValidationParser implements ArtifactInstaller {
   }
 
   private List<Callable<Boolean>> registerMetacardValidators(
-      Changeset changeset, List<MetacardValidatorDefinition> metacardValidatorDefinitions) {
+      Changeset changeset,
+      List<Map<String, List<MetacardValidatorDefinition>>> metacardValidatorDefinitions) {
     List<Callable<Boolean>> staged = new ArrayList<>();
     BundleContext context = getBundleContext();
-    for (MetacardValidatorDefinition metacardValidatorDefinition : metacardValidatorDefinitions) {
-      try {
-        List<MetacardValidator> metacardValidators =
-            getMetacardValidators(metacardValidatorDefinition);
-        metacardValidators.forEach(
-            metacardValidator ->
-                staged.add(
-                    () -> {
-                      ServiceRegistration<MetacardValidator> registration =
-                          context.registerService(MetacardValidator.class, metacardValidator, null);
-                      changeset.metacardValidatorServices.add(registration);
-                      return registration != null;
-                    }));
 
-      } catch (IllegalStateException ise) {
-        LOGGER.error(
-            "Could not register metacard validator for definition: {}",
-            metacardValidatorDefinition,
-            ise);
+    for (Map<String, List<MetacardValidatorDefinition>> mvdMap : metacardValidatorDefinitions) {
+      for (Entry<String, List<MetacardValidatorDefinition>> row : mvdMap.entrySet()) {
+        try {
+          List<MetacardValidator> metacardValidators = getMetacardValidators(row.getValue().get(0));
+          metacardValidators.forEach(
+              metacardValidator ->
+                  staged.add(
+                      () -> {
+                        ServiceRegistration<MetacardValidator> registration =
+                            context.registerService(
+                                MetacardValidator.class, metacardValidator, null);
+                        changeset.metacardValidatorServices.add(registration);
+                        return registration != null;
+                      }));
+
+        } catch (IllegalStateException ise) {
+          LOGGER.error(
+              "Could not register metacard validator for definition: {} {}",
+              row.getKey(),
+              row.getValue(),
+              ise);
+        }
       }
     }
+
     return staged;
   }
 
@@ -460,59 +394,23 @@ public class ValidationParser implements ArtifactInstaller {
         .collect(toSet());
   }
 
-  @SuppressWarnings("unchecked")
   private List<MetacardValidator> getMetacardValidators(
       MetacardValidatorDefinition validatorDefinition) {
-    List<MetacardValidator> metacardValidators = new ArrayList<>();
 
-    MetacardValidator metacardValidator = null;
-    String validatorName = null;
-    Object metacardValidatorObj = validatorDefinition.arguments.get(VALIDATOR_PROPERTY);
-    if (metacardValidatorObj instanceof String) {
-      validatorName = (String) metacardValidatorObj;
-    }
-    if (validatorName != null) {
-      String metacardType = validatorDefinition.metacardType;
-      switch (validatorName) {
-        case REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY:
-          {
-            if (metacardType == null) {
-              throw new IllegalStateException(
-                  "Required Attributes Validator received invalid configuration");
-            }
-
-            Set<String> requiredAttributes = new HashSet<>();
-            Object requiredAttributesObj =
-                validatorDefinition.arguments.get(REQUIRED_ATTRIBUTES_PROPERTY);
-            if (requiredAttributesObj instanceof List) {
-              List<Object> requiredAttrObjList = (List) requiredAttributesObj;
-              requiredAttributes =
-                  requiredAttrObjList
-                      .stream()
-                      .filter(String.class::isInstance)
-                      .map(String.class::cast)
-                      .collect(Collectors.toSet());
-            }
-
-            if (CollectionUtils.isNotEmpty(requiredAttributes)) {
-              metacardValidator =
-                  new RequiredAttributesMetacardValidator(metacardType, requiredAttributes);
-            } else {
-              throw new IllegalStateException(
-                  "Required Attributes Validator received invalid configuration");
-            }
-            break;
-          }
-        default:
-          throw new IllegalStateException(
-              String.format("Validator does not exist. (%s)", validatorName));
-      }
+    if (!REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY.equals(validatorDefinition.validator)) {
+      throw new IllegalStateException(
+          String.format("Validator does not exist. (%s)", validatorDefinition.validator));
     }
 
-    if (metacardValidator != null) {
-      metacardValidators.add(metacardValidator);
+    if (CollectionUtils.isEmpty(validatorDefinition.requiredattributes)) {
+      throw new IllegalStateException(
+          "Required Attributes Validator received invalid configuration");
     }
-    return metacardValidators;
+
+    return ImmutableList.of(
+        new RequiredAttributesMetacardValidator(
+            validatorDefinition.validator,
+            ImmutableSet.copyOf(validatorDefinition.requiredattributes)));
   }
 
   private ValidatorWrapper getValidator(String key, Outer.Validator validator) {
@@ -629,15 +527,15 @@ public class ValidationParser implements ArtifactInstaller {
       reportingMetacardValidators.add(validator);
     }
 
-    public List<MetacardValidator> getMetacardValidators() {
+    List<MetacardValidator> getMetacardValidators() {
       return metacardValidators;
     }
 
-    public List<ReportingMetacardValidator> getReportingMetacardValidators() {
+    List<ReportingMetacardValidator> getReportingMetacardValidators() {
       return reportingMetacardValidators;
     }
 
-    public List<AttributeValidator> getAttributeValidators() {
+    List<AttributeValidator> getAttributeValidators() {
       return attributeValidators;
     }
   }
@@ -693,10 +591,9 @@ public class ValidationParser implements ArtifactInstaller {
                 return (Callable<Boolean>)
                     () -> {
                       metacardTypes.forEach(
-                          metacardType -> {
-                            defaultAttributeValueRegistry.setDefaultValue(
-                                metacardType, attribute, defaultValue);
-                          });
+                          metacardType ->
+                              defaultAttributeValueRegistry.setDefaultValue(
+                                  metacardType, attribute, defaultValue));
                       changeset.defaults.add(defaultObj);
                       return true;
                     };
@@ -778,9 +675,8 @@ public class ValidationParser implements ArtifactInstaller {
             defaultAttributeValueRegistry.removeDefaultValue(theDefault.attribute);
           } else {
             theDefault.metacardTypes.forEach(
-                type -> {
-                  defaultAttributeValueRegistry.removeDefaultValue(type, theDefault.attribute);
-                });
+                type ->
+                    defaultAttributeValueRegistry.removeDefaultValue(type, theDefault.attribute));
           }
         });
   }
@@ -805,71 +701,77 @@ public class ValidationParser implements ArtifactInstaller {
     injectableAttributeServices.forEach(ServiceRegistration::unregister);
   }
 
-  private class Outer {
+  private static class Outer {
     List<Outer.MetacardType> metacardTypes;
 
-    Map<String, AttributeType> attributeTypes;
+    Map<String, Outer.AttributeType> attributeTypes;
 
-    @JsonIgnore Map<String, List<Validator>> validators;
+    Map<String, List<Outer.Validator>> validators;
 
-    List<Default> defaults;
+    List<Outer.Default> defaults;
 
-    List<Injection> inject;
+    List<Outer.Injection> inject;
 
-    List<MetacardValidatorDefinition> metacardValidators;
+    // Name casing matches JSON expectations; do not change
+    List<Map<String, List<MetacardValidatorDefinition>>> metacardvalidators;
 
-    class MetacardType {
+    private static class MetacardType {
       String type;
-
       Map<String, MetacardAttribute> attributes;
     }
 
-    class MetacardAttribute {
+    private static class MetacardAttribute {
       boolean required;
     }
 
-    class AttributeType {
+    private static class AttributeType {
       String type;
-
       boolean tokenized;
-
       boolean stored;
-
       boolean indexed;
-
       boolean multivalued;
     }
 
-    @SuppressWarnings("squid:S1700" /* Ignoring the duplication of classname */)
-    class Validator {
+    private static class Default {
+      String attribute;
+      String value;
+      List<String> metacardTypes;
+    }
+
+    private static class Injection {
+      String attribute;
+      List<String> metacardTypes;
+    }
+
+    private static class Validator {
+      @SuppressWarnings("squid:S1700" /* Required to match expected JSON structure */)
       String validator;
 
       List<String> arguments;
+
+      Validator(String validator) {
+        this.validator = validator;
+      }
+
+      Validator(String validator, List<String> arguments) {
+        this(validator);
+        this.arguments = arguments;
+      }
     }
 
-    class ValidatorCollection extends Validator {
+    private static class ValidatorCollection extends Validator {
       List<Outer.Validator> validators;
-    }
 
-    class Default {
-      String attribute;
-
-      String value;
-
-      List<String> metacardTypes;
-    }
-
-    class Injection {
-      String attribute;
-
-      List<String> metacardTypes;
+      ValidatorCollection(String validatorName, List<Validator> validators) {
+        super(validatorName);
+        this.validators = validators;
+      }
     }
   }
 
-  class MetacardValidatorDefinition {
-    String metacardType;
-
-    Map<String, Object> arguments;
+  private static class MetacardValidatorDefinition {
+    String validator;
+    List<String> requiredattributes;
   }
 
   private class Changeset {
@@ -889,5 +791,32 @@ public class ValidationParser implements ArtifactInstaller {
 
     private final List<ServiceRegistration<InjectableAttribute>> injectableAttributeServices =
         new ArrayList<>();
+  }
+
+  private static class ValidatorHierarchyAdapter implements JsonDeserializer<Outer.Validator> {
+    @Override
+    public Outer.Validator deserialize(
+        JsonElement jsonElement, Type type, JsonDeserializationContext context) {
+      JsonObject object = jsonElement.getAsJsonObject();
+      String validatorName =
+          context.deserialize(object.get(SINGLE_VALIDATOR_PROPERTY), String.class);
+
+      Outer.Validator result = null;
+
+      // If the validator has a collection of validators, it must be a collection type
+      JsonElement validators = object.get(VALIDATORS_PROPERTY);
+      if (validators != null) {
+        result =
+            new Outer.ValidatorCollection(
+                validatorName, context.deserialize(validators, OUTER_VALIDATOR_TYPE));
+      }
+
+      if (result == null) {
+        result =
+            new Outer.Validator(
+                validatorName, context.deserialize(object.get("arguments"), LIST_STRING));
+      }
+      return result;
+    }
   }
 }
