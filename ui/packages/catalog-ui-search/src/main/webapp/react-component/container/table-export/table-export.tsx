@@ -15,9 +15,11 @@ import { retrieveExportOptions, exportDataAs } from '../../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../../utils/save-file'
 import { hot } from 'react-hot-loader'
+const _ = require('underscore')
 const user = require('../../../component/singletons/user-instance.js')
 const properties = require('../../../js/properties.js')
 const announcement = require('../../../component/announcement/index.jsx')
+const Sources = require('../../../component/singletons/sources-instance.js')
 
 function getFilenameFromContentDisposition(header: any) {
   if (header == null) {
@@ -51,6 +53,11 @@ function getCqlForSize(exportSize: string, selectionInterface: any) {
   return exportSize === 'all'
     ? allData(selectionInterface)
     : visibleData(selectionInterface)
+}
+
+function getSrcs(selectionInterface: any) {
+  const srcs = selectionInterface.getCurrentQuery().get('src')
+  return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
 }
 
 function getColumnOrder(): string[] {
@@ -140,6 +147,7 @@ export default hot(module)(
             this.state.exportSize,
             this.props.selectionInterface
           ),
+          srcs: getSrcs(this.props.selectionInterface),
         }
         const response = await exportDataAs(url, payload, 'application/json')
 

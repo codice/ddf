@@ -26,6 +26,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -49,9 +50,13 @@ public class CqlRequest {
 
   private static final String CACHE_SOURCE = "cache";
 
+  private static final String MODE = "mode";
+
   private String id;
 
   private String src;
+
+  private String[] srcs;
 
   private long timeout = 300000L;
 
@@ -70,6 +75,10 @@ public class CqlRequest {
   private boolean normalize = false;
 
   private boolean excludeUnnecessaryAttributes = true;
+
+  public String[] getSrcs() {
+    return srcs;
+  }
 
   public String getSrc() {
     return src;
@@ -93,6 +102,10 @@ public class CqlRequest {
 
   public void setSrc(String src) {
     this.src = src;
+  }
+
+  public void setSrcs(String[] srcs) {
+    this.srcs = srcs;
   }
 
   public long getTimeout() {
@@ -159,15 +172,20 @@ public class CqlRequest {
     Query query =
         new QueryImpl(createFilter(filterBuilder), start, count, sortBys.get(0), true, timeout);
 
-    String source = parseSrc(localSource);
-
     QueryRequest queryRequest;
-    if (CACHE_SOURCE.equals(source)) {
-      queryRequest = new QueryRequestImpl(query, true);
-      queryRequest.getProperties().put("mode", CACHE_SOURCE);
+    if (srcs != null && srcs.length != 0) {
+      parseSrcs(localSource);
+      queryRequest = new QueryRequestImpl(query, Arrays.asList(srcs));
+      queryRequest.getProperties().put(MODE, "update");
     } else {
-      queryRequest = new QueryRequestImpl(query, Collections.singleton(source));
-      queryRequest.getProperties().put("mode", "update");
+      String source = parseSrc(localSource);
+      if (CACHE_SOURCE.equals(source)) {
+        queryRequest = new QueryRequestImpl(query, true);
+        queryRequest.getProperties().put(MODE, CACHE_SOURCE);
+      } else {
+        queryRequest = new QueryRequestImpl(query, Collections.singleton(source));
+        queryRequest.getProperties().put(MODE, "update");
+      }
     }
 
     if (excludeUnnecessaryAttributes) {
@@ -201,6 +219,22 @@ public class CqlRequest {
     }
 
     return src;
+  }
+
+  private void parseSrcs(String localSource) {
+    for (int i = 0; i < srcs.length; i++) {
+      if (StringUtils.equalsIgnoreCase(srcs[i], LOCAL_SOURCE) || StringUtils.isBlank(srcs[i])) {
+        srcs[i] = localSource;
+      }
+    }
+  }
+
+  public String getSourceResponseString() {
+    if (srcs != null && srcs.length != 0) {
+      return Arrays.toString(srcs);
+    } else {
+      return src;
+    }
   }
 
   private Filter createFilter(FilterBuilder filterBuilder) {
