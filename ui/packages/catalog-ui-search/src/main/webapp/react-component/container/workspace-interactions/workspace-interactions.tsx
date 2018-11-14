@@ -17,7 +17,6 @@ import { Sharing } from '../sharing'
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
-const WorkspaceSharing = require('../../../component/workspace-sharing/workspace-sharing.view.js')
 const wreqr = require('../../../js/wreqr.js')
 const LoadingView = require('../../../component/loading/loading.view.js')
 
@@ -54,13 +53,11 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     this.setState(mapPropsToState(this.props))
   }
   isNotShareable = () => {
-    const userLogin = user.get('user').get('email')
-    if (this.props.workspace.get('metacard.owner') === userLogin) {
-      return false
-    }
-    const accessAdministrators =
-      this.props.workspace.get('security.access-administrators') || []
-    return !accessAdministrators.includes(userLogin)
+    return !user.canShare({
+      owner: this.props.workspace.get('metacard.owner'),
+      accessAdministrators:
+        this.props.workspace.get('security.access-administrators') || [],
+    })
   }
   runAllSearches = () => {
     store.clearOtherWorkspaces(this.props.workspace.id)

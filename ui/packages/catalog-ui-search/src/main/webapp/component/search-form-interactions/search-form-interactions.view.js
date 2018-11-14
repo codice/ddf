@@ -24,7 +24,6 @@ const LoadingView = require('../loading/loading.view.js')
 const announcement = require('../announcement/index.jsx')
 const ConfirmationView = require('../confirmation/confirmation.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-const QueryTemplateSharing = require('../query-template-sharing/query-template-sharing.view.js')
 const wreqr = require('../../exports/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({

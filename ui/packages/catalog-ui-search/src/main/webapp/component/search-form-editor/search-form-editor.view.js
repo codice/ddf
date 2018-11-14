@@ -17,9 +17,9 @@ const Marionette = require('marionette')
 const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
 const Router = require('../router/router.js')
 const SearchFormsCollection = require('../search-form/search-form-collection-instance.js')
+const SearchFormsSharingCollection = require('../search-form/forms-sharing/search-form-sharing-collection-instance.js')
 const SearchFormModel = require('../search-form/search-form.js')
 const SelectionInterface = require('../selection-interface/selection-interface.model.js')
-const QueryAdd = require('../query-add/query-add.view.js')
 const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
 const QueryModel = require('../../js/model/Query.js')
 const QueryTitle = require('../query-title/query-title.view.js')
@@ -104,7 +104,7 @@ module.exports = Marionette.LayoutView.extend({
       collection = SearchFormsCollection.getCollection()
       this.model = collection.get(id)
       if (!this.model) {
-        collection = SearchFormSharingCollection.getCollection()
+        collection = SearchFormsSharingCollection.getCollection()
         this.model = collection.get(id)
       }
     }

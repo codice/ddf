@@ -418,30 +418,36 @@ User.Response = Backbone.AssociatedModel.extend({
       }
     }
   },
-  canRead: function(perms) {
+  canRead: function(restrictions) {
     return (
-      perms.owner === undefined ||
-      perms.owner === this.getUserId() ||
-      perms.accessIndividuals.includes(this.getUserId()) ||
-      perms.accessIndividualsRead.includes(this.getUserId()) ||
-      perms.accessGroups.some(group => this.getRoles().includes(group)) ||
-      perms.accessGroupsRead.some(group => this.getRoles().includes(group)) ||
-      perms.accessAdministrators.includes(this.getUserId())
+      restrictions.owner === undefined ||
+      restrictions.owner === this.getEmail() ||
+      restrictions.accessIndividuals.includes(this.getEmail()) ||
+      restrictions.accessIndividualsRead.includes(this.getEmail()) ||
+      restrictions.accessGroups.some(group =>
+        this.getRoles().includes(group)
+      ) ||
+      restrictions.accessGroupsRead.some(group =>
+        this.getRoles().includes(group)
+      ) ||
+      restrictions.accessAdministrators.includes(this.getEmail())
     )
   },
-  canWrite: function(perms) {
+  canWrite: function(restrictions) {
     return (
-      perms.owner === undefined ||
-      perms.owner === this.getUserId() ||
-      perms.accessIndividuals.includes(this.getUserId()) ||
-      perms.accessGroups.some(group => this.getRoles().includes(group)) ||
-      perms.accessAdministrators.includes(this.getUserId())
+      restrictions.owner === undefined ||
+      restrictions.owner === this.getEmail() ||
+      restrictions.accessIndividuals.includes(this.getEmail()) ||
+      restrictions.accessGroups.some(group =>
+        this.getRoles().includes(group)
+      ) ||
+      restrictions.accessAdministrators.includes(this.getEmail())
     )
   },
-  canShare: function(perms) {
+  canShare: function(restrictions) {
     return (
-      perms.owner === this.getUserId() ||
-      perms.accessAdministrators.includes(this.getUserId())
+      restrictions.owner === this.getEmail() ||
+      restrictions.accessAdministrators.includes(this.getEmail())
     )
   },
 })

@@ -87,7 +87,7 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.isDestroyed) {
       cachedTemplates.forEach(
         function(value, index) {
-          if (value.creator === user.getUserId()) {
+          if (value.creator === user.getEmail()) {
             var utcSeconds = value.created / 1000
             var d = new Date(0)
             d.setUTCSeconds(utcSeconds)

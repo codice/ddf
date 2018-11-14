@@ -14,13 +14,11 @@
  **/
 /*global require*/
 const Marionette = require('marionette')
-const $ = require('jquery')
 const template = require('./search-form.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance')
 const DropdownModel = require('../dropdown/dropdown')
 const SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view')
-const properties = require('../../js/properties.js')
 const wreqr = require('../../exports/wreqr.js')
 const Router = require('../router/router.js')
 const announcement = require('../announcement')

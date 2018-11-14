@@ -83,7 +83,7 @@ const render = (props: Props) => {
                       width: '80%',
                     }}
                     value={item.value}
-                    placeholder="Enter a user id (usually an email)"
+                    placeholder="user@example.com"
                     showLabel={false}
                     onChange={value => handleChangeInput(i, value)}
                   />

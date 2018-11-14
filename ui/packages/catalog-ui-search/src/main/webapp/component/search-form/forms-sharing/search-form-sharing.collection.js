@@ -62,7 +62,7 @@ module.exports = Backbone.AssociatedModel.extend({
       }
       bootstrapPromise.then(() => {
         $.each(sharedTemplates, (index, value) => {
-          if (user.getUserId() !== value.owner && user.canRead(value)) {
+          if (user.getEmail() !== value.owner && user.canRead(value)) {
             let utcSeconds = value.created / 1000
             let d = new Date(0)
             d.setUTCSeconds(utcSeconds)

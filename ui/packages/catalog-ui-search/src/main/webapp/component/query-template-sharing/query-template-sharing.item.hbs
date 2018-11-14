@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,23 +10,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-var Backbone = require('backbone')
-
-module.exports = Backbone.Model.extend({
-  defaults: {
-    name: 'A Search Form',
-    description: '',
-    createdBy: 'admin',
-    owner: 'admin',
-    createdOn: '',
-    type: 'custom',
-    id: undefined,
-    filterTemplate: '{"property":"anyText","value":"","type":"ILIKE"}',
-    descriptors: [],
-    accessIndividuals: [],
-    accessGroups: [],
-    accessAdministrators: [],
-    querySettings: {},
-  },
-})
+ --}}
+<div class="template-sharing-role">
+    <div class="row">
+        <div class="col-md-8"><div class="template-role-value">{{value}}</div></div>
+        <div class="col-md-4 sharing-dropdown"></div>
+    </div>
+</div>

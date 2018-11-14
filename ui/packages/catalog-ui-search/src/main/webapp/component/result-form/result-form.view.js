@@ -176,6 +176,7 @@ module.exports = Marionette.LayoutView.extend({
           label: _this.model.get('title'),
           value: _this.model.get('title'),
           type: 'result',
+          owner: _this.model.get('owner'),
           descriptors: _this.model.get('descriptors'),
           description: _this.model.get('description'),
           accessGroups: _this.model.get('accessGroups'),

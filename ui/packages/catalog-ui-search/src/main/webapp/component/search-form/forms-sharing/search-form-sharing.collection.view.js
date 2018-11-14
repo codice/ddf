@@ -15,13 +15,13 @@
 /* global require */
 const Marionette = require('marionette')
 const SearchFormView = require('../search-form.view')
-const CustomElements = require('../../../js/CustomElements.js')
+const CustomElements = require('../../../js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,
   tagName: CustomElements.register('my-shared-search-forms'),
   className: 'is-list is-inline has-list-highlighting',
-  initialize: function() {},
+  initialize: function(options) {},
   childViewOptions: function() {
     return {
       queryModel: this.options.model,

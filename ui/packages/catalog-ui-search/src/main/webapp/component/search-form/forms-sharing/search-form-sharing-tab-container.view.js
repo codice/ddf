@@ -12,41 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global require */
-import React from 'react'
-import styled from '../../../react-component/styles/styled-components'
+/*global require*/
 const Marionette = require('marionette')
-const $ = require('jquery')
+const template = require('../search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form-sharing.collection.view')
-const SearchFormSharingCollection = require('./search-form-sharing.collection')
+const SearchFormsSharingCollection = require('./search-form-sharing-collection-instance')
 const CustomElements = require('../../../js/CustomElements.js')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 
-const Root = styled.div`
-  height: 100%;
-  width: 100%;
-  > .collection {
-    margin: auto;
-    max-width: 1020px;
-    height: 100%;
-    overflow: auto;
-  }
-`
-
 module.exports = Marionette.LayoutView.extend({
-  className: 'customElement',
+  template: template,
+  tagName: CustomElements.register('shared-search-form-collection'),
   regions: {
     collectionView: '.collection',
   },
-  template() {
-    return (
-      <Root>
-        <div className="collection" />
-      </Root>
-    )
-  },
   initialize: function() {
-    this.searchFormSharingCollection = SearchFormSharingCollection
+    this.searchFormSharingCollection = SearchFormsSharingCollection
     this.listenTo(
       this.searchFormSharingCollection,
       'change:doneLoading',
