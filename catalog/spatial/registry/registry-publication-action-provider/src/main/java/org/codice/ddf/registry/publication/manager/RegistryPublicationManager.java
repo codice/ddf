@@ -114,7 +114,7 @@ public class RegistryPublicationManager implements EventHandler {
         executorService.shutdownNow();
         if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
           LOGGER.error(
-              "Identity node initialization thread didn't terminate. This thread will continue until a system restart.");
+              "Registry Publication Manager thread didn't terminate. This thread will continue until a system restart.");
         }
       }
     } catch (InterruptedException e) {
