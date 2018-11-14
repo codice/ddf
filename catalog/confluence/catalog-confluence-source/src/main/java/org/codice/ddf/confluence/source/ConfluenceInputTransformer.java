@@ -13,6 +13,10 @@
  */
 package org.codice.ddf.confluence.source;
 
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -28,6 +32,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,13 +44,13 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
 import org.codice.ddf.confluence.common.Confluence;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConfluenceInputTransformer implements InputTransformer {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceInputTransformer.class);
 
   private static final String PRODUCT_XML =
@@ -58,7 +63,15 @@ public class ConfluenceInputTransformer implements InputTransformer {
 
   private static final int DESCRIPTION_SIZE = 256;
 
-  private static final ObjectMapper MAPPER = JsonFactory.create();
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
+
+  public static final String METADATA = "metadata";
+  public static final String USERNAME = "username";
+  public static final String RESULTS = "results";
 
   private MetacardType metacardType;
 
@@ -89,7 +102,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
 
     String baseUrl = getString(json, "_links", "base");
 
-    getJsonArray(json, "results")
+    getJsonArray(json, RESULTS)
         .stream()
         .forEach(
             e -> {
@@ -147,10 +160,10 @@ public class ConfluenceInputTransformer implements InputTransformer {
   }
 
   private void parseLabels(MetacardImpl metacard, Object json) throws CatalogTransformerException {
-    Object labelsElement = getJsonElement(json, "metadata", "labels");
+    Object labelsElement = getJsonElement(json, METADATA, "labels");
     if (labelsElement != null) {
       ArrayList<String> labels = new ArrayList<>();
-      getJsonArray(labelsElement, "results")
+      getJsonArray(labelsElement, RESULTS)
           .stream()
           .forEach(e -> labels.add(getStringOrDefault(e, UNKNOWN, "name")));
       metacard.setAttribute(Topic.KEYWORD, labels);
@@ -168,7 +181,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
     metacard.setCreatedDate(created);
     metacard.setAttribute(Core.METACARD_CREATED, created);
 
-    Object creator = getJsonElement(history, "createdBy", "username");
+    Object creator = getJsonElement(history, "createdBy", USERNAME);
     if (creator != null && StringUtils.isNotEmpty(creator.toString())) {
       metacard.setAttribute(Contact.CREATOR_NAME, creator.toString());
     } else {
@@ -227,11 +240,11 @@ public class ConfluenceInputTransformer implements InputTransformer {
       }
     }
     if (confluenceType.equals("attachment")) {
-      Object comment = getJsonElement(json, "metadata", "comment");
+      Object comment = getJsonElement(json, METADATA, "comment");
       if (comment != null) {
         metacard.setAttribute(Metacard.DESCRIPTION, comment.toString());
       }
-      Object mediaType = getJsonElement(json, "metadata", "mediaType");
+      Object mediaType = getJsonElement(json, METADATA, "mediaType");
       if (mediaType != null) {
         metacard.setAttribute(Media.TYPE, mediaType.toString());
       }
@@ -247,10 +260,10 @@ public class ConfluenceInputTransformer implements InputTransformer {
       ArrayList<String> userRestrictions = new ArrayList<>();
       ArrayList<String> groupRestrictions = new ArrayList<>();
 
-      getJsonArray(restrictions, "user", "results")
+      getJsonArray(restrictions, "user", RESULTS)
           .stream()
-          .forEach(e -> userRestrictions.add(getStringOrDefault(e, UNKNOWN, "username")));
-      getJsonArray(restrictions, "group", "results")
+          .forEach(e -> userRestrictions.add(getStringOrDefault(e, UNKNOWN, USERNAME)));
+      getJsonArray(restrictions, "group", RESULTS)
           .stream()
           .forEach(e -> groupRestrictions.add(getStringOrDefault(e, UNKNOWN, "name")));
       metacard.setAttribute(Security.ACCESS_INDIVIDUALS, userRestrictions);
@@ -261,8 +274,8 @@ public class ConfluenceInputTransformer implements InputTransformer {
   private Map<String, Object> getJsonObject(InputStream stream) throws CatalogTransformerException {
     String jsonString = null;
     try {
-      jsonString = IOUtils.toString(stream);
-      Map<String, Object> rootObject = MAPPER.parser().parseMap(jsonString);
+      jsonString = IOUtils.toString(stream, StandardCharsets.UTF_8);
+      Map<String, Object> rootObject = GSON.fromJson(jsonString, MAP_STRING_TO_OBJECT_TYPE);
 
       LOGGER.debug(jsonString);
       return rootObject;
@@ -292,13 +305,13 @@ public class ConfluenceInputTransformer implements InputTransformer {
 
   private Object getJsonElement(Object object, String... keys) {
 
-    if (object == null || keys == null || !(object instanceof Map)) {
+    if (keys == null || !(object instanceof Map)) {
       return null;
     }
     Object current = object;
     for (String key : keys) {
 
-      if (!(object instanceof Map) || ((Map) current).get(key) == null) {
+      if (((Map) current).get(key) == null) {
         return null;
       }
       current = ((Map) current).get(key);
@@ -329,7 +342,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
     if (getStringOrDefault(user, "", "type").equals("anonymous")) {
       contributors.add("anonymous");
     } else {
-      contributors.add(getStringOrDefault(user, null, "username"));
+      contributors.add(getStringOrDefault(user, null, USERNAME));
     }
   }
 }

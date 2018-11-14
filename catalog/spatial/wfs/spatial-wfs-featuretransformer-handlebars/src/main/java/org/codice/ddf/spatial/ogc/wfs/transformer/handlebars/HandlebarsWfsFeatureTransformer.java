@@ -24,7 +24,11 @@ import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.KB;
 import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.MB;
 import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.PB;
 import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.TB;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -64,8 +68,6 @@ import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.io.IOUtils;
-import org.boon.json.JsonException;
-import org.boon.json.JsonFactory;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
@@ -73,6 +75,7 @@ import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -84,6 +87,12 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private static final XMLInputFactory XML_INPUT_FACTORY =
       XMLUtils.getInstance().getSecureXmlInputFactory();
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
@@ -636,8 +645,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private Map jsonToMap(String jsonValue) {
     try {
-      return JsonFactory.create().readValue(jsonValue, Map.class);
-    } catch (JsonException e) {
+      return GSON.fromJson(jsonValue, MAP_STRING_TO_OBJECT_TYPE);
+    } catch (JsonParseException e) {
       LOGGER.debug("Failed to parse attribute mapping json '{}'", jsonValue, e);
     }
     return null;

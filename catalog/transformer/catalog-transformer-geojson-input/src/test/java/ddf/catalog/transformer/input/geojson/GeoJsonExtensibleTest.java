@@ -139,7 +139,7 @@ public class GeoJsonExtensibleTest {
         + "        \"min-frequency\":\"10000000\","
         + "        \"max-frequency\":\"20000000\","
         + "        \"angle\":\"180\","
-        + "        \"id\":\"myId\","
+        + "        \"id\":\"myId\""
         + "    },"
         + "    \"type\":\"Feature\","
         + "    \"geometry\":{"

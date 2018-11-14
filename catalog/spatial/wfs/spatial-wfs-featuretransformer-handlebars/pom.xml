@@ -88,9 +88,9 @@
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
-            <version>${boon.version}</version>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.jknack</groupId>
@@ -148,7 +148,7 @@
                             geospatial,
                             handlebars,
                             antlr4-runtime,
-                            boon,
+                            gson-support,
                             catalog-transformer-streaming-impl,
                             catalog-transformer-streaming-lib,
                             spatial-wfs-v1_0_0-schema-bindings

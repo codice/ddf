@@ -16,7 +16,11 @@ package ddf.catalog.transformer.input.geojson;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -28,19 +32,21 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.geo.formatter.CompositeGeometry;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Function;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +59,11 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
   static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-  private static final ObjectMapper MAPPER = JsonFactory.create();
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
@@ -79,73 +89,19 @@ public class GeoJsonInputTransformer implements InputTransformer {
   public Metacard transform(InputStream input, String id)
       throws IOException, CatalogTransformerException {
 
-    if (input == null) {
-      throw new CatalogTransformerException("Cannot transform null input.");
-    }
-
-    Map<String, Object> rootObject = MAPPER.parser().parseMap(input);
-
-    if (rootObject == null) {
-      throw new CatalogTransformerException("Unable to parse JSON for metacard.");
-    }
-
-    Object typeValue = rootObject.get(CompositeGeometry.TYPE_KEY);
-    if (typeValue == null || !typeValue.equals("Feature")) {
-      throw new CatalogTransformerException(
-          new UnsupportedOperationException(
-              "Only supported type is Feature, not [" + typeValue + "]"));
-    }
-
-    Map<String, Object> properties =
-        (Map<String, Object>) rootObject.get(CompositeGeometry.PROPERTIES_KEY);
-
-    if (properties == null) {
-      throw new CatalogTransformerException("Properties are required to create a Metacard.");
-    }
+    validateInput(input);
+    Map<String, Object> rootObject = getRootObject(input);
+    validateTypeValue(rootObject);
+    Map<String, Object> properties = getProperties(rootObject);
 
     final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
-    MetacardImpl metacard;
-
-    if (isEmpty(propertyTypeName) || metacardTypes == null) {
-      LOGGER.debug(
-          "MetacardType specified in input is null or empty.  Assuming default MetacardType");
-      metacard = new MetacardImpl();
-    } else {
-      MetacardType metacardType =
-          metacardTypes
-              .stream()
-              .filter(type -> type.getName().equals(propertyTypeName))
-              .findFirst()
-              .orElseThrow(
-                  () ->
-                      new CatalogTransformerException(
-                          "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
-                              + propertyTypeName));
-
-      LOGGER.debug("Found registered MetacardType: {}", propertyTypeName);
-      metacard = new MetacardImpl(metacardType);
-    }
+    MetacardImpl metacard = getMetacard(propertyTypeName);
 
     MetacardType metacardType = metacard.getMetacardType();
     LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
     // retrieve geometry
-    Map<String, Object> geometryJson =
-        (Map<String, Object>) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
-    CompositeGeometry geoJsonGeometry = null;
-    if (geometryJson != null) {
-      if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null
-          && (geometryJson.get(CompositeGeometry.COORDINATES_KEY) != null
-              || geometryJson.get(CompositeGeometry.GEOMETRIES_KEY) != null)) {
-
-        String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY).toString();
-
-        geoJsonGeometry = CompositeGeometry.getCompositeGeometry(geometryTypeJson, geometryJson);
-
-      } else {
-        LOGGER.debug("Could not find geometry type.");
-      }
-    }
+    CompositeGeometry geoJsonGeometry = getCompositeGeometry(rootObject);
 
     if (geoJsonGeometry != null && StringUtils.isNotEmpty(geoJsonGeometry.toWkt())) {
       metacard.setLocation(geoJsonGeometry.toWkt());
@@ -157,26 +113,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
             .stream()
             .collect(toMap(AttributeDescriptor::getName, Function.identity()));
 
-    for (Map.Entry<String, Object> entry : properties.entrySet()) {
-      final String key = entry.getKey();
-      final Object value = entry.getValue();
-      try {
-        if (attributeDescriptorMap.containsKey(key)) {
-          AttributeDescriptor ad = attributeDescriptorMap.get(key);
-          metacard.setAttribute(key, convertProperty(value, ad));
-        } else {
-          Optional<AttributeDescriptor> optional = attributeRegistry.lookup(key);
-          if (optional.isPresent()) {
-            metacard.setAttribute(key, convertProperty(value, optional.get()));
-          }
-        }
-      } catch (NumberFormatException | ParseException e) {
-        LOGGER.info(
-            "GeoJSON input for attribute name '{}' does not match the expected AttributeType. This attribute will not be added to the metacard.",
-            key,
-            e);
-      }
-    }
+    properties
+        .entrySet()
+        .forEach(entry -> addAttributeToMetacard(metacard, attributeDescriptorMap, entry));
 
     if (isNotEmpty(metacard.getSourceId())) {
       properties.put(SOURCE_ID_PROPERTY, metacard.getSourceId());
@@ -206,6 +145,117 @@ public class GeoJsonInputTransformer implements InputTransformer {
         + ", mime-type="
         + MIME_TYPE
         + "}";
+  }
+
+  private void validateInput(InputStream input) throws CatalogTransformerException {
+    if (input == null) {
+      throw new CatalogTransformerException("Cannot transform null input.");
+    }
+  }
+
+  private Map<String, Object> getRootObject(InputStream input) throws CatalogTransformerException {
+    Map<String, Object> rootObject;
+    try {
+      rootObject =
+          GSON.fromJson(
+              new InputStreamReader(input, StandardCharsets.UTF_8), MAP_STRING_TO_OBJECT_TYPE);
+    } catch (JsonParseException e) {
+      throw new CatalogTransformerException("Invalid JSON input", e);
+    }
+
+    if (rootObject == null) {
+      throw new CatalogTransformerException("Unable to parse JSON for metacard.");
+    }
+    return rootObject;
+  }
+
+  private void validateTypeValue(Map<String, Object> rootObject)
+      throws CatalogTransformerException {
+    Object typeValue = rootObject.get(CompositeGeometry.TYPE_KEY);
+    if (!"Feature".equals(typeValue)) {
+      throw new CatalogTransformerException(
+          new UnsupportedOperationException(
+              "Only supported type is Feature, not [" + typeValue + "]"));
+    }
+  }
+
+  private Map<String, Object> getProperties(Map<String, Object> rootObject)
+      throws CatalogTransformerException {
+    Map<String, Object> properties =
+        (Map<String, Object>) rootObject.get(CompositeGeometry.PROPERTIES_KEY);
+
+    if (properties == null) {
+      throw new CatalogTransformerException("Properties are required to create a Metacard.");
+    }
+    return properties;
+  }
+
+  private MetacardImpl getMetacard(String propertyTypeName) throws CatalogTransformerException {
+    if (isEmpty(propertyTypeName) || metacardTypes == null) {
+      LOGGER.debug(
+          "MetacardType specified in input is null or empty.  Assuming default MetacardType");
+      return new MetacardImpl();
+    } else {
+      MetacardType metacardType =
+          metacardTypes
+              .stream()
+              .filter(type -> type.getName().equals(propertyTypeName))
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new CatalogTransformerException(
+                          "MetacardType specified in input has not been registered with the system."
+                              + " Cannot parse input. MetacardType name: "
+                              + propertyTypeName));
+
+      LOGGER.debug("Found registered MetacardType: {}", propertyTypeName);
+      return new MetacardImpl(metacardType);
+    }
+  }
+
+  private CompositeGeometry getCompositeGeometry(Map<String, Object> rootObject) {
+    Map<String, Object> geometryJson =
+        (Map<String, Object>) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
+    CompositeGeometry geoJsonGeometry = null;
+    if (geometryJson != null) {
+      if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null
+          && (geometryJson.get(CompositeGeometry.COORDINATES_KEY) != null
+              || geometryJson.get(CompositeGeometry.GEOMETRIES_KEY) != null)) {
+
+        String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY).toString();
+
+        geoJsonGeometry = CompositeGeometry.getCompositeGeometry(geometryTypeJson, geometryJson);
+
+      } else {
+        LOGGER.debug("Could not find geometry type.");
+      }
+    }
+    return geoJsonGeometry;
+  }
+
+  private void addAttributeToMetacard(
+      MetacardImpl metacard,
+      Map<String, AttributeDescriptor> attributeDescriptorMap,
+      Entry<String, Object> entry) {
+    final String key = entry.getKey();
+    final Object value = entry.getValue();
+    try {
+      if (attributeDescriptorMap.containsKey(key)) {
+        AttributeDescriptor ad = attributeDescriptorMap.get(key);
+        metacard.setAttribute(key, convertProperty(value, ad));
+      } else {
+        Optional<AttributeDescriptor> optional = attributeRegistry.lookup(key);
+        if (optional.isPresent()) {
+          metacard.setAttribute(key, convertProperty(value, optional.get()));
+        }
+      }
+    } catch (NumberFormatException | ParseException e) {
+      LOGGER.info(
+          "GeoJSON input for attribute name '{}' does not match the expected AttributeType. "
+              + "This attribute will not be added to the metacard.",
+          key,
+          e);
+    }
   }
 
   private Serializable convertProperty(Object property, AttributeDescriptor descriptor)

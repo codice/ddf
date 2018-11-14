@@ -17,6 +17,8 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
@@ -115,7 +117,6 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
-import org.boon.Boon;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
@@ -140,6 +141,7 @@ import org.codice.ddf.security.idp.binding.soap.SoapRequestDecoder;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
@@ -174,6 +176,12 @@ public class IdpEndpoint implements Idp, SessionHandler {
   private static final int THIRTY_MINUTE_EXPIRATION = 30;
   private static final String COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG =
       "Could not find entity service info for {}";
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   /** Input factory */
   private static volatile XMLInputFactory xmlInputFactory;
@@ -738,7 +746,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
         responseMap.put(ORIGINAL_BINDING, originalBinding);
       }
 
-      String json = Boon.toJson(responseMap);
+      String json = GSON.toJson(responseMap);
 
       LOGGER.debug("Returning index.html page.");
       responseStr = indexHtml.replace(IDP_STATE_OBJ, json);

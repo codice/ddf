@@ -116,13 +116,14 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -145,7 +146,8 @@
                             catalog-core-api-impl;scope=!test,
                             platform-util,
                             commons-lang3,
-                            security-core-impl
+                            security-core-impl,
+                            gson-support
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,

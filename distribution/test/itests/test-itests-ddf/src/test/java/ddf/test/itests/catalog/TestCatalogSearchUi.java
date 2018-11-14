@@ -15,6 +15,7 @@ package ddf.test.itests.catalog;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.nullValue;
@@ -26,6 +27,9 @@ import static org.junit.Assert.assertNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -40,11 +44,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.boon.Boon;
-import org.boon.json.JsonFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -65,7 +68,11 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private static final String WORKSPACE_QUERIES = "queries";
 
-  private static final String QUERY_SOURCES = "sources";
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   public static final String QUERIES_PATH = "/search/catalog/internal/queries";
 
@@ -123,16 +130,17 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   }
 
   private static Map parse(Response res) {
-    return JsonFactory.create().readValue(res.getBody().asInputStream(), Map.class);
+    return GSON.fromJson(res.getBody().asString(), MAP_STRING_TO_OBJECT_TYPE);
   }
 
   private static List<Map> parseList(Response res) {
-    List<Object> list = Boon.fromJson(res.getBody().asString(), List.class);
+    List<Map> list =
+        GSON.fromJson(res.getBody().asString(), new TypeToken<List<Map>>() {}.getType());
     return list.stream().map(Map.class::cast).collect(Collectors.toList());
   }
 
   private static String stringify(Object o) {
-    return JsonFactory.create().writeValueAsString(o);
+    return GSON.toJson(o);
   }
 
   private static RequestSpecification asGuest() {

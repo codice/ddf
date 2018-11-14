@@ -47,8 +47,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
@@ -129,6 +130,7 @@
                             httpclient,
                             httpcore,
                             httpmime,
+                            gson-support,
                             platform-util,
                             platform-util-unavailableurls
                         </Embed-Dependency>
