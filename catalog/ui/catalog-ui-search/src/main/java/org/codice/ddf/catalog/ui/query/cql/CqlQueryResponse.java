@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.boon.json.annotations.JsonIgnore;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
 import org.slf4j.Logger;
@@ -51,7 +50,8 @@ public class CqlQueryResponse {
 
   private final Status status;
 
-  @JsonIgnore private final QueryResponse queryResponse;
+  // Transient so as not to be serialized to/from JSON
+  private final transient QueryResponse queryResponse;
 
   public CqlQueryResponse(
       String id,

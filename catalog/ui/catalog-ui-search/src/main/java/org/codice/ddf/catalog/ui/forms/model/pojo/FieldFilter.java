@@ -21,10 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.boon.json.annotations.JsonProperty;
 
 /**
- * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
+ * Provides data model pojo that can be annotated for JSON serialization.
  *
  * <p>{@link FieldFilter}, also known as "detail level", specifies a result template, which is a
  * list of attribute descriptor names that represent the fields that should be visible while
@@ -37,7 +36,6 @@ public class FieldFilter extends CommonTemplate {
   @SuppressWarnings("squid:S1068" /* Needed for serialization */)
   private final Set<String> descriptors;
 
-  @JsonProperty("creator")
   private String creator;
 
   public FieldFilter(

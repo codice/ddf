@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.query.handlers;
 
 import static junit.framework.TestCase.assertNull;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.Assert.assertThat;
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.types.Core;
@@ -37,10 +40,10 @@ import javax.activation.MimeType;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import org.boon.Boon;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +69,12 @@ public class CqlTransformHandlerTest {
   @Mock private ServletOutputStream mockServletOutputStream;
   @Mock private HttpServletResponse mockHttpServletResponse;
 
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
+
   private static final String GZIP = "gzip";
   private static final String NO_GZIP = "";
   private static final String QUERY_PARAM = ":transformerId";
@@ -75,8 +84,8 @@ public class CqlTransformHandlerTest {
   private static final String SAFE_BODY =
       "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
   private static final String CONTENT = "test";
-  private static final String SERVICE_NOT_FOUND = "{\"message\":\"Service not found\"}";
-  private static final String SERVICE_SUCCESS = Boon.toJson("");
+  private static final String SERVICE_NOT_FOUND = "\"Service not found\"";
+  private static final String SERVICE_SUCCESS = GSON.toJson("");
   private static final String ATTACHMENT_REGEX =
       "^attachment;filename=export-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z."
           + RETURN_ID
@@ -169,9 +178,9 @@ public class CqlTransformHandlerTest {
   public void testNoServiceFound() throws Exception {
     when(mockRequest.params(QUERY_PARAM)).thenReturn(OTHER_RETURN_ID);
 
-    String res = Boon.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
+    String res = GSON.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
 
-    assertThat(res, is(SERVICE_NOT_FOUND));
+    assertThat(res, containsString(SERVICE_NOT_FOUND));
     assertThat(mockResponse.status(), is(HttpStatus.NOT_FOUND_404));
   }
 
@@ -181,7 +190,7 @@ public class CqlTransformHandlerTest {
 
     when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
-    String res = Boon.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
+    String res = GSON.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
 
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));
@@ -198,7 +207,7 @@ public class CqlTransformHandlerTest {
 
     when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
-    String res = Boon.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
+    String res = GSON.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
 
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));

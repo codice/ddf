@@ -30,13 +30,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.boon.json.annotations.JsonIgnore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CsvTransform {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CsvTransform.class);
-
   private boolean applyGlobalHidden = false;
 
   private Set<String> hiddenFields;
@@ -45,7 +40,8 @@ public class CsvTransform {
 
   private Map<String, String> columnAliasMap;
 
-  @JsonIgnore private List<Map<String, Object>> metacards;
+  // Transient so as not to be serialized to/from JSON
+  private transient List<Map<String, Object>> metacards;
 
   public Set<String> getHiddenFields() {
     return hiddenFields;

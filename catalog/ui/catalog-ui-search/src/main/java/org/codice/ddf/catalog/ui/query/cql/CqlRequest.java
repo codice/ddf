@@ -295,7 +295,6 @@ public class CqlRequest {
     this.excludeUnnecessaryAttributes = excludeUnnecessaryAttributes;
   }
 
-  /** POJO binding for BOON */
   public static class Sort {
 
     private String attribute;

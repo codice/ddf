@@ -18,6 +18,8 @@ import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -49,12 +51,12 @@ import javax.annotation.Nullable;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
-import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.codice.ddf.security.common.Security;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,12 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final String FORMS_FILE_NAME = "forms.json";
 
   private static final String RESULTS_FILE_NAME = "results.json";
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private final File configDirectory;
 
@@ -178,7 +186,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
       return Stream.empty();
     }
 
-    Object configObject = Boon.fromJson(payload);
+    Object configObject = GSON.fromJson(payload, Object.class);
     if (!List.class.isInstance(configObject)) {
       LOGGER.warn(
           "Could not load forms configuration in {}, JSON should be a list of maps",

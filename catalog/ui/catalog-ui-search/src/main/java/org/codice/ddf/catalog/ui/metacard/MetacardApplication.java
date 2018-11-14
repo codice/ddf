@@ -24,6 +24,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_TAG;
+import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
@@ -37,6 +39,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -89,6 +94,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,10 +122,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.ExecutionException;
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
@@ -142,6 +144,7 @@ import org.codice.ddf.catalog.ui.security.Constants;
 import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
@@ -167,15 +170,22 @@ public class MetacardApplication implements SparkApplication {
   private static final String SUCCESS_RESPONSE_TYPE = "success";
 
   private static final MetacardType SECURITY_ATTRIBUTES = new SecurityAttributes();
+
+  private static final Type METACARD_CHANGES_LIST_TYPE =
+      new TypeToken<List<MetacardChanges>>() {}.getType();
+
+  private static final Type ASSOCIATED_EDGE_LIST_TYPE =
+      new TypeToken<List<Associated.Edge>>() {}.getType();
+
   private static int pageSize = 250;
-  private final ObjectMapper mapper =
-      JsonFactory.create(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .includeEmpty()
-              .includeNulls()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false));
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
+
   private final CatalogFramework catalogFramework;
   private final FilterBuilder filterBuilder;
   private final EndpointUtil util;
@@ -279,7 +289,7 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           Map<String, Object> stringObjectMap =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
           MetacardImpl metacard = new MetacardImpl();
           stringObjectMap
               .keySet()
@@ -293,8 +303,7 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          List<String> ids =
-              JsonFactory.create().parser().parseList(String.class, util.safeGetBody(req));
+          List<String> ids = GSON.fromJson(util.safeGetBody(req), LIST_STRING);
           List<Metacard> metacards =
               util.getMetacardsWithTagById(ids, "*")
                   .entrySet()
@@ -310,8 +319,7 @@ public class MetacardApplication implements SparkApplication {
         "/metacards",
         APPLICATION_JSON,
         (req, res) -> {
-          List<String> ids =
-              JsonFactory.create().parser().parseList(String.class, util.safeGetBody(req));
+          List<String> ids = GSON.fromJson(util.safeGetBody(req), LIST_STRING);
           DeleteResponse deleteResponse =
               catalogFramework.delete(
                   new DeleteRequestImpl(new ArrayList<>(ids), Metacard.ID, null));
@@ -330,8 +338,7 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String body = util.safeGetBody(req);
-          List<MetacardChanges> metacardChanges =
-              JsonFactory.createUseJSONDates().parser().parseList(MetacardChanges.class, body);
+          List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
 
           UpdateResponse updateResponse = patchMetacards(metacardChanges);
           if (updateResponse.getProcessingErrors() != null
@@ -428,8 +435,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String id = req.params(":id");
           String body = util.safeGetBody(req);
-          List<Associated.Edge> edges =
-              JsonFactory.create().parser().parseList(Associated.Edge.class, body);
+          List<Associated.Edge> edges = GSON.fromJson(body, ASSOCIATED_EDGE_LIST_TYPE);
           associated.putAssociations(id, edges);
           return body;
         });
@@ -562,7 +568,7 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           Map<String, Object> incoming =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
           Metacard saved = saveMetacard(transformer.transform(incoming));
           Map<String, Object> response = transformer.transform(saved);
 
@@ -579,7 +585,8 @@ public class MetacardApplication implements SparkApplication {
           WorkspaceMetacardImpl existingWorkspace = workspaceService.getWorkspaceMetacard(id);
           List<String> existingQueryIds = existingWorkspace.getQueries();
 
-          Map<String, Object> updatedWorkspace = mapper.parser().parseMap(util.safeGetBody(req));
+          Map<String, Object> updatedWorkspace =
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
 
           List<Metacard> updatedQueryMetacards =
               ((List<Map<String, Object>>)
@@ -655,7 +662,8 @@ public class MetacardApplication implements SparkApplication {
         "/queries",
         APPLICATION_JSON,
         (req, res) -> {
-          Map<String, Object> body = mapper.parser().parseMap(util.safeGetBody(req));
+          Map<String, Object> body =
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
 
           Metacard query = new QueryMetacardImpl(transformer.transform(body));
           Metacard stored = saveMetacard(query);
@@ -669,7 +677,8 @@ public class MetacardApplication implements SparkApplication {
         "/queries/:id",
         (req, res) -> {
           String queryId = req.params("id");
-          Map<String, Object> body = mapper.parser().parseMap(util.safeGetBody(req));
+          Map<String, Object> body =
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
 
           Metacard query = new QueryMetacardImpl(transformer.transform(body));
           Metacard updated = updateMetacard(queryId, query);
@@ -735,8 +744,8 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String body = util.safeGetBody(req);
-          CsvTransform queryTransform = mapper.readValue(body, CsvTransform.class);
-          Map<String, Object> transformMap = mapper.parser().parseMap(body);
+          CsvTransform queryTransform = GSON.fromJson(body, CsvTransform.class);
+          Map<String, Object> transformMap = GSON.fromJson(body, MAP_STRING_TO_OBJECT_TYPE);
           queryTransform.setMetacards((List<Map<String, Object>>) transformMap.get("metacards"));
 
           List<Result> metacards =
@@ -800,7 +809,7 @@ public class MetacardApplication implements SparkApplication {
         "/annotations",
         (req, res) -> {
           Map<String, Object> incoming =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
           String workspaceId = incoming.get("workspace").toString();
           String queryId = incoming.get("parent").toString();
           String annotation = incoming.get("note").toString();
@@ -869,7 +878,7 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           Map<String, Object> incoming =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
           String noteMetacardId = req.params(":id");
           String note = incoming.get("note").toString();
           Metacard metacard;

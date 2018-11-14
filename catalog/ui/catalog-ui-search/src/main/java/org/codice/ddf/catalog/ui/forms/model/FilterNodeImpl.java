@@ -15,22 +15,21 @@ package org.codice.ddf.catalog.ui.forms.model;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.boon.json.annotations.JsonProperty;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 public class FilterNodeImpl implements FilterNode {
-  @JsonProperty("type")
+  @SerializedName("type")
   private final String operator;
 
-  @JsonProperty("filters")
+  @SerializedName("filters")
   private final List<FilterNode> children;
 
   private String property;
 
-  /** If changed, update the {@link FilterNodeValueSerializer} as well. */
   private String value;
 
   private Map<String, Object> templateProperties;

@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.ws;
 
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -22,14 +23,13 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.junit.Test;
@@ -37,20 +37,18 @@ import org.mockito.ArgumentCaptor;
 
 public class JsonRpcTest {
 
-  private ObjectMapper mapper =
-      JsonFactory.create(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .includeEmpty()
-              .includeNulls()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false));
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private Map<String, Function> methods = ImmutableMap.of("id", (value) -> value);
 
   private JsonRpc rpc = new JsonRpc(methods);
 
-  private static void assertError(Map<String, Object> response, int code) {
+  private static void assertError(Map<String, Object> response, long code) {
     assertThat(response.containsKey("error"), is(true));
     assertThat(response.get("error"), instanceOf(Map.class));
     Map error = (Map) response.get("error");
@@ -64,7 +62,7 @@ public class JsonRpcTest {
     doReturn(endpoint).when(session).getRemote();
     rpc.onMessage(session, message);
     verify(endpoint).sendStringByFuture(captor.capture());
-    return (Map<String, Object>) mapper.fromJson(captor.getValue());
+    return GSON.fromJson(captor.getValue(), MAP_STRING_TO_OBJECT_TYPE);
   }
 
   @Test
@@ -91,10 +89,10 @@ public class JsonRpcTest {
 
   @Test
   public void testSucessfulCall() throws Exception {
-    List value = ImmutableList.of(0);
-    String message = "{\"method\":\"id\",\"id\":0,\"jsonrpc\":\"2.0\",\"params\":[0]}";
+    List value = ImmutableList.of(0L);
+    String message = "{\"method\":\"id\",\"id\":6,\"jsonrpc\":\"2.0\",\"params\":[0]}";
     Map<String, Object> resp = onMessage(rpc, message);
-    assertThat(resp.get("id"), is(0));
+    assertThat(resp.get("id"), is(6L));
     assertThat(resp.get("result"), is(value));
   }
 }

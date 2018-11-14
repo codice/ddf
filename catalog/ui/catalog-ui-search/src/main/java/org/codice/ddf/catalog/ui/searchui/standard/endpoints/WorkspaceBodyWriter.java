@@ -13,17 +13,25 @@
  */
 package org.codice.ddf.catalog.ui.searchui.standard.endpoints;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
-import org.boon.json.JsonFactory;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
 public class WorkspaceBodyWriter implements MessageBodyWriter<Object> {
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   @Override
   public boolean isWriteable(
@@ -46,8 +54,7 @@ public class WorkspaceBodyWriter implements MessageBodyWriter<Object> {
       MediaType mediaType,
       MultivaluedMap<String, Object> httpHeaders,
       OutputStream entityStream)
-      throws IOException, WebApplicationException {
-
-    JsonFactory.create().writeValue(entityStream, o);
+      throws IOException {
+    GSON.toJson(o, new OutputStreamWriter(entityStream));
   }
 }

@@ -13,12 +13,15 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-import static org.boon.HTTP.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
@@ -33,13 +36,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.boon.json.JsonFactory;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.persistence.PersistentStore.PersistenceType;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -47,6 +50,12 @@ import spark.servlet.SparkApplication;
 public class UserApplication implements SparkApplication {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserApplication.class);
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private final EndpointUtil util;
 
@@ -84,7 +93,7 @@ public class UserApplication implements SparkApplication {
           }
 
           Map<String, Object> preferences =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
 
           if (preferences == null) {
             preferences = new HashMap<>();
@@ -104,7 +113,7 @@ public class UserApplication implements SparkApplication {
   }
 
   private void setUserPreferences(Subject subject, Map<String, Object> preferences) {
-    String json = JsonFactory.create().toJson(preferences);
+    String json = GSON.toJson(preferences);
 
     LOGGER.trace("preferences JSON text:\n {}", json);
 
@@ -142,7 +151,7 @@ public class UserApplication implements SparkApplication {
       if (preferencesList.size() == 1) {
         byte[] json = (byte[]) preferencesList.get(0).get("preferences_json_bin");
 
-        return JsonFactory.create().parser().parseMap(new String(json, Charset.defaultCharset()));
+        return GSON.fromJson(new String(json, Charset.defaultCharset()), MAP_STRING_TO_OBJECT_TYPE);
       }
     } catch (PersistenceException e) {
       LOGGER.info(

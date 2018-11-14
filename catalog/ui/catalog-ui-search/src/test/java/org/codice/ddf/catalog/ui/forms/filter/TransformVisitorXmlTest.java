@@ -16,14 +16,17 @@ package org.codice.ddf.catalog.ui.forms.filter;
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.forElement;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
@@ -31,11 +34,11 @@ import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
-import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,12 +46,17 @@ public class TransformVisitorXmlTest {
   private static final URL FILTER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/filter-json");
 
-  private static final String EXPECTED_DATE =
-      Date.from(Instant.parse("2018-02-08T23:24:12.709Z")).toString();
+  private static final String EXPECTED_DATE = "2018-02-08T23:24:12.709Z";
 
   private static final String DEPTH_PROP = "depth";
 
   private static final String DEPTH_VAL = "100";
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private TransformVisitor<JAXBElement> visitor;
 
@@ -144,7 +152,11 @@ public class TransformVisitorXmlTest {
       fail("File was not found " + jsonFile.getAbsolutePath());
     }
 
-    FilterNodeMapImpl node = new FilterNodeMapImpl(Boon.resourceMap(jsonFile.getPath()));
-    return VisitableJsonElementImpl.create(node);
+    try (FileInputStream fis = new FileInputStream(jsonFile)) {
+      FilterNodeMapImpl node =
+          new FilterNodeMapImpl(
+              GSON.fromJson(new InputStreamReader(fis), MAP_STRING_TO_OBJECT_TYPE));
+      return VisitableJsonElementImpl.create(node);
+    }
   }
 }
