@@ -25,6 +25,7 @@ const CQLUtils = require('../CQLUtils.js')
 const user = require('../../component/singletons/user-instance.js')
 const _merge = require('lodash/merge')
 require('backbone-associations')
+import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 
 var Query = {}
 
@@ -56,7 +57,7 @@ function limitToHistoric(cqlString) {
   })
 }
 
-Query.Model = Backbone.AssociatedModel.extend({
+Query.Model = PartialAssociatedModel.extend({
   relations: [
     {
       type: Backbone.One,

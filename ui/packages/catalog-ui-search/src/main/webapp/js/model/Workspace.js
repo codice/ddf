@@ -18,6 +18,7 @@ var Common = require('../Common.js')
 var ColorGenerator = require('../ColorGenerator.js')
 var QueryPolling = require('../QueryPolling.js')
 require('backbone-associations')
+import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 
 // This is a list of model attributes that if changed we do not want save the workspace for
 const IGNORED_WORKSPACE_ATTRIBUTES = [
@@ -66,7 +67,7 @@ const WorkspaceListCollection = Backbone.Collection.extend({
   },
 })
 
-module.exports = Backbone.AssociatedModel.extend({
+module.exports = PartialAssociatedModel.extend({
   useAjaxSync: true,
   defaults: function() {
     return {
