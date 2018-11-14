@@ -13,24 +13,20 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
 /** This class provides utility functions for dealing with Json objects. */
 public class JsonUtils {
@@ -138,7 +134,7 @@ public class JsonUtils {
       @Nullable Map<String, Object> map, @Nullable String key, boolean required) {
     final Boolean b = JsonUtils.getObjectFrom(Boolean.class, map, key, required);
 
-    return (b != null) ? b : false;
+    return b != null && b;
   }
 
   private static <T> T getObjectFrom(
@@ -165,15 +161,11 @@ public class JsonUtils {
     private final Gson gson;
 
     private ObjectMapper() {
-      final CustomizedObjectTypeAdapter adapter = new CustomizedObjectTypeAdapter();
-
       this.gson =
           new GsonBuilder()
+              .disableHtmlEscaping()
               .serializeNulls()
-              .registerTypeHierarchyAdapter(Map.class, adapter)
-              .registerTypeHierarchyAdapter(List.class, adapter)
-              .registerTypeAdapter(Double.class, adapter)
-              .registerTypeAdapter(String.class, adapter)
+              .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
               .create();
     }
 
@@ -209,62 +201,7 @@ public class JsonUtils {
      * @return the corresponding map
      */
     public Map<String, Object> parseMap(String json) {
-      return gson.fromJson(json, new TypeToken<Map<String, Object>>() {}.getType());
-    }
-  }
-
-  /** Gson type adapter used to handle numbers as long the way Boon was doing. */
-  private static class CustomizedObjectTypeAdapter extends TypeAdapter<Object> {
-    private final TypeAdapter<Object> delegate = new Gson().getAdapter(Object.class);
-
-    @Override
-    public void write(JsonWriter out, Object value) throws IOException {
-      delegate.write(out, value);
-    }
-
-    @Override
-    public Object read(JsonReader in) throws IOException {
-      final JsonToken token = in.peek();
-
-      switch (token) {
-        case BEGIN_ARRAY:
-          final List<Object> list = new ArrayList<>();
-
-          in.beginArray();
-          while (in.hasNext()) {
-            list.add(read(in));
-          }
-          in.endArray();
-          return list;
-        case BEGIN_OBJECT:
-          final Map<String, Object> map = new LinkedMap<>();
-
-          in.beginObject();
-          while (in.hasNext()) {
-            map.put(in.nextName(), read(in));
-          }
-          in.endObject();
-          return map;
-        case STRING:
-          return in.nextString();
-        case NUMBER:
-          final String n = in.nextString();
-
-          if (n.indexOf('.') == -1) {
-            try {
-              return Long.parseLong(n);
-            } catch (NumberFormatException e) { // ignore and handle it as a double
-            }
-          }
-          return Double.parseDouble(n);
-        case BOOLEAN:
-          return in.nextBoolean();
-        case NULL:
-          in.nextNull();
-          return null;
-        default:
-          throw new IllegalStateException("unknown gson token: " + token);
-      }
+      return gson.fromJson(json, MAP_STRING_TO_OBJECT_TYPE);
     }
   }
 }
