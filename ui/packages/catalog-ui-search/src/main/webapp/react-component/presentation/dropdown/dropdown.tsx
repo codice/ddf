@@ -142,7 +142,12 @@ const DropdownWrapper = styled<{ open: boolean }, 'div'>('div')`
   ${props =>
     props.open
       ? `
-  transform: translate3d(0, 0, 0) scale(1);
+  &.is-bottom {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  &.is-top {
+    transform: translate3d(0, -100%, 0) scaleY(1);
+  }
   `
       : `
   transform: translate3d(-50%, -50%, 0) scale(0);
