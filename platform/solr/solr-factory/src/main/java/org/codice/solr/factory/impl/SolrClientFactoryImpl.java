@@ -57,7 +57,6 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      // TODO: CHANGE THIS BACK TO A NO-ARG CONSTRUCTOR
       factory = new HttpSolrClientFactory();
     }
 

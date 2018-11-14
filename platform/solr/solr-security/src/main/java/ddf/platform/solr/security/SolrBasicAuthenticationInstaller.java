@@ -13,6 +13,13 @@
  */
 package ddf.platform.solr.security;
 
+import static org.codice.solr.settings.SolrSettings.getPlainTextSolrPassword;
+import static org.codice.solr.settings.SolrSettings.getSolrUsername;
+import static org.codice.solr.settings.SolrSettings.getUrl;
+import static org.codice.solr.settings.SolrSettings.setEncryptionService;
+import static org.codice.solr.settings.SolrSettings.useBasicAuth;
+import static org.codice.solr.settings.SolrSettings.usingDefaultPassword;
+
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
@@ -27,45 +34,18 @@ import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.solr.settings.SolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SolrBasicAuthenticationInstaller {
 
+  public static final int DELAY = 1;
+  public static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
   private static final String SYSTEM_PROPERTIES_FILE = "custom.system.properties";
   private static final String KARAF_ETC = "karaf.etc";
-
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER =
       LoggerFactory.getLogger(SolrBasicAuthenticationInstaller.class);
-
-  @SuppressWarnings("unused" /* blueprint */)
-  public void start() {
-    if (SolrSettings.useBasicAuth() && SolrSettings.usingDefaultPassword()) {
-      executorService.schedule(this::run, 1, TimeUnit.SECONDS);
-    }
-  }
-
-  @SuppressWarnings("unused" /* blueprint */)
-  public void stop() {
-    executorService.shutdown();
-    try {
-      executorService.awaitTermination(5, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      LOGGER.debug("Unable to terminate executor service in SolrBasicAuthenticationInstaller");
-    }
-  }
-
-  private void run() {
-    generatePassword();
-    setPasswordInSolr();
-    if (passwordChangeSuccessful) {
-      SecurityLogger.audit("Changed Solr password to " + newPassword);
-      setPasswordInProperties();
-    }
-  }
-
   private String newPassword;
   private boolean passwordChangeSuccessful = false;
   private UuidGenerator uuidGenerator;
@@ -79,14 +59,17 @@ public class SolrBasicAuthenticationInstaller {
       ClientFactoryFactory clientFactoryFactory,
       ScheduledExecutorService executorService) {
 
-    SolrSettings.setEncryptionService(encryptionService);
+    // The encryption service cannot be injected by blueprint into the Solr settings
+    // because it is not a bundle. Set it here.
+    setEncryptionService(encryptionService);
+
     this.uuidGenerator = uuidGenerator;
     this.encryptionService = encryptionService;
     this.executorService = executorService;
 
     SecureCxfClientFactory<SolrAdminClient> factory =
         clientFactoryFactory.getSecureCxfClientFactory(
-            SolrSettings.getUrl(),
+            getUrl(),
             SolrAdminClient.class,
             null,
             null,
@@ -94,12 +77,60 @@ public class SolrBasicAuthenticationInstaller {
             true,
             null,
             null,
-            SolrSettings.getSolrUsername(),
-            SolrSettings.getPlainTextSolrPassword());
+            getSolrUsername(),
+            getPlainTextSolrPassword());
     solrAdminClient = factory.getClient();
   }
 
-  private void setPasswordInProperties() {
+  /**
+   * This method is called by the blueprint as the bean's init-method. Do not do any work in this
+   * method because it would block blueprint's thread.
+   */
+  @SuppressWarnings("unused" /* blueprint */)
+  public void start() {
+    if (useBasicAuth() && usingDefaultPassword()) {
+      LOGGER.debug("Scheduling Solr password change for {} {}", DELAY, TIME_UNIT);
+      executorService.schedule(this::run, DELAY, TIME_UNIT);
+    } else {
+      LOGGER.debug(
+          "Skipping Solr password change because because using basic auth={} and using default password={}",
+          useBasicAuth(),
+          usingDefaultPassword());
+    }
+  }
+
+  /**
+   * Attempt graceful shutdown of executor services after giving it a few seconds to complete. The
+   * actual work being done should take less than a second under normal conditions.
+   */
+  @SuppressWarnings("unused" /* blueprint */)
+  public void stop() {
+    executorService.shutdown();
+    try {
+      executorService.awaitTermination(2, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      LOGGER.debug("Unable to terminate executor service in SolrBasicAuthenticationInstaller");
+    }
+  }
+
+  /**
+   * Create a strong password, set the password in Solr, and save password as an encrypted string in
+   * the system properties file.
+   */
+  private void run() {
+    generatePassword();
+    setPasswordInSolr();
+    if (passwordChangeSuccessful) {
+      SecurityLogger.audit("Changed Solr password to " + newPassword);
+      setPasswordInPropertiesFile();
+    }
+  }
+
+  /**
+   * Add an encrypted password to the system properties file. This change does not take effect until
+   * the application is restarted.
+   */
+  private void setPasswordInPropertiesFile() {
 
     String etcDir = System.getProperty(KARAF_ETC);
     String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
@@ -117,26 +148,38 @@ public class SolrBasicAuthenticationInstaller {
     }
   }
 
+  /**
+   * Send a post request to Solr to change the password. Mutator. Calling this method changes the
+   * state of the object.
+   */
   private void setPasswordInSolr() {
-    try (InputStream is = new ByteArrayInputStream(getSetUserJson().getBytes())) {
 
+    try (InputStream is = new ByteArrayInputStream(getSetUserJson().getBytes())) {
       Response response = solrAdminClient.sendRequest(is);
-      if (response.getStatusInfo() == Status.OK) {
-        passwordChangeSuccessful = true;
-      } else {
-        LOGGER.info("Solr password update failed", response.getStatusInfo());
+      passwordChangeSuccessful = response.getStatusInfo().toEnum().equals(Status.OK);
+      if (!passwordChangeSuccessful) {
+        LOGGER.info("Solr password update failed with status code {}.", response.getStatus());
       }
     } catch (IOException e) {
-      LOGGER.info("Failed to create Solr administration request");
+      LOGGER.info("Solr administration request failed.", e);
     }
   }
 
+  /**
+   * Create a secure password. Use a UUID because it is long and random enough to withstand
+   * brute-force attacks. Calling this method changes the state of the object.
+   */
   private void generatePassword() {
     newPassword = uuidGenerator.generateUuid();
-    LOGGER.info("***** {} ****", newPassword);
   }
 
+  /**
+   * Create JSON object to use as the body of an HTTP request to be sent to Solr. Use the value of
+   * the new password and the Solr user name as it is found in system properties.
+   *
+   * @return BODY of the POST message to set a new password in Solr
+   */
   private String getSetUserJson() {
-    return String.format(SET_USER_JSON_TEMPLATE, SolrSettings.getSolrUsername(), newPassword);
+    return String.format(SET_USER_JSON_TEMPLATE, getSolrUsername(), newPassword);
   }
 }

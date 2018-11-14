@@ -97,7 +97,6 @@
                             ddf.catalog.source;version="[2.0,3)",
                             ddf.catalog.util;version="[2.0,3)",
                             ddf.measure;version="[2.0,3)",
-                            ddf.platform.solr.credentials.api,
                             javax.annotation,
                             javax.crypto,
                             javax.crypto.spec,
