@@ -3,6 +3,7 @@ const Announcement = require('component/announcement')
 
 const AutoComplete = require('../auto-complete')
 const Polygon = require('./polygon')
+const MultiPolygon = require('./multipoly')
 
 import fetch from '../../react-component/utils/fetch'
 
@@ -13,6 +14,7 @@ class Keyword extends React.Component {
       value: '',
       loading: false,
       error: null,
+      polyType: null,
     }
     this.fetch = this.props.fetch || fetch
   }
@@ -41,6 +43,7 @@ class Keyword extends React.Component {
             hasKeyword: true,
             locationType: 'latlon',
             polygon: polygon,
+            polyType: 'polygon',
           })
           break
         }
@@ -52,6 +55,7 @@ class Keyword extends React.Component {
             hasKeyword: true,
             locationType: 'latlon',
             polygon: polygon,
+            polyType: 'multipolygon',
           })
           break
         }
@@ -81,8 +85,10 @@ class Keyword extends React.Component {
       cursor,
       polygonBufferWidth,
       polygonBufferUnits,
+      polyType,
     } = this.props
     const { value, loading, error } = this.state
+    debugger
     return (
       <div>
         <AutoComplete
@@ -98,9 +104,17 @@ class Keyword extends React.Component {
           </div>
         ) : null}
         {!loading && error !== null ? <div>{error}</div> : null}
-        {!loading && polygon !== undefined ? (
+        {!loading && polygon !== undefined && polyType === 'polygon' ? (
           <Polygon
             polygon={polygon}
+            cursor={cursor}
+            polygonBufferWidth={polygonBufferWidth}
+            polygonBufferUnits={polygonBufferUnits}
+          />
+        ) : null}
+        {!loading && polygon !== undefined && polyType === 'multipolygon' ? (
+          <MultiPolygon
+            multipolygon={polygon}
             cursor={cursor}
             polygonBufferWidth={polygonBufferWidth}
             polygonBufferUnits={polygonBufferUnits}
