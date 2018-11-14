@@ -59,7 +59,7 @@
              description="Platform error handler API.">
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
-        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
 
     <feature name="error-impl" version="${project.version}"

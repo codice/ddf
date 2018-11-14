@@ -64,7 +64,6 @@
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
         <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
         <google-guava-version>19.0</google-guava-version>
-        <gson-version>${gson.version}</gson-version>
         <cxf.jackson.version>2.9.6</cxf.jackson.version>
         <hikaricp-version>2.3.13</hikaricp-version>
         <httpcore4-version>4.4.10</httpcore4-version>
