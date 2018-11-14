@@ -31,6 +31,7 @@ const MetacardTitleView = require('component/metacard-title/metacard-title.view'
 const VisualizationView = require('component/visualization/visualization.view')
 const QueryTitleView = require('component/query-title/query-title.view')
 const GoldenLayoutView = require('component/golden-layout/golden-layout.view')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
 
 var ContentView = Marionette.LayoutView.extend({
   template: contentTemplate,
@@ -49,7 +50,7 @@ var ContentView = Marionette.LayoutView.extend({
     this.listenTo(
       store.get('content'),
       'change:currentWorkspace',
-      this.updateContentLeft
+      this.handleWorkspaceChange
     )
   },
   onRender: function() {
@@ -58,14 +59,30 @@ var ContentView = Marionette.LayoutView.extend({
       this.contentRight.show(this._mapView)
     }
   },
+  handleWorkspaceChange(contentModel) {
+    if (
+      contentModel &&
+      Object.keys(contentModel.changedAttributes()[0] === 'currentWorkspace')
+    ) {
+      this.stopListening(contentModel.previousAttributes().currentWorkspace)
+      this.updateContentLeft()
+    }
+  },
+  startLoading() {
+    LoadingCompanionView.beginLoading(this)
+  },
+  endLoading() {
+    LoadingCompanionView.endLoading(this)
+  },
   updateContentLeft: function(workspace) {
-    if (workspace) {
-      if (
-        Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'
-      ) {
-        this.updateContentLeft()
-        store.clearSelectedResults()
-      }
+    const currentWorkspace = store.get('content').get('currentWorkspace')
+    store.clearSelectedResults()
+    this.contentLeft.empty()
+    if (currentWorkspace.isPartial()) {
+      this.startLoading()
+      this.stopListening(currentWorkspace, 'partialSync')
+      this.listenToOnce(currentWorkspace, 'partialSync', this.updateContentLeft)
+      currentWorkspace.fetchPartial()
     } else {
       this.contentLeft.show(
         new WorkspaceContentTabsView({
@@ -73,6 +90,7 @@ var ContentView = Marionette.LayoutView.extend({
           selectionInterface: store.get('content'),
         })
       )
+      this.endLoading()
     }
   },
   _mapView: undefined,

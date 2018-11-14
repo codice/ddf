@@ -570,14 +570,30 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
-          Map<String, Object> workspace = mapper.parser().parseMap(util.safeGetBody(req));
+          
+          WorkspaceMetacardImpl currentWorkspace = workspaceService.getWorkspaceMetacard(id);
+          List<String> currentQueryIds = currentWorkspace.getQueries()
 
-          Metacard metacard = transformer.transform(workspace);
+          Map<String, Object> updatedWorkspace = mapper.parser().parseMap(util.safeGetBody(req));
+          List<Map<String,Object>> queries = (List<Map<String,Object>>) updatedWorkspace.get("queries");
+
+          // delete queries
+          Set<String> updatedQueryIds = queries.stream()
+            .map(query -> (String) query.get("id"))
+            .collect(toSet());                  
+
+          //create new queries
+
+          //update queries
+
+          //update workspace
+
+          Metacard metacard = transformer.transform(updatedWorkspace);
           metacard.setAttribute(new AttributeImpl(Core.ID, id));
-
           Metacard updated = updateMetacard(id, metacard);
-          return util.getJson(transformer.transform(updated));
-        });
+          return transformer.transform(updated)
+        },
+        util::getJson);
 
     delete(
         "/workspaces/:id",
@@ -600,7 +616,7 @@ public class MetacardApplication implements SparkApplication {
         util::getJson);
 
     get(
-        "/workspace/:id/queries",
+        "/workspaces/:id/queries",
         (req, res) -> {
           String workspaceId = req.params(":id");
           WorkspaceMetacardImpl workspace = workspaceService.getWorkspaceMetacard(workspaceId);
@@ -617,7 +633,7 @@ public class MetacardApplication implements SparkApplication {
         util::getJson);
 
     post(
-        "/query",
+        "/queries",
         APPLICATION_JSON,
         (req, res) -> {
           Map<String, Object> body = mapper.parser().parseMap(util.safeGetBody(req));
@@ -631,8 +647,7 @@ public class MetacardApplication implements SparkApplication {
         util::getJson);
 
     put(
-        "/query/:id",
-        APPLICATION_JSON,
+        "/queries/:id",
         (req, res) -> {
           String queryId = req.params("id");
           Map<String, Object> body = mapper.parser().parseMap(util.safeGetBody(req));
@@ -645,7 +660,7 @@ public class MetacardApplication implements SparkApplication {
         util::getJson);
 
     get(
-        "/query/:id",
+        "/queries/:id",
         (req, res) -> {
           String id = req.params("id");
           Metacard metacard = util.getMetacardById(id);
@@ -662,7 +677,7 @@ public class MetacardApplication implements SparkApplication {
         util::getJson);
 
     delete(
-        "/query/:id",
+        "/queries/:id",
         APPLICATION_JSON,
         (req, res) -> {
           String queryId = req.params(":id");

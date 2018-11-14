@@ -27,6 +27,13 @@ const LoadingView = require('component/loading/loading.view')
 const QueryAnnotationsView = require('component/query-annotations/query-annotations.view')
 const properties = require('properties')
 
+const NOT_CLONEABLE_ATTRIBUTES = ['id', 'result', 'hasBeenSaved']
+
+const createDuplicateQuery = attributes => {
+  let clonedAttributes = JSON.parse(JSON.stringify(attributes))
+  return _.omit(clonedAttributes, NOT_CLONEABLE_ATTRIBUTES)
+}
+
 module.exports = Marionette.ItemView.extend({
   template: template,
   tagName: CustomElements.register('query-interactions'),
@@ -93,10 +100,8 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   handleDuplicate: function() {
-    var copyAttributes = JSON.parse(JSON.stringify(this.model.attributes))
-    delete copyAttributes.id
-    delete copyAttributes.result
-    var newQuery = new this.model.constructor(copyAttributes)
+    const copyAttributes = createDuplicateQuery(this.model.attributes)
+    const newQuery = new this.model.constructor(copyAttributes)
     if (this.model.collection.canAddQuery()) {
       this.model.collection.add(newQuery)
       store.setCurrentQuery(newQuery)
