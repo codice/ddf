@@ -107,7 +107,7 @@ include::${pi.file}[]
 ===== Available ${pi.title}
 
 <#assign count=0>
-<#list plugins as plugin>
+<#list plugins?sort_by("title") as plugin>
 <#if plugin.status == "published" && plugin.plugintypes?contains (pi.plugintypes)>
 <#assign count++>
 <<${plugin.link},${plugin.title}>>:: ${plugin.summary}
@@ -123,7 +123,7 @@ None.
 
 Installation and configuration details listed by plugin name.
 
-<#list plugins as plugin>
+<#list plugins?sort_by("title") as plugin>
 <#if plugin.status == "published">
 
 ==== ${plugin.title}
