@@ -15,8 +15,8 @@
 const _ = require('underscore')
 const Marionette = require('marionette')
 const Cesium = require('cesium')
-const CommonLayerController = require('js/controllers/common.layerCollection.controller')
-const properties = require('properties')
+const CommonLayerController = require('./common.layerCollection.controller.js')
+const properties = require('../properties.js')
 
 const DEFAULT_HTTPS_PORT = 443
 const DEFAULT_HTTP_PORT = 80

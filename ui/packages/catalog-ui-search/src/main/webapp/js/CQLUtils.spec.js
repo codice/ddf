@@ -12,7 +12,7 @@
 const chai = require('chai')
 const expect = chai.expect
 const wkx = require('wkx')
-const CQLUtils = require('js/CQLUtils')
+const CQLUtils = require('./CQLUtils.js')
 
 const mockMetacardDefinitions = {
   metacardTypes: {

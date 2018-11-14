@@ -12,7 +12,7 @@
 /*global require, module*/
 /*jshint esversion: 6, bitwise: false*/
 const ol = require('openlayers')
-const properties = require('properties')
+const properties = require('./properties.js')
 const Common = require('./Common')
 
 module.exports = {

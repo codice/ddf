@@ -16,14 +16,14 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const template = require('./query-item.hbs')
-const CustomElements = require('js/CustomElements')
-const QueryInteractionsView = require('component/query-interactions/query-interactions.view')
-const QueryFeedView = require('component/query-feed/query-feed.view')
-const QueryScheduleView = require('component/query-schedule/query-schedule.view')
-const QuerySettingsView = require('component/query-settings/query-settings.view')
-const QueryEditorView = require('component/query-editor/query-editor.view')
-require('behaviors/button.behavior')
-require('behaviors/dropdown.behavior')
+const CustomElements = require('../../js/CustomElements.js')
+const QueryInteractionsView = require('../query-interactions/query-interactions.view.js')
+const QueryFeedView = require('../query-feed/query-feed.view.js')
+const QueryScheduleView = require('../query-schedule/query-schedule.view.js')
+const QuerySettingsView = require('../query-settings/query-settings.view.js')
+const QueryEditorView = require('../query-editor/query-editor.view.js')
+require('../../behaviors/button.behavior.js')
+require('../../behaviors/dropdown.behavior.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

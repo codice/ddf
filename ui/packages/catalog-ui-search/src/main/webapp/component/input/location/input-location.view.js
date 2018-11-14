@@ -17,9 +17,9 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./input-location.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const InputView = require('../input.view')
-const LocationView = require('component/location-old/location-old.view')
+const LocationView = require('../../location-old/location-old.view.js')
 
 module.exports = InputView.extend({
   template: template,

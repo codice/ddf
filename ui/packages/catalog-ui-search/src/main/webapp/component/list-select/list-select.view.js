@@ -16,11 +16,11 @@
 var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
-var CustomElements = require('js/CustomElements')
-var ListItemCollectionView = require('component/list-item/list-item.collection.view')
+var CustomElements = require('../../js/CustomElements.js')
+var ListItemCollectionView = require('../list-item/list-item.collection.view.js')
 var template = require('./list-select.hbs')
-var ListCreateView = require('component/list-create/list-create.view')
-var PopoutView = require('component/dropdown/popout/dropdown.popout.view')
+var ListCreateView = require('../list-create/list-create.view.js')
+var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 
 var eventsHash = {
   click: 'handleClick',

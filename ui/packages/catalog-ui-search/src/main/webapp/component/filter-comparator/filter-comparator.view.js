@@ -17,8 +17,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./filter-comparator.hbs')
-const CustomElements = require('js/CustomElements')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
+const CustomElements = require('../../js/CustomElements.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 var geometryComparators = ['INTERSECTS']
 var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE']

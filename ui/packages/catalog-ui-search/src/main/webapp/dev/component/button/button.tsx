@@ -18,8 +18,8 @@ import {
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 
 import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
-const PropertyView = require('component/property/property.view')
-const PropertyModel = require('component/property/property')
+const PropertyView = require('../../../component/property/property.view.js')
+const PropertyModel = require('../../../component/property/property.js')
 
 const Root = styled.div`
   height: 100%;

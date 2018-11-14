@@ -13,8 +13,8 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import { hot } from 'react-hot-loader'
-const lightboxInstance = require('component/lightbox/lightbox.view.instance')
-const SourceAppView = require('component/source-app/source-app.view')
+const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
+const SourceAppView = require('../../../component/source-app/source-app.view.js')
 
 type RootProps = {
   available: boolean

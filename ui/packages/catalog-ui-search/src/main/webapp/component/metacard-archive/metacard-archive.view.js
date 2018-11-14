@@ -17,12 +17,12 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard-archive.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const LoadingView = require('component/loading/loading.view')
-const ConfirmationView = require('component/confirmation/confirmation.view')
-const ResultUtils = require('js/ResultUtils')
-require('js/jquery.whenAll')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const LoadingView = require('../loading/loading.view.js')
+const ConfirmationView = require('../confirmation/confirmation.view.js')
+const ResultUtils = require('../../js/ResultUtils.js')
+require('../../js/jquery.whenAll.js')
 
 module.exports = Marionette.ItemView.extend({
   setDefaultModel: function() {

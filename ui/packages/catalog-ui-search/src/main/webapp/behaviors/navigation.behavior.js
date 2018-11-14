@@ -15,7 +15,7 @@
 /*global require*/
 const Behaviors = require('./Behaviors')
 const Marionette = require('marionette')
-const Common = require('js/Common')
+const Common = require('../js/Common.js')
 
 const $ = require('jquery')
 

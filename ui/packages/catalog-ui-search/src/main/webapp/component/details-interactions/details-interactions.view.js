@@ -16,13 +16,13 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const template = require('./details-interactions.hbs')
-const CustomElements = require('js/CustomElements')
-const DropdownModel = require('component/dropdown/dropdown')
-const AddAttributeView = require('component/dropdown/add-attribute/dropdown.add-attribute.view')
-const RemoveAttributeView = require('component/dropdown/remove-attribute/dropdown.remove-attribute.view')
-const AttributesRearrangeView = require('component/dropdown/attributes-rearrange/dropdown.attributes-rearrange.view')
-const ShowAttributeView = require('component/dropdown/show-attribute/dropdown.show-attribute.view')
-const HideAttributeView = require('component/dropdown/hide-attribute/dropdown.hide-attribute.view')
+const CustomElements = require('../../js/CustomElements.js')
+const DropdownModel = require('../dropdown/dropdown.js')
+const AddAttributeView = require('../dropdown/add-attribute/dropdown.add-attribute.view.js')
+const RemoveAttributeView = require('../dropdown/remove-attribute/dropdown.remove-attribute.view.js')
+const AttributesRearrangeView = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view.js')
+const ShowAttributeView = require('../dropdown/show-attribute/dropdown.show-attribute.view.js')
+const HideAttributeView = require('../dropdown/hide-attribute/dropdown.hide-attribute.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

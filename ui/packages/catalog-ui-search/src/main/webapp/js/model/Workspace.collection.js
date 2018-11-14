@@ -12,12 +12,12 @@
 var $ = require('jquery')
 var _ = require('underscore')
 var Backbone = require('backbone')
-var Query = require('js/model/Query')
-var cql = require('js/cql')
-var user = require('component/singletons/user-instance')
+var Query = require('./Query.js')
+var cql = require('../cql.js')
+var user = require('../../component/singletons/user-instance.js')
 var moment = require('moment')
 require('backbone-associations')
-var WorkspaceModel = require('js/model/Workspace')
+var WorkspaceModel = require('./Workspace.js')
 
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,

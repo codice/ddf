@@ -14,9 +14,9 @@
  **/
 /*global require*/
 const Backbone = require('backbone')
-const MetacardModel = require('js/model/Metacard')
+const MetacardModel = require('../../../js/model/Metacard.js')
 const mtgeo = require('mt-geo')
-const Common = require('js/Common')
+const Common = require('../../../js/Common.js')
 
 module.exports = Backbone.AssociatedModel.extend({
   relations: [

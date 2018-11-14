@@ -15,9 +15,9 @@
 /*global define*/
 var Marionette = require('marionette')
 var _ = require('underscore')
-var CustomElements = require('js/CustomElements')
-var SearchInteractionsDropdownView = require('component/dropdown/search-interactions/dropdown.search-interactions.view')
-var DropdownModel = require('component/dropdown/dropdown')
+var CustomElements = require('../../js/CustomElements.js')
+var SearchInteractionsDropdownView = require('../dropdown/search-interactions/dropdown.search-interactions.view.js')
+var DropdownModel = require('../dropdown/dropdown.js')
 const React = require('react')
 
 const zeroWidthSpace = '\u200B'

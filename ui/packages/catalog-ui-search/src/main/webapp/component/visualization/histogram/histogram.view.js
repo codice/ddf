@@ -13,20 +13,20 @@
  *
  **/
 /*global define, window*/
-const wreqr = require('wreqr')
+const wreqr = require('../../../js/wreqr.js')
 const $ = require('jquery')
 const _ = require('underscore')
 const Marionette = require('marionette')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const template = require('./histogram.hbs')
 const Plotly = require('plotly.js')
-const Property = require('component/property/property')
-const PropertyView = require('component/property/property.view')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
-const Common = require('js/Common')
-const properties = require('properties')
+const Property = require('../../property/property.js')
+const PropertyView = require('../../property/property.view.js')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const Common = require('../../../js/Common.js')
+const properties = require('../../../js/properties.js')
 const moment = require('moment')
-const user = require('component/singletons/user-instance')
+const user = require('../../singletons/user-instance.js')
 
 var zeroWidthSpace = '\u200B'
 var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS'

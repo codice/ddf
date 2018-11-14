@@ -11,7 +11,7 @@
  **/
 /*global define*/
 const Backbone = require('backbone')
-const Common = require('js/Common')
+const Common = require('../Common.js')
 require('backbone-associations')
 module.exports = Backbone.AssociatedModel.extend({
   defaults: {

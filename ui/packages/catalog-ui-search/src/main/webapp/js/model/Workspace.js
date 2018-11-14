@@ -12,11 +12,11 @@
 var $ = require('jquery')
 var _ = require('underscore')
 var Backbone = require('backbone')
-var Query = require('js/model/Query')
-var List = require('js/model/List')
-var Common = require('js/Common')
-var ColorGenerator = require('js/ColorGenerator')
-var QueryPolling = require('js/QueryPolling')
+var Query = require('./Query.js')
+var List = require('./List.js')
+var Common = require('../Common.js')
+var ColorGenerator = require('../ColorGenerator.js')
+var QueryPolling = require('../QueryPolling.js')
 require('backbone-associations')
 
 // This is a list of model attributes that if changed we do not want save the workspace for

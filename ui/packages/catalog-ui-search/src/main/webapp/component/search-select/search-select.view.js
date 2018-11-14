@@ -14,11 +14,11 @@
  **/
 /*global define, setTimeout*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var template = require('./search-select.hbs')
-var QuerySelectView = require('component/query-select/query-select.view')
-var store = require('js/store')
-var Query = require('js/model/Query')
+var QuerySelectView = require('../query-select/query-select.view.js')
+var store = require('../../js/store.js')
+var Query = require('../../js/model/Query.js')
 var $ = require('jquery')
 
 module.exports = Marionette.LayoutView.extend({

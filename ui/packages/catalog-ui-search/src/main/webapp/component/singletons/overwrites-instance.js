@@ -10,7 +10,7 @@
  *
  **/
 /*global require*/
-var OverwriteModel = require('js/model/Overwrite')
+var OverwriteModel = require('../../js/model/Overwrite.js')
 var Backbone = require('backbone')
 
 module.exports = new (Backbone.Collection.extend({

@@ -13,13 +13,13 @@
  *
  **/
 /* global setTimeout */
-const SearchFormViews = require('component/search-form/search-form.view')
-const properties = require('properties')
-const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view')
+const SearchFormViews = require('../search-form/search-form.view.js')
+const properties = require('../../js/properties.js')
+const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.js')
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()
-const QueryResult = require('component/result-form/result-form.view')
-const SearchFormModel = require('component/search-form/search-form.js')
-const CustomElements = require('js/CustomElements')
+const QueryResult = require('./result-form.view.js')
+const SearchFormModel = require('../search-form/search-form.js')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = SearchFormViews.extend({
   initialize: function() {

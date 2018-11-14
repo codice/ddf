@@ -12,9 +12,9 @@
 /*global define*/
 const _ = require('underscore')
 const Tabs = require('../tabs')
-const store = require('js/store')
-const MetacardsBasicView = require('component/editor/metacards-basic/metacards-basic.view')
-const MetacardArchiveView = require('component/metacard-archive/metacard-archive.view')
+const store = require('../../../js/store.js')
+const MetacardsBasicView = require('../../editor/metacards-basic/metacards-basic.view.js')
+const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
 
 var MetacardsTabs = Tabs.extend({
   defaults: {

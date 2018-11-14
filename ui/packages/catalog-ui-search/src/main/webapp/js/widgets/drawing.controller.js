@@ -14,7 +14,7 @@
  **/
 /*global define, require, module*/
 var Marionette = require('marionette')
-var wreqr = require('wreqr')
+var wreqr = require('../wreqr.js')
 
 module.exports = Marionette.Controller.extend({
   enabled: true,

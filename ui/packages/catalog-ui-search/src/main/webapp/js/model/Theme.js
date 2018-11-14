@@ -12,10 +12,10 @@
 /*global require*/
 var Backbone = require('backbone')
 var _ = require('underscore')
-var lessStyles = require('js/uncompiled-less.unless')
+var lessStyles = require('../../js/uncompiled-less.unless')
 var lessToJs = require('less-vars-to-js')
 var _get = require('lodash.get')
-var properties = require('properties')
+var properties = require('../properties.js')
 var $ = require('jquery')
 require('spectrum-colorpicker')
 var $spectrumInput = $(document.createElement('input')).spectrum()

@@ -10,7 +10,7 @@
  *
  **/
 var Backbone = require('backbone')
-var properties = require('properties')
+var properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({

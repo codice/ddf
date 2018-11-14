@@ -18,9 +18,9 @@
 var MapView = require('../map.view')
 var template = require('./cesium.hbs')
 var $ = require('jquery')
-var user = require('component/singletons/user-instance')
+var user = require('../../../singletons/user-instance.js')
 var _ = require('underscore')
-var featureDetection = require('component/singletons/feature-detection')
+var featureDetection = require('../../../singletons/feature-detection.js')
 
 module.exports = MapView.extend({
   template: template,

@@ -15,8 +15,8 @@ import * as React from 'react'
 import MarionetteRegionContainer from '../../marionette-region-container'
 import withListenTo, { WithBackboneProps } from '../../backbone-container'
 import { hot } from 'react-hot-loader'
-const PropertyView = require('component/property/property.view')
-const PropertyModel = require('component/property/property')
+const PropertyView = require('../../../../component/property/property.view.js')
+const PropertyModel = require('../../../../component/property/property.js')
 
 export enum Type {
   autocomplete = 'AUTOCOMPLETE',

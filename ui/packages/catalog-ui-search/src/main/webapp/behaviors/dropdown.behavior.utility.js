@@ -18,8 +18,8 @@
     It will help ensure we keep some of the functionality between the two dropdown methods in sync.
 */
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
+const CustomElements = require('../js/CustomElements.js')
+const store = require('../js/store.js')
 
 module.exports = {
   drawing(event) {

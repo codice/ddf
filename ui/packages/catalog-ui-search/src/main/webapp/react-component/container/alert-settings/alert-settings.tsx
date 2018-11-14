@@ -10,7 +10,7 @@
  *
  **/
 import * as React from 'react'
-const user = require('component/singletons/user-instance')
+const user = require('../../../component/singletons/user-instance.js')
 import AlertSettingsComponent from '../../presentation/alert-settings'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { hot } from 'react-hot-loader'

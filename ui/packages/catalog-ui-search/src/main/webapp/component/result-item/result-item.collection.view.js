@@ -16,10 +16,10 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const childView = require('./result-item.view')
-const groupView = require('component/result-group/result-group.view')
-const store = require('js/store')
+const groupView = require('../result-group/result-group.view.js')
+const store = require('../../js/store.js')
 const _debounce = require('lodash/debounce')
 
 module.exports = Marionette.CollectionView.extend({

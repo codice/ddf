@@ -10,10 +10,10 @@
  *
  **/
 /*global require, window*/
-var properties = require('properties')
-var BlockingLightbox = require('component/lightbox/blocking/lightbox.blocking.view')
-var SystemUsageView = require('component/system-usage/system-usage.view')
-var user = require('component/singletons/user-instance')
+var properties = require('./properties.js')
+var BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
+var SystemUsageView = require('../component/system-usage/system-usage.view.js')
+var user = require('../component/singletons/user-instance.js')
 
 function hasMessage() {
   return properties.ui.systemUsageTitle

@@ -17,10 +17,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./help.hbs')
-const CustomElements = require('js/CustomElements')
-const Dropdown = require('component/dropdown/dropdown')
-const DropdownHintView = require('component/dropdown/hint/dropdown.hint.view')
-const Hint = require('component/hint/hint')
+const CustomElements = require('../../js/CustomElements.js')
+const Dropdown = require('../dropdown/dropdown.js')
+const DropdownHintView = require('../dropdown/hint/dropdown.hint.view.js')
+const Hint = require('../hint/hint.js')
 
 var zeroScale = 'matrix(0, 0, 0, 0, 0, 0)'
 var zeroOpacity = '0'

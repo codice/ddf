@@ -15,9 +15,9 @@
 /*global require*/
 var template = require('./association.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var Common = require('js/Common')
-var DropdownView = require('component/dropdown/dropdown.view')
+var CustomElements = require('../../js/CustomElements.js')
+var Common = require('../../js/Common.js')
+var DropdownView = require('../dropdown/dropdown.view.js')
 var _ = require('underscore')
 
 function getModelUpdateMethod(modelToUpdate, property, relatedModel) {

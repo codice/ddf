@@ -16,8 +16,8 @@
 
 var Marionette = require('marionette')
 var template = require('./query-status.hbs')
-var CustomElements = require('js/CustomElements')
-var TableView = require('component/table/query-status/table-query-status.view')
+var CustomElements = require('../../js/CustomElements.js')
+var TableView = require('../table/query-status/table-query-status.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

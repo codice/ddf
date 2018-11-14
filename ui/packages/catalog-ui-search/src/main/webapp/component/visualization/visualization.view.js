@@ -13,16 +13,16 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const template = require('./visualization.hbs')
-const OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view')
-const CombinedMapView = require('component/visualization/combined-map/combined-map.view')
-const HistogramView = require('component/visualization/histogram/histogram.view')
-const TableView = require('component/visualization/table/table-viz.view')
-const user = require('component/singletons/user-instance')
-const maptype = require('maptype')
+const OpenlayersView = require('./maps/openlayers/openlayers.view.js')
+const CombinedMapView = require('./combined-map/combined-map.view.js')
+const HistogramView = require('./histogram/histogram.view.js')
+const TableView = require('./table/table-viz.view.js')
+const user = require('../singletons/user-instance.js')
+const maptype = require('../../js/maptype.js')
 
 function getActiveVisualization() {
   return user

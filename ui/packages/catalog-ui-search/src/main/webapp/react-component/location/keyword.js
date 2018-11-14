@@ -1,5 +1,5 @@
 const React = require('react')
-const Announcement = require('component/announcement')
+const Announcement = require('../../component/announcement/index.jsx')
 
 const AutoComplete = require('../auto-complete')
 const Polygon = require('./polygon')

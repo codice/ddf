@@ -15,7 +15,7 @@
 var Backbone = require('backbone')
 var $ = require('jquery')
 var _ = require('underscore')
-var properties = require('properties')
+var properties = require('../../js/properties.js')
 import fetch from '../../react-component/utils/fetch'
 const featureDetection = require('./feature-detection')
 

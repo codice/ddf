@@ -15,8 +15,8 @@
 /*global require, window*/
 var template = require('./table.hbs')
 var Marionette = require('marionette')
-var MarionetteRegion = require('js/Marionette.Region')
-var CustomElements = require('js/CustomElements')
+var MarionetteRegion = require('../../js/Marionette.Region.js')
+var CustomElements = require('../../js/CustomElements.js')
 
 function moveHeaders(elementToUpdate, elementToMatch) {
   this.$el

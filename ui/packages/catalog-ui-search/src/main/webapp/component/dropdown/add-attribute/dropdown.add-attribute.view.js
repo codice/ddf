@@ -18,7 +18,7 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.add-attribute.hbs')
-const AddAttributeView = require('component/add-attribute/add-attribute.view')
+const AddAttributeView = require('../../add-attribute/add-attribute.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

@@ -1,13 +1,13 @@
-const BaseGuideView = require('dev/component/base-guide/base-guide.view')
+const BaseGuideView = require('../base-guide/base-guide.view.js')
 const Marionette = require('marionette')
 const template = require('./dropdown-guide.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const Backbone = require('backbone')
 const exampleOne = require('./exampleOne.hbs')
 const exampleOneDropdown = require('./exampleOneDropdown.hbs')
 const exampleTwoDropdown = require('./exampleTwoDropdown.hbs')
 const exampleThreeDropdown = require('./exampleThreeDropdown.hbs')
-const DropdownBehavior = require('behaviors/dropdown.behavior')
+const DropdownBehavior = require('../../../behaviors/dropdown.behavior.js')
 
 module.exports = BaseGuideView.extend({
   templates: {

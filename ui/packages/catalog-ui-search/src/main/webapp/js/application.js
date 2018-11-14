@@ -15,12 +15,10 @@ const $ = require('jquery')
 const _ = require('underscore')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
-const properties = require('properties')
-const maptype = require('maptype')
-const banner = require(// Templates
-'templates/banner.layout.handlebars')
-require(// Load non attached libs and plugins
-'bootstrap/dist/js/bootstrap.min')
+const properties = require('./properties.js')
+const maptype = require('./maptype.js')
+const banner = require('../templates/banner.layout.handlebars')
+require('bootstrap/dist/js/bootstrap.min')
 require('backbone-associations')
 require('backbone.modelbinder')
 require('backbone.modelbinder/Backbone.CollectionBinder')
@@ -99,7 +97,7 @@ $loadingElement.addClass('show-welcome')
 
 //load all modules
 Application.App.addInitializer(function() {
-  require(['js/router'], function() {
+  require(['../js/router'], function() {
     setTimeout(function() {
       $loadingElement.removeClass('is-open')
     }, 0)

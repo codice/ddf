@@ -14,14 +14,14 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var store = require('js/store')
+var CustomElements = require('../../js/CustomElements.js')
+var store = require('../../js/store.js')
 var template = require('./query-feedback.hbs')
-var PropertyView = require('component/property/property.view')
-var PropertyModel = require('component/property/property')
+var PropertyView = require('../property/property.view.js')
+var PropertyModel = require('../property/property.js')
 var _ = require('underscore')
-var router = require('component/router/router')
-var user = require('component/singletons/user-instance')
+var router = require('../router/router.js')
+var user = require('../singletons/user-instance.js')
 var $ = require('jquery')
 
 module.exports = Marionette.LayoutView.extend({

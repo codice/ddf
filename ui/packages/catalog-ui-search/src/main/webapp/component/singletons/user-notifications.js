@@ -10,7 +10,7 @@
  *
  **/
 /*global require*/
-var user = require('component/singletons/user-instance')
+var user = require('./user-instance.js')
 var Backbone = require('backbone')
 
 module.exports = new (Backbone.Collection.extend({

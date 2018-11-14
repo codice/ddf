@@ -13,10 +13,10 @@
 
 const $ = require('jquery')
 const _ = require('underscore')
-const webgl = require('webglcheck')
-const twoD = require('2dmapcheck')
+const webgl = require('./webglcheck.js')
+const twoD = require('./2dmapcheck.js')
 const qs = require('querystring')
-const user = require('component/singletons/user-instance')
+const user = require('../component/singletons/user-instance.js')
 
 function getActiveVisualization() {
   return user

@@ -17,8 +17,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const SearchForm = require('../search-form')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
+const Common = require('../../../js/Common.js')
+const user = require('../../singletons/user-instance.js')
 
 let sharedTemplates = []
 let promiseIsResolved = false
