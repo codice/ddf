@@ -1,9 +1,9 @@
 :title: Managing Keystores and Certificates
-:type: configuringIntro
+:type: subInstalling
 :status: published
 :summary: Keystore and certificate instructions.
-:parent: Configuring
-:order: 04
+:parent: Installing With the ${branding} Distribution Zip
+:order: 01
 
 == {title}
 
