@@ -36,6 +36,8 @@ public class RegistryPublicationManager implements EventHandler {
 
   private static final int RETRY_INTERVAL = 30;
 
+  private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
+
   private static final String METACARD_PROPERTY = "ddf.catalog.event.metacard";
 
   private static final String CREATED_TOPIC = "ddf/catalog/event/CREATED";
@@ -70,7 +72,7 @@ public class RegistryPublicationManager implements EventHandler {
   }
 
   public void init() {
-    executorService.schedule(this::setPublications, 1, TimeUnit.MILLISECONDS);
+    executorService.submit(this::setPublications);
   }
 
   public void setPublications() {
@@ -96,16 +98,29 @@ public class RegistryPublicationManager implements EventHandler {
           publications.put(registryId, Collections.emptyList());
         }
       }
-      executorService.shutdown();
+      this.destroy();
     } catch (PrivilegedActionException | RuntimeException e) {
       LOGGER.debug(
-          "Error reading from local catalog. Catalog is probably not up yet. Will try again later");
+          "Error reading from local catalog. Catalog is probably not up yet. Will try again in {} seconds.",
+          RETRY_INTERVAL);
       executorService.schedule(this::setPublications, RETRY_INTERVAL, TimeUnit.SECONDS);
     }
   }
 
   public void destroy() {
     executorService.shutdown();
+    try {
+      if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        executorService.shutdownNow();
+        if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+          LOGGER.error(
+              "Identity node initialization thread didn't terminate. This thread will continue until a system restart.");
+        }
+      }
+    } catch (InterruptedException e) {
+      executorService.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
   }
 
   public Map<String, List<String>> getPublications() {
