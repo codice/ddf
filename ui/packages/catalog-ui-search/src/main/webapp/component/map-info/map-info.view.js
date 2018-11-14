@@ -112,7 +112,7 @@ module.exports = Marionette.LayoutView.extend({
         break
       case 'decimal':
         viewData.lat =
-          typeof viewData.lat === 'undefined'
+          typeof viewData.lat === 'undefined'q
             ? viewData.lat
             : `${leftPad(Math.floor(viewData.lat), 3, ' ')}.${Math.abs(
                 viewData.lat % 1
