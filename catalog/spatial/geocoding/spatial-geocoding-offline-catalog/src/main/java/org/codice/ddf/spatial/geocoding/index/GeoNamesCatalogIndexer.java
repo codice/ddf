@@ -44,8 +44,6 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +56,6 @@ import java.util.stream.Collectors;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
@@ -80,8 +77,6 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
   private static final int BATCH_SIZE = 250;
 
   private static final String TITLE_FORMAT = "%s, %s";
-
-  private static final String PROCESSED = ".processed";
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
@@ -179,11 +174,6 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
       return;
     }
 
-    if (resourceProcessed(resource)) {
-      LOGGER.trace("{} has already been processed", resource);
-      return;
-    }
-
     List<Metacard> metacardList = new ArrayList<>();
 
     final GeoEntryExtractor.ExtractionCallback extractionCallback =
@@ -225,7 +215,6 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     executeCreateMetacardRequest(metacardList);
 
     LOGGER.trace("All data created for: {}", resource);
-    fileProcessingComplete(resource);
   }
 
   private void removeGeoNamesMetacardsFromCatalog(
@@ -345,19 +334,67 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     LOGGER.trace("Created {} metacards.", totalMetacards);
   }
 
-  private boolean resourceProcessed(String resource) {
-    String processedIndicator = resource + PROCESSED;
-    File processedFile = new File(processedIndicator);
-    return processedFile.exists();
-  }
-
-  private void fileProcessingComplete(String resource) {
-    String processedIndicator = resource + PROCESSED;
-    File processedFile = new File(processedIndicator);
-    try {
-      FileUtils.touch(processedFile);
-    } catch (IOException e) {
-      LOGGER.debug("Unable to create {} to indicate {} processed", processedIndicator, resource, e);
+  private Integer getGeoNameGazetterSortByFeatureClass(GeoEntry geoEntry) {
+    Integer gazetteerSortValue = null;
+    if (geoEntry.getFeatureClass() == null) {
+      return gazetteerSortValue;
+    } else {
+      switch (geoEntry.getFeatureClass()) {
+        case GeoCodingConstants.ADMIN_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ADMIN_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS:
+          if (geoEntry.getFeatureCode().equals(GeoCodingConstants.OCEAN_FEATURE_CODE)
+              || geoEntry.getFeatureCode().equals(GeoCodingConstants.SEA_FEATURE_CODE)) {
+            gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
+          } else {
+            gazetteerSortValue =
+                GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                    GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS);
+          }
+          break;
+        case GeoCodingConstants.AREA_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.AREA_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.POPULATED_FEATURE_CLASS:
+          break;
+        case GeoCodingConstants.ROAD_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ROAD_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.SPOT_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.SPOT_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.MOUNTAIN_FEATURE_CLASS:
+          if (geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_FEATURE_CODE)
+              || geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_RANGE_FEATURE_CODE)) {
+            gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
+          } else {
+            gazetteerSortValue =
+                GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                    GeoCodingConstants.MOUNTAIN_FEATURE_CLASS);
+          }
+          break;
+        case GeoCodingConstants.UNDERSEA_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                  GeoCodingConstants.UNDERSEA_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.VEGETATION_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                  GeoCodingConstants.VEGETATION_FEATURE_CLASS);
+          break;
+        default:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                  GeoCodingConstants.VEGETATION_FEATURE_CLASS);
+          break;
+      }
     }
+    return gazetteerSortValue;
   }
 }
