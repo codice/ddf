@@ -67,7 +67,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private static final String QUERY_SOURCES = "sources";
 
-  public static final String QUERIES_PATH = "/search/catalog/internal/query";
+  public static final String QUERIES_PATH = "/search/catalog/internal/queries";
 
   public static final String WORKSPACES_PATH = "/search/catalog/internal/workspaces";
 
