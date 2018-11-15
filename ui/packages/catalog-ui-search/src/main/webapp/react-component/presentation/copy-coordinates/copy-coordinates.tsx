@@ -153,7 +153,7 @@ const render = (props: Props) => {
         <div className="interaction-icon fa fa-clipboard" />
         <div className="interaction-text">
           Copy Coordinates as
-          <span className="fa fa-chevron-down" />
+          <span className="fa fa-chevron-down fa-chevron-withmargin" />
         </div>
       </div>
     </Dropdown>
