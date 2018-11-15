@@ -54,6 +54,7 @@ module.exports = Marionette.LayoutView.extend({
     this.propertySearchSettings.show(
       new QuerySettingsView({
         model: new QueryModel.Model(),
+        inSearchSettings: true,
       })
     )
   },
