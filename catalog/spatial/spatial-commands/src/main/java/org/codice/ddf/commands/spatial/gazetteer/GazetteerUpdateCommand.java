@@ -48,17 +48,7 @@ public final class GazetteerUpdateCommand extends SubjectCommands {
     index = 0,
     name = "resource",
     description =
-        "The resource whose contents you wish to insert into the index.  "
-            + "When the resource is a country code (ex: AU), "
-            + "that country's data will be downloaded from geonames.org "
-            + "and added to the index.  `cities1000`, `cities5000` and "
-            + "`cities15000` can be used to get all of the cities with at "
-            + "least 1000, 5000, 15000 people respectively.  "
-            + "To download all country codes, use the keyword 'all'.  "
-            + "When the resource is a path to a file, it will be imported locally."
-            + "If a path to a file ends in .geo.json, it will processed as a"
-            + "geoJSON feature collection and imported as supplementary shape "
-            + "data for geonames entries.",
+        "The resource whose contents will be added to the index. The resource can be a local file path to a .txt, .zip, or .geo.json GeoNames data file; a URL to a .txt or .zip GeoNames data file; or a keyword to automatically process a GeoNames file from from http://download.geonames.org/export/dump. See the documentation for more details.",
     required = true
   )
   private String resource = null;
