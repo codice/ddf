@@ -135,6 +135,7 @@ import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.AssociatedQueryMetacardsHandler;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration;
 import org.codice.ddf.catalog.ui.security.Constants;
@@ -197,6 +198,8 @@ public class MetacardApplication implements SparkApplication {
 
   private final WorkspaceService workspaceService;
 
+  private final AssociatedQueryMetacardsHandler queryMetacardsHandler;
+
   public MetacardApplication(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
@@ -213,7 +216,8 @@ public class MetacardApplication implements SparkApplication {
       NoteUtil noteUtil,
       SubjectIdentity subjectIdentity,
       AccessControlSecurityConfiguration accessControlSecurityConfiguration,
-      WorkspaceService workspaceService) {
+      WorkspaceService workspaceService,
+      AssociatedQueryMetacardsHandler queryMetacardsHandler) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.util = endpointUtil;
@@ -230,6 +234,7 @@ public class MetacardApplication implements SparkApplication {
     this.subjectIdentity = subjectIdentity;
     this.accessControlSecurityConfiguration = accessControlSecurityConfiguration;
     this.workspaceService = workspaceService;
+    this.queryMetacardsHandler = queryMetacardsHandler;
   }
 
   private String getSubjectEmail() {
@@ -570,28 +575,41 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
-          
-          WorkspaceMetacardImpl currentWorkspace = workspaceService.getWorkspaceMetacard(id);
-          List<String> currentQueryIds = currentWorkspace.getQueries()
+
+          WorkspaceMetacardImpl existingWorkspace = workspaceService.getWorkspaceMetacard(id);
+          List<String> existingQueryIds = existingWorkspace.getQueries();
 
           Map<String, Object> updatedWorkspace = mapper.parser().parseMap(util.safeGetBody(req));
-          List<Map<String,Object>> queries = (List<Map<String,Object>>) updatedWorkspace.get("queries");
 
-          // delete queries
-          Set<String> updatedQueryIds = queries.stream()
-            .map(query -> (String) query.get("id"))
-            .collect(toSet());                  
+          List<Metacard> updatedQueryMetacards =
+              ((List<Map<String, Object>>) updatedWorkspace.get("queries"))
+                  .stream()
+                  .map(transformer::transform)
+                  .collect(Collectors.toList());
 
-          //create new queries
+          List<String> updatedQueryIds =
+              updatedQueryMetacards.stream().map(Metacard::getId).collect(Collectors.toList());
 
-          //update queries
+          List<QueryMetacardImpl> existingQueryMetacards =
+              workspaceService.getQueryMetacards(existingWorkspace);
 
-          //update workspace
+          queryMetacardsHandler.create(existingQueryIds, updatedQueryMetacards);
+          queryMetacardsHandler.delete(existingQueryIds, updatedQueryIds);
+          queryMetacardsHandler.update(
+              existingQueryIds, existingQueryMetacards, updatedQueryMetacards);
 
+          List<Map<String, String>> queryIdModel =
+              updatedQueryIds
+                  .stream()
+                  .map(queryId -> ImmutableMap.of("id", queryId))
+                  .collect(Collectors.toList());
+
+          updatedWorkspace.put("queries", queryIdModel);
           Metacard metacard = transformer.transform(updatedWorkspace);
           metacard.setAttribute(new AttributeImpl(Core.ID, id));
           Metacard updated = updateMetacard(id, metacard);
-          return transformer.transform(updated)
+
+          return transformer.transform(updated);
         },
         util::getJson);
 
