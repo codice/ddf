@@ -13,10 +13,10 @@ import * as React from 'react'
 import Navigation from '../../presentation/navigation'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
-const store = require('js/store')
-const wreqr = require('wreqr')
-const sources = require('component/singletons/sources-instance')
-const properties = require('properties')
+const store = require('../../../js/store.js')
+const wreqr = require('../../../js/wreqr.js')
+const sources = require('../../../component/singletons/sources-instance.js')
+const properties = require('../../../js/properties.js')
 
 const hasLogo = () => {
   return properties.showLogo && properties.ui.vendorImage !== ''

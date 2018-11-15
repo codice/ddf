@@ -16,8 +16,8 @@
 
 var Marionette = require('marionette')
 var template = require('./save.hbs')
-var CustomElements = require('js/CustomElements')
-require('behaviors/button.behavior')
+var CustomElements = require('../../js/CustomElements.js')
+require('../../behaviors/button.behavior.js')
 
 // Base View, meant to be extended for whatever needs a save button
 module.exports = Marionette.ItemView.extend({

@@ -18,8 +18,8 @@ const $ = require('jquery')
 const template = require('component/search-form/search-form.collection.hbs')
 const ResultFormCollectionView = require('./result-form.collection.view')
 const ResultForm = require('./result-form')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const CustomElements = require('../../js/CustomElements.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

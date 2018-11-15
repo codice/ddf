@@ -17,10 +17,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const querySelectorTemplate = require('./query-selector.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const Query = require('js/model/Query')
-const QueryItemCollectionView = require('component/query-item/query-item.collection.view')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const Query = require('../../js/model/Query.js')
+const QueryItemCollectionView = require('../query-item/query-item.collection.view.js')
 
 var namespace = CustomElements.getNamespace()
 
@@ -93,7 +93,7 @@ var QuerySelector = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-empty', this.model.isEmpty())
   },
   triggerQuery: function() {
-    $(CustomElements.getNamespace() + 'dropdown.is-query')
+    $('.content-adhoc')
       .mousedown()
       .click()
   },

@@ -13,12 +13,12 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 var template = require('./associations-menu.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var FilterDropdownView = require('component/dropdown/associations-filter/dropdown.associations-filter.view')
-var DisplayDropdownView = require('component/dropdown/associations-display/dropdown.associations-display.view')
+var CustomElements = require('../../js/CustomElements.js')
+var FilterDropdownView = require('../dropdown/associations-filter/dropdown.associations-filter.view.js')
+var DisplayDropdownView = require('../dropdown/associations-display/dropdown.associations-display.view.js')
 
 //keep around the previously used displayType (not a preference, so only per session)
 var displayType = ['list']

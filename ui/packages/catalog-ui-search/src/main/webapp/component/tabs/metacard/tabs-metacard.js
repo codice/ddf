@@ -12,16 +12,16 @@
 /*global define*/
 const _ = require('underscore')
 const Tabs = require('../tabs')
-const store = require('js/store')
-const MetacardBasicView = require('component/editor/metacard-basic/metacard-basic.view')
-const MetacardAdvancedView = require('component/editor/metacard-advanced/metacard-advanced.view')
-const MetacardHistoryView = require('component/metacard-history/metacard-history.view')
-const MetacardAssociationsView = require('component/metacard-associations/metacard-associations.view')
-const MetacardQualityView = require('component/metacard-quality/metacard-quality.view')
-const MetacardActionsView = require('component/metacard-actions/metacard-actions.view')
-const MetacardArchiveView = require('component/metacard-archive/metacard-archive.view')
-const MetacardOverwriteView = require('component/metacard-overwrite/metacard-overwrite.view')
-const MetacardPreviewView = require('component/metacard-preview/metacard-preview.view')
+const store = require('../../../js/store.js')
+const MetacardBasicView = require('../../editor/metacard-basic/metacard-basic.view.js')
+const MetacardAdvancedView = require('../../editor/metacard-advanced/metacard-advanced.view.js')
+const MetacardHistoryView = require('../../metacard-history/metacard-history.view.js')
+const MetacardAssociationsView = require('../../metacard-associations/metacard-associations.view.js')
+const MetacardQualityView = require('../../metacard-quality/metacard-quality.view.js')
+const MetacardActionsView = require('../../metacard-actions/metacard-actions.view.js')
+const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
+const MetacardOverwriteView = require('../../metacard-overwrite/metacard-overwrite.view.js')
+const MetacardPreviewView = require('../../metacard-preview/metacard-preview.view.js')
 
 module.exports = Tabs.extend({
   defaults: {

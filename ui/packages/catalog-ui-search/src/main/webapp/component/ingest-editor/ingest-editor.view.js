@@ -16,11 +16,11 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const store = require('js/store')
+const store = require('../../js/store.js')
 const template = require('./ingest-editor.hbs')
-const CustomElements = require('js/CustomElements')
-const PropertyCollectionView = require('component/property/property.collection.view')
-const properties = require('properties')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyCollectionView = require('../property/property.collection.view.js')
+const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

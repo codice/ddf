@@ -15,7 +15,7 @@
 /*global require*/
 var childView = require('./association.view')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   childView: childView,

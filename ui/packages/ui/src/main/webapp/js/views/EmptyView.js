@@ -13,11 +13,11 @@
  *
  **/
 /*global define*/
-define([
-  'marionette',
-  'text!templates/emptyView.handlebars',
-  'icanhaz',
-], function(Marionette, emptyViewTemplate, ich) {
+define(['marionette', 'templates/emptyView.handlebars', 'icanhaz'], function(
+  Marionette,
+  emptyViewTemplate,
+  ich
+) {
   ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
 
   var EmptyView = {}

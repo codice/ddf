@@ -16,8 +16,8 @@
 var Marionette = require('marionette')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.map-settings.hbs')
-var SettingsView = require('component/map-settings/map-settings.view')
-var user = require('component/singletons/user-instance')
+var SettingsView = require('../../map-settings/map-settings.view.js')
+var user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   template: template,

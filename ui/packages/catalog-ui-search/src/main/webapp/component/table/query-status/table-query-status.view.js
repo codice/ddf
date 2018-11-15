@@ -14,8 +14,8 @@
  **/
 /*global require*/
 var TableView = require('../table.view')
-var HeaderView = require('component/query-status/query-status-header.view')
-var BodyView = require('component/query-status/query-status-body.view')
+var HeaderView = require('../../query-status/query-status-header.view.js')
+var BodyView = require('../../query-status/query-status-body.view.js')
 
 module.exports = TableView.extend({
   className: 'is-query-status',

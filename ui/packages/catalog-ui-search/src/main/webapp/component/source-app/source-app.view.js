@@ -15,8 +15,8 @@
 /*global require, document*/
 const Marionette = require('marionette')
 const template = require('./source-app.hbs')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const CustomElements = require('../../js/CustomElements.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template,

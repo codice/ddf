@@ -14,11 +14,11 @@
  **/
 /*global define, setTimeout*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var template = require('./workspace-search.hbs')
-var ResultsView = require('component/results/results.view')
-var SearchesView = require('component/workspace-explore/workspace-explore.view')
-var store = require('js/store')
+var ResultsView = require('../results/results.view.js')
+var SearchesView = require('../workspace-explore/workspace-explore.view.js')
+var store = require('../../js/store.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

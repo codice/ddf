@@ -13,7 +13,7 @@
 const _ = require('underscore')
 const Backbone = require('backbone')
 const moment = require('moment')
-const CQLUtils = require('js/CQLUtils')
+const CQLUtils = require('../../js/CQLUtils.js')
 module.exports = Backbone.Model.extend({
   defaults: {
     value: [],
@@ -252,6 +252,9 @@ module.exports = Backbone.Model.extend({
         break
       case 'NEAR':
         calculatedType = 'near'
+        break
+      case 'PASSWORD':
+        calculatedType = 'password'
         break
       case 'STRING':
       case 'XML':

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.activation.MimeType;
@@ -46,7 +47,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.attachment.AttachmentInfo;
-import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.catalog.ui.metacard.impl.StorableResourceImpl;
 import org.codice.ddf.catalog.ui.splitter.Splitter;
 import org.codice.ddf.catalog.ui.splitter.SplitterLocator;
@@ -54,6 +54,7 @@ import org.codice.ddf.catalog.ui.splitter.StopSplitterExecutionException;
 import org.codice.ddf.catalog.ui.splitter.StorableResource;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.codice.ddf.rest.service.CatalogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Response;
@@ -75,19 +76,19 @@ public class ListApplication implements SparkApplication {
 
   private final SplitterLocator splitterLocator;
 
-  private final AttachmentParser attachmentParser;
+  private CatalogService catalogService;
 
   public ListApplication(
       MimeTypeMapper mimeTypeMapper,
       CatalogFramework catalogFramework,
       UuidGenerator uuidGenerator,
       SplitterLocator splitterLocator,
-      AttachmentParser attachmentParser) {
+      CatalogService catalogService) {
     this.mimeTypeMapper = mimeTypeMapper;
     this.catalogFramework = catalogFramework;
     this.uuidGenerator = uuidGenerator;
     this.splitterLocator = splitterLocator;
-    this.attachmentParser = attachmentParser;
+    this.catalogService = catalogService;
   }
 
   @Override
@@ -109,7 +110,8 @@ public class ListApplication implements SparkApplication {
 
           List<Part> parts = new ArrayList<>(request.raw().getParts());
 
-          AttachmentInfo attachmentInfo = parseAttachments(parts);
+          Map.Entry<AttachmentInfo, Metacard> attachmentInfo =
+              catalogService.parseParts(parts, null);
 
           if (attachmentInfo == null) {
             String exceptionMessage = "Unable to parse the attachments.";
@@ -121,9 +123,9 @@ public class ListApplication implements SparkApplication {
           try (TemporaryFileBackedOutputStream temporaryFileBackedOutputStream =
               new TemporaryFileBackedOutputStream()) {
 
-            IOUtils.copy(attachmentInfo.getStream(), temporaryFileBackedOutputStream);
+            IOUtils.copy(attachmentInfo.getKey().getStream(), temporaryFileBackedOutputStream);
 
-            for (Splitter splitter : lookupSplitters(attachmentInfo.getContentType())) {
+            for (Splitter splitter : lookupSplitters(attachmentInfo.getKey().getContentType())) {
               try {
                 if (attemptToSplitAndStore(
                     response, listType, attachmentInfo, temporaryFileBackedOutputStream, splitter))
@@ -137,7 +139,7 @@ public class ListApplication implements SparkApplication {
             }
           }
 
-          IOUtils.closeQuietly(attachmentInfo.getStream());
+          IOUtils.closeQuietly(attachmentInfo.getKey().getStream());
 
           return "";
         });
@@ -146,7 +148,7 @@ public class ListApplication implements SparkApplication {
   private boolean attemptToSplitAndStore(
       Response response,
       String listType,
-      AttachmentInfo attachmentInfo,
+      Map.Entry<AttachmentInfo, Metacard> attachmentInfo,
       TemporaryFileBackedOutputStream temporaryFileBackedOutputStream,
       Splitter splitter)
       throws IOException, StopSplitterExecutionException {
@@ -160,7 +162,9 @@ public class ListApplication implements SparkApplication {
 
       AttachmentInfo temporaryAttachmentInfo =
           new AttachmentInfoImpl(
-              temporaryInputStream, attachmentInfo.getFilename(), attachmentInfo.getContentType());
+              temporaryInputStream,
+              attachmentInfo.getKey().getFilename(),
+              attachmentInfo.getKey().getContentType());
 
       try (Stream<StorableResource> stream =
           createStream(temporaryAttachmentInfo, splitter, listType)) {
@@ -170,7 +174,9 @@ public class ListApplication implements SparkApplication {
             .map(storableResource -> appendMessageIfError(errorMessages, storableResource))
             .filter(storableResource -> !storableResource.isError())
             .forEach(
-                storableResource -> storeAndClose(ids::add, errorMessages::add, storableResource));
+                storableResource ->
+                    storeAndClose(
+                        ids::add, errorMessages::add, storableResource, attachmentInfo.getValue()));
       } catch (IOException e) {
         LOGGER.debug("Failed to split the incoming data. Trying the next splitter.", e);
       }
@@ -189,10 +195,11 @@ public class ListApplication implements SparkApplication {
   private void storeAndClose(
       Consumer<String> idConsumer,
       Consumer<String> errorMessageConsumer,
-      StorableResource storableResource) {
+      StorableResource storableResource,
+      Metacard metacard) {
 
     try {
-      store(getAttachmentInfo(storableResource), idConsumer, errorMessageConsumer);
+      store(getAttachmentInfo(storableResource), idConsumer, errorMessageConsumer, metacard);
     } catch (IOException e) {
       LOGGER.debug("Unable to create AttachmentInfo: ", e);
     } finally {
@@ -235,29 +242,6 @@ public class ListApplication implements SparkApplication {
             .orElse(contentTypeFromFilename(storableResource.getFilename())));
   }
 
-  private AttachmentInfo parseAttachments(List<Part> contentParts) {
-
-    if (contentParts.size() == 1) {
-      Part contentPart = contentParts.get(0);
-      return parseAttachment(contentPart);
-    }
-    LOGGER.debug("There was not exactly one attachment as expected: count={}", contentParts.size());
-    return null;
-  }
-
-  private AttachmentInfo parseAttachment(Part contentPart) {
-    InputStream stream = null;
-
-    try {
-      stream = contentPart.getInputStream();
-    } catch (IOException e) {
-      LOGGER.info("IOException reading stream from file attachment in multipart body", e);
-    }
-
-    return attachmentParser.generateAttachmentInfo(
-        stream, contentPart.getContentType(), contentPart.getSubmittedFileName());
-  }
-
   private String contentTypeFromFilename(String filename) {
     String fileExtension = FilenameUtils.getExtension(filename);
     String contentType = null;
@@ -281,7 +265,8 @@ public class ListApplication implements SparkApplication {
   private void store(
       AttachmentInfo createInfo,
       Consumer<String> idConsumer,
-      Consumer<String> errorMessageConsumer) {
+      Consumer<String> errorMessageConsumer,
+      Metacard metacard) {
 
     CreateStorageRequest streamCreateRequest =
         new CreateStorageRequestImpl(
@@ -290,7 +275,8 @@ public class ListApplication implements SparkApplication {
                     uuidGenerator,
                     createInfo.getStream(),
                     createInfo.getContentType(),
-                    createInfo.getFilename())),
+                    createInfo.getFilename(),
+                    metacard)),
             null);
     try {
       CreateResponse createResponse = catalogFramework.create(streamCreateRequest);
@@ -324,8 +310,9 @@ public class ListApplication implements SparkApplication {
         UuidGenerator uuidGenerator,
         InputStream inputStream,
         String mimeTypeRawData,
-        String filename) {
-      super(uuidGenerator.generateUuid(), null, mimeTypeRawData, filename, 0L, null);
+        String filename,
+        Metacard metacard) {
+      super(uuidGenerator.generateUuid(), null, mimeTypeRawData, filename, 0L, metacard);
       this.inputStream = inputStream;
     }
 

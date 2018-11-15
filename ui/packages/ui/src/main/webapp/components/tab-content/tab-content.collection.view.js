@@ -18,7 +18,7 @@ define([
   './tab-content.view',
   'js/wreqr.js',
   'js/CustomElements',
-  'iframeresizer',
+  'iframe-resizer',
 ], function(Marionette, TabContentView, wreqr, CustomElements) {
   var PluginTabContentsView = Marionette.CollectionView.extend({
     className: 'tab-content',

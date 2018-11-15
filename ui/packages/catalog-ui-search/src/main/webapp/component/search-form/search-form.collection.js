@@ -17,8 +17,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const SearchForm = require('./search-form')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
+const Common = require('../../js/Common.js')
+const user = require('../singletons/user-instance.js')
 
 const fixFilter = function(filter) {
   if (filter.filters) {
@@ -87,7 +87,7 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.isDestroyed) {
       cachedTemplates.forEach(
         function(value, index) {
-          if (this.checkIfOwnerOrSystem(value)) {
+          if (this.checkIfOwner(value)) {
             var utcSeconds = value.created / 1000
             var d = new Date(0)
             d.setUTCSeconds(utcSeconds)
@@ -121,10 +121,8 @@ module.exports = Backbone.AssociatedModel.extend({
   getDoneLoading: function() {
     return this.get('doneLoading')
   },
-  checkIfOwnerOrSystem: function(template) {
-    let myEmail = user.get('user').get('email')
-    let templateCreator = template.creator
-    return myEmail === templateCreator || templateCreator === 'system'
+  checkIfOwner: function(template) {
+    return user.get('user').get('email') === template.creator
   },
   doneLoading: function() {
     this.set('doneLoading', true)

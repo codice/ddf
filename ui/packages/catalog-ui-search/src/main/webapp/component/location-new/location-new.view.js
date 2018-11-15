@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const { reactToMarionette } = require('component/transmute')
+const { reactToMarionette } = require('../transmute/index.js')
 const LocationInput = reactToMarionette(require('./location'))
 
 if (process.env.NODE_ENV !== 'production') {
@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const Marionette = require('marionette')
 const _ = require('underscore')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const LocationNewModel = require('./location-new')
 
 module.exports = Marionette.LayoutView.extend({

@@ -13,16 +13,16 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard-menu.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const metacardInstance = require('component/metacard/metacard')
-const MetacardTitleView = require('component/metacard-title/metacard-title.view')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const metacardInstance = require('../metacard/metacard.js')
+const MetacardTitleView = require('../metacard-title/metacard-title.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

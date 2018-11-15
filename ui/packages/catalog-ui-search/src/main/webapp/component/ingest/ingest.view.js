@@ -13,17 +13,17 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./ingest.hbs')
-var CustomElements = require('js/CustomElements')
-var router = require('component/router/router')
-var IngestDetails = require('component/ingest-details/ingest-details.view')
-var IngestEditor = require('component/ingest-editor/ingest-editor.view')
-var properties = require('properties')
-var announcement = require('component/announcement')
+var CustomElements = require('../../js/CustomElements.js')
+var router = require('../router/router.js')
+var IngestDetails = require('../ingest-details/ingest-details.view.js')
+var IngestEditor = require('../ingest-editor/ingest-editor.view.js')
+var properties = require('../../js/properties.js')
+var announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

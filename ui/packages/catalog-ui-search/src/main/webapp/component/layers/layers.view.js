@@ -17,11 +17,11 @@ const _ = require('underscore')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const $ = require('jquery')
-const properties = require('properties')
+const properties = require('../../js/properties.js')
 const template = require('./layers.hbs')
-const LayerItemCollectionView = require('component/layer-item/layer-item.collection.view')
-const user = require('component/singletons/user-instance')
-const CustomElements = require('js/CustomElements')
+const LayerItemCollectionView = require('../layer-item/layer-item.collection.view.js')
+const user = require('../singletons/user-instance.js')
+const CustomElements = require('../../js/CustomElements.js')
 
 // this is to track focus, since on reordering rerenders and loses focus
 const FocusModel = Backbone.Model.extend({

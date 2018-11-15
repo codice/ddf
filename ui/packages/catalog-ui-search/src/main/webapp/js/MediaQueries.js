@@ -19,7 +19,7 @@
 */
 var _ = require('underscore')
 var $ = require('jquery')
-var user = require('component/singletons/user-instance')
+var user = require('../component/singletons/user-instance.js')
 
 //in rem based on 16px base font size => 420 / 16
 var mobileScreenSize = 26.25 //420 px

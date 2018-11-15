@@ -16,11 +16,11 @@
 var Marionette = require('marionette')
 var Backbone = require('backbone')
 var template = require('./user-notifications.hbs')
-var CustomElements = require('js/CustomElements')
-var NotificationGroupView = require('component/notification-group/notification-group.view')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var NotificationGroupView = require('../notification-group/notification-group.view.js')
+var user = require('../singletons/user-instance.js')
 var moment = require('moment')
-var userNotifications = require('component/singletons/user-notifications')
+var userNotifications = require('../singletons/user-notifications.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

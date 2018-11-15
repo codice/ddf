@@ -16,9 +16,9 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const queryItemView = require('./query-item.view')
-const store = require('js/store')
+const store = require('../../js/store.js')
 
 module.exports = Marionette.CollectionView.extend({
   setDefaultCollection: function() {

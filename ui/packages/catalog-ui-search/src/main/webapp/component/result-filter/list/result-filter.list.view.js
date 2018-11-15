@@ -17,7 +17,7 @@ var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
 var ResultFilter = require('../result-filter.view')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = ResultFilter.extend({
   className: 'is-list',

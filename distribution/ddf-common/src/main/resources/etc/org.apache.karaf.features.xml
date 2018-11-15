@@ -59,6 +59,12 @@
         <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-spi/7.2.3"
                 replacement="mvn:org.ops4j.pax.web/pax-web-spi/7.2.4.CODICE"
                 mode="maven"/>
+        <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-jsp/7.2.3"
+                replacement="mvn:org.ops4j.pax.web/pax-web-jsp/7.2.4.CODICE"
+                mode="maven"/>
+        <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.2"
+                replacement="mvn:org.apache.felix/org.apache.felix.scr/2.0.14"
+                mode="maven"/>
     </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->

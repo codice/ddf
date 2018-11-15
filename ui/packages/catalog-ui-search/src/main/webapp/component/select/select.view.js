@@ -17,8 +17,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./select.hbs')
-const CustomElements = require('js/CustomElements')
-const Common = require('js/Common')
+const CustomElements = require('../../js/CustomElements.js')
+const Common = require('../../js/Common.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

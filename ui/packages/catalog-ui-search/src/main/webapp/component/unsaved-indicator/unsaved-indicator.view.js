@@ -16,7 +16,7 @@
 
 var Marionette = require('marionette')
 var template = require('./unsaved-indicator.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 // Base View, meant to be extended for whatever needs an unsaved indicator
 module.exports = Marionette.ItemView.extend({

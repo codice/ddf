@@ -11,8 +11,8 @@
  **/
 import * as React from 'react'
 import NavigationRightComponent from '../../presentation/navigation-right'
-const user = require('component/singletons/user-instance')
-const notifications = require('component/singletons/user-notifications')
+const user = require('../../../component/singletons/user-instance.js')
+const notifications = require('../../../component/singletons/user-notifications.js')
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 type Props = {} & WithBackboneProps

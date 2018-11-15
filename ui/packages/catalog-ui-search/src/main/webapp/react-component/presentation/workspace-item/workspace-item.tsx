@@ -12,12 +12,17 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import Card from '../card'
-const DropdownModel = require('component/dropdown/dropdown')
-const WorkspaceInteractionsDropdown = require('component/dropdown/workspace-interactions/dropdown.workspace-interactions.view')
-import MarionetteRegionContainer from '../../container/marionette-region-container'
-const CustomElements = require('js/CustomElements')
 import SaveButton from '../save-button'
+import { buttonTypeEnum, Button } from '../button'
+import Dropdown from '../dropdown'
+import NavigationBehavior from '../navigation-behavior'
+import WorkspaceInteractions from '../../container/workspace-interactions'
 import { hot } from 'react-hot-loader'
+
+const StyledDropdown = styled(Dropdown)`
+  height: 100%;
+  line-height: inherit;
+`
 
 const Root = styled.div`
   .choice-title {
@@ -32,14 +37,6 @@ const Root = styled.div`
       display: inline-block;
       vertical-align: top;
     }
-  }
-
-  /* prettier-ignore */
-  ${CustomElements.getNamespace()}dropdown { /* stylelint-disable-line */
-    display: inline-block !important;
-    width: ${props => props.theme.minimumButtonSize};
-    height: ${props => props.theme.minimumButtonSize};
-    text-align: center;
   }
 `
 
@@ -101,19 +98,26 @@ const Footer = (props: Props) => {
           props.workspace.save()
         }}
       />
-      <MarionetteRegionContainer
-        view={WorkspaceInteractionsDropdown}
-        viewOptions={() => {
-          return {
-            model: new DropdownModel(),
-            modelForComponent: props.workspace,
-            dropdownCompanionBehaviors: {
-              navigation: {},
-            },
-          }
+      <div
+        onClick={e => {
+          e.stopPropagation()
         }}
-        replaceElement={true}
-      />
+      >
+        <StyledDropdown
+          className="content-interactions"
+          content={() => (
+            <NavigationBehavior>
+              <WorkspaceInteractions workspace={props.workspace} />
+            </NavigationBehavior>
+          )}
+        >
+          <Button
+            buttonType={buttonTypeEnum.neutral}
+            fadeUntilHover
+            icon="fa fa-ellipsis-v"
+          />
+        </StyledDropdown>
+      </div>
     </>
   )
 }

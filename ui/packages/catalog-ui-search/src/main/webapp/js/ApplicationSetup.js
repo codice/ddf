@@ -13,9 +13,9 @@
 /*jslint nomen:false, -W064 */
 ;(function injectStyles() {
   if (process.env.NODE_ENV !== 'production') {
-    require('dev/styles/styles.less') // include styles for dev guide components
+    require('../dev/styles/styles.less') // include styles for dev guide components
   } else {
-    require('styles/styles.less') // production styles only
+    require('../styles/styles.less') // production styles only
   }
 })()
 
@@ -40,20 +40,20 @@ window.CESIUM_BASE_URL = './cesium/assets'
 const _ = require('underscore')
 const Backbone = require('backbone')
 const Marionette = require('marionette')
-const properties = require('properties')
-const announcement = require('component/announcement')
-require('js/Marionette.Region')
-require('js/requestAnimationFramePolyfill')
-require('js/HandlebarsHelpers')
-require('js/ApplicationHelpers')
-require('js/Autocomplete')
-require('backbone.customFunctions')
-require('js/extensions/backbone.listenTo.ts')
-require('js/extensions/marionette.onFirstRender')
-require('js/extensions/marionette.renderer.render')
-require('js/extensions/marionette.ItemView.attachElContent')
-require('js/extensions/marionette.View.isMarionetteComponent')
-require('js/extensions/marionette.View.remove')
+const properties = require('./properties.js')
+const announcement = require('../component/announcement/index.jsx')
+require('./Marionette.Region.js')
+require('./requestAnimationFramePolyfill.js')
+require('./HandlebarsHelpers.js')
+require('./ApplicationHelpers.js')
+require('./Autocomplete.js')
+require('./backbone.customFunctions.js')
+require('./extensions/backbone.listenTo.ts')
+require('./extensions/marionette.onFirstRender.js')
+require('./extensions/marionette.renderer.render.js')
+require('./extensions/marionette.ItemView.attachElContent.js')
+require('./extensions/marionette.View.isMarionetteComponent.js')
+require('./extensions/marionette.View.remove.js')
 
 let getShortErrorMessage = function(error) {
   var extraMessage = error instanceof Error ? error.name : String(error)
@@ -183,5 +183,5 @@ Marionette.Region.prototype.reset = function() {
   return this
 }
 
-require('js/ApplicationStart')
+require('./ApplicationStart.js')
 require('codice-icons/icons/codice.font')

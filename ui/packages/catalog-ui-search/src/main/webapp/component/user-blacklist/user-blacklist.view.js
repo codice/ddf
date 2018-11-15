@@ -15,9 +15,9 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./user-blacklist.hbs')
-var CustomElements = require('js/CustomElements')
-var BlacklistItemCollection = require('component/blacklist-item/blacklist-item.collection.view')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var BlacklistItemCollection = require('../blacklist-item/blacklist-item.collection.view.js')
+var user = require('../singletons/user-instance.js')
 
 function getBlacklist() {
   return user

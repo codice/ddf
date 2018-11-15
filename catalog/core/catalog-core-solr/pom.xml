@@ -24,6 +24,12 @@
     <artifactId>catalog-core-solr</artifactId>
     <name>DDF :: Catalog :: Core :: Solr</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <!-- For maven-surefire-plugin -->
+        <surefire.argline.append>-Dlog4j.configuration=log4j-test.properties</surefire.argline.append>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -202,7 +208,19 @@
         <dependency>
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
-            <version>0.39</version>
+            <version>0.42</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth.extensions</groupId>
+            <artifactId>truth-java8-extension</artifactId>
+            <version>0.42</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

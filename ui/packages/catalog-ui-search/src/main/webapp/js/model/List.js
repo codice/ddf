@@ -11,8 +11,8 @@
  **/
 var Backbone = require('backbone')
 var Query = require('./Query')
-var cql = require('js/cql')
-var Common = require('js/Common')
+var cql = require('../cql.js')
+var Common = require('../Common.js')
 var _ = require('lodash')
 require('backbone-associations')
 

@@ -17,12 +17,12 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const resultsTemplate = require('./results.hbs')
-const CustomElements = require('js/CustomElements')
-const QuerySelectDropdown = require('component/dropdown/query-select/dropdown.query-select.view')
-const DropdownModel = require('component/dropdown/dropdown')
-const store = require('js/store')
-const ResultSelectorView = require('component/result-selector/result-selector.view')
-const WorkspaceExploreView = require('component/workspace-explore/workspace-explore.view')
+const CustomElements = require('../../js/CustomElements.js')
+const QuerySelectDropdown = require('../dropdown/query-select/dropdown.query-select.view.js')
+const DropdownModel = require('../dropdown/dropdown.js')
+const store = require('../../js/store.js')
+const ResultSelectorView = require('../result-selector/result-selector.view.js')
+const WorkspaceExploreView = require('../workspace-explore/workspace-explore.view.js')
 
 var selectedQueryId
 

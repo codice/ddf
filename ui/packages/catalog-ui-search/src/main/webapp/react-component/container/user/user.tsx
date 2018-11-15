@@ -11,9 +11,9 @@
  **/
 import * as React from 'react'
 import UserComponent from '../../presentation/user'
-const user = require('component/singletons/user-instance')
-const announcement = require('component/announcement')
-const logoutActions = require('component/singletons/logout-actions')
+const user = require('../../../component/singletons/user-instance.js')
+const announcement = require('../../../component/announcement/index.jsx')
+const logoutActions = require('../../../component/singletons/logout-actions.js')
 const $ = require('jquery')
 
 interface State {
@@ -76,14 +76,14 @@ class UserContainer extends React.Component<{}, State> {
         '../../logout/?prevurl=' + encodeURI(window.location.pathname)
     })
   }
-  handleUsernameChange(e: React.FormEvent<HTMLInputElement>) {
+  handleUsernameChange(value: string) {
     this.setState({
-      username: e.currentTarget.value,
+      username: value,
     })
   }
-  handlePasswordChange(e: React.FormEvent<HTMLInputElement>) {
+  handlePasswordChange(value: string) {
     this.setState({
-      password: e.currentTarget.value,
+      password: value,
     })
   }
   render() {

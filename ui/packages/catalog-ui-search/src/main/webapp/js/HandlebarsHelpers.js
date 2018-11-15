@@ -13,8 +13,8 @@
 const _ = require('underscore')
 const moment = require('moment')
 const Handlebars = require('ace/handlebars/runtime')
-const Common = require('js/Common')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
+const Common = require('./Common.js')
+const metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 const _get = require('lodash/get')
 const $ = require('jquery')
 

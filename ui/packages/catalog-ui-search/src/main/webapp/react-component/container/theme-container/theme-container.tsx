@@ -16,8 +16,8 @@ import {
   SpecificSizingInterface,
   ThemeColorInterface,
 } from '../../styles/styled-components'
-const user = require('component/singletons/user-instance')
-const Common = require('js/Common')
+const user = require('../../../component/singletons/user-instance.js')
+const Common = require('../../../js/Common.js')
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 const $ = require('jquery')
 const _ = require('underscore')
@@ -222,6 +222,7 @@ const sharedState: ThemeInterface = {
   screenBelow: (specifiedSize: string) => {
     return sharedState.screenSize < parseFloat(specifiedSize)
   },
+  background: 'black',
   ...updateTheme(
     user
       .get('user')

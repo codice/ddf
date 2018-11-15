@@ -10,12 +10,12 @@
  *
  **/
 import * as React from 'react'
-const ThemeSettings = require('component/theme-settings/theme-settings.view')
+const ThemeSettings = require('../../../component/theme-settings/theme-settings.view.js')
 import AlertSettings from '../../container/alert-settings'
-const MapSettings = require('component/layers/layers.view')
-const SearchSettings = require('component/search-settings/search-settings.view')
-const HiddenSettings = require('component/user-blacklist/user-blacklist.view')
-const TimeSettings = require('component/time-settings/time-settings.view')
+const MapSettings = require('../../../component/layers/layers.view.js')
+const SearchSettings = require('../../../component/search-settings/search-settings.view.js')
+const HiddenSettings = require('../../../component/user-blacklist/user-blacklist.view.js')
+const TimeSettings = require('../../../component/time-settings/time-settings.view.js')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'

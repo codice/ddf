@@ -24,7 +24,6 @@
     <artifactId>admin-core-configpolicy</artifactId>
     <packaging>bundle</packaging>
 
-
     <dependencies>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -41,13 +40,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>${argLine} -Djava.awt.headless=true</argLine>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -84,13 +76,11 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.80</minimum>
                                         </limit>
-
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.78</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

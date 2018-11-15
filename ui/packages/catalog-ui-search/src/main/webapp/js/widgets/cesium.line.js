@@ -14,7 +14,7 @@
 const Cesium = require('cesium')
 const _ = require('underscore')
 const Turf = require('@turf/turf')
-const DistanceUtils = require('js/DistanceUtils')
+const DistanceUtils = require('../DistanceUtils.js')
 
 const {
   GeometryRenderView,

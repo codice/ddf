@@ -20,6 +20,7 @@ const {
   injectGlobal,
   keyframes,
   ThemeProvider,
+  withTheme,
 } = styledComponents as ThemedStyledComponentsModule<ThemeInterface>
 
 /*
@@ -32,5 +33,11 @@ const keyframesWithTheme: (
   >[]
 ) => string = keyframes as any
 
-export { css, injectGlobal, keyframesWithTheme as keyframes, ThemeProvider }
+export {
+  css,
+  injectGlobal,
+  keyframesWithTheme as keyframes,
+  ThemeProvider,
+  withTheme,
+}
 export default styled

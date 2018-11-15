@@ -1,7 +1,7 @@
 const React = require('react')
 
-const Group = require('react-component/group')
-const CustomElements = require('js/CustomElements')
+const Group = require('../../../react-component/group/index.js')
+const CustomElements = require('../../../js/CustomElements.js')
 const Component = CustomElements.registerReact('list-editor')
 
 class ListEditor extends React.Component {

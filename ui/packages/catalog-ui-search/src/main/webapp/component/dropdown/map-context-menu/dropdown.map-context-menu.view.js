@@ -18,7 +18,7 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.map-context-menu.hbs')
-const MapContextMenuView = require('component/map-context-menu/map-context-menu.view')
+const MapContextMenuView = require('../../map-context-menu/map-context-menu.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

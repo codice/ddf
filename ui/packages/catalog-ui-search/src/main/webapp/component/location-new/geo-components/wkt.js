@@ -1,6 +1,6 @@
 const React = require('react')
-const TextField = require('react-component/text-field')
-const { Units } = require('react-component/location/common')
+const TextField = require('../../../react-component/text-field/index.js')
+const { Units } = require('../../../react-component/location/common.js')
 
 const WKT = props => {
   const { wkt, setState } = props

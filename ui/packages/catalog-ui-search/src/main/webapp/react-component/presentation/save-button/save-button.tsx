@@ -20,24 +20,23 @@ type SaveButtonProps = {
 
 const Root = styled<SaveButtonProps, 'div'>('div')`
   display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
   height: 100%;
-  width: ${props => props.theme.minimumButtonSize};
+  width: ${props => (props.isSaved ? '0px' : props.theme.minimumButtonSize)};
   transition: ${props => {
-    if (props.isSaved) {
-      return `transform 0s linear ${props.theme.multiple(
-        11,
-        props.theme.coreTransitionTime,
-        's'
-      )}`
-    } else {
-      return 'none'
-    }
+    return `width ${
+      props.theme.coreTransitionTime
+    } linear ${props.theme.multiple(
+      props.isSaved ? 11 : 0,
+      props.theme.coreTransitionTime,
+      's'
+    )}`
   }};
-  transform: scale(${props => (props.isSaved ? 0 : 1)});
 `
 
 const SaveIcon = styled<SaveButtonProps, 'span'>('span')`
-  color: ${props => props.theme.positiveColor};
+  color: inherit;
   opacity: ${props => (props.isSaved ? 0 : 1)};
   transform: scale(${props => (props.isSaved ? 2 : 1)});
   transition: opacity
@@ -60,8 +59,8 @@ const CheckIcon = styled<SaveButtonProps, 'span'>('span')`
       ${props => props.theme.multiple(2, props.theme.coreTransitionTime, 's')}
       ease-out
       ${props => props.theme.multiple(8, props.theme.coreTransitionTime, 's')};
-  color: ${props =>
-    props.isSaved ? 'transparent' : props.theme.positiveColor};
+  ${props => (!props.isSaved ? 'transition: none;' : '')}
+  color: ${props => (props.isSaved ? 'transparent' : 'inherit')};
   transform: scale(${props => (props.isSaved ? 1 : 2)});
   opacity: ${props => (props.isSaved ? 1 : 0)};
   margin: auto;
@@ -72,20 +71,30 @@ const CheckIcon = styled<SaveButtonProps, 'span'>('span')`
   width: 100%;
 `
 
+const ModifiedButton = styled(Button)`
+  height: 100%;
+`
+
 export default hot(module)(function SaveButton({
   isSaved,
   onClick,
 }: SaveButtonProps & React.HTMLProps<HTMLButtonElement>) {
   return (
     <Root isSaved={isSaved}>
-      <Button
+      <ModifiedButton
         buttonType={buttonTypeEnum.neutral}
-        onClick={onClick}
+        onClick={
+          isSaved
+            ? (e: React.MouseEvent) => {
+                e.stopPropagation()
+              }
+            : onClick
+        }
         tabIndex={isSaved ? -1 : 0}
       >
         <SaveIcon className="fa fa-floppy-o" isSaved={isSaved} />
         <CheckIcon className="fa fa-check" isSaved={isSaved} />
-      </Button>
+      </ModifiedButton>
     </Root>
   )
 })

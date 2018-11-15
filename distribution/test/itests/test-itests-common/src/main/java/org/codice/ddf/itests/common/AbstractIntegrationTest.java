@@ -114,11 +114,13 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String DEFAULT_LOG_LEVEL = "WARN";
 
+  protected static final String GLOBAL_LOG_LEVEL_PROPERTY = "globalLogLevel";
+
   protected static final String TEST_LOG_LEVEL_PROPERTY = "itestLogLevel";
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.2.0";
+  protected static final String KARAF_VERSION = "4.2.1";
 
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
@@ -467,7 +469,7 @@ public abstract class AbstractIntegrationTest {
         karafDistributionConfiguration(
                 maven()
                     .groupId("org.codice.ddf")
-                    .artifactId("ddf")
+                    .artifactId("kernel")
                     .type("zip")
                     .versionAsInProject()
                     .getURL(),
@@ -583,16 +585,17 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected Option[] configureLogLevel() {
-    final String logLevel = System.getProperty(TEST_LOG_LEVEL_PROPERTY);
+    final String globalLogLevel = System.getProperty(GLOBAL_LOG_LEVEL_PROPERTY, DEFAULT_LOG_LEVEL);
+    final String itestLevel = System.getProperty(TEST_LOG_LEVEL_PROPERTY);
     final String securityLogLevel = System.getProperty(TEST_SECURITY_LOG_LEVEL_PROPERTY);
     return options(
         editConfigurationFilePut(
-            LOGGER_CONFIGURATION_FILE_PATH, "log4j2.rootLogger.level", DEFAULT_LOG_LEVEL),
-        when(StringUtils.isNotEmpty(logLevel))
+            LOGGER_CONFIGURATION_FILE_PATH, "log4j2.rootLogger.level", globalLogLevel),
+        when(StringUtils.isNotEmpty(itestLevel))
             .useOptions(
                 combineOptions(
-                    createSetLogLevelOption("ddf", logLevel),
-                    createSetLogLevelOption("org.codice", logLevel))),
+                    createSetLogLevelOption("ddf", itestLevel),
+                    createSetLogLevelOption("org.codice", itestLevel))),
         when(StringUtils.isNotEmpty(securityLogLevel))
             .useOptions(
                 combineOptions(
@@ -665,6 +668,14 @@ public abstract class AbstractIntegrationTest {
                 .classifier("features")
                 .versionAsInProject(),
             "ddf-itest-dependencies"),
+        features(
+            maven()
+                .groupId("ddf.features")
+                .artifactId("install-profiles")
+                .type("xml")
+                .classifier("features")
+                .versionAsInProject(),
+            "ddf-boot-features"),
         // Adds sdk-app to the features repo
         features(
             maven("ddf.distribution", "sdk-app")

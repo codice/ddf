@@ -13,16 +13,16 @@
  *
  **/
 /*global require, setTimeout*/
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./thead.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var Common = require('js/Common')
-var user = require('component/singletons/user-instance')
-var properties = require('properties')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var CustomElements = require('../../../js/CustomElements.js')
+var Common = require('../../../js/Common.js')
+var user = require('../../singletons/user-instance.js')
+var properties = require('../../../js/properties.js')
+var metacardDefinitions = require('../../singletons/metacard-definitions.js')
 var jqueryui = require('jquery-ui')
 require('jquery-ui/ui/widgets/resizable')
 var isResizing = false

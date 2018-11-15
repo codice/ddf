@@ -16,20 +16,20 @@
 
 import ExportResults from '../../../react-component/container/table-export'
 import React from 'react'
-const lightboxInstance = require('component/lightbox/lightbox.view.instance')
+const lightboxInstance = require('../../lightbox/lightbox.view.instance.js')
 import {
   Button,
   buttonTypeEnum,
 } from '../../../react-component/presentation/button'
 
 const Marionette = require('marionette')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const $ = require('jquery')
 const TableVisibility = require('./table-visibility.view')
 const TableRearrange = require('./table-rearrange.view')
-const ResultsTableView = require('component/table/results/table-results.view')
-const user = require('component/singletons/user-instance')
-const properties = require('properties')
+const ResultsTableView = require('../../table/results/table-results.view.js')
+const user = require('../../singletons/user-instance.js')
+const properties = require('../../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('table-viz'),

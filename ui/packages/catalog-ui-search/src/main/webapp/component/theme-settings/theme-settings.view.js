@@ -15,14 +15,14 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./theme-settings.hbs')
-var CustomElements = require('js/CustomElements')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var user = require('../singletons/user-instance.js')
 var $ = require('jquery')
-var PropertyView = require('component/property/property.view')
-var Property = require('component/property/property')
-var ThemeUtils = require('js/ThemeUtils')
+var PropertyView = require('../property/property.view.js')
+var Property = require('../property/property.js')
+var ThemeUtils = require('../../js/ThemeUtils.js')
 import { lessWorkerModel } from './../singletons/less.worker-instance'
-var LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+var LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
 function getPreferences(user) {
   return user.get('user').get('preferences')

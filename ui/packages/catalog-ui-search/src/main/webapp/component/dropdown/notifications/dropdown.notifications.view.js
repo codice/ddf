@@ -13,13 +13,13 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.notifications.hbs')
-const ComponentView = require('component/notifications/notifications.view')
+const ComponentView = require('../../notifications/notifications.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

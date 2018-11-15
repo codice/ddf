@@ -13,18 +13,18 @@
  *
  **/
 /*global require, window, setTimeout*/
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./ingest-details.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var Dropzone = require('dropzone')
-var UploadItemCollectionView = require('component/upload-item/upload-item.collection.view')
-var UploadBatchModel = require('js/model/UploadBatch')
-var userInstance = require('component/singletons/user-instance')
-var Common = require('js/Common')
-var UploadSummary = require('component/upload-summary/upload-summary.view')
+var UploadItemCollectionView = require('../upload-item/upload-item.collection.view.js')
+var UploadBatchModel = require('../../js/model/UploadBatch.js')
+var userInstance = require('../singletons/user-instance.js')
+var Common = require('../../js/Common.js')
+var UploadSummary = require('../upload-summary/upload-summary.view.js')
 
 function namespacedEvent(event, view) {
   return event + '.' + view.cid

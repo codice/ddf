@@ -13,7 +13,7 @@ import * as React from 'react'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import WorkspacesItem from '../../presentation/workspace-item'
 const moment = require('moment')
-const wreqr = require('wreqr')
+const wreqr = require('../../../js/wreqr.js')
 
 type Props = {
   workspace: any

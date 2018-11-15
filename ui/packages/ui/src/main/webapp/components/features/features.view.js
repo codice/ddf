@@ -15,7 +15,7 @@
 /*global define, window*/
 define([
   'marionette',
-  'text!./features.hbs',
+  './features.hbs',
   'js/CustomElements',
   'components/feature-item/feature-item.collection.view',
   'js/models/features/feature',

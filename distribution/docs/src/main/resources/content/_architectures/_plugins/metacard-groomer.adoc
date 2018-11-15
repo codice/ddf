@@ -23,7 +23,7 @@ In an `UpdateRequest`, the same operations are performed as a `CreateRequest`, e
 
 ===== Installing the Metacard Groomer
 
-The Metacard Groomer is installed by default with a standard installation in the ${ddf-catalog} application.
+The Metacard Groomer is included in the `catalog-core-plugins` feature. It is not recommended to uninstall this feature.
 
 ===== Configuring the Metacard Groomer
 

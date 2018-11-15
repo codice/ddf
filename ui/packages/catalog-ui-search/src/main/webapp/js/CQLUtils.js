@@ -11,8 +11,8 @@
  **/
 /*jshint bitwise: false*/
 const $ = require('jquery')
-const cql = require('js/cql')
-const DistanceUtils = require('js/DistanceUtils.js')
+const cql = require('./cql.js')
+const DistanceUtils = require('./DistanceUtils.js')
 
 function sanitizeForCql(text) {
   return text
@@ -218,7 +218,7 @@ function getProperty(filter) {
 
 function generateFilter(type, property, value, metacardDefinitions) {
   if (!metacardDefinitions) {
-    metacardDefinitions = require('component/singletons/metacard-definitions')
+    metacardDefinitions = require('../component/singletons/metacard-definitions.js')
   }
   switch (metacardDefinitions.metacardTypes[property].type) {
     case 'LOCATION':

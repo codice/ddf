@@ -14,18 +14,18 @@
  **/
 /*global define, window*/
 
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./workspace-interactions.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const router = require('component/router/router')
-const user = require('component/singletons/user-instance')
-const LoadingView = require('component/loading/loading.view')
-const lightboxInstance = require('component/lightbox/lightbox.view.instance')
-const WorkspaceSharing = require('component/workspace-sharing/workspace-sharing.view')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const router = require('../router/router.js')
+const user = require('../singletons/user-instance.js')
+const LoadingView = require('../loading/loading.view.js')
+const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
+const WorkspaceSharing = require('../workspace-sharing/workspace-sharing.view.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,

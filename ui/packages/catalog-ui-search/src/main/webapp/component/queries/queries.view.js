@@ -17,10 +17,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const queriesTemplate = require('./queries.hbs')
-const CustomElements = require('js/CustomElements')
-const QueryTabsView = require('component/tabs/query/tabs-query.view')
-const QuerySelectorView = require('component/query-selector/query-selector.view')
-const store = require('js/store')
+const CustomElements = require('../../js/CustomElements.js')
+const QueryTabsView = require('../tabs/query/tabs-query.view.js')
+const QuerySelectorView = require('../query-selector/query-selector.view.js')
+const store = require('../../js/store.js')
 
 var Queries = Marionette.LayoutView.extend({
   setDefaultModel: function() {
