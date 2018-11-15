@@ -60,15 +60,6 @@ define([
         },
         listenForChange: function(){
             this.$el.on('change keyup input', function(){
-                // only applies to anyText filters
-                if (this.$el.attr('data-id') === 'anyText') {
-                    if (this.$el.find('input').val() === '') {
-                        this.$el.addClass('has-warnings');
-                    } else {
-                        this.$el.removeClass('has-warnings');
-                    }
-                }
-
                 this.model.set('value', this.getCurrentValue());
                 this.validate();
             }.bind(this));
