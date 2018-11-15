@@ -52,29 +52,24 @@ var ContentView = Marionette.LayoutView.extend({
       'change:currentWorkspace',
       this.handleWorkspaceChange
     )
-  },
-  onRender: function() {
     this.updateContentLeft()
-    if (this._mapView) {
-      this.contentRight.show(this._mapView)
-    }
   },
   handleWorkspaceChange(contentModel) {
     if (
       contentModel &&
-      Object.keys(contentModel.changedAttributes()[0] === 'currentWorkspace')
+      Object.keys(contentModel.changedAttributes())[0] === 'currentWorkspace'
     ) {
       this.stopListening(contentModel.previousAttributes().currentWorkspace)
       this.updateContentLeft()
     }
   },
-  startLoading() {
+  startLoading: function() {
     LoadingCompanionView.beginLoading(this)
   },
-  endLoading() {
+  endLoading: function() {
     LoadingCompanionView.endLoading(this)
   },
-  updateContentLeft: function(workspace) {
+  updateContentLeft() {
     const currentWorkspace = store.get('content').get('currentWorkspace')
     store.clearSelectedResults()
     this.contentLeft.empty()
@@ -84,6 +79,7 @@ var ContentView = Marionette.LayoutView.extend({
       this.listenToOnce(currentWorkspace, 'partialSync', this.updateContentLeft)
       currentWorkspace.fetchPartial()
     } else {
+      store.clearSelectedResults()
       this.contentLeft.show(
         new WorkspaceContentTabsView({
           model: new WorkspaceContentTabs(),
