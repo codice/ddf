@@ -17,12 +17,13 @@ import React from 'react'
 
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
-const mtgeo = require('mt-geo')
 const user = require('../singletons/user-instance.js')
-var properties = require('properties')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+const properties = require('properties')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
 const Common = require('js/Common')
 const hbHelper = require('js/HandlebarsHelpers')
+
+const mtgeo = require('mt-geo')
 const usngs = require('usng.js')
 
 const converter = new usngs.Converter()
@@ -43,7 +44,7 @@ function leftPad(numToPad, size) {
     .slice(-size)
 }
 
-function massageData(attributeName, attributeValue) {
+function formatAttribute(attributeName, attributeValue) {
   if (metacardDefinitions.metacardTypes[attributeName].type === 'DATE') {
     attributeValue = Common.getHumanReadableDateTime(attributeValue)
   }
@@ -54,6 +55,7 @@ module.exports = Marionette.LayoutView.extend({
   template() {
     return (
       <React.Fragment>
+        {this.getAttributes()}
         <div className="info-feature">{this.target}</div>
         <div className="info-coordinates">{this.getDisplayComponent()}</div>
       </React.Fragment>
@@ -121,32 +123,26 @@ module.exports = Marionette.LayoutView.extend({
       </span>
     )
   },
-  serializeData: function() {
-    let modelJSON = this.model.toJSON()
-    let summaryModel = {}
-    const summary = properties.summaryShow
-    summary.forEach(attribute => {
-      if (this.model.get('targetMetacard') !== undefined) {
-        const attributeName = hbHelper.getAlias(attribute)
-        const attributeValue = this.model
-          .get('targetMetacard')
-          .get('metacard')
-          .get('properties')
-          .get(attributeName)
-        if (attributeValue !== undefined)
-          summaryModel[attributeName] = massageData(
-            attributeName,
-            attributeValue
-          )
-      }
-    })
-    let viewData = {
-      summary: summaryModel,
-      target: modelJSON.target,
-      lat: modelJSON.mouseLat,
-      lon: modelJSON.mouseLon,
+  getAttributes() {
+    if (this.model.get('targetMetacard') === undefined) {
+      return []
     }
-    return viewData
+    const jsx = []
+    properties.summaryShow.forEach(attribute => {
+      const attributeName = hbHelper.getAlias(attribute)
+      const attributeValue = this.model
+        .get('targetMetacard')
+        .get('metacard')
+        .get('properties')
+        .get(attributeName)
+      if (attributeValue !== undefined)
+        jsx.push(
+          <div className="info-feature">
+            {formatAttribute(attributeName, attributeValue)}
+          </div>
+        )
+    })
+    return jsx
   },
   onRender: function() {
     this.$el.toggleClass(
