@@ -290,10 +290,10 @@ module.exports = Marionette.LayoutView.extend({
       .append(
         '<div class="is-button zoomToHome">' +
           '<span>Home </span>' +
-          '<span class="cf cf-map-marker"></span></div>' +
+          '<span class="fa fa-home"></span></div>' +
           '<div class="is-button saveAsHome">' +
-          '<span title="Save Current View as Home Location">Save </span>' +
-          '<span class="fa fa-floppy-o"/>' +
+          '<span title="Save Current View as Home Location">Set Home </span>' +
+          '<span class="cf cf-map-marker"/>' +
           '</div>'
       )
   },
