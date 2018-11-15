@@ -46,6 +46,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -63,6 +64,7 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.settings.SolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,12 +215,11 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private CredentialsProvider getCredentialsProvider() {
     CredentialsProvider provider = new BasicCredentialsProvider();
-    //  TODO: GRAB USERNAME AND PASSWORD.
-    //    org.apache.http.auth.UsernamePasswordCredentials credentials =
-    //        new org.apache.http.auth.UsernamePasswordCredentials(
-    //            usernamePasswordCredentials.getUsername(),
-    // usernamePasswordCredentials.getPassword());
-    //    provider.setCredentials(AuthScope.ANY, credentials);
+
+    org.apache.http.auth.UsernamePasswordCredentials credentials =
+        new org.apache.http.auth.UsernamePasswordCredentials(
+            SolrSettings.getSolrUsername(), SolrSettings.getPlainTextSolrPassword());
+    provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
   }
 

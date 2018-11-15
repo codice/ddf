@@ -52,6 +52,11 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -97,6 +102,7 @@
                             ddf.catalog.source;version="[2.0,3)",
                             ddf.catalog.util;version="[2.0,3)",
                             ddf.measure;version="[2.0,3)",
+                            ddf.security.encryption,
                             javax.annotation,
                             javax.crypto,
                             javax.crypto.spec,
