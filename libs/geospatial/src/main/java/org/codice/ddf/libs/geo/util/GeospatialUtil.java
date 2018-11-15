@@ -309,7 +309,6 @@ public class GeospatialUtil {
   private static Geometry createBufferedCircleFromPoint(
       Measure<Double, Length> distance, CoordinateReferenceSystem origCRS, Geometry point) {
     Geometry pointGeo = point;
-    MathTransform toTransform, fromTransform = null;
 
     Unit<Length> unit = distance.getUnit();
     if (!(origCRS instanceof ProjectedCRS)) {
@@ -317,18 +316,16 @@ public class GeospatialUtil {
       double x = point.getCoordinate().x;
       double y = point.getCoordinate().y;
 
-      String crsCode = "AUTO:42001," + x + "," + y;
-
-      CoordinateReferenceSystem utmCrs;
+      String crsCode = "AUTO:42001," + x + "," + y; // CRS code for UTM
 
       try {
-        utmCrs = CRS.decode(crsCode);
-        toTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, utmCrs);
-        fromTransform = CRS.findMathTransform(utmCrs, DefaultGeographicCRS.WGS84);
+        CoordinateReferenceSystem utmCrs = CRS.decode(crsCode);
+        MathTransform toTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, utmCrs);
+        MathTransform fromTransform = CRS.findMathTransform(utmCrs, DefaultGeographicCRS.WGS84);
         pointGeo = JTS.transform(point, toTransform);
         return JTS.transform(pointGeo.buffer(distance.doubleValue(SI.METER)), fromTransform);
       } catch (MismatchedDimensionException | TransformException | FactoryException e) {
-        LOGGER.debug("Unable to transform original CRS to UTM.", e);
+        LOGGER.debug("Unable to create buffered circle from point.", e);
       }
     } else {
       unit = (Unit<Length>) origCRS.getCoordinateSystem().getAxis(0).getUnit();

@@ -65,6 +65,20 @@
 |true
 |true
 
+|Multi Point-Radius polygon approximation vertices
+|[[_numMultiPointRadiusVertices]]numMultiPointRadiusVertices
+|Integer
+|When performing a multi point-radius search, increase this value for more accurate polygon approximation. Minimum value is 4, maximum value is 32.
+|32
+|true
+
+|Point radius polygon simplification distance tolerance
+|[[_distanceTolerance]]distanceTolerance
+|Integer
+|The maximum distance (in meters) from the original vertices a reduced vertex may lie on a simplified circular polygon.
+|1
+|true
+
 |Disable CN Check
 |[[_disableCnCheck]]disableCnCheck
 |Boolean

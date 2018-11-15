@@ -119,7 +119,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   protected static final String PASSWORD_PROPERTY = "password";
 
-  private static final int MIN_DISTANCE_TOLERANCE = 1; // meters
+  private static final int MIN_DISTANCE_TOLERANCE_IN_METERS = 1;
+
+  private static final int MIN_NUM_POINT_RADIUS_VERTICES = 4;
+
+  private static final int MAX_NUM_POINT_RADIUS_VERTICES = 32;
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -775,24 +779,36 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    * search.
    */
   public void setNumMultiPointRadiusVertices(int numMultiPointRadiusVertices) {
-    this.numMultiPointRadiusVertices = numMultiPointRadiusVertices;
+    if (numMultiPointRadiusVertices < MIN_NUM_POINT_RADIUS_VERTICES) {
+      this.numMultiPointRadiusVertices = MIN_NUM_POINT_RADIUS_VERTICES;
+      LOGGER.debug(
+          "Admin supplied max number of vertices is too low. Defaulting to the minimum number of {} vertices",
+          MIN_NUM_POINT_RADIUS_VERTICES);
+    } else if (numMultiPointRadiusVertices > 32) {
+      this.numMultiPointRadiusVertices = MAX_NUM_POINT_RADIUS_VERTICES;
+      LOGGER.debug(
+          "Admin supplied max number of vertices is too high. Defaulting to the maximum number of {} vertices",
+          MAX_NUM_POINT_RADIUS_VERTICES);
+    } else {
+      this.numMultiPointRadiusVertices = numMultiPointRadiusVertices;
+    }
   }
 
-  /**
-   * Get the number of vertices an approximation polygon will have when converting a multi
-   * point-radius search to a multi-polygon search.
-   */
+  /** Get the distance tolerance value used for simplification of circular geometries. */
   public int getDistanceTolerance() {
     return distanceTolerance;
   }
 
-  /**
-   * Sets the number of vertices to use when approximating a polygon to fit to a multi point-radius
-   * search.
-   */
+  /** Sets the distance tolerance value used for simplification of circular geometries. */
   public void setDistanceTolerance(int distanceTolerance) {
-    this.distanceTolerance =
-        distanceTolerance < MIN_DISTANCE_TOLERANCE ? MIN_DISTANCE_TOLERANCE : distanceTolerance;
+    if (distanceTolerance < MIN_DISTANCE_TOLERANCE_IN_METERS) {
+      this.distanceTolerance = distanceTolerance;
+      LOGGER.debug(
+          "Admin supplied distance tolerance is too low. Defaulting to the minimum of {} meter",
+          MIN_DISTANCE_TOLERANCE_IN_METERS);
+    } else {
+      this.distanceTolerance = distanceTolerance;
+    }
   }
 
   @Override
@@ -1072,10 +1088,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     Set<Geometry> combinedGeometrySearches = new HashSet<>(geometrySearches);
 
     if (CollectionUtils.isNotEmpty(pointRadiusSearches)) {
-      /**
-       * if there is only one point radius search, and it is not to be converted to bounding box,
-       * retain this point radius search as point radius search
-       */
       if (shouldConvertToBBox) {
         for (PointRadius search : pointRadiusSearches) {
           BoundingBox bbox = BoundingBoxUtils.createBoundingBox(search);
@@ -1083,19 +1095,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           List<List> coordinates = new ArrayList<>();
           coordinates.add(bboxCoordinate);
           combinedGeometrySearches.add(ddf.geo.formatter.Polygon.buildPolygon(coordinates));
-          LOGGER.debug(
-              "Point radius searches are converts it to a (rough approximation) square using Vincenty's formula (direct)");
+          LOGGER.trace(
+              "Point radius searches are converted to a (rough approximation) square using Vincenty's formula (direct)");
         }
       } else {
         if (pointRadiusSearches.size() == 1) {
           pointRadius = pointRadiusSearches.remove();
         } else {
-          /**
-           * There is multiple point radius or in need to convert to bounding box Convert all
-           * pointRadiusSearch into an (rough approximation) polygon (square) using Vincenty's
-           * formula (direct) and the WGS-84 approximation of the Earth Collect all these polygon to
-           * a collection for later processing *
-           */
           for (PointRadius search : pointRadiusSearches) {
             Geometry circle =
                 GeospatialUtil.createCirclePolygon(
@@ -1105,7 +1111,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                     numMultiPointRadiusVertices,
                     distanceTolerance);
             combinedGeometrySearches.add(circle);
-            LOGGER.debug(
+            LOGGER.trace(
                 "Point radius searches are converted to a polygon with a max of {} vertices.",
                 numMultiPointRadiusVertices);
           }
@@ -1131,7 +1137,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
        */
       if (shouldConvertToBBox) {
         if (combinedGeometrySearches.size() > 1) {
-          LOGGER.debug(
+          LOGGER.trace(
               "An approximate envelope encompassing all the geometry is returned. Area between the geometries are also included in this spatial search. Hence widen the search area.");
         }
         boundingBox = BoundingBoxUtils.createBoundingBox((Polygon) geometrySearch.getEnvelope());

@@ -31,7 +31,6 @@ import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -275,10 +274,10 @@ public class GeoUtilTest {
     Geometry circle =
         GeospatialUtil.createCirclePolygon(
             lat, lon, radius, DEFAULT_MAX_VERTICES, DEFAULT_DISTANCE_TOLERANCE);
-    Assert.assertThat(
+    assertThat(
         circle.getCoordinates().length,
         Is.is(equalTo(DEFAULT_MAX_VERTICES + 1))); // additional coordinate for closing the polygon
-    Assert.assertThat(circle, Is.is(equalTo(expectedCircle)));
+    assertThat(circle, Is.is(equalTo(expectedCircle)));
   }
 
   @Test
@@ -290,6 +289,6 @@ public class GeoUtilTest {
 
     Geometry circle = GeospatialUtil.createCirclePolygon(lat, lon, radius, maxVertices, 0.5);
 
-    Assert.assertThat(circle.getCoordinates().length, Is.is(lessThan(maxVertices + 1)));
+    assertThat(circle.getCoordinates().length, Is.is(lessThan(maxVertices + 1)));
   }
 }
