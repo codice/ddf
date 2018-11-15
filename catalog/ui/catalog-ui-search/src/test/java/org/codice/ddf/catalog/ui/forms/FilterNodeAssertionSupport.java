@@ -50,12 +50,17 @@ public class FilterNodeAssertionSupport {
   }
 
   public static void assertLeafNode(
-      FilterNode node, String expectedType, String expectedProperty, String expectedValue) {
+      FilterNode node,
+      String expectedType,
+      String expectedProperty,
+      String expectedValue,
+      Double expectedDistance) {
     assertThat(node.getOperator(), is(expectedType));
     assertThat(node.isLeaf(), is(true));
 
     assertThat(node.getProperty(), is(expectedProperty));
     assertThat(node.getValue(), is(expectedValue));
+    assertThat(node.getDistance(), is(expectedDistance));
     assertThat(node.isTemplated(), is(false));
   }
 

@@ -32,6 +32,7 @@ import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.BinaryTemporalOpType;
+import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
@@ -74,6 +75,18 @@ public class TransformVisitorXmlTest {
         .withBinding(BinaryComparisonOpType.class)
         .verifyExpression(BinaryComparisonOpType::getExpression)
         .withData(DEPTH_PROP, DEPTH_VAL);
+  }
+
+  @Test
+  public void testVisitDWithin() throws Exception {
+    getRootJsonFilterNode("spatial-distance-ops", "DWithin.json").accept(visitor);
+    forElement(visitor.getResult())
+        .withBinding(FilterType.class)
+        .forElement(FilterType::getSpatialOps)
+        .withBinding(DistanceBufferType.class)
+        .verifyExpressionOrAny(DistanceBufferType::getExpressionOrAny)
+        .withData("anyGeo", "WKT()");
+    // TODO verify DistanceBufferType::getDistance
   }
 
   @Test

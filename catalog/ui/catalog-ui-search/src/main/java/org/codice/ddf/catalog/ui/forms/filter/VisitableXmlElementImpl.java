@@ -205,7 +205,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
             // Expression or Any Elements
             .put(BinaryTemporalOpType.class, ExpressionOrAnyElement::new)
             .put(BinarySpatialOpType.class, ExpressionOrAnyElement::new)
-            .put(DistanceBufferType.class, ExpressionOrAnyElement::new)
+            .put(DistanceBufferType.class, DistanceBufferElement::new)
             .put(BBOXType.class, ExpressionOrAnyElement::new)
             .build();
 
@@ -347,13 +347,9 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
    * the node has children of the form {@code List<Object>}. The objects could be {@link
    * VisitableElement}s or not.
    *
-   * <p>The current implementation has several limitations:
+   * <p>The current implementation has some limitations:
    *
    * <ul>
-   *   <li>{@link DistanceBufferType} is not fully supported yet, and the {@link
-   *       net.opengis.filter.v_2_0.MeasureType} obtained from {@link
-   *       DistanceBufferType#getDistance()} needs to be taken into account when support is built
-   *       in.
    *   <li>It is currently expected that all children are simple representations of temporal and
    *       spatial data, for instance, individual date strings or WKT strings in a {@code
    *       <Literal/>} block. Thus casting to a {@link JAXBElement} is a temporary stop-gap measure.
@@ -396,6 +392,43 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
     @Override
     public List<Object> getValue() {
       return value;
+    }
+  }
+
+  private static class DistanceBufferElement extends ExpressionOrAnyElement {
+
+    private double buffer;
+
+    public DistanceBufferElement(JAXBElement element) {
+      super(element);
+      if (!element.getDeclaredType().equals(DistanceBufferType.class)) {
+        throw new FilterProcessingException(
+            INVALID_INVOCATION + element.getDeclaredType().getName());
+      }
+      this.buffer = ((DistanceBufferType) element.getValue()).getDistance().getValue();
+    }
+
+    @Override
+    public List<Object> getValue() {
+      List<Object> values = super.getValue();
+      values.add(
+          new VisitableElement<Double>() {
+            @Override
+            public String getName() {
+              return null;
+            }
+
+            @Override
+            public Double getValue() {
+              return buffer;
+            }
+
+            @Override
+            public void accept(FilterVisitor2 visitor) {
+              visitor.visitDistanceType(this);
+            }
+          });
+      return values;
     }
   }
 

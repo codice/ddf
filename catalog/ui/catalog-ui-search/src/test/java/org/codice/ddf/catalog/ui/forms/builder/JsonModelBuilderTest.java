@@ -48,7 +48,7 @@ public class JsonModelBuilderTest {
             .endTerminalType()
             .getResult();
 
-    assertLeafNode(node, JSON_EQUAL, "name", "value");
+    assertLeafNode(node, JSON_EQUAL, "name", "value", null);
   }
 
   @Test

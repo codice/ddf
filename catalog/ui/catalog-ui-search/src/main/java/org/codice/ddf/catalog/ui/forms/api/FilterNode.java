@@ -84,6 +84,11 @@ public interface FilterNode {
   @Nullable
   String getValue();
 
+  @Nullable
+  Double getDistance();
+
+  void setDistance(Double distance);
+
   /**
    * Set this node's property name.
    *
