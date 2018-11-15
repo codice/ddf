@@ -29,6 +29,10 @@ type Props = {
   closeParent: () => void
 }
 
+const CustomDropdown = styled(Dropdown)`
+  width: 100%;
+`
+
 const Text = styled.div`
   line-height: 1.2rem;
 `
@@ -71,7 +75,7 @@ const generateClipboardHandler = (
 
 const render = (props: Props) => {
   return (
-    <Dropdown
+    <CustomDropdown
       content={context => (
         <NavigationBehavior>
           <MenuAction
@@ -156,7 +160,7 @@ const render = (props: Props) => {
           <span className="fa fa-chevron-down fa-chevron-withmargin" />
         </div>
       </div>
-    </Dropdown>
+    </CustomDropdown>
   )
 }
 

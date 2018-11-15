@@ -28,14 +28,17 @@ module.exports = Marionette.LayoutView.extend({
   template(props) {
     return (
       <React.Fragment>
-        <CopyCoordinates
-          clickDms={props.clickDms}
-          clickLat={props.clickLat}
-          clickLon={props.clickLon}
-          clickMgrs={props.clickMgrs}
-          clickUtmUps={props.clickUtmUps}
-          closeParent={this.triggerClick.bind(this)}
-        />
+        {typeof props.mouseLat === 'undefined' ||
+        typeof props.mouseLon === 'undefined' ? null : (
+          <CopyCoordinates
+            clickDms={props.clickDms}
+            clickLat={props.clickLat}
+            clickLon={props.clickLon}
+            clickMgrs={props.clickMgrs}
+            clickUtmUps={props.clickUtmUps}
+            closeParent={this.triggerClick.bind(this)}
+          />
+        )}
         <div
           className="metacard-interaction interaction-view-histogram"
           data-help="Open histogram of results."
