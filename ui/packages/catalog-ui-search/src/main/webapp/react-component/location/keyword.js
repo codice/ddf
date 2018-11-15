@@ -88,7 +88,6 @@ class Keyword extends React.Component {
       polyType,
     } = this.props
     const { value, loading, error } = this.state
-    debugger
     return (
       <div>
         <AutoComplete
