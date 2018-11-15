@@ -166,7 +166,7 @@ class Dropdown extends React.Component<Props, State> {
     // todo: remove after interop between legacy is no longer needed
     this.onClick = _.debounce(this.onClick, 10)
   }
-  id =  Math.random()
+  id = Math.random()
   dropdownRef = React.createRef() as React.RefObject<HTMLDivElement>
   sourceRef = React.createRef() as React.RefObject<HTMLButtonElement>
   componentWillUnmount() {
