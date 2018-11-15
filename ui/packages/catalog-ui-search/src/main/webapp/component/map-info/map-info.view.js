@@ -18,6 +18,10 @@ var template = require('./map-info.hbs')
 var CustomElements = require('../../js/CustomElements.js')
 var mtgeo = require('mt-geo')
 var user = require('../singletons/user-instance.js')
+var properties = require('properties')
+var metacardDefinitions = require('component/singletons/metacard-definitions')
+const Common = require('js/Common')
+const hbHelper = require('js/HandlebarsHelpers')
 
 function getCoordinateFormat() {
   return user
@@ -32,6 +36,13 @@ function leftPad(numToPad, size) {
     .concat([numToPad])
     .join(' ')
     .slice(-size)
+}
+
+function massageData(attributeName, attributeValue) {
+  if (metacardDefinitions.metacardTypes[attributeName].type === 'DATE') {
+    attributeValue = Common.getHumanReadableDateTime(attributeValue)
+  }
+  return attributeName.toUpperCase() + ': ' + attributeValue
 }
 
 module.exports = Marionette.LayoutView.extend({
@@ -63,7 +74,27 @@ module.exports = Marionette.LayoutView.extend({
   },
   serializeData: function() {
     let modelJSON = this.model.toJSON()
+    let summaryModel = {}
+    const summary = properties.summaryShow
+
+    summary.forEach(attribute => {
+      if (this.model.get('targetMetacard') !== undefined) {
+        const attributeName = hbHelper.getAlias(attribute)
+        const attributeValue = this.model
+          .get('targetMetacard')
+          .get('metacard')
+          .get('properties')
+          .get(attributeName)
+        if (attributeValue !== undefined)
+          summaryModel[attributeName] = massageData(
+            attributeName,
+            attributeValue
+          )
+      }
+    })
+
     let viewData = {
+      summary: summaryModel,
       target: modelJSON.target,
       lat: modelJSON.mouseLat,
       lon: modelJSON.mouseLon,
