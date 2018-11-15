@@ -353,6 +353,10 @@
         <argument ref="userCreatableMetacardType"/>
     </bean>
 
+    <bean id="queryMetacardsHandler" class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.AssociatedQueryMetacardsHandler">
+        <argument ref="catalogFramework"/>
+    </bean>
+
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
@@ -372,6 +376,7 @@
         <argument ref="subjectIdentity"/>
         <argument ref="accessControlSecurityConfiguration"/>
         <argument ref="queryWorkspaceService"/>
+        <argument ref="queryMetacardsHandler"/>
     </bean>
 
     <reference id="coordinateSystemTranslator" interface="org.codice.usng4j.CoordinateSystemTranslator"
