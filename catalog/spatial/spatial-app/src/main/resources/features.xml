@@ -152,7 +152,6 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
 
