@@ -63,8 +63,6 @@ var ContentView = Marionette.LayoutView.extend({
       this.updateContentLeft()
     }
   },
-<<<<<<< HEAD
-=======
   handleWorkspaceChange(contentModel) {
     if (
       contentModel &&
@@ -74,7 +72,6 @@ var ContentView = Marionette.LayoutView.extend({
       this.updateContentLeft()
     }
   },
->>>>>>> f5444bc747ce44e924af7e97aaa6e80d1810596d
   startLoading: function() {
     LoadingCompanionView.beginLoading(this)
   },
