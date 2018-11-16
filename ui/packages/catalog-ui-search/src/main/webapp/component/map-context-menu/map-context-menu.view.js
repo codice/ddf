@@ -13,19 +13,78 @@
  *
  **/
 /*global require*/
+import React from 'react'
+import CopyCoordinates from '../../react-component/presentation/copy-coordinates'
+
 var _ = require('underscore')
 var Marionette = require('marionette')
-var template = require('./map-context-menu.hbs')
 var CustomElements = require('../../js/CustomElements.js')
-var Clipboard = require('clipboard')
-var announcement = require('../announcement/index.jsx')
 var InspectorView = require('../visualization/inspector/inspector.view.js')
 var HistogramView = require('../visualization/histogram/histogram.view.js')
 var SelectionInterfaceModel = require('../selection-interface/selection-interface.model.js')
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template(props) {
+    return (
+      <React.Fragment>
+        {typeof props.mouseLat === 'undefined' ||
+        typeof props.mouseLon === 'undefined' ? null : (
+          <CopyCoordinates
+            clickDms={props.clickDms}
+            clickLat={props.clickLat}
+            clickLon={props.clickLon}
+            clickMgrs={props.clickMgrs}
+            clickUtmUps={props.clickUtmUps}
+            closeParent={this.triggerClick.bind(this)}
+          />
+        )}
+        <div
+          className="metacard-interaction interaction-view-histogram"
+          data-help="Open histogram of results."
+        >
+          <div className="interaction-icon fa fa-bar-chart" />
+          <div className="interaction-text">View Histogram</div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-details"
+          data-help="Open inspector for result."
+        >
+          <div className="interaction-icon fa fa-info" />
+          <div className="interaction-text">
+            View Inspector
+            <div>
+              <span>{props.target}</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-details-selection"
+          data-help="Open inspector for selected results."
+        >
+          <div className="interaction-icon fa fa-info" />
+          <div className="interaction-text">
+            View Inspector (Current Selection)
+            <div>
+              <span>{props.selectionCount} selected</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="metacard-interaction interaction-view-histogram-selection"
+          data-help="Open histogram of selected results."
+        >
+          <div className="interaction-icon fa fa-bar-chart" />
+          <div className="interaction-text">
+            View Histogram (Current Selection)
+            <div>
+              <span>{props.selectionCount} selected</span>
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('map-context-menu'),
   className: 'composed-menu',
   modelEvents: {},
@@ -36,10 +95,7 @@ module.exports = Marionette.LayoutView.extend({
     'click > .interaction-view-histogram-selection':
       'triggerHistogramSelection',
     'click > .interaction-view-histogram': 'triggerHistogram',
-    click: 'triggerClick',
   },
-  regions: {},
-  ui: {},
   initialize: function() {
     this.debounceUpdateSelectionInterface()
     this.selectionInterface = new SelectionInterfaceModel()
@@ -94,6 +150,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   triggerHistogram: function() {
+    this.triggerClick()
     lightboxInstance.model.updateTitle('Histogram')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -103,6 +160,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerHistogramSelection: function() {
+    this.triggerClick()
     this.stopListening(
       this.selectionInterface.getSelectedResults(),
       'update add remove reset',
@@ -129,6 +187,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerViewDetailsSelection: function() {
+    this.triggerClick()
     lightboxInstance.model.updateTitle('Inspector')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -138,6 +197,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   triggerViewDetails: function() {
+    this.triggerClick()
     this.stopListening(
       this.selectionInterface.getSelectedResults(),
       'update add remove reset',
@@ -157,7 +217,6 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
-    this.setupClipboards()
     this.repositionDropdown()
     this.handleTarget()
     this.handleSelectionChange()
@@ -177,33 +236,6 @@ module.exports = Marionette.LayoutView.extend({
       'has-target',
       this.options.mapModel.get('target') !== undefined
     )
-  },
-  setupClipboards: function() {
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-coordinates'))
-    )
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-wkt'))
-    )
-    this.attachListenersToClipboard(
-      new Clipboard(this.el.querySelector('.interaction-copy-dms'))
-    )
-  },
-  attachListenersToClipboard: function(clipboard) {
-    clipboard.on('success', function(e) {
-      announcement.announce({
-        title: 'Copied to clipboard',
-        message: e.text,
-        type: 'success',
-      })
-    })
-    clipboard.on('error', function(e) {
-      announcement.announce({
-        title: 'Press Ctrl+C to copy',
-        message: e.text,
-        type: 'info',
-      })
-    })
   },
   serializeData: function() {
     var mapModelJSON = this.options.mapModel.toJSON()

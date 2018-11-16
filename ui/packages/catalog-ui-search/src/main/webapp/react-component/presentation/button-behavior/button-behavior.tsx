@@ -11,6 +11,7 @@
  **/
 import * as React from 'react'
 import styled from '../../styles/styled-components'
+import { Subtract } from '../../../typescript'
 
 /**
  * This is a quick way to emulate button behavior in a div so you can do
@@ -28,7 +29,7 @@ type Props = {
   style?: React.CSSProperties
 }
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   display: inline-block;
   cursor: pointer;
   min-height: ${props => props.theme.minimumButtonSize};
@@ -62,10 +63,15 @@ const handleKeyUp = (event: any) => {
   }
 }
 
-const render: React.ComponentType<Props> = React.forwardRef(
+const render: React.ComponentType<
+  Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>
+> = React.forwardRef(
   // @ts-ignore
-  (props: Props, ref?: React.Ref<HTMLDivElement>) => {
-    const { children, onClick, className, style } = props
+  (
+    props: Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>,
+    ref?: React.Ref<HTMLDivElement>
+  ) => {
+    const { children, onClick, className, style, ...otherAttr } = props
     return (
       <Root
         innerRef={ref}
@@ -75,6 +81,7 @@ const render: React.ComponentType<Props> = React.forwardRef(
         className={className}
         onClick={onClick}
         style={style as any}
+        {...otherAttr as any}
       >
         {children}
       </Root>
