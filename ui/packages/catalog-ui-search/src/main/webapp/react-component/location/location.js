@@ -1,6 +1,6 @@
 const React = require('react')
 
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 
 const Button = require('../button')
 const Json = require('../json')

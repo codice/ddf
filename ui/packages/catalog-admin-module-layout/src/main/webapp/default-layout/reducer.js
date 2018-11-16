@@ -97,29 +97,57 @@ export const message = (text, action) => ({
   text,
   action,
 })
+
+export const validateJson = json => {
+  try {
+    JSON.parse(json)
+    return 'valid'
+  } catch (e) {
+    return 'invalid'
+  }
+}
+
 export const update = value => (dispatch, getState) => {
-  return dispatch({
-    type: 'default-layout/UPDATE',
-    value,
-  })
+  const isValid = validateJson(value)
+  if (isValid === 'valid') {
+    updateLayout(value, getState)
+
+    return dispatch({
+      type: 'default-layout/UPDATE',
+      value,
+    })
+  }
 }
 
 export const reset = () => (dispatch, getState) => {
-  const state = getState()
-  const editor = getEditor(state)
-  const config = getConfig(state)
+  const config = getConfig(getState())
 
-  const settings = editor.config
-  settings.content = convertLayout(config.get('defaultLayout'), true)
-  editor.destroy()
-  editor.config = settings
-  editor.init()
+  updateLayout(config.get('defaultLayout'), getState)
 
   return dispatch({
     type: 'default-layout/RESET',
     value: config,
   })
 }
+
+export const updateLayout = (value, getState) => {
+  const state = getState()
+  const editor = getEditor(state)
+
+  const settings = editor.config
+  const prevSettings = settings.content
+  try {
+    settings.content = convertLayout(value, true)
+    editor.destroy()
+    editor.config = settings
+    editor.init()
+  } catch (e) {
+    editor.destroy()
+    editor.config.content = prevSettings
+    editor.init()
+  }
+}
+
 export const rendered = () => (dispatch, getState) => {}
 export const fetch = () => (dispatch, getState) => {
   dispatch(start())

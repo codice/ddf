@@ -1,10 +1,10 @@
-const BaseGuideView = require('dev/component/base-guide/base-guide.view')
+const BaseGuideView = require('../base-guide/base-guide.view.js')
 const Marionette = require('marionette')
 const template = require('./input-guide.hbs')
-const CustomElements = require('js/CustomElements')
-var PropertyView = require('component/property/property.view')
-var Property = require('component/property/property')
-const Common = require('js/Common')
+const CustomElements = require('../../../js/CustomElements.js')
+var PropertyView = require('../../../component/property/property.view.js')
+var Property = require('../../../component/property/property.js')
+const Common = require('../../../js/Common.js')
 
 module.exports = BaseGuideView.extend({
   templates: {},

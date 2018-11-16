@@ -11,12 +11,12 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var store = require('js/store')
-var iconHelper = require('js/IconHelper')
+var store = require('../../../js/store.js')
+var iconHelper = require('../../../js/IconHelper.js')
 var _ = require('underscore')
 var _debounce = require('lodash/debounce')
 var wkx = require('wkx')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 var GeometryView = Marionette.ItemView.extend({
   template: false,

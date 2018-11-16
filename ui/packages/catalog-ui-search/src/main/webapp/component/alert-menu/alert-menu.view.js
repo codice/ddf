@@ -13,15 +13,15 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./alert-menu.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const alertInstance = require('component/alert/alert')
-const Common = require('js/Common')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const alertInstance = require('../alert/alert.js')
+const Common = require('../../js/Common.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

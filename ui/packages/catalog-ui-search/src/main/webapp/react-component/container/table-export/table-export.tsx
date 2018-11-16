@@ -15,9 +15,9 @@ import { retrieveExportOptions, exportDataAs } from '../../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../../utils/save-file'
 import { hot } from 'react-hot-loader'
-const user = require('component/singletons/user-instance')
-const properties = require('js/properties')
-const announcement = require('component/announcement')
+const user = require('../../../component/singletons/user-instance.js')
+const properties = require('../../../js/properties.js')
+const announcement = require('../../../component/announcement/index.jsx')
 
 function getFilenameFromContentDisposition(header: any) {
   if (header == null) {

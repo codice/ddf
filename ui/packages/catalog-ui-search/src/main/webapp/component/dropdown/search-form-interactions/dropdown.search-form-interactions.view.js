@@ -17,7 +17,7 @@
 var Marionette = require('marionette')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.search-form-interactions.hbs')
-var SearchFormInteractionsView = require('component/search-form-interactions/search-form-interactions.view')
+var SearchFormInteractionsView = require('../../search-form-interactions/search-form-interactions.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

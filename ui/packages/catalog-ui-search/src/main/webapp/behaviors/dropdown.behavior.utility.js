@@ -18,8 +18,8 @@
     It will help ensure we keep some of the functionality between the two dropdown methods in sync.
 */
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
+const CustomElements = require('../js/CustomElements.js')
+const store = require('../js/store.js')
 
 module.exports = {
   drawing(event) {
@@ -51,15 +51,28 @@ module.exports = {
         .addBack(clickedElement).length > 0
     )
   },
+  withinAnyReactPortal(clickedElement) {
+    return (
+      $('react-portal')
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0
+    )
+  },
   withinAnyDropdown(clickedElement) {
     return (
       this.withinAnyDropdownBehavior(clickedElement) ||
-      this.withinAnyDropdownCompanion(clickedElement)
+      this.withinAnyDropdownCompanion(clickedElement) ||
+      this.withinAnyReactPortal(clickedElement)
     )
   },
   withinParentDropdownCompanion($dropdownEl, clickedElement) {
     return (
       $dropdownEl
+        .prevAll(`${CustomElements.getNamespace()}dropdown-companion`)
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0 ||
+      $dropdownEl
+        .closest('react-portal')
         .prevAll(`${CustomElements.getNamespace()}dropdown-companion`)
         .find(clickedElement)
         .addBack(clickedElement).length > 0
@@ -70,13 +83,32 @@ module.exports = {
       $dropdownEl
         .prevAll('[data-behavior-dropdown]')
         .find(clickedElement)
+        .addBack(clickedElement).length > 0 ||
+      $dropdownEl
+        .closest('react-portal')
+        .prevAll('[data-behavior-dropdown]')
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0
+    )
+  },
+  withinParentReactPortal($dropdownEl, clickedElement) {
+    return (
+      $dropdownEl
+        .closest('react-portal')
+        .prevAll('react-portal')
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0 ||
+      $dropdownEl
+        .prevAll('react-portal')
+        .find(clickedElement)
         .addBack(clickedElement).length > 0
     )
   },
   withinParentDropdown($dropdownEl, clickedElement) {
     return (
       this.withinParentDropdownBehavior($dropdownEl, clickedElement) ||
-      this.withinParentDropdownCompanion($dropdownEl, clickedElement)
+      this.withinParentDropdownCompanion($dropdownEl, clickedElement) ||
+      this.withinParentReactPortal($dropdownEl, clickedElement)
     )
   },
   withinDOM(clickedElement) {

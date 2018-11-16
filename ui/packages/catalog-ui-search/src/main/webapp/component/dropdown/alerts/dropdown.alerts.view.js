@@ -17,8 +17,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.alerts.hbs')
-const ComponentView = require('component/alerts/alerts.view')
-const user = require('component/singletons/user-instance')
+const ComponentView = require('../../alerts/alerts.view.js')
+const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   template: template,

@@ -12,7 +12,7 @@
 import * as React from 'react'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import Sources from '../../presentation/sources'
-const sources = require('component/singletons/sources-instance')
+const sources = require('../../../component/singletons/sources-instance.js')
 
 type Props = {} & WithBackboneProps
 

@@ -18,7 +18,7 @@ var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./dropdown.visualization-selector.hbs')
 var DropdownView = require('../dropdown.view')
-var ComponentView = require('component/visualization-selector/visualization-selector.view')
+var ComponentView = require('../../visualization-selector/visualization-selector.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

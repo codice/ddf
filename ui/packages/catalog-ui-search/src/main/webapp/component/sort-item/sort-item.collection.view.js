@@ -16,7 +16,7 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const queryItemView = require('./sort-item.view')
 const template = require('../sort/sort.hbs')
 

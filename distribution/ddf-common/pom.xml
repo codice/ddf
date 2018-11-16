@@ -57,6 +57,11 @@ These shared resources include:
       <artifactId>platform-osgi-configadmin</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr</artifactId>
+      <version>${felix.scr.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>

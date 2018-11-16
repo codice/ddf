@@ -17,9 +17,9 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./input-radio.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const InputView = require('../input.view')
-const RadioView = require('component/radio/radio.view')
+const RadioView = require('../../radio/radio.view.js')
 
 module.exports = InputView.extend({
   template: template,

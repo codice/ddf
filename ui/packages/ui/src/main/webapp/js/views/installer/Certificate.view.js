@@ -22,11 +22,9 @@ define([
   'jquery',
   '../../models/installer/CertsModel',
   '../../models/installer/FileHelper',
-  'text!templates/installer/certificate.handlebars',
+  'templates/installer/certificate.handlebars',
   'modelbinder',
-  'perfectscrollbar',
-  'multiselect',
-  'fileupload',
+  'blueimp-file-upload/js/jquery.fileupload',
 ], function(
   Marionette,
   ich,

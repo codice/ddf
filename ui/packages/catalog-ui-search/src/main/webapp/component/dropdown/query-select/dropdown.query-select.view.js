@@ -18,10 +18,10 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.query-select.hbs')
-const ComponentView = require('component/query-select/query-select.view')
-const QueryItemView = require('component/query-item/query-item.view')
-const SearchSelectView = require('component/search-select/search-select.view')
-const store = require('js/store')
+const ComponentView = require('../../query-select/query-select.view.js')
+const QueryItemView = require('../../query-item/query-item.view.js')
+const SearchSelectView = require('../../search-select/search-select.view.js')
+const store = require('../../../js/store.js')
 
 module.exports = DropdownView.extend({
   template: template,

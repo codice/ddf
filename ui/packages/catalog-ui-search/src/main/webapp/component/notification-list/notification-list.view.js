@@ -14,11 +14,11 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var userNotifications = require('component/singletons/user-notifications')
-var AlertItemView = require('component/alert-item/alert-item.view')
-var UploadItemView = require('component/upload-batch-item/upload-batch-item.view')
-var UploadItemModel = require('js/model/UploadBatch')
+var CustomElements = require('../../js/CustomElements.js')
+var userNotifications = require('../singletons/user-notifications.js')
+var AlertItemView = require('../alert-item/alert-item.view.js')
+var UploadItemView = require('../upload-batch-item/upload-batch-item.view.js')
+var UploadItemModel = require('../../js/model/UploadBatch.js')
 
 function matchesFilter(filter, model) {
   if (!filter) {

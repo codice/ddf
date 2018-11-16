@@ -15,6 +15,7 @@ export {
   injectGlobal,
   keyframes,
   ThemeProvider,
+  withTheme,
 } from './styled-components'
 export {
   ThemeInterface,

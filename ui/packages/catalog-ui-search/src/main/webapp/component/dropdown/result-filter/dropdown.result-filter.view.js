@@ -18,8 +18,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-filter.hbs')
-const ComponentView = require('component/result-filter/result-filter.view')
-const user = require('component/singletons/user-instance')
+const ComponentView = require('../../result-filter/result-filter.view.js')
+const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   attributes: {

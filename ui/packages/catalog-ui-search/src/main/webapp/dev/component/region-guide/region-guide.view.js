@@ -1,5 +1,5 @@
-const CustomElements = require('js/CustomElements')
-const BaseGuideView = require('dev/component/base-guide/base-guide.view')
+const CustomElements = require('../../../js/CustomElements.js')
+const BaseGuideView = require('../base-guide/base-guide.view.js')
 
 import React from 'react'
 const RawExample = require('!raw-loader!./params')

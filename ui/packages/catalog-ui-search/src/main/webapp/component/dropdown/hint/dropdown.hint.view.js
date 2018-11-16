@@ -15,7 +15,7 @@
 /*global define*/
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.hint.hbs')
-const ComponentView = require('component/hint/hint.view')
+const ComponentView = require('../../hint/hint.view.js')
 const HintDropdownCompanion = require('./dropdown.companion.hint.view')
 
 module.exports = DropdownView.extend({

@@ -12,7 +12,7 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const LoadingCompanionView = require('../../../component/loading-companion/loading-companion.view.js')
 
 const Root = styled.div`
   ${CustomElement};

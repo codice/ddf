@@ -18,7 +18,7 @@ define([
   'backbone',
   'js/views/Modal',
   'properties',
-  'text!templates/systemUsage.layout.handlebars',
+  'templates/systemUsage.layout.handlebars',
 ], function(ich, Backbone, Modal, properties, systemUsageTemplate) {
   ich.addTemplate('systemUsageTemplate', systemUsageTemplate)
 

@@ -10,10 +10,10 @@
  *
  **/
 const Backbone = require('backbone')
-const properties = require('properties')
-const resultSort = require('js/model/ResultSort')
-const filterUtility = require('js/filter')
-const QueryResultModel = require('js/model/QueryResult')
+const properties = require('../properties.js')
+const resultSort = require('./ResultSort.js')
+const filterUtility = require('../filter.js')
+const QueryResultModel = require('./QueryResult.js')
 require('backbone-associations')
 require('backbone.paginator')
 

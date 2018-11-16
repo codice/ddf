@@ -27,6 +27,8 @@
         <powermock.agent>
             ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
         </powermock.agent>
+        <!-- For maven-surefire-plugin -->
+        <surefire.argline.append>-javaagent:${powermock.agent}</surefire.argline.append>
     </properties>
 
 
@@ -70,14 +72,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>${argLine} -javaagent:${powermock.agent} -Djava.awt.headless=true
-                        -noverify
-                    </argLine>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

@@ -18,7 +18,7 @@ define([
   'marionette',
   'backbone',
   'icanhaz',
-  'text!templates/installer/profile.handlebars',
+  'templates/installer/profile.handlebars',
   'jquery',
 ], function(Marionette, Backbone, ich, finishTemplate, $) {
   ich.addTemplate('profileTemplate', finishTemplate)
@@ -53,11 +53,9 @@ define([
       this.model.set({ isCustomProfile: false })
       this.modelBinder.bind(this.model, this.el)
       this.modelChanged() // trigger ui population from model.
-      this.$('.profile-options').perfectScrollbar({ useKeyboard: false })
     },
     onBeforeClose: function() {
       this.modelBinder.unbind()
-      this.$('.profile-options').perfectScrollbar('destroy')
     },
     showLoading: function() {
       this.$('.main-content').toggleClass('visibility-hidden', true)

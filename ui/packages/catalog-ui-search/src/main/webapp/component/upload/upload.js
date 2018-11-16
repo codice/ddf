@@ -12,14 +12,14 @@
 /*global define*/
 const _ = require('underscore')
 const Backbone = require('backbone')
-const Metacard = require('js/model/Metacard')
-const UploadBatch = require('js/model/UploadBatch')
-const Query = require('js/model/Query')
-const QueryResponse = require('js/model/QueryResponse')
-const QueryResult = require('js/model/QueryResult')
-const router = require('component/router/router')
-const cql = require('js/cql')
-const user = require('component/singletons/user-instance')
+const Metacard = require('../../js/model/Metacard.js')
+const UploadBatch = require('../../js/model/UploadBatch.js')
+const Query = require('../../js/model/Query.js')
+const QueryResponse = require('../../js/model/QueryResponse.js')
+const QueryResult = require('../../js/model/QueryResult.js')
+const router = require('../router/router.js')
+const cql = require('../../js/cql.js')
+const user = require('../singletons/user-instance.js')
 
 module.exports = new (Backbone.AssociatedModel.extend({
   relations: [

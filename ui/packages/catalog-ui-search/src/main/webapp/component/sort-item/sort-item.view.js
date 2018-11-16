@@ -17,12 +17,12 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./sort-item.hbs')
-const CustomElements = require('js/CustomElements')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
-const DropdownView = require('component/dropdown/dropdown.view')
-const PropertyView = require('component/property/property.view')
-const Property = require('component/property/property')
-const properties = require('properties')
+const CustomElements = require('../../js/CustomElements.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
+const DropdownView = require('../dropdown/dropdown.view.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const properties = require('../../js/properties.js')
 
 var blacklist = ['anyText', 'anyGeo']
 

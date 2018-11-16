@@ -25,7 +25,9 @@
     <name>DDF :: Catalog :: OpenSearch :: Endpoint</name>
     <packaging>bundle</packaging>
     <properties>
-        <parboiled.version>1.1.8</parboiled.version>
+        <parboiled.version>1.2.0</parboiled.version>
+        <!-- Overriding the asm version from the root pom to stay in sync with parboiled-java -->
+        <opensearch.asm.version>6.2.1</opensearch.asm.version>
     </properties>
     <dependencies>
         <dependency>
@@ -61,8 +63,17 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <!-- Overriding the version from the root pom due to dependency conflicts with parboiled-java -->
-            <version>6.0</version>
+            <version>${opensearch.asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>${opensearch.asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+            <version>${opensearch.asm.version}</version>
         </dependency>
         <!--test dependencies-->
         <dependency>
@@ -82,15 +93,21 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <!--  Override what jdk version is required (due to ASM). The file below and the _include entry may be removed once DDF targets Java11 -->
+                        <_include>src/main/resources/META-INF/MANIFEST.MF</_include>
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             catalog-opensearch-api,
                             platform-util,
                             parboiled-java,
-                            parboiled-core
+                            parboiled-core,
+                            asm,
+                            asm-tree,
+                            asm-analysis
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

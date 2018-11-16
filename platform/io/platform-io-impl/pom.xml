@@ -35,6 +35,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
+            <version>${felix.configadmin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>

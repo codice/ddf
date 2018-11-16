@@ -10,5 +10,5 @@
  *
  **/
 /*global define*/
-const Sources = require('js/model/Sources')
+const Sources = require('../../js/model/Sources.js')
 module.exports = new Sources()

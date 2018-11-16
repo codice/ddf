@@ -13,14 +13,14 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var $ = require('jquery')
 var _ = require('underscore')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var Common = require('js/Common')
+var CustomElements = require('../../../js/CustomElements.js')
+var Common = require('../../../js/Common.js')
 var RowView = require('./row.view')
-require('behaviors/selection.behavior')
+require('../../../behaviors/selection.behavior.js')
 
 module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('result-tbody'),

@@ -17,7 +17,7 @@ var Marionette = require('marionette')
 var _ = require('underscore')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.details-interactions.hbs')
-var ComponentView = require('component/details-interactions/details-interactions.view')
+var ComponentView = require('../../details-interactions/details-interactions.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

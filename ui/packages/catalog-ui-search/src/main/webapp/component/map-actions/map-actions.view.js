@@ -14,9 +14,9 @@
 const _ = require('underscore')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const template = require('./map-actions.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 
 var mapActionsView = Marionette.ItemView.extend({
   template: template,

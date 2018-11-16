@@ -17,8 +17,8 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
-const SortItemCollectionView = require('component/sort-item/sort-item.collection.view')
+const CustomElements = require('../../js/CustomElements.js')
+const SortItemCollectionView = require('../sort-item/sort-item.collection.view.js')
 const template = require('./sort.hbs')
 
 module.exports = Marionette.LayoutView.extend({

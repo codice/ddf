@@ -15,16 +15,16 @@
 /*global require, window*/
 var _ = require('underscore')
 var $ = require('jquery')
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var template = require('./combined-map.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var CesiumView = require('component/visualization/maps/cesium/cesium.view')
-var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view')
-var Common = require('js/Common')
-var store = require('js/store')
-var user = require('component/singletons/user-instance')
-var featureDetection = require('component/singletons/feature-detection')
+var CustomElements = require('../../../js/CustomElements.js')
+var CesiumView = require('../maps/cesium/cesium.view.js')
+var OpenlayersView = require('../maps/openlayers/openlayers.view.js')
+var Common = require('../../../js/Common.js')
+var store = require('../../../js/store.js')
+var user = require('../../singletons/user-instance.js')
+var featureDetection = require('../../singletons/feature-detection.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('combined-map'),

@@ -54,10 +54,12 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -98,6 +100,9 @@ public class EndpointUtilTest {
   private AttributeRegistry attributeRegistryMock;
 
   CatalogFramework catalogFrameworkMock;
+
+  // represents 2018-09-05T14:03:17.000Z
+  private static final long DATE_EPOCH = 1536156197000L;
 
   @Before
   public void setUp() throws Exception {
@@ -395,5 +400,59 @@ public class EndpointUtilTest {
     cqlRequest.setCql("anyText ILIKE '*'");
 
     return cqlRequest;
+  }
+
+  @Test
+  public void testParseDateEpochIsoZ() {
+    Instant date = new Date(DATE_EPOCH).toInstant();
+
+    Instant dateConverted = endpointUtil.parseDate("2018-09-05T14:03:17.000Z");
+    assertThat(dateConverted, is(date));
+  }
+
+  @Test
+  public void testParseDateEpochIso0000() {
+    Instant date = new Date(DATE_EPOCH).toInstant();
+
+    Instant dateConverted = endpointUtil.parseDate("2018-09-05T14:03:17.000+00:00");
+    assertThat(dateConverted, is(date));
+  }
+
+  @Test
+  public void testParseDateEpochIsoNoMilli() {
+    Instant date = new Date(DATE_EPOCH).toInstant();
+
+    Instant dateConverted = endpointUtil.parseDate("2018-09-05T14:03:17Z");
+    assertThat(dateConverted, is(date));
+  }
+
+  @Test
+  public void testParseDateEpochIsoDifferentTimeZone() {
+    Instant date = new Date(DATE_EPOCH).toInstant();
+
+    Instant dateConverted = endpointUtil.parseDate("2018-09-05T10:03:17.000-04:00");
+    assertThat(dateConverted, is(date));
+  }
+
+  @Test
+  public void testParseDateEpochLong() {
+    Instant date = new Date(DATE_EPOCH).toInstant();
+
+    Instant dateConverted = endpointUtil.parseDate(DATE_EPOCH);
+    assertThat(dateConverted, is(date));
+  }
+
+  @Test
+  public void testParseDateEpochString() {
+    Instant date = new Date(DATE_EPOCH).toInstant();
+
+    Instant dateConverted = endpointUtil.parseDate(Long.toString(DATE_EPOCH));
+    assertThat(dateConverted, is(date));
+  }
+
+  @Test
+  public void testParseDateWhiteSpaceString() {
+    Instant dateConverted = endpointUtil.parseDate("  ");
+    assertThat(dateConverted, nullValue());
   }
 }

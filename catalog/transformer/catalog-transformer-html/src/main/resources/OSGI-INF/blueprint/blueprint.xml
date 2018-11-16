@@ -40,6 +40,7 @@
       <entry key="id" value="html"/>
       <entry key="shortname" value="html"/>
       <entry key="mime-type" value="text/html"/>
+      <entry key="export-resultset" value="true"/>
     </service-properties>
   </service>
 

@@ -112,6 +112,8 @@
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jetty/${pax.web.codice.version}</bundle>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-runtime/${pax.web.codice.version}</bundle>
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-spi/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.codice.version}</bundle>
+        <bundle>mvn:javax.el/javax.el-api/3.0.0</bundle>
         <feature>pax-jetty</feature>
         <feature>session-invalidator</feature>
         <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
@@ -257,7 +259,7 @@
         <feature>security-core-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
-        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.2.RELEASE</bundle>
+        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/2.3.2.RELEASE</bundle>
     </feature>
 
     <feature name="security-sts-server" version="${project.version}"

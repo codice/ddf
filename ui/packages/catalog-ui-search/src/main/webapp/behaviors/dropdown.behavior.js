@@ -17,7 +17,7 @@ const Behaviors = require('./Behaviors')
 const Marionette = require('marionette')
 const _ = require('lodash')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../js/CustomElements.js')
 const DropdownBehaviorUtility = require('./dropdown.behavior.utility')
 
 const tagName = CustomElements.register('behavior-dropdown')

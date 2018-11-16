@@ -14,8 +14,8 @@
  **/
 /*global require*/
 var TableView = require('../table.view')
-var HeaderView = require('component/visualization/table/thead.view')
-var BodyView = require('component/visualization/table/tbody.view')
+var HeaderView = require('../../visualization/table/thead.view.js')
+var BodyView = require('../../visualization/table/tbody.view.js')
 var $ = require('jquery')
 
 function getOriginalEvent(e) {

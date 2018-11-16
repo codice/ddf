@@ -14,7 +14,7 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var RowView = require('./query-status-row.view')
 
 module.exports = Marionette.CollectionView.extend({

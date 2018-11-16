@@ -12,7 +12,7 @@
 /*global define*/
 const _ = require('underscore')
 const Backbone = require('backbone')
-const PropertyModel = require('component/property/property')
+const PropertyModel = require('../property/property.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({

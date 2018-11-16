@@ -13,10 +13,10 @@
 var Marionette = require('marionette')
 var $ = require('jquery')
 var _ = require('underscore')
-var store = require('js/store')
+var store = require('../../../js/store.js')
 var ClusterView = require('./cluster.view')
 var Clustering = require('./Clustering')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 var ClusterCollectionView = Marionette.CollectionView.extend({
   childView: ClusterView,

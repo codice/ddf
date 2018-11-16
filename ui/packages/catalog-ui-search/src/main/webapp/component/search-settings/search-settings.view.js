@@ -15,16 +15,16 @@
 /*global define, setTimeout*/
 const Marionette = require('marionette')
 const _ = require('underscore')
-const properties = require('properties')
+const properties = require('../../js/properties.js')
 const $ = require('jquery')
 const template = require('./search-settings.hbs')
-const CustomElements = require('js/CustomElements')
-const user = require('component/singletons/user-instance')
-const PropertyView = require('component/property/property.view')
-const Property = require('component/property/property')
-const QuerySettingsView = require('component/query-settings/query-settings.view')
-const QueryModel = require('js/model/Query')
-const ConfirmationView = require('component/confirmation/confirmation.view')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const QuerySettingsView = require('../query-settings/query-settings.view.js')
+const QueryModel = require('../../js/model/Query.js')
+const ConfirmationView = require('../confirmation/confirmation.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

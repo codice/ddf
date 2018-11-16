@@ -14,15 +14,15 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var CustomElements = require('CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var template = require('./navigator.hbs')
-var wreqr = require('wreqr')
-var properties = require('properties')
-var store = require('js/store')
-var metacard = require('component/metacard/metacard')
-var SaveView = require('component/save/workspaces/workspaces-save.view')
-var UnsavedIndicatorView = require('component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view')
-var sources = require('component/singletons/sources-instance')
+var wreqr = require('../../js/wreqr.js')
+var properties = require('../../js/properties.js')
+var store = require('../../js/store.js')
+var metacard = require('../metacard/metacard.js')
+var SaveView = require('../save/workspaces/workspaces-save.view.js')
+var UnsavedIndicatorView = require('../unsaved-indicator/workspaces/workspaces-unsaved-indicator.view.js')
+var sources = require('../singletons/sources-instance.js')
 const plugin = require('plugins/navigator')
 const $ = require('jquery')
 

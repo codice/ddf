@@ -12,7 +12,7 @@
 /*global require, setTimeout*/
 var Backbone = require('backbone')
 var $ = require('jquery')
-require('js/jquery.whenAll')
+require('../jquery.whenAll.js')
 
 function fileMatches(file, model) {
   return file === model.get('file')

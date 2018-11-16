@@ -16,7 +16,7 @@
 define([
   'marionette',
   'js/models/Service',
-  'text!./application-services.hbs',
+  './application-services.hbs',
   'components/service-item/service-item.collection.view',
   'js/CustomElements',
   'js/wreqr.js',

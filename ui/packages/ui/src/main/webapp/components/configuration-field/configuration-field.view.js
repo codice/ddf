@@ -16,7 +16,7 @@
 /** Main view page for add. */
 define([
   'marionette',
-  'text!./configuration-field.hbs',
+  './configuration-field.hbs',
   'js/CustomElements',
 ], function(Marionette, template, CustomElements) {
   return Marionette.ItemView.extend({

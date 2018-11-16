@@ -17,10 +17,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard-quality.hbs')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-const store = require('js/store')
-const Common = require('js/Common')
+const CustomElements = require('../../js/CustomElements.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+const store = require('../../js/store.js')
+const Common = require('../../js/Common.js')
 
 var selectedVersion
 

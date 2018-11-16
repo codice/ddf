@@ -10,7 +10,11 @@
  *
  **/
 /*global define*/
-define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
+define(['icanhaz', 'underscore', 'ace/handlebars'], function(
+  ich,
+  _,
+  Handlebars
+) {
   'use strict'
 
   // The module to be exported

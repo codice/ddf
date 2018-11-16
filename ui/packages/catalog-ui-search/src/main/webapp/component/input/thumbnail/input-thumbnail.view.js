@@ -18,8 +18,8 @@ const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./input-thumbnail.hbs')
 const InputView = require('../input.view')
-const announcement = require('component/announcement')
-const Common = require('js/Common')
+const announcement = require('../../announcement/index.jsx')
+const Common = require('../../../js/Common.js')
 
 function handleError() {
   announcement.announce({

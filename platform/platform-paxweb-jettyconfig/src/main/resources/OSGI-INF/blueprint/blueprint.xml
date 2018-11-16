@@ -55,6 +55,7 @@
                             <value>/services/SecurityTokenService[/]?$=GET</value>
                             <value>/services/SecurityTokenService[/]?$=POST</value>
                             <value>/services/store/config[/]?$=GET</value>
+                            <value>/services/internal/registries.*=GET</value>
                         </array>
                     </property>
                 </bean>

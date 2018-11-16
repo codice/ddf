@@ -11,12 +11,12 @@
  **/
 /*global define, window, setTimeout, location*/
 /* eslint-disable no-undefined */
-const wreqr = require('wreqr')
+const wreqr = require('./wreqr.js')
 const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
-const Application = require('application')
-const router = require('component/router/router')
+const Application = require('./application.js')
+const router = require('../component/router/router.js')
 import ReactRouter from '../react-component/container/router-container'
 import React from 'react'
 import { render } from 'react-dom'

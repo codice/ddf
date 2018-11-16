@@ -60,6 +60,7 @@ public class MetadataConfigurationParserTest {
 
   @Before
   public void before() throws Exception {
+    System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", "INFO");
     MockitoAnnotations.initMocks(this);
     OpenSAMLUtil.initSamlEngine();
 
@@ -80,6 +81,7 @@ public class MetadataConfigurationParserTest {
 
   @After
   public void after() throws Exception {
+    System.clearProperty("org.ops4j.pax.logging.DefaultServiceLog.level");
     server.stop();
   }
 

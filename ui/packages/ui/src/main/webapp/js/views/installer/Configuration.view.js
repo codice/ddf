@@ -20,13 +20,11 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'text!templates/installer/configuration.handlebars',
-  'text!templates/installer/configurationItem.handlebars',
+  'templates/installer/configuration.handlebars',
+  'templates/installer/configurationItem.handlebars',
   './Certificate.view.js',
   '../../models/installer/CertsModel.js',
   'modelbinder',
-  'perfectscrollbar',
-  'multiselect',
 ], function(
   Marionette,
   ich,
@@ -134,51 +132,34 @@ define([
       layout.navigationModel.set('redirectUrl', './index.html')
 
       if (!hasErrors) {
-        var propertySave = this.model.save()
-        if (propertySave) {
-          propertySave.done(function() {
-            if (hostChange) {
-              var certSave = layout.certificateModel.save()
-              if (certSave) {
-                certSave.done(function() {
-                  if (_.isEmpty(layout.certificateModel.get('certErrors'))) {
-                    layout.navigationModel.nextStep('', 100)
-                  } else {
-                    layout.navigationModel.nextStep(
-                      'Unable to save certificates. Check errors messages.',
-                      0
-                    )
-                  }
-                })
-
-                certSave.fail(function() {
-                  layout.navigationModel.nextStep(
-                    'Unable to save certificates: check logs',
-                    0
-                  )
-                })
-              } else {
+        if (hostChange) {
+          var certSave = layout.certificateModel.save()
+          if (certSave) {
+            certSave.done(function() {
+              if (!_.isEmpty(layout.certificateModel.get('certErrors'))) {
                 layout.navigationModel.nextStep(
-                  'Certificate validation failed. Check inputs',
+                  'Unable to save certificates. Check error messages.',
                   0
                 )
+              } else {
+                layout.saveProperties()
               }
-            } else {
-              layout.navigationModel.nextStep('', 100)
-            }
-          })
+            })
 
-          propertySave.fail(function() {
+            certSave.fail(function() {
+              layout.navigationModel.nextStep(
+                'Unable to save certificates. Check logs.',
+                0
+              )
+            })
+          } else {
             layout.navigationModel.nextStep(
-              'Unable to Save Configuration: check logs',
+              'Certificate validation failed. Check inputs.',
               0
             )
-          })
+          }
         } else {
-          layout.navigationModel.nextStep(
-            'System property validation failed. Check inputs.',
-            0
-          )
+          layout.saveProperties()
         }
       } else {
         layout.navigationModel.nextStep(
@@ -201,12 +182,27 @@ define([
 
       this.configurationItems.show(sysPropsView)
       this.certificates.show(certificateView)
+    },
+    saveProperties: function() {
+      var layout = this
+      var propertySave = this.model.save()
+      if (propertySave) {
+        propertySave.done(function() {
+          layout.navigationModel.nextStep('', 100)
+        })
 
-      _.defer(function() {
-        view
-          .$('#system-configuration-settings')
-          .perfectScrollbar({ useKeyboard: false })
-      })
+        propertySave.fail(function() {
+          layout.navigationModel.nextStep(
+            'Unable to Save Configuration. Check logs.',
+            0
+          )
+        })
+      } else {
+        layout.navigationModel.nextStep(
+          'System property validation failed. Check inputs.',
+          0
+        )
+      }
     },
   })
 

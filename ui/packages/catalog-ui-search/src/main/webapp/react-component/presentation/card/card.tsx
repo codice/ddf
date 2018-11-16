@@ -11,6 +11,7 @@
  **/
 import * as React from 'react'
 import styled from '../../styles/styled-components'
+import { hot } from 'react-hot-loader'
 
 const Root = styled.div`
   width: 100%;
@@ -42,23 +43,29 @@ const Details = styled.div`
 `
 
 const Footer = styled.div`
+  height: ${props => props.theme.minimumButtonSize};
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
 `
 
 interface Props {
   header: React.ReactNode
   details: React.ReactNode
   footer: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
 }
 
 const Card = (props: Props) => {
+  const { header, details, footer, className, style } = props
   return (
-    <Root>
-      <Header>{props.header}</Header>
-      <Details>{props.details}</Details>
-      <Footer>{props.footer}</Footer>
+    <Root className={className} style={style as any}>
+      <Header>{header}</Header>
+      <Details>{details}</Details>
+      <Footer>{footer}</Footer>
     </Root>
   )
 }
 
-export default Card
+export default hot(module)(Card)

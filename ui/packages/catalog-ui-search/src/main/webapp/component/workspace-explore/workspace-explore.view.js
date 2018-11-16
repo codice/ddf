@@ -17,10 +17,10 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const workspaceExploreTemplate = require('./workspace-explore.hbs')
-const CustomElements = require('js/CustomElements')
-const QuerySelectorView = require('component/query-selector/query-selector.view')
-const store = require('js/store')
-const lightboxViewInstance = require('component/lightbox/lightbox.view.instance')
+const CustomElements = require('../../js/CustomElements.js')
+const QuerySelectorView = require('../query-selector/query-selector.view.js')
+const store = require('../../js/store.js')
+const lightboxViewInstance = require('../lightbox/lightbox.view.instance.js')
 
 var WorkspaceExplore = Marionette.LayoutView.extend({
   setDefaultModel: function() {

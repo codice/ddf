@@ -1,7 +1,7 @@
 const React = require('react')
 const isEqual = require('lodash/isEqual')
 
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const Component = CustomElements.registerReact('json')
 
 const Button = require('../button')

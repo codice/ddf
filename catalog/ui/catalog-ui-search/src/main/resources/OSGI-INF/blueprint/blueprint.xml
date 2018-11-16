@@ -270,7 +270,7 @@
 
     <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
     <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
-                    member-type="service-reference">
+                    member-type="service-reference" filter="(export-resultset=true)">
         <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
     </reference-list>
 

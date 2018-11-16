@@ -18,7 +18,7 @@ const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./confirmation.hbs')
 const Confirmation = require('./confirmation')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend(
   {

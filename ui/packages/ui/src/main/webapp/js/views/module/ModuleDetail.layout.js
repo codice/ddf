@@ -18,7 +18,7 @@ define([
   'marionette',
   'icanhaz',
   'js/wreqr',
-  'text!moduleDetailLayout',
+  'templates/module/ModuleDetail.layout.handlebars',
 ], function(Backbone, Marionette, ich, wreqr, moduleDetailLayout) {
   'use strict'
 

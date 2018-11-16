@@ -16,7 +16,7 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const template = require('./paging.hbs')
 const _debounce = require('lodash/debounce')
 

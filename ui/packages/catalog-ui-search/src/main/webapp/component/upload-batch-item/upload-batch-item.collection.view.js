@@ -17,8 +17,8 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const childView = require('./upload-batch-item.view')
-const CustomElements = require('js/CustomElements')
-const user = require('component/singletons/user-instance')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.CollectionView.extend({
   emptyView: Marionette.ItemView.extend({

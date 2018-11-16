@@ -18,11 +18,11 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.hover-preview.hbs')
-const ComponentView = require('component/hover-preview/hover-preview.view')
-const properties = require('properties')
+const ComponentView = require('../../hover-preview/hover-preview.view.js')
+const properties = require('../../../js/properties.js')
 const _merge = require('lodash/merge')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
+const Common = require('../../../js/Common.js')
+const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   template: template,
