@@ -53,6 +53,9 @@ var ContentView = Marionette.LayoutView.extend({
       this.handleWorkspaceChange
     )
     this.updateContentLeft()
+    if (this._mapView) {
+      this.contentRight.show(this._mapView)
+    }
   },
   handleWorkspaceChange(contentModel) {
     if (
