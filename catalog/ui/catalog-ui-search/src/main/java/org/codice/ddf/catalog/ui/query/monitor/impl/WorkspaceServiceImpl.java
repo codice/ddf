@@ -33,6 +33,7 @@ import ddf.catalog.util.impl.CatalogQueryException;
 import ddf.catalog.util.impl.QueryFunction;
 import ddf.catalog.util.impl.ResultIterable;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -210,6 +211,22 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     return securityService.addSystemSubject(new HashMap<>());
   }
 
+  private Filter getWorkspaceFilterFromIds(Set<String> workspaceIds) {
+    List<Filter> workspaceFilters = new ArrayList<>();
+
+    for (String workspaceId : workspaceIds) {
+      workspaceFilters.add(getWorkspaceFilter(workspaceId));
+    }
+
+    return filterBuilder.anyOf(workspaceFilters);
+  }
+
+  private Filter getWorkspaceFilter(String workspaceId) {
+    return filterBuilder.allOf(
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(WORKSPACE_TAG),
+        filterBuilder.attribute(Core.ID).is().equalTo().text(workspaceId));
+  }
+
   @Override
   public List<WorkspaceMetacardImpl> getWorkspaceMetacards(Set<String> workspaceIds) {
 
@@ -217,7 +234,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
       return Collections.emptyList();
     }
 
-    final Filter filter = workspaceQueryBuilder.createFilter(workspaceIds);
+    final Filter filter = getWorkspaceFilterFromIds(workspaceIds);
 
     final QueryRequest queryRequest = createQueryRequest(filter);
 
