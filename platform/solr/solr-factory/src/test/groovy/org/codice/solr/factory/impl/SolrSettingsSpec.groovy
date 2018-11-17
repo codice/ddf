@@ -11,12 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.settings
+package org.codice.solr.factory.impl
 
 
 import org.codice.spock.Supplemental
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.environment.RestoreSystemProperties
 
@@ -27,33 +28,34 @@ class SolrSettingsSpec extends Specification {
     @Rule
     TemporaryFolder tempFolder = new TemporaryFolder();
 
+    def solrSettings = new SolrSettings();
+
     def 'solr dir is null'() {
 
         given:
         System.clearProperty("solr.data.dir")
-        SolrSettings.loadSystemProperties()
 
         expect:
-        !SolrSettings.isSolrDataDirWritable()
+        !solrSettings.isSolrDataDirWritable()
     }
 
 
     def 'solr dir is valid'() {
         given:
-        setTestProperty("solr.data.dir", tempFolder.root.getAbsolutePath())
+        System.setProperty("solr.data.dir", tempFolder.root.getAbsolutePath())
 
         expect:
         tempFolder.root.canWrite()
-        SolrSettings.isSolrDataDirWritable()
+        solrSettings.isSolrDataDirWritable()
     }
 
 
     def 'solr dir does not exist'() {
         given:
-        setTestProperty("solr.data.dir", "!!!!!")
+        System.setProperty("solr.data.dir", "!!!!!")
 
         expect:
-        !SolrSettings.isSolrDataDirWritable()
+        !solrSettings.isSolrDataDirWritable()
     }
 
 
@@ -61,32 +63,26 @@ class SolrSettingsSpec extends Specification {
         given:
         def readOnlyFolder = tempFolder.newFolder()
         readOnlyFolder.setReadOnly();
-        setTestProperty("solr.data.dir", readOnlyFolder.getAbsolutePath());
+        System.setProperty("solr.data.dir", readOnlyFolder.getAbsolutePath());
 
         expect:
         readOnlyFolder.canRead();
         !readOnlyFolder.canWrite();
-        !SolrSettings.isSolrDataDirWritable()
+        !solrSettings.isSolrDataDirWritable()
     }
 
 
     def 'core directory'() {
         given:
-        setTestProperty("solr.data.dir", "/")
-        setTestProperty("solr.http.url", "bork")
+        System.setProperty("solr.data.dir", "/")
+        System.setProperty("solr.http.url", "bork")
 
 
         expect:
-        SolrSettings.getCoreDir("test").equals("/test")
-        SolrSettings.getCoreUrl("test").equals("bork/test")
-        SolrSettings.getCoreDataDir("test").equals("/test/data")
+        solrSettings.getCoreDir("test").equals("/test")
+        solrSettings.getCoreUrl("test").equals("bork/test")
+        solrSettings.getCoreDataDir("test").equals("/test/data")
     }
-
-    def setTestProperty(propertyName, propertyValue) {
-        System.setProperty(propertyName, propertyValue);
-        SolrSettings.loadSystemProperties();
-    }
-
 
     //TODO: add this test
 //    @Test

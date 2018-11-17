@@ -24,7 +24,6 @@ import org.apache.solr.schema.IndexSchema
 import org.codice.junit.DeFinalize
 import org.codice.junit.DeFinalizer
 import org.codice.solr.settings.MockSolrProperty
-import org.codice.solr.settings.SolrSettings
 import org.codice.spock.Supplemental
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder

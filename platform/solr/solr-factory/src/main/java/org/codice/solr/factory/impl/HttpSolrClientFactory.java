@@ -18,17 +18,6 @@ import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSe
 import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getTrustStore;
 import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getTrustStorePass;
 import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.isSslConfigured;
-import static org.codice.solr.settings.SolrSettings.getCoreDataDir;
-import static org.codice.solr.settings.SolrSettings.getCoreDir;
-import static org.codice.solr.settings.SolrSettings.getCoreUrl;
-import static org.codice.solr.settings.SolrSettings.getDefaultSchemaXml;
-import static org.codice.solr.settings.SolrSettings.getDefaultSolrconfigXml;
-import static org.codice.solr.settings.SolrSettings.getSupportedCipherSuites;
-import static org.codice.solr.settings.SolrSettings.getSupportedProtocols;
-import static org.codice.solr.settings.SolrSettings.getUrl;
-import static org.codice.solr.settings.SolrSettings.isSolrDataDirWritable;
-import static org.codice.solr.settings.SolrSettings.useBasicAuth;
-import static org.codice.solr.settings.SolrSettings.useTls;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.FileInputStream;
@@ -64,7 +53,6 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.solr.factory.SolrClientFactory;
-import org.codice.solr.settings.SolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,12 +65,21 @@ import org.slf4j.LoggerFactory;
 public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
+  private SolrSettings solrSettings = new SolrSettings();
+
+  private boolean solrCoreExists(SolrClient client, String coreName)
+      throws IOException, SolrServerException {
+    CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
+    return response.getCoreStatus(coreName).get("instanceDir") != null;
+  }
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String coreName) {
     Validate.notEmpty(coreName, "Solr core name is missing. Cannot create Solr client.");
     LOGGER.debug(
-        "Solr({}): Creating an HTTP Solr client using url [{}]", coreName, getCoreUrl(coreName));
+        "Solr({}): Creating an HTTP Solr client using url [{}]",
+        coreName,
+        solrSettings.getCoreUrl(coreName));
     return new SolrClientAdapter(coreName, () -> createSolrHttpClient(coreName));
   }
 
@@ -90,7 +87,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   SolrClient createSolrHttpClient(String coreName) throws IOException, SolrServerException {
     final HttpClientBuilder httpClientBuilder = createHttpBuilder();
     final HttpSolrClient.Builder solrClientBuilder =
-        new HttpSolrClient.Builder(getCoreUrl(coreName));
+        new HttpSolrClient.Builder(solrSettings.getCoreUrl(coreName));
 
     try (final Closer closer = new Closer()) {
 
@@ -153,9 +150,9 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   void createSolrCore(String coreName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
     Validate.isTrue(
-        isSolrDataDirWritable(),
+        solrSettings.isSolrDataDirWritable(),
         "The solr data dir is not configured or is not writable. Cannot create core.");
-    String solrUrl = getUrl();
+    String solrUrl = solrSettings.getUrl();
     try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
         HttpSolrClient client =
             (httpClient != null
@@ -168,13 +165,13 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
         configProxy.writeSolrConfiguration(coreName);
         if (!solrCoreExists(client, coreName)) {
           LOGGER.debug("Solr({}): Creating Solr core", coreName);
-          String dataDir = getCoreDataDir(coreName);
+          String dataDir = solrSettings.getCoreDataDir(coreName);
           CoreAdminRequest.createCore(
               coreName,
-              getCoreDir(coreName),
+              solrSettings.getCoreDir(coreName),
               client,
-              getDefaultSolrconfigXml(),
-              getDefaultSchemaXml(),
+              solrSettings.getDefaultSolrconfigXml(),
+              solrSettings.getDefaultSchemaXml(),
               dataDir,
               dataDir);
         } else {
@@ -196,16 +193,16 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
             .setMaxConnTotal(128)
             .setMaxConnPerRoute(32);
 
-    if (useTls()) {
+    if (solrSettings.useTls()) {
       httpClientBuilder.setSSLSocketFactory(
           new SSLConnectionSocketFactory(
               getSslContext(),
-              getSupportedProtocols(),
-              getSupportedCipherSuites(),
+              solrSettings.getSupportedProtocols(),
+              solrSettings.getSupportedCipherSuites(),
               SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
     }
 
-    if (useBasicAuth()) {
+    if (solrSettings.useBasicAuth()) {
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());
       httpClientBuilder.addInterceptorFirst(new PreemptiveAuth(new BasicScheme()));
     }
@@ -218,15 +215,9 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
     org.apache.http.auth.UsernamePasswordCredentials credentials =
         new org.apache.http.auth.UsernamePasswordCredentials(
-            SolrSettings.getSolrUsername(), SolrSettings.getPlainTextSolrPassword());
+            solrSettings.getSolrUsername(), solrSettings.getPlainTextSolrPassword());
     provider.setCredentials(AuthScope.ANY, credentials);
     return provider;
-  }
-
-  private static boolean solrCoreExists(SolrClient client, String coreName)
-      throws IOException, SolrServerException {
-    CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
-    return response.getCoreStatus(coreName).get("instanceDir") != null;
   }
 
   /** Class to offload configuration-related tasks from the HttpSolrClientFactory. */
@@ -261,32 +252,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     /** This class is not meant to be instantiated. */
     private ProtectedSolrSettings() {}
 
-    /**
-     * After settings the system properties in a test method, invoke this method to read those
-     * properties.
-     */
-    //    @VisibleForTesting
-    //    static void loadSystemProperties() {
-    //      trustStore =
-    //          AccessController.doPrivileged(
-    //              (PrivilegedAction<String>) () ->
-    // System.getProperty("javax.net.ssl.trustStore"));
-    //      trustStorePass =
-    //          AccessController.doPrivileged(
-    //              (PrivilegedAction<String>)
-    //                  () -> System.getProperty("javax.net.ssl.trustStorePassword"));
-    //      keyStore =
-    //          AccessController.doPrivileged(
-    //              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore"));
-    //      keyStorePass =
-    //          AccessController.doPrivileged(
-    //              (PrivilegedAction<String>) () -> System
-    //                  .getProperty("javax.net.ssl.keyStorePassword"));
-    //      keyStoreType =
-    //          AccessController.doPrivileged(
-    //              (PrivilegedAction<String>) () ->
-    // System.getProperty("javax.net.ssl.keyStoreType"));
-    //    }
     static boolean isSslConfigured() {
       return Stream.of(getKeyStore(), getKeyStorePass(), getTrustStore(), getTrustStorePass())
           .allMatch(StringUtils::isNotEmpty);

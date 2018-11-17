@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.settings.SolrSettings;
+import org.codice.solr.factory.impl.SolrSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

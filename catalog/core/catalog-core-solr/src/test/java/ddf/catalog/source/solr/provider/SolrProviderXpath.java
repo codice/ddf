@@ -26,7 +26,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.util.Arrays;
 import java.util.List;
-import org.codice.solr.settings.SolrSettings;
+import org.codice.solr.factory.impl.SolrSettings;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.opengis.filter.Filter;

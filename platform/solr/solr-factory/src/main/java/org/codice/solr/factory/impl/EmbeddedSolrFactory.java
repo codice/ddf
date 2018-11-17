@@ -13,9 +13,7 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.codice.solr.settings.SolrSettings.getDefaultSchemaXml;
-import static org.codice.solr.settings.SolrSettings.getDefaultSolrconfigXml;
-import static org.codice.solr.settings.SolrSettings.isInMemory;
+import static org.codice.solr.factory.impl.SolrSettings.isInMemory;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.nio.file.Path;
@@ -52,6 +50,17 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
 
   private static final Map<EmbeddedSolrFiles, IndexSchema> INDEX_CACHE = new ConcurrentHashMap<>();
 
+  @VisibleForTesting
+  static void resetIndexCache(Map<EmbeddedSolrFiles, IndexSchema> cache) {
+    EmbeddedSolrFactory.INDEX_CACHE.clear();
+    EmbeddedSolrFactory.INDEX_CACHE.putAll(cache);
+  }
+
+  @VisibleForTesting
+  static boolean indexCacheEquals(Map<EmbeddedSolrFiles, IndexSchema> cache) {
+    return EmbeddedSolrFactory.INDEX_CACHE.equals(cache);
+  }
+
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String core) {
     Validate.notNull(core, "invalid null Solr core name");
@@ -71,10 +80,11 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    */
   @VisibleForTesting
   EmbeddedSolrServer getEmbeddedSolrServer(String coreName) {
+    SolrSettings solrSettings = new SolrSettings();
     ConfigurationFileProxy configProxy = getConfigProxy();
     Validate.notNull(configProxy, "invalid null Solr config proxy");
-    String schemaXml = getDefaultSchemaXml();
-    String configXml = getDefaultSolrconfigXml();
+    String schemaXml = solrSettings.getDefaultSchemaXml();
+    String configXml = solrSettings.getDefaultSolrconfigXml();
     Validate.notNull(configXml, "invalid null Solr config file");
     Validate.notNull(schemaXml, "invalid null Solr schema file");
     if (!isInMemory()) {
@@ -185,16 +195,5 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
         delPolicy,
         prev,
         reload);
-  }
-
-  @VisibleForTesting
-  static void resetIndexCache(Map<EmbeddedSolrFiles, IndexSchema> cache) {
-    EmbeddedSolrFactory.INDEX_CACHE.clear();
-    EmbeddedSolrFactory.INDEX_CACHE.putAll(cache);
-  }
-
-  @VisibleForTesting
-  static boolean indexCacheEquals(Map<EmbeddedSolrFiles, IndexSchema> cache) {
-    return EmbeddedSolrFactory.INDEX_CACHE.equals(cache);
   }
 }

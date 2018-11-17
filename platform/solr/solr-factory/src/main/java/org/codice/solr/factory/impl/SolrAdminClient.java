@@ -11,18 +11,21 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.settings;
+package org.codice.solr.factory.impl;
 
-/** Allow test classes in other modules to set properties for the purpose of testing. */
-public class MockSolrProperty {
+import java.io.InputStream;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-  public static void setProperty(String name, String key) {
-    System.setProperty(name, key);
-    SolrSettings.loadSystemProperties();
-  }
+@Path("admin/authentication")
+public interface SolrAdminClient {
 
-  public static void clearProperty(String name) {
-    System.clearProperty(name);
-    SolrSettings.loadSystemProperties();
-  }
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  Response sendRequest(InputStream is);
 }

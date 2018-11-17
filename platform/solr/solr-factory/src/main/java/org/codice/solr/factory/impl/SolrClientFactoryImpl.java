@@ -22,7 +22,6 @@ import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
-import org.codice.solr.settings.SolrSettings;
 
 /**
  * Factory class used to create the proper {@link SolrClient} based on the current {@code

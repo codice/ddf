@@ -14,7 +14,6 @@
 package org.codice.solr.factory.impl;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.codice.solr.settings.SolrSettings.getRootDataDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -66,7 +65,7 @@ public class ConfigurationFileProxy {
   @Deprecated
   public ConfigurationFileProxy() {
     LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
-    String storedDataDirectoryPath = getRootDataDir();
+    String storedDataDirectoryPath = new SolrSettings().getRootDataDir();
 
     if (isNotBlank(storedDataDirectoryPath)) {
       this.dataDirectory = new File(storedDataDirectoryPath);
