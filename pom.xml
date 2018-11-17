@@ -74,10 +74,10 @@
         <commons-collections4.version>4.1</commons-collections4.version>
         <commons-io.version>2.6</commons-io.version>
         <json-smart.version>2.3</json-smart.version>
-        <httpclient.version>4.5.5</httpclient.version>
-        <httpcore.version>4.4.6</httpcore.version>
+        <httpclient.version>4.5.6</httpclient.version>
+        <httpcore.version>4.4.10</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
-        <cxf.version>3.2.5</cxf.version>
+        <cxf.version>3.2.6</cxf.version>
         <cxf.rt-binding-objects.version>3.1.15</cxf.rt-binding-objects.version>
         <cxf.rt-management-web.version>3.1.15</cxf.rt-management-web.version>
         <cxf.rt-databinding-jibx>3.1.15</cxf.rt-databinding-jibx>
@@ -132,7 +132,7 @@
         <hamcrest-optional.version>1.0</hamcrest-optional.version>
         <jsonassert.version>1.5.0</jsonassert.version>
         <junit.version>4.12</junit.version>
-        <awaitility.version>3.1.0</awaitility.version>
+        <awaitility.version>3.1.2</awaitility.version>
         <xmlunit.version>2.5.1</xmlunit.version>
         <restito.version>0.8.2</restito.version>
         <pax.exam.version>4.12.0</pax.exam.version>
@@ -145,7 +145,7 @@
         <poi.version>3.17</poi.version>
         <poi.contrib.version>3.7-beta3</poi.contrib.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.7</commons-lang3.version>
+        <commons-lang3.version>3.8</commons-lang3.version>
         <commons-validator.version>1.6</commons-validator.version>
         <handlebars.version>2.0.0</handlebars.version>
         <antlr.version>4.3</antlr.version>
@@ -160,19 +160,20 @@
         <servicemix.specs.version>2.9.0</servicemix.specs.version>
         <validation.version>1.1.0.Final</validation.version>
         <commons-configuration.version>1.10</commons-configuration.version>
+        <commons-configuration2.version>2.3</commons-configuration2.version>
         <commons-csv.version>1.4</commons-csv.version>
-        <commons.fileupload.version>1.3.2</commons.fileupload.version>
+        <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <logback.version>1.2.3</logback.version>
         <logback.classic.version>1.2.3</logback.classic.version>
         <usng4j.version>0.1</usng4j.version>
-        <camel.version>2.22.0</camel.version>
+        <camel.version>2.22.1</camel.version>
         <commons-pool.version>1.6</commons-pool.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
         <gson.version>2.8.5</gson.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <abdera.version>1.1.3</abdera.version>
         <dropwizard.version>3.2.6</dropwizard.version>
-        <joda-time.version>2.9.9</joda-time.version>
+        <joda-time.version>2.10</joda-time.version>
         <boon.version>0.34</boon.version>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
@@ -187,18 +188,17 @@
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
-        <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <javax-mail.version>1.5.6</javax-mail.version>
         <jackson2-version>2.9.6</jackson2-version>
-        <common-compress.version>1.17</common-compress.version>
+        <common-compress.version>1.18</common-compress.version>
         <owasp-html-sanitizer.version>20171016.1</owasp-html-sanitizer.version>
         <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
         <javax.annotation-api.version>1.3</javax.annotation-api.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
-        <woodstox.core.version>5.0.3</woodstox.core.version>
-        <woodstox.stax2-api.version>3.1.4</woodstox.stax2-api.version>
+        <woodstox.core.version>5.1.0</woodstox.core.version>
+        <woodstox.stax2-api.version>4.1</woodstox.stax2-api.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
         <jaxb.version>2.2.11</jaxb.version>
@@ -288,7 +288,7 @@
 
         <spring-osgi.version>1.2.1</spring-osgi.version>
         <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
-        <apache.shiro.version>1.3.2</apache.shiro.version>
+        <apache.shiro.version>1.4.0</apache.shiro.version>
         <spark.version>2.5.5</spark.version>
         <sardine.version>5.7</sardine.version>
         <xerces.version>2.11.0</xerces.version>
