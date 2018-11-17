@@ -28,7 +28,6 @@ import org.apache.solr.common.cloud.SolrZkClient
 import org.apache.solr.common.cloud.ZkStateReader
 import org.apache.solr.common.util.NamedList
 import org.apache.zookeeper.KeeperException
-import org.codice.solr.settings.MockSolrProperty
 import org.codice.spock.ClearInterruptions
 import org.codice.spock.Supplemental
 import org.junit.Rule
@@ -61,7 +60,7 @@ class SolrCloudClientFactorySpec extends Specification {
 
   def setup() {
     tempFolder.create();
-      MockSolrProperty.setProperty("solr.data.dir", tempFolder.root.absolutePath)
+      System.setProperty("solr.data.dir", tempFolder.root.absolutePath)
   }
 
   @Timeout(SolrCloudClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)

@@ -23,7 +23,6 @@ import org.apache.solr.core.SolrResourceLoader
 import org.apache.solr.schema.IndexSchema
 import org.codice.junit.DeFinalize
 import org.codice.junit.DeFinalizer
-import org.codice.solr.settings.MockSolrProperty
 import org.codice.spock.Supplemental
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -266,7 +265,7 @@ class EmbeddedSolrFactorySpec extends Specification {
 
     def 'test creating an embedded Solr server when the schema index was already cached'() {
         given:
-        MockSolrProperty.setProperty("solr.data.dir", dataDir)
+        System.setProperty("solr.data.dir", dataDir)
         def files = Mock(EmbeddedSolrFiles) {
             getConfigHome() >> Mock(File) {
                 toPath() >> configHomePath
