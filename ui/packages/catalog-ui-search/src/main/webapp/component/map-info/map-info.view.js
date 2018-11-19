@@ -13,15 +13,21 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette')
-var template = require('./map-info.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var mtgeo = require('mt-geo')
-var user = require('../singletons/user-instance.js')
-var properties = require('properties')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+import React from 'react'
+
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
+const properties = require('properties')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
 const Common = require('js/Common')
 const hbHelper = require('js/HandlebarsHelpers')
+
+const mtgeo = require('mt-geo')
+const usngs = require('usng.js')
+
+const converter = new usngs.Converter()
+const usngPrecision = 6
 
 function getCoordinateFormat() {
   return user
@@ -38,7 +44,7 @@ function leftPad(numToPad, size) {
     .slice(-size)
 }
 
-function massageData(attributeName, attributeValue) {
+function formatAttribute(attributeName, attributeValue) {
   if (metacardDefinitions.metacardTypes[attributeName].type === 'DATE') {
     attributeValue = Common.getHumanReadableDateTime(attributeValue)
   }
@@ -46,7 +52,15 @@ function massageData(attributeName, attributeValue) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template() {
+    return (
+      <React.Fragment>
+        {this.getAttributes()}
+        <div className="info-feature">{this.target}</div>
+        <div className="info-coordinates">{this.getDisplayComponent()}</div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('map-info'),
   modelEvents: {},
   events: {
@@ -72,66 +86,63 @@ module.exports = Marionette.LayoutView.extend({
   handleTarget: function() {
     this.$el.toggleClass('has-feature', this.model.get('target') !== undefined)
   },
-  serializeData: function() {
-    let modelJSON = this.model.toJSON()
-    let summaryModel = {}
-    const summary = properties.summaryShow
-
-    summary.forEach(attribute => {
-      if (this.model.get('targetMetacard') !== undefined) {
-        const attributeName = hbHelper.getAlias(attribute)
-        const attributeValue = this.model
-          .get('targetMetacard')
-          .get('metacard')
-          .get('properties')
-          .get(attributeName)
-        if (attributeValue !== undefined)
-          summaryModel[attributeName] = massageData(
-            attributeName,
-            attributeValue
-          )
-      }
-    })
-
-    let viewData = {
-      summary: summaryModel,
-      target: modelJSON.target,
-      lat: modelJSON.mouseLat,
-      lon: modelJSON.mouseLon,
+  getDisplayComponent: function() {
+    const coordinateFormat = getCoordinateFormat()
+    const lat = this.model.get('mouseLat')
+    const lon = this.model.get('mouseLon')
+    if (typeof lat === 'undefined' || typeof lon === 'undefined') {
+      return null
     }
-    switch (getCoordinateFormat()) {
+    switch (coordinateFormat) {
       case 'degrees':
-        viewData.lat =
-          typeof viewData.lat === 'undefined'
-            ? viewData.lat
-            : mtgeo.toLat(viewData.lat)
-        viewData.lon =
-          typeof viewData.lon === 'undefined'
-            ? viewData.lon
-            : mtgeo.toLon(viewData.lon)
-        break
+        return <span>{mtgeo.toLat(lat) + ' ' + mtgeo.toLon(lon)}</span>
       case 'decimal':
-        viewData.lat =
-          typeof viewData.lat === 'undefined'
-            ? viewData.lat
-            : `${leftPad(Math.floor(viewData.lat), 3, ' ')}.${Math.abs(
-                viewData.lat % 1
-              )
-                .toFixed(6)
-                .toString()
-                .slice(2)}`
-        viewData.lon =
-          typeof viewData.lon === 'undefined'
-            ? viewData.lon
-            : `${leftPad(Math.floor(viewData.lon), 4, ' ')}.${Math.abs(
-                viewData.lon % 1
-              )
-                .toFixed(6)
-                .toString()
-                .slice(2)}`
-        break
+        return this.decimalComponent(lat, lon)
+      case 'mgrs':
+        // TODO: Move leaking defensive check knowledge to usng library (DDF-4335)
+        return lat > 84 || lat < -80 ? (
+          'In UPS Space'
+        ) : (
+          <span>{converter.LLtoUSNG(lat, lon, usngPrecision)}</span>
+        )
+      case 'utm':
+        return <span>{converter.LLtoUTMUPS(lat, lon)}</span>
     }
-    return viewData
+    throw 'Unrecognized coordinate format value [' + coordinateFormat + ']'
+  },
+  decimalComponent(lat, lon) {
+    return (
+      <span>
+        {`${leftPad(Math.floor(lat), 3, ' ')}.${Math.abs(lat % 1)
+          .toFixed(6)
+          .toString()
+          .slice(2)} ${leftPad(Math.floor(lon), 4, ' ')}.${Math.abs(lon % 1)
+          .toFixed(6)
+          .toString()
+          .slice(2)}`}
+      </span>
+    )
+  },
+  getAttributes() {
+    if (this.model.get('targetMetacard') === undefined) {
+      return []
+    }
+    const jsx = []
+    properties.summaryShow.forEach(attribute => {
+      const attributeName = hbHelper.getAlias(attribute)
+      const attributeValue = this.model
+        .get('targetMetacard')
+        .get('metacard')
+        .get('properties')
+        .get(attributeName)
+      if (attributeValue !== undefined)
+        jsx.push(
+          <div className="info-feature">
+            {formatAttribute(attributeName, attributeValue)}
+          </div>
+        )
+    })
+    return jsx
   },
   onRender: function() {
     this.$el.toggleClass(
