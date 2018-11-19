@@ -21,6 +21,7 @@ import { CSSProperties } from 'react'
 const CustomElements = require('../../../js/CustomElements.js')
 const DropdownBehaviorUtility = require('../../../behaviors/dropdown.behavior.utility.js')
 const $ = require('jquery')
+const _ = require('underscore')
 
 type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 type Subtract<T, K> = Omit<T, keyof K>
@@ -162,12 +163,15 @@ class Dropdown extends React.Component<Props, State> {
       open: false,
       hasBeenOpen: false,
     }
+    // todo: remove after interop between legacy is no longer needed
+    this.onClick = _.debounce(this.onClick, 10)
   }
+  id = Math.random()
   dropdownRef = React.createRef() as React.RefObject<HTMLDivElement>
   sourceRef = React.createRef() as React.RefObject<HTMLButtonElement>
   componentWillUnmount() {
-    window.removeEventListener('resize', this.updatePosition)
-    window.removeEventListener('mousedown', this.handleOutsideInteraction)
+    $(window).off(`resize.${this.id}`)
+    $('body').off(`mousedown.${this.id}`)
   }
   handleKeydown = (event: KeyboardEvent) => {
     let code = event.keyCode
@@ -206,8 +210,8 @@ class Dropdown extends React.Component<Props, State> {
     if (prevState.hasBeenOpen === false && this.state.hasBeenOpen === true) {
       setTimeout(() => {
         this.updatePosition()
-        window.addEventListener('resize', this.updatePosition)
-        window.addEventListener('mousedown', this.handleOutsideInteraction)
+        $(window).on(`resize.${this.id}`, this.updatePosition)
+        $('body').on(`mousedown.${this.id}`, this.handleOutsideInteraction)
         this.listenForKeydown()
         this.listenForClose()
         this.focus()

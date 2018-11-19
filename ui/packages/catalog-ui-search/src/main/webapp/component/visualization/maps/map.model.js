@@ -17,6 +17,9 @@ const Backbone = require('backbone')
 const MetacardModel = require('../../../js/model/Metacard.js')
 const mtgeo = require('mt-geo')
 const Common = require('../../../js/Common.js')
+const usngs = require('usng.js')
+const converter = new usngs.Converter()
+const usngPrecision = 6
 
 module.exports = Backbone.AssociatedModel.extend({
   relations: [
@@ -32,6 +35,9 @@ module.exports = Backbone.AssociatedModel.extend({
     mouseLon: undefined,
     clickLat: undefined,
     clickLon: undefined,
+    clickDms: undefined,
+    clickMgrs: undefined,
+    clickUtmUps: undefined,
     target: undefined,
     targetMetacard: undefined,
   },
@@ -56,11 +62,19 @@ module.exports = Backbone.AssociatedModel.extend({
     const lat = this.get('mouseLat')
     const lon = this.get('mouseLon')
     const dms = `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`
+    // TODO: Move leaking defensive check knowledge to usng library (DDF-4335)
+    const mgrs =
+      lat > 84 || lat < -80
+        ? undefined
+        : converter.LLtoUSNG(lat, lon, usngPrecision)
+    const utmUps = converter.LLtoUTMUPS(lat, lon)
 
     this.set({
       clickLat: lat,
       clickLon: lon,
       clickDms: dms,
+      clickMgrs: mgrs,
+      clickUtmUps: utmUps,
     })
   },
 })

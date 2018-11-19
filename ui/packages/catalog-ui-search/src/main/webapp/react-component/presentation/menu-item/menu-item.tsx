@@ -13,6 +13,7 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import ButtonBehavior from '../button-behavior'
+import { Subtract } from '../../../typescript'
 
 type Props = {
   className?: string
@@ -28,10 +29,17 @@ const Choice = styled(ButtonBehavior)`
   padding: 0px ${props => props.theme.minimumSpacing};
 `
 
-const render = (props: Props) => {
-  const { className, style, onClick, children } = props
+const render = (
+  props: Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>
+) => {
+  const { className, style, onClick, children, ...otherAttr } = props
   return (
-    <Choice onClick={onClick} className={className} style={style}>
+    <Choice
+      onClick={onClick}
+      className={className}
+      style={style}
+      {...otherAttr}
+    >
       {children}
     </Choice>
   )

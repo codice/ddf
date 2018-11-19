@@ -112,7 +112,11 @@ module.exports = {
     )
   },
   withinDOM(clickedElement) {
-    return $('body').find(clickedElement).length > 0
+    return (
+      $('body')
+        .find(clickedElement)
+        .addBack(clickedElement).length > 0
+    )
   },
   updatePosition($dropdownEl, sourceEl) {
     var clientRect = sourceEl.getBoundingClientRect()

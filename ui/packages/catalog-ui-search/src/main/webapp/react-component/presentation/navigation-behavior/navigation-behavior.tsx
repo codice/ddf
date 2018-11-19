@@ -191,8 +191,14 @@ class Dropdown extends React.Component<Props, State> {
         break
     }
   }
+  listenToFocusIn() {
+    if (this.wrapperRef.current) {
+      this.wrapperRef.current.addEventListener('focus', this.focus)
+    }
+  }
   componentDidMount() {
     this.listenToKeydown()
+    this.listenToFocusIn()
     setTimeout(this.focus, 30)
   }
   componentWillUnmount() {}
