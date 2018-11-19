@@ -156,10 +156,11 @@ public class CqlRequestTest {
 
   @Test
   public void testMultipleSources() {
-    String[] sources = {"source1", "source2"};
+    String[] sources = {"local", "source2"};
     cqlRequest.setSrcs(sources);
-    cqlRequest.createQueryRequest("source1", filterBuilder);
-    assertThat(Arrays.asList(cqlRequest.getSrcs()), contains("source1", "source2"));
+    cqlRequest.createQueryRequest("SOURCE1", filterBuilder);
+    assertThat(Arrays.asList(cqlRequest.getSrcs()), contains("SOURCE1", "source2"));
+    assertThat(cqlRequest.getSrcs().length, is(2));
   }
 
   @Test
