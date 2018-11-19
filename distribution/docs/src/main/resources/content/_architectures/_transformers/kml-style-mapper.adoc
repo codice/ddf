@@ -10,7 +10,7 @@ For example, if a user wanted all JPEGs to be blue, the KML Style Mapper provide
 This would also allow an administrator to configure metacards from each source to be different colors.
 
 The configured style URLs are expected to be HTTP URLs.
-For more information on style URL's, refer to the https://developers.google.com/kml/documentation/kmlreference#styleurl[KML Reference].
+For more information on style URL's, refer to the https://developers.google.com/kml/documentation/kmlreference#styleurl[KML Reference] {external-link}.
 
 The KML Style Mapper supports all basic and extended metacard attributes.
 When a style mapping is configured, the resulting transformed KML contain a `<styleUrl>` tag pointing to that style, rather than the default KML style supplied by the `KmlTransformer`.

@@ -3,7 +3,7 @@
 :status: published
 :link: _kml_endpoint
 :summary: Generates a view-based KML Query Results Network Link.
-:implements: https://developers.google.com/kml/documentation/kmlreference[Keyhole Markup Language]
+:implements: https://developers.google.com/kml/documentation/kmlreference[Keyhole Markup Language] {external-link}
 
 Keyhole Markup Language (_KML_) is an XML notation for describing geographic annotation and visualization for 2- and 3- dimensional maps.
 

@@ -13,7 +13,7 @@ ${branding} uses OSGi to provide modularity, lifecycle management, and dynamic s
 OSGi services can be installed and uninstalled while ${branding} is running.
 ${branding} development typically means developing new OSGi bundles and deploying them to the running ${branding}.
 A complete description of OSGi is outside the scope of this documentation.
-For more information about OSGi, see the http://www.osgi.org[OSGi Alliance website].
+For more information about OSGi, see the http://www.osgi.org[OSGi Alliance website] {external-link}.
 
 .Architecture Diagram
 [ditaa,architecture_diagram_white_box,png]

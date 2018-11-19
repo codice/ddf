@@ -1,5 +1,6 @@
 Version ${project.version}. Copyright (c) Codice Foundation
 :imagesdir: ${project.build.directory}/doc-contents/images
+:iconsdir: ${project.build.directory}/doc-contents/images
 :type: config
 :status: published
 :toc: left
@@ -17,6 +18,7 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :adoc-include: ${project.build.directory}/doc-contents/_contents
 :hardening-step: Required Step for Security Hardening
 :title-logo-image: image::logo_ddf.png[]
+:external-link: image:external-link.png[This link is outside the ${branding} documentation]
 :pdf-page-size: Letter
 :last-update-label: Copyright (c) Codice Foundation. +
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +

@@ -23,7 +23,7 @@ The following may be defined in a JSON definition file:
 
 ==== Definition File Format
 
-A definition file follows the JSON format as specified in http://www.ecma-international.org/publications/standards/Ecma-404.htm[ECMA-404].
+A definition file follows the JSON format as specified in http://www.ecma-international.org/publications/standards/Ecma-404.htm[ECMA-404] {external-link}.
 All definition files must be valid JSON in order to be parsed.
 
 A single definition file may define as many of the types as needed.

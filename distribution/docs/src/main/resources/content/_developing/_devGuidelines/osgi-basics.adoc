@@ -7,9 +7,9 @@
 ${branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
 The items within the dotted line represent the standard ${branding} components.
 
-${branding} is a customized and branded distribution of http://karaf.apache.org/[Apache Karaf].
+${branding} is a customized and branded distribution of http://karaf.apache.org/[Apache Karaf] {external-link}.
 ${branding} could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.
-Similar to its peers, ${branding} incorporates (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies[additional upstream dependencies]).
+Similar to its peers, ${branding} incorporates (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies[additional upstream dependencies] {external-link}).
 
 The ${branding} framework hosts ${branding} applications, which are extensible by adding components via OSGi.
 The best example of this is the ${branding} Catalog (API), which offers extensibility via several types of Catalog Components.
@@ -30,8 +30,8 @@ Services and code are physically deployed to ${branding} using bundles.
 The bundles within ${branding} are created using the maven bundle plug-in.
 Bundles are Java JAR files that have additional metadata in the `MANIFEST.MF` that is relevant to an OSGi container.
 
-The best resource for learning about the structure and headers in the manifest definition is in section 3.6 of the https://osgi.org/download/r5/osgi.core-5.0.0.pdf[OSGi Core Specification].
-The bundles within ${branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in], which uses the http://bnd.bndtools.org/[BND tool].
+The best resource for learning about the structure and headers in the manifest definition is in section 3.6 of the https://osgi.org/download/r5/osgi.core-5.0.0.pdf[OSGi Core Specification] {external-link}.
+The bundles within ${branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in] {external-link}, which uses the http://bnd.bndtools.org/[BND tool] {external-link}.
 
 .Alternative Bundle Creation Methods
 [TIP]
