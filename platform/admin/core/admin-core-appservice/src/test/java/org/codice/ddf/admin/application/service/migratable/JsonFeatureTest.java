@@ -18,6 +18,7 @@ import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -532,6 +533,8 @@ public class JsonFeatureTest {
         JsonFeature.class);
   }
 
+  @Ignore
+  @Test
   public void testJsonDeserializationWhenRequiredIsMissing() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("missing feature required flag"));
