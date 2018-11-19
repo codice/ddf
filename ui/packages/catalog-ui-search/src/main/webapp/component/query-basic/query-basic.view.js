@@ -289,13 +289,9 @@ define([
             }));
         },
         setupTextInput: function () {
-            // if the anyText filter is undefined or equal to a wildcard value then use a blank
-            // value as the text input value below
             this.basicText.show(new PropertyView({
                 model: new Property({
-                    value: [ this.filter.anyText === undefined || this.filter.anyText[0].value === '*'
-                        ? ''
-                        : this.filter.anyText[0].value],
+                    value: [this.filter.anyText ? this.filter.anyText[0].value : ''],
                     id: 'Text',
                     placeholder: 'Text to search for.  Use "*" for wildcard.'
                 })

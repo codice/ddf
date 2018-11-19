@@ -61,7 +61,10 @@ module.exports = Marionette.LayoutView.extend({
             this.queryAdvanced.currentView.deserialize(cql.simplify(JSON.parse(this.model.get('filterTree'))));
         }
         else if (this.model.get('cql')) {
-            this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
+            let simplifiedCQL = cql.simplify(cql.read(this.model.get('cql')));
+            // sets the default anyText filter text input value to be "*"
+            simplifiedCQL = simplifiedCQL.value === '' ? Object.assign(simplifiedCQL, { value: '*' }) : simplifiedCQL;
+            this.queryAdvanced.currentView.deserialize(simplifiedCQL);
         }
         this.queryAdvanced.currentView.turnOffEditing();
         this.edit();
