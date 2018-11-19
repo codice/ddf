@@ -125,7 +125,7 @@ This endpoint returns diagnostic info about the cluster that can be used for tro
 ${branding} can be configured to use Artemis to perform authentication and authorization against an LDAP server.
 
 Artemis provides the ability to apply role-based security to queues based on addresses
-(see https://activemq.apache.org/artemis/docs/${artemis.version}/security.html[the Artemis documentation]
+(see https://activemq.apache.org/artemis/docs/${artemis.version}/security.html[the Artemis documentation] {external-link}
 for details).
 It can be configured to use an LDAP server to perform authentication and authorization for users who connect to it.
 

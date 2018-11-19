@@ -12,7 +12,7 @@ The formats supported in ${branding} are:
 
 gzip:: Adds GZip compression to messages through CXF components. Code comes with CXF.
 
-exi:: Adds http://www.w3.org/XML/EXI/[Efficient XML Interchange (EXI)] support to outgoing responses. EXI is an W3C standard for XML encoding that shrinks xml to a smaller size than normal GZip compression.
+exi:: Adds http://www.w3.org/XML/EXI/[Efficient XML Interchange (EXI)] {external-link} support to outgoing responses. EXI is an W3C standard for XML encoding that shrinks xml to a smaller size than normal GZip compression.
 
 ===== Installing a Compression Service
 

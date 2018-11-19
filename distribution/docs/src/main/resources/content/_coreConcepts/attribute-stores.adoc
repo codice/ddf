@@ -11,10 +11,10 @@
 |Standard
 |Support Status
 
-|https://tools.ietf.org/html/rfc4510[Lightweight Directory Access Protocol (LDAP/LDAPS)]
+a|https://tools.ietf.org/html/rfc4510[Lightweight Directory Access Protocol (LDAP/LDAPS)] {external-link}
 |Supported
 
-|https://docs.microsoft.com/en-us/azure/active-directory/active-directory-whatis[Azure Active Directory]
+|https://docs.microsoft.com/en-us/azure/active-directory/active-directory-whatis[Azure Active Directory] {external-link}
 |Supported
 
 |===

@@ -17,7 +17,7 @@
 |Example Value
 
 |[[_title]]title
-|A name for the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#elements-title[Dublin Core elements-title].
+|A name for the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#elements-title[Dublin Core elements-title] {external-link}.
 |String
 |< 1024 characters
 |
@@ -55,7 +55,7 @@
 |[[_location]]location
 |The primary geospatial location of the resource.
 |Geometry
-|Valid Well Known Text (WKT) per http://www.opengeospatial.org/standards/wkt-crs +
+a|Valid Well Known Text (WKT) per http://www.opengeospatial.org/standards/wkt-crs {external-link} +
 __Coordinates must be in *lon-lat* coordinate order__
 |POINT(150 30)
 
@@ -102,7 +102,7 @@ __Coordinates must be in *lon-lat* coordinate order__
 |
 
 |[[_description]]description
-|An account of the resource. http://dublincore.org/documents/dcmi-terms/#elements-description[Dublin Core elements-description].
+a|An account of the resource. http://dublincore.org/documents/dcmi-terms/#elements-description[Dublin Core elements-description] {external-link}.
 |String
 |
 |
@@ -120,20 +120,20 @@ __Coordinates must be in *lon-lat* coordinate order__
 |
 
 |[[_created]]created
-|The creation date of the resource http://dublincore.org/documents/dcmi-terms/#terms-created[Dublin Core terms-created].
+a|The creation date of the resource http://dublincore.org/documents/dcmi-terms/#terms-created[Dublin Core terms-created] {external-link}.
 |Date
 |
 |
 
 
 |[[_modified]]modified
-|The modification date of the resource http://dublincore.org/documents/dcmi-terms/#terms-modified[Dublin Core terms-modified].
+a|The modification date of the resource http://dublincore.org/documents/dcmi-terms/#terms-modified[Dublin Core terms-modified] {external-link}.
 |Date
 |
 |
 
 |[[_language]]language
-|The language(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language].
+|The language(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language] {external-link}.
 |List of Strings
 |Alpha-3 language code(s) per ISO_639-2
 |
@@ -151,7 +151,7 @@ __Coordinates must be in *lon-lat* coordinate order__
 |
 
 |[[_datatype]]datatype
-|The generic type(s) of the resource including the http://dublincore.org/documents/dcmi-type-vocabulary/[Dublin Core terms-type]. DCMI Type term labels are expected here as opposed to term names.
+a|The generic type(s) of the resource including the http://dublincore.org/documents/dcmi-type-vocabulary/[Dublin Core terms-type] {external-link}. DCMI Type term labels are expected here as opposed to term names.
 |List of Strings
 |`Collection`, `Dataset`, `Event`, `Image`, `Interactive Resource`, `Moving Image`, `Physical Object`, `Service`, `Software`, `Sound`, `Still Image`, and/or `Text`
 |

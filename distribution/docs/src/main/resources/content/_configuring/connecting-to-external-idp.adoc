@@ -22,7 +22,7 @@ The SP metadata can found at `https://<FQDN>:<PORT>/services/saml/sso/metadata`.
 [NOTE]
 ====
 ${branding} may not interoperate successfully with all IdPs.
-To idenify the ones it can interoperate with use the https://github.com/codice/saml-conformance[The Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)]
+To idenify the ones it can interoperate with use the https://github.com/codice/saml-conformance[The Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)] {external-link}
 ====
 
 .Service Provider Metadata

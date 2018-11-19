@@ -7,7 +7,7 @@
 
 == {title}
 
-Third-party tools, such as https://curl.haxx.se/[cURL.exe] and the https://advancedrestclient.com/[Chrome Advanced Rest Client], can be used to send files to ${branding} for ingest.
+Third-party tools, such as https://curl.haxx.se/[cURL.exe] {external-link} and the https://advancedrestclient.com/[Chrome Advanced Rest Client] {external-link}, can be used to send files to ${branding} for ingest.
 
 .Windows Example
 ----

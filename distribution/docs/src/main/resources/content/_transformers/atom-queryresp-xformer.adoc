@@ -21,7 +21,7 @@ The Atom Query Response Transformer has no configurable properties.
 Use this transformer when Atom is the preferred medium of communicating information, such as for feed readers or federation.
 An integrator could use this with an endpoint to transform query responses into an Atom feed.
 
-For example, clients can use the https://tools.codice.org/#[OpenSearch Endpoint].
+For example, clients can use the <<{integrating-prefix}opensearch_endpoint,OpenSearch Endpoint>>.
 The client can query with the format option set to the shortname, `atom`.
 
 .Sample OpenSearch Query with Atom Specified as Return Format
@@ -113,7 +113,7 @@ Developers could use this transformer to programmatically transform `QueryRespon
 |ISO 8601 dateTime of when the feed was generated
 
 |`/feed/id`
-|Generated (http://en.wikipedia.org/wiki/Universally_Unique_Identifier)[UUID URN]
+|Generated http://en.wikipedia.org/wiki/Universally_Unique_Identifier[UUID URN] {external-link}
 
 |`/feed/author/name`
 |Platform Global Configuration organization

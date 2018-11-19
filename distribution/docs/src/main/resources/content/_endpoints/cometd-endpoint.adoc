@@ -7,7 +7,7 @@
 
 ${deprecated}
 
-The http://cometd.org[CometD] endpoint enables asychronous search capabilties.
+The http://cometd.org[CometD] {external-link} endpoint enables asychronous search capabilties.
 The CometD protocol is used to execute searches, retrieve results, and receive notifications.
 
 For an example of using CometD within a webapp see: `distribution/sdk/sample-cometd/`
@@ -44,7 +44,7 @@ Query messages are JSON-formatted and use CQL alongside several other parameters
 |No
 
 |cql
-|CQL query. See http://www.opengeospatial.org/standards/cat[OpenGIS® Catalogue Services Specification] for more information about CQL.
+|CQL query. See http://www.opengeospatial.org/standards/cat[OpenGIS® Catalogue Services Specification] {external-link} for more information about CQL.
 |Yes
 
 |sort
