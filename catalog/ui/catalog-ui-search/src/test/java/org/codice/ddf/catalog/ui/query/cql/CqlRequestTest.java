@@ -16,12 +16,14 @@ package org.codice.ddf.catalog.ui.query.cql;
 import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.mockito.Mockito.mock;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -150,6 +152,28 @@ public class CqlRequestTest {
   public void testBlankLocalSource() {
     cqlRequest.createQueryRequest("", filterBuilder);
     assertThat(cqlRequest.getSource(), is("source"));
+  }
+
+  @Test
+  public void testMultipleSources() {
+    String[] sources = {"source1", "source2"};
+    cqlRequest.setSrcs(sources);
+    cqlRequest.createQueryRequest("source1", filterBuilder);
+    assertThat(Arrays.asList(cqlRequest.getSrcs()), contains("source1", "source2"));
+  }
+
+  @Test
+  public void testSingleSourceResponseString() {
+    cqlRequest.createQueryRequest("", filterBuilder);
+    assertThat(cqlRequest.getSourceResponseString(), is("source"));
+  }
+
+  @Test
+  public void testMultipleSourceResponseString() {
+    String[] sources = {"source1", "source2"};
+    cqlRequest.setSrcs(sources);
+    cqlRequest.createQueryRequest("source1", filterBuilder);
+    assertThat(cqlRequest.getSourceResponseString(), is("[source1, source2]"));
   }
 
   @Test
