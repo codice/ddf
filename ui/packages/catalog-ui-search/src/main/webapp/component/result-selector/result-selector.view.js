@@ -87,7 +87,6 @@ var ResultSelector = Marionette.LayoutView.extend({
       } else {
         this.model.startSearch()
       }
-      this.model.startSearch()
     }
     this.model.get('result').set('currentlyViewed', true)
     this.options.selectionInterface.setCurrentQuery(this.model)

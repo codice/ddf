@@ -47,6 +47,7 @@ module.exports = Marionette.ItemView.extend({
       modelJSON.hasReturned || modelJSON.cacheHasReturned
     modelJSON.anyHasNotReturned =
       !modelJSON.hasReturned || !modelJSON.cacheHasReturned
+    console.log(modelJSON)
     return modelJSON
   },
 })

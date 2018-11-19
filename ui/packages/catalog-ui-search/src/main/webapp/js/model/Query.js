@@ -56,6 +56,24 @@ function limitToHistoric(cqlString) {
   })
 }
 
+const handleTieredSearchLocalFinish = function(ids) {
+  const results = this.get('result')
+    .get('results')
+    .toJSON()
+
+  const status = this.get('result')
+    .get('status')
+    .toJSON()
+
+  const resultIds = results.map(result => result.metacard.id)
+  const missingResult = ids.some(id => !resultIds.includes(id))
+  if (!missingResult) {
+    return
+  }
+  this.set('federation', 'enterprise')
+  this.startSearch({ queuedResults: results, status })
+}
+
 Query.Model = Backbone.AssociatedModel.extend({
   relations: [
     {
@@ -177,27 +195,18 @@ Query.Model = Backbone.AssociatedModel.extend({
   },
   startTieredSearch: function(ids) {
     this.set('federation', 'local')
-    $.when(...this.startSearch()).then(
-      function() {
-        setTimeout(() => {
-          const results = this.get('result')
-            .get('results')
-            .toJSON()
-
-          const status = this.get('result')
-            .get('status')
-            .toJSON()
-
-          const resultIds = results.map(result => result.metacard.id)
-          const missingResult = ids.some(id => !resultIds.includes(id))
-          if (!missingResult) {
-            return
-          }
-          this.set('federation', 'enterprise')
-          this.startSearch({ queuedResults: results, status })
-        }, 100)
-      }.bind(this)
-    )
+    $.when(...this.startSearch()).then(() => {
+      const queryResponse = this.get('result')
+      if (queryResponse && queryResponse.isUnmerged()) {
+        this.listenToOnce(
+          queryResponse,
+          'change:merged',
+          handleTieredSearchLocalFinish.bind(this, ids)
+        )
+      } else {
+        handleTieredSearchLocalFinish.call(this, ids)
+      }
+    })
   },
   startSearch: function(options) {
     this.set('isOutdated', false)

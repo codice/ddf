@@ -14,22 +14,28 @@ var properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({
-  defaults: {
-    count: 0,
-    elapsed: 0,
-    hits: 0,
-    id: 'undefined',
-    successful: undefined,
-    top: 0,
-    fromcache: 0,
-    cacheHasReturned: properties.isCacheDisabled,
-    cacheSuccessful: true,
-    cacheMessages: [],
-    hasReturned: false,
-    messages: [],
+  defaults() {
+    return {
+      count: 0,
+      elapsed: 0,
+      hits: 0,
+      id: 'undefined',
+      successful: undefined,
+      top: 0,
+      fromcache: 0,
+      cacheHasReturned: properties.isCacheDisabled,
+      cacheSuccessful: true,
+      cacheMessages: [],
+      hasReturned: false,
+      messages: [],
+    }
   },
   initialize: function() {
-    this.listenToOnce(this, 'change:successful', this.setHasReturned)
+    if (this.get('successful') !== undefined) {
+      this.set('hasReturned', true)
+    } else {
+      this.listenToOnce(this, 'change:successful', this.setHasReturned)
+    }
   },
   setHasReturned: function() {
     this.set('hasReturned', true)

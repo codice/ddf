@@ -113,7 +113,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(
       this.get('queuedResults'),
       'add',
-      _.throttle(this.mergeQueue, 30, {
+      _.throttle(this.mergeQueue, 200, {
         leading: false,
       })
     )
@@ -270,6 +270,7 @@ module.exports = Backbone.AssociatedModel.extend({
       queuedResults: resp.results,
       results: [],
       status: resp.status,
+      merged: this.get('merged') === false ? false : resp.results.length === 0,
     }
   },
   allowAutoMerge: function() {
@@ -282,7 +283,6 @@ module.exports = Backbone.AssociatedModel.extend({
   mergeQueue: function(userTriggered) {
     if (userTriggered === true || this.allowAutoMerge()) {
       this.lastMerge = Date.now()
-      this.set('merged', true)
 
       var resultsIncludingDuplicates = this.get('results')
         .fullCollection.map(function(m) {
@@ -324,6 +324,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
       this.get('queuedResults').fullCollection.reset()
       this.updateStatus()
+      this.set('merged', true)
     }
   },
   updateResultCountsBySource(resultCounts) {

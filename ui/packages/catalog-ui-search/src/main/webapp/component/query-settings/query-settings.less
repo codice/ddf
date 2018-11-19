@@ -1,6 +1,5 @@
 @{customElementNamespace}query-settings {
   .customElement;
-  min-width: @mobileScreenSize;
 
   overflow: hidden;
 
@@ -54,5 +53,11 @@
 .is-small-screen,
 .is-mobile-screen {
   @{customElementNamespace}query-settings {
+  }
+}
+
+@{customElementNamespace}dropdown-companion {
+  @{customElementNamespace}query-settings {
+    min-width: @minimumScreenSize;
   }
 }
