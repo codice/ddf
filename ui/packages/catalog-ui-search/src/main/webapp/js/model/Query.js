@@ -17,12 +17,12 @@ const _ = require('underscore')
 const properties = require('../properties.js')
 const QueryResponse = require('./QueryResponse.js')
 const ResultSort = require('./ResultSort.js')
+const Sources = require('../../component/singletons/sources-instance.js')
 const Common = require('../Common.js')
 const CacheSourceSelector = require('../CacheSourceSelector.js')
 const announcement = require('../../component/announcement/index.jsx')
 const CQLUtils = require('../CQLUtils.js')
 const user = require('../../component/singletons/user-instance.js')
-const Sources = require('../../component/singletons/sources-instance.js')
 const _merge = require('lodash/merge')
 require('backbone-associations')
 
@@ -195,7 +195,7 @@ Query.Model = Backbone.AssociatedModel.extend({
           }
           this.set('federation', 'enterprise')
           this.startSearch({ queuedResults: results, status })
-        }, 0)
+        }, 100)
       }.bind(this)
     )
   },
