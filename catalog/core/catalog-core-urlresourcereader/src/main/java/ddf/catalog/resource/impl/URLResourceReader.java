@@ -102,7 +102,7 @@ public class URLResourceReader implements ResourceReader {
 
   private Set<String> rootResourceDirectories = new HashSet<>();
 
-  private boolean followRedirects = false;
+  private boolean followRedirects = true;
 
   /** Default URLResourceReader constructor. */
   public URLResourceReader(ClientFactoryFactory clientFactoryFactory) {
