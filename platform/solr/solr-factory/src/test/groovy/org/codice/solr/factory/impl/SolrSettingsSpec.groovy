@@ -83,14 +83,4 @@ class SolrSettingsSpec extends Specification {
         solrSettings.getCoreUrl("test").equals("bork/test")
         solrSettings.getCoreDataDir("test").equals("/test/data")
     }
-
-    //TODO: add this test
-//    @Test
-//    public void nearestNeighborLimitIsAlwaysPositive() {
-//        SolrSettings.setNearestNeighborDistanceLimit(-1.0);
-//
-//        assertThat(SolrSettings.getNearestNeighborDistanceLimit(), closeTo(1.0, 0.00001));
-//    }
-
-
 }

@@ -37,77 +37,12 @@ public class SolrSettings {
 
   private static final String DEFAULT_SCHEMA_XML = "schema.xml";
   private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
-  private static boolean forceAutoCommit;
-  private static double nearestNeighborDistanceLimit;
-  private static boolean inMemory;
-  private static boolean disableTextPath;
   private static EncryptionService encryptionService;
   private final Properties properties;
 
   public SolrSettings() {
     properties =
         AccessController.doPrivileged((PrivilegedAction<Properties>) () -> System.getProperties());
-  }
-
-  /**
-   * After settings the system properties in a test method, invoke this method to read those
-   * properties. This method is not intended called by other classes in a production system.
-   */
-
-  /**
-   * The properties inMemory, nearestNeighborLimitDistance, forceAutocommit, and disapblePathText
-   * are set in the RemoteSolrCatalogProvider object, which in turn is tied to the adminUI. The
-   * SolrProperties class (this class) is embedded in different places and that means the state is
-   * potentially invalid in one place or another. However, this class replaces an older singleton
-   * class (ConfigurationStore) which would have suffered from the same problem.
-   *
-   * <p>A solution is to inject the RemoteSolrCatalogProvider into the SolrClientFactoryImpl when a
-   * new instance of the SolrClientFactoryImpl is created. However, that could create a circular
-   * dependency because platform classes should not depend on catalog classes.
-   *
-   * <p>A solution to this second problem is to create a RemoteSolrCatalogSettings interface in the
-   * platform layer that both this class can reference and the RemoteSolrCatalogSettings can
-   * implement.
-   */
-  public static boolean isDisableTextPath() {
-    return disableTextPath;
-  }
-
-  public static void setDisableTextPath(boolean bool) {
-    disableTextPath = bool;
-  }
-
-  public static boolean isInMemory() {
-    return inMemory;
-  }
-
-  public static void setInMemory(boolean bool) {
-    inMemory = bool;
-  }
-
-  public static Double getNearestNeighborDistanceLimit() {
-    return nearestNeighborDistanceLimit;
-  }
-
-  public static void setNearestNeighborDistanceLimit(Double value) {
-    nearestNeighborDistanceLimit = Math.abs(value);
-  }
-
-  /** @return true, if forcing auto commit is turned on */
-  public static boolean isForceAutoCommit() {
-    return forceAutoCommit;
-  }
-
-  /**
-   * @param bool When set to true, this will force a soft commit upon every solr transaction such as
-   *     insert, delete,
-   */
-  public static void setForceAutoCommit(boolean bool) {
-    forceAutoCommit = bool;
-  }
-
-  public static void setEncryptionService(EncryptionService service) {
-    encryptionService = service;
   }
 
   String concatenatePaths(String first, String more) {
@@ -208,14 +143,11 @@ public class SolrSettings {
     return properties.getProperty("solr.password");
   }
 
-  public String encryptString(String plainText) {
-    Validate.notNull(
-        encryptionService,
-        "Provide class with the encryption service before invoking this method.");
-    return encryptionService.encrypt(plainText);
+  public EncryptionService getEncryptionService() {
+    return encryptionService;
   }
 
-  public boolean usingDefaultPassword() {
-    return getPlainTextSolrPassword().equals("changeit");
+  public static void setEncryptionService(EncryptionService service) {
+    encryptionService = service;
   }
 }

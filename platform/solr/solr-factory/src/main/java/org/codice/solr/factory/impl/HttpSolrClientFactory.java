@@ -13,12 +13,6 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getKeyStorePass;
-import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getKeyStoreType;
-import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getTrustStore;
-import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.getTrustStorePass;
-import static org.codice.solr.factory.impl.HttpSolrClientFactory.ProtectedSolrSettings.isSslConfigured;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -52,6 +46,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
+import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl;
+import org.codice.ddf.platform.util.uuidgenerator.impl.UuidGeneratorImpl;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +59,11 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
-
+  public static final String DEFAULT_SCHEMA_XML = "schema.xml";
+  public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
   private SolrSettings solrSettings = new SolrSettings();
+  private ProtectedSolrSettings protectedSolrSettings = new ProtectedSolrSettings();
 
   private boolean solrCoreExists(SolrClient client, String coreName)
       throws IOException, SolrServerException {
@@ -85,6 +83,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   @VisibleForTesting
   SolrClient createSolrHttpClient(String coreName) throws IOException, SolrServerException {
+
     final HttpClientBuilder httpClientBuilder = createHttpBuilder();
     final HttpSolrClient.Builder solrClientBuilder =
         new HttpSolrClient.Builder(solrSettings.getCoreUrl(coreName));
@@ -108,17 +107,20 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private SSLContext getSslContext() {
 
-    if (!isSslConfigured()) {
+    if (!protectedSolrSettings.isSslConfigured()) {
       throw new IllegalArgumentException("KeyStore and TrustStore system properties must be set.");
     }
 
-    KeyStore trustStore = getKeyStore(getTrustStore(), getTrustStorePass());
-    KeyStore keyStore = getKeyStore(ProtectedSolrSettings.getKeyStore(), getKeyStorePass());
+    KeyStore trustStore =
+        getKeyStore(
+            protectedSolrSettings.getTrustStore(), protectedSolrSettings.getTrustStorePass());
+    KeyStore keyStore =
+        getKeyStore(protectedSolrSettings.getKeyStore(), protectedSolrSettings.getKeyStorePass());
     SSLContext sslContext;
     try {
       sslContext =
           SSLContexts.custom()
-              .loadKeyMaterial(keyStore, getKeyStorePass().toCharArray())
+              .loadKeyMaterial(keyStore, protectedSolrSettings.getKeyStorePass().toCharArray())
               .loadTrustMaterial(trustStore)
               .useTLS()
               .build();
@@ -137,7 +139,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     LOGGER.debug("Loading keystore from {}", location);
     KeyStore keyStore = null;
     try (FileInputStream storeStream = new FileInputStream(location)) {
-      keyStore = KeyStore.getInstance(getKeyStoreType());
+      keyStore = KeyStore.getInstance(protectedSolrSettings.getKeyStoreType());
       keyStore.load(storeStream, password.toCharArray());
     } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
       LOGGER.warn("Unable to load keystore at {}", location, e);
@@ -161,7 +163,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
       HttpResponse ping = client.getHttpClient().execute(new HttpHead(solrUrl));
       if (ping != null && ping.getStatusLine().getStatusCode() == 200) {
-        ConfigurationFileProxy configProxy = new ConfigurationFileProxy();
+        ConfigurationFileProxy configProxy =
+            new ConfigurationFileProxy(ConfigurationStore.getInstance());
         configProxy.writeSolrConfiguration(coreName);
         if (!solrCoreExists(client, coreName)) {
           LOGGER.debug("Solr({}): Creating Solr core", coreName);
@@ -203,10 +206,17 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     }
 
     if (solrSettings.useBasicAuth()) {
+      // TODO: When this JAR beceoms a bundle, convert SolrPasswordUpdate to become a bean.
+      SolrPasswordUpdate solrPasswordUpdate =
+          new SolrPasswordUpdate(
+              new UuidGeneratorImpl(),
+              new ClientFactoryFactoryImpl(),
+              solrSettings.getEncryptionService());
+      solrPasswordUpdate.start();
+
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());
       httpClientBuilder.addInterceptorFirst(new PreemptiveAuth(new BasicScheme()));
     }
-
     return httpClientBuilder;
   }
 
@@ -223,58 +233,33 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   /** Class to offload configuration-related tasks from the HttpSolrClientFactory. */
   static final class ProtectedSolrSettings {
 
-    private static String keyStoreType;
-    private static String keyStore;
-    private static String keyStorePass;
-    private static String trustStore;
-    private static String trustStorePass;
+    private final java.util.Properties properties =
+        AccessController.doPrivileged(
+            (PrivilegedAction<java.util.Properties>) System::getProperties);
 
-    static {
-      trustStore =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.trustStore"));
-      trustStorePass =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>)
-                  () -> System.getProperty("javax.net.ssl.trustStorePassword"));
-      keyStore =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore"));
-      keyStorePass =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>)
-                  () -> System.getProperty("javax.net.ssl.keyStorePassword"));
-      keyStoreType =
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStoreType"));
+    String getTrustStore() {
+      return properties.getProperty("javax.net.ssl.trustStore");
     }
 
-    /** This class is not meant to be instantiated. */
-    private ProtectedSolrSettings() {}
+    String getTrustStorePass() {
+      return properties.getProperty("javax.net.ssl.keyStoreType");
+    }
 
-    static boolean isSslConfigured() {
+    boolean isSslConfigured() {
       return Stream.of(getKeyStore(), getKeyStorePass(), getTrustStore(), getTrustStorePass())
           .allMatch(StringUtils::isNotEmpty);
     }
 
-    static String getKeyStoreType() {
-      return keyStoreType;
+    String getKeyStoreType() {
+      return properties.getProperty("javax.net.ssl.trustStore");
     }
 
-    static String getKeyStore() {
-      return keyStore;
+    String getKeyStore() {
+      return properties.getProperty("javax.net.ssl.keyStore");
     }
 
-    static String getKeyStorePass() {
-      return keyStorePass;
-    }
-
-    static String getTrustStore() {
-      return trustStore;
-    }
-
-    static String getTrustStorePass() {
-      return trustStorePass;
+    String getKeyStorePass() {
+      return properties.getProperty("javax.net.ssl.keyStorePassword");
     }
   }
 }

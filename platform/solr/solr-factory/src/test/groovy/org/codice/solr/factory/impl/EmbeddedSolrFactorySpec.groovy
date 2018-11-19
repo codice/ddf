@@ -24,8 +24,6 @@ import org.apache.solr.schema.IndexSchema
 import org.codice.junit.DeFinalize
 import org.codice.junit.DeFinalizer
 import org.codice.spock.Supplemental
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import spock.lang.Shared
 import spock.lang.Specification
@@ -36,6 +34,8 @@ import spock.util.environment.RestoreSystemProperties
 import java.nio.file.Path
 
 import static java.util.concurrent.TimeUnit.SECONDS
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.DEFAULT_SCHEMA_XML
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML
 
 @RestoreSystemProperties
 @Supplemental
@@ -43,18 +43,16 @@ import static java.util.concurrent.TimeUnit.SECONDS
 @DeFinalize(SolrCore)
 class EmbeddedSolrFactorySpec extends Specification {
     static final String CORE = "test_core"
+  static final String DATA_DIR = "data_dir"
     static final String CONFIG_XML = "solrconfig.xml"
     static final String SCHEMA_XML = "schema.xml"
     static final int AVAILABLE_TIMEOUT_IN_SECS = 25
-
-    @Rule
-    TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Shared
     ConfigurationFileProxy configFileProxy = Stub()
 
     @Shared
-    String dataDir;
+  ConfigurationStore configStore = Stub()
 
     EmbeddedSolrServer server = Stub()
     CoreDescriptor descriptor = Stub()
@@ -62,12 +60,10 @@ class EmbeddedSolrFactorySpec extends Specification {
     Path instancePath = Stub()
     IndexSchema index = Stub()
 
-    def setup() {
-        dataDir = tempFolder.newFolder();
-    }
-
-
     def cleanup() {
+    // reset the config store
+    ConfigurationStore.instance.dataDirectoryPath = null
+    ConfigurationStore.instance.inMemory = false
         // clear the cache of schema indexes
         EmbeddedSolrFactory.resetIndexCache(Collections.emptyMap())
     }
@@ -90,7 +86,9 @@ class EmbeddedSolrFactorySpec extends Specification {
             // verify an actual Solr embedded server will be created
             // must be done in 'given' because it will be called from a different thread and if
             // declared in 'then', it will be out of scope and not matched
-            1 * getEmbeddedSolrServer(CORE) >> server
+        1 * getEmbeddedSolrServer(CORE, DEFAULT_SOLRCONFIG_XML, DEFAULT_SCHEMA_XML, {
+          it.is(ConfigurationStore.instance)
+        }, !null) >> server
         }
 
         and:
@@ -117,9 +115,12 @@ class EmbeddedSolrFactorySpec extends Specification {
         and: "the underlying server should never be closed"
         0 * server.close()
 
+    and: "the config store is initialized and its data directory was or wasn't updated"
+      ConfigurationStore.instance.dataDirectoryPath == data_dir
+
         where:
         data_dir_is   || solr_data_dir || data_dir
-        'defined'     || dataDir       || dataDir
+      'defined'     || DATA_DIR      || DATA_DIR
         'not defined' || null          || null
     }
 
@@ -153,11 +154,11 @@ class EmbeddedSolrFactorySpec extends Specification {
             // verify an actual Solr embedded server will be created
             // must be done in 'given' because it will be called from a different thread and if
             // declared in 'then', it will be out of scope and not matched
-            1 * getEmbeddedSolrServer(CORE) >> server
+        1 * getEmbeddedSolrServer(CORE, DEFAULT_SOLRCONFIG_XML, DEFAULT_SCHEMA_XML, configStore, configFileProxy) >> server
         }
 
         when:
-        def client = factory.newClient(CORE)
+      def client = factory.newClient(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
 
         then: "the reported core should correspond to the requested one"
         client.core == CORE
@@ -179,48 +180,53 @@ class EmbeddedSolrFactorySpec extends Specification {
     }
 
     @Unroll
-    def 'test new client with additional info and a null core'() {
+  def 'test new client with additional info and a null #and_a_null'() {
         given:
         def factory = new EmbeddedSolrFactory();
 
         when:
-        factory.newClient(null)
+      factory.newClient(core, config_xml, schema_xml, config_store, config_file_proxy)
 
         then:
         def e = thrown(IllegalArgumentException)
-        e.message.contains('invalid null Solr core')
-    }
 
-    // TODO: Ask Patrick for help with the class loader issue
+      e.message.contains(message)
+
+    where:
+      and_a_null      || core | config_xml | schema_xml | config_store | config_file_proxy || message
+      'core'          || null | CONFIG_XML | SCHEMA_XML | configStore  | configFileProxy   || 'invalid null Solr core'
+      'configuration' || CORE | null       | SCHEMA_XML | configStore  | configFileProxy   || 'invalid null Solr config file'
+      'schema'        || CORE | CONFIG_XML | null       | configStore  | configFileProxy   || 'invalid null Solr schema file'
+      'config store'  || CORE | CONFIG_XML | SCHEMA_XML | null         | configFileProxy   || 'invalid null Solr config store'
+      'config proxy'  || CORE | CONFIG_XML | SCHEMA_XML | configStore  | null              || 'invalid null Solr config proxy'
+  }
 
     @Unroll
     def 'test creating an embedded Solr server with a store that is #store_that_is'() {
         given:
-        SolrSettings.setInMemory(in_memory)
         def factory = Spy(EmbeddedSolrFactory)
         def container = Mock(SolrCoreContainer)
-        factory.newContainer(_) >> container
         def loader = Mock(SolrResourceLoader)
         def core = Mock(SolrCore)
         def configFileProxy = Mock(ConfigurationFileProxy)
-
+      def configStore = Mock(ConfigurationStore) {
+        isInMemory() >> in_memory
+      }
         def config = Mock(SolrConfig) {
             getResourceLoader() >> Mock(SolrResourceLoader) {
                 getInstancePath() >> instancePath
             }
         }
-        factory.getConfigProxy() >> configFileProxy
-
         def files = Mock(EmbeddedSolrFiles) {
             getConfigHome() >> Mock(File) {
                 toPath() >> configHomePath
             }
             getConfig() >> config
-            getDataDirPath() >> dataDir
+        getDataDirPath() >> DATA_DIR
         }
 
         when:
-        def createdServer = factory.getEmbeddedSolrServer(CORE)
+      def createdServer = factory.getEmbeddedSolrServer(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
 
         then: "the reported server should be the one we created"
         createdServer.is(server)
@@ -238,7 +244,7 @@ class EmbeddedSolrFactorySpec extends Specification {
             1 * newLoader(configHomePath) >> loader
             1 * newContainer(loader) >> container
             1 * newDescriptor(CORE, instancePath, !null, false) >> descriptor
-            1 * newCore(container, CORE, dataDir, config, index, null, descriptor, null, null, null, false) >> core
+        1 * newCore(container, CORE, DATA_DIR, config, index, null, descriptor, null, null, null, false) >> core
             1 * newServer(container, CORE) >> server
         }
 
@@ -265,7 +271,6 @@ class EmbeddedSolrFactorySpec extends Specification {
 
     def 'test creating an embedded Solr server when the schema index was already cached'() {
         given:
-        System.setProperty("solr.data.dir", dataDir)
         def files = Mock(EmbeddedSolrFiles) {
             getConfigHome() >> Mock(File) {
                 toPath() >> configHomePath
@@ -275,7 +280,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                     getInstancePath() >> instancePath
                 }
             }
-            getDataDirPath() >> dataDir
+        getDataDirPath() >> DATA_DIR
         }
         def factory = Spy(EmbeddedSolrFactory) {
             newLoader(*_) >> Stub(SolrResourceLoader)
@@ -290,7 +295,7 @@ class EmbeddedSolrFactorySpec extends Specification {
         EmbeddedSolrFactory.resetIndexCache([(files): index])
 
         when:
-        def createdServer = factory.getEmbeddedSolrServer(CORE)
+      def createdServer = factory.getEmbeddedSolrServer(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
 
         then: "the reported server should be the one we created"
         createdServer.is(server)
@@ -314,7 +319,7 @@ class EmbeddedSolrFactorySpec extends Specification {
                     getInstancePath() >> instancePath
                 }
             }
-            getDataDirPath() >> dataDir
+        getDataDirPath() >> DATA_DIR
         }
         def factory = Spy(EmbeddedSolrFactory) {
             newLoader(*_) >> Stub(SolrResourceLoader)
@@ -326,7 +331,7 @@ class EmbeddedSolrFactorySpec extends Specification {
         }
 
         when:
-        factory.getEmbeddedSolrServer(CORE)
+      factory.getEmbeddedSolrServer(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
 
         then: "fail to create the schema index"
         1 * files.schemaIndex >> { throw error }
@@ -356,12 +361,12 @@ class EmbeddedSolrFactorySpec extends Specification {
                         getInstancePath() >> instancePath
                     }
                 }
-                getDataDirPath() >> dataDir
+          getDataDirPath() >> DATA_DIR
             }
         }
 
         when:
-        factory.getEmbeddedSolrServer(CORE)
+      factory.getEmbeddedSolrServer(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
 
         then: "fail to create the container"
         1 * factory.newContainer(*_) >> { throw error }
@@ -392,13 +397,13 @@ class EmbeddedSolrFactorySpec extends Specification {
                         getInstancePath() >> instancePath
                     }
                 }
-                getDataDirPath() >> dataDir
+          getDataDirPath() >> DATA_DIR
                 getSchemaIndex() >> index
             }
         }
 
         when:
-        factory.getEmbeddedSolrServer(CORE)
+      factory.getEmbeddedSolrServer(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
 
         then: "fail to create the server"
         1 * factory.newServer(*_) >> { throw error }

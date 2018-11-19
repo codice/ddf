@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.SolrSettings;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,14 +90,14 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
   }
 
   /**
-   * Used to signal to the Solr client to commit on every transaction. Updates the underlying
-   * {@link
+   * Used to signal to the Solr client to commit on every transaction. Updates the underlying {@link
+   * ConfigurationStore} so that the property is propagated throughout the Solr Catalog Provider
+   * code.
    *
    * @param forceAutoCommit {@code true} to force auto-commits
-   * @SolrSettings} so that the property is propagated throughout the Solr Catalog Provider code.
    */
   public void setForceAutoCommit(boolean forceAutoCommit) {
-    SolrSettings.setForceAutoCommit(forceAutoCommit);
+    ConfigurationStore.getInstance().setForceAutoCommit(forceAutoCommit);
   }
 
   /**
@@ -106,7 +106,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
    * @param disableTextPath {@code true} to turn off text path indexing
    */
   public void setDisableTextPath(boolean disableTextPath) {
-    SolrSettings.setDisableTextPath(disableTextPath);
+    ConfigurationStore.getInstance().setDisableTextPath(disableTextPath);
   }
 
   @Override

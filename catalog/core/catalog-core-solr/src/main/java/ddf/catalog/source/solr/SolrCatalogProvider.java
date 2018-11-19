@@ -16,10 +16,8 @@ package ddf.catalog.source.solr;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -66,7 +64,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.SolrSettings;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,39 +206,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
     SourceResponse response = client.query(request);
-    queryById(request, response);
     return response;
-  }
-
-  private void queryById(QueryRequest request, SourceResponse response)
-      throws UnsupportedQueryException {
-    if (request == null || request.getQuery() == null) {
-      return;
-    }
-
-    Set<String> ids =
-        filterAdapter.adapt(request.getQuery(), new MetacardIdEqualityFilterDelegate());
-    if (ids.isEmpty()) {
-      return;
-    }
-
-    for (Result result : response.getResults()) {
-      ids.remove(result.getMetacard().getId());
-    }
-
-    if (ids.isEmpty()) {
-      return;
-    }
-
-    List<Result> pendingResults =
-        client
-            .getIds(ids)
-            .stream()
-            .filter(Objects::nonNull)
-            .map(ResultImpl::new)
-            .collect(Collectors.toList());
-
-    response.getResults().addAll(pendingResults);
   }
 
   @Override
@@ -547,7 +513,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   }
 
   public boolean isForcedAutoCommit() {
-    return SolrSettings.isForceAutoCommit();
+    return ConfigurationStore.getInstance().isForceAutoCommit();
   }
 
   public void shutdown() {
@@ -585,7 +551,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   /** Solr client listener class to adapt to a source monitor class */
   private static class SolrClientListenerAdapter implements SolrClient.Listener {
-
     private final SourceMonitor callback;
 
     private SolrClientListenerAdapter(SourceMonitor callback) {

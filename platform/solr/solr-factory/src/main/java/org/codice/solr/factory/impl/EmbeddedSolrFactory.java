@@ -13,8 +13,6 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.codice.solr.factory.impl.SolrSettings.isInMemory;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.nio.file.Path;
 import java.util.Map;
@@ -45,27 +43,49 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class EmbeddedSolrFactory implements SolrClientFactory {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFactory.class);
 
   private static final Map<EmbeddedSolrFiles, IndexSchema> INDEX_CACHE = new ConcurrentHashMap<>();
 
-  @VisibleForTesting
-  static void resetIndexCache(Map<EmbeddedSolrFiles, IndexSchema> cache) {
-    EmbeddedSolrFactory.INDEX_CACHE.clear();
-    EmbeddedSolrFactory.INDEX_CACHE.putAll(cache);
-  }
-
-  @VisibleForTesting
-  static boolean indexCacheEquals(Map<EmbeddedSolrFiles, IndexSchema> cache) {
-    return EmbeddedSolrFactory.INDEX_CACHE.equals(cache);
-  }
+  public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
 
   @Override
   public org.codice.solr.client.solrj.SolrClient newClient(String core) {
+    final ConfigurationStore configStore = ConfigurationStore.getInstance();
+
+    if (System.getProperty("solr.data.dir") != null) {
+      configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
+    }
+    return newClient(
+        core, "schema.xml", "solrconfig.xml", configStore, new ConfigurationFileProxy(configStore));
+  }
+
+  /**
+   * Requests the creation of a new embedded {@code SolrClient} for a specific Solr core name.
+   *
+   * @param core the name of the Solr core to create to create a client for
+   * @param configXml the name of the Solr configuration file
+   * @param schemaXml the name of the Solr core schema
+   * @param configStore the {@link ConfigurationStore} instance to use
+   * @param configProxy the {@link ConfigurationFileProxy} instance to use
+   * @return the newly created {@code SolrClient}
+   * @throws IllegalArgumentException if <code>core</code>, <code>configXml</code>, <code>schemaXml
+   *     </code>, <code>configStore</code> or <code>configProxy</code> is <code>null</code>
+   */
+  public org.codice.solr.client.solrj.SolrClient newClient(
+      String core,
+      String configXml,
+      String schemaXml,
+      ConfigurationStore configStore,
+      ConfigurationFileProxy configProxy) {
     Validate.notNull(core, "invalid null Solr core name");
+    Validate.notNull(configXml, "invalid null Solr config file");
+    Validate.notNull(schemaXml, "invalid null Solr schema file");
+    Validate.notNull(configStore, "invalid null Solr config store");
+    Validate.notNull(configProxy, "invalid null Solr config proxy");
     LOGGER.debug("Solr({}): Creating an embedded Solr client", core);
-    return new SolrClientAdapter(core, () -> getEmbeddedSolrServer(core));
+    return new SolrClientAdapter(
+        core, () -> getEmbeddedSolrServer(core, configXml, schemaXml, configStore, configProxy));
   }
 
   /**
@@ -73,21 +93,23 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    * schema and configuration file proxy provided.
    *
    * @param coreName name of the Solr core
+   * @param configXml name of the Solr configuration file
+   * @param schemaXml the name of the Solr core schema
+   * @param configStore the {@link ConfigurationStore} instance to use
+   * @param configProxy {@link ConfigurationFileProxy} instance to use
    * @return a new {@link EmbeddedSolrServer} instance
    * @throws IllegalArgumentException if <code>coreName</code>, <code>configXml</code>, <code>
-   * schemaXml</code>, <code>configStore</code>, or <code>configProxy</code> is <code>null
-   * </code> or if it cannot find the Solr files
+   *     schemaXml</code>, <code>configStore</code>, or <code>configProxy</code> is <code>null
+   *     </code> or if it cannot find the Solr files
    */
   @VisibleForTesting
-  EmbeddedSolrServer getEmbeddedSolrServer(String coreName) {
-    SolrSettings solrSettings = new SolrSettings();
-    ConfigurationFileProxy configProxy = getConfigProxy();
-    Validate.notNull(configProxy, "invalid null Solr config proxy");
-    String schemaXml = solrSettings.getDefaultSchemaXml();
-    String configXml = solrSettings.getDefaultSolrconfigXml();
-    Validate.notNull(configXml, "invalid null Solr config file");
-    Validate.notNull(schemaXml, "invalid null Solr schema file");
-    if (!isInMemory()) {
+  EmbeddedSolrServer getEmbeddedSolrServer(
+      String coreName,
+      String configXml,
+      String schemaXml,
+      ConfigurationStore configStore,
+      ConfigurationFileProxy configProxy) {
+    if (!configStore.isInMemory()) {
       configProxy.writeSolrConfiguration(coreName);
     }
     final EmbeddedSolrFiles files =
@@ -132,11 +154,6 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     } finally {
       Thread.currentThread().setContextClassLoader(tccl);
     }
-  }
-
-  @VisibleForTesting
-  ConfigurationFileProxy getConfigProxy() {
-    return new ConfigurationFileProxy();
   }
 
   @VisibleForTesting
@@ -195,5 +212,16 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
         delPolicy,
         prev,
         reload);
+  }
+
+  @VisibleForTesting
+  static void resetIndexCache(Map<EmbeddedSolrFiles, IndexSchema> cache) {
+    EmbeddedSolrFactory.INDEX_CACHE.clear();
+    EmbeddedSolrFactory.INDEX_CACHE.putAll(cache);
+  }
+
+  @VisibleForTesting
+  static boolean indexCacheEquals(Map<EmbeddedSolrFiles, IndexSchema> cache) {
+    return EmbeddedSolrFactory.INDEX_CACHE.equals(cache);
   }
 }

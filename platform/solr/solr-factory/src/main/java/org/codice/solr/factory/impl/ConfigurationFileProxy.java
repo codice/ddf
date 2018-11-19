@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class ConfigurationFileProxy {
-
   public static final String DEFAULT_SOLR_CONFIG_PARENT_DIR = "etc";
 
   public static final String DEFAULT_SOLR_DATA_PARENT_DIR =
@@ -61,11 +60,15 @@ public class ConfigurationFileProxy {
 
   private File dataDirectory = null;
 
-  /** Constructor. */
-  @Deprecated
-  public ConfigurationFileProxy() {
+  /**
+   * Constructor.
+   *
+   * @param configurationStore configuration store that will be used to retrieve the configuration
+   *     information
+   */
+  public ConfigurationFileProxy(ConfigurationStore configurationStore) {
     LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
-    String storedDataDirectoryPath = new SolrSettings().getRootDataDir();
+    String storedDataDirectoryPath = configurationStore.getDataDirectoryPath();
 
     if (isNotBlank(storedDataDirectoryPath)) {
       this.dataDirectory = new File(storedDataDirectoryPath);

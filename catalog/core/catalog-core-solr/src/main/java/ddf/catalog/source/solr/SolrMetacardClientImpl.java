@@ -52,6 +52,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +68,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -78,6 +81,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.CommonParams;
 import org.codice.solr.client.solrj.SolrClient;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -101,6 +105,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
       "catalog.zeroPageSizeCompatibility";
 
+  private static final String GET_QUERY_HANDLER = "/get";
+
+  private static final String IDS_KEY = "ids";
+
   public static final String SORT_FIELD_KEY = "sfield";
 
   public static final String POINT_KEY = "pt";
@@ -119,6 +127,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
+
+  private static final String SOLR_COMMIT_NRT_METACARDTYPES = "solr.commit.nrt.metacardTypes";
+
+  private final Set<String> commitNrtMetacardType =
+      Sets.newHashSet(accessProperty(SOLR_COMMIT_NRT_METACARDTYPES, "").split("\\s*,\\s*"));
+
+  private static final String SOLR_COMMIT_NRT_COMMITWITHINMS = "solr.commit.nrt.commitWithinMs";
+
+  private final int commitNrtCommitWithinMs =
+      Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
   public SolrMetacardClientImpl(
       SolrClient client,
@@ -141,7 +159,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       return new QueryResponseImpl(request, new ArrayList<>(), true, 0L);
     }
 
-    SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
+    SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(resolver);
+    SolrQuery query = getSolrQuery(request, solrFilterDelegate);
 
     List<Result> results = new ArrayList<>();
     Map<String, Serializable> responseProps = new HashMap<>();
@@ -190,7 +209,15 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     long totalHits = 0;
 
     try {
-      QueryResponse solrResponse = client.query(query, METHOD.POST);
+      QueryResponse solrResponse;
+
+      if (solrFilterDelegate.isIdQuery()) {
+        LOGGER.debug("Performing real time query");
+        SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
+        solrResponse = client.query(realTimeQuery, METHOD.POST);
+      } else {
+        solrResponse = client.query(query, METHOD.POST);
+      }
 
       SolrDocumentList docs = solrResponse.getResults();
       if (docs != null) {
@@ -423,6 +450,38 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return postAdapt(request, solrFilterDelegate, query);
   }
 
+  private SolrQuery getRealTimeQuery(SolrQuery originalQuery, Collection<String> ids) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("originalQuery: {}", getQueryParams(originalQuery));
+    }
+    SolrQuery realTimeQuery = new SolrQuery();
+    for (Map.Entry<String, String[]> entry : originalQuery.getMap().entrySet()) {
+      if (CommonParams.Q.equals(entry.getKey())) {
+        realTimeQuery.set(CommonParams.FQ, entry.getValue());
+      } else {
+        realTimeQuery.set(entry.getKey(), entry.getValue());
+      }
+    }
+    realTimeQuery.set(CommonParams.QT, GET_QUERY_HANDLER);
+    realTimeQuery.set(IDS_KEY, ids.toArray(new String[ids.size()]));
+
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("realTimeQuery: {}", getQueryParams(realTimeQuery));
+    }
+
+    return realTimeQuery;
+  }
+
+  private String getQueryParams(SolrQuery query) {
+    StringBuilder builder = new StringBuilder();
+    for (Map.Entry<String, String[]> entry : query.getMap().entrySet()) {
+      builder.append(
+          String.format(
+              "param: %s; value: %s%n", entry.getKey(), Arrays.toString(entry.getValue())));
+    }
+    return builder.toString();
+  }
+
   protected SolrQuery postAdapt(
       QueryRequest request, SolrFilterDelegate filterDelegate, SolrQuery query)
       throws UnsupportedQueryException {
@@ -651,13 +710,21 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       return Collections.emptyList();
     }
 
+    boolean isNrtCommit = false;
     List<SolrInputDocument> docs = new ArrayList<>();
     for (Metacard metacard : metacards) {
       docs.add(getSolrInputDocument(metacard));
+      if (commitNrtMetacardType.contains(metacard.getMetacardType().getName())) {
+        isNrtCommit = true;
+      }
     }
 
     if (!forceAutoCommit) {
-      client.add(docs);
+      if (isNrtCommit) {
+        client.add(docs, commitNrtCommitWithinMs);
+      } else {
+        client.add(docs);
+      }
     } else {
       softCommit(docs);
     }
@@ -725,6 +792,14 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       queryBuilder.append(fieldName).append(":").append(QUOTE).append(id).append(QUOTE);
     }
     return queryBuilder.toString();
+  }
+
+  private static String accessProperty(String key, String defaultValue) {
+    String value =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(key, defaultValue));
+    LOGGER.debug("Read system property [{}] with value [{}]", key, value);
+    return value;
   }
 
   private org.apache.solr.client.solrj.response.UpdateResponse softCommit(

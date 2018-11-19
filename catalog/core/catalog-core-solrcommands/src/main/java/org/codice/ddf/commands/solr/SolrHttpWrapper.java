@@ -13,19 +13,19 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.solr.factory.impl.SolrSettings.getSupportedCipherSuites;
-import static org.codice.solr.factory.impl.SolrSettings.getSupportedProtocols;
-
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -75,6 +75,18 @@ public class SolrHttpWrapper implements HttpWrapper {
     }
 
     return keyStore;
+  }
+
+  public String[] getSupportedCipherSuites() {
+    return commaSeparatedToArray(
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("https.cipherSuites")));
+  }
+
+  private String[] getSupportedProtocols() {
+    return commaSeparatedToArray(
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(("https.protocols"))));
   }
 
   @Override
@@ -131,5 +143,10 @@ public class SolrHttpWrapper implements HttpWrapper {
     sslContext.getDefaultSSLParameters().setWantClientAuth(true);
 
     return sslContext;
+  }
+
+  private String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
+
+    return (commaDelimitedString != null) ? commaDelimitedString.split("\\s*,\\s*") : new String[0];
   }
 }

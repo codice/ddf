@@ -24,6 +24,12 @@
     <artifactId>catalog-core-solr</artifactId>
     <name>DDF :: Catalog :: Core :: Solr</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <!-- For maven-surefire-plugin -->
+        <surefire.argline.append>-Dlog4j.configuration=log4j-test.properties</surefire.argline.append>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -202,7 +208,19 @@
         <dependency>
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
-            <version>0.39</version>
+            <version>0.42</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth.extensions</groupId>
+            <artifactId>truth-java8-extension</artifactId>
+            <version>0.42</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -316,17 +334,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.83</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.71</minimum>
+                                            <minimum>0.76</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.65</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

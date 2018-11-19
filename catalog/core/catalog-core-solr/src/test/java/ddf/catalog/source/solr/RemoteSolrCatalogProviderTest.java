@@ -32,7 +32,7 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.util.NamedList;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.client.solrj.SolrClient.Listener;
-import org.codice.solr.settings.SolrSettings;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -159,7 +159,7 @@ public class RemoteSolrCatalogProviderTest {
 
     provider.setForceAutoCommit(true);
 
-    assertThat(SolrSettings.isForceAutoCommit(), is(true));
+    assertThat(ConfigurationStore.getInstance().isForceAutoCommit(), is(true));
   }
 
   @Test

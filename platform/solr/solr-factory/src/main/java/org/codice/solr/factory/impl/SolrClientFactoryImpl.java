@@ -46,10 +46,10 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   public SolrClient newClient(String core) {
     notNull(core, "Solr core name cannot be null");
 
-    SolrClientFactory factory;
     String clientType =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
+    SolrClientFactory factory;
 
     if ("EmbeddedSolrServer".equals(clientType)) {
       factory = new EmbeddedSolrFactory();

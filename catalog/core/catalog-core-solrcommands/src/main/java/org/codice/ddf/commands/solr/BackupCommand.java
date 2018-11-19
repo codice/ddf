@@ -13,11 +13,11 @@
  */
 package org.codice.ddf.commands.solr;
 
-import static org.codice.solr.factory.impl.SolrSettings.getUrl;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
@@ -186,7 +186,9 @@ public class BackupCommand extends SolrCommands {
   }
 
   private String getBackupUrl(String coreName) {
-    String backupUrl = getUrl();
+    String backupUrl =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(("solr.http.url")));
 
     if (configurationAdmin != null) {
       try {
@@ -205,7 +207,7 @@ public class BackupCommand extends SolrCommands {
                       SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
               LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
             } else {
-              LOGGER.info("No Solr url configured, defaulting to: {}", getUrl());
+              LOGGER.info("No Solr url configured");
             }
           }
         }

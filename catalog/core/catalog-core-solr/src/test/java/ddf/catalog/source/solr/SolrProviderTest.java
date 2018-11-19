@@ -13,6 +13,8 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.source.solr.DynamicSchemaResolver.FIVE_MEGABYTES;
+
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.source.solr.provider.SolrProviderContentTypes;
 import ddf.catalog.source.solr.provider.SolrProviderCreate;
@@ -30,8 +32,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.codice.solr.client.solrj.SolrClient;
+import org.codice.solr.factory.impl.ConfigurationFileProxy;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.SolrCloudClientFactory;
-import org.codice.solr.settings.MockSolrProperty;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -74,14 +77,12 @@ public class SolrProviderTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    LOGGER.info("RUNNING one-time setup.");
-
-    //    ConfigurationStore store = ConfigurationStore.getInstance();
-    //    store.setForceAutoCommit(true);
+    ConfigurationStore store = ConfigurationStore.getInstance();
+    store.setForceAutoCommit(true);
     String solrDataPath = Paths.get("target/surefire/solr").toString();
-    MockSolrProperty.setProperty("solr.data.dir", solrDataPath);
-    //    store.setDataDirectoryPath(solrDataPath);
-    //    ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy();
+    System.getProperty("solr.data.dir", solrDataPath);
+    store.setDataDirectoryPath(solrDataPath);
+    ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(store);
 
     miniSolrCloud =
         new MiniSolrCloudCluster(
@@ -92,6 +93,7 @@ public class SolrProviderTest {
     System.setProperty("solr.cloud.maxShardPerNode", "1");
     System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
     System.setProperty("solr.cloud.zookeeper", miniSolrCloud.getZkServer().getZkHost());
+    System.setProperty("metadata.size.limit", Integer.toString(FIVE_MEGABYTES));
 
     SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
     solrClient = solrClientFactory.newClient("catalog");
@@ -117,6 +119,7 @@ public class SolrProviderTest {
     System.clearProperty("solr.cloud.maxShardPerNode");
     System.clearProperty("solr.cloud.zookeeper.chroot");
     System.clearProperty("solr.cloud.zookeeper");
+    System.clearProperty("metadata.size.limit");
 
     if (miniSolrCloud != null) {
       miniSolrCloud.shutdown();

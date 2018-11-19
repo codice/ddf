@@ -36,17 +36,21 @@ public class ConfigurationFileProxyTest {
 
   @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
+  private ConfigurationStore store;
+
   @Before
   public void beforeTest() throws Exception {
     File tempLocation = tempFolder.newFolder();
-    System.setProperty("solr.data.dir", tempLocation.getAbsolutePath());
+
+    store = ConfigurationStore.getInstance();
+    store.setDataDirectoryPath(tempLocation.getPath());
   }
 
   /** Tests that files are indeed written to disk. */
   @Test
   public void testWritingToDisk() throws Exception {
 
-    ConfigurationFileProxy proxy = new ConfigurationFileProxy();
+    ConfigurationFileProxy proxy = new ConfigurationFileProxy(store);
 
     proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
@@ -56,13 +60,15 @@ public class ConfigurationFileProxyTest {
   /**
    * Tests that if a change was made to a file or if the file already exists, the file proxy would
    * not overwrite that file.
+   *
+   * @throws java.io.IOException
    */
   @Test
   public void testKeepingExistingFiles() throws Exception {
 
     File tempLocation = tempFolder.newFolder();
 
-    ConfigurationFileProxy proxy = new ConfigurationFileProxy();
+    ConfigurationFileProxy proxy = new ConfigurationFileProxy(store);
 
     proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
@@ -86,6 +92,8 @@ public class ConfigurationFileProxyTest {
   /**
    * Tests if a file is missing that the file proxy would write onto disk the config file for the
    * user.
+   *
+   * @throws java.io.IOException
    */
   @Test
   public void testReplacement() throws Exception {
@@ -97,7 +105,7 @@ public class ConfigurationFileProxyTest {
       assertThat(tempLocation.list().length, is(0));
     }
 
-    ConfigurationFileProxy proxy = new ConfigurationFileProxy();
+    ConfigurationFileProxy proxy = new ConfigurationFileProxy(store);
 
     // when
     proxy.writeSolrConfiguration(TEST_CORE_NAME);
