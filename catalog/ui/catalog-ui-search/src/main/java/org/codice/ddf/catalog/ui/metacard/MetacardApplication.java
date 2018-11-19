@@ -582,7 +582,8 @@ public class MetacardApplication implements SparkApplication {
           Map<String, Object> updatedWorkspace = mapper.parser().parseMap(util.safeGetBody(req));
 
           List<Metacard> updatedQueryMetacards =
-              ((List<Map<String, Object>>) updatedWorkspace.get("queries"))
+              ((List<Map<String, Object>>)
+                      updatedWorkspace.getOrDefault("queries", Collections.emptyList()))
                   .stream()
                   .map(transformer::transform)
                   .collect(Collectors.toList());
