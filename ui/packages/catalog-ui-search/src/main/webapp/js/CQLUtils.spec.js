@@ -26,6 +26,11 @@ const mockMetacardDefinitions = {
       type: 'LOCATION',
       multivalued: false,
     },
+    created: {
+      id: 'created',
+      type: 'DATE',
+      multivalued: false,
+    },
   },
 }
 
@@ -341,6 +346,21 @@ describe('CQL Utils', () => {
         filterFunctionName: 'myFunc',
         params: { param1: 'val1' },
       })
+    })
+
+    it('generates DURING filter with temporal property', () => {
+      const filter = CQLUtils.generateFilter(
+        'DURING',
+        'created',
+        '2018-11-01T19:00:00.000Z/2018-11-30T19:00:00.000Z',
+        mockMetacardDefinitions
+      )
+      expect(filter.type).equals('DURING')
+      expect(filter.value).equals(
+        '2018-11-01T19:00:00.000Z/2018-11-30T19:00:00.000Z'
+      )
+      expect(filter.from).equals('2018-11-01T19:00:00.000Z')
+      expect(filter.to).equals('2018-11-30T19:00:00.000Z')
     })
   })
 
