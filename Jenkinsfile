@@ -1,7 +1,12 @@
 //"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
 //More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
 pipeline {
-    agent { label 'linux-large' }
+    agent {
+        node {
+            label 'linux-large'
+            customWorkspace "/jenkins/workspace/${JOB_NAME}/${BUILD_NUMBER}"
+        }
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr:'25'))
         disableConcurrentBuilds()
@@ -55,9 +60,12 @@ pipeline {
                         timeout(time: 3, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
-                                sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                                sh 'mvn clean install -B -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                                sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                sh '''
+                                    unset JAVA_TOOL_OPTIONS
+                                    mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                                    mvn clean install -B -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                                    mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                                '''
                             }
                         }
                     }
@@ -116,7 +124,10 @@ pipeline {
                         timeout(time: 2, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                                sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                sh '''
+                                    unset JAVA_TOOL_OPTIONS
+                                    mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                                '''
                             }
                         }
                     }
@@ -266,6 +277,14 @@ pipeline {
         }
         unstable {
             slackSend color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+        }
+        cleanup {
+            echo '...Cleaning up workspace'
+            cleanWs()
+            sh 'rm -rf ~/.m2/repository'
+            wrap([$class: 'MesosSingleUseSlave']) {
+                sh 'echo "...Shutting down Jenkins slave: `hostname`"'
+            }
         }
     }
 }
