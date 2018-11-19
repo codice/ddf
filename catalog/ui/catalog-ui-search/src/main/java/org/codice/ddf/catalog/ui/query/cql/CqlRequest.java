@@ -52,6 +52,8 @@ public class CqlRequest {
 
   private static final String MODE = "mode";
 
+  private static final String UPDATE = "update";
+
   private String id;
 
   private String src;
@@ -176,7 +178,7 @@ public class CqlRequest {
     if (srcs != null && srcs.length != 0) {
       parseSrcs(localSource);
       queryRequest = new QueryRequestImpl(query, Arrays.asList(srcs));
-      queryRequest.getProperties().put(MODE, "update");
+      queryRequest.getProperties().put(MODE, UPDATE);
     } else {
       String source = parseSrc(localSource);
       if (CACHE_SOURCE.equals(source)) {
@@ -184,7 +186,7 @@ public class CqlRequest {
         queryRequest.getProperties().put(MODE, CACHE_SOURCE);
       } else {
         queryRequest = new QueryRequestImpl(query, Collections.singleton(source));
-        queryRequest.getProperties().put(MODE, "update");
+        queryRequest.getProperties().put(MODE, UPDATE);
       }
     }
 
