@@ -14,14 +14,16 @@ import { hot } from 'react-hot-loader'
 import Base, { Type, BaseProps, destructureBaseProps } from '../base'
 
 type Props = BaseProps & {
+  placeholder: string
   value: string
   onChange?: (value: string) => void
 }
 
 export default hot(module)((props: Props) => {
-  const { value, onChange, ...otherProps } = props
+  const { placeholder, value, onChange, ...otherProps } = props
   return (
     <Base
+      placeholder={placeholder}
       value={[value]}
       type={Type.date}
       onChange={onChange}

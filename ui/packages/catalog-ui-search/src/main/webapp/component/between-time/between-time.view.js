@@ -14,45 +14,43 @@
  **/
 /*global require*/
 const Marionette = require('marionette')
-const template = require('./between-time.hbs')
 const CustomElements = require('../../js/CustomElements.js')
-const PropertyView = require('../property/property.view.js')
-const Property = require('../property/property.js')
+import * as React from 'react'
+import DateComponent from '../../react-component/container/input-wrappers/date'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
-  tagName: CustomElements.register('between-time'),
-  regions: {
-    betweenFrom: '.between-from',
-    betweenTo: '.between-to',
+  template() {
+    const { from = '', to = '' } = this.getStartingValue() || {}
+    this.fromValue = from
+    this.toValue = to
+    return (
+      <React.Fragment>
+        <DateComponent
+          label="From"
+          placeholder="Limit search to after this time."
+          value={from}
+          onChange={this.handleFromUpdate.bind(this)}
+        />
+        <DateComponent
+          label="To"
+          placeholder="Limit search to before this time."
+          value={to}
+          onChange={this.handleToUpdate.bind(this)}
+        />
+      </React.Fragment>
+    )
   },
-  onBeforeShow() {
-    this.setupTimeBetween()
-    this.turnOnEditing()
-    this.listenTo(
-      this.betweenFrom.currentView.model,
-      'change:value',
-      this.updateModelValue
-    )
-    this.listenTo(
-      this.betweenTo.currentView.model,
-      'change:value',
-      this.updateModelValue
-    )
+  tagName: CustomElements.register('between-time'),
+  handleFromUpdate(value) {
+    this.fromValue = value
     this.updateModelValue()
   },
-  turnOnEditing() {
-    this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
-      if (region.currentView && region.currentView.turnOnEditing) {
-        region.currentView.turnOnEditing()
-      }
-    })
+  handleToUpdate(value) {
+    this.toValue = value
+    this.updateModelValue()
   },
   getViewValue() {
-    const from = this.betweenFrom.currentView.model.getValue()[0]
-    const to = this.betweenTo.currentView.model.getValue()[0]
-    return `${from}/${to}`
+    return `${this.fromValue}/${this.toValue}`
   },
   parseValue(value) {
     if (value === null || value === undefined || !value.includes('/')) {
@@ -85,29 +83,6 @@ module.exports = Marionette.LayoutView.extend({
     } else if (this.options !== undefined) {
       return this.getOptionsValue()
     }
-  },
-  setupTimeBetween() {
-    const { from = '', to = '' } = this.getStartingValue() || {}
-    this.betweenFrom.show(
-      new PropertyView({
-        model: new Property({
-          value: [from],
-          id: 'From',
-          placeholder: 'Limit search to after this time.',
-          type: 'DATE',
-        }),
-      })
-    )
-    this.betweenTo.show(
-      new PropertyView({
-        model: new Property({
-          value: [to],
-          id: 'To',
-          placeholder: 'Limit search to before this time.',
-          type: 'DATE',
-        }),
-      })
-    )
   },
   isValid() {
     const value = this.getModelValue()
