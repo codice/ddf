@@ -54,6 +54,10 @@
             name="S3 Endpoint" id="s3Endpoint" required="true" type="String"
             default=""/>
 
+        <AD description="The Region to use for the AWS Signing Region."
+            name="S3 Region" id="s3Region" required="true" type="String"
+            default=""/>
+
         <AD description="One of the pre-defined Amazon S3 ACL names."
             name="S3 Canned ACL" id="s3CannedAclName" required="true" type="String"
             default="BucketOwnerFullControl"/>
