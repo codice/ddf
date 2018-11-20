@@ -62,7 +62,7 @@
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
         <codice-test.version>0.1</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.5</acdebugger.version>
+        <acdebugger.version>1.7</acdebugger.version>
         <!--temporary codice version of pax web-->
         <pax.web.codice.version>7.2.4.CODICE</pax.web.codice.version>
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
