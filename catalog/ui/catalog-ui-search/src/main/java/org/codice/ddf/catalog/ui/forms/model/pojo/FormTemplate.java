@@ -34,17 +34,20 @@ public class FormTemplate extends CommonTemplate {
   @JsonProperty("filterTemplate")
   private FilterNode root;
 
+  @JsonProperty("accessGroups")
+  private List<Serializable> accessGroups;
+
+  @JsonProperty("accessGroupsRead")
+  private List<Serializable> accessGroupsRead;
+
   @JsonProperty("accessIndividuals")
   private List<Serializable> accessIndividuals;
 
   @JsonProperty("accessIndividualsRead")
   private List<Serializable> accessIndividualsRead;
 
-  @JsonProperty("accessGroups")
-  private List<Serializable> accessGroups;
-
-  @JsonProperty("accessGroupsRead")
-  private List<Serializable> accessGroupsRead;
+  @JsonProperty("accessAdministrators")
+  private List<Serializable> accessAdministrators;
 
   @JsonProperty("creator")
   private String creator;

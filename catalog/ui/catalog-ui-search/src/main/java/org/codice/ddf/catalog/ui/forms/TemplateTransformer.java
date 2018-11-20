@@ -13,15 +13,13 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
-import static ddf.catalog.data.types.Security.ACCESS_ADMINISTRATORS;
-import static ddf.catalog.data.types.Security.ACCESS_GROUPS;
-import static ddf.catalog.data.types.Security.ACCESS_GROUPS_READ;
-import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS;
-import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS_READ;
-
 import com.google.common.collect.ImmutableMap;
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
+import ddf.catalog.filter.FilterBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -61,8 +59,15 @@ public class TemplateTransformer {
 
   private final FilterWriter writer;
 
-  public TemplateTransformer(FilterWriter writer) {
+  private final CatalogFramework catalogFramework;
+
+  private final FilterBuilder filterBuilder;
+
+  public TemplateTransformer(
+      FilterBuilder filterBuilder, CatalogFramework catalogFramework, FilterWriter writer) {
+    this.filterBuilder = filterBuilder;
     this.writer = writer;
+    this.catalogFramework = catalogFramework;
   }
 
   public static boolean invalidFormTemplate(Metacard metacard) {
@@ -219,16 +224,16 @@ public class TemplateTransformer {
    */
   private static Map<String, List<Serializable>> retrieveSecurityIfPresent(Metacard inputMetacard) {
     return ImmutableMap.of(
-        ACCESS_INDIVIDUALS,
-        getValues(inputMetacard, ACCESS_INDIVIDUALS),
-        ACCESS_INDIVIDUALS_READ,
-        getValues(inputMetacard, ACCESS_INDIVIDUALS_READ),
-        ACCESS_GROUPS,
-        getValues(inputMetacard, ACCESS_GROUPS),
-        ACCESS_GROUPS_READ,
-        getValues(inputMetacard, ACCESS_GROUPS_READ),
-        ACCESS_ADMINISTRATORS,
-        getValues(inputMetacard, ACCESS_ADMINISTRATORS));
+        Security.ACCESS_INDIVIDUALS,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS),
+        Security.ACCESS_INDIVIDUALS_READ,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS_READ),
+        Security.ACCESS_GROUPS,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS),
+        Security.ACCESS_GROUPS_READ,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS_READ),
+        Security.ACCESS_ADMINISTRATORS,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_ADMINISTRATORS));
   }
 
   private static List<Serializable> getValues(Metacard inputMetacard, String fieldName) {
