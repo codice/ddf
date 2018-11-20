@@ -240,13 +240,15 @@ Query.Model = Backbone.AssociatedModel.extend({
       result.setQueryId(this.getId())
       result.set('selectedResultTemplate', this.get('detail-level'))
       result.set('merged', true)
-      result
-        .get('queuedResults')
-        .fullCollection.reset()
+      result.get('queuedResults').fullCollection.reset()
       result.get('queuedResults').reset()
       result.get('results').fullCollection.reset(options.results || [])
       result.get('results').reset(options.results || [])
-      result.get('status').reset(options.status ? options.status.concat(initialStatus) : initialStatus)
+      result
+        .get('status')
+        .reset(
+          options.status ? options.status.concat(initialStatus) : initialStatus
+        )
     } else {
       result = new QueryResponse({
         queryId: this.getId(),
