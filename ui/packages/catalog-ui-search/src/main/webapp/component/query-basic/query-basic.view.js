@@ -289,11 +289,10 @@ define([
             }));
         },
         setupTextInput: function () {
+            var previousAnyText = this.model.get('previousAnyText');
             this.basicText.show(new PropertyView({
                 model: new Property({
-                    value: [this.filter.anyText && this.model.get('previousAnyText') !== ''
-                        ? this.filter.anyText[0].value
-                        : ''],
+                    value: [this.filter.anyText && previousAnyText !== null ? previousAnyText : ''],
                     id: 'Text',
                     placeholder: 'Text to search for.  Use "*" for wildcard.'
                 })
@@ -332,14 +331,14 @@ define([
         },
         save: function () {
             this.$el.removeClass('is-editing');
-            var input = this.$el.find('intrigue-input > div.if-editing > input');
+            var inputValue = this.$el.find('intrigue-input > div.if-editing > input').val();
             this.basicSettings.currentView.saveToModel();
 
             var filter = this.constructFilter();
             var generatedCQL = CQLUtils.transformFilterToCQL(filter);
             this.model.set({
                 cql: generatedCQL,
-                previousAnyText: input.val()
+                previousAnyText: inputValue
             });
         },
         constructFilter: function () {
