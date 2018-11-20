@@ -72,6 +72,10 @@ public class RegistryPublicationManager implements EventHandler {
   }
 
   public void init() {
+    executorService.submit(this::setPublications);
+  }
+
+  public void setPublications() {
     try {
       List<Metacard> metacards =
           Security.getInstance()
@@ -99,7 +103,7 @@ public class RegistryPublicationManager implements EventHandler {
       LOGGER.debug(
           "Error reading from local catalog. Catalog is probably not up yet. Will try again in {} seconds.",
           RETRY_INTERVAL);
-      executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
+      executorService.schedule(this::setPublications, RETRY_INTERVAL, TimeUnit.SECONDS);
     }
   }
 
