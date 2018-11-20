@@ -23,6 +23,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +41,19 @@ public class GsonTypeAdapters {
   public static final Type LIST_STRING = new TypeToken<List<String>>() {}.getType();
 
   private GsonTypeAdapters() {}
+
+  /** Adapter to convert read/write Dates as Longs */
+  public static class DateLongFormatTypeAdapter extends TypeAdapter<Date> {
+    @Override
+    public void write(JsonWriter out, Date date) throws IOException {
+      out.value(date.getTime());
+    }
+
+    @Override
+    public Date read(JsonReader in) throws IOException {
+      return new Date(in.nextLong());
+    }
+  }
 
   /** Adapter to mimic our old Boon-style numeric representations with Gson. */
   public static class LongDoubleTypeAdapter extends TypeAdapter<Object> {

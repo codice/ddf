@@ -16,10 +16,12 @@ package org.codice.ddf.catalog.ui.ws;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.websocket.api.Session;
 
@@ -42,6 +44,7 @@ public class JsonRpc implements WebSocket {
           .disableHtmlEscaping()
           .serializeNulls()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
           .create();
 
   private final Map<String, Function> methods;

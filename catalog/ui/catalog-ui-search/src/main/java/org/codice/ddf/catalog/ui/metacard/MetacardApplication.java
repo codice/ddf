@@ -144,6 +144,7 @@ import org.codice.ddf.catalog.ui.security.Constants;
 import org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
@@ -184,6 +185,7 @@ public class MetacardApplication implements SparkApplication {
           .disableHtmlEscaping()
           .serializeNulls()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
           .create();
 
   private final CatalogFramework catalogFramework;

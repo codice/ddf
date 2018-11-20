@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,7 @@ import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
@@ -60,6 +62,7 @@ public class QueryApplication implements SparkApplication, Function {
           .disableHtmlEscaping()
           .serializeNulls()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
           .create();
 
   private static final String MESSAGE = "message";

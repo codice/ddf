@@ -47,6 +47,7 @@ import ddf.security.Subject;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,6 +56,7 @@ import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -69,6 +71,7 @@ public class SearchFormsApplication implements SparkApplication {
       new GsonBuilder()
           .disableHtmlEscaping()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
           .create();
 
   private final CatalogFramework catalogFramework;

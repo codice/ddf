@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.http.HttpStatus;
 import org.osgi.framework.BundleContext;
@@ -64,6 +66,7 @@ public class CqlTransformHandler implements Route {
           .disableHtmlEscaping()
           .serializeNulls()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
           .create();
 
   private EndpointUtil util;
