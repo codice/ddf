@@ -185,7 +185,7 @@ module.exports = Marionette.LayoutView.extend({
         _user.savePreferences()
         announcement.announce(
           {
-            title: 'Success!',
+            title: 'Success',
             message: 'Search form successfully saved',
             type: 'success',
           },
@@ -195,7 +195,7 @@ module.exports = Marionette.LayoutView.extend({
       .fail((jqxhr, textStatus, errorThrown) => {
         announcement.announce(
           {
-            title: 'Search Form Failed to be Saved',
+            title: 'Search form failed to be saved',
             message: jqxhr.responseJSON.message,
             type: 'error',
           },
