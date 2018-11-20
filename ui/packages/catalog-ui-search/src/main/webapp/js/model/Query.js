@@ -71,7 +71,7 @@ const handleTieredSearchLocalFinish = function(ids) {
     return
   }
   this.set('federation', 'enterprise')
-  this.startSearch({ queuedResults: results, status })
+  this.startSearch({ results, status })
 }
 
 Query.Model = Backbone.AssociatedModel.extend({
