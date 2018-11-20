@@ -60,5 +60,12 @@
             <directory>${project.build.directory}/solr-${solr.version}</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>server/solr/security.json</include>
+            </includes>
+        </fileSet>
     </fileSets>
 </assembly>

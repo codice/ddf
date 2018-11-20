@@ -26,6 +26,44 @@
     <description>Factory to create Solrj clients.</description>
     <packaging>jar</packaging>
     <dependencies>
+
+        <!--TODO:  Tracy is turing solr-factory into a bundle. When that happens,
+    use blueprint to inject the UuidGenerator and ClientFactoryFactory.
+    At that time, remove dependencies on the implementations. -->
+        <!--BEGIN-->
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--END-->
+
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-clientapi</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -216,7 +254,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.49</minimum>
+                                            <minimum>0.51</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
