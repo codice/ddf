@@ -113,7 +113,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(
       this.get('queuedResults'),
       'add',
-      _.throttle(this.mergeQueue, 200, {
+      _.throttle(this.mergeQueue, 30, {
         leading: false,
       })
     )

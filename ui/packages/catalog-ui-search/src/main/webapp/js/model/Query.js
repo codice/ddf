@@ -242,11 +242,11 @@ Query.Model = Backbone.AssociatedModel.extend({
       result.set('merged', true)
       result
         .get('queuedResults')
-        .fullCollection.reset(options.queuedResults || [])
-      result.get('queuedResults').reset(options.queuedResults || [])
-      result.get('results').fullCollection.reset()
-      result.get('results').reset()
-      result.get('status').reset(options.status || initialStatus)
+        .fullCollection.reset()
+      result.get('queuedResults').reset()
+      result.get('results').fullCollection.reset(options.results || [])
+      result.get('results').reset(options.results || [])
+      result.get('status').reset(options.status ? options.status.concat(initialStatus) : initialStatus)
     } else {
       result = new QueryResponse({
         queryId: this.getId(),
