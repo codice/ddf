@@ -260,6 +260,30 @@ public class GeoNamesFileExtractorTest extends TestBase {
     verifyGeoEntryList(capturedGeoEntryList);
   }
 
+  @Test
+  public void testDownloadFromValidUrl() throws Exception {
+    setMockConnection(200, 192837);
+    setMockInputStream("/geonames/AU.zip");
+
+    List<GeoEntry> entries =
+        geoNamesFileExtractor.getGeoEntries("http://foo.bar/AU.zip", mock(ProgressCallback.class));
+    verifyGeoEntryList(entries);
+  }
+
+  @Test(expected = GeoNamesRemoteDownloadException.class)
+  public void testDownloadFailureFromUrl() throws Exception {
+    setMockConnection(404, 102938437);
+    doThrow(GeoNamesRemoteDownloadException.class)
+        .when(geoNamesFileExtractor)
+        .getUrlInputStreamFromWebClient();
+    geoNamesFileExtractor.getGeoEntries("http://fake.com/file.zip", mock(ProgressCallback.class));
+  }
+
+  @Test
+  public void testDownloadFromFileUrl() throws Exception {
+    testFileExtractionAllAtOnce("file://" + VALID_TEXT_FILE_PATH, mock(ProgressCallback.class));
+  }
+
   private void setMockInputStream(String filePath)
       throws FileNotFoundException, GeoNamesRemoteDownloadException {
     FileInputStream fileInputStream = getFileInputStream(filePath);
