@@ -291,7 +291,9 @@ define([
         setupTextInput: function () {
             this.basicText.show(new PropertyView({
                 model: new Property({
-                    value: [this.filter.anyText ? this.filter.anyText[0].value : ''],
+                    value: [this.filter.anyText && this.model.get('previousAnyText') !== ''
+                        ? this.filter.anyText[0].value
+                        : ''],
                     id: 'Text',
                     placeholder: 'Text to search for.  Use "*" for wildcard.'
                 })
@@ -330,12 +332,14 @@ define([
         },
         save: function () {
             this.$el.removeClass('is-editing');
+            var input = this.$el.find('intrigue-input > div.if-editing > input');
             this.basicSettings.currentView.saveToModel();
 
             var filter = this.constructFilter();
             var generatedCQL = CQLUtils.transformFilterToCQL(filter);
             this.model.set({
-                cql: generatedCQL
+                cql: generatedCQL,
+                previousAnyText: input.val()
             });
         },
         constructFilter: function () {

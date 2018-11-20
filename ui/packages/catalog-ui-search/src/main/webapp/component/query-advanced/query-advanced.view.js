@@ -63,7 +63,9 @@ module.exports = Marionette.LayoutView.extend({
         else if (this.model.get('cql')) {
             let simplifiedCQL = cql.simplify(cql.read(this.model.get('cql')));
             // sets the default anyText filter text input value to be "*"
-            simplifiedCQL = simplifiedCQL.value === '' ? Object.assign(simplifiedCQL, { value: '*' }) : simplifiedCQL;
+            simplifiedCQL = this.model.get('previousAnyText') === '' && simplifiedCQL.value === ''
+                ? Object.assign(simplifiedCQL, { value: '*' })
+                : simplifiedCQL;
             this.queryAdvanced.currentView.deserialize(simplifiedCQL);
         }
         this.queryAdvanced.currentView.turnOffEditing();
