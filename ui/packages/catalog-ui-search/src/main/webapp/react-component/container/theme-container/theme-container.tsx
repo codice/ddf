@@ -32,6 +32,7 @@ type SizingInterface = {
 const sizing: SizingInterface = {
   comfortable: {
     minimumButtonSize: '2.75rem',
+    mediumButtonSize: '3.00rem',
     minimumLineSize: '1.875rem',
     minimumSpacing: '0.625rem',
   },
