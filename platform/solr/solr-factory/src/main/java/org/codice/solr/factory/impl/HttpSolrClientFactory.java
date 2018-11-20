@@ -48,7 +48,7 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.platform.util.uuidgenerator.impl.UuidGeneratorImpl;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
@@ -96,10 +96,16 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private EncryptionService encryptionService;
+  private ClientFactoryFactory clientFactoryFactory;
 
-  public HttpSolrClientFactory(EncryptionService encryptionService) {
+  public HttpSolrClientFactory(
+      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
     this.encryptionService = encryptionService;
+    this.clientFactoryFactory = clientFactoryFactory;
   }
+
+  @VisibleForTesting
+  HttpSolrClientFactory() {}
 
   /**
    * Gets the default Solr server secure HTTP address.
@@ -109,32 +115,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   public static String getDefaultHttpsAddress() {
     return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
   }
-
-  //  private static String[] getProtocols() {
-  //    if (AccessController.doPrivileged(
-  //        (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS))
-  //        != null) {
-  //      return StringUtils.split(
-  //          AccessController.doPrivileged(
-  //              (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS)),
-  //          ",");
-  //    } else {
-  //      return DEFAULT_PROTOCOLS.toArray(new String[DEFAULT_PROTOCOLS.size()]);
-  //    }
-  //  }
-  //
-  //  private static String[] getCipherSuites() {
-  //    if (AccessController.doPrivileged(
-  //        (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES))
-  //        != null) {
-  //      return StringUtils.split(
-  //          AccessController.doPrivileged(
-  //              (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES)),
-  //          ",");
-  //    } else {
-  //      return DEFAULT_CIPHER_SUITES.toArray(new String[DEFAULT_CIPHER_SUITES.size()]);
-  //    }
-  //  }
 
   private static SSLContext getSslContext() {
     final Boolean check =
@@ -342,8 +322,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     if (useBasicAuth) {
       // TODO: When this JAR becomes a bundle, convert SolrPasswordUpdate to become a bean.
       SolrPasswordUpdate solrPasswordUpdate =
-          new SolrPasswordUpdate(
-              new UuidGeneratorImpl(), new ClientFactoryFactoryImpl(), encryptionService);
+          new SolrPasswordUpdate(new UuidGeneratorImpl(), clientFactoryFactory, encryptionService);
       solrPasswordUpdate.start();
 
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());

@@ -51,7 +51,7 @@ class SolrPasswordUpdateSpec extends Specification {
             getStatus() >> responseCode
         }
 
-        def solrAdminClient = Mock(SolrAdminClient) {
+        def solrAdminClient = Mock(SolrAdminResource) {
             sendRequest(_) >> response
         }
 

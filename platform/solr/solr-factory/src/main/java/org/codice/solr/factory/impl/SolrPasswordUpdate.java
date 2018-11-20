@@ -40,7 +40,7 @@ public class SolrPasswordUpdate {
   private final java.util.Properties properties;
   private String newPasswordPlainText;
   private UuidGenerator uuidGenerator;
-  private SolrAdminClient solrAdminClient;
+  private SolrAdminResource solrAdminClient;
   private boolean goUpdateSolr;
   private String newPasswordEncrypted;
   private EncryptionService encryptionService;
@@ -55,10 +55,10 @@ public class SolrPasswordUpdate {
             (PrivilegedAction<java.util.Properties>) System::getProperties);
     this.encryptionService = encryptionService;
     this.uuidGenerator = uuidGenerator;
-    SecureCxfClientFactory<SolrAdminClient> factory =
+    SecureCxfClientFactory<SolrAdminResource> factory =
         clientFactoryFactory.getSecureCxfClientFactory(
             properties.getProperty("solr.http.url"),
-            SolrAdminClient.class,
+            SolrAdminResource.class,
             null,
             null,
             false,

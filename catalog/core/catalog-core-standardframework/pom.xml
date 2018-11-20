@@ -524,6 +524,8 @@
                             org.apache.xml.resolver.helpers,
                             org.codice.ddf.security.handler.api,
                             org.codice.ddf.platform.util.uuidgenerator,
+                            org.codice.ddf.cxf.client,
+                            ddf.security.encryption,
                             org.geotools.filter.visitor,
                             org.geotools.geometry.jts.spatialschema,
                             org.geotools.geometry.jts.spatialschema.geometry.aggregate,

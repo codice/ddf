@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>platform-solr</artifactId>
@@ -28,7 +28,7 @@
     <dependencies>
 
         <!--TODO:  Tracy is turing solr-factory into a bundle. When that happens,
-    use blueprint to inject the UuidGenerator and ClientFactoryFactory.
+    use blueprint to inject the dependencies
     At that time, remove dependencies on the implementations. -->
         <!--BEGIN-->
         <dependency>
@@ -36,11 +36,7 @@
             <artifactId>util-uuidgenerator-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-cxfwrapper</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <!--END-->
 
         <dependency>
@@ -126,6 +122,18 @@
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>test-common</artifactId>
             <version>${project.version}</version>
@@ -147,6 +155,10 @@
                 <configuration>
                     <artifactSet>
                         <includes>
+                            <include>javax.ws.rs:javax.ws.rs-api</include>
+                            <include>org.apache.cxf:cxf-rt-rs-client</include>
+                            <include>org.apache.cxf:cxf-rt-frontend-jaxrs</include>
+                            <includes>ddf.platform.util:util-uuidgenerator-impl</includes>
                             <include>ddf.lib:common-system</include>
                             <include>ddf.platform.util:platform-util</include>
                             <include>com.google.guava:guava</include>
@@ -224,7 +236,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>7.2_MB</maxArtifactSize>
+                                    <maxArtifactSize>8.6_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

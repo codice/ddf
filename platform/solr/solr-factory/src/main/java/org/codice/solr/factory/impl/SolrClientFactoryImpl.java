@@ -20,6 +20,7 @@ import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
@@ -30,11 +31,14 @@ import org.codice.solr.factory.SolrClientFactory;
 public final class SolrClientFactoryImpl implements SolrClientFactory {
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
   private EncryptionService encryptionService;
+  private ClientFactoryFactory clientFactoryFactory;
 
   @SuppressWarnings("unused" /* used by blueprint */)
-  public SolrClientFactoryImpl(EncryptionService encryptionService) {
+  public SolrClientFactoryImpl(
+      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
     this((factory, core) -> factory.newClient(core));
     this.encryptionService = encryptionService;
+    this.clientFactoryFactory = clientFactoryFactory;
   }
 
   @VisibleForTesting
@@ -56,7 +60,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      factory = new HttpSolrClientFactory(encryptionService);
+      factory = new HttpSolrClientFactory(encryptionService, clientFactoryFactory);
     }
 
     return newClientFunction.apply(factory, core);

@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("admin/authentication")
-public interface SolrAdminClient {
+public interface SolrAdminResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
