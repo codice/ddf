@@ -20,73 +20,68 @@ class Restrictions {
 }
 
 export class Security {
-  static extractRestrictions(metacard: any): Restrictions {
+  // remove this ugly function when everything is typescript
+  static extractRestrictions(obj: any): Restrictions {
+    if (typeof obj.get !== 'function')
+      return {
+        owner: obj.owner,
+        accessGroups: obj.accessGroups || [],
+        accessGroupsRead: obj.accessGroupsRead || [],
+        accessIndividuals: obj.accessIndividuals || [],
+        accessIndividualsRead: obj.accessIndividualsRead || [],
+        accessAdministrators: obj.accessAdministrators || [],
+      } as Restrictions
+
     return {
-      owner:
-        metacard.owner ||
-        metacard.get('metacard.owner') ||
-        metacard.get('owner'),
+      owner: obj.get('metacard.owner') || obj.get('owner'),
       accessGroups:
-        metacard.accessGroups ||
-        metacard.get('security.access-groups') ||
-        metacard.get('accessGroups') ||
-        [],
+        obj.get('security.access-groups') || obj.get('accessGroups') || [],
       accessGroupsRead:
-        metacard.accessGroupsRead ||
-        metacard.get('security.access-groups-read') ||
-        metacard.get('accessGroupsRead') ||
+        obj.get('security.access-groups-read') ||
+        obj.get('accessGroupsRead') ||
         [],
       accessIndividuals:
-        metacard.accessIndividuals ||
-        metacard.get('security.access-individuals') ||
-        metacard.get('accessIndividuals') ||
+        obj.get('security.access-individuals') ||
+        obj.get('accessIndividuals') ||
         [],
       accessIndividualsRead:
-        metacard.accessIndividualsRead ||
-        metacard.get('security.access-individuals-read') ||
-        metacard.get('accessIndividualsRead') ||
+        obj.get('security.access-individuals-read') ||
+        obj.get('accessIndividualsRead') ||
         [],
       accessAdministrators:
-        metacard.accessAdministrators ||
-        metacard.get('security.access-administrators') ||
-        metacard.get('accessAdministrators') ||
+        obj.get('security.access-administrators') ||
+        obj.get('accessAdministrators') ||
         [],
     } as Restrictions
   }
 
-  static canRead(user: any, restrictions: Restrictions): boolean {
+  static canRead(user: any, res: Restrictions): boolean {
     return (
-      restrictions.owner === undefined ||
-      restrictions.owner === user.getEmail() ||
-      restrictions.accessIndividuals.indexOf(user.getEmail()) > -1 ||
-      restrictions.accessIndividualsRead.indexOf(user.getEmail()) > -1 ||
-      restrictions.accessGroups.some(
-        group => user.getRoles().indexOf(group) > -1
-      ) ||
-      restrictions.accessGroupsRead.some(
-        group => user.getRoles().indexOf(group) > -1
-      ) ||
-      restrictions.accessAdministrators.indexOf(user.getEmail()) > -1
+      res.owner === undefined ||
+      res.owner === user.getEmail() ||
+      res.accessIndividuals.indexOf(user.getEmail()) > -1 ||
+      res.accessIndividualsRead.indexOf(user.getEmail()) > -1 ||
+      res.accessGroups.some(group => user.getRoles().indexOf(group) > -1) ||
+      res.accessGroupsRead.some(group => user.getRoles().indexOf(group) > -1) ||
+      res.accessAdministrators.indexOf(user.getEmail()) > -1
     )
   }
 
-  static canWrite(user: any, restrictions: Restrictions) {
+  static canWrite(user: any, res: Restrictions) {
     return (
-      restrictions.owner === undefined ||
-      restrictions.owner === user.getEmail() ||
-      restrictions.accessIndividuals.indexOf(user.getEmail()) > -1 ||
-      restrictions.accessGroups.some(
-        group => user.getRoles().indexOf(group) > -1
-      ) ||
-      restrictions.accessAdministrators.indexOf(user.getEmail()) > -1
+      res.owner === undefined ||
+      res.owner === user.getEmail() ||
+      res.accessIndividuals.indexOf(user.getEmail()) > -1 ||
+      res.accessGroups.some(group => user.getRoles().indexOf(group) > -1) ||
+      res.accessAdministrators.indexOf(user.getEmail()) > -1
     )
   }
 
-  static canShare(user: any, restrictions: Restrictions) {
+  static canShare(user: any, res: Restrictions) {
     return (
-      restrictions.owner === undefined ||
-      restrictions.owner === user.getEmail() ||
-      restrictions.accessAdministrators.indexOf(user.getEmail()) > -1
+      res.owner === undefined ||
+      res.owner === user.getEmail() ||
+      res.accessAdministrators.indexOf(user.getEmail()) > -1
     )
   }
 }
