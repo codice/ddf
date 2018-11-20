@@ -173,7 +173,7 @@ module.exports = Marionette.LayoutView.extend({
         _user.savePreferences()
         announcement.announce(
           {
-            title: 'Success!',
+            title: 'Success',
             message: 'Search form successfully saved',
             type: 'success',
           },

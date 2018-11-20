@@ -213,7 +213,7 @@ module.exports = Marionette.LayoutView.extend({
       error: _this.cleanup(),
     })
       .done((data, textStatus, jqxhr) => {
-        this.message('Success!', 'Result form successfully saved', 'success')
+        this.message('Success', 'Result form successfully saved', 'success')
       })
       .fail((jqxhr, textStatus, errorThrown) => {
         this.message(
