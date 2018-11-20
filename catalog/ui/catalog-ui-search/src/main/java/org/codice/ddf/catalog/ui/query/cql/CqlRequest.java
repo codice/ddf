@@ -26,11 +26,11 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
@@ -58,7 +58,7 @@ public class CqlRequest {
 
   private String src;
 
-  private String[] srcs;
+  private List<String> srcs = Collections.emptyList();
 
   private long timeout = 300000L;
 
@@ -78,7 +78,7 @@ public class CqlRequest {
 
   private boolean excludeUnnecessaryAttributes = true;
 
-  public String[] getSrcs() {
+  public List<String> getSrcs() {
     return srcs;
   }
 
@@ -106,7 +106,7 @@ public class CqlRequest {
     this.src = src;
   }
 
-  public void setSrcs(String[] srcs) {
+  public void setSrcs(List<String> srcs) {
     this.srcs = srcs;
   }
 
@@ -175,9 +175,9 @@ public class CqlRequest {
         new QueryImpl(createFilter(filterBuilder), start, count, sortBys.get(0), true, timeout);
 
     QueryRequest queryRequest;
-    if (srcs != null && srcs.length != 0) {
+    if (!CollectionUtils.isEmpty(srcs)) {
       parseSrcs(localSource);
-      queryRequest = new QueryRequestImpl(query, Arrays.asList(srcs));
+      queryRequest = new QueryRequestImpl(query, srcs);
       queryRequest.getProperties().put(MODE, UPDATE);
     } else {
       String source = parseSrc(localSource);
@@ -224,16 +224,16 @@ public class CqlRequest {
   }
 
   private void parseSrcs(String localSource) {
-    for (int i = 0; i < srcs.length; i++) {
-      if (StringUtils.equalsIgnoreCase(srcs[i], LOCAL_SOURCE) || StringUtils.isBlank(srcs[i])) {
-        srcs[i] = localSource;
+    for (int i = 0; i < srcs.size(); i++) {
+      if (StringUtils.equalsIgnoreCase(srcs.get(i), LOCAL_SOURCE)) {
+        srcs.set(i, localSource);
       }
     }
   }
 
   public String getSourceResponseString() {
-    if (srcs != null && srcs.length != 0) {
-      return Arrays.toString(srcs);
+    if (!CollectionUtils.isEmpty(srcs)) {
+      return String.join(", ", srcs);
     } else {
       return src;
     }

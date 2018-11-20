@@ -23,7 +23,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -156,11 +155,13 @@ public class CqlRequestTest {
 
   @Test
   public void testMultipleSources() {
-    String[] sources = {"local", "source2"};
+    ArrayList<String> sources = new ArrayList<>();
+    sources.add("local");
+    sources.add("source2");
     cqlRequest.setSrcs(sources);
     cqlRequest.createQueryRequest("SOURCE1", filterBuilder);
-    assertThat(Arrays.asList(cqlRequest.getSrcs()), contains("SOURCE1", "source2"));
-    assertThat(cqlRequest.getSrcs().length, is(2));
+    assertThat(cqlRequest.getSrcs(), contains("SOURCE1", "source2"));
+    assertThat(cqlRequest.getSrcs().size(), is(2));
   }
 
   @Test
@@ -171,10 +172,12 @@ public class CqlRequestTest {
 
   @Test
   public void testMultipleSourceResponseString() {
-    String[] sources = {"source1", "source2"};
+    ArrayList<String> sources = new ArrayList<>();
+    sources.add("source1");
+    sources.add("source2");
     cqlRequest.setSrcs(sources);
     cqlRequest.createQueryRequest("source1", filterBuilder);
-    assertThat(cqlRequest.getSourceResponseString(), is("[source1, source2]"));
+    assertThat(cqlRequest.getSourceResponseString(), is("source1, source2"));
   }
 
   @Test
