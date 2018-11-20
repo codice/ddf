@@ -108,14 +108,7 @@ module.exports = Marionette.LayoutView.extend({
           Router.attributes.path === 'forms(/)' &&
           this.model.get('createdBy') !== 'system'
         ) {
-          if (
-            !user.canWrite({
-              owner: this.model.get('owner'),
-              accessGroups: this.model.get('accessGroups'),
-              accessIndividuals: this.model.get('accessIndividuals'),
-              accessAdministrators: this.model.get('accessAdministrators'),
-            })
-          ) {
+          if (!user.canWrite(this.model)) {
             announcement.announce(
               {
                 title: 'Error',

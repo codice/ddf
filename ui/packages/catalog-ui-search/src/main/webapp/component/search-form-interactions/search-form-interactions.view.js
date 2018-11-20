@@ -66,20 +66,9 @@ module.exports = Marionette.ItemView.extend({
     )
     this.$el.toggleClass(
       'is-not-shareable-template',
-      !user.canShare({
-        owner: this.model.get('owner'),
-        accessAdministrators: this.model.get('accessAdministrators') || [],
-      })
+      !user.canShare(this.model)
     )
-    this.$el.toggleClass(
-      'is-not-editable-template',
-      !user.canWrite({
-        owner: this.model.get('owner'),
-        accessIndividuals: this.model.get('accessIndividuals') || [],
-        accessGroups: this.model.get('accessGroups') || [],
-        accessAdministrators: this.model.get('accessAdministrators') || [],
-      })
-    )
+    this.$el.toggleClass('is-not-editable-template', !user.canWrite(this.model))
   },
   handleTrash: function() {
     this.listenTo(

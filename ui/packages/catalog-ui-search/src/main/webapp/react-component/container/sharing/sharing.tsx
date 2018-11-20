@@ -182,7 +182,12 @@ export class Sharing extends React.Component<Props, State> {
         },
       ]),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (res.status !== 200) {
+          throw new Error()
+        }
+        return res.json()
+      })
       .then(() => {
         this.props.lightbox.close()
         announcement.announce(

@@ -157,14 +157,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.trigger('sync', this, options)
   },
   save: function(options) {
-    if (
-      !user.canWrite({
-        owner: this.get('metacard.owner'),
-        accessIndividuals: this.get('security.access-individuals') || [],
-        accessGroups: this.get('security.access-groups') || [],
-        accessAdministrators: this.get('security.access-administrators') || [],
-      })
-    ) {
+    if (!user.canWrite(this)) {
       announcement.announce(
         {
           title: 'Error',

@@ -52,12 +52,11 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   handleChange = () => {
     this.setState(mapPropsToState(this.props))
   }
-  isNotShareable = () => {
-    return !user.canShare({
-      owner: this.props.workspace.get('metacard.owner'),
-      accessAdministrators:
-        this.props.workspace.get('security.access-administrators') || [],
-    })
+  isShareable = () => {
+    return user.canShare(this.props.workspace)
+  }
+  isDeletable = () => {
+    return user.canWrite(this.props.workspace)
   }
   runAllSearches = () => {
     store.clearOtherWorkspaces(this.props.workspace.id)
@@ -149,7 +148,8 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     return (
       <WorkspaceInteractionsPresentation
         isLocal={workspace.isLocal()}
-        isNotShareable={this.isNotShareable()}
+        isShareable={this.isShareable()}
+        isDeletable={this.isDeletable()}
         isSubscribed={subscribed}
         saveWorkspace={this.saveWorkspace}
         runAllSearches={this.runAllSearches}

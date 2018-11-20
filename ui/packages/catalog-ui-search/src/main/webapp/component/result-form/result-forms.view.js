@@ -28,15 +28,7 @@ module.exports = SearchFormViews.extend({
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView: function() {
-    if (
-      this.model.get('type') !== 'new-result' &&
-      !user.canWrite({
-        owner: this.model.get('owner'),
-        accessGroups: this.model.get('accessGroups'),
-        accessIndividuals: this.model.get('accessIndividuals'),
-        accessAdministrators: this.model.get('accessAdministrators'),
-      })
-    ) {
+    if (this.model.get('type') !== 'new-result' && !user.canWrite(this.model)) {
       announcement.announce(
         {
           title: 'Error',

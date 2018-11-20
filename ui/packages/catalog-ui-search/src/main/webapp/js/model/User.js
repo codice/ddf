@@ -12,6 +12,8 @@
 /*global define, window*/
 /*jslint bitwise: true */
 
+import { Security } from '../../react-component/utils/security/security'
+
 const _ = require('underscore')
 const _get = require('lodash.get')
 const wreqr = require('../wreqr.js')
@@ -418,37 +420,14 @@ User.Response = Backbone.AssociatedModel.extend({
       }
     }
   },
-  canRead: function(restrictions) {
-    return (
-      restrictions.owner === undefined ||
-      restrictions.owner === this.getEmail() ||
-      restrictions.accessIndividuals.includes(this.getEmail()) ||
-      restrictions.accessIndividualsRead.includes(this.getEmail()) ||
-      restrictions.accessGroups.some(group =>
-        this.getRoles().includes(group)
-      ) ||
-      restrictions.accessGroupsRead.some(group =>
-        this.getRoles().includes(group)
-      ) ||
-      restrictions.accessAdministrators.includes(this.getEmail())
-    )
+  canRead: function(metacard) {
+    return Security.canRead(this, Security.extractRestrictions(metacard))
   },
-  canWrite: function(restrictions) {
-    return (
-      restrictions.owner === undefined ||
-      restrictions.owner === this.getEmail() ||
-      restrictions.accessIndividuals.includes(this.getEmail()) ||
-      restrictions.accessGroups.some(group =>
-        this.getRoles().includes(group)
-      ) ||
-      restrictions.accessAdministrators.includes(this.getEmail())
-    )
+  canWrite: function(metacard) {
+    return Security.canWrite(this, Security.extractRestrictions(metacard))
   },
-  canShare: function(restrictions) {
-    return (
-      restrictions.owner === this.getEmail() ||
-      restrictions.accessAdministrators.includes(this.getEmail())
-    )
+  canShare: function(metacard) {
+    return Security.canShare(this, Security.extractRestrictions(metacard))
   },
 })
 
