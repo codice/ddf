@@ -12,7 +12,6 @@
 
 export type SpecificSizingInterface = {
   minimumButtonSize: string
-  mediumButtonSize: string
   minimumLineSize: string
   minimumSpacing: string
 }
