@@ -64,7 +64,12 @@ module.exports = Marionette.LayoutView.extend({
             this.queryAdvanced.currentView.deserialize(cql.read("anyText ILIKE '%'"));
         }
         else if (this.model.get('cql')) {
-            this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
+            let simplifiedCQL = cql.simplify(cql.read(this.model.get('cql')));
+            // sets the default anyText filter text input value to be "*"
+            simplifiedCQL = this.model.get('previousAnyText') == null && simplifiedCQL.value === ''
+                ? Object.assign(simplifiedCQL, { value: '*' })
+                : simplifiedCQL;
+            this.queryAdvanced.currentView.deserialize(simplifiedCQL);
         }
         this.queryAdvanced.currentView.turnOffEditing();
         this.edit();
@@ -93,12 +98,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     save: function(){
         this.$el.removeClass('is-editing');
+        var inputValue = this.$el.find('intrigue-input > div.if-editing > input').val();
         this.querySettings.currentView.saveToModel();
 
         this.queryAdvanced.currentView.sortCollection();
         this.model.set({
             cql: this.options.isFormBuilder !== true ? this.queryAdvanced.currentView.transformToCql() : "",
-            filterTree: JSON.stringify(this.queryAdvanced.currentView.getFilters())
+            filterTree: JSON.stringify(this.queryAdvanced.currentView.getFilters()),
+            previousAnyText: inputValue
         });
     },
     setDefaultTitle: function() {
