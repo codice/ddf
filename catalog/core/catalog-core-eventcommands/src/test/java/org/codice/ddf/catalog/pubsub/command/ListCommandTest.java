@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.pubsub.command;
 
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -24,9 +25,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.event.Subscription;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -90,6 +93,74 @@ public class ListCommandTest {
             containsString("Total subscriptions found: 2"),
             containsString(MY_SUBSCRIPTION_ID),
             containsString(YOUR_SUBSCRIPTION_ID)));
+
+    buffer.close();
+  }
+
+  /**
+   * Test subscriptions:list command with source and enterprise subscriptions. Make sure enterprise
+   * and source id info is printed.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testListNoArgsSourceAndEnterpriseSubscriptionFound() throws Exception {
+    ListCommand listCommand = new ListCommand();
+
+    BundleContext bundleContext = mock(BundleContext.class);
+    listCommand.setBundleContext(bundleContext);
+
+    Subscription sourceSubscription = mock(Subscription.class);
+    when(sourceSubscription.getSourceIds()).thenReturn(Collections.singleton("source.id"));
+    when(sourceSubscription.isEnterprise()).thenReturn(false);
+
+    ServiceReference<Subscription> sourceSubscriptionReference = mock(ServiceReference.class);
+    when(sourceSubscriptionReference.getPropertyKeys())
+        .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+    when(sourceSubscriptionReference.getProperty("subscription-id")).thenReturn(MY_SUBSCRIPTION_ID);
+    when(bundleContext.getService(sourceSubscriptionReference)).thenReturn(sourceSubscription);
+
+    Subscription enterpriseSubscription = mock(Subscription.class);
+    when(enterpriseSubscription.getSourceIds()).thenReturn(null);
+    when(enterpriseSubscription.isEnterprise()).thenReturn(true);
+
+    ServiceReference enterpriseSubscriptionReference = mock(ServiceReference.class);
+    when(enterpriseSubscriptionReference.getPropertyKeys())
+        .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+    when(enterpriseSubscriptionReference.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+        .thenReturn(YOUR_SUBSCRIPTION_ID);
+    when(bundleContext.getService(enterpriseSubscriptionReference))
+        .thenReturn(enterpriseSubscription);
+
+    ServiceReference[] refs =
+        new ServiceReference[] {sourceSubscriptionReference, enterpriseSubscriptionReference};
+    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
+        .thenReturn(refs);
+
+    PrintStream realSystemOut = System.out;
+
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+    System.setOut(new PrintStream(buffer));
+
+    // when
+    listCommand.execute();
+
+    /* cleanup */
+    System.setOut(realSystemOut);
+
+    // then
+    List<String> linesWithText = getConsoleOutputText(buffer);
+    assertThat(linesWithText.size(), is(4));
+    assertThat(
+        linesWithText,
+        hasItems(
+            containsString("Total subscriptions found: 2"),
+            allOf(
+                containsString(MY_SUBSCRIPTION_ID),
+                containsString("false"),
+                containsString("source.id")),
+            allOf(containsString(YOUR_SUBSCRIPTION_ID), containsString("true"))));
 
     buffer.close();
   }
