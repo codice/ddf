@@ -61,4 +61,12 @@ public interface WorkspaceService {
    */
   @SuppressWarnings("unused")
   WorkspaceMetacardImpl getWorkspaceMetacard(String workspaceId);
+
+  /**
+   * Get a workspace metacard that has a query with a specified id
+   *
+   * @param queryId must be non-null
+   * @return workspace metacard
+   */
+  WorkspaceMetacardImpl getWorkspaceFromQueryId(String queryId);
 }

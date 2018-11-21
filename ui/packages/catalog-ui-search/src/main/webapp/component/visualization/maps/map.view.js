@@ -147,6 +147,7 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click .cluster-button': 'toggleClustering',
     'click .zoomToHome': 'zoomToHome',
+    'click .saveAsHome': 'saveAsHome',
   },
   clusterCollection: undefined,
   clusterCollectionView: undefined,
@@ -162,6 +163,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing)
     this.handleDrawing()
     this.setupMouseLeave()
+    this.listenTo(store.get('workspaces'), 'add', this.zoomToHome)
   },
   setupMouseLeave: function() {
     this.$el.on('mouseleave', () => {
@@ -248,9 +250,23 @@ module.exports = Marionette.LayoutView.extend({
     this.setupMapInfo()
   },
   zoomToHome: function() {
-    this.map.zoomToBoundingBox(
-      homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox
-    )
+    const home = [
+      user
+        .get('user')
+        .get('preferences')
+        .get('mapHome'),
+      homeBoundingBox,
+      defaultHomeBoundingBox,
+    ].find(element => element !== undefined)
+
+    this.map.zoomToBoundingBox(home)
+  },
+  saveAsHome: function() {
+    const boundingBox = this.map.getBoundingBox()
+    user
+      .get('user')
+      .get('preferences')
+      .set('mapHome', boundingBox)
   },
   addPanZoom: function() {
     const self = this
@@ -268,12 +284,17 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
+    // TODO combine home and save buttons into a "split button dropdown" once this is refactored to React: DDF-4327
     this.$el
       .find('.cesium-viewer-toolbar')
       .append(
         '<div class="is-button zoomToHome">' +
           '<span>Home </span>' +
-          '<span class="cf cf-map-marker"></span></div>'
+          '<span class="fa fa-home"></span></div>' +
+          '<div class="is-button saveAsHome">' +
+          '<span title="Save Current View as Home Location">Set Home </span>' +
+          '<span class="cf cf-map-marker"/>' +
+          '</div>'
       )
   },
   addClustering: function() {
@@ -377,6 +398,7 @@ module.exports = Marionette.LayoutView.extend({
     this.addLayers()
     this.addSettings()
     this.endLoading()
+    this.zoomToHome()
   },
   addLayers: function() {
     this.$el

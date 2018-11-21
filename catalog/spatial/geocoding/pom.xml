@@ -33,7 +33,6 @@
         <module>spatial-geocoding-endpoint</module>
         <module>spatial-geocoding-offline-catalog</module>
         <module>spatial-geocoding-websearch</module>
-        <module>spatial-geocoding-admin-module</module>
         <module>spatial-geocoding-plugin</module>
     </modules>
 </project>

@@ -259,6 +259,19 @@ module.exports = function OpenlayersMap(
     zoomToBoundingBox: function({ north, east, south, west }) {
       this.zoomToExtent([[west, south], [east, north]])
     },
+    limit: function(value, min, max) {
+      return Math.min(Math.max(value, min), max)
+    },
+    getBoundingBox: function() {
+      const extent = map.getView().calculateExtent(map.getSize())
+
+      return {
+        north: this.limit(extent[3], -90, 90),
+        east: this.limit(extent[2], -180, 180),
+        south: this.limit(extent[1], -90, 90),
+        west: this.limit(extent[0], -180, 180),
+      }
+    },
     overlayImage: function(model) {
       var metacardId = model.get('properties').get('id')
       this.removeOverlay(metacardId)

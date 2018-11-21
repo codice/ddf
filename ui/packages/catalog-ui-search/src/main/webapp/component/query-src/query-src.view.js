@@ -16,12 +16,46 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const template = require('./query-src.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const sources = require('../singletons/sources-instance.js')
+import React from 'react'
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template(props) {
+    return (
+      <React.Fragment key={Math.random()}>
+        <div className="choice is-all is-available">
+          <span className="choice-text">All Sources</span>
+          <span className="choice-selected fa fa-check" />
+        </div>
+        {props.map(source => {
+          return (
+            <div
+              key={source.id}
+              className={`choice is-specific ${
+                source.available ? 'is-available' : ''
+              }`}
+              data-value={source.id}
+            >
+              <span className="choice-text">
+                {source.available ? (
+                  ''
+                ) : (
+                  <span className="fa fa-exclamation-triangle" />
+                )}
+                <span
+                  className={`fa source-icon ${
+                    source.local ? 'fa-home' : 'fa-cloud'
+                  }`}
+                />
+                {source.id}
+              </span>
+            </div>
+          )
+        })}
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('query-src'),
   className: 'is-action-list',
   modelEvents: {

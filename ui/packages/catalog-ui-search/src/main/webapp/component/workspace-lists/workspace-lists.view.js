@@ -148,6 +148,9 @@ module.exports = Marionette.LayoutView.extend({
           new ResultSelectorView({
             model: this.model.get(selectedListId).get('query'),
             selectionInterface: this.options.selectionInterface,
+            tieredSearchIds: this.model
+              .get(selectedListId)
+              .get('list.bookmarks'),
           })
         )
       }

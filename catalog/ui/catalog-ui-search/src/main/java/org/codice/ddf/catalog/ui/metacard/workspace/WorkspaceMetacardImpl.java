@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 
 public class WorkspaceMetacardImpl extends MetacardImpl {
@@ -67,16 +69,35 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
   }
 
   public void setMetacards(List<String> items) {
-    setAttribute(Associations.RELATED, new ArrayList<>(items));
+    setAttribute(WorkspaceConstants.WORKSPACE_QUERIES, new ArrayList<>(items));
   }
 
   public List<String> getQueries() {
-    return AccessControlUtil.getValuesOrEmpty(this, WorkspaceConstants.WORKSPACE_QUERIES);
+    Attribute queryAttr = this.getAttribute(WorkspaceConstants.WORKSPACE_QUERIES);
+    return queryAttr == null
+        ? new ArrayList<>()
+        : queryAttr
+            .getValues()
+            .stream()
+            .filter(String.class::isInstance)
+            .map(String.class::cast)
+            .collect(Collectors.toList());
   }
 
-  public WorkspaceMetacardImpl setQueries(List<String> queries) {
-    setAttribute(WorkspaceConstants.WORKSPACE_QUERIES, new ArrayList<>(queries));
-    return this;
+  public void setQueries(List<String> queryIds) {
+    setAttribute(WorkspaceConstants.WORKSPACE_QUERIES, new ArrayList<>(queryIds));
+  }
+
+  public void addQueryAssociation(String queryId) {
+    List<String> queryIds = this.getQueries();
+    queryIds.add(queryId);
+    this.setQueries(queryIds);
+  }
+
+  public void removeQueryAssociation(String queryId) {
+    List<String> queryIds = this.getQueries();
+    queryIds.remove(queryId);
+    this.setQueries(queryIds);
   }
 
   public List<String> getContent() {

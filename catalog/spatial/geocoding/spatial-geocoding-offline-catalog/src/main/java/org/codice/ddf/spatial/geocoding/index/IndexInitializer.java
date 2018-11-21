@@ -15,9 +15,11 @@ package org.codice.ddf.spatial.geocoding.index;
 
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
+import org.apache.commons.io.FileUtils;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
@@ -30,6 +32,8 @@ import org.slf4j.LoggerFactory;
 public class IndexInitializer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexInitializer.class);
+
+  private static final String PROCESSED = ".processed";
 
   private String defaultGeoNamesDataPath;
 
@@ -74,21 +78,29 @@ public class IndexInitializer {
   }
 
   private Object updateIndex(File defaultGeoNamesDataFile) {
-    try {
-      indexer.updateIndex(
-          defaultGeoNamesDataFile.getAbsolutePath(),
-          extractor,
-          true,
-          progress -> {
-            if (progress >= 100) {
-              LOGGER.info("Default GeoNames data indexed successfully");
-            }
-          });
-    } catch (GeoEntryIndexingException
-        | GeoEntryExtractionException
-        | GeoNamesRemoteDownloadException e) {
-      LOGGER.debug("Could not update index.", e);
+    final String defaultGeonamesDataPath = defaultGeoNamesDataFile.getAbsolutePath();
+
+    if (resourceProcessed(defaultGeonamesDataPath)) {
+      LOGGER.trace("{} has already been processed", defaultGeonamesDataPath);
+    } else {
+      try {
+        indexer.updateIndex(
+            defaultGeoNamesDataFile.getAbsolutePath(),
+            extractor,
+            true,
+            progress -> {
+              if (progress >= 100) {
+                LOGGER.info("Default GeoNames data indexed successfully");
+              }
+            });
+        fileProcessingComplete(defaultGeonamesDataPath);
+      } catch (GeoEntryIndexingException
+          | GeoEntryExtractionException
+          | GeoNamesRemoteDownloadException e) {
+        LOGGER.debug("Could not update index.", e);
+      }
     }
+
     return null;
   }
 
@@ -110,5 +122,21 @@ public class IndexInitializer {
 
   public void setExecutor(ExecutorService executor) {
     this.executor = executor;
+  }
+
+  private static boolean resourceProcessed(String resource) {
+    String processedIndicator = resource + PROCESSED;
+    File processedFile = new File(processedIndicator);
+    return processedFile.exists();
+  }
+
+  private static void fileProcessingComplete(String resource) {
+    String processedIndicator = resource + PROCESSED;
+    File processedFile = new File(processedIndicator);
+    try {
+      FileUtils.touch(processedFile);
+    } catch (IOException e) {
+      LOGGER.debug("Unable to create {} to indicate {} processed", processedIndicator, resource, e);
+    }
   }
 }

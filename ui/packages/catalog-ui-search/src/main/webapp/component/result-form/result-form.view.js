@@ -130,16 +130,34 @@ module.exports = Marionette.LayoutView.extend({
     let descriptors = this.basicAttributeSpecific.currentView.model.get(
       'value'
     )[0]
-    let title = this.basicTitle.currentView.model.getValue()[0]
-    if (title === '') {
-      let $validationElement = this.basicTitle.currentView.$el.find(
+    let title = this.basicTitle.currentView.model.getValue()[0].trim()
+    const titleEmpty = title === ''
+    const attributesEmpty = descriptors.length < 1
+    if (titleEmpty || attributesEmpty) {
+      const $titleValidationElement = this.basicTitle.currentView.$el.find(
         '> .property-label .property-validation'
       )
-      $validationElement
-        .removeClass('is-hidden')
-        .removeClass('is-warning')
-        .addClass('is-error')
-      $validationElement.attr('title', 'Name field cannot be blank')
+      const $attributeValidationElement = this.basicAttributeSpecific.currentView.$el.find(
+        '> .property-label .property-validation'
+      )
+      if (titleEmpty) {
+        if (!attributesEmpty) {
+          $attributeValidationElement.addClass('is-hidden')
+        }
+        this.showWarningSymbol(
+          $titleValidationElement,
+          'Name field cannot be blank'
+        )
+      }
+      if (attributesEmpty) {
+        if (!titleEmpty) {
+          $titleValidationElement.addClass('is-hidden')
+        }
+        this.showWarningSymbol(
+          $attributeValidationElement,
+          'Select at least one attribute'
+        )
+      }
       Loading.endLoading(view)
       return
     }
@@ -153,6 +171,13 @@ module.exports = Marionette.LayoutView.extend({
     })
 
     this.updateResults()
+  },
+  showWarningSymbol: function($validationElement, message) {
+    $validationElement
+      .removeClass('is-hidden')
+      .removeClass('is-warning')
+      .addClass('is-error')
+    $validationElement.attr('title', message)
   },
   updateResults: function() {
     let resultEndpoint = `/search/catalog/internal/forms/result`
@@ -187,6 +212,16 @@ module.exports = Marionette.LayoutView.extend({
       },
       error: _this.cleanup(),
     })
+      .done((data, textStatus, jqxhr) => {
+        this.message('Success', 'Result form successfully saved', 'success')
+      })
+      .fail((jqxhr, textStatus, errorThrown) => {
+        this.message(
+          'Result form failed to be saved',
+          jqxhr.responseJSON.message,
+          'error'
+        )
+      })
   },
   message: function(title, message, type) {
     announcement.announce({

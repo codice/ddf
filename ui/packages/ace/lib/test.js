@@ -1,22 +1,17 @@
-const { spawn } = require('child_process')
-const phantomjs = require('phantomjs-prebuilt')
+const fs = require('fs')
+
+const { runner } = require('mocha-headless-chrome')
 
 module.exports = ({ args, pkg }) => {
-  const bin = require.resolve('mocha-phantomjs-core/mocha-phantomjs-core.js')
-
-  const ps = spawn(
-    phantomjs.path,
-    [
-      bin,
-      args,
-      'spec',
-      JSON.stringify({
-        hooks: require.resolve('mocha-phantomjs-istanbul'),
-        coverageFile: 'target/coverage.json',
-      }),
-    ],
-    { stdio: 'inherit' }
-  )
-
-  ps.on('exit', process.exit)
+  runner({ file: args, reporter: 'spec', args: ['no-sandbox'] })
+    .then(({ result, coverage }) => {
+      if (result.stats.failures) {
+        throw 'Tests failed'
+      }
+      fs.writeFileSync('target/coverage.json', JSON.stringify(coverage) || '')
+    })
+    .catch(err => {
+      console.error(err)
+      process.exit(1)
+    })
 }
