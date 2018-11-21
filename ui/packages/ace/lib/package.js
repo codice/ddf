@@ -80,6 +80,7 @@ Web-ContextPath: ${pkg['context-path']}`,
       <filter>
           <filter-name>GzipFilter</filter-name>
           <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
+          <async-supported>true</async-supported>
       </filter>
 
       <filter-mapping>
