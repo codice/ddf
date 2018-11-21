@@ -14,6 +14,7 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.platform.solr.security.SolrPasswordUpdate;
 import ddf.security.encryption.EncryptionService;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -48,8 +49,6 @@ import org.apache.solr.client.solrj.impl.PreemptiveAuth;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
-import org.codice.ddf.platform.util.uuidgenerator.impl.UuidGeneratorImpl;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,13 +94,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
                 () -> commaSeparatedToArray(System.getProperty(HTTPS_CIPHER_SUITES)));
   }
 
+  private SolrPasswordUpdate solrPasswordUpdate;
+
   private EncryptionService encryptionService;
-  private ClientFactoryFactory clientFactoryFactory;
 
   public HttpSolrClientFactory(
-      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+      EncryptionService encryptionService, SolrPasswordUpdate solrPasswordUpdate) {
     this.encryptionService = encryptionService;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.solrPasswordUpdate = solrPasswordUpdate;
   }
 
   @VisibleForTesting
@@ -321,8 +321,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
                 () -> Boolean.valueOf(System.getProperty("solr.useBasicAuth")));
     if (useBasicAuth) {
       // TODO: When this JAR becomes a bundle, convert SolrPasswordUpdate to become a bean.
-      SolrPasswordUpdate solrPasswordUpdate =
-          new SolrPasswordUpdate(new UuidGeneratorImpl(), clientFactoryFactory, encryptionService);
       solrPasswordUpdate.start();
 
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());

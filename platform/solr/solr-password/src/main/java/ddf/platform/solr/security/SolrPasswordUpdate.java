@@ -11,7 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl;
+package ddf.platform.solr.security;
+
+import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
@@ -22,9 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
@@ -39,10 +38,9 @@ public class SolrPasswordUpdate {
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdate.class);
   private final java.util.Properties properties;
-  private final WebClient webClient;
+  private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
   private UuidGenerator uuidGenerator;
-  //private SolrAuthResource solrAdminClient;
   private boolean goUpdateSolr;
   private String newPasswordEncrypted;
   private EncryptionService encryptionService;
@@ -70,13 +68,13 @@ public class SolrPasswordUpdate {
     //            properties.getProperty("solr.username"),
     //            getPlaintextPasswordFromProperties());
     //    solrAdminClient = factory.getClient();
-    SecureCxfClientFactory<WebClient> factory =
+    SecureCxfClientFactory<SolrAuthResource> factory =
         clientFactoryFactory.getSecureCxfClientFactory(
             properties.getProperty("solr.http.url") + "/admin/authentication",
-            WebClient.class,
+            SolrAuthResource.class,
             properties.getProperty("solr.username"),
             getPlaintextPasswordFromProperties());
-    webClient = factory.getClient();
+    solrAuthResource = factory.getClient();
   }
 
   /**
@@ -146,9 +144,8 @@ public class SolrPasswordUpdate {
 
   private void setPasswordInSolr() {
     try (InputStream is = new ByteArrayInputStream(getSetUserJson().getBytes())) {
-      webClient.type(MediaType.APPLICATION_JSON);
-      javax.ws.rs.core.Response response = webClient.post(is);
-      setPasswordChangeSuccessful(response.getStatus() == Status.OK.getStatusCode());
+      javax.ws.rs.core.Response response = solrAuthResource.sendRequest(is);
+      this.passwordChangeSuccessful = response.getStatusInfo().getFamily().equals(SUCCESSFUL);
       if (isPasswordChangeSuccessful()) {
         SecurityLogger.audit("Changed Solr password to " + newPasswordPlainText);
         LOGGER.info("Set new password in Solr server.");
@@ -183,9 +180,5 @@ public class SolrPasswordUpdate {
   @VisibleForTesting
   boolean isPasswordChangeSuccessful() {
     return passwordChangeSuccessful;
-  }
-
-  void setPasswordChangeSuccessful(boolean passwordChangeSuccessful) {
-    this.passwordChangeSuccessful = passwordChangeSuccessful;
   }
 }

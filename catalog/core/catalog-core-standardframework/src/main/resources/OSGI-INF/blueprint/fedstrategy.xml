@@ -34,10 +34,10 @@
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
-    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory" />
+    <reference id="solrPasswordUpdate" interface="ddf.platform.solr.security.SolrPasswordUpdate" />
     <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
         <argument ref="encryptionService"/>
-        <argument ref="clientFactoryFactory"/>
+        <argument ref="solrPasswordUpdate"/>
     </bean>
 
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"

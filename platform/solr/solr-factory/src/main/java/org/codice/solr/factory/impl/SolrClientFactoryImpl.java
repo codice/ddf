@@ -16,6 +16,7 @@ package org.codice.solr.factory.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.platform.solr.security.SolrPasswordUpdate;
 import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -31,14 +32,14 @@ import org.codice.solr.factory.SolrClientFactory;
 public final class SolrClientFactoryImpl implements SolrClientFactory {
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
   private EncryptionService encryptionService;
-  private ClientFactoryFactory clientFactoryFactory;
+  private SolrPasswordUpdate solrPasswordUpdate;
 
   @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl(
-      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+      EncryptionService encryptionService, SolrPasswordUpdate solrPasswordUpdate) {
     this((factory, core) -> factory.newClient(core));
     this.encryptionService = encryptionService;
-    this.clientFactoryFactory = clientFactoryFactory;
+    this.solrPasswordUpdate = solrPasswordUpdate;
   }
 
   @VisibleForTesting
@@ -60,7 +61,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      factory = new HttpSolrClientFactory(encryptionService, clientFactoryFactory);
+      factory = new HttpSolrClientFactory(encryptionService, solrPasswordUpdate);
     }
 
     return newClientFunction.apply(factory, core);

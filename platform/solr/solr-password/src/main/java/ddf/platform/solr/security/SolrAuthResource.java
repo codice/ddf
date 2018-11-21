@@ -11,23 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl;
+package ddf.platform.solr.security;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.io.InputStream;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("admin/authentication")
-public class SolrAuthResource {
+public interface SolrAuthResource {
 
   @POST
-  @Produces(MediaType.APPLICATION_JSON)
-  //  @Consumes(MediaType.APPLICATION_JSON)
-  public int sendRequest(InputStream is, @Context HttpServletResponse response) {
-    return response.getStatus();
-  }
+  @Produces(APPLICATION_JSON)
+  @Consumes(APPLICATION_JSON)
+  Response sendRequest(InputStream is);
 }

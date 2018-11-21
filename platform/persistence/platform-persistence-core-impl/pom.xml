@@ -164,6 +164,7 @@
                             org.codice.ddf.persistence.internal
                         </Private-Package>
                         <Import-Package>
+                            org.apache.cxf.*,
                             !com.google.common.geometry,
                             com.google.common.*,
                             com.vividsolutions.jts.geom,

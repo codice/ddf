@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory.impl
+package ddf.platform.solr.security
 
 import ddf.security.encryption.EncryptionService
 import org.codice.ddf.cxf.client.ClientFactoryFactory
@@ -60,7 +60,7 @@ class SolrPasswordUpdateSpec extends Specification {
         }
 
         def clientFactoryFactory = Mock(ClientFactoryFactory) {
-//        getSecureCxfClientFactory(SOLR_URL, _, _, _, _, _, _, _, SOLR_USERNAME, PLAINTEXT_PASSWORD) >> secureClientFactory
+//        getSecureCxfClientFactory(SOLR_URL, _, SOLR_USERNAME, PLAINTEXT_PASSWORD) >> secureClientFactory
             getSecureCxfClientFactory(SOLR_URL, *_) >> secureClientFactory
         }
         def solrPasswordUpdate = new SolrPasswordUpdate(uuidGenerator, clientFactoryFactory, encryptionService);

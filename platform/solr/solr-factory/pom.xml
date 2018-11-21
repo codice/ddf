@@ -26,19 +26,6 @@
     <description>Factory to create Solrj clients.</description>
     <packaging>jar</packaging>
     <dependencies>
-
-        <!--TODO:  Tracy is turing solr-factory into a bundle. When that happens,
-    use blueprint to inject the dependencies
-    At that time, remove dependencies on the implementations. -->
-        <!--BEGIN-->
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>util-uuidgenerator-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!--END-->
-
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
@@ -145,6 +132,12 @@
             <version>${mockito-core.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -155,9 +148,6 @@
                 <configuration>
                     <artifactSet>
                         <includes>
-                            <include>javax.ws.rs:javax.ws.rs-api</include>
-                            <include>org.apache.cxf:cxf-rt-rs-client</include>
-                            <include>org.apache.cxf:cxf-rt-frontend-jaxrs</include>
                             <includes>ddf.platform.util:util-uuidgenerator-impl</includes>
                             <include>ddf.lib:common-system</include>
                             <include>ddf.platform.util:platform-util</include>
@@ -236,7 +226,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>8.6_MB</maxArtifactSize>
+                                    <maxArtifactSize>9.4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
