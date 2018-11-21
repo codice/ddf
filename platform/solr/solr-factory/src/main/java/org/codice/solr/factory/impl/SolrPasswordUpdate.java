@@ -126,6 +126,7 @@ public class SolrPasswordUpdate {
       Properties systemDotProperties = new Properties(systemPropertiesFile);
       systemDotProperties.setProperty("solr.password", newPasswordEncrypted);
       systemDotProperties.save();
+      LOGGER.info("Solr password updated in properties file {}.", systemPropertyFilename);
 
     } catch (IOException e) {
       LOGGER.error(
@@ -140,6 +141,7 @@ public class SolrPasswordUpdate {
       setPasswordChangeSuccessful(response.getStatus() == Status.OK.getStatusCode());
       if (isPasswordChangeSuccessful()) {
         SecurityLogger.audit("Changed Solr password to " + newPasswordPlainText);
+        LOGGER.info("Set new password in Solr server.");
       } else {
         LOGGER.error("Solr password update failed with status code {}.", response.getStatus());
       }
