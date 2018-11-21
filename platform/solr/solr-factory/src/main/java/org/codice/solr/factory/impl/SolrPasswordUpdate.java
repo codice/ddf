@@ -22,8 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
@@ -38,9 +39,10 @@ public class SolrPasswordUpdate {
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdate.class);
   private final java.util.Properties properties;
+  private final WebClient webClient;
   private String newPasswordPlainText;
   private UuidGenerator uuidGenerator;
-  private SolrAdminResource solrAdminClient;
+  //private SolrAuthResource solrAdminClient;
   private boolean goUpdateSolr;
   private String newPasswordEncrypted;
   private EncryptionService encryptionService;
@@ -55,19 +57,26 @@ public class SolrPasswordUpdate {
             (PrivilegedAction<java.util.Properties>) System::getProperties);
     this.encryptionService = encryptionService;
     this.uuidGenerator = uuidGenerator;
-    SecureCxfClientFactory<SolrAdminResource> factory =
+    //    SecureCxfClientFactory<SolrAuthResource> factory =
+    //        clientFactoryFactory.getSecureCxfClientFactory(
+    //            properties.getProperty("solr.http.url"),
+    //            SolrAuthResource.class,
+    //            null,
+    //            null,
+    //            false,
+    //            true,
+    //            null,
+    //            null,
+    //            properties.getProperty("solr.username"),
+    //            getPlaintextPasswordFromProperties());
+    //    solrAdminClient = factory.getClient();
+    SecureCxfClientFactory<WebClient> factory =
         clientFactoryFactory.getSecureCxfClientFactory(
-            properties.getProperty("solr.http.url"),
-            SolrAdminResource.class,
-            null,
-            null,
-            false,
-            true,
-            null,
-            null,
+            properties.getProperty("solr.http.url") + "/admin/authentication",
+            WebClient.class,
             properties.getProperty("solr.username"),
             getPlaintextPasswordFromProperties());
-    solrAdminClient = factory.getClient();
+    webClient = factory.getClient();
   }
 
   /**
@@ -137,7 +146,8 @@ public class SolrPasswordUpdate {
 
   private void setPasswordInSolr() {
     try (InputStream is = new ByteArrayInputStream(getSetUserJson().getBytes())) {
-      Response response = solrAdminClient.sendRequest(is);
+      webClient.type(MediaType.APPLICATION_JSON);
+      javax.ws.rs.core.Response response = webClient.post(is);
       setPasswordChangeSuccessful(response.getStatus() == Status.OK.getStatusCode());
       if (isPasswordChangeSuccessful()) {
         SecurityLogger.audit("Changed Solr password to " + newPasswordPlainText);

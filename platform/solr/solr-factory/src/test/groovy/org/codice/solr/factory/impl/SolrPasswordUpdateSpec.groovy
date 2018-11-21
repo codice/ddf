@@ -51,12 +51,12 @@ class SolrPasswordUpdateSpec extends Specification {
             getStatus() >> responseCode
         }
 
-        def solrAdminClient = Mock(SolrAdminResource) {
+        def solrAuthResource = Mock(SolrAuthResource) {
             sendRequest(_) >> response
         }
 
         def secureClientFactory = Mock(SecureCxfClientFactory) {
-            getClient() >> solrAdminClient
+            getClient() >> solrAuthResource
         }
 
         def clientFactoryFactory = Mock(ClientFactoryFactory) {

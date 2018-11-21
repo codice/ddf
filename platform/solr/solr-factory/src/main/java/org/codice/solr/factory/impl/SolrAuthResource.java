@@ -14,18 +14,20 @@
 package org.codice.solr.factory.impl;
 
 import java.io.InputStream;
-import javax.ws.rs.Consumes;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("admin/authentication")
-public interface SolrAdminResource {
+public class SolrAuthResource {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.APPLICATION_JSON)
-  Response sendRequest(InputStream is);
+  //  @Consumes(MediaType.APPLICATION_JSON)
+  public int sendRequest(InputStream is, @Context HttpServletResponse response) {
+    return response.getStatus();
+  }
 }
