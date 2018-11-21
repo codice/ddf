@@ -123,7 +123,7 @@ const Root = styled<RootProps, 'button'>('button')`
     font-size: ${props =>
       props.inText ? 'inherit !important' : props.theme.largeFontSize};
     line-height: ${props =>
-      props.inText ? 'inherit !important' : '1.25em * ' + props.theme.minimumButtonSize};
+      props.inText ? 'inherit !important' : '1.25 * ' + props.theme.minimumButtonSize};
     height: ${props => {
       if (props.inText) {
         return 'auto'
