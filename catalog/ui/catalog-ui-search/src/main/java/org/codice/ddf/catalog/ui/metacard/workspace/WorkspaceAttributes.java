@@ -41,11 +41,11 @@ public class WorkspaceAttributes implements MetacardType {
           WorkspaceConstants.WORKSPACE_QUERIES,
           new AttributeDescriptorImpl(
               WorkspaceConstants.WORKSPACE_QUERIES,
-              false /* indexed */,
+              true /* indexed */,
               true /* stored */,
               false /* tokenized */,
               true /* multivalued */,
-              BasicTypes.XML_TYPE),
+              BasicTypes.STRING_TYPE),
           WorkspaceConstants.WORKSPACE_LISTS,
           new AttributeDescriptorImpl(
               WorkspaceConstants.WORKSPACE_LISTS,

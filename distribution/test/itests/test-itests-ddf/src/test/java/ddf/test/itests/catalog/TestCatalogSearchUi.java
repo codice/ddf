@@ -32,6 +32,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -64,11 +65,18 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private static final String WORKSPACE_QUERIES = "queries";
 
+  private static final String QUERY_SOURCES = "sources";
+
+  public static final String QUERIES_PATH = "/search/catalog/internal/queries";
+
   public static final String WORKSPACES_PATH = "/search/catalog/internal/workspaces";
 
   public static final String QUERY_TEMPLATES_PATH = "/search/catalog/internal/forms/query";
 
   public static final String RESULT_TEMPLATES_PATH = "/search/catalog/internal/forms/result";
+
+  public static final DynamicUrl QUERIES_API_PATH =
+      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, QUERIES_PATH);
 
   public static final DynamicUrl WORKSPACES_API_PATH =
       new DynamicUrl(SECURE_ROOT, HTTPS_PORT, WORKSPACES_PATH);
@@ -96,6 +104,10 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @After
   public void cleanUp() {
     clearCatalog();
+  }
+
+  private static String queriesApi() {
+    return QUERIES_API_PATH.getUrl();
   }
 
   private static String workspacesApi() {
@@ -280,14 +292,8 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   @Test
   public void testWorkspaceQueries() {
-    Map<String, Object> query =
-        ImmutableMap.<String, Object>builder()
-            .put(Core.TITLE, "title")
-            .put(QUERY_CQL, "query")
-            .put(QUERY_ENTERPRISE, true)
-            .build();
-
-    List<Map<String, Object>> queries = ImmutableList.of(query);
+    List<Map<String, String>> queries =
+        Arrays.asList(ImmutableMap.of("id", "queryId1"), ImmutableMap.of("id", "queryId2"));
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
     Response res =
@@ -301,25 +307,24 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testWorkspaceQueriesWithSpecificSources() {
+  public void testQueriesWithSpecificSources() {
+    List<String> sources = ImmutableList.of("source a", "source b");
+
     Map<String, Object> query =
         ImmutableMap.<String, Object>builder()
             .put(Core.TITLE, "title")
             .put(QUERY_CQL, "query")
-            .put("src", ImmutableList.of("source a", "source b"))
+            .put("src", sources)
             .build();
 
-    List<Map<String, Object>> queries = ImmutableList.of(query);
-    Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
-
     Response res =
-        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
-            .post(workspacesApi());
+        expect(asAdmin().header("Origin", queriesApi()).body(stringify(query)), 201)
+            .post(queriesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
-    assertThat(body.get(WORKSPACE_QUERIES), is(queries));
+    assertThat(body.get("src"), is(sources));
   }
 
   @SuppressWarnings("squid:S1607" /* Feature is off by default */)
