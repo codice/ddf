@@ -16,7 +16,10 @@ package org.codice.ddf.catalog.pubsub.command;
 import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.Pingable;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -41,6 +44,10 @@ public class ListCommand extends SubscriptionsCommand {
   static final String SUBSCRIPTION_ID_COLUMN_HEADER = "Subscription ID";
 
   static final String CALLBACK_COLUMN_HEADER = "Callback URL";
+
+  static final String ENTERPRISE_COLUMN_HEADER = "Enterprise";
+
+  static final String SOURCE_ID_COLUMN_HEADER = "Sources";
 
   static final String NO_SUBSCRIPTIONS_FOUND_MSG = "No subscriptions found";
 
@@ -73,46 +80,102 @@ public class ListCommand extends SubscriptionsCommand {
 
   @Override
   public Object execute() throws Exception {
-
     PrintStream console = System.out;
 
-    Map<String, ServiceReference<Subscription>> subscriptionIds = getSubscriptions(id, ldapFilter);
-    if (subscriptionIds.size() == 0) {
+    Map<String, ServiceReference<Subscription>> subscriptions = getSubscriptions(id, ldapFilter);
+    List<SubscriptionListEntry> entries =
+        subscriptions
+            .entrySet()
+            .stream()
+            .map(SubscriptionListEntry::new)
+            .collect(Collectors.toList());
+
+    if (entries.isEmpty()) {
       console.println(RED_CONSOLE_COLOR + NO_SUBSCRIPTIONS_FOUND_MSG + DEFAULT_CONSOLE_COLOR);
     } else {
-      console.println();
-      console.print("Total subscriptions found: " + subscriptionIds.size());
-      console.println();
-      console.println();
-      console.print(CYAN_CONSOLE_COLOR);
-      console.print(SUBSCRIPTION_ID_COLUMN_HEADER);
-      console.print("\t\t| ");
-      console.print(CALLBACK_COLUMN_HEADER);
-      console.println(DEFAULT_CONSOLE_COLOR);
-      subscriptionIds.entrySet().forEach(this::printSubscription);
+      printSubscriptions(entries);
     }
 
     return null;
   }
 
-  private void printSubscription(Map.Entry<String, ServiceReference<Subscription>> entry) {
-
+  private void printSubscriptions(List<SubscriptionListEntry> entries) {
     PrintStream console = System.out;
-    Subscription subscription = bundleContext.getService(entry.getValue());
-    String rowColor = "";
 
-    if (subscription != null
-        && subscription.getDeliveryMethod() instanceof Pingable
-        && !((Pingable) subscription.getDeliveryMethod()).ping()) {
-      rowColor = RED_CONSOLE_COLOR;
+    int[] columnWidth =
+        new int[] {
+          SUBSCRIPTION_ID_COLUMN_HEADER.length(),
+          CALLBACK_COLUMN_HEADER.length(),
+          ENTERPRISE_COLUMN_HEADER.length(),
+          SOURCE_ID_COLUMN_HEADER.length()
+        };
+    for (SubscriptionListEntry entry : entries) {
+      int column0Width = entry.id.length();
+      int column1Width = entry.callbackUrl.length();
+      int column2Width = entry.isEnterprise.length();
+      int column3Width = entry.sourceIds.length();
+      if (column0Width > columnWidth[0]) columnWidth[0] = column0Width;
+      if (column1Width > columnWidth[1]) columnWidth[1] = column1Width;
+      if (column2Width > columnWidth[2]) columnWidth[2] = column2Width;
+      if (column3Width > columnWidth[3]) columnWidth[3] = column3Width;
     }
 
-    console.println(
+    String rowFormatString =
         String.format(
-            "%s%s\t %s%s",
-            rowColor,
-            entry.getKey(),
-            entry.getValue().getProperty("event-endpoint"),
-            DEFAULT_CONSOLE_COLOR));
+            "%%-%ds | %%-%ds | %%-%ds | %%-%ds",
+            columnWidth[0], columnWidth[1], columnWidth[2], columnWidth[3]);
+
+    console.println();
+    console.print("Total subscriptions found: " + entries.size());
+    console.println();
+    console.println();
+    console.print(CYAN_CONSOLE_COLOR);
+    console.printf(
+        rowFormatString,
+        SUBSCRIPTION_ID_COLUMN_HEADER,
+        CALLBACK_COLUMN_HEADER,
+        ENTERPRISE_COLUMN_HEADER,
+        SOURCE_ID_COLUMN_HEADER);
+    console.println(DEFAULT_CONSOLE_COLOR);
+
+    for (SubscriptionListEntry entry : entries) {
+      String rowColor = (entry.ping()) ? DEFAULT_CONSOLE_COLOR : RED_CONSOLE_COLOR;
+      console.print(rowColor);
+      console.printf(
+          rowFormatString, entry.id, entry.callbackUrl, entry.isEnterprise, entry.sourceIds);
+      console.println(DEFAULT_CONSOLE_COLOR);
+    }
+  }
+
+  private class SubscriptionListEntry {
+    private String id;
+    private String callbackUrl;
+    private String isEnterprise;
+    private String sourceIds;
+    private Subscription subscription;
+
+    public SubscriptionListEntry(Map.Entry<String, ServiceReference<Subscription>> entry) {
+      Object eventEndpoint = entry.getValue().getProperty("event-endpoint");
+      this.id = entry.getKey();
+      this.callbackUrl = (eventEndpoint == null) ? "" : (String) eventEndpoint;
+      this.subscription = bundleContext.getService(entry.getValue());
+
+      if (subscription == null) {
+        this.isEnterprise = "";
+        this.sourceIds = "";
+      } else {
+        this.isEnterprise = Boolean.toString(subscription.isEnterprise());
+        this.sourceIds =
+            (subscription.getSourceIds() == null)
+                ? "[]"
+                : Arrays.toString(subscription.getSourceIds().toArray());
+      }
+    }
+
+    public boolean ping() {
+      return (subscription == null)
+          || !(subscription.getDeliveryMethod() instanceof Pingable)
+          || ((Pingable) subscription.getDeliveryMethod()).ping();
+    }
   }
 }
