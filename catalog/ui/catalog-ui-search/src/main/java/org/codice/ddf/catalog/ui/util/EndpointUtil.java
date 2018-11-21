@@ -530,7 +530,7 @@ public class EndpointUtil {
         cqlRequest.getId(),
         request,
         response,
-        cqlRequest.getSource(),
+        cqlRequest.getSourceResponseString(),
         stopwatch.elapsed(TimeUnit.MILLISECONDS),
         cqlRequest.isNormalize(),
         filterAdapter,
