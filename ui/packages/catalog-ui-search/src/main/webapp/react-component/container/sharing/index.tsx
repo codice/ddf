@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div>
-    <span class="dropdown-icon fa fa-ellipsis-v">
-    </span>
-</div>
+export { Sharing, Item, Category, Access } from './sharing'

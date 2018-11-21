@@ -14,11 +14,8 @@
  **/
 /* global require */
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const SearchFormView = require('../search-form.view')
 const SearchFormSystemCollection = require('./search-form-system-collection-instance')
-const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,

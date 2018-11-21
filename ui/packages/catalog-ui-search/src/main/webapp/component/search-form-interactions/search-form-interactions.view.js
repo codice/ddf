@@ -13,6 +13,9 @@
  *
  **/
 /*global define, window*/
+import React from 'react'
+import { Sharing } from '../../react-component/container/sharing'
+
 const Marionette = require('marionette')
 const template = require('./search-form-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
@@ -21,7 +24,6 @@ const LoadingView = require('../loading/loading.view.js')
 const announcement = require('../announcement/index.jsx')
 const ConfirmationView = require('../confirmation/confirmation.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-const QueryTemplateSharing = require('../query-template-sharing/query-template-sharing.view.js')
 const wreqr = require('../../exports/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({
@@ -41,106 +43,99 @@ module.exports = Marionette.ItemView.extend({
   },
   ui: {},
   initialize: function() {
-    this.listenTo(
-      user.getQuerySettings(),
-      'change',
-      this.checkIfDefaultSearchForm
-    )
+    this.listenTo(user.getQuerySettings(), 'change', function() {
+      this.$el.toggleClass(
+        'is-current-template',
+        user.getQuerySettings().isTemplate(this.model)
+      )
+    })
   },
   onRender: function() {
-    this.checkIfSubscribed()
-    this.checkIfDefaultSearchForm()
-    this.checkIfResultForm()
-    this.isSystemTemplate()
-    this.isShareableTemplate()
-  },
-  checkIfSubscribed: function() {
     this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')))
-  },
-  handleTrash: function() {
-    let loginUser = user.get('user')
-    if (loginUser.get('email') === this.model.get('createdBy')) {
-      this.listenTo(
-        ConfirmationView.generateConfirmation({
-          prompt: 'This will permanently delete the template. Are you sure?',
-          no: 'Cancel',
-          yes: 'Delete',
-        }),
-        'change:choice',
-        function(confirmation) {
-          if (confirmation.get('choice')) {
-            let loadingview = new LoadingView()
-            this.model.url = './internal/forms/' + this.model.get('id')
-            const id = this.model.get('id')
-            this.model.destroy({
-              data: JSON.stringify({
-                'metacard.owner': this.model.get('createdBy'),
-              }),
-              contentType: 'application/json',
-              wait: true,
-              error: function(model, xhr, options) {
-                announcement.announce(
-                  {
-                    title: 'Error!',
-                    message: 'Unable to delete the forms: ' + xhr.responseText,
-                    type: 'error',
-                  },
-                  2500
-                )
-                throw new Error('Error Deleting Template: ' + xhr.responseText)
-              }.bind(this),
-              success: function(model, xhr, options) {
-                this.options.collectionWrapperModel.deleteCachedTemplateById(
-                  this.model.id
-                )
-              }.bind(this),
-            })
-            loadingview.remove()
-            const template = user.getQuerySettings().get('template')
-            if (!template) {
-              user.getQuerySettings().set('type', 'text')
-              user.savePreferences()
-              this.options.queryModel.resetToDefaults()
-            } else if (id === template.id) {
-              this.handleClearDefault()
-              this.options.queryModel.resetToDefaults()
-            } else {
-              const defaults = {
-                type: 'custom',
-                title: template.name,
-                filterTree: template.filterTemplate,
-                src:
-                  (template.querySettings && template.querySettings.src) || '',
-                federation:
-                  (template.querySettings &&
-                    template.querySettings.federation) ||
-                  'enterprise',
-                sorts: template.sorts,
-                'detail-level':
-                  (template.querySettings &&
-                    template.querySettings['detail-level']) ||
-                  'allFields',
-              }
-              this.options.queryModel.resetToDefaults(defaults)
-            }
-          }
-        }.bind(this)
-      )
-    } else {
-      this.messageNotifier(
-        'Error!',
-        'Unable to delete the form: You are not the author',
-        'error'
-      )
-      throw new Error('Unable to delete the form: You are not the author ')
-    }
-    this.trigger('doneLoading')
-  },
-  checkIfResultForm() {
+    this.$el.toggleClass(
+      'is-current-template',
+      user.getQuerySettings().isTemplate(this.model)
+    )
     this.$el.toggleClass(
       'is-result-form-template',
       this.model.get('type') === 'result'
     )
+    this.$el.toggleClass(
+      'is-system-template',
+      this.model.get('createdBy') === 'system'
+    )
+    this.$el.toggleClass(
+      'is-not-shareable-template',
+      !user.canShare(this.model)
+    )
+    this.$el.toggleClass('is-not-editable-template', !user.canWrite(this.model))
+  },
+  handleTrash: function() {
+    this.listenTo(
+      ConfirmationView.generateConfirmation({
+        prompt: 'This will permanently delete the search form. Are you sure?',
+        no: 'Cancel',
+        yes: 'Delete',
+      }),
+      'change:choice',
+      function(confirmation) {
+        if (confirmation.get('choice')) {
+          let loadingview = new LoadingView()
+          this.model.url = './internal/forms/' + this.model.get('id')
+          const id = this.model.get('id')
+          this.model.destroy({
+            data: JSON.stringify({
+              'metacard.owner': this.model.get('createdBy'),
+            }),
+            contentType: 'application/json',
+            wait: true,
+            error: function(model, xhr, options) {
+              announcement.announce(
+                {
+                  title: 'Error!',
+                  message: 'Unable to delete the forms: ' + xhr.responseText,
+                  type: 'error',
+                },
+                2500
+              )
+              throw new Error('Error Deleting Template: ' + xhr.responseText)
+            }.bind(this),
+            success: function(model, xhr, options) {
+              this.options.collectionWrapperModel.deleteCachedTemplateById(
+                this.model.id
+              )
+            }.bind(this),
+          })
+          loadingview.remove()
+          const template = user.getQuerySettings().get('template')
+          if (!template) {
+            user.getQuerySettings().set('type', 'text')
+            user.savePreferences()
+            this.options.queryModel.resetToDefaults()
+          } else if (id === template.id) {
+            this.handleClearDefault()
+            this.options.queryModel.resetToDefaults()
+          } else {
+            const defaults = {
+              type: 'custom',
+              title: template.name,
+              filterTree: template.filterTemplate,
+              src: (template.querySettings && template.querySettings.src) || '',
+              federation:
+                (template.querySettings && template.querySettings.federation) ||
+                'enterprise',
+              sorts: template.sorts,
+              'detail-level':
+                (template.querySettings &&
+                  template.querySettings['detail-level']) ||
+                'allFields',
+            }
+            this.options.queryModel.resetToDefaults(defaults)
+          }
+        }
+      }.bind(this)
+    )
+    this.trigger('doneLoading')
   },
   handleMakeDefault: function() {
     user.getQuerySettings().set({
@@ -162,12 +157,6 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.messageNotifier('Success!', `Default Query Form Cleared`, 'success')
   },
-  checkIfDefaultSearchForm: function() {
-    this.$el.toggleClass(
-      'is-current-template',
-      user.getQuerySettings().isTemplate(this.model)
-    )
-  },
   messageNotifier: function(title, message, type) {
     announcement.announce({
       title: title,
@@ -179,28 +168,13 @@ module.exports = Marionette.ItemView.extend({
     lightboxInstance.model.updateTitle(this.options.sharingLightboxTitle)
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      new QueryTemplateSharing({
-        model: this.options.modelForComponent,
-      })
+      <Sharing
+        key={this.model.id}
+        id={this.model.id}
+        lightbox={lightboxInstance}
+      />
     )
     this.handleClick()
-  },
-  isSystemTemplate: function() {
-    this.$el.toggleClass(
-      'is-system-template',
-      this.model.get('createdBy') === 'system'
-    )
-  },
-  isShareableTemplate: function() {
-    const notShareable = function(that) {
-      const loginUser = user.get('user')
-      if (loginUser.get('email') === that.model.get('createdBy')) {
-        return false
-      }
-      const accessAdministrators = that.model.get('accessAdministrators') || []
-      return !accessAdministrators.includes(loginUser.get('email'))
-    }
-    this.$el.toggleClass('is-not-shareable-template', notShareable(this))
   },
   handleEdit: function() {
     if (this.model.get('type') === 'custom') {

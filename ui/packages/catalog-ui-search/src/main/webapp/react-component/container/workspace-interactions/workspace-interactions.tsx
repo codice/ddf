@@ -13,10 +13,10 @@ import * as React from 'react'
 import WorkspaceInteractionsPresentation from '../../presentation/workspace-interactions'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+import { Sharing } from '../sharing'
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
-const WorkspaceSharing = require('../../../component/workspace-sharing/workspace-sharing.view.js')
 const wreqr = require('../../../js/wreqr.js')
 const LoadingView = require('../../../component/loading/loading.view.js')
 
@@ -52,14 +52,11 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   handleChange = () => {
     this.setState(mapPropsToState(this.props))
   }
-  isNotShareable = () => {
-    const userLogin = user.get('user').get('email')
-    if (this.props.workspace.get('metacard.owner') === userLogin) {
-      return false
-    }
-    const accessAdministrators =
-      this.props.workspace.get('security.access-administrators') || []
-    return !accessAdministrators.includes(userLogin)
+  isShareable = () => {
+    return user.canShare(this.props.workspace)
+  }
+  isDeletable = () => {
+    return user.canWrite(this.props.workspace)
   }
   runAllSearches = () => {
     store.clearOtherWorkspaces(this.props.workspace.id)
@@ -85,9 +82,11 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     lightboxInstance.model.updateTitle('Workspace Sharing')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      new WorkspaceSharing({
-        model: this.props.workspace,
-      })
+      <Sharing
+        key={this.props.workspace.id}
+        id={this.props.workspace.id}
+        lightbox={lightboxInstance}
+      />
     )
   }
   viewDetails = () => {
@@ -149,7 +148,8 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     return (
       <WorkspaceInteractionsPresentation
         isLocal={workspace.isLocal()}
-        isNotShareable={this.isNotShareable()}
+        isShareable={this.isShareable()}
+        isDeletable={this.isDeletable()}
         isSubscribed={subscribed}
         saveWorkspace={this.saveWorkspace}
         runAllSearches={this.runAllSearches}

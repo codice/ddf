@@ -226,8 +226,12 @@ public class TemplateTransformer {
     return ImmutableMap.of(
         Security.ACCESS_INDIVIDUALS,
         getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS),
+        Security.ACCESS_INDIVIDUALS_READ,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS_READ),
         Security.ACCESS_GROUPS,
         getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS),
+        Security.ACCESS_GROUPS_READ,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS_READ),
         Security.ACCESS_ADMINISTRATORS,
         getValues(inputMetacard, SecurityAttributes.ACCESS_ADMINISTRATORS));
   }

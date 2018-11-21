@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,10 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="template-sharing-role">
-    <div class="row">
-        <div class="col-md-8"><div class="template-role-value">{{value}}</div></div>
-        <div class="col-md-4 sharing-dropdown"></div>
-    </div>
-</div>
+export { Security } from './security'

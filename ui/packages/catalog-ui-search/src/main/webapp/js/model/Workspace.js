@@ -17,6 +17,8 @@ var List = require('./List.js')
 var Common = require('../Common.js')
 var ColorGenerator = require('../ColorGenerator.js')
 var QueryPolling = require('../QueryPolling.js')
+const user = require('component/singletons/user-instance')
+const announcement = require('component/announcement')
 require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 
@@ -156,11 +158,25 @@ module.exports = PartialAssociatedModel.extend({
     this.trigger('sync', this, options)
   },
   save: function(options) {
-    this.set('saved', true)
-    if (this.get('localStorage')) {
-      this.saveLocal(options)
+    if (!user.canWrite(this)) {
+      announcement.announce(
+        {
+          title: 'Error',
+          message:
+            'You have read-only permission on workspace ' +
+            this.get('title') +
+            '. Consider creating a duplicate of this workspace to save your changes.',
+          type: 'error',
+        },
+        3000
+      )
     } else {
-      Backbone.AssociatedModel.prototype.save.apply(this, arguments)
+      this.set('saved', true)
+      if (this.get('localStorage')) {
+        this.saveLocal(options)
+      } else {
+        Backbone.AssociatedModel.prototype.save.apply(this, arguments)
+      }
     }
   },
   handleError: function() {

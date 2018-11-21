@@ -12,6 +12,8 @@
 /*global define, window*/
 /*jslint bitwise: true */
 
+import { Security } from '../../react-component/utils/security/security'
+
 const _ = require('underscore')
 const _get = require('lodash.get')
 const wreqr = require('../wreqr.js')
@@ -296,6 +298,9 @@ User.Model = Backbone.AssociatedModel.extend({
   getEmail() {
     return this.get('email')
   },
+  getUserId() {
+    return this.get('userid')
+  },
   getUserName() {
     return this.get('username')
   },
@@ -354,6 +359,12 @@ User.Response = Backbone.AssociatedModel.extend({
   getEmail() {
     return this.get('user').getEmail()
   },
+  getUserId() {
+    return this.get('user').getUserId()
+  },
+  getRoles() {
+    return this.get('user').get('roles')
+  },
   getUserName() {
     return this.get('user').getUserName()
   },
@@ -410,6 +421,15 @@ User.Response = Backbone.AssociatedModel.extend({
         ),
       }
     }
+  },
+  canRead: function(metacard) {
+    return Security.canRead(this, Security.extractRestrictions(metacard))
+  },
+  canWrite: function(metacard) {
+    return Security.canWrite(this, Security.extractRestrictions(metacard))
+  },
+  canShare: function(metacard) {
+    return Security.canShare(this, Security.extractRestrictions(metacard))
   },
 })
 
