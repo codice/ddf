@@ -69,6 +69,7 @@ Web-ContextPath: ${pkg['context-path']}`, { name: 'META-INF/MANIFEST.MF' })
       <filter>
           <filter-name>GzipFilter</filter-name>
           <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
+          <async-supported>true</async-supported>
       </filter>
 
       <filter-mapping>
