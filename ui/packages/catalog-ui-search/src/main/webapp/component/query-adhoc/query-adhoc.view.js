@@ -101,10 +101,7 @@ define([
             } else {
                 cql = CQLUtils.generateFilter('ILIKE', 'anyText', text);
             }
-            this.model.set({
-              'cql': CQLUtils.transformFilterToCQL(cql),
-              'previousAnyText': text
-            });
+            this.model.set('cql', CQLUtils.transformFilterToCQL(cql));
         },
         save: function(){
             this.$el.find('form')[0].submit();

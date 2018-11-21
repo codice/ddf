@@ -90,8 +90,7 @@ define([
                     type: 'text',
                     isLocal: false,
                     isOutdated: false,
-                    'detail-level': undefined,
-                    previousAnyText: null
+                    'detail-level': undefined
                 }, user.getQuerySettings().toJSON());
             },
             resetToDefaults: function (overridenDefaults) {
