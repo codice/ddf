@@ -567,6 +567,89 @@
               ],
               "z": 21,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the OpenSearch Endpoint Process",
+                  "type": "Spoofing",
+                  "description": "OpenSearch Endpoint may be spoofed by an attacker and this may lead to information disclosure by External OpenSearch Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:880"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External OpenSearch Client External Entity",
+                  "type": "Spoofing",
+                  "description": "External OpenSearch Client may be spoofed by an attacker and this may lead to unauthorized access to OpenSearch Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:886"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for OpenSearch Endpoint",
+                  "type": "Tampering",
+                  "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against OpenSearch Endpoint or an elevation of privilege attack against OpenSearch Endpoint or an information disclosure by OpenSearch Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:892"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by OpenSearch Endpoint",
+                  "type": "Repudiation",
+                  "description": "OpenSearch Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:840"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Request may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:846"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for OpenSearch Endpoint",
+                  "type": "Repudiation",
+                  "description": "OpenSearch Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "OpenSearch Endpoint is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:852"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Request Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:858"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "OpenSearch Endpoint may be able to impersonate the context of External OpenSearch Client in order to gain additional privilege.",
+                  "mitigation": "OpenSearch REST Endpoint would have similar or more privilege than any external client already.",
+                  "$$hashKey": "object:864"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "OpenSearch Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External OpenSearch Client may be able to remotely execute code for OpenSearch Endpoint.",
+                  "mitigation": "The OpenSearch client only communicates with the OpenSearch endpoint over a well defined API.",
+                  "$$hashKey": "object:870"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -607,7 +690,7 @@
               "z": 22,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -648,7 +731,7 @@
               "z": 23,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -688,6 +771,35 @@
               ],
               "z": 24,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External OpenSearch Client External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External OpenSearch Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External OpenSearch Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:405"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External OpenSearch Client Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External OpenSearch Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Everything sent to and received from sources is audited",
+                  "$$hashKey": "object:411"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:417"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -723,7 +835,7 @@
               "z": 25,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -773,7 +885,8 @@
                   "title": "Spoofing of the External REST Service External Destination Entity",
                   "type": "Spoofing",
                   "description": "External REST Service may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External REST Service. Consider using a standard authentication mechanism to identify the external entity.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS"
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:1039"
                 },
                 {
                   "status": "Mitigated",
@@ -781,7 +894,8 @@
                   "title": "External Entity External REST Service Potentially Denies Receiving Data",
                   "type": "Repudiation",
                   "description": "External REST Service claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "Everything sent to and received from sources is audited"
+                  "mitigation": "Everything sent to and received from sources is audited",
+                  "$$hashKey": "object:1040"
                 },
                 {
                   "status": "Mitigated",
@@ -789,7 +903,8 @@
                   "title": "Data Flow Post Is Potentially Interrupted",
                   "type": "Denial of service",
                   "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DDF is a software system is not responsible for the network"
+                  "mitigation": "DDF is a software system is not responsible for the network",
+                  "$$hashKey": "object:1041"
                 }
               ],
               "attrs": {
@@ -835,7 +950,7 @@
               "z": 27,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -882,7 +997,8 @@
                   "title": "Spoofing of the External OpenSearch Service External Destination Entity",
                   "type": "Spoofing",
                   "description": "External OpenSearch Service may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External OpenSearch Service. Consider using a standard authentication mechanism to identify the external entity.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS"
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:1033"
                 },
                 {
                   "status": "Mitigated",
@@ -890,7 +1006,8 @@
                   "title": "External Entity External OpenSearch Service Potentially Denies Receiving Data",
                   "type": "Repudiation",
                   "description": "External OpenSearch Service claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "Everything sent to and received from sources is audited"
+                  "mitigation": "Everything sent to and received from sources is audited",
+                  "$$hashKey": "object:1034"
                 },
                 {
                   "status": "Mitigated",
@@ -898,7 +1015,8 @@
                   "title": "Data Flow Query Is Potentially Interrupted",
                   "type": "Denial of service",
                   "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DDF is a software system is not responsible for the network."
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:1035"
                 }
               ],
               "attrs": {
@@ -940,6 +1058,98 @@
               ],
               "z": 29,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the OpenSearch Source Process",
+                  "type": "Spoofing",
+                  "description": "OpenSearch Source may be spoofed by an attacker and this may lead to information disclosure by External OpenSearch Service. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:427"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External OpenSearch Service External Entity",
+                  "type": "Spoofing",
+                  "description": "External OpenSearch Service may be spoofed by an attacker and this may lead to unauthorized access to OpenSearch Source. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:433"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for OpenSearch Source",
+                  "type": "Tampering",
+                  "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against OpenSearch Source or an elevation of privilege attack against OpenSearch Source or an information disclosure by OpenSearch Source. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:439"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by OpenSearch Source",
+                  "type": "Repudiation",
+                  "description": "OpenSearch Source claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:445"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Response may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:491"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for OpenSearch Source",
+                  "type": "Denial of service",
+                  "description": "OpenSearch Source crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "OpenSearch Source is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:457"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:463"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "OpenSearch Source may be able to impersonate the context of External OpenSearch Service in order to gain additional privilege.",
+                  "mitigation": "OpenSearch Source executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:469"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "OpenSearch Source May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External OpenSearch Service may be able to remotely execute code for OpenSearch Source.",
+                  "mitigation": "Unsolicted responses are not allowed and the service only communicates over a well defined API.",
+                  "$$hashKey": "object:475"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in OpenSearch Source",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into OpenSearch Source in order to change the flow of program execution within OpenSearch Source to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:481"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -980,7 +1190,7 @@
               "z": 30,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1021,7 +1231,7 @@
               "z": 31,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1061,6 +1271,35 @@
               ],
               "z": 32,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Tampering threat against Request",
+                  "type": "Tampering",
+                  "description": "Attacker could tamper with the bits being sent across the wire.",
+                  "mitigation": "Use TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:908"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Information Disclosure threat against Request",
+                  "type": "Information disclosure",
+                  "description": "Attacker could intercept the bytes that are being transmitted across the wire.",
+                  "mitigation": "Encrypt data using TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:914"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Denial Of Service threat against Request",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:920"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1100,6 +1339,98 @@
               ],
               "z": 33,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Tampering threat against Response.",
+                  "type": "Tampering",
+                  "description": "Attacker could tamper with the bits being sent across the wire.",
+                  "mitigation": "Use TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:561"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for Confluence Source",
+                  "type": "Tampering",
+                  "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against Confluence Source or an elevation of privilege attack against Confluence Source or an information disclosure by Confluence Source. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:567"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Repudiation threat against External Confluence Service",
+                  "type": "Repudiation",
+                  "description": "Confluence Source claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "This threat does not apply because it is mitigated by Confluence's safeguards against repudiation.",
+                  "$$hashKey": "object:573"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Information Disclosure threat against Response",
+                  "type": "Information disclosure",
+                  "description": "Attackers could intercept the bytes that are being transmitted across the wire.",
+                  "mitigation": "Encrypt data using TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:579"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Denial of Service threat against Response",
+                  "type": "Denial of service",
+                  "description": "Confluence Source crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "Confluence Source is not a process on the system, it is a service running within a container that is managing services..",
+                  "$$hashKey": "object:585"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "Confluence Source may be able to impersonate the context of External Confluence Query Service in order to gain additional privilege.",
+                  "mitigation": "Confluence Source executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:591"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in Confluence Source",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into Confluence Source in order to change the flow of program execution within Confluence Source to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:597"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing threat against External Confluence Service",
+                  "type": "Repudiation",
+                  "description": "Confluence Source may be spoofed by an attacker and this may lead to information disclosure by External Confluence Query Service. Consider using a standard authentication mechanism to identify the destination process. Attacker could set up malicious service to recieve requests from the Catalog and provide malicious responses.",
+                  "mitigation": "Use TLS with mutual authentication.",
+                  "$$hashKey": "object:654"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:660"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Confluence Source May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External Confluence Query Service may be able to remotely execute code for Confluence Source.",
+                  "mitigation": "The external service cannot send unsolicited responses to the Source and then communicate over a well defined API.",
+                  "$$hashKey": "object:666"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1140,7 +1471,7 @@
               "z": 34,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1161,8 +1492,8 @@
               },
               "vertices": [
                 {
-                  "x": 959,
-                  "y": 278
+                  "x": 947,
+                  "y": 273
                 }
               ],
               "id": "d0cd1d3c-99aa-4ec4-affc-5daa55d34a82",
@@ -1180,6 +1511,35 @@
               ],
               "z": 35,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Information Disclosure threat against Request",
+                  "type": "Information disclosure",
+                  "description": "Attacker could intercept the bytes that are being transmitted across the wire.",
+                  "mitigation": "Encrypt data using TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:898"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Tampering threat against Query",
+                  "type": "Tampering",
+                  "description": "Attacker could tamper with the bits being sent across the wire.",
+                  "mitigation": "Use TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:931"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Denial Of Service threat against Request.",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundry in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:937"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1200,8 +1560,8 @@
               },
               "vertices": [
                 {
-                  "x": 928,
-                  "y": 316
+                  "x": 952,
+                  "y": 318
                 }
               ],
               "id": "9c8265e1-0dc6-4b01-b8c9-9d66397f46e9",
@@ -1219,6 +1579,98 @@
               ],
               "z": 36,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing threat against External Confluence Product Service",
+                  "type": "Spoofing",
+                  "description": "External Confluence Product Service may be spoofed by an attacker and this may lead to information disclosure by Confluence Source. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:607"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Tampering threat against Response.",
+                  "type": "Tampering",
+                  "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against Confluence Source or an elevation of privilege attack against Confluence Source or an information disclosure by Confluence Source. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "Use TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:613"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Repudiation threat against External Confluence Service",
+                  "type": "Repudiation",
+                  "description": "Confluence Source claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:619"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Information Disclosure threat against Response",
+                  "type": "Information disclosure",
+                  "description": "Attacker could intercept the bytes that are being transmitted across the wire.",
+                  "mitigation": "Encrypt data using TLS with mutual authentication and digital signatures.",
+                  "$$hashKey": "object:625"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for Confluence Source",
+                  "type": "Denial of service",
+                  "description": "Confluence Source crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "Confluence Source is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:631"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in Confluence Source",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into Confluence Source in order to change the flow of program execution within Confluence Source to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:708"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External Confluence Product Service External Entity",
+                  "type": "Spoofing",
+                  "description": "External Confluence Product Service may be spoofed by an attacker and this may lead to unauthorized access to Confluence Source. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:714"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Denial Of Service threat against Response",
+                  "type": "Denial of service",
+                  "description": "Attacker could cause remote resource to send back huge responses that bring the system down.",
+                  "mitigation": "\"1. Use network devices that have rate-limiting capabilities.\n2. Use TLS with mutual authentication. This threat does not apply, because it is mitigated via the Confluence Source's safeguards against Denial of Service.\"",
+                  "$$hashKey": "object:720"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Repudiation",
+                  "description": "Confluence Source may be able to impersonate the context of External Confluence Product Service in order to gain additional privilege.",
+                  "mitigation": "Confluence Source executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:726"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Confluence Source May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External Confluence Product Service may be able to remotely execute code for Confluence Source.",
+                  "mitigation": "Unsolicited responses are not allowed and communication happens over a well defined API.",
+                  "$$hashKey": "object:732"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1258,6 +1710,17 @@
               ],
               "z": 37,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "Catalog may be able to impersonate the context of FTP Endpoint in order to gain additional privilege.",
+                  "mitigation": "Catalog executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:774"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1297,6 +1760,35 @@
               ],
               "z": 38,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External FTP Client External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External FTP Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External FTP Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "Catalog uses authentication and session based tracking",
+                  "$$hashKey": "object:1119"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External FTP Client Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External FTP Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Everything set to and received from sources is audited",
+                  "$$hashKey": "object:1125"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Generic Data Flow Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:1131"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1336,6 +1828,107 @@
               ],
               "z": 39,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the FTP Endpoint Process",
+                  "type": "Spoofing",
+                  "description": "FTP Endpoint may be spoofed by an attacker and this may lead to information disclosure by External FTP Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:1049"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External FTP Client External Entity",
+                  "type": "Spoofing",
+                  "description": "External FTP Client may be spoofed by an attacker and this may lead to unauthorized access to FTP Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:1055"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for FTP Endpoint",
+                  "type": "Tampering",
+                  "description": "Data flowing across Login may be tampered with by an attacker. This may lead to a denial of service attack against FTP Endpoint or an elevation of privilege attack against FTP Endpoint or an information disclosure by FTP Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:1061"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by FTP Endpoint",
+                  "type": "Repudiation",
+                  "description": "FTP Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited",
+                  "$$hashKey": "object:1067"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Login may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:1073"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for FTP Endpoint",
+                  "type": "Denial of service",
+                  "description": "FTP Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "FTP Endpoint is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:1079"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Generic Data Flow Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:1085"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "FTP Endpoint may be able to impersonate the context of External FTP Client in order to gain additional privilege.",
+                  "mitigation": "FTP Endpoint only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:1091"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "FTP Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External FTP Client may be able to remotely execute code for FTP Endpoint.",
+                  "mitigation": "Communication happens only via the FTP protocol and is authenticated.",
+                  "$$hashKey": "object:1097"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in FTP Endpoint",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into FTP Endpoint in order to change the flow of program execution within FTP Endpoint to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:1103"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Cross Site Request Forgery",
+                  "type": "Elevation of privilege",
+                  "description": "Cross-site request forgery (CSRF or XSRF) is a type of attack in which an attacker forces a user's browser to make a forged request to a vulnerable site by exploiting an existing trust relationship between the browser and the vulnerable web site. ┬áIn a simple scenario, a user is logged in to web site A using a cookie as a credential. ┬áThe other browses to web site B. ┬áWeb site B returns a page with a hidden form that posts to web site A. ┬áSince the browser will carry the user's cookie to web site A, web site B now can take any action on web site A, for example, adding an admin to an account. ┬áThe attack can be used to exploit any requests that the browser automatically authenticates, e.g. by session cookie, integrated authentication, IP whitelisting, ΓÇª ┬áThe attack can be carried out in many ways such as by luring the victim to a site under control of the attacker, getting the user to click a link in a phishing email, or hacking a reputable web site that the victim will visit. The issue can only be resolved on the server side by requiring that all authenticated state-changing requests include an additional piece of secret payload (canary or CSRF token) which is known only to the legitimate web site and the browser and which is protected in transit through SSL/TLS. See the Forgery Protection property on the flow stencil for a list of mitigations.",
+                  "mitigation": "Not web browser interaction.",
+                  "$$hashKey": "object:1109"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1375,6 +1968,107 @@
               ],
               "z": 40,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the FTP Endpoint Process",
+                  "type": "Spoofing",
+                  "description": "FTP Endpoint may be spoofed by an attacker and this may lead to information disclosure by External FTP Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:1148"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External FTP Client External Entity",
+                  "type": "Spoofing",
+                  "description": "External FTP Client may be spoofed by an attacker and this may lead to unauthorized access to FTP Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:1154"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for FTP Endpoint",
+                  "type": "Tampering",
+                  "description": "Data flowing across FTP Operations may be tampered with by an attacker. This may lead to a denial of service attack against FTP Endpoint or an elevation of privilege attack against FTP Endpoint or an information disclosure by FTP Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:1160"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by FTP Endpoint",
+                  "type": "Repudiation",
+                  "description": "FTP Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:1166"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across FTP Operations may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:1172"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for FTP Endpoint",
+                  "type": "Denial of service",
+                  "description": "FTP Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "FTP Endpoint is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:1178"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow FTP Operations Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:1184"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "FTP Endpoint may be able to impersonate the context of External FTP Client in order to gain additional privilege.",
+                  "mitigation": "FTP Endpoint executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:1190"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "FTP Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External FTP Client may be able to remotely execute code for FTP Endpoint.",
+                  "mitigation": "Communication happens only via the FTP protocol and is authenticated.",
+                  "$$hashKey": "object:1196"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in FTP Endpoint",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into FTP Endpoint in order to change the flow of program execution within FTP Endpoint to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:1202"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Cross Site Request Forgery",
+                  "type": "Elevation of privilege",
+                  "description": "Cross-site request forgery (CSRF or XSRF) is a type of attack in which an attacker forces a user's browser to make a forged request to a vulnerable site by exploiting an existing trust relationship between the browser and the vulnerable web site. ┬áIn a simple scenario, a user is logged in to web site A using a cookie as a credential. ┬áThe other browses to web site B. ┬áWeb site B returns a page with a hidden form that posts to web site A. ┬áSince the browser will carry the user's cookie to web site A, web site B now can take any action on web site A, for example, adding an admin to an account. ┬áThe attack can be used to exploit any requests that the browser automatically authenticates, e.g. by session cookie, integrated authentication, IP whitelisting, ΓÇª ┬áThe attack can be carried out in many ways such as by luring the victim to a site under control of the attacker, getting the user to click a link in a phishing email, or hacking a reputable web site that the victim will visit. The issue can only be resolved on the server side by requiring that all authenticated state-changing requests include an additional piece of secret payload (canary or CSRF token) which is known only to the legitimate web site and the browser and which is protected in transit through SSL/TLS. See the Forgery Protection property on the flow stencil for a list of mitigations.",
+                  "mitigation": "Not web browser interaction.",
+                  "$$hashKey": "object:1208"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1414,6 +2108,17 @@
               ],
               "z": 41,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "FTP Endpoint may be able to impersonate the context of Catalog in order to gain additional privilege.",
+                  "mitigation": "FTP Endpoint executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:1027"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1454,7 +2159,7 @@
               "z": 42,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1497,6 +2202,107 @@
               ],
               "z": 43,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the Remote Resource External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "Potential Excessive Resource Consumption for URL Resource Reader or File System\ning",
+                  "mitigation": "Denial Of Service",
+                  "$$hashKey": "object:249"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Excessive Resource Consumption for URL Resource Reader or File System",
+                  "type": "Elevation of privilege",
+                  "description": "Does URL Resource Reader or File System take explicit steps to control resource consumption? Resource consumption attacks can be hard to deal with, and there are times that it makes sense to let the OS do the job. Be careful that your resource requests don't deadlock, and that they do timeout.",
+                  "mitigation": "Resource requests have timeouts",
+                  "$$hashKey": "object:255"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the Remote Resource External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "Remote Resource may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Remote Resource. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:261"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity Remote Resource Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "Remote Resource claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Everything sent to and received from sources is audited",
+                  "$$hashKey": "object:267"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Retrieve Resource Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "Resources are cached and automatically restarted/retried on failures. DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:273"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the URL Resource Reader Process",
+                  "type": "Spoofing",
+                  "description": "URL Resource Reader may be spoofed by an attacker and this may lead to unauthorized access to File System. Consider using a standard authentication mechanism to identify the source process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:279"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "The File System Data Store Could Be Corrupted",
+                  "type": "Tampering",
+                  "description": "Data flowing across Retrieve Resource may be tampered with by an attacker. This may lead to corruption of File System. Ensure the integrity of the data flow to the data store.",
+                  "mitigation": "\"Use TLS\nAll data is verified through the use of schemas and data transformers. Resources use SHA or MD5 hashes to verify integrity.\"",
+                  "$$hashKey": "object:285"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Store Denies File System Potentially Writing Data",
+                  "type": "Repudiation",
+                  "description": "File System claims that it did not write data received from an entity on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All file system access is audited.",
+                  "$$hashKey": "object:291"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Retrieve Resource may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:297"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Retrieve Resource Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "Resources are cached and automatically restarted/retried on failures. DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:303"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Store Inaccessible",
+                  "type": "Denial of service",
+                  "description": "An external agent prevents access to a data store on the other side of the trust boundary.",
+                  "mitigation": "Resource cache",
+                  "$$hashKey": "object:319"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1536,6 +2342,89 @@
               ],
               "z": 44,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the URL Resource Reader Process",
+                  "type": "Spoofing",
+                  "description": "URL Resource Reader may be spoofed by an attacker and this may lead to information disclosure by File System. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "URL Resource Reader is not an external process, it communicates with the Catalog via a service interface.",
+                  "$$hashKey": "object:325"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of Source Data Store File System",
+                  "type": "Spoofing",
+                  "description": "File System may be spoofed by an attacker and this may lead to incorrect data delivered to URL Resource Reader. Consider using a standard authentication mechanism to identify the source data store.",
+                  "mitigation": "This is direct file system access on a hardened OS (outside the scope of DDF).",
+                  "$$hashKey": "object:331"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by URL Resource Reader",
+                  "type": "Repudiation",
+                  "description": "URL Resource Reader claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:337"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Weak Access Control for a Resource",
+                  "type": "Information disclosure",
+                  "description": "Improper data protection of File System can allow an attacker to read information not intended for disclosure. Review authorization settings.",
+                  "mitigation": "\"Uses a PDP with XACML for access control\nOSGi security manager protects file system by only allowing bundles that need to write to specific areas of the file system permission to do so\"",
+                  "$$hashKey": "object:343"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for URL Resource Reader",
+                  "type": "Denial of service",
+                  "description": "URL Resource Reader crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "URL Resource Reader is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:349"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:355"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Store Inaccessible",
+                  "type": "Denial of service",
+                  "description": "An external agent prevents access to a data store on the other side of the trust boundary.",
+                  "mitigation": "Resource cache",
+                  "$$hashKey": "object:361"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "URL Resource Reader May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "File System may be able to remotely execute code for URL Resource Reader.",
+                  "mitigation": "File system does not execute code.",
+                  "$$hashKey": "object:367"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in URL Resource Reader",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into URL Resource Reader in order to change the flow of program execution within URL Resource Reader to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:373"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1576,7 +2465,7 @@
               "z": 45,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1658,6 +2547,98 @@
               ],
               "z": 47,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the URL Resource Reader Process",
+                  "type": "Spoofing",
+                  "description": "URL Resource Reader may be spoofed by an attacker and this may lead to information disclosure by Remote Resource. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "This is a pluggable component to the Catalog that communicates via a rigidly defined API within the container",
+                  "$$hashKey": "object:497"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the Remote Resource External Entity",
+                  "type": "Spoofing",
+                  "description": "Remote Resource may be spoofed by an attacker and this may lead to unauthorized access to URL Resource Reader. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:503"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for URL Resource Reader",
+                  "type": "Tampering",
+                  "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against URL Resource Reader or an elevation of privilege attack against URL Resource Reader or an information disclosure by URL Resource Reader. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:509"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by URL Resource Reader",
+                  "type": "Repudiation",
+                  "description": "URL Resource Reader claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Catalog framework directly calls URL Resource Reader via a service call, there is no ambiguity as to whether or not it was called.",
+                  "$$hashKey": "object:515"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Response may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:521"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for URL Resource Reader",
+                  "type": "Repudiation",
+                  "description": "URL Resource Reader crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "URL Resource Reader is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:527"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:533"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "URL Resource Reader may be able to impersonate the context of Remote Resource in order to gain additional privilege.",
+                  "mitigation": "URL Resource Reader executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:539"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "URL Resource Reader May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "Remote Resource may be able to remotely execute code for URL Resource Reader.",
+                  "mitigation": "The resource reader does not interpret the resource response, which is just binary.",
+                  "$$hashKey": "object:545"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in URL Resource Reader",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into URL Resource Reader in order to change the flow of program execution within URL Resource Reader to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:551"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1678,8 +2659,8 @@
               },
               "vertices": [
                 {
-                  "x": 457,
-                  "y": 493
+                  "x": 456,
+                  "y": 496
                 }
               ],
               "id": "d6ed1751-8abe-4415-b27f-fab17363f563",
@@ -1697,6 +2678,17 @@
               ],
               "z": 48,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "Describe Endpoint may be able to impersonate the context of Catalog in order to gain additional privilege.",
+                  "mitigation": "Describe Endpoint executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:742"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1736,6 +2728,35 @@
               ],
               "z": 49,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External Describe Service External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External Describe Service may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External Describe Service. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:752"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External Describe Service Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External Describe Service claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Everything set to and received from sources is audited",
+                  "$$hashKey": "object:758"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:764"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1775,6 +2796,107 @@
               ],
               "z": 50,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External Describe Service External Entity",
+                  "type": "Spoofing",
+                  "description": "External Describe Service may be spoofed by an attacker and this may lead to unauthorized access to Describe Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:957"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Repudiation",
+                  "description": "Describe Endpoint may be able to impersonate the context of External Describe Service in order to gain additional privilege.",
+                  "mitigation": "Describe Endpoint executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:963"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the Describe Endpoint Process",
+                  "type": "Spoofing",
+                  "description": "Describe Endpoint may be spoofed by an attacker and this may lead to information disclosure by External Describe Service. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:969"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for Describe Endpoint",
+                  "type": "Tampering",
+                  "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against Describe Endpoint or an elevation of privilege attack against Describe Endpoint or an information disclosure by Describe Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:975"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by Describe Endpoint",
+                  "type": "Repudiation",
+                  "description": "Describe Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:981"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Request may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:987"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for Describe Endpoint",
+                  "type": "Denial of service",
+                  "description": "Describe Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "Describe Endpoint is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:993"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Request Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:999"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Describe Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External Describe Service may be able to remotely execute code for Describe Endpoint.",
+                  "mitigation": "Communication occurs over a well defined API as the user making the request.",
+                  "$$hashKey": "object:1005"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in Describe Endpoint",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into Describe Endpoint in order to change the flow of program execution within Describe Endpoint to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:1011"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Cross Site Request Forgery",
+                  "type": "Elevation of privilege",
+                  "description": "Cross-site request forgery (CSRF or XSRF) is a type of attack in which an attacker forces a user's browser to make a forged request to a vulnerable site by exploiting an existing trust relationship between the browser and the vulnerable web site. ┬áIn a simple scenario, a user is logged in to web site A using a cookie as a credential. ┬áThe other browses to web site B. ┬áWeb site B returns a page with a hidden form that posts to web site A. ┬áSince the browser will carry the user's cookie to web site A, web site B now can take any action on web site A, for example, adding an admin to an account. ┬áThe attack can be used to exploit any requests that the browser automatically authenticates, e.g. by session cookie, integrated authentication, IP whitelisting, ΓÇª ┬áThe attack can be carried out in many ways such as by luring the victim to a site under control of the attacker, getting the user to click a link in a phishing email, or hacking a reputable web site that the victim will visit. The issue can only be resolved on the server side by requiring that all authenticated state-changing requests include an additional piece of secret payload (canary or CSRF token) which is known only to the legitimate web site and the browser and which is protected in transit through SSL/TLS. See the Forgery Protection property on the flow stencil for a list of mitigations.",
+                  "mitigation": "Not web browser interaction.",
+                  "$$hashKey": "object:1017"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1795,8 +2917,8 @@
               },
               "vertices": [
                 {
-                  "x": 503,
-                  "y": 495
+                  "x": 501,
+                  "y": 510
                 }
               ],
               "id": "6cec6380-d5cd-4ea2-9f6c-f93e79b1815e",
@@ -1817,6 +2939,17 @@
               ],
               "z": 51,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "Catalog may be able to impersonate the context of Describe Endpoint in order to gain additional privilege.",
+                  "mitigation": "Catalog executes only with the permissions of the user that is requesting the resource.",
+                  "$$hashKey": "object:947"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1835,7 +2968,12 @@
               "target": {
                 "id": "5a2217dc-e633-4324-9a54-f9cd720c989b"
               },
-              "vertices": [],
+              "vertices": [
+                {
+                  "x": 373,
+                  "y": 461
+                }
+              ],
               "id": "86bbf1d6-acb3-49fb-b104-5cefaf236fb5",
               "labels": [
                 {
@@ -1893,7 +3031,7 @@
               "z": 53,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1933,6 +3071,35 @@
               ],
               "z": 54,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External REST Client External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External REST Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External REST Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:383"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External REST Client Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External REST Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Everything sent to and received from sources is audited",
+                  "$$hashKey": "object:389"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:395"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1979,7 +3146,8 @@
                   "title": "Spoofing the Catalog REST Endpoint Process",
                   "type": "Spoofing",
                   "description": "Catalog REST Endpoint may be spoofed by an attacker and this may lead to information disclosure by External REST Client. Consider using a standard authentication mechanism to identify the destination process.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS"
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:780"
                 },
                 {
                   "status": "Mitigated",
@@ -1987,7 +3155,8 @@
                   "title": "Spoofing the External REST Client External Entity",
                   "type": "Spoofing",
                   "description": "External REST Client may be spoofed by an attacker and this may lead to unauthorized access to Catalog REST Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
-                  "mitigation": "All endpoints use standard authentication mechanisms and TLS"
+                  "mitigation": "All endpoints use standard authentication mechanisms and TLS",
+                  "$$hashKey": "object:781"
                 },
                 {
                   "status": "Mitigated",
@@ -1995,7 +3164,8 @@
                   "title": "Potential Lack of Input Validation for Catalog REST Endpoint",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against Catalog REST Endpoint or an elevation of privilege attack against Catalog REST Endpoint or an information disclosure by Catalog REST Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "All input is validated by the Catalog Framework"
+                  "mitigation": "All input is validated by the Catalog Framework",
+                  "$$hashKey": "object:782"
                 },
                 {
                   "status": "Mitigated",
@@ -2003,7 +3173,8 @@
                   "type": "Repudiation",
                   "title": "Potential Data Repudiation by Catalog REST Endpoint",
                   "description": "Catalog REST Endpoint claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "All connections are audited."
+                  "mitigation": "All connections are audited.",
+                  "$$hashKey": "object:783"
                 },
                 {
                   "status": "Mitigated",
@@ -2011,7 +3182,8 @@
                   "title": "Data Flow Sniffing",
                   "type": "Information disclosure",
                   "description": "Data flowing across Request may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
-                  "mitigation": "TLS"
+                  "mitigation": "TLS",
+                  "$$hashKey": "object:784"
                 },
                 {
                   "status": "Mitigated",
@@ -2019,7 +3191,8 @@
                   "title": "Potential Process Crash or Stop for Catalog REST Endpoint",
                   "type": "Denial of service",
                   "description": "Catalog REST Endpoint crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
-                  "mitigation": "Catalog REST Endpoint is not a process on the system, it is a service running within a container that is managing services."
+                  "mitigation": "Catalog REST Endpoint is not a process on the system, it is a service running within a container that is managing services.",
+                  "$$hashKey": "object:785"
                 },
                 {
                   "status": "Mitigated",
@@ -2027,7 +3200,8 @@
                   "title": "Data Flow Request Is Potentially Interrupted",
                   "type": "Denial of service",
                   "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DDF is a software system is not responsible for the network."
+                  "mitigation": "DDF is a software system is not responsible for the network.",
+                  "$$hashKey": "object:786"
                 },
                 {
                   "status": "Mitigated",
@@ -2035,7 +3209,8 @@
                   "title": "Elevation Using Impersonation",
                   "type": "Elevation of privilege",
                   "description": "Catalog REST Endpoint may be able to impersonate the context of External REST Client in order to gain additional privilege.",
-                  "mitigation": "The Catalog REST Endpoint would have similar or more privilege than any external client already."
+                  "mitigation": "The Catalog REST Endpoint would have similar or more privilege than any external client already.",
+                  "$$hashKey": "object:787"
                 },
                 {
                   "status": "Mitigated",
@@ -2043,7 +3218,17 @@
                   "title": "Catalog REST Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
                   "type": "Elevation of privilege",
                   "description": "External REST Client may be able to remotely execute code for Catalog REST Endpoint.",
-                  "mitigation": "The REST client only communicates with the REST endpoint over a well defined API."
+                  "mitigation": "The REST client only communicates with the REST endpoint over a well defined API.",
+                  "$$hashKey": "object:788"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in Catalog REST Endpoint",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into Catalog REST Endpoint in order to change the flow of program execution within Catalog REST Endpoint to the attacker's choosing.",
+                  "mitigation": "All endpoints use standard authentication mechanisms and only operations the user is allowed to carry out are executed.",
+                  "$$hashKey": "object:812"
                 }
               ],
               "attrs": {
@@ -2086,7 +3271,7 @@
               "z": 56,
               "hasOpenThreats": false,
               "outOfScope": true,
-              "reasonOutOfScope": "Within the trust boundary of the DIB.  These two processes communicate via Java calls on the same JVM.",
+              "reasonOutOfScope": "Within the trust boundary of the DDF.  These two processes communicate via Java calls on the same JVM.",
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -2214,8 +3399,8 @@
               },
               "vertices": [
                 {
-                  "x": 891,
-                  "y": 303
+                  "x": 885,
+                  "y": 300
                 }
               ],
               "id": "0e124535-513e-4aed-895e-aa6771e98e28",
@@ -2330,8 +3515,8 @@
           ]
         },
         "size": {
-          "height": 628.4800415039062,
-          "width": 831.3600463867188
+          "height": 726.0621948242188,
+          "width": 970.5955200195312
         }
       }
     ]

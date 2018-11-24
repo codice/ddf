@@ -510,6 +510,71 @@
               ],
               "z": 19,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in Identity Provider (IdP)",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into Identity Provider (IdP) ┬áin order to change the flow of program execution within Identity Provider (IdP) ┬áto the attacker's choosing.",
+                  "mitigation": "Filter to allow who is authorized to send requests with certificates. Must truely know who the client is.",
+                  "$$hashKey": "object:2308"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Identity Provider (IdP) ┬áMay be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External DDF Client may be able to remotely execute code for Identity Provider (IdP) .",
+                  "mitigation": "\"Generic 004: Mutual authentication via certificates implementation will allow the app and the client to ensure authenticity. \n\nSanitizing/Validating HTTP Headers and HTTP Query String parameters as well as HTTP POST data will prevent any malicious attempts to executing remote code.\"",
+                  "$$hashKey": "object:2314"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Information disclosure",
+                  "description": "Identity Provider (IdP) ┬ámay be able to impersonate the context of External DDF Client in order to gain additional privilege.",
+                  "mitigation": "Generic 004: Mutual authentication via certificates implementation will allow the app and the client to ensure authenticity",
+                  "$$hashKey": "object:2320"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow HTTPS Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "The identity provider will do nothing and the external client will have to resend the request.",
+                  "$$hashKey": "object:2326"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for Identity Provider (IdP)",
+                  "type": "Denial of service",
+                  "description": "Identity Provider (IdP) ┬ácrashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "If the IdP crashes, halts, or stops, the admin console can be used to start, stop, or restart the application.",
+                  "$$hashKey": "object:2332"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by Identity Provider (IdP)",
+                  "type": "Repudiation",
+                  "description": "Identity Provider (IdP) ┬áclaims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All connections are audited. All logon requests are audited. All logon failures are audited.",
+                  "$$hashKey": "object:2338"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External DDF Client External Entity",
+                  "type": "Spoofing",
+                  "description": "External DDF Client may be spoofed by an attacker and this may lead to unauthorized access to Identity Provider (IdP) . Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "The IdP is the service doing authentication. There is not a need to authenticate to get to the IdP.",
+                  "$$hashKey": "object:2344"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -549,6 +614,35 @@
               ],
               "z": 20,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow HTTPS Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "An exception would be thrown and the external DDF client would have to re authenticate.",
+                  "$$hashKey": "object:2286"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External DDF Client Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External DDF Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "All responses are logged.",
+                  "$$hashKey": "object:2292"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External DDF Client External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External DDF Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External DDF Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "Encrypted links (HTTPS) with authentication credentials (certs, username/pw) or issued tokens ┬áare validated before allowing any access. Spoofing at other levels is handled by individual services (and does not fall into the scope of this threat model).",
+                  "$$hashKey": "object:2298"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -569,8 +663,8 @@
               },
               "vertices": [
                 {
-                  "x": 224,
-                  "y": 367
+                  "x": 228,
+                  "y": 368
                 }
               ],
               "id": "b60eaaee-a454-4668-97d1-77c9050769e8",
@@ -588,6 +682,98 @@
               ],
               "z": 21,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in Web SSO Filter",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into Web SSO Filter in order to change the flow of program execution within Web SSO Filter to the attacker's choosing.",
+                  "mitigation": "Sanitizing/validating HTTP Headers and HTTP Query String parameters as well as HTTP POST data.",
+                  "$$hashKey": "object:2067"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "Web SSO Filter may be able to impersonate the context of External DDF Client in order to gain additional privilege.",
+                  "mitigation": "Web SSO Filter is part of DDF Security and will not be impersonating the context of an external DDF Client.",
+                  "$$hashKey": "object:2073"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Request Is Potentially Interrupted (between External DDF Client and DDF Security)",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"Use Jetty DoS filter\nLogin failures must wait several seconds before attempting again. Limiting logon attempts is outside the scope of DDF\n\"",
+                  "$$hashKey": "object:2079"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Request may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "Provide and recommend usage of the application/service over an authenticated/encrypted HTTPS connection.",
+                  "$$hashKey": "object:2085"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by Web SSO Filter",
+                  "type": "Repudiation",
+                  "description": "Web SSO Filter claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Audit Logging is configured to capture audits required by CNSSI 1253.",
+                  "$$hashKey": "object:2091"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for Web SSO Filter",
+                  "type": "Tampering",
+                  "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against Web SSO Filter or an elevation of privilege attack against Web SSO Filter or an information disclosure by Web SSO Filter. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "Sanitizing/validating HTTP Headers and HTTP Query String parameters as well as HTTP POST data.",
+                  "$$hashKey": "object:2097"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the External DDF Client External Entity",
+                  "type": "Spoofing",
+                  "description": "External DDF Client may be spoofed by an attacker and this may lead to unauthorized access to Web SSO Filter. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "Encrypted links (HTTPS) with authentication credentials (certs, username/pw) or issued tokens before allowing any access. Spoofing at other levels is handled by individual services (and does not fall into the scope of this threat model).",
+                  "$$hashKey": "object:2103"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the Web SSO Filter Process",
+                  "type": "Spoofing",
+                  "description": "Web SSO Filter may be spoofed by an attacker and this may lead to information disclosure by External DDF Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "All responses from Web SSO Filter are over encrypted channels.",
+                  "$$hashKey": "object:2109"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Web SSO Filter May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "External DDF Client may be able to remotely execute code for Web SSO Filter.",
+                  "mitigation": "No remote code is involved with the REST security architecture. All requests are only evaluated based on the included credentials/tokens.",
+                  "$$hashKey": "object:2115"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for Web SSO Filter",
+                  "type": "Denial of service",
+                  "description": "Web SSO Filter crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "If the Web SSO Filter crashes, halts, or stops, the admin console can be used to start, stop, or restart the application.",
+                  "$$hashKey": "object:2121"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -608,8 +794,8 @@
               },
               "vertices": [
                 {
-                  "x": 240,
-                  "y": 302
+                  "x": 246,
+                  "y": 316
                 }
               ],
               "id": "cd7601f9-a0e2-403b-9213-f36f391c5baf",
@@ -630,6 +816,35 @@
               ],
               "z": 22,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External DDF Client Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External DDF Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Audit Logging is configured to capture audits required by CNSSI 1253.",
+                  "$$hashKey": "object:1983"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External DDF Client External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External DDF Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External DDF Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "The end-user configures the Admin Console (shell console access) to use included Identification and Authentication capabilities AND/OR SSH.",
+                  "$$hashKey": "object:1989"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:1995"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -669,6 +884,26 @@
               ],
               "z": 23,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Identity Provider (IdP) ┬áProcess Memory Tampered",
+                  "type": "Tampering",
+                  "description": "If Identity Provider (IdP) ┬áis given access to memory, such as shared memory or pointers, or is given the ability to control what PKI Handler executes (for example, passing back a function pointer.), then Identity Provider (IdP) ┬ácan tamper with PKI Handler. Consider if the function could work with less access to memory, such as passing data rather than pointers. Copy in data provided, and then validate it.",
+                  "mitigation": "IdP and PKI handler are running in the same container/process.",
+                  "$$hashKey": "object:2189"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "PKI Handler may be able to impersonate the context of Identity Provider (IdP) ┬áin order to gain additional privilege.",
+                  "mitigation": "IdP and PKI handler are running in the same container/process.",
+                  "$$hashKey": "object:2195"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1577,6 +1812,35 @@
               ],
               "z": 47,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow HTTPS Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "We will disconnect and inform the original requester to reconnect.",
+                  "$$hashKey": "object:2354"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity External DDF Client Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "External DDF Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Every operation through the catalog is audited and we will record all information sent back.",
+                  "$$hashKey": "object:2360"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the External DDF Client External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "External DDF Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of External DDF Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "All external connections are authenticated, for example two way TLS.",
+                  "$$hashKey": "object:2366"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1677,8 +1941,8 @@
               },
               "vertices": [
                 {
-                  "x": 1257,
-                  "y": 437
+                  "x": 1298,
+                  "y": 456
                 }
               ],
               "id": "021d22c4-af34-4b00-a6e9-b3b8bdc11317",
@@ -1696,6 +1960,44 @@
               ],
               "z": 50,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the LDAP External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "LDAP may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of LDAP. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "\"The LDAP will not be able to be spoofed without a valid certificate.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2258"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity LDAP Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "LDAP claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Audit Logging is configured to capture audits required by CNSSI 1253",
+                  "$$hashKey": "object:2264"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow HTTPS Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2270"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Weakness in SSO Authorization",
+                  "type": "Elevation of privilege",
+                  "description": "Common SSO implementations such as OAUTH2 and OAUTH Wrap are vulnerable to MitM attacks.",
+                  "mitigation": "Mutual authentication via certificates implementation will allow the app and the client to ensure authenticity.",
+                  "$$hashKey": "object:2276"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1716,8 +2018,8 @@
               },
               "vertices": [
                 {
-                  "x": 1274,
-                  "y": 495
+                  "x": 1304,
+                  "y": 514
                 }
               ],
               "id": "807056d4-f505-4cd7-af6e-62cf32bd13df",
@@ -1735,6 +2037,71 @@
               ],
               "z": 51,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the LDAP External Entity",
+                  "type": "Spoofing",
+                  "description": "LDAP may be spoofed by an attacker and this may lead to unauthorized access to STS Server. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "\"The CAS Server will not be able to be spoofed without a valid certificate.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2205"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by STS Server",
+                  "type": "Repudiation",
+                  "description": "STS Server claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Generic 0001: ┬áAudit Logging is configured to capture audits required by CNSSI 1253",
+                  "$$hashKey": "object:2211"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for STS Server",
+                  "type": "Denial of service",
+                  "description": "STS Server crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "If the STS Server crashes, halts, or stops, the admin console can be used to start, stop, or restart the application.",
+                  "$$hashKey": "object:2217"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow HTTPS Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2223"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "STS Server may be able to impersonate the context of LDAP in order to gain additional privilege.",
+                  "mitigation": "Different system contexts are authenticated separately, default realms protect against poorly configured web context policies, connections over https prevent user tokens from being sniffed or intercepted.",
+                  "$$hashKey": "object:2229"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "STS Server May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "LDAP may be able to remotely execute code for STS Server.",
+                  "mitigation": "The LDAP cannot remotely execute code for STS Server. Unsolicited responses are not allowed.",
+                  "$$hashKey": "object:2235"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in STS Server",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into STS Server in order to change the flow of program execution within STS Server to the attacker's choosing.",
+                  "mitigation": "Sanitizing/validating HTTP Headers and HTTP Query String parameters as well as HTTP POST data.",
+                  "$$hashKey": "object:2241"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1769,6 +2136,44 @@
               ],
               "z": 52,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Weakness in SSO Authorization",
+                  "type": "Elevation of privilege",
+                  "description": "Common SSO implementations such as OAUTH2 and OAUTH Wrap are vulnerable to MitM attacks.",
+                  "mitigation": "Mutual authentication via certificates implementation will allow the app and the client to ensure authenticity.",
+                  "$$hashKey": "object:2005"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2011"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity CAS Server Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "CAS Server claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Audit Logging is configured to capture audits required by CNSSI 1253",
+                  "$$hashKey": "object:2017"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the CAS Server External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "CAS Server may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of CAS Server. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "\"The CAS Server will not be able to be spoofed without a valid certificate.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2023"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1811,6 +2216,89 @@
               ],
               "z": 53,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in STS Server",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into STS Server in order to change the flow of program execution within STS Server to the attacker's choosing.",
+                  "mitigation": "Mutual authentication via certificates implementation will allow the app and the client to ensure authenticity.",
+                  "$$hashKey": "object:2131"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "STS Server May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "CAS Server may be able to remotely execute code for STS Server.",
+                  "mitigation": "The CAS Server cannot remotely execute code for STS Server",
+                  "$$hashKey": "object:2137"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "The external client may be able to impersonate another client or system user in order to gain additional privilege.",
+                  "mitigation": "Different system contexts are authenticated separately, default realms protect against poorly configured web context policies, connections over https prevent user tokens from being sniffed or intercepted.",
+                  "$$hashKey": "object:2143"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Request Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2149"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for STS Server",
+                  "type": "Denial of service",
+                  "description": "STS Server crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "If the STS Server crashes, halts, or stops, the admin console can be used to start, stop, or restart the application.",
+                  "$$hashKey": "object:2155"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Request may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "Provide and recommend usage of the application/service over an authenticated/encrypted HTTPS connection.",
+                  "$$hashKey": "object:2161"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by STS Server",
+                  "type": "Repudiation",
+                  "description": "STS Server claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Generic 0001: ┬áAudit Logging is configured to capture audits required by CNSSI 1253",
+                  "$$hashKey": "object:2167"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for STS Server",
+                  "type": "Tampering",
+                  "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against STS Server or an elevation of privilege attack against STS Server or an information disclosure by STS Server. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "The STS has a Web Service Description Language Schema (WSDL) that enforces input validation. In addition a WS Policy is included in the WSDL.",
+                  "$$hashKey": "object:2173"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing the STS Server Process",
+                  "type": "Spoofing",
+                  "description": "STS Server may be spoofed by an attacker and this may lead to information disclosure by CAS Server. Consider using a standard authentication mechanism to identify the destination process.",
+                  "mitigation": "\"The CAS Server will not be able to be spoofed without a valid certificate.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2179"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1853,6 +2341,89 @@
               ],
               "z": 54,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation by Changing the Execution Flow in CAS Handler",
+                  "type": "Elevation of privilege",
+                  "description": "An attacker may pass data into CAS Handler in order to change the flow of program execution within CAS Handler to the attacker's choosing.",
+                  "mitigation": "\"The CAS Handler will not be able to be spoofed without a valid certificate.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:1925"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "CAS Handler May be Subject to Elevation of Privilege Using Remote Code Execution",
+                  "type": "Elevation of privilege",
+                  "description": "CAS Server may be able to remotely execute code for CAS Handler.",
+                  "mitigation": "The CAS Handler does not allow the execution of remote code.",
+                  "$$hashKey": "object:1931"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Elevation Using Impersonation",
+                  "type": "Elevation of privilege",
+                  "description": "The external client may be able to impersonate another client or system user in order to gain additional privilege.",
+                  "mitigation": "Different system contexts are authenticated separately, default realms protect against poorly configured web context policies, connections over https prevent user tokens from being sniffed or intercepted.",
+                  "$$hashKey": "object:1937"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Response/Request Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:1943"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Process Crash or Stop for CAS Handler",
+                  "type": "Denial of service",
+                  "description": "CAS Handler crashes, halts, stops or runs slowly; in all cases violating an availability metric.",
+                  "mitigation": "If the CAS Handler crashes, halts, or stops, the admin console can be used to start, stop, or restart the application.",
+                  "$$hashKey": "object:1949"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Sniffing",
+                  "type": "Information disclosure",
+                  "description": "Data flowing across Response/Request may be sniffed by an attacker. Depending on what type of data an attacker can read, it may be used to attack other parts of the system or simply be a disclosure of information leading to compliance violations. Consider encrypting the data flow.",
+                  "mitigation": "Provide and recommend usage of the application/service over an authenticated/encrypted HTTPS connection.",
+                  "$$hashKey": "object:1955"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Data Repudiation by CAS Handler",
+                  "type": "Repudiation",
+                  "description": "CAS Handler claims that it did not receive data from a source outside the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Generic 0001: ┬áAudit Logging is configured to capture audits required by CNSSI 1253",
+                  "$$hashKey": "object:1961"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Authenticated Data Flow Compromised",
+                  "type": "Tampering",
+                  "description": "An attacker can read or modify data transmitted over an authenticated dataflow.",
+                  "mitigation": "Provide and recommend usage of the application/service over an authenticated/encrypted ┬áHTTPS connection.",
+                  "$$hashKey": "object:1967"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Potential Lack of Input Validation for CAS Handler",
+                  "type": "Tampering",
+                  "description": "Data flowing across Response/Request may be tampered with by an attacker. This may lead to a denial of service attack against CAS Handler or an elevation of privilege attack against CAS Handler or an information disclosure by CAS Handler. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
+                  "mitigation": "Coding-0002: Establish authentication/validation throughout the system prior within the trusted boundary. In this case validation is done on the HTTP request and CAS Assertion.",
+                  "$$hashKey": "object:1973"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"
@@ -1892,6 +2463,53 @@
               ],
               "z": 55,
               "hasOpenThreats": false,
+              "threats": [
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Spoofing of the CAS Server External Destination Entity",
+                  "type": "Spoofing",
+                  "description": "CAS Server may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of CAS Server. Consider using a standard authentication mechanism to identify the external entity.",
+                  "mitigation": "\"The CAS Server will not be able to be spoofed without a valid certificate.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2033"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Weakness in SSO Authorization",
+                  "type": "Elevation of privilege",
+                  "description": "Common SSO implementations such as OAUTH2 and OAUTH Wrap are vulnerable to MitM attacks.",
+                  "mitigation": "Mutual authentication via certificates implementation will allow the app and the client to ensure authenticity.",
+                  "$$hashKey": "object:2039"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Data Flow Request/Response Is Potentially Interrupted",
+                  "type": "Denial of service",
+                  "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
+                  "mitigation": "\"The processes will not accept data from unauthenticated sources.\n\nMutual authentication via certificates implementation will allow the app and the client to ensure authenticity.\"",
+                  "$$hashKey": "object:2045"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "External Entity CAS Server Potentially Denies Receiving Data",
+                  "type": "Repudiation",
+                  "description": "CAS Server claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Audit Logging is configured to capture audits required by CNSSI 1253",
+                  "$$hashKey": "object:2051"
+                },
+                {
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "title": "Authenticated Data Flow Compromised",
+                  "type": "Tampering",
+                  "description": "An attacker can read or modify data transmitted over an authenticated dataflow.",
+                  "mitigation": "Provide and recommend usage of the application/service over an authenticated HTTPS connection.",
+                  "$$hashKey": "object:2057"
+                }
+              ],
               "attrs": {
                 ".marker-target": {
                   "class": "marker-target hasNoOpenThreats isInScope"

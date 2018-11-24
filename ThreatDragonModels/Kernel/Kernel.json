@@ -234,7 +234,7 @@
                   "title": "Data Flow JMX Request Is Potentially Interrupted",
                   "type": "Denial of service",
                   "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DIB is a software system and not responsible for the network."
+                  "mitigation": "DDF is a software system and not responsible for the network."
                 },
                 {
                   "status": "Mitigated",
@@ -658,7 +658,7 @@
                   "title": "Data Flow SSH Request Is Potentially Interrupted",
                   "type": "Denial of service",
                   "description": "An external agent interrupts data flowing across a trust boundary in either direction.",
-                  "mitigation": "DIB is a software system and not responsible for the network."
+                  "mitigation": "DDF is a software system and not responsible for the network."
                 },
                 {
                   "status": "Mitigated",
