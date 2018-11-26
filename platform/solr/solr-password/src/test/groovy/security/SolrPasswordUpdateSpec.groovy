@@ -75,13 +75,13 @@ class SolrPasswordUpdateSpec extends Specification {
         solrPasswordUpdate.start()
 
         expect:
-        System.getProperty("solr.password") == password;
+        System.getProperty("solr.password") == password
         solrPasswordUpdate.isSolrPasswordChangeSuccessfull() == success
 
         where:
         doit     || attemptAutoPasswordChange | responseCode                        | success | password
         'case 1' || "true"                    | Response.Status.Family.SUCCESSFUL   | true    | ENCRYPTED_PASSWORD
-        'case 2' || "true"                    | Response.Status.Family.SERVER_ERROR | false   | ENCRYPTED_PASSWORD
+        'case 2' || "true"                    | Response.Status.Family.SERVER_ERROR | false   | BOOTSTRAP_PASSWORD
         'case 3' || "false"                   | null                                | false   | BOOTSTRAP_PASSWORD
     }
 
