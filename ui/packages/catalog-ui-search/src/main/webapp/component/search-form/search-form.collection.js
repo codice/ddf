@@ -93,7 +93,7 @@ module.exports = Backbone.AssociatedModel.extend({
             d.setUTCSeconds(utcSeconds)
             this.addSearchForm(
               new SearchForm({
-                createdOn: Common.getHumanReadableDateTime(d),
+                createdOn: Common.getMomentDate(d),
                 id: value.id,
                 name: value.title,
                 description: value.description,

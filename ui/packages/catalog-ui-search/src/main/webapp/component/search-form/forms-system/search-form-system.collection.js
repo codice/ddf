@@ -69,7 +69,7 @@ module.exports = Backbone.AssociatedModel.extend({
           this.addSearchForm(
             new SearchForm({
               item_class: 'test',
-              createdOn: Common.getHumanReadableDateTime(d),
+              createdOn: Common.getMomentDate(d),
               id: value.id,
               name: value.title,
               description: value.description,

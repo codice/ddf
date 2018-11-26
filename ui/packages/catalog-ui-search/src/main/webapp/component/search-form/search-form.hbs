@@ -14,15 +14,14 @@
 
 {{#is type 'new-form'}}
     <div>
-        <h3>New Form</h3>
-        <div class="fa fa-plus-circle new-form-circle"/>
+        <div class="fa fa-plus-circle new-form-circle"></div>
+        <h3>New Search Form</h3>
     </div>
 {{/is}}
 {{#is type 'basic'}}
     <div>
         <h3>Basic</h3>
     </div>
-
 {{/is}}
 {{#is type 'text'}}
     <div>
@@ -34,11 +33,10 @@
         <h3 class="search-form-title" data-help="{{name}}">{{name}}</h3>
         <div class="default-icon"><div class="fa fa-star"></div></div>
         <span class="search-form-contents">
-            <span class="search-form-label">Created On: </span>
             {{createdOn}}
         </span>
         <span class="search-form-contents">
-            <span class="search-form-label">Created By: </span>
+            <span class="fa fa-cloud"></span>
             {{createdBy}}
         </span>
         <span class="choice-actions is-button" title="Shows a list of actions to take on the search forms" 
@@ -48,19 +46,18 @@
 {{/is}}
 {{#is type 'new-result'}}
     <div>
+            <div class="fa fa-plus-circle new-form-circle"></div>
             <h3>New Result Form</h3>
-            <div class="fa fa-plus-circle new-form-circle"/>
     </div>
 {{/is}}
 {{#is type 'result'}}
     <div>
         <h3 class="search-form-title" data-help="{{name}}">{{name}}</h3>
             <span class="search-form-contents">
-                    <span class="search-form-label">Created On: </span>
                     {{createdOn}}
             </span>
         <span class="search-form-contents">
-            <span class="search-form-label">Created By: </span>
+            <span class="fa fa-cloud"></span>
             {{createdBy}}
         </span>
         <span class="choice-actions is-button" title="Shows a list of actions to take on the search forms" 

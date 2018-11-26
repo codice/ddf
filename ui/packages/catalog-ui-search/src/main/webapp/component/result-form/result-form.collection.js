@@ -97,7 +97,7 @@ module.exports = Backbone.AssociatedModel.extend({
           d.setUTCSeconds(utcSeconds)
           this.addResultForm(
             new ResultForm({
-              createdOn: Common.getHumanReadableDateTime(d),
+              createdOn: Common.getMomentDate(d),
               id: element.id,
               name: element.label,
               type: 'result',
