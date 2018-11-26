@@ -15,7 +15,7 @@
 /* global define */
 define([
   'marionette',
-  'text!./tab-item.hbs',
+  './tab-item.hbs',
   'js/CustomElements',
   'js/wreqr.js',
 ], function(Marionette, template, CustomElements, wreqr) {

@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./input-color.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const InputView = require('../input.view')
 require('spectrum-colorpicker')
 

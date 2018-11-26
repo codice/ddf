@@ -15,7 +15,7 @@
 /*global define*/
 var Marionette = require('marionette')
 var template = require('./list-interactions.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -56,7 +56,8 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   triggerRun() {
-    this.model.get('query').startSearch()
+    const ids = this.model.get('list.bookmarks')
+    this.model.get('query').startTieredSearch(ids)
   },
   triggerCancel() {
     this.model.get('query').cancelCurrentSearches()

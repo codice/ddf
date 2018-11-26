@@ -17,8 +17,8 @@ import React from 'react'
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
-const QueryStatusView = require('component/query-status/query-status.view')
+const CustomElements = require('../../js/CustomElements.js')
+const QueryStatusView = require('../query-status/query-status.view.js')
 const moment = require('moment')
 
 function getResultsFound(total, data) {

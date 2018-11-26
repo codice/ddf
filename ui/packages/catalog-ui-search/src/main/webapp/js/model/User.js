@@ -12,20 +12,22 @@
 /*global define, window*/
 /*jslint bitwise: true */
 
+import { Security } from '../../react-component/utils/security/security'
+
 const _ = require('underscore')
 const _get = require('lodash.get')
-const wreqr = require('wreqr')
+const wreqr = require('../wreqr.js')
 const Backbone = require('backbone')
-const properties = require('properties')
+const properties = require('../properties.js')
 const Alert = require('./Alert')
-const Common = require('js/Common')
-const UploadBatch = require('js/model/UploadBatch')
-const announcement = require('component/announcement')
-const BlackListItem = require('component/blacklist-item/blacklist-item')
+const Common = require('../Common.js')
+const UploadBatch = require('./UploadBatch.js')
+const announcement = require('../../component/announcement/index.jsx')
+const BlackListItem = require('../../component/blacklist-item/blacklist-item.js')
 const moment = require('moment-timezone')
-const Theme = require('js/model/Theme')
-const ThemeUtils = require('js/ThemeUtils')
-const QuerySettings = require('js/model/QuerySettings')
+const Theme = require('./Theme.js')
+const ThemeUtils = require('../ThemeUtils.js')
+const QuerySettings = require('./QuerySettings.js')
 require('backbone-associations')
 
 var User = {}
@@ -143,6 +145,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
       animation: true,
       hoverPreview: true,
       querySettings: new QuerySettings(),
+      mapHome: undefined,
     }
   },
   relations: [
@@ -192,6 +195,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'change:goldenLayoutUpload', this.savePreferences)
     this.listenTo(this, 'change:goldenLayoutMetacard', this.savePreferences)
     this.listenTo(this, 'change:goldenLayoutAlert', this.savePreferences)
+    this.listenTo(this, 'change:mapHome', this.savePreferences)
   },
   handleRemove: function() {
     this.savePreferences()
@@ -294,6 +298,9 @@ User.Model = Backbone.AssociatedModel.extend({
   getEmail() {
     return this.get('email')
   },
+  getUserId() {
+    return this.get('userid')
+  },
   getUserName() {
     return this.get('username')
   },
@@ -352,6 +359,12 @@ User.Response = Backbone.AssociatedModel.extend({
   getEmail() {
     return this.get('user').getEmail()
   },
+  getUserId() {
+    return this.get('user').getUserId()
+  },
+  getRoles() {
+    return this.get('user').get('roles')
+  },
   getUserName() {
     return this.get('user').getUserName()
   },
@@ -408,6 +421,15 @@ User.Response = Backbone.AssociatedModel.extend({
         ),
       }
     }
+  },
+  canRead: function(metacard) {
+    return Security.canRead(this, Security.extractRestrictions(metacard))
+  },
+  canWrite: function(metacard) {
+    return Security.canWrite(this, Security.extractRestrictions(metacard))
+  },
+  canShare: function(metacard) {
+    return Security.canShare(this, Security.extractRestrictions(metacard))
   },
 })
 

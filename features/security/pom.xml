@@ -297,6 +297,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.certificate</groupId>
+            <artifactId>security-crl-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>session-management-service</artifactId>
             <version>${project.version}</version>
@@ -426,7 +431,11 @@
             <artifactId>pax-web-spi</artifactId>
             <version>${pax.web.codice.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-jsp</artifactId>
+            <version>${pax.web.codice.version}</version>
+        </dependency>
 
         <!--feature dependencies-->
         <dependency>

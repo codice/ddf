@@ -218,6 +218,12 @@
         <argument ref="catalogFramework"/>
     </bean>
 
+    <bean id="queryIdsParser"
+      class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QueryIdsParser"/>
+
+    <service ref="queryIdsParser"
+      interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
     <bean id="querySortsParser"
           class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QuerySortsParser"/>
 
@@ -242,12 +248,6 @@
     <service ref="removeMetacardTagsTransformation"
              interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
 
-    <bean id="queryMetacardsTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler"/>
-
-    <service ref="queryMetacardsTransformation"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
     <bean id="listMetacardsTransformation"
           class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler">
         <argument ref="metacardActionRegistry"/>
@@ -270,7 +270,7 @@
 
     <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
     <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
-                    member-type="service-reference">
+                    member-type="service-reference" filter="(export-resultset=true)">
         <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
     </reference-list>
 
@@ -353,6 +353,10 @@
         <argument ref="userCreatableMetacardType"/>
     </bean>
 
+    <bean id="queryMetacardsHandler" class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.AssociatedQueryMetacardsHandler">
+        <argument ref="catalogFramework"/>
+    </bean>
+
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
@@ -371,6 +375,8 @@
         <argument ref="noteUtil"/>
         <argument ref="subjectIdentity"/>
         <argument ref="accessControlSecurityConfiguration"/>
+        <argument ref="queryWorkspaceService"/>
+        <argument ref="queryMetacardsHandler"/>
     </bean>
 
     <reference id="coordinateSystemTranslator" interface="org.codice.usng4j.CoordinateSystemTranslator"
@@ -571,6 +577,7 @@
         </argument>
         <argument ref="securityService"/>
         <argument ref="persistentStore"/>
+        <argument ref="filterBuilder"/>
         <property name="maxSubscriptions" value="100"/>
     </bean>
 

@@ -10,24 +10,26 @@
  *
  **/
 
-const { reactToMarionette } = require('component/transmute')
-const LocationView = reactToMarionette(require('react-component/location'))
+const { reactToMarionette } = require('../transmute/index.js')
+const LocationView = reactToMarionette(
+  require('../../react-component/location/index.js')
+)
 
 if (process.env.NODE_ENV !== 'production') {
   module.hot.accept('react-component/location', () => {
-    LocationView.reload(require('react-component/location'))
+    LocationView.reload(require('../../react-component/location/index.js'))
   })
 }
 
 const Marionette = require('marionette')
 const _ = require('underscore')
-const wreqr = require('wreqr')
-const store = require('js/store')
-const CustomElements = require('js/CustomElements')
+const wreqr = require('../../js/wreqr.js')
+const store = require('../../js/store.js')
+const CustomElements = require('../../js/CustomElements.js')
 const LocationOldModel = require('./location-old')
-const CQLUtils = require('js/CQLUtils')
-const ShapeUtils = require('js/ShapeUtils')
-const { Direction } = require('component/location-new/utils/dms-utils')
+const CQLUtils = require('../../js/CQLUtils.js')
+const ShapeUtils = require('../../js/ShapeUtils.js')
+const { Direction } = require('../location-new/utils/dms-utils.js')
 
 const minimumDifference = 0.0001
 const minimumBuffer = 0.000001

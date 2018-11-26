@@ -13,12 +13,12 @@
  *
  **/
 /*global require, setTimeout*/
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./upload-item.hbs')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

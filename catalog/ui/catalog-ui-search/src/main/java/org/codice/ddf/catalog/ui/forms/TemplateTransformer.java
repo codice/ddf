@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.opengis.filter.v_2_0.FilterType;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
 import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
@@ -78,13 +79,17 @@ public class TemplateTransformer {
   public Metacard toQueryTemplateMetacard(Map<String, Object> formTemplate) {
     try {
       Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
-      String title = (String) formTemplate.get("title");
-      String description = (String) formTemplate.get("description");
-      String id = (String) formTemplate.get("id");
-
       if (filterJson == null) {
         return null;
       }
+
+      String title = (String) formTemplate.get("title");
+      if (StringUtils.isBlank(title)) {
+        throw new IllegalArgumentException("Search form title cannot be blank");
+      }
+
+      String description = (String) formTemplate.get("description");
+      String id = (String) formTemplate.get("id");
 
       TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
       VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
@@ -221,8 +226,12 @@ public class TemplateTransformer {
     return ImmutableMap.of(
         Security.ACCESS_INDIVIDUALS,
         getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS),
+        Security.ACCESS_INDIVIDUALS_READ,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS_READ),
         Security.ACCESS_GROUPS,
         getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS),
+        Security.ACCESS_GROUPS_READ,
+        getValues(inputMetacard, SecurityAttributes.ACCESS_GROUPS_READ),
         Security.ACCESS_ADMINISTRATORS,
         getValues(inputMetacard, SecurityAttributes.ACCESS_ADMINISTRATORS));
   }

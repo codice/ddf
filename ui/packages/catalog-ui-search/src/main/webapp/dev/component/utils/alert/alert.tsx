@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const announcement = require('component/announcement')
+const announcement = require('../../../../component/announcement/index.jsx')
 
 const alert = (message: string) => {
   announcement.announce({

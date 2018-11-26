@@ -12,9 +12,9 @@
 /*global define*/
 const _ = require('underscore')
 const Tabs = require('../tabs')
-const store = require('js/store')
-const IngestView = require('component/ingest/ingest.view')
-const BuilderView = require('component/builder/builder.view')
+const store = require('../../../js/store.js')
+const IngestView = require('../../ingest/ingest.view.js')
+const BuilderView = require('../../builder/builder.view.js')
 
 module.exports = Tabs.extend({
   defaults: {

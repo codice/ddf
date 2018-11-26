@@ -10,8 +10,8 @@
  *
  **/
 /* global require */
-const Tabs = require('component/tabs/tabs')
-const ResultFormCollectionView = require('component/result-form/result-form-tab-container.view')
+const Tabs = require('../tabs.js')
+const ResultFormCollectionView = require('../../result-form/result-form-tab-container.view.js')
 
 module.exports = Tabs.extend({
   defaults: {

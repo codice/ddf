@@ -18,9 +18,9 @@ const Backbone = require('backbone')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./result-sort.hbs')
-const CustomElements = require('js/CustomElements')
-const user = require('component/singletons/user-instance')
-const SortItemCollectionView = require('component/sort/sort.view')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
+const SortItemCollectionView = require('../sort/sort.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

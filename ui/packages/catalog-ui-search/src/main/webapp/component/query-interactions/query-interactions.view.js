@@ -13,19 +13,26 @@
  *
  **/
 /*global define*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./query-interactions.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const lightboxInstance = require('component/lightbox/lightbox.view.instance')
-const QueryFeedbackView = require('component/query-feedback/query-feedback.view')
-const QueryConfirmationView = require('component/confirmation/query/confirmation.query.view')
-const LoadingView = require('component/loading/loading.view')
-const QueryAnnotationsView = require('component/query-annotations/query-annotations.view')
-const properties = require('properties')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
+const QueryFeedbackView = require('../query-feedback/query-feedback.view.js')
+const QueryConfirmationView = require('../confirmation/query/confirmation.query.view.js')
+const LoadingView = require('../loading/loading.view.js')
+const QueryAnnotationsView = require('../query-annotations/query-annotations.view.js')
+const properties = require('../../js/properties.js')
+
+const NOT_CLONEABLE_ATTRIBUTES = ['id', 'result', 'hasBeenSaved']
+
+const createDuplicateQuery = attributes => {
+  let clonedAttributes = JSON.parse(JSON.stringify(attributes))
+  return _.omit(clonedAttributes, NOT_CLONEABLE_ATTRIBUTES)
+}
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -93,10 +100,8 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   handleDuplicate: function() {
-    var copyAttributes = JSON.parse(JSON.stringify(this.model.attributes))
-    delete copyAttributes.id
-    delete copyAttributes.result
-    var newQuery = new this.model.constructor(copyAttributes)
+    const copyAttributes = createDuplicateQuery(this.model.attributes)
+    const newQuery = new this.model.constructor(copyAttributes)
     if (this.model.collection.canAddQuery()) {
       this.model.collection.add(newQuery)
       store.setCurrentQuery(newQuery)

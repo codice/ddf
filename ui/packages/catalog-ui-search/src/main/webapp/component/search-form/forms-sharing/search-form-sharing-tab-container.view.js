@@ -12,23 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global require */
+/*global require*/
 const Marionette = require('marionette')
-const $ = require('jquery')
 const template = require('../search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form-sharing.collection.view')
-const SearchFormSharingCollection = require('./search-form-sharing.collection')
-const CustomElements = require('js/CustomElements')
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const SearchFormsSharingCollection = require('./search-form-sharing-collection-instance')
+const CustomElements = require('../../../js/CustomElements.js')
+const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
-  tagName: CustomElements.register('search-form-sharing-collection'),
+  tagName: CustomElements.register('shared-search-form-collection'),
   regions: {
-    collection: '.collection',
+    collectionView: '.collection',
   },
   initialize: function() {
-    this.searchFormSharingCollection = new SearchFormSharingCollection()
+    this.searchFormSharingCollection = SearchFormsSharingCollection
     this.listenTo(
       this.searchFormSharingCollection,
       'change:doneLoading',
@@ -36,21 +35,15 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
-    this.collection.show(
+    this.collectionView.show(
       new SearchFormCollectionView({
         collection: this.searchFormSharingCollection.getCollection(),
         model: this.model,
+        hideInteractionMenu: this.options.hideInteractionMenu,
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
-  },
-  showCollection: function() {
-    if (
-      this.collection.currentView.searchFormSharingCollection.getDoneLoading()
-    ) {
-      this.$el.find('.loading').hide()
-    }
   },
   handleLoadingSpinner: function() {
     if (this.searchFormSharingCollection.getDoneLoading()) {

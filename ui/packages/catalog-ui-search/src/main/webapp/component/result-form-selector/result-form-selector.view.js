@@ -16,8 +16,8 @@
 
 const template = require('./result-form-selector.hbs')
 const Marionette = require('marionette')
-const CustomElements = require('js/CustomElements')
-const ResultFormsView = require('component/tabs/result-form/tabs.result-form.view')
+const CustomElements = require('../../js/CustomElements.js')
+const ResultFormsView = require('../tabs/result-form/tabs.result-form.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-form-selector'),

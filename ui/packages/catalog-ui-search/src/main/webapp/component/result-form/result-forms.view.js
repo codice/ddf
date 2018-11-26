@@ -13,19 +13,36 @@
  *
  **/
 /* global setTimeout */
-const SearchFormViews = require('component/search-form/search-form.view')
-const properties = require('properties')
-const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view')
+const SearchFormViews = require('../search-form/search-form.view.js')
+const properties = require('../../js/properties.js')
+const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.js')
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()
-const QueryResult = require('component/result-form/result-form.view')
-const SearchFormModel = require('component/search-form/search-form.js')
-const CustomElements = require('js/CustomElements')
+const QueryResult = require('./result-form.view.js')
+const SearchFormModel = require('../search-form/search-form.js')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance')
+const announcement = require('../announcement')
 
 module.exports = SearchFormViews.extend({
   initialize: function() {
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView: function() {
+    if (this.model.get('type') !== 'new-result' && !user.canWrite(this.model)) {
+      announcement.announce(
+        {
+          title: 'Error',
+          message:
+            'You have read-only permission on result form ' +
+            this.model.get('name') +
+            '.',
+          type: 'error',
+        },
+        3000
+      )
+      return
+    }
+
     lightboxInstance.model.updateTitle(
       this.model.get('type') === 'new-result' ? '' : this.model.get('name')
     )

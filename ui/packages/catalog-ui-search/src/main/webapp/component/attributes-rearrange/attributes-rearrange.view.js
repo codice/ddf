@@ -13,16 +13,16 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr')
+var wreqr = require('../../js/wreqr.js')
 var _ = require('underscore')
 var template = require('./attributes-rearrange.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var Common = require('js/Common')
-var user = require('component/singletons/user-instance')
-var properties = require('properties')
+var CustomElements = require('../../js/CustomElements.js')
+var Common = require('../../js/Common.js')
+var user = require('../singletons/user-instance.js')
+var properties = require('../../js/properties.js')
 var Sortable = require('sortablejs')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
+var metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function calculateAvailableAttributesFromSelection(selectionInterface) {
   var types = _.union.apply(

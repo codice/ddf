@@ -24,7 +24,7 @@ define([
   'jquery',
   'js/models/Alerts.js',
   'js/views/Alerts.view',
-  'text!./configuration-edit.hbs',
+  './configuration-edit.hbs',
   'components/configuration-field/configuration-field.collection.view',
   'js/CustomElements',
 ], function(

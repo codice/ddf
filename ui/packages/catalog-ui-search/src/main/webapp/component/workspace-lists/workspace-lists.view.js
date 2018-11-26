@@ -14,15 +14,15 @@
  **/
 /*global define, setTimeout*/
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
+var CustomElements = require('../../js/CustomElements.js')
 var template = require('./workspace-lists.hbs')
-var store = require('js/store')
-var ListSelectorView = require('component/dropdown/list-select/dropdown.list-select.view')
-var DropdownModel = require('component/dropdown/dropdown')
-var ResultSelectorView = require('component/result-selector/result-selector.view')
+var store = require('../../js/store.js')
+var ListSelectorView = require('../dropdown/list-select/dropdown.list-select.view.js')
+var DropdownModel = require('../dropdown/dropdown.js')
+var ResultSelectorView = require('../result-selector/result-selector.view.js')
 var $ = require('jquery')
-var ListCreateView = require('component/list-create/list-create.view')
-var PopoutView = require('component/dropdown/popout/dropdown.popout.view')
+var ListCreateView = require('../list-create/list-create.view.js')
+var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 
 var selectedListId
 
@@ -148,6 +148,9 @@ module.exports = Marionette.LayoutView.extend({
           new ResultSelectorView({
             model: this.model.get(selectedListId).get('query'),
             selectionInterface: this.options.selectionInterface,
+            tieredSearchIds: this.model
+              .get(selectedListId)
+              .get('list.bookmarks'),
           })
         )
       }

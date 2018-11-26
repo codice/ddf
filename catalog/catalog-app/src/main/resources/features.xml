@@ -116,6 +116,7 @@
 
     <feature name="catalog-core-downloadaction" version="${project.version}"
              description="Catalog Core feature to download resources asynchronously.">
+        <feature>catalog-core</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-downloadaction/${project.version}</bundle>
     </feature>
 
@@ -166,6 +167,7 @@
              description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
         <feature>abdera</feature>
         <feature>cxf-rs-security-sso-saml</feature>
+        <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>
@@ -309,6 +311,7 @@
 
     <feature name="catalog-transformer-xml" version="${project.version}"
              description="XML MetacardTransformer and InputTransformer">
+        <feature>saxon</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>

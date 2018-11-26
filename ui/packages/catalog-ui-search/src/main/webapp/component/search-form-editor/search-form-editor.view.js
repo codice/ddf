@@ -12,21 +12,22 @@
 import React from 'react'
 import styled from '../../react-component/styles/styled-components'
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
+
 const Marionette = require('marionette')
-const MapView = require('component/visualization/maps/openlayers/openlayers.view')
-const Router = require('component/router/router')
-const SearchFormsCollection = require('component/search-form/search-form-collection-instance')
-const SearchFormModel = require('component/search-form/search-form.js')
-const SelectionInterface = require('component/selection-interface/selection-interface.model')
-const QueryAdd = require('component/query-add/query-add.view')
-const QueryAdvanced = require('component/query-advanced/query-advanced.view')
-const QueryModel = require('js/model/Query')
-const QueryTitle = require('component/query-title/query-title.view')
-const LoadingView = require('component/loading/loading.view')
-const wreqr = require('wreqr')
-const user = require('component/singletons/user-instance')
-const cql = require('js/cql')
-const announcement = require('component/announcement')
+const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
+const Router = require('../router/router.js')
+const SearchFormsCollection = require('../search-form/search-form-collection-instance.js')
+const SearchFormsSharingCollection = require('../search-form/forms-sharing/search-form-sharing-collection-instance.js')
+const SearchFormModel = require('../search-form/search-form.js')
+const SelectionInterface = require('../selection-interface/selection-interface.model.js')
+const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
+const QueryModel = require('../../js/model/Query.js')
+const QueryTitle = require('../query-title/query-title.view.js')
+const LoadingView = require('../loading/loading.view.js')
+const wreqr = require('../../js/wreqr.js')
+const user = require('../singletons/user-instance.js')
+const cql = require('../../js/cql.js')
+const announcement = require('../announcement/index.jsx')
 const $ = require('jquery')
 
 const Root = styled.div`
@@ -90,39 +91,60 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender() {
     const [id] = Router.get('args')
-    const queryModel =
-      id === 'create'
-        ? new QueryModel.Model()
-        : SearchFormsCollection.getCollection().get(id)
-    if (queryModel) {
-      this.model = queryModel
-      const collection = SearchFormsCollection.getCollection()
-      this.map.show(
-        new MapView({
-          selectionInterface: new SelectionInterface(),
-        })
-      ),
-        this.editor.show(
-          new QueryAdvanced({
-            model: this.model,
-            isForm: true,
-            isFormBuilder: true,
-            onSave: () => {
-              this.saveTemplateToBackend(collection, id)
-              this.navigateToForms()
-            },
-            onCancel: () => {
-              this.navigateToForms()
-            },
-          })
-        )
-      this.queryTitle.show(
-        new QueryTitle({
-          model: this.model,
-          isSearchFormEditor: true,
-        })
-      )
+    if (!id) {
+      return
     }
+
+    let collection
+
+    if (id === 'create') {
+      collection = SearchFormsCollection.getCollection()
+      this.model = new QueryModel.Model()
+    } else {
+      collection = SearchFormsCollection.getCollection()
+      this.model = collection.get(id)
+      if (!this.model) {
+        collection = SearchFormsSharingCollection.getCollection()
+        this.model = collection.get(id)
+      }
+    }
+    this.map.show(
+      new MapView({
+        selectionInterface: new SelectionInterface(),
+      })
+    )
+    this.editor.show(
+      new QueryAdvanced({
+        model: this.model,
+        isForm: true,
+        isFormBuilder: true,
+        isSearchFormEditor: true,
+        onSave: () => {
+          if (this.model.get('title').trim() !== '') {
+            this.saveTemplateToBackend(collection, id)
+            this.navigateToForms()
+          } else {
+            announcement.announce(
+              {
+                title: 'Some fields need your attention',
+                message: 'Search form title cannot be blank.',
+                type: 'error',
+              },
+              2500
+            )
+          }
+        },
+        onCancel: () => {
+          this.navigateToForms()
+        },
+      })
+    )
+    this.queryTitle.show(
+      new QueryTitle({
+        model: this.model,
+        isSearchFormEditor: true,
+      })
+    )
   },
   getQueryAsQueryTemplate: function(collection, id) {
     const formModel = collection.get(id) || new SearchFormModel()
@@ -173,7 +195,7 @@ module.exports = Marionette.LayoutView.extend({
         _user.savePreferences()
         announcement.announce(
           {
-            title: 'Success!',
+            title: 'Success',
             message: 'Search form successfully saved',
             type: 'success',
           },
@@ -183,7 +205,7 @@ module.exports = Marionette.LayoutView.extend({
       .fail((jqxhr, textStatus, errorThrown) => {
         announcement.announce(
           {
-            title: 'Search Form Failed to be Saved',
+            title: 'Search form failed to be saved',
             message: jqxhr.responseJSON.message,
             type: 'error',
           },

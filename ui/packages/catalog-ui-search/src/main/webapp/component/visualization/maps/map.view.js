@@ -13,29 +13,29 @@
  *
  **/
 /*global require, setTimeout*/
-var wreqr = require('wreqr')
+var wreqr = require('../../../js/wreqr.js')
 var template = require('./map.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var LoadingCompanionView = require('component/loading-companion/loading-companion.view')
-var store = require('js/store')
+var CustomElements = require('../../../js/CustomElements.js')
+var LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+var store = require('../../../js/store.js')
 var GeometryCollectionView = require('./geometry.collection.view')
 var ClusterCollectionView = require('./cluster.collection.view')
 var ClusterCollection = require('./cluster.collection')
-var CQLUtils = require('js/CQLUtils')
-var LocationModel = require('component/location-old/location-old')
-var user = require('component/singletons/user-instance')
-var LayersDropdown = require('component/dropdown/layers/dropdown.layers.view')
-var DropdownModel = require('component/dropdown/dropdown')
-var MapContextMenuDropdown = require('component/dropdown/map-context-menu/dropdown.map-context-menu.view')
+var CQLUtils = require('../../../js/CQLUtils.js')
+var LocationModel = require('../../location-old/location-old.js')
+var user = require('../../singletons/user-instance.js')
+var LayersDropdown = require('../../dropdown/layers/dropdown.layers.view.js')
+var DropdownModel = require('../../dropdown/dropdown.js')
+var MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
 var MapModel = require('./map.model')
-var MapInfoView = require('component/map-info/map-info.view')
-var MapSettingsDropdown = require('component/dropdown/map-settings/dropdown.map-settings.view')
-var properties = require('properties')
-var Common = require('js/Common')
+var MapInfoView = require('../../map-info/map-info.view.js')
+var MapSettingsDropdown = require('../../dropdown/map-settings/dropdown.map-settings.view.js')
+var properties = require('../../../js/properties.js')
+var Common = require('../../../js/Common.js')
 
 const React = require('react')
-const Gazetteer = require('react-component/location/gazetteer.js')
+const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 function wrapNum(x, range) {
   var max = range[1],
@@ -147,6 +147,7 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click .cluster-button': 'toggleClustering',
     'click .zoomToHome': 'zoomToHome',
+    'click .saveAsHome': 'saveAsHome',
   },
   clusterCollection: undefined,
   clusterCollectionView: undefined,
@@ -162,6 +163,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing)
     this.handleDrawing()
     this.setupMouseLeave()
+    this.listenTo(store.get('workspaces'), 'add', this.zoomToHome)
   },
   setupMouseLeave: function() {
     this.$el.on('mouseleave', () => {
@@ -248,9 +250,23 @@ module.exports = Marionette.LayoutView.extend({
     this.setupMapInfo()
   },
   zoomToHome: function() {
-    this.map.zoomToBoundingBox(
-      homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox
-    )
+    const home = [
+      user
+        .get('user')
+        .get('preferences')
+        .get('mapHome'),
+      homeBoundingBox,
+      defaultHomeBoundingBox,
+    ].find(element => element !== undefined)
+
+    this.map.zoomToBoundingBox(home)
+  },
+  saveAsHome: function() {
+    const boundingBox = this.map.getBoundingBox()
+    user
+      .get('user')
+      .get('preferences')
+      .set('mapHome', boundingBox)
   },
   addPanZoom: function() {
     const self = this
@@ -268,12 +284,17 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
+    // TODO combine home and save buttons into a "split button dropdown" once this is refactored to React: DDF-4327
     this.$el
       .find('.cesium-viewer-toolbar')
       .append(
         '<div class="is-button zoomToHome">' +
           '<span>Home </span>' +
-          '<span class="cf cf-map-marker"></span></div>'
+          '<span class="fa fa-home"></span></div>' +
+          '<div class="is-button saveAsHome">' +
+          '<span title="Save Current View as Home Location">Set Home </span>' +
+          '<span class="cf cf-map-marker"/>' +
+          '</div>'
       )
   },
   addClustering: function() {
@@ -377,6 +398,7 @@ module.exports = Marionette.LayoutView.extend({
     this.addLayers()
     this.addSettings()
     this.endLoading()
+    this.zoomToHome()
   },
   addLayers: function() {
     this.$el

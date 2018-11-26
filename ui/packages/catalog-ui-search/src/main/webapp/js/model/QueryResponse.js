@@ -9,18 +9,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+const $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('underscore')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-var Sources = require('component/singletons/sources-instance')
-var moment = require('moment')
-var properties = require('properties')
-var user = require('component/singletons/user-instance')
-var Common = require('js/Common')
+var metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
+var properties = require('../properties.js')
+var user = require('../../component/singletons/user-instance.js')
+var Common = require('../Common.js')
 require('backbone-associations')
-var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus')
-var QueryResultCollection = require('js/model/QueryResult.collection')
-var ResultForm = require('component/result-form/result-form.js')
+var QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
+var QueryResultCollection = require('./QueryResult.collection.js')
+var ResultForm = require('../../component/result-form/result-form.js')
 
 let rpc = null
 
@@ -173,7 +172,15 @@ module.exports = Backbone.AssociatedModel.extend({
           }
         },
         promise() {
-          return promise
+          const d = $.Deferred()
+          promise
+            .then(value => {
+              d.resolve(value)
+            })
+            .catch(err => {
+              d.reject(err)
+            })
+          return d
         },
       }
     } else {
@@ -263,6 +270,7 @@ module.exports = Backbone.AssociatedModel.extend({
       queuedResults: resp.results,
       results: [],
       status: resp.status,
+      merged: this.get('merged') === false ? false : resp.results.length === 0,
     }
   },
   allowAutoMerge: function() {
@@ -275,7 +283,6 @@ module.exports = Backbone.AssociatedModel.extend({
   mergeQueue: function(userTriggered) {
     if (userTriggered === true || this.allowAutoMerge()) {
       this.lastMerge = Date.now()
-      this.set('merged', true)
 
       var resultsIncludingDuplicates = this.get('results')
         .fullCollection.map(function(m) {
@@ -317,6 +324,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
       this.get('queuedResults').fullCollection.reset()
       this.updateStatus()
+      this.set('merged', true)
     }
   },
   updateResultCountsBySource(resultCounts) {

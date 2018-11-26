@@ -11,6 +11,8 @@
  **/
 import * as React from 'react'
 import styled from '../../styles/styled-components'
+import TextField from '../../../react-component/container/input-wrappers/text'
+import PasswordField from '../../../react-component/container/input-wrappers/password'
 import { Button, buttonTypeEnum } from '../../presentation/button'
 import { hot } from 'react-hot-loader'
 
@@ -18,13 +20,12 @@ const Root = styled<{}, 'div'>('div')`
   width: 100%;
   height: 100%;
 
-  button {
+  > button {
     width: 100%;
   }
 
   input {
     width: 100%;
-    text-align: center;
   }
 
   .user-info {
@@ -34,13 +35,6 @@ const Root = styled<{}, 'div'>('div')`
       100% - ${props => props.theme.minimumButtonSize} -
         ${props => props.theme.minimumDividerSize}
     );
-    text-align: center;
-    div + div {
-      margin-top: ${props => props.theme.mediumSpacing};
-    }
-  }
-  input + input {
-    margin-top: ${props => props.theme.mediumSpacing};
   }
 `
 
@@ -73,20 +67,17 @@ export default hot(module)(
         {isGuest && !isIdp ? (
           <>
             <div className="user-info">
-              <input
+              <TextField
                 placeholder="Username"
-                type="text"
-                id="username"
-                name="username"
                 value={username}
+                showLabel={false}
+                showValidationIssues={false}
                 onChange={handleUsernameChange}
               />
-              <input
-                placeholder="Password"
-                type="password"
-                id="password"
-                name="password"
+              <PasswordField
                 value={password}
+                showLabel={false}
+                showValidationIssues={false}
                 onChange={handlePasswordChange}
               />
             </div>

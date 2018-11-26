@@ -12,12 +12,15 @@
 var $ = require('jquery')
 var _ = require('underscore')
 var Backbone = require('backbone')
-var Query = require('js/model/Query')
-var List = require('js/model/List')
-var Common = require('js/Common')
-var ColorGenerator = require('js/ColorGenerator')
-var QueryPolling = require('js/QueryPolling')
+var Query = require('./Query.js')
+var List = require('./List.js')
+var Common = require('../Common.js')
+var ColorGenerator = require('../ColorGenerator.js')
+var QueryPolling = require('../QueryPolling.js')
+const user = require('component/singletons/user-instance')
+const announcement = require('component/announcement')
 require('backbone-associations')
+import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 
 // This is a list of model attributes that if changed we do not want save the workspace for
 const IGNORED_WORKSPACE_ATTRIBUTES = [
@@ -66,7 +69,7 @@ const WorkspaceListCollection = Backbone.Collection.extend({
   },
 })
 
-module.exports = Backbone.AssociatedModel.extend({
+module.exports = PartialAssociatedModel.extend({
   useAjaxSync: true,
   defaults: function() {
     return {
@@ -155,11 +158,25 @@ module.exports = Backbone.AssociatedModel.extend({
     this.trigger('sync', this, options)
   },
   save: function(options) {
-    this.set('saved', true)
-    if (this.get('localStorage')) {
-      this.saveLocal(options)
+    if (!user.canWrite(this)) {
+      announcement.announce(
+        {
+          title: 'Error',
+          message:
+            'You have read-only permission on workspace ' +
+            this.get('title') +
+            '. Consider creating a duplicate of this workspace to save your changes.',
+          type: 'error',
+        },
+        3000
+      )
     } else {
-      Backbone.AssociatedModel.prototype.save.apply(this, arguments)
+      this.set('saved', true)
+      if (this.get('localStorage')) {
+        this.saveLocal(options)
+      } else {
+        Backbone.AssociatedModel.prototype.save.apply(this, arguments)
+      }
     }
   },
   handleError: function() {

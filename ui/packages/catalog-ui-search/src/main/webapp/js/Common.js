@@ -14,7 +14,7 @@
 const $ = require('jquery')
 const moment = require('moment')
 const _ = require('underscore')
-require('js/requestAnimationFramePolyfill')
+require('./requestAnimationFramePolyfill.js')
 
 const timeZones = {
   UTC: 'Etc/UTC',

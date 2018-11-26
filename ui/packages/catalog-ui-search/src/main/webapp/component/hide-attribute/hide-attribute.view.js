@@ -16,12 +16,12 @@
 var template = require('./hide-attribute.hbs')
 var _ = require('underscore')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var PropertyView = require('component/property/property.view')
-var Property = require('component/property/property')
-var properties = require('properties')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-var user = require('component/singletons/user-instance')
+var CustomElements = require('../../js/CustomElements.js')
+var PropertyView = require('../property/property.view.js')
+var Property = require('../property/property.js')
+var properties = require('../../js/properties.js')
+var metacardDefinitions = require('../singletons/metacard-definitions.js')
+var user = require('../singletons/user-instance.js')
 
 function filterAndSort(attributes) {
   return attributes

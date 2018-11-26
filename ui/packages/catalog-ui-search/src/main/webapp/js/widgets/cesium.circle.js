@@ -15,14 +15,14 @@ const Marionette = require('marionette')
 const Backbone = require('backbone')
 const Cesium = require('cesium')
 const _ = require('underscore')
-const wreqr = require('wreqr')
-const DrawBbox = require('js/widgets/cesium.bbox')
-const maptype = require('maptype')
+const wreqr = require('../wreqr.js')
+const DrawBbox = require('./cesium.bbox.js')
+const maptype = require('../maptype.js')
 const NotificationView = require('./notification.view')
 const Turf = require('@turf/turf')
 const TurfCircle = require('@turf/circle')
 const DrawingController = require('./drawing.controller')
-const DistanceUtils = require('js/DistanceUtils')
+const DistanceUtils = require('../DistanceUtils.js')
 
 var DrawCircle = {}
 

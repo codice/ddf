@@ -14,11 +14,11 @@
  **/
 /*global define*/
 const _ = require('underscore')
-const user = require('component/singletons/user-instance')
+const user = require('../../singletons/user-instance.js')
 const Dropdown = require('../dropdown')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.login-form.hbs')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../../js/CustomElements.js')
 const ComponentView = require('component/login-form/login-form.view')
 
 var getName = function(user) {

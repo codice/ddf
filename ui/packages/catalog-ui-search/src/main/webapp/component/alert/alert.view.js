@@ -16,9 +16,9 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const template = require('./alert.hbs')
-const CustomElements = require('js/CustomElements')
-const AlertContentView = require('component/content/alert/content.alert.view')
-const alertInstance = require('component/alert/alert')
+const CustomElements = require('../../js/CustomElements.js')
+const AlertContentView = require('../content/alert/content.alert.view.js')
+const alertInstance = require('./alert.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

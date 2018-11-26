@@ -1,1 +1,1 @@
-module.exports = require('wreqr')
+module.exports = require('../js/wreqr.js')

@@ -10,15 +10,17 @@
  *
  **/
 /*global require*/
-const Tabs = require('component/tabs/tabs')
-const MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view')
-const MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view')
+const Tabs = require('../tabs.js')
+const MySearchFormCollectionView = require('../../search-form/search-form-tab-container.view.js')
+const MySearchSharingFormCollectionView = require('../../search-form/forms-sharing/search-form-sharing-tab-container.view.js')
+const MySearchSystemFormCollectionView = require('../../search-form/forms-system/search-form-system-tab-container.view.js')
 
 module.exports = Tabs.extend({
   defaults: {
     tabs: {
       'My Search Forms': MySearchFormCollectionView,
       'Shared Search Forms': MySearchSharingFormCollectionView,
+      'System Search Forms': MySearchSystemFormCollectionView,
     },
   },
 })

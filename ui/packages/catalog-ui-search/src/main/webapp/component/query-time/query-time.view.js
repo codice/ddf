@@ -15,14 +15,14 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./query-time.hbs')
-var CustomElements = require('js/CustomElements')
-var PropertyView = require('component/property/property.view')
-var Property = require('component/property/property')
-var properties = require('properties')
-var CQLUtils = require('js/CQLUtils')
-var Common = require('js/Common')
-var metacardDefinitions = require('component/singletons/metacard-definitions')
-const RelativeTimeView = require('component/relative-time/relative-time.view')
+var CustomElements = require('../../js/CustomElements.js')
+var PropertyView = require('../property/property.view.js')
+var Property = require('../property/property.js')
+var properties = require('../../js/properties.js')
+var CQLUtils = require('../../js/CQLUtils.js')
+var Common = require('../../js/Common.js')
+var metacardDefinitions = require('../singletons/metacard-definitions.js')
+const RelativeTimeView = require('../relative-time/relative-time.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

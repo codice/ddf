@@ -10,20 +10,22 @@
  *
  **/
 /*global require,define,setTimeout*/
-define(['marionette', 'jquery', 'js/application', 'iframeresizer'], function(
+import { iframeResizer } from 'iframe-resizer'
+define([
+  'marionette',
+  'jquery',
+  'js/application',
+  'js/modules/Application.module.js',
+  'js/modules/Configuration.module.js',
+  'js/modules/Installer.module.js',
+], function(
   Marionette,
   $,
-  Application
+  Application,
+  ApplicationModule,
+  ConfigurationModule,
+  InstallerModule
 ) {
-  //    $(window).resize(function() {
-  //        var width = $('body').width();
-  //        var containerWidth = $('.container').css('width');
-  //        containerWidth.replace('px', '');
-  //
-  //
-  //        $('#content').height(height);
-  //    });
-
   var ModuleView = Marionette.Layout.extend({
     template: 'tabs',
     className: 'relative full-height',
@@ -80,14 +82,20 @@ define(['marionette', 'jquery', 'js/application', 'iframeresizer'], function(
             tagName: 'div',
             className: 'tab-pane',
             initialize: function() {
-              this.listenTo(this.model, 'change:active', this.render)
+              if (
+                this.model.get('iframeLocation') &&
+                this.model.get('iframeLocation') !== ''
+              ) {
+                // todo fix this
+                this.listenTo(this.model, 'change:active', this.render)
+              }
             },
             attachIframeResizer: function() {
               setTimeout(
                 function() {
                   this.$('iframe').ready(
                     function() {
-                      this.$('iframe').iFrameResize()
+                      iframeResizer(null, 'iframe')
                     }.bind(this)
                   )
                 }.bind(this),
@@ -123,23 +131,30 @@ define(['marionette', 'jquery', 'js/application', 'iframeresizer'], function(
                     view.module.start()
                   }, 0)
                 } else {
-                  //if it isn't here, we haven't required it in yet, this should automatically start the module
-                  require([this.model.get('jsLocation')], function(module) {
-                    //if a marionette module is being called, it will start up automatically
-                    //however if someone has built something else, we are just checking for start and stop
-                    //functions so we can control the module
-                    //it isn't required that a module have a start and stop function, we just wouldn't be able
-                    //to dynamically add and remove that module without refreshing the ui
-                    if (module && module.start) {
-                      module.start()
-                      view.module = module
-                    }
-                  })
+                  let module
+                  switch (this.model.get('jsLocation')) {
+                    case 'js/modules/Application.module.js':
+                      module = ApplicationModule
+                      break
+                    case 'js/modules/Configuration.module.js':
+                      module = ConfigurationModule
+                      break
+                    case 'js/modules/Installer.module.js':
+                      module = InstallerModule
+                      break
+                    default:
+                      console.log('todo: how do we handle this?')
+                      break
+                  }
+                  if (module && module.start) {
+                    module.start()
+                    view.module = module
+                  }
                   if (
                     this.model.get('cssLocation') &&
                     this.model.get('cssLocation') !== ''
                   ) {
-                    require(['text!' + this.model.get('cssLocation')], function(
+                    require(['' + this.model.get('cssLocation')], function(
                       css
                     ) {
                       $(

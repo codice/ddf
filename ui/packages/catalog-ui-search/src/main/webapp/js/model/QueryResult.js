@@ -12,14 +12,14 @@
 var Backbone = require('backbone')
 var _ = require('underscore')
 var $ = require('jquery')
-var Sources = require('component/singletons/sources-instance')
-var CQLUtils = require('js/CQLUtils')
-var Common = require('js/Common')
-var filter = require('js/filter')
+var Sources = require('../../component/singletons/sources-instance.js')
+var CQLUtils = require('../CQLUtils.js')
+var Common = require('../Common.js')
+var filter = require('../filter.js')
 require('backbone-associations')
 
-var Metacard = require('js/model/Metacard')
-var MetacardActionModel = require('js/model/MetacardAction')
+var Metacard = require('./Metacard.js')
+var MetacardActionModel = require('./MetacardAction.js')
 
 function generateThumbnailUrl(url) {
   var newUrl = url

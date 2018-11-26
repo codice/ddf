@@ -12,19 +12,20 @@
 /*global define*/
 
 const Backbone = require('backbone')
+const $ = require('jquery')
 const _ = require('underscore')
-const properties = require('properties')
-const cql = require('js/cql')
-const QueryResponse = require('js/model/QueryResponse')
-const ResultSort = require('js/model/ResultSort')
-const Sources = require('component/singletons/sources-instance')
-const Common = require('js/Common')
-const CacheSourceSelector = require('js/CacheSourceSelector')
-const announcement = require('component/announcement')
-const CQLUtils = require('js/CQLUtils')
-const user = require('component/singletons/user-instance')
+const properties = require('../properties.js')
+const QueryResponse = require('./QueryResponse.js')
+const ResultSort = require('./ResultSort.js')
+const Sources = require('../../component/singletons/sources-instance.js')
+const Common = require('../Common.js')
+const CacheSourceSelector = require('../CacheSourceSelector.js')
+const announcement = require('../../component/announcement/index.jsx')
+const CQLUtils = require('../CQLUtils.js')
+const user = require('../../component/singletons/user-instance.js')
 const _merge = require('lodash/merge')
 require('backbone-associations')
+import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 
 var Query = {}
 
@@ -56,7 +57,25 @@ function limitToHistoric(cqlString) {
   })
 }
 
-Query.Model = Backbone.AssociatedModel.extend({
+const handleTieredSearchLocalFinish = function(ids) {
+  const results = this.get('result')
+    .get('results')
+    .toJSON()
+
+  const status = this.get('result')
+    .get('status')
+    .toJSON()
+
+  const resultIds = results.map(result => result.metacard.id)
+  const missingResult = ids.some(id => !resultIds.includes(id))
+  if (!missingResult) {
+    return
+  }
+  this.set('federation', 'enterprise')
+  this.startSearch({ results, status })
+}
+
+Query.Model = PartialAssociatedModel.extend({
   relations: [
     {
       type: Backbone.One,
@@ -161,6 +180,11 @@ Query.Model = Backbone.AssociatedModel.extend({
   isOutdated() {
     return this.get('isOutdated')
   },
+  startTieredSearchIfOutdated(ids) {
+    if (this.isOutdated()) {
+      this.startTieredSearch(ids)
+    }
+  },
   startSearchIfOutdated() {
     if (this.isOutdated()) {
       this.startSearch()
@@ -169,6 +193,21 @@ Query.Model = Backbone.AssociatedModel.extend({
   startSearchFromFirstPage: function(options) {
     this.handleChangeResultCount()
     this.startSearch(options)
+  },
+  startTieredSearch: function(ids) {
+    this.set('federation', 'local')
+    $.when(...this.startSearch()).then(() => {
+      const queryResponse = this.get('result')
+      if (queryResponse && queryResponse.isUnmerged()) {
+        this.listenToOnce(
+          queryResponse,
+          'change:merged',
+          handleTieredSearchLocalFinish.bind(this, ids)
+        )
+      } else {
+        handleTieredSearchLocalFinish.call(this, ids)
+      }
+    })
   },
   startSearch: function(options) {
     this.set('isOutdated', false)
@@ -204,9 +243,13 @@ Query.Model = Backbone.AssociatedModel.extend({
       result.set('merged', true)
       result.get('queuedResults').fullCollection.reset()
       result.get('queuedResults').reset()
-      result.get('results').fullCollection.reset()
-      result.get('results').reset()
-      result.get('status').reset(initialStatus)
+      result.get('results').fullCollection.reset(options.results || [])
+      result.get('results').reset(options.results || [])
+      result
+        .get('status')
+        .reset(
+          options.status ? options.status.concat(initialStatus) : initialStatus
+        )
     } else {
       result = new QueryResponse({
         queryId: this.getId(),
@@ -403,17 +446,13 @@ Query.Model = Backbone.AssociatedModel.extend({
       this.get('result')
         .get('status')
         .toJSON(),
-      function(status) {
-        return status.id !== 'cache'
-      }
-    ).reduce(function(hits, status) {
-      return status.hits ? hits + status.hits : hits
-    }, 0)
+      status => status.id !== 'cache'
+    ).reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
 
-    if (hits === 0) {
+    if (results === 0) {
       return '0 results'
     } else if (results > hits) {
-      return hits + ' results'
+      return results + ' results'
     }
 
     var clientState =

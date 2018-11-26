@@ -15,9 +15,9 @@
 /*global require, document*/
 var Marionette = require('marionette')
 var template = require('./system-usage.hbs')
-var CustomElements = require('js/CustomElements')
-var properties = require('properties')
-var user = require('component/singletons/user-instance.js')
+var CustomElements = require('../../js/CustomElements.js')
+var properties = require('../../js/properties.js')
+var user = require('../singletons/user-instance.js')
 var preferences = user.get('user').get('preferences')
 var $ = require('jquery')
 

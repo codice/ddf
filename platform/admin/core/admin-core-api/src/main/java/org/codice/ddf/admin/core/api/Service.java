@@ -29,6 +29,8 @@ public interface Service extends Metatype {
 
   String DISABLED_CONFIGURATIONS = "disabledConfigurations";
 
+  String DESCRIPTION = "description";
+
   default boolean isFactory() {
     return (boolean) get(FACTORY);
   }
@@ -39,6 +41,14 @@ public interface Service extends Metatype {
 
   default List<ConfigurationDetails> getConfigurations() {
     return (List<ConfigurationDetails>) get(CONFIGURATIONS);
+  }
+
+  default String getDescription() {
+    return (String) get(DESCRIPTION);
+  }
+
+  default void setDescription(String description) {
+    put(DESCRIPTION, description);
   }
 
   default void setConfigurations(List<ConfigurationDetails> configurations) {

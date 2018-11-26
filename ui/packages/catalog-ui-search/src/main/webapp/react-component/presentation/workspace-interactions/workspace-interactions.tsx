@@ -28,7 +28,8 @@ type Props = {
   deleteWorkspace: () => void
   isSubscribed: boolean
   isLocal: boolean
-  isNotShareable: boolean
+  isDeletable: boolean
+  isShareable: boolean
 }
 
 const Root = styled<{}, 'div'>('div')`
@@ -50,7 +51,8 @@ const render = (props: Props) => {
     deleteWorkspace,
     isSubscribed,
     isLocal,
-    isNotShareable,
+    isDeletable,
+    isShareable,
   } = props
   return (
     <Root className="composed-menu">
@@ -94,7 +96,7 @@ const render = (props: Props) => {
       >
         Open Workspace in New Tab
       </MenuAction>
-      {isNotShareable || isLocal ? null : (
+      {!isShareable || isLocal ? null : (
         <MenuAction
           help="Brings up a view of the current
         sharing settings for this workspace.  From there, you can change what permissions each role has on the workspace,
@@ -157,17 +159,19 @@ const render = (props: Props) => {
           Subscribe
         </MenuAction>
       )}
-      <MenuAction
-        help="Deletes the workspace.
+      {isDeletable && (
+        <MenuAction
+          help="Deletes the workspace.
         Anyone who has access to this workspace will subsequently lose access."
-        onClick={(_e, context) => {
-          deleteWorkspace()
-          context.closeAndRefocus()
-        }}
-        icon="fa fa-trash-o"
-      >
-        Delete Workspace
-      </MenuAction>
+          onClick={(_e, context) => {
+            deleteWorkspace()
+            context.closeAndRefocus()
+          }}
+          icon="fa fa-trash-o"
+        >
+          Delete Workspace
+        </MenuAction>
+      )}
     </Root>
   )
 }

@@ -14,7 +14,7 @@
 const $ = require('jquery')
 const Backbone = require('backbone')
 const _ = require('underscore')
-const properties = require('properties')
+const properties = require('../../js/properties.js')
 const moment = require('moment')
 function transformEnumResponse(metacardTypes, response) {
   return _.reduce(

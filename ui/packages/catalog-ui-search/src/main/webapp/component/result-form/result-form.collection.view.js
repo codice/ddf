@@ -14,8 +14,8 @@
  **/
 /* global require */
 const Marionette = require('marionette')
-const ResultFormView = require('component/result-form/result-forms.view')
-const CustomElements = require('js/CustomElements')
+const ResultFormView = require('./result-forms.view.js')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   childView: ResultFormView,

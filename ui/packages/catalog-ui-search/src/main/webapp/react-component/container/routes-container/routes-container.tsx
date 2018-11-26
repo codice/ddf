@@ -12,7 +12,7 @@
 import * as React from 'react'
 import RouteContainer from '../route-container'
 
-const router = require('component/router/router')
+const router = require('../../../component/router/router.js')
 
 import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'

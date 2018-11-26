@@ -14,9 +14,9 @@
  **/
 /* global require */
 const Backbone = require('backbone')
-const ResultForm = require('component/search-form/search-form')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
+const ResultForm = require('../search-form/search-form.js')
+const Common = require('../../js/Common.js')
+const user = require('../singletons/user-instance.js')
 const $ = require('jquery')
 const _ = require('underscore')
 
@@ -75,6 +75,7 @@ module.exports = Backbone.AssociatedModel.extend({
             id: resultForm.id,
             descriptors: resultForm.descriptors,
             description: resultForm.description,
+            owner: resultForm.owner,
             created: resultForm.created,
             creator: resultForm.creator,
             createdBy: resultForm.creator,
@@ -101,6 +102,7 @@ module.exports = Backbone.AssociatedModel.extend({
               name: element.label,
               type: 'result',
               descriptors: element.descriptors,
+              owner: element.owner,
               accessIndividuals: element.accessIndividuals,
               accessAdministrators: element.accessAdministrators,
               accessGroups: element.accessGroups,

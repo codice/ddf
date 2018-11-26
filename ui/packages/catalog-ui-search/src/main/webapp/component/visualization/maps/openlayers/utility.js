@@ -13,7 +13,7 @@
 
 var _ = require('underscore')
 var Openlayers = require('openlayers')
-var properties = require('properties')
+var properties = require('../../../../js/properties.js')
 
 function convertPointCoordinate(point) {
   var coords = [point[0], point[1]]

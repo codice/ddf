@@ -15,16 +15,16 @@
 /*global require*/
 const Marionette = require('marionette')
 const template = require('./query-editor.hbs')
-const CustomElements = require('js/CustomElements')
-const QueryBasic = require('component/query-basic/query-basic.view')
-const QueryAdvanced = require('component/query-advanced/query-advanced.view')
-const QueryTitle = require('component/query-title/query-title.view')
-const QueryAdhoc = require('component/query-adhoc/query-adhoc.view')
-const cql = require('js/cql')
-const CQLUtils = require('js/CQLUtils')
-const store = require('js/store')
-const user = require('component/singletons/user-instance')
-const announcement = require('component/announcement')
+const CustomElements = require('../../js/CustomElements.js')
+const QueryBasic = require('../query-basic/query-basic.view.js')
+const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
+const QueryTitle = require('../query-title/query-title.view.js')
+const QueryAdhoc = require('../query-adhoc/query-adhoc.view.js')
+const cql = require('../../js/cql.js')
+const CQLUtils = require('../../js/CQLUtils.js')
+const store = require('../../js/store.js')
+const user = require('../singletons/user-instance.js')
+const announcement = require('../announcement/index.jsx')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 
 function isNested(filter) {

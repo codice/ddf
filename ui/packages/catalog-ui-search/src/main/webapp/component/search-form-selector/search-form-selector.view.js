@@ -16,8 +16,8 @@
 
 var template = require('./search-form-selector.hbs')
 var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var SearchFormsView = require('component/tabs/search-form/tabs.search-form.view')
+var CustomElements = require('../../js/CustomElements.js')
+var SearchFormsView = require('../tabs/search-form/tabs.search-form.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('search-form-selector'),
@@ -32,6 +32,7 @@ module.exports = Marionette.LayoutView.extend({
       new SearchFormsView({
         queryModel: this.model,
         hideNewForm: true,
+        hideInteractionMenu: true,
       })
     )
   },

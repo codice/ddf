@@ -13,16 +13,16 @@
  *
  **/
 /*global define, setTimeout*/
-const wreqr = require('wreqr')
+const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./upload-batch-item.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
-const UploadSummaryView = require('component/upload-summary/upload-summary.view')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const Common = require('../../js/Common.js')
+const user = require('../singletons/user-instance.js')
+const UploadSummaryView = require('../upload-summary/upload-summary.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

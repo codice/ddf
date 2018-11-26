@@ -17,9 +17,9 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./details-filter.hbs')
-const CustomElements = require('js/CustomElements')
-const PropertyView = require('component/property/property.view')
-const Property = require('component/property/property')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

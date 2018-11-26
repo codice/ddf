@@ -15,9 +15,9 @@
 /*global define*/
 const Marionette = require('marionette')
 const template = require('./upload.hbs')
-const CustomElements = require('js/CustomElements')
-const uploadContentView = require('component/content/upload/content.upload.view')
-const uploadInstance = require('component/upload/upload')
+const CustomElements = require('../../js/CustomElements.js')
+const uploadContentView = require('../content/upload/content.upload.view.js')
+const uploadInstance = require('./upload.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

@@ -1,6 +1,6 @@
 const template = require('./button-guide.hbs')
-const CustomElements = require('js/CustomElements')
-const BaseGuideView = require('dev/component/base-guide/base-guide.view')
+const CustomElements = require('../../../js/CustomElements.js')
+const BaseGuideView = require('../base-guide/base-guide.view.js')
 
 module.exports = BaseGuideView.extend({
   template: template,

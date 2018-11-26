@@ -17,18 +17,18 @@ var Map = require('../map')
 var utility = require('./utility')
 var DrawingUtility = require('../DrawingUtility')
 
-var DrawBBox = require('js/widgets/openlayers.bbox')
-var DrawCircle = require('js/widgets/openlayers.circle')
-var DrawPolygon = require('js/widgets/openlayers.polygon')
-var DrawLine = require('js/widgets/openlayers.line')
+var DrawBBox = require('../../../../js/widgets/openlayers.bbox.js')
+var DrawCircle = require('../../../../js/widgets/openlayers.circle.js')
+var DrawPolygon = require('../../../../js/widgets/openlayers.polygon.js')
+var DrawLine = require('../../../../js/widgets/openlayers.line.js')
 
-var properties = require('properties')
+var properties = require('../../../../js/properties.js')
 var Openlayers = require('openlayers')
-var Geocoder = require('js/view/openlayers.geocoder')
-var LayerCollectionController = require('js/controllers/ol.layerCollection.controller')
-var user = require('component/singletons/user-instance')
-var User = require('js/model/User')
-var wreqr = require('wreqr')
+var Geocoder = require('../../../../js/view/openlayers.geocoder.js')
+var LayerCollectionController = require('../../../../js/controllers/ol.layerCollection.controller.js')
+var user = require('../../../singletons/user-instance.js')
+var User = require('../../../../js/model/User.js')
+var wreqr = require('../../../../js/wreqr.js')
 var mtgeo = require('mt-geo')
 
 var defaultColor = '#3c6dd5'
@@ -258,6 +258,19 @@ module.exports = function OpenlayersMap(
     },
     zoomToBoundingBox: function({ north, east, south, west }) {
       this.zoomToExtent([[west, south], [east, north]])
+    },
+    limit: function(value, min, max) {
+      return Math.min(Math.max(value, min), max)
+    },
+    getBoundingBox: function() {
+      const extent = map.getView().calculateExtent(map.getSize())
+
+      return {
+        north: this.limit(extent[3], -90, 90),
+        east: this.limit(extent[2], -180, 180),
+        south: this.limit(extent[1], -90, 90),
+        west: this.limit(extent[0], -180, 180),
+      }
     },
     overlayImage: function(model) {
       var metacardId = model.get('properties').get('id')

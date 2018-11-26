@@ -23,7 +23,7 @@ define([
   'js/views/installer/Finish.view.js',
   'js/views/installer/Profile.view.js',
   'icanhaz',
-  'text!./installer.hbs',
+  './installer.hbs',
   'js/application',
   'js/CustomElements',
   'js/models/Service',

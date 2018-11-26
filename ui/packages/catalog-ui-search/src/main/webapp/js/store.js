@@ -15,9 +15,9 @@ const $ = require('jquery')
 const Backbone = require('backbone')
 const poller = require('backbone-poller')
 const _ = require('underscore')
-const WorkspaceCollection = require('js/model/Workspace.collection')
-const Content = require('component/content/content')
-const router = require('component/router/router')
+const WorkspaceCollection = require('./model/Workspace.collection.js')
+const Content = require('../component/content/content.js')
+const router = require('../component/router/router.js')
 
 module.exports = new (Backbone.Model.extend({
   initialize: function() {

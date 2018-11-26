@@ -18,10 +18,10 @@ const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard-restore.hbs')
 const itemTemplate = require('./metacard-restore-item.hbs')
-const CustomElements = require('js/CustomElements')
-const store = require('js/store')
-const cql = require('js/cql')
-const Query = require('js/model/Query')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const cql = require('../../js/cql.js')
+const Query = require('../../js/model/Query.js')
 
 var getDeletedMetacards = function() {
   var filter = {

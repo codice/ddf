@@ -16,13 +16,13 @@
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const CustomElements = require('js/CustomElements')
+const CustomElements = require('../../js/CustomElements.js')
 const template = require('./dropdown.companion.hbs')
-const Common = require('js/Common')
-const store = require('js/store')
-const DropdownBehaviorUtility = require('behaviors/dropdown.behavior.utility')
-const router = require('component/router/router')
-require('behaviors/navigation.behavior')
+const Common = require('../../js/Common.js')
+const store = require('../../js/store.js')
+const DropdownBehaviorUtility = require('../../behaviors/dropdown.behavior.utility.js')
+const router = require('../router/router.js')
+require('../../behaviors/navigation.behavior.js')
 
 module.exports = Marionette.LayoutView.extend(
   {

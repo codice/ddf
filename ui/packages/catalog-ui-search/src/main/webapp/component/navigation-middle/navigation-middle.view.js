@@ -15,8 +15,8 @@
 /*global require*/
 var Marionette = require('marionette')
 var template = require('./navigation-middle.hbs')
-var CustomElements = require('CustomElements')
-const router = require('component/router/router')
+var CustomElements = require('../../js/CustomElements.js')
+const router = require('../router/router.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

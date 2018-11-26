@@ -10,7 +10,7 @@
  *
  **/
 /*global define*/
-define(['backbone', 'backbonerelational'], function(Backbone) {
+define(['backbone', 'backbone-relational'], function(Backbone) {
   var Module = {}
   var module = Backbone.RelationalModel.extend({})
   var moduleCollection = Backbone.Collection.extend({ model: module })

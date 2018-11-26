@@ -16,19 +16,19 @@ var _ = require('underscore')
 var Map = require('../map')
 var utility = require('./utility')
 var DrawingUtility = require('../DrawingUtility')
-var store = require('js/store')
+var store = require('../../../../js/store.js')
 
-var DrawBBox = require('js/widgets/cesium.bbox')
-var DrawCircle = require('js/widgets/cesium.circle')
-var DrawPolygon = require('js/widgets/cesium.polygon')
-var DrawLine = require('js/widgets/cesium.line')
+var DrawBBox = require('../../../../js/widgets/cesium.bbox.js')
+var DrawCircle = require('../../../../js/widgets/cesium.circle.js')
+var DrawPolygon = require('../../../../js/widgets/cesium.polygon.js')
+var DrawLine = require('../../../../js/widgets/cesium.line.js')
 
-var properties = require('properties')
+var properties = require('../../../../js/properties.js')
 var Cesium = require('cesium')
 var DrawHelper = require('cesium-drawhelper/DrawHelper')
-var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller')
-var user = require('component/singletons/user-instance')
-var User = require('js/model/User')
+var CesiumLayerCollectionController = require('../../../../js/controllers/cesium.layerCollection.controller.js')
+var user = require('../../../singletons/user-instance.js')
+var User = require('../../../../js/model/User.js')
 
 var defaultColor = '#3c6dd5'
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0)
@@ -396,6 +396,12 @@ module.exports = function CesiumMap(
         duration: 0.5,
         destination: Cesium.Rectangle.fromDegrees(west, south, east, north),
       })
+    },
+    getBoundingBox: function() {
+      const viewRectangle = map.scene.camera.computeViewRectangle()
+      return _.mapObject(viewRectangle, (val, key) =>
+        Cesium.Math.toDegrees(val)
+      )
     },
     overlayImage: function(model) {
       var metacardId = model.get('properties').get('id')

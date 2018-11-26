@@ -17,7 +17,7 @@
 define([
   'marionette',
   'icanhaz',
-  'text!templates/installer/finish.handlebars',
+  'templates/installer/finish.handlebars',
 ], function(Marionette, ich, finishTemplate) {
   ich.addTemplate('finishTemplate', finishTemplate)
 

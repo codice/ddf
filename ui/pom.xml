@@ -453,11 +453,6 @@
                                     <classifier>security-servlet-logout</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/spatial-geocoding-admin-module/target/spatial-geocoding-admin-module.jar</file>
-                                    <type>jar</type>
-                                    <classifier>spatial-geocoding-admin-module</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/ui/target/admin-ui.jar</file>
                                     <type>jar</type>
                                     <classifier>admin-ui</classifier>

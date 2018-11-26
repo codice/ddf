@@ -12,12 +12,12 @@
 /*global define*/
 const _ = require('underscore')
 const Backbone = require('backbone')
-const Metacard = require('js/model/Metacard')
-const Query = require('js/model/Query')
-const QueryResponse = require('js/model/QueryResponse')
-const QueryResult = require('js/model/QueryResult')
-const cql = require('js/cql')
-const router = require('component/router/router')
+const Metacard = require('../../js/model/Metacard.js')
+const Query = require('../../js/model/Query.js')
+const QueryResponse = require('../../js/model/QueryResponse.js')
+const QueryResult = require('../../js/model/QueryResult.js')
+const cql = require('../../js/cql.js')
+const router = require('../router/router.js')
 
 module.exports = new (Backbone.AssociatedModel.extend({
   relations: [

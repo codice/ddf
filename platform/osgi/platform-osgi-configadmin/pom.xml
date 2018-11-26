@@ -67,114 +67,24 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <!--Felix doesn't use FindBugs and we don't want to fix their sources-->
-                    <onlyAnalyze>org.codice.*</onlyAnalyze>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
-                <configuration>
-                    <!--Felix styles don't match ours, even after running the formatter-->
-                    <excludes>**/org/apache/**</excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- Notice that down below in the bundle plugin config we don't embed felix.
-                We don't have to. Shading allows us to own the compiled class files as if
-                we owned the sources ourselves. However, we're excluding one of their classes
-                in favor of our own version (see below in <filters>). -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <artifactSet>
-                                <!-- Don't shade the imported or embedded dependencies -->
-                                <excludes>
-                                    <exclude>log4j</exclude>
-                                    <exclude>org.osgi</exclude>
-                                    <exclude>org.keyczar</exclude>
-                                    <exclude>com.google.code.gson</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <filters>
-                                <!-- Do not shade felix's version of ConfigurationManager, we're
-                                providing our own, slightly altered from their implementation.
-                                Refer to org.apache.felix.cm.impl.ConfigurationManager in this module. -->
-                                <filter>
-                                    <artifact>org.apache.felix:org.apache.felix.configadmin
-                                    </artifact>
-                                    <excludes>
-                                        <exclude>org/apache/felix/cm/impl/ConfigurationManager*
-                                        </exclude>
-                                        <exclude>*.SF</exclude>
-                                        <exclude>*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.3.7</version>
                 <configuration>
                     <instructions>
-                        <Bundle-Category>osgi</Bundle-Category>
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
-                        <Bundle-Vendor>Codice</Bundle-Vendor>
                         <Bundle-Activator>
-                            org.apache.felix.cm.impl.ConfigurationManager
+                            org.codice.felix.cm.file.Activator
                         </Bundle-Activator>
-                        <Export-Package>
-                            org.apache.felix.cm,
-                            org.apache.felix.cm.file,
-                            org.osgi.service.cm;provide:=true;version=1.5
-                        </Export-Package>
-                        <Import-Package>
-                            <!-- Bundle plugin will try to import this since it's a maven dependency,
-                            but we're shading the dependencies into the jar so we don't need it. Karaf
-                            won't even start if we allow this import to be included (since it's not
-                            installed in the container anymore). -->
-                            !org.apache.felix.cm.*,
-                            org.osgi.service.cm;version="[1.5,1.6)",
-                            org.osgi.framework;version="[1.4,2)",
-                            org.osgi.service.log;resolution:=optional;version="1.3",
-                            javax.crypto;resolution:=optional,
-                            javax.crypto.spec;resolution:=optional,
-                            *
-                        </Import-Package>
-                        <DynamicImport-Package>
-                            org.osgi.service.log;version="1.3"
-                        </DynamicImport-Package>
-                        <Provide-Capability>
-                            osgi.service;objectClass:List="org.osgi.service.cm.ConfigurationAdmin",
-                            osgi.service;objectClass:List="org.apache.felix.cm.PersistenceManager"
-                        </Provide-Capability>
-                        <Require-Capability>
-                            osgi.service;filter:="(objectClass=org.osgi.service.log.LogService)";effective:=active;resolution:=optional
-                        </Require-Capability>
                         <Embed-Dependency>
-                            <!-- We're not embedding felix since it's shaded in our artifact -->
                             keyczar,
                             gson,
                             org.osgi.core;inline=org/osgi/util/tracker/ServiceTracker*|org/osgi/util/tracker/AbstractTracked.class
                         </Embed-Dependency>
+                        <Private-Package>
+                          org.apache.felix.cm.file
+                        </Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

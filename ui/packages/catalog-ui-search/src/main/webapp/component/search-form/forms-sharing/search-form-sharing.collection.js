@@ -13,12 +13,11 @@
  *
  **/
 /* global require */
-const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const SearchForm = require('../search-form')
-const Common = require('js/Common')
-const user = require('component/singletons/user-instance')
+const Common = require('../../../js/Common.js')
+const user = require('../../singletons/user-instance.js')
 
 let sharedTemplates = []
 let promiseIsResolved = false
@@ -63,7 +62,7 @@ module.exports = Backbone.AssociatedModel.extend({
       }
       bootstrapPromise.then(() => {
         $.each(sharedTemplates, (index, value) => {
-          if (this.checkIfShareable(value)) {
+          if (user.getEmail() !== value.owner && user.canRead(value)) {
             let utcSeconds = value.created / 1000
             let d = new Date(0)
             d.setUTCSeconds(utcSeconds)
@@ -88,41 +87,6 @@ module.exports = Backbone.AssociatedModel.extend({
         this.doneLoading()
       })
     }
-  },
-  checkIfShareable: function(template) {
-    return (
-      !this.checkIfOwner(template) &&
-      (this.checkIfInGroup(template) ||
-        this.checkIfInIndividuals(template) ||
-        this.checkIfInAdministrators(template))
-    )
-  },
-  checkIfOwner: function(template) {
-    return user.get('user').get('userid') === template.owner
-  },
-  checkIfInGroup: function(template) {
-    let myGroups = user.get('user').get('roles')
-    let roleIntersection = myGroups.filter(function(n) {
-      return template.accessGroups.indexOf(n) !== -1
-    })
-
-    return !_.isEmpty(roleIntersection)
-  },
-  checkIfInIndividuals: function(template) {
-    let myEmail = [user.get('user').get('email')]
-    let accessIndividualIntersection = myEmail.filter(function(n) {
-      return template.accessIndividuals.indexOf(n) !== -1
-    })
-
-    return !_.isEmpty(accessIndividualIntersection)
-  },
-  checkIfInAdministrators: function(template) {
-    let myEmail = [user.get('user').get('email')]
-    let accessAdministratorsIntersection = myEmail.filter(function(n) {
-      return template.accessAdministrators.indexOf(n) !== -1
-    })
-
-    return !_.isEmpty(accessAdministratorsIntersection)
   },
   addSearchForm: function(searchForm) {
     this.get('sharedSearchForms').add(searchForm)

@@ -15,14 +15,14 @@ const Marionette = require('marionette')
 const Backbone = require('backbone')
 const ol = require('openlayers')
 const _ = require('underscore')
-const properties = require('properties')
-const wreqr = require('wreqr')
-const maptype = require('maptype')
+const properties = require('../properties.js')
+const wreqr = require('../wreqr.js')
+const maptype = require('../maptype.js')
 const NotificationView = require('./notification.view')
 const Turf = require('@turf/turf')
 const DrawingController = require('./drawing.controller')
 const olUtils = require('../OpenLayersGeometryUtils')
-const DistanceUtils = require('js/DistanceUtils')
+const DistanceUtils = require('../DistanceUtils.js')
 
 function translateFromOpenlayersCoordinates(coords) {
   var coordinates = []

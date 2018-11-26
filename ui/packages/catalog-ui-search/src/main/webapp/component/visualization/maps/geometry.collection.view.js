@@ -14,7 +14,7 @@ var Backbone = require('backbone')
 var Marionette = require('marionette')
 var $ = require('jquery')
 var _ = require('underscore')
-var store = require('js/store')
+var store = require('../../../js/store.js')
 var GeometryView = require('./geometry.view')
 
 var GeometryCollectionView = Marionette.CollectionView.extend({

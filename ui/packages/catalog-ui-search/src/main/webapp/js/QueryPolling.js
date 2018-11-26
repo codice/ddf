@@ -12,10 +12,10 @@
 /*global define, setInterval, clearInterval*/
 const $ = require('jquery')
 const _ = require('underscore')
-const wreqr = require('wreqr')
-const cql = require('js/cql')
-const CQLUtils = require('js/CQLUtils')
-const sources = require('component/singletons/sources-instance')
+const wreqr = require('./wreqr.js')
+const cql = require('./cql.js')
+const CQLUtils = require('./CQLUtils.js')
+const sources = require('../component/singletons/sources-instance.js')
 const moment = require('moment')
 require('./jquery.whenAll')
 
