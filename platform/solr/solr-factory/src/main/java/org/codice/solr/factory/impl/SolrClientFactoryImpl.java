@@ -21,7 +21,6 @@ import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
-import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 

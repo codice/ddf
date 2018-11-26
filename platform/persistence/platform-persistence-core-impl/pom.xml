@@ -61,6 +61,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.persistence.core</groupId>
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
@@ -164,12 +169,12 @@
                             org.codice.ddf.persistence.internal
                         </Private-Package>
                         <Import-Package>
-                            org.apache.cxf.*,
                             !com.google.common.geometry,
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
                             ddf.security.encryption,
+                            ddf.platform.solr.security,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,

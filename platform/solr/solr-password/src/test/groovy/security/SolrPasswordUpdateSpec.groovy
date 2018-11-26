@@ -20,6 +20,8 @@ import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import javax.ws.rs.core.Response
+
 class SolrPasswordUpdateSpec extends Specification {
 
     public static final String PLAINTEXT_PASSWORD = "plaintext password"
@@ -47,9 +49,15 @@ class SolrPasswordUpdateSpec extends Specification {
     def 'update solr password when #doit'() {
         given:
         System.setProperty("solr.attemptAutoPasswordChange", attemptAutoPasswordChange);
-        def response = Mock(javax.ws.rs.core.Response) {
-            getStatus() >> responseCode
+
+
+        def statusType = Mock(Response.StatusType) {
+            getFamily() >> responseCode
         }
+        def response = Mock(javax.ws.rs.core.Response) {
+            getStatusInfo() >> statusType
+        }
+
 
         def solrAuthResource = Mock(SolrAuthResource) {
             sendRequest(_) >> response
@@ -61,20 +69,20 @@ class SolrPasswordUpdateSpec extends Specification {
 
         def clientFactoryFactory = Mock(ClientFactoryFactory) {
 //        getSecureCxfClientFactory(SOLR_URL, _, SOLR_USERNAME, PLAINTEXT_PASSWORD) >> secureClientFactory
-            getSecureCxfClientFactory(SOLR_URL, *_) >> secureClientFactory
+            getSecureCxfClientFactory(*_) >> secureClientFactory
         }
-        def solrPasswordUpdate = new SolrPasswordUpdate(uuidGenerator, clientFactoryFactory, encryptionService);
+        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, clientFactoryFactory, encryptionService);
         solrPasswordUpdate.start()
 
         expect:
         System.getProperty("solr.password") == password;
-        solrPasswordUpdate.isPasswordChangeSuccessful() == success
+        solrPasswordUpdate.isSolrPasswordChangeSuccessfull() == success
 
         where:
-        doit     || attemptAutoPasswordChange | responseCode | success | password
-        'case 1' || "true"                    | 200          | true    | ENCRYPTED_PASSWORD
-        'case 2' || "true"                    | 401          | false   | ENCRYPTED_PASSWORD
-        'case 3' || "false"                   | null         | false   | BOOTSTRAP_PASSWORD
+        doit     || attemptAutoPasswordChange | responseCode                        | success | password
+        'case 1' || "true"                    | Response.Status.Family.SUCCESSFUL   | true    | ENCRYPTED_PASSWORD
+        'case 2' || "true"                    | Response.Status.Family.SERVER_ERROR | false   | ENCRYPTED_PASSWORD
+        'case 3' || "false"                   | null                                | false   | BOOTSTRAP_PASSWORD
     }
 
 }

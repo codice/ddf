@@ -160,7 +160,7 @@ grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-securit
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
 }
 
-grant codeBase "file:/catalog-core-standardframework/catalog-solr-provider/persistence-core-impl" {
+grant codeBase "file:/solr-password" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
 }
 

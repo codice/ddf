@@ -21,12 +21,12 @@
     <reference id="clientFactoryFactory"
         interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
     <bean id="solrBasicAuthenticationInstaller"
-        class="ddf.platform.solr.security.SolrPasswordUpdate">
+        class="ddf.platform.solr.security.SolrPasswordUpdateImpl">
         <argument ref="uuidGenerator"/>
         <argument ref="encryptionService"/>
         <argument ref="clientFactoryFactory"/>
     </bean>
-    <service id="solrPasswordUpdate" ref="solrBasicAuthenticationInstaller"/>
+    <service id="solrPasswordUpdate" ref="solrBasicAuthenticationInstaller" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>
 </blueprint>
 
 
