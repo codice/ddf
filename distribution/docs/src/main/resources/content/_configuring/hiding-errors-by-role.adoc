@@ -9,13 +9,15 @@
 
 Prevent certain users from seeing data with certain types of errors or warnings.
 Typically, this is used for security markings.
-Metacards with the specified metacard attributes will be hidden from users without the specified user attributes.
+If the *Metacard Validation Filter Plugin* is configured to *Filter errors* and/or *Filter warnings*, metacards with errors/warnings will be hidden from users without the specified user attributes.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
 . Select *Configuration*.
 . Select *Metacard Validation Filter Plugin*.
 . For *Attribute map*, enter both the metacard `SECURITY` attribute to filter and the user attribute to filter.
-.. `<SECURITY ATTRIBUTE>=<USER ATTRIBUTE>`.
-. Select *Filter errors* to filter errors. Users without the security attribute will not see metacards with errors.
-. Select *Filter warnings* to filter warnings. Users without the security attribute will not see metacards with warnings.
+.. The default attribute for viewing invalid metacards is `invalid-state`
+... `invalid-state=<USER ROLE>`.
+... Replace `<USER ROLE>` with the roles that should be allowed to view invalid metacards.
+. Select *Filter errors* to filter errors. Users without the `invalid-state` attribute will not see metacards with errors.
+. Select *Filter warnings* to filter warnings. Users without the `invalid-state` attribute will not see metacards with warnings.
