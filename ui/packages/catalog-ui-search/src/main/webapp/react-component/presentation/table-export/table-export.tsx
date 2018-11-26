@@ -44,7 +44,7 @@ type Props = {
   exportSizeOptions: Option[]
   exportFormatOptions: Option[]
   onDownloadClick: () => void
-  count: number
+  warning: string
 }
 
 export default hot(module)((props: Props) => {
@@ -56,7 +56,7 @@ export default hot(module)((props: Props) => {
     handleExportFormatChange,
     handleExportSizeChange,
     onDownloadClick,
-    count,
+    warning,
   } = props
   return (
     <Root>
@@ -72,16 +72,12 @@ export default hot(module)((props: Props) => {
         label="as"
         onChange={handleExportFormatChange}
       />
-      {exportSize === 'all' &&
-        count > 100 && (
-          <div className="warning">
-            <i className="fa fa-warning" />
-            <span>
-              You are about to export {count} results. This may take a long
-              time.
-            </span>
-          </div>
-        )}
+      {warning && (
+        <div className="warning">
+          <i className="fa fa-warning" />
+          <span>{warning}</span>
+        </div>
+      )}
       <Button
         buttonType={buttonTypeEnum.primary}
         icon="fa fa-download"

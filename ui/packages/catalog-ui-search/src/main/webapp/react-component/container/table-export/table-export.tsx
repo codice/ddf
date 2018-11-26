@@ -80,7 +80,7 @@ function getHits(sources: Source[]): number {
     .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
 }
 
-function getCount(exportSize: string, selectionInterface: any): number {
+function getExportCount(exportSize: string, selectionInterface: any): number {
   const result = selectionInterface.getCurrentQuery().get('result')
   return exportSize === 'all'
     ? getHits(result.get('status').toJSON())
@@ -89,6 +89,21 @@ function getCount(exportSize: string, selectionInterface: any): number {
 
 function getSorts(selectionInterface: any) {
   return selectionInterface.getCurrentQuery().get('sorts')
+}
+
+function getQueryCount(selectionInterface: any): number {
+  return selectionInterface.getCurrentQuery().get('count')
+}
+
+function getWarning(exportSize: string, selectionInterface: any): string {
+  const exportCount = getExportCount(exportSize, selectionInterface)
+  if (exportCount > 100) {
+    const queryCount = getQueryCount(selectionInterface)
+    return `You are about to export ${exportCount} results. ${
+      exportCount > queryCount ? `Only ${queryCount} will be exported.` : ''
+    } This may take a long time.`
+  }
+  return ''
 }
 
 type Props = {
@@ -169,7 +184,13 @@ export default hot(module)(
             this.state.exportSize,
             this.props.selectionInterface
           ),
-          count: getCount(this.state.exportSize, this.props.selectionInterface),
+          count: Math.min(
+            getExportCount(
+              this.state.exportSize,
+              this.props.selectionInterface
+            ),
+            getQueryCount(this.props.selectionInterface)
+          ),
           sorts: getSorts(this.props.selectionInterface),
           srcs: getSrcs(this.props.selectionInterface),
         }
@@ -223,7 +244,7 @@ export default hot(module)(
               )}
               handleExportSizeChange={this.handleExportSizeChange.bind(this)}
               onDownloadClick={this.onDownloadClick.bind(this)}
-              count={getCount(
+              warning={getWarning(
                 this.state.exportSize,
                 this.props.selectionInterface
               )}
