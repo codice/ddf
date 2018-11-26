@@ -66,7 +66,7 @@
         <!--temporary codice version of pax web-->
         <pax.web.codice.version>7.2.4.CODICE</pax.web.codice.version>
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
-        <ddf.jaxb.version>1.0.0</ddf.jaxb.version>
+        <ddf.jaxb.version>1.0.1</ddf.jaxb.version>
 
         <!--Documentation Replacements-->
         <branding>DDF</branding>
