@@ -168,7 +168,12 @@ public class ConfluenceInputTransformer implements InputTransformer {
     metacard.setCreatedDate(created);
     metacard.setAttribute(Core.METACARD_CREATED, created);
 
-    metacard.setAttribute(Contact.CREATOR_NAME, getString(history, "createdBy", "username"));
+    Object creator = getJsonElement(history, "createdBy", "username");
+    if (creator != null && StringUtils.isNotEmpty(creator.toString())) {
+      metacard.setAttribute(Contact.CREATOR_NAME, creator.toString());
+    } else {
+      metacard.setAttribute(Contact.CREATOR_NAME, "Unknown");
+    }
 
     ArrayList<String> contributors = new ArrayList<>();
     getJsonArray(history, "contributors", "publishers", "users")
