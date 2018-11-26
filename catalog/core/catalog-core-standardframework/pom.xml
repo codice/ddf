@@ -36,6 +36,12 @@
             <artifactId>solr-dependencies</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
@@ -459,6 +465,7 @@
                             ddf.catalog.transform;version="2.0",
                             ddf.catalog.util;version="2.0",
                             ddf.catalog;version="2.0",
+                            ddf.platform.solr.security,
                             ddf.security.common.audit;version="2.0",
                             ddf.measure;version="2.0",
                             ddf.mime,

@@ -22,6 +22,7 @@
         <version>2.14.0-SNAPSHOT</version>
     </parent>
     <artifactId>solr-password</artifactId>
+    <name>DDF :: Platform :: Solr :: Password</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -43,11 +44,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-settings</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.utils</artifactId>
         </dependency>
@@ -57,15 +53,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <!--<configuration>-->
-                    <!--<instructions>-->
-                        <!--<Embed-Dependency>-->
-                            <!--org.apache.felix.utils-->
-                        <!--</Embed-Dependency>-->
-                    <!--</instructions>-->
-                <!--</configuration>-->
             </plugin>
-
         </plugins>
     </build>
 </project>

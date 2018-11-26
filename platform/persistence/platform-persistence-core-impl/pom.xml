@@ -64,6 +64,7 @@
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-password</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>ddf.persistence.core</groupId>
