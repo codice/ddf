@@ -84,5 +84,4 @@ class SolrPasswordUpdateSpec extends Specification {
         'case 2' || "true"                    | Response.Status.Family.SERVER_ERROR | false   | BOOTSTRAP_PASSWORD
         'case 3' || "false"                   | null                                | false   | BOOTSTRAP_PASSWORD
     }
-
 }

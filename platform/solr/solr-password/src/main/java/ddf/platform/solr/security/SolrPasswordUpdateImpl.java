@@ -84,6 +84,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   private void setPasswordInMemory() {
     properties.setProperty("solr.password", newPasswordEncrypted);
+    LOGGER.info("Updated encrypted Solr password in memory.");
   }
 
   private boolean configuredToAttemptAutoPasswordChange() {
@@ -120,7 +121,9 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
                 Properties systemDotProperties = new Properties(systemPropertiesFile);
                 systemDotProperties.setProperty("solr.password", newPasswordEncrypted);
                 systemDotProperties.save();
-                LOGGER.info("Solr password updated in properties file {}.", systemPropertyFilename);
+                LOGGER.info(
+                    "Updated encrypted Solr password in properties file {}.",
+                    systemPropertyFilename);
               } catch (IOException e) {
                 LOGGER.error(
                     "Exception while writing to {}. Solr password change, but new password was not saved.",
