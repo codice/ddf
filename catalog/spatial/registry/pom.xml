@@ -25,9 +25,6 @@
     <artifactId>registry</artifactId>
     <packaging>pom</packaging>
     <name>DDF :: Registry</name>
-    <properties>
-        <jaxb2.version>0.9.4</jaxb2.version>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -138,7 +135,7 @@
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>
                 <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-                <version>1.1.0_5</version>
+                <version>${ogc-filter-v_1_1_0-schema.thirdparty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
@@ -163,7 +160,7 @@
             <dependency>
                 <groupId>org.jvnet.jaxb2_commons</groupId>
                 <artifactId>jaxb2-basics-runtime</artifactId>
-                <version>${jaxb2.version}</version>
+                <version>${jvnet.jaxb2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
