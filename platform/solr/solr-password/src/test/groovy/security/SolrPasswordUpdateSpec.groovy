@@ -68,9 +68,9 @@ class SolrPasswordUpdateSpec extends Specification {
         }
 
         def clientFactoryFactory = Mock(ClientFactoryFactory) {
-//        getSecureCxfClientFactory(SOLR_URL, _, SOLR_USERNAME, PLAINTEXT_PASSWORD) >> secureClientFactory
-            getSecureCxfClientFactory(*_) >> secureClientFactory
+            getSecureCxfClientFactory(SOLR_URL, _, SOLR_USERNAME, BOOTSTRAP_PASSWORD) >> secureClientFactory
         }
+
         def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, clientFactoryFactory, encryptionService);
         solrPasswordUpdate.start()
 
