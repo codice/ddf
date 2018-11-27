@@ -105,10 +105,10 @@ const WorkspacesItems = (props: Props) => {
             fadeUntilHover
             onClick={createBlankWorkspace}
           >
-            <div>New Workspace</div>
             <Icon>
               <span className="fa fa-plus-circle fa-3x" />
             </Icon>
+            <div>New Workspace</div>
           </ModifiedButton>
           {props.workspaces.map(workspace => {
             return (
