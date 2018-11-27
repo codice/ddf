@@ -20,17 +20,24 @@ By default a small set of GeoNames data is included with the offline gazetteer. 
 The `gazetteer` commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
 
 .Gazetteer Command Descriptions
-[cols="2,8a,1m" options="header"]
+[cols="2,8a" options="header"]
 |===
 |Command
 |Description
-|Usage
 
-|`update`
-|Adds new gazetteer metacards to the core catalog. Entries can be a URL or local file path to GeoNames data or a local file path to GeoJSON data (GeoJSON URLs are not supported). Currently .txt and .zip files are supported for manual GeoNames entries and .geo.json files are supported for manual GeoJSON entries. GeoNames data can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip). Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country as GeoNames metacards in the core catalog. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt. Using the argument "all" will download all of the current country codes (this process may take some time). In addition to country codes, GeoNames also provides entries for cities based on their population sizes. The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
+|`gazetteer:update`
+|Adds new gazetteer metacards to the core catalog from a resource.
+
+The resource argument can be one of three types:
+
+* a local file path to a `.txt`, `.zip`, or `.geo.json` GeoNames data file. If a path to a file ends in .geo.json, it will processed as a geoJSON feature collection and imported as supplementary shape data for GeoNames entries.
+* a URL to a `.txt` or `.zip` GeoNames data file. GeoJSON URLs are not supported.
+* a keyword to automatically process a GeoNames file from from http://download.geonames.org/export/dump. Valid keywords include
+  ** a country code, which will add the country as GeoNames metacards in the core catalog. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt.
+  ** `cities1000`, `cities5000`, and `cities15000`, which will add cities to the index that have at least 1000, 5000, or 15000 people, respectively.
+  ** `all`, which will download all of the current country codes. This process may take some time.
 
 The `-c` or `--create` flag can be used to clear out the existing gazetteer metacards before adding new entries.
-|gazetteer:update
 
 |===
 

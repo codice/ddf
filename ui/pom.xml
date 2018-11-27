@@ -451,11 +451,6 @@
                                     <classifier>security-servlet-logout</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/spatial-geocoding-admin-module/target/spatial-geocoding-admin-module.jar</file>
-                                    <type>jar</type>
-                                    <classifier>spatial-geocoding-admin-module</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/standard/target/ddf-ui.jar</file>
                                     <type>jar</type>
                                     <classifier>ddf-ui</classifier>
