@@ -462,6 +462,39 @@ zookeeperhost3:2181
 |true
 |Yes
 
+|Use basic authentication for Solr server
+|solr.useBasicAuth
+|Boolean
+|If true, the HTTP Solr Client sends a username and password when sending requests to Solr server.
+This property is only used if the `solr.client` property is `HttpSolrClient`.
+|true
+|Yes
+
+|Allow ${branding} to change the Solr server password if it detects the default password is in use
+|solr.attemptAutoPasswordChange
+|Boolean
+|If true, ${branding} attempts to change the default Solr server password to a randomly
+generated UUID. This property is only used if the `solr.client` property is `HttpSolrClient`
+and the `solrBasicAuth` property is `true`.
+|true
+|Yes
+
+|Encrypted Solr server password
+|solr.password
+|String
+|The password used for basic authentication to Solr. This property is only used if the
+`solr.client` property is `HttpSolrClient` and the `solrBasicAuth` property is `true`.
+|true
+|Yes
+
+|Solr server username
+|solr.username
+|String
+|The username for basic authentication to Solr. This property is only used if the
+`solr.client` property is `HttpSolrClient` and the `solrBasicAuth` property is `true`.
+|true
+|Yes
+
 |Solr server HTTP port
 |solr.http.port
 |Integer
