@@ -37,6 +37,8 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private static final String KARAF_ETC = "karaf.etc";
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdateImpl.class);
+  @SuppressWarnings("squid:S2068")
+  public static final String SOLR_PASSWORD_PROPERTY_NAME = "solr.password";
   private final java.util.Properties properties;
   private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
@@ -82,7 +84,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   private void setPasswordInMemory() {
-    properties.setProperty("solr.password", newPasswordEncrypted);
+    properties.setProperty(SOLR_PASSWORD_PROPERTY_NAME, newPasswordEncrypted);
     LOGGER.info("Updated encrypted Solr password in memory.");
   }
 
@@ -100,7 +102,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   private String getPlaintextPasswordFromProperties() {
-    return encryptionService.decrypt(properties.getProperty("solr.password"));
+    return encryptionService.decrypt(properties.getProperty(SOLR_PASSWORD_PROPERTY_NAME));
   }
 
   /**
@@ -118,7 +120,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
             () -> {
               try {
                 Properties systemDotProperties = new Properties(systemPropertiesFile);
-                systemDotProperties.setProperty("solr.password", newPasswordEncrypted);
+                systemDotProperties.setProperty(SOLR_PASSWORD_PROPERTY_NAME, newPasswordEncrypted);
                 systemDotProperties.save();
                 LOGGER.info(
                     "Updated encrypted Solr password in properties file {}.",
@@ -152,7 +154,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   @VisibleForTesting
   boolean isSolrPasswordChangeSuccessfull() {
-    return solrResponse == null ? false : solrResponse.getFamily().equals(SUCCESSFUL);
+    return solrResponse != null && solrResponse.getFamily().equals(SUCCESSFUL);
   }
 
   /**
