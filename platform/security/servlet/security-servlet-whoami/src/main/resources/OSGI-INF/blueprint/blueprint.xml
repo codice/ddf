@@ -17,6 +17,7 @@
     <service interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="alias" value="/whoami"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
         <bean class="org.codice.ddf.security.servlet.whoami.WhoAmIServlet">
             <property name="securityManager">

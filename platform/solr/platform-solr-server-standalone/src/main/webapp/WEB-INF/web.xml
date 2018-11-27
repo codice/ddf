@@ -49,6 +49,8 @@
   <filter>
     <filter-name>SolrRequestFilter</filter-name>
     <filter-class>org.apache.solr.servlet.SolrDispatchFilter</filter-class>
+    <async-supported>true</async-supported>
+
     <!--
     Exclude patterns is a list of directories that would be short circuited by the
     SolrDispatchFilter. It includes all Admin UI related static content.
@@ -78,6 +80,7 @@
   <servlet>
     <servlet-name>LoadAdminUI</servlet-name>
     <servlet-class>org.apache.solr.servlet.LoadAdminUiServlet</servlet-class>
+    <async-supported>true</async-supported>
   </servlet>
 
   <!-- Remove in Solr 5.0 -->
@@ -85,6 +88,7 @@
   <servlet>
     <servlet-name>RedirectOldAdminUI</servlet-name>
     <servlet-class>org.apache.solr.servlet.RedirectServlet</servlet-class>
+    <async-supported>true</async-supported>
     <init-param>
       <param-name>destination</param-name>
       <param-value>${context}/#/</param-value>
@@ -94,6 +98,7 @@
   <servlet>
     <servlet-name>RedirectOldZookeeper</servlet-name>
     <servlet-class>org.apache.solr.servlet.RedirectServlet</servlet-class>
+    <async-supported>true</async-supported>
     <init-param>
       <param-name>destination</param-name>
       <param-value>${context}/admin/zookeeper</param-value>
@@ -103,6 +108,7 @@
   <servlet>
     <servlet-name>RedirectLogging</servlet-name>
     <servlet-class>org.apache.solr.servlet.RedirectServlet</servlet-class>
+    <async-supported>true</async-supported>
     <init-param>
       <param-name>destination</param-name>
       <param-value>${context}/#/~logging</param-value>
@@ -112,6 +118,7 @@
   <servlet>
     <servlet-name>SolrRestApi</servlet-name>
     <servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
+    <async-supported>true</async-supported>
     <init-param>
       <param-name>org.restlet.application</param-name>
       <param-value>org.apache.solr.rest.SolrSchemaRestApi</param-value>

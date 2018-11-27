@@ -20,6 +20,7 @@
             <entry key="alias" value="/admin/jolokia"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
     </service>
 

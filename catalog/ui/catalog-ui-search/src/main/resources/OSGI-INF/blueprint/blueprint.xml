@@ -58,6 +58,7 @@
         <service-properties>
             <entry key="alias" value="/search/catalog/proxy"/>
             <entry key="servlet-name" value="uiProxyServlet"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
         <ref component-id="servlet"/>
     </service>
@@ -405,6 +406,7 @@
     <service ref="socketServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="urlPatterns" value="/search/catalog/ws"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
     </service>
 
@@ -503,6 +505,7 @@
     <service ref="sparkServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="urlPatterns" value="/search/catalog/internal/*"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
     </service>
 
