@@ -61,15 +61,28 @@ function addTocListeners() {
 	}
 }
 
+function wrapScrollElements(selector) {
+  document.querySelectorAll( selector ).forEach( elem => {
+    const div = document.createElement( 'div' );
+    div.className = "scroll-wrapper";
+    elem.parentElement.insertBefore(div, elem);
+    div.appendChild(elem);
+  });
+}
+
 document.onreadystatechange = () => {
 	if (document.readyState === 'complete') {
 	  // The page is fully loaded
 		makeTocExpandable();
 		addTocListeners();
+	    wrapScrollElements('table.tableblock');
+	    wrapScrollElements('.CodeRay');
+	    wrapScrollElements('.admonitionblock');
 	}
 };
 </script>
 <style>
 .collapsed {display: none;}
+.scroll-wrapper {overflow-x: auto;}
 </style>
 ++++
