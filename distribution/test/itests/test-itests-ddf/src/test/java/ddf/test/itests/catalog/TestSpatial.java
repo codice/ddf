@@ -21,10 +21,9 @@ import static com.xebialabs.restito.semantics.Condition.parameter;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -261,6 +260,30 @@ public class TestSpatial extends AbstractIntegrationTest {
     return file.contains(".") ? file.substring(0, file.lastIndexOf(".")) : file;
   }
 
+  public static Map<String, String> ingestMetacards(Map<String, String> metacardsIds) {
+    // ingest csw
+    String cswRecordId =
+        ingestCswRecord(getFileContent(CSW_RESOURCE_ROOT + "csw/record/CswRecord.xml"));
+    metacardsIds.put(CSW_METACARD, cswRecordId);
+
+    // ingest xml
+    String plainXmlNearId =
+        ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlNear.xml"), MediaType.TEXT_XML);
+    String plainXmlFarId =
+        ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlFar.xml"), MediaType.TEXT_XML);
+    metacardsIds.put(PLAINXML_NEAR_METACARD, plainXmlNearId);
+    metacardsIds.put(PLAINXML_FAR_METACARD, plainXmlFarId);
+
+    // ingest json
+    String geoJsonNearId =
+        ingestGeoJson(getFileContent(CSW_RESOURCE_ROOT + "json/GeoJsonNear.json"));
+    String geoJsonFarId = ingestGeoJson(getFileContent(CSW_RESOURCE_ROOT + "json/GeoJsonFar.json"));
+    metacardsIds.put(GEOJSON_NEAR_METACARD, geoJsonNearId);
+    metacardsIds.put(GEOJSON_FAR_METACARD, geoJsonFarId);
+
+    return metacardsIds;
+  }
+
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
@@ -282,8 +305,6 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @Before
   public void setup() throws Exception {
-    configureFilterInvalidMetacards("false", "false", getAdminConfig());
-    configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=guest"), getAdminConfig());
     clearCatalogAndWait();
   }
 

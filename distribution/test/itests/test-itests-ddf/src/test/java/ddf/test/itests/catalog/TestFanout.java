@@ -162,7 +162,7 @@ public class TestFanout extends AbstractIntegrationTest {
     String id =
         CatalogTestCommons.ingest(
             "Some data to ingest", MediaType.TEXT_PLAIN, HttpStatus.SC_CREATED);
-    CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+    CatalogTestCommons.delete(id);
   }
 
   @Test
@@ -180,7 +180,7 @@ public class TestFanout extends AbstractIntegrationTest {
         CatalogTestCommons.ingest(
             "Some data to ingest", MediaType.TEXT_PLAIN, HttpStatus.SC_CREATED);
     CatalogTestCommons.update(id, "Some data to update", MediaType.TEXT_PLAIN, HttpStatus.SC_OK);
-    CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+    CatalogTestCommons.delete(id);
   }
 
   @Test
@@ -199,7 +199,7 @@ public class TestFanout extends AbstractIntegrationTest {
     getServiceManager().waitForAllBundles();
     // Set blacklist to empty list so the delete will succeed
     getCatalogBundle().setFanoutTagBlacklist(new ArrayList<>());
-    CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+    CatalogTestCommons.delete(id);
   }
 
   @Test
@@ -214,10 +214,10 @@ public class TestFanout extends AbstractIntegrationTest {
 
     // Set blacklist so update will fail
     getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
-    CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_BAD_REQUEST);
+    CatalogTestCommons.delete(id, HttpStatus.SC_BAD_REQUEST);
 
     // Set blacklist to empty list so the delete will succeed
     getCatalogBundle().setFanoutTagBlacklist(new ArrayList<>());
-    CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+    CatalogTestCommons.delete(id);
   }
 }

@@ -13,7 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.delete;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestXmlFromResourceAndWait;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 
@@ -99,7 +99,7 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
         .checkEvery(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(expectedLogMessage));
 
-    deleteMetacard(id);
+    delete(id);
   }
 
   @Test
