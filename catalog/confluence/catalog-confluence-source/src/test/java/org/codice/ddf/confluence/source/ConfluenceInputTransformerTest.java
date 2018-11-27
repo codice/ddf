@@ -146,6 +146,17 @@ public class ConfluenceInputTransformerTest {
     assertThat(metacards.size(), is(0));
   }
 
+  @Test
+  public void testTransformingAnonymousContent() throws Exception {
+    String fileContent = getFileContent("anonymous_user_response.json");
+    InputStream stream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
+    Metacard mcard = transformer.transformConfluenceResponse(stream).get(0);
+    assertThat(
+        "Creator should be Unknown",
+        mcard.getAttribute(Contact.CREATOR_NAME).getValue(),
+        equalTo("Unknown"));
+  }
+
   private String getFileContent(String filePath) {
     try {
       return IOUtils.toString(
@@ -161,10 +172,7 @@ public class ConfluenceInputTransformerTest {
     if (expectedId != null) {
       id = expectedId;
     }
-    String url = "";
-    if (baseUrl != null) {
-      url = baseUrl;
-    }
+
     assertThat(mcard.getId(), equalTo(id));
     assertThat(mcard.getTitle(), equalTo("Formatting Source Code"));
     assertThat(
