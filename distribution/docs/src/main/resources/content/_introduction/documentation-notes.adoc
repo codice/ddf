@@ -15,7 +15,7 @@ This introduction section is intended to give a high-level overview of the conce
 Administrators::
 <<{managing-prefix}managing,Managing>> |
 Administrators will be installing, maintaining, and supporting existing applications.
-Use this section to <<{managing-prefix}installation_prerequisites,prepare>>, <<{managing-prefix}installing,install>>, <<{managing-prefix}configuring,configure>>, <<{managing-prefix}running,run>>, and <<{managing-prefix}monitoring,monitor>> a ${branding}.
+Use this section to <<{managing-prefix}installation_prerequisites,prepare>>, <<{managing-prefix}installing,install>>, <<{managing-prefix}configuring,configure>>, <<{managing-prefix}running,run>>, and <<{managing-prefix}monitoring,monitor>> ${branding}.
 
 Users::
 <<{using-prefix}using,Using>> |
