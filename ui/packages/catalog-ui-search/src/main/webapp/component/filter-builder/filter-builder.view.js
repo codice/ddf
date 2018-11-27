@@ -157,7 +157,7 @@ module.exports = Marionette.LayoutView.extend({
     this.deleteInvalidFilters()
     var filter = this.getFilters()
     if (filter.filters.length === 0) {
-      return '("anyText" ILIKE \'*\')'
+      return '("anyText" ILIKE \'%\')'
     } else {
       return CQLUtils.transformFilterToCQL(filter)
     }
