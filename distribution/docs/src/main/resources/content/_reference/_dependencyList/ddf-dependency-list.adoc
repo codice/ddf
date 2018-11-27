@@ -68,7 +68,6 @@
 * io.dropwizard.metrics:metrics-graphite:jar:3.2.6
 * io.dropwizard.metrics:metrics-jetty9:jar:3.2.6
 * io.dropwizard.metrics:metrics-jvm:jar:3.2.6
-* io.fastjson:boon:jar:0.34
 * io.netty:netty-buffer:jar:4.1.16.Final
 * io.netty:netty-codec:jar:4.1.16.Final
 * io.netty:netty-common:jar:4.1.16.Final

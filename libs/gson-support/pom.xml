@@ -38,11 +38,6 @@
             <version>${commons-collections4.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
             <scope>provided</scope>
