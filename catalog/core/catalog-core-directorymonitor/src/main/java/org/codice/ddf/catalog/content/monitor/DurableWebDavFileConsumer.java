@@ -28,7 +28,7 @@ import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
-import org.codice.ddf.catalog.content.monitor.synchronizations.FileDeletionSynchonization;
+import org.codice.ddf.catalog.content.monitor.synchronizations.FileDeletionSynchronization;
 import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,7 +117,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
               .addSynchronization(
                   new FileToMetacardMappingSynchronization(
                       entry.getLocation(), productToMetacardIdMap))
-              .addSynchronization(new FileDeletionSynchonization(davFile.getParentFile()))
+              .addSynchronization(new FileDeletionSynchronization(davFile.getParentFile()))
               .getExchange();
 
       submitExchange(exchange);
@@ -148,7 +148,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
               .addHeader(Core.RESOURCE_URI, entry.getLocation())
               .addSynchronization(
                   new FileToMetacardMappingSynchronization(referenceKey, productToMetacardIdMap))
-              .addSynchronization(new FileDeletionSynchonization(davFile.getParentFile()))
+              .addSynchronization(new FileDeletionSynchronization(davFile.getParentFile()))
               .getExchange();
 
       submitExchange(exchange);

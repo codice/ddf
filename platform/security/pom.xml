@@ -158,7 +158,7 @@
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>3.2.1</version>
+                <version>${hazelcast.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>

@@ -106,6 +106,10 @@
     <feature name="catalog-core-directorymonitor" version="${project.version}"
              description="Monitors directories to process content files.">
         <feature>apache-commons</feature>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+        <bundle>mvn:com.hazelcast/hazelcast/${hazelcast.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcontext/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
     </feature>
