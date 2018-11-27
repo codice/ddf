@@ -23,7 +23,7 @@ To harden a new system, perform configuration as <<{managing-prefix}configuring,
 * [ ] <<{managing-prefix}restricting_access_to_admin_console, Restricting Access to ${admin-console}>>
 * [ ] <<{managing-prefix}restricting_feature_app_service_and_configuration_access, Restrict Feature, App, Service, and Configuration Access>>
 * [ ] <<{managing-prefix}removing_default_users,Remove Default Users>>
-* [ ] <<{managing-prefix}hardening_solr_index,Harden Solr Index>>
+* [ ] <<{managing-prefix}hardening_solr,Harden Solr>>
 * [ ] <<{managing-prefix}environment_hardening,Environment Hardening>>
 * [ ] <<{managing-prefix}isolating_solr_cloud_and_zookeeper,Isolate Solr Cloud and Zookeeper>>. (If using)
 
