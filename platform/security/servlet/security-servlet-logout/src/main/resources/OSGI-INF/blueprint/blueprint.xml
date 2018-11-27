@@ -54,6 +54,7 @@
     <service interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="alias" value="/logout/local"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
         <bean class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet" init-method="init">
         </bean>

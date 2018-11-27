@@ -31,6 +31,7 @@
     <service ref="sparkServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="urlPatterns" value="/admin/documentation/*"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
     </service>
 

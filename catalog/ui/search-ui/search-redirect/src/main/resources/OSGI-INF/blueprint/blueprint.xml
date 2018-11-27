@@ -19,6 +19,7 @@
     <service interface="javax.servlet.Servlet" depends-on="redirectConfiguration">
         <service-properties>
             <entry key="alias" value="/search"/>
+            <entry key="async-supported" value="true"/>
         </service-properties>
         <bean class="org.codice.ddf.ui.searchui.filter.RedirectServlet" init-method="init">
             <property name="redirectConfiguration" ref="redirectConfiguration"/>
