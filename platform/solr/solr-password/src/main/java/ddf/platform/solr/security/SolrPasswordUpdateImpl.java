@@ -16,7 +16,6 @@ package ddf.platform.solr.security;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -138,7 +137,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       javax.ws.rs.core.Response response = solrAuthResource.sendRequest(is);
       solrResponse = response.getStatusInfo();
       if (isSolrPasswordChangeSuccessfull()) {
-        SecurityLogger.audit("Changed Solr password to " + newPasswordEncrypted);
         LOGGER.info("Set new password in Solr server.");
       } else {
         LOGGER.error("Solr password update failed with status code {}.", getStatusCode());
