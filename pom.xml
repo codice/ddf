@@ -56,6 +56,7 @@
         <ddf.support.version>2.3.16</ddf.support.version>
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
         <codice-maven.version>0.1</codice-maven.version>
+        <codice-test.version>0.3</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.7</acdebugger.version>
         <!--temporary codice version of pax web-->
@@ -147,6 +148,7 @@
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-validator.version>1.6</commons-validator.version>
         <commons-digester.version>1.8.1</commons-digester.version>
+        <hazelcast.version>3.2.1</hazelcast.version>
         <handlebars.version>2.0.0</handlebars.version>
         <antlr.version>4.3</antlr.version>
         <lux.woodstox.version>4.1.1</lux.woodstox.version>

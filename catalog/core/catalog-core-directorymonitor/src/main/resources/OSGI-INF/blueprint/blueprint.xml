@@ -21,26 +21,48 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
+    <reference-list id="inputTransformers" interface="ddf.catalog.transform.InputTransformer"
+                    member-type="service-reference" filter="(id=*)"/>
 
     <reference id="camelContext" interface="org.apache.camel.CamelContext"
                filter="(camel.context.name=catalogCamelContext)"/>
 
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
+    <bean id="executorService" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor">
+        <argument ref="cdmThreadFactoryBuilder"/>
+    </bean>
+
+    <bean id="cdmThreadFactoryBuilder"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="contentDirectoryMonitorThread"/>
+    </bean>
+
+    <bean id="inputTransformerIds" class="org.codice.ddf.catalog.content.monitor.InputTransformerIds"/>
+
     <cm:managed-service-factory
-        id="contentDirectoryMonitor_MSF"
-        factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
-        interface="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
+            id="contentDirectoryMonitor_MSF"
+            factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
+            interface="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
         <cm:managed-component class="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
                               init-method="init" destroy-method="destroy">
             <argument ref="camelContext"/>
             <argument ref="attributeRegistry"/>
+            <argument value="20"/>
+            <argument value="5"/>
+            <argument ref="executorService"/>
+            <argument ref="inputTransformerIds"/>
+            <argument value="30000"/>
+            <argument value="180000"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>
             <property name="attributeOverrides">
                 <list/>
             </property>
+            <property name="inputTransformers" ref="inputTransformers"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed"
                                    update-method="updateCallback"/>

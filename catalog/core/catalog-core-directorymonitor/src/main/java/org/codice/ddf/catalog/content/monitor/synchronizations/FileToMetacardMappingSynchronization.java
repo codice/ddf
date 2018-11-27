@@ -58,7 +58,7 @@ public class FileToMetacardMappingSynchronization implements Synchronization {
     LOGGER.debug(
         "No metacard id to store for reference [{}] in [{}] cache",
         reference,
-        productToMetacardIdMap.toString());
+        productToMetacardIdMap);
   }
 
   private String getShaFor(String value) {

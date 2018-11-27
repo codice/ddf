@@ -15,17 +15,20 @@ package org.codice.ddf.catalog.content.monitor;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.transform.InputTransformer;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
@@ -39,8 +42,8 @@ import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.Security;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * automatically ingested when dropped into the specified monitored directory.
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
+
   public static final String DELETE = "delete";
 
   public static final String MOVE = "move";
@@ -57,8 +61,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
 
-  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
-
   private static final int MAX_THREAD_SIZE = 8;
 
   private static final int MIN_THREAD_SIZE = 1;
@@ -66,6 +68,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
   private static final Security SECURITY = Security.getInstance();
+
+  private final long transformerCheckPeriodMillis;
+
+  private final long transformerWaitTimeoutMillis;
+
+  private final InputTransformerIds inputTransformerIds;
+
+  private final Object lock = new Object();
 
   private final int maxRetries;
 
@@ -77,11 +87,15 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private final AttributeRegistry attributeRegistry;
 
+  private boolean destroyed = false;
+
+  private List<ServiceReference<InputTransformer>> inputTransformers;
+
   private String monitoredDirectory = null;
 
   private String processingMechanism = DELETE;
 
-  private List<RouteDefinition> routeCollection;
+  @Nullable private RouteBuilder routeBuilder;
 
   private List<String> badFiles;
 
@@ -96,45 +110,39 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   Processor systemSubjectBinder = new SystemSubjectBinder();
 
   /**
-   * Constructs a monitor for a specific directory that will ingest files into the Content
-   * Framework.
-   *
-   * @param camelContext the Camel context to use across all Content Directory Monitors. Note that
-   *     if Apache changes this ModelCamelContext interface there is no guarantee that whatever DM
-   *     is being used (Blueprint in this case) will be updated accordingly.
-   */
-  public ContentDirectoryMonitor(CamelContext camelContext, AttributeRegistry attributeRegistry) {
-    this(
-        camelContext,
-        attributeRegistry,
-        20,
-        5,
-        Executors.newSingleThreadExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("contentDirectoryMonitorThread")));
-  }
-
-  /**
    * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
    * the given Executor to run the setup and Camel configuration.
    *
-   * @param camelContext the Camel context to use across all Content directory monitors.
+   * @param camelContext the Camel context to use across all Content directory monitors. * @param
+   * @param attributeRegistry {@link AttributeRegistry} to use to perform attribute lookup for
+   *     attribute overrides for in-place monitoring
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
    * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
    *     content directory monitor, the number of seconds it will wait between consecutive polls.
    * @param configurationExecutor the executor used to run configuration and updates.
+   * @param transformerCheckPeriod amount of time in milliseconds to check for available
+   *     InputTransformers
+   * @param transformerWaitTimeout amount of time in milliseconds to timeout while waiting for
+   *     InputTransformers
    */
   public ContentDirectoryMonitor(
       CamelContext camelContext,
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      Executor configurationExecutor) {
+      Executor configurationExecutor,
+      InputTransformerIds inputTransformerIds,
+      long transformerCheckPeriod,
+      long transformerWaitTimeout) {
     this.camelContext = camelContext;
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
+    this.inputTransformerIds = inputTransformerIds;
+    transformerCheckPeriodMillis = transformerCheckPeriod;
+    transformerWaitTimeoutMillis = transformerWaitTimeout;
     setBlacklist();
   }
 
@@ -183,25 +191,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   /**
-   * This method will stop and remove any existing Camel routes in this context, and then configure
-   * a new Camel route using the properties set in the setter methods.
-   *
-   * <p>Invoked after all of the setter methods have been called (for initial route creation), and
-   * also called whenever an existing route is updated.
+   * Invoked after all of the setter methods have been called (for initial route creation), and also
+   * called whenever an existing route is updated.
    */
   public void init() {
-    if (routeCollection != null) {
-      try {
-        // This stops the route before trying to remove it
-        LOGGER.trace("Removing {} routes", routeCollection.size());
-        camelContext.removeRouteDefinitions(routeCollection);
-      } catch (Exception e) {
-        LOGGER.debug("Unable to remove Camel routes from Content Directory Monitor", e);
-      }
-    } else {
-      LOGGER.trace("No routes to remove before configuring a new route");
-    }
-
     SECURITY.runAsAdmin(this::configure);
   }
 
@@ -211,7 +204,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       return null;
     }
 
-    CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
+    configurationExecutor.execute(this::attemptAddRoutes);
     return null;
   }
 
@@ -224,22 +217,30 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   @SuppressWarnings(
       "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
-    if (routeCollection == null) {
-      return;
-    }
+    synchronized (lock) {
+      destroyed = true;
 
-    for (RouteDefinition routeDef : routeCollection) {
       try {
-        String routeId = routeDef.getId();
-        if (isMyRoute(routeId)) {
-          LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
-          camelContext.stopRoute(routeId);
-          boolean status = camelContext.removeRoute(routeId);
-          LOGGER.trace("Status of removing route {} is {}", routeId, status);
-          camelContext.removeRouteDefinition(routeDef);
+        if (routeBuilder == null) {
+          return;
         }
-      } catch (Exception e) {
-        LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
+
+        for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
+          try {
+            String routeId = routeDef.getId();
+            LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
+            camelContext.stopRoute(routeId);
+            boolean status = camelContext.removeRoute(routeId);
+            LOGGER.trace("Status of removing route {} is {}", routeId, status);
+            camelContext.removeRouteDefinition(routeDef);
+          } catch (Exception e) {
+            LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
+          }
+        }
+
+      } finally {
+        // Wake up thread waiting for InputTransformer if it was waiting.
+        lock.notifyAll();
       }
     }
   }
@@ -253,17 +254,21 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    */
   public void updateCallback(Map<String, Object> properties) {
     if (properties != null) {
-      setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
-      setProcessingMechanism((String) properties.get("processingMechanism"));
-      setNumThreads((Integer) properties.get("numThreads"));
-      setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
+      synchronized (lock) {
+        setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
+        setProcessingMechanism((String) properties.get("processingMechanism"));
+        setNumThreads((Integer) properties.get("numThreads"));
+        setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
 
-      String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-      if (parameterArray != null) {
-        setAttributeOverrides(Arrays.asList(parameterArray));
+        String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+        if (parameterArray != null) {
+          setAttributeOverrides(Arrays.asList(parameterArray));
+        }
+
+        destroy(0);
+        destroyed = false;
+        init();
       }
-
-      init();
     }
   }
 
@@ -289,13 +294,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             "Invalid attribute override configured for monitored directory");
       }
 
-      if (attributeOverrideMap.get(keyValue[0]) == null) {
-        attributeOverrideMap.put(keyValue[0], new ArrayList<String>());
-      }
-      ArrayList valueList = (ArrayList) attributeOverrideMap.get(keyValue[0]);
+      attributeOverrideMap.computeIfAbsent(keyValue[0], k -> new ArrayList<String>());
+      List valueList = (List) attributeOverrideMap.get(keyValue[0]);
       valueList.add(keyValue[1]);
     }
     this.attributeOverrides = attributeOverrideMap;
+  }
+
+  public void setInputTransformers(List<ServiceReference<InputTransformer>> inputTransformers) {
+    synchronized (lock) {
+      this.inputTransformers = inputTransformers;
+    }
   }
 
   private String getBlackListAsRegex() {
@@ -316,30 +325,100 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     return String.join("|", patterns);
   }
 
-  public List<RouteDefinition> getRouteDefinitions() {
-    return camelContext.getRouteDefinitions();
+  /**
+   * This method acquires a lock on initialization and:
+   *
+   * <ol>
+   *   <li>Waits for configured {@link InputTransformer}s to be available
+   *   <li>Waits for "content" and "catalog" CamelComponents, which ensures the CDM will correctly
+   *       start and ingest after a system shutdown
+   *   <li>Starts the configured CDM camel route
+   * </ol>
+   */
+  private void attemptAddRoutes() {
+    synchronized (lock) {
+      try {
+        waitForInputTransformers();
+      } catch (InterruptedException e) {
+        LOGGER.warn(
+            "Interrupted while waiting for InputTransformers, CDM route will not be started, but configuration may still exist. The configuration should be deleted and remade.");
+        Thread.currentThread().interrupt();
+        return;
+      } catch (IllegalStateException e) {
+        LOGGER.info(
+            "CDM config for {} deleted while waiting for InputTransformers, CDM camel route won't be started",
+            monitoredDirectory);
+        return;
+      }
+
+      LOGGER.trace(
+          "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
+      try {
+        routeBuilder = createRouteBuilder();
+        verifyCamelComponentIsAvailable("content");
+        verifyCamelComponentIsAvailable("catalog");
+        camelContext.addRoutes(routeBuilder);
+      } catch (Exception e) {
+        LOGGER.info(
+            "Unable to configure Camel route. Resources will not be ingested. CDM configuration may still exist and should be remade",
+            e);
+      } finally {
+        if (LOGGER.isDebugEnabled()) {
+          dumpCamelContext("after attemptAddRoutes()");
+        }
+      }
+    }
   }
 
-  /*
-     Task that waits for the "content" and "catalog" CamelComponents before adding the routes from the
-     RouteBuilder to the CamelContext. This ensures content directory monitors will
-     automatically start after a system shutdown.
-  */
-  private void attemptAddRoutes() {
-    LOGGER.trace(
-        "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
-    try {
-      RouteBuilder routeBuilder = createRouteBuilder();
-      verifyCamelComponentIsAvailable("content");
-      verifyCamelComponentIsAvailable("catalog");
-      camelContext.addRoutes(routeBuilder);
-      setRouteCollection(routeBuilder);
-    } catch (Exception e) {
-      LOGGER.info("Unable to configure Camel route.", e);
-      INGEST_LOGGER.warn("Unable to configure Camel route.", e);
-    } finally {
-      if (LOGGER.isDebugEnabled()) {
-        dumpCamelContext("after attemptAddRoutes()");
+  /**
+   * Blocking method that waits for {@link InputTransformer} services.
+   *
+   * @throws IllegalStateException if the CDM configuration was deleted while waiting for
+   *     InputTransformers
+   * @throws InterruptedException if the thread was interrupted while waiting for InputTransformers
+   */
+  @SuppressWarnings(
+      "squid:S135" /* 2 breaks are needed in the for loop for the 2 exit conditions */)
+  private void waitForInputTransformers() throws InterruptedException {
+    synchronized (lock) {
+      final String propertyId = "id";
+      Set<String> propertyValues = new HashSet<>(inputTransformerIds.getIds());
+
+      if (propertyValues.isEmpty()) {
+        return;
+      }
+
+      long lastChecked = new Date().getTime();
+      long end = lastChecked + transformerWaitTimeoutMillis;
+      for (; ; ) {
+        if (destroyed) {
+          throw new IllegalStateException();
+        }
+
+        for (ServiceReference serviceReference : inputTransformers) {
+          Object propertyValue = serviceReference.getProperty(propertyId);
+          if (propertyValue instanceof String) {
+            propertyValues.remove(propertyValue);
+            LOGGER.debug("Remaining property values {}", propertyValues);
+          }
+        }
+
+        if (propertyValues.isEmpty()) {
+          LOGGER.trace("Finished finding all InputTransformers");
+          break;
+        }
+
+        if (lastChecked >= end) {
+          LOGGER.warn(
+              "Not all input transformers were found, starting up CDM route anyways. Ingested resources may not have expected metadata");
+          break;
+        } else {
+          LOGGER.trace(
+              "Waiting {} seconds before checking InputTransformers again",
+              TimeUnit.MILLISECONDS.toSeconds(transformerCheckPeriodMillis));
+          lastChecked += transformerCheckPeriodMillis;
+          lock.wait(transformerCheckPeriodMillis);
+        }
       }
     }
   }
@@ -358,22 +437,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
               throw new IllegalStateException("Could not get Camel component " + componentName);
             })
         .get(() -> camelContext.getComponent(componentName));
-  }
-
-  /*
-     Assign this content directory monitor's routeCollection to the routes generated by
-     this content directory monitor's RouteBuilder.
-  */
-  private void setRouteCollection(RouteBuilder routeBuilder) {
-    routeCollection = routeBuilder.getRouteCollection().getRoutes();
-  }
-
-  /*
-     Does the given routeId belong to this content directory monitor's routeCollection?
-  */
-  private boolean isMyRoute(String routeId) {
-    return this.routeCollection != null
-        && this.routeCollection.stream().map(RouteDefinition::getId).anyMatch(routeId::equals);
   }
 
   private RouteBuilder createRouteBuilder() {

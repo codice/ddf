@@ -19,10 +19,17 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.transform.InputTransformer;
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +44,8 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.io.FileUtils;
+import org.codice.junit.rules.ClearInterruptions;
+import org.codice.junit.rules.RestoreSystemProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,6 +53,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.osgi.framework.ServiceReference;
 
 @RunWith(JUnit4.class)
 public class ContentDirectoryMonitorTest extends CamelTestSupport {
@@ -55,6 +65,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
       new String[] {
         "test1=someParameter1", "test1=someParameter0", "test2=(some,parameter,with,commas)"
       };
+
+  private final Path testValidTransformerPath =
+      Paths.get(getClass().getClassLoader().getResource("valid-transformers").getPath());
+
+  private final InputTransformerIds inputTransformerIds =
+      new InputTransformerIds(testValidTransformerPath);
 
   private static final int MAX_SECONDS_FOR_FILE_COPY = 5;
 
@@ -68,7 +84,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
   private ContentDirectoryMonitor monitor;
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Rule
+  public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+
+  @Rule public final ClearInterruptions clearInterruptions = new ClearInterruptions();
 
   @Before
   public void setup() throws Exception {
@@ -84,8 +105,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     camelContext.addComponent("catalog", catalogComponent);
 
     monitor = createContentDirectoryMonitor();
-    monitor.setReadLockIntervalMilliseconds(1000);
-    monitor.setNumThreads(1);
   }
 
   @After
@@ -114,12 +133,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testRouteCreationWithoutContentComponent() throws Exception {
+  public void testRouteCreationWithoutContentComponent() {
     camelContext.removeComponent("content");
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.DELETE);
     assertThat(
         "The content directory monitor should not have any route definitions",
-        monitor.getRouteDefinitions(),
+        camelContext.getRouteDefinitions(),
         empty());
     assertThat(
         "The camel context should not have any route definitions",
@@ -128,27 +147,27 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testRouteCreationWithCopyIngestedFiles() throws Exception {
+  public void testRouteCreationWithCopyIngestedFiles() {
     testRouteCreationWithGivenCopyStatus(ContentDirectoryMonitor.MOVE);
   }
 
   @Test
-  public void testRouteCreationWithoutCopyIngestedFiles() throws Exception {
+  public void testRouteCreationWithoutCopyIngestedFiles() {
     testRouteCreationWithGivenCopyStatus(ContentDirectoryMonitor.DELETE);
   }
 
   @Test
-  public void testRouteCreationWithKeepIngestedFiles() throws Exception {
+  public void testRouteCreationWithKeepIngestedFiles() {
     testRouteCreationWithGivenCopyStatus(ContentDirectoryMonitor.IN_PLACE);
   }
 
-  private void testRouteCreationWithGivenCopyStatus(String processingMechanism) throws Exception {
+  private void testRouteCreationWithGivenCopyStatus(String processingMechanism) {
     submitConfigOptions(monitor, monitoredDirectoryPath, processingMechanism);
     assertThat(
         "The content directory monitor should only have one route definition",
-        monitor.getRouteDefinitions(),
+        camelContext.getRouteDefinitions(),
         hasSize(1));
-    RouteDefinition routeDefinition = monitor.getRouteDefinitions().get(0);
+    RouteDefinition routeDefinition = camelContext.getRouteDefinitions().get(0);
     verifyRoute(routeDefinition, monitoredDirectoryPath, processingMechanism);
   }
 
@@ -164,7 +183,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     monitor = createContentDirectoryMonitor();
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
     doAndVerifyFileDidNotMove(monitoredDirectory, monitoredDirectory, "input1.txt");
-    System.setProperty("bad.file.extensions", "");
   }
 
   @Test
@@ -173,7 +191,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     monitor = createContentDirectoryMonitor();
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
     doAndVerifyFileDidNotMove(monitoredDirectory, monitoredDirectory, "input1.txt");
-    System.setProperty("bad.files", "");
   }
 
   @Test
@@ -183,7 +200,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
     doAndVerifyFileDidNotMove(monitoredDirectory, monitoredDirectory, "input1.txt");
     doAndVerifyFileDidNotMove(monitoredDirectory, monitoredDirectory, "input1.bin");
-    System.setProperty("bad.file.extensions", "");
   }
 
   @Test
@@ -228,7 +244,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testDirectoryMonitorWithParameters() throws Exception {
+  public void testDirectoryMonitorWithParameters() {
     ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
     submitConfigOptions(
         monitor,
@@ -247,7 +263,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testDirectoryMonitorThreadNumFallback() throws Exception {
+  public void testDirectoryMonitorThreadNumFallback() {
     ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
     submitConfigOptions(
         monitor,
@@ -260,7 +276,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testDirectoryMonitorThreadNumMinimum() throws Exception {
+  public void testDirectoryMonitorThreadNumMinimum() {
     ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
     submitConfigOptions(
         monitor,
@@ -273,7 +289,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testDirectoryMonitorReadLockIntervalMinimum() throws Exception {
+  public void testDirectoryMonitorReadLockIntervalMinimum() {
     ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
     submitConfigOptions(
         monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE, ATTRIBUTE_OVERRIDES, 1, 1);
@@ -281,7 +297,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   @Test
-  public void testRouteCreationMissingMonitoredDirectory() throws Exception {
+  public void testRouteCreationMissingMonitoredDirectory() {
     submitConfigOptions(monitor, "", ContentDirectoryMonitor.MOVE);
     assertThat(
         "Camel context should not have any route definitions",
@@ -289,8 +305,43 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         empty());
     assertThat(
         "Content directory monitor should not have any route definitions",
-        monitor.getRouteDefinitions(),
+        camelContext.getRouteDefinitions(),
         empty());
+  }
+
+  @Test
+  public void testInterruptedWhileWaitingForInputTransformers() {
+    Thread.currentThread().interrupt();
+
+    monitor.setInputTransformers(Collections.emptyList());
+
+    monitor.init();
+    assertThat(
+        "The content directory monitor should have no route definitions",
+        camelContext.getRouteDefinitions(),
+        hasSize(0));
+  }
+
+  @Test
+  public void testInitWithConfigDeleted() {
+    monitor.destroy(0);
+    monitor.init();
+
+    assertThat(
+        "The content directory monitor should have no route definitions",
+        camelContext.getRouteDefinitions(),
+        hasSize(0));
+  }
+
+  @Test
+  public void testTimeoutWaitingForTransformersStartsNormally() {
+    monitor.setInputTransformers(mockServiceReferences("notTheIdYouAreLookingFor"));
+    submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
+
+    assertThat(
+        "The content directory monitor should timeout while waiting and start the route",
+        camelContext.getRouteDefinitions(),
+        hasSize(1));
   }
 
   private void doAndVerifyFileMove(
@@ -324,7 +375,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   private void doFileMove(File destinationFolder, String inputFileName) throws Exception {
-    FileUtils.writeStringToFile(new File(destinationFolder, inputFileName), DUMMY_DATA);
+    FileUtils.writeStringToFile(
+        new File(destinationFolder, inputFileName), DUMMY_DATA, Charset.defaultCharset());
     template.sendBodyAndHeader(
         PROTOCOL + destinationFolder.getCanonicalPath(),
         DUMMY_DATA,
@@ -362,8 +414,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   }
 
   private void submitConfigOptions(
-      ContentDirectoryMonitor monitor, String monitoredDirectory, String processingMechanism)
-      throws Exception {
+      ContentDirectoryMonitor monitor, String monitoredDirectory, String processingMechanism) {
     Map<String, Object> properties = new HashMap<>();
     properties.put("monitoredDirectoryPath", monitoredDirectory);
     properties.put("processingMechanism", processingMechanism);
@@ -378,8 +429,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
       String processingMechanism,
       String[] attributeOverrides,
       int numThreads,
-      int readLockIntervalMilliseconds)
-      throws Exception {
+      int readLockIntervalMilliseconds) {
     Map<String, Object> properties = new HashMap<>();
     properties.put("monitoredDirectoryPath", monitoredDirectory);
     properties.put("processingMechanism", processingMechanism);
@@ -392,10 +442,29 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run);
+            camelContext,
+            mock(AttributeRegistry.class),
+            1,
+            1,
+            Runnable::run,
+            inputTransformerIds,
+            1,
+            5);
+
     monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
     monitor.setReadLockIntervalMilliseconds(1000);
+    monitor.setInputTransformers(mockServiceReferences("id1", "id2", "id3"));
     return monitor;
+  }
+
+  private List<ServiceReference<InputTransformer>> mockServiceReferences(String... propertyValues) {
+    List<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
+    for (String propertyValue : propertyValues) {
+      ServiceReference<InputTransformer> mockReference = mock(ServiceReference.class);
+      when(mockReference.getProperty("id")).thenReturn(propertyValue);
+      serviceReferences.add(mockReference);
+    }
+    return serviceReferences;
   }
 }

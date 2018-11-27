@@ -13,7 +13,8 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
@@ -114,6 +115,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
+            <version>${hazelcast.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.lookfirst</groupId>
@@ -122,11 +124,18 @@
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>${httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
+            <artifactId>httpcore-osgi</artifactId>
+            <version>${httpcore.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
 
         <!-- Component test dependencies -->
@@ -152,6 +161,12 @@
             <groupId>ddf.lib</groupId>
             <artifactId>test-common</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>${codice-test.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -360,11 +375,7 @@
                             platform-util,
                             platform-util-unavailableurls,
                             failsafe,
-                            hazelcast,
-                            sardine,
-                            httpclient,
-                            httpcore,
-                            commons-lang3
+                            sardine
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,
@@ -402,17 +413,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.46</minimum>
+                                            <minimum>0.49</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.45</minimum>
+                                            <minimum>0.47</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.42</minimum>
+                                            <minimum>0.44</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
