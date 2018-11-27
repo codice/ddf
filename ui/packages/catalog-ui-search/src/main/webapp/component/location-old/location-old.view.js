@@ -203,7 +203,7 @@ module.exports = Marionette.LayoutView.extend({
       utmUpsZone: 1,
       utmUpsHemisphere: 'Northern',
       utmUpsUpperLeftEasting: undefined,
-      utmUpsUpsUpperLeftNorthing: undefined,
+      utmUpsUpperLeftNorthing: undefined,
       utmUpsUpperLeftZone: 1,
       utmUpsUpperLeftHemisphere: 'Northern',
       utmUpsLowerRightEasting: undefined,

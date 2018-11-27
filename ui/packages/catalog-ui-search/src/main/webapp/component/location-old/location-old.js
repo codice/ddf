@@ -198,7 +198,7 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.listenTo(
       this,
-      'change:utmUpsUpperLeftEasting change:utmUpsUpperLeftNorthing change:utmUpsUpperLeftZone change:utmUpsUpperLeftEasting change:utmUpsUpperLeftHemisphere change:utmUpsLowerRightEasting change:utmUpsLowerRightNorthing change:utmUpsLowerRightZone change:utmUpsLowerRightEasting change:utmUpsLowerRightHemisphere',
+      'change:utmUpsUpperLeftEasting change:utmUpsUpperLeftNorthing change:utmUpsUpperLeftZone change:utmUpsUpperLeftHemisphere change:utmUpsLowerRightEasting change:utmUpsLowerRightNorthing change:utmUpsLowerRightZone change:utmUpsLowerRightHemisphere',
       this.setBboxUtmUps
     )
     this.listenTo(this, 'EndExtent', this.notDrawing)
