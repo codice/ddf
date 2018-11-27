@@ -133,7 +133,7 @@ The `validator` key must have a value of one of the following:
                     }
                 ]
             }
-        ]
+        ],
         "topic.vocabulary": [
              {
                  "validator": "relationship",
