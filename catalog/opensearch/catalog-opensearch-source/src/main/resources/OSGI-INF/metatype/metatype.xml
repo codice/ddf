@@ -51,6 +51,14 @@
             type="Boolean" default="true"
             description="Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry."/>
 
+        <AD name="Multi Point-Radius polygon approximation vertices" id="numMultiPointRadiusVertices" required="true"
+            type="Integer" default="32"
+            description="When performing a multi point-radius search, increase this value for more accurate polygon approximation. Minimum value is 4, maximum value is 32."/>
+
+        <AD name="Point radius polygon simplification distance tolerance" id="distanceTolerance" required="true"
+            type="Integer" default="1"
+            description="The maximum distance from the original vertices a reduced vertex may lie on a simplified circular polygon"/>
+
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>

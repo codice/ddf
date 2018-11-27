@@ -60,6 +60,8 @@
             <property name="password" value=""/>
             <property name="localQueryOnly" value="false"/>
             <property name="shouldConvertToBBox" value="true"/>
+            <property name="numMultiPointRadiusVertices" value="32"/>
+            <property name="distanceTolerance" value="1"/>
             <property name="disableCnCheck" value="false"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>

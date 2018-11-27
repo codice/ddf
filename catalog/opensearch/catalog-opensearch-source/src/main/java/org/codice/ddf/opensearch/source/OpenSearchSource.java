@@ -84,6 +84,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -118,6 +119,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   protected static final String PASSWORD_PROPERTY = "password";
 
+  private static final int MIN_DISTANCE_TOLERANCE_IN_METERS = 1;
+
+  private static final int MIN_NUM_POINT_RADIUS_VERTICES = 4;
+
+  private static final int MAX_NUM_POINT_RADIUS_VERTICES = 32;
+
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
@@ -134,6 +141,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   protected boolean localQueryOnly;
 
   protected boolean shouldConvertToBBox;
+
+  protected int numMultiPointRadiusVertices;
+
+  protected int distanceTolerance;
 
   protected PropertyResolver endpointUrl;
 
@@ -313,7 +324,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     final SpatialSearch spatialSearch =
         createCombinedSpatialSearch(
             openSearchFilterVisitorObject.getPointRadiusSearches(),
-            openSearchFilterVisitorObject.getGeometrySearches());
+            openSearchFilterVisitorObject.getGeometrySearches(),
+            numMultiPointRadiusVertices,
+            distanceTolerance);
     final TemporalFilter temporalSearch = openSearchFilterVisitorObject.getTemporalSearch();
     final String idSearch =
         StringUtils.defaultIfEmpty(
@@ -753,6 +766,51 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.shouldConvertToBBox = shouldConvertToBBox;
   }
 
+  /**
+   * Get the number of vertices an approximation polygon will have when converting a multi
+   * point-radius search to a multi-polygon search.
+   */
+  public int getNumMultiPointRadiusVertices() {
+    return numMultiPointRadiusVertices;
+  }
+
+  /**
+   * Sets the number of vertices to use when approximating a polygon to fit to a multi point-radius
+   * search.
+   */
+  public void setNumMultiPointRadiusVertices(int numMultiPointRadiusVertices) {
+    if (numMultiPointRadiusVertices < MIN_NUM_POINT_RADIUS_VERTICES) {
+      this.numMultiPointRadiusVertices = MIN_NUM_POINT_RADIUS_VERTICES;
+      LOGGER.debug(
+          "Admin supplied max number of vertices is too low. Defaulting to the minimum number of {} vertices",
+          MIN_NUM_POINT_RADIUS_VERTICES);
+    } else if (numMultiPointRadiusVertices > 32) {
+      this.numMultiPointRadiusVertices = MAX_NUM_POINT_RADIUS_VERTICES;
+      LOGGER.debug(
+          "Admin supplied max number of vertices is too high. Defaulting to the maximum number of {} vertices",
+          MAX_NUM_POINT_RADIUS_VERTICES);
+    } else {
+      this.numMultiPointRadiusVertices = numMultiPointRadiusVertices;
+    }
+  }
+
+  /** Get the distance tolerance value used for simplification of circular geometries. */
+  public int getDistanceTolerance() {
+    return distanceTolerance;
+  }
+
+  /** Sets the distance tolerance value used for simplification of circular geometries. */
+  public void setDistanceTolerance(int distanceTolerance) {
+    if (distanceTolerance < MIN_DISTANCE_TOLERANCE_IN_METERS) {
+      this.distanceTolerance = distanceTolerance;
+      LOGGER.debug(
+          "Admin supplied distance tolerance is too low. Defaulting to the minimum of {} meter",
+          MIN_DISTANCE_TOLERANCE_IN_METERS);
+    } else {
+      this.distanceTolerance = distanceTolerance;
+    }
+  }
+
   @Override
   public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> requestProperties)
       throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
@@ -1018,7 +1076,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   @Nullable
   protected SpatialSearch createCombinedSpatialSearch(
-      final Queue<PointRadius> pointRadiusSearches, final Queue<Geometry> geometrySearches) {
+      final Queue<PointRadius> pointRadiusSearches,
+      final Queue<Geometry> geometrySearches,
+      final int numMultiPointRadiusVertices,
+      final int distanceTolerance) {
     Geometry geometrySearch = null;
     BoundingBox boundingBox = null;
     PointRadius pointRadius = null;
@@ -1027,31 +1088,33 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     Set<Geometry> combinedGeometrySearches = new HashSet<>(geometrySearches);
 
     if (CollectionUtils.isNotEmpty(pointRadiusSearches)) {
-      /**
-       * if there is only one point radius search, and it is not to be converted to bounding box,
-       * retain this point radius search as point radius search
-       */
-      if (!shouldConvertToBBox && pointRadiusSearches.size() == 1) {
-        pointRadius = pointRadiusSearches.remove();
-      } else {
-        /**
-         * There is multiple point radius or in need to convert to bounding box Convert all
-         * pointRadiusSearch into an (rough approximation) polygon (square) using Vincenty's formula
-         * (direct) and the WGS-84 approximation of the Earth Collect all these polygon to a
-         * collection for later processing *
-         */
+      if (shouldConvertToBBox) {
         for (PointRadius search : pointRadiusSearches) {
-          /**
-           * first convert to a bounding box approximation, extract the coordinates and build a
-           * geometry polygon
-           */
           BoundingBox bbox = BoundingBoxUtils.createBoundingBox(search);
           List bboxCoordinate = BoundingBoxUtils.getBoundingBoxCoordinatesList(bbox);
           List<List> coordinates = new ArrayList<>();
           coordinates.add(bboxCoordinate);
           combinedGeometrySearches.add(ddf.geo.formatter.Polygon.buildPolygon(coordinates));
-          LOGGER.debug(
-              "Point radius searches are converts it to a (rough approximation) square using Vincenty's formula (direct)");
+          LOGGER.trace(
+              "Point radius searches are converted to a (rough approximation) square using Vincenty's formula (direct)");
+        }
+      } else {
+        if (pointRadiusSearches.size() == 1) {
+          pointRadius = pointRadiusSearches.remove();
+        } else {
+          for (PointRadius search : pointRadiusSearches) {
+            Geometry circle =
+                GeospatialUtil.createCirclePolygon(
+                    search.getLat(),
+                    search.getLon(),
+                    search.getRadius(),
+                    numMultiPointRadiusVertices,
+                    distanceTolerance);
+            combinedGeometrySearches.add(circle);
+            LOGGER.trace(
+                "Point radius searches are converted to a polygon with a max of {} vertices.",
+                numMultiPointRadiusVertices);
+          }
         }
       }
     }
@@ -1074,7 +1137,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
        */
       if (shouldConvertToBBox) {
         if (combinedGeometrySearches.size() > 1) {
-          LOGGER.debug(
+          LOGGER.trace(
               "An approximate envelope encompassing all the geometry is returned. Area between the geometries are also included in this spatial search. Hence widen the search area.");
         }
         boundingBox = BoundingBoxUtils.createBoundingBox((Polygon) geometrySearch.getEnvelope());
