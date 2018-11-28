@@ -116,7 +116,8 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private @Nullable String getPlaintextPasswordFromProperties() {
     String property = properties.getProperty(SOLR_PASSWORD_PROPERTY_NAME);
     if (StringUtils.isBlank(property)) {
-      LOGGER.info("Solr password system property is missing or blank. System might not be able to communicate with Solr.");
+      LOGGER.info(
+          "Solr password system property is missing or blank. System might not be able to communicate with Solr.");
     }
     return encryptionService.decryptValue(property);
   }
