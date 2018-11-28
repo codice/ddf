@@ -21,20 +21,17 @@ class Menu extends React.Component {
   constructor(props) {
     super(props)
     const children = React.Children.toArray(props.children)
-    this.state = { active: this.chooseActive(children) || undefined }
+    this.state = { active: this.chooseActive(children) }
     this.onKeyDown = this.onKeyDown.bind(this)
   }
-  chooseActive(children) {
-    if (
-      (typeof this.state === 'undefined' ||
-        typeof this.state.active === 'undefined') &&
-      children.length > 0
-    ) {
+  chooseActive(children, active) {
+    const found = children.some(child => child.props.value === active)
+    if (found) {
+      return active
+    } else if (children.length > 0) {
       return children[0].props.value
-    } else if (children.length === 0) {
-      return null
     } else {
-      return this.state.active
+      return undefined
     }
   }
   onHover(active) {
@@ -78,7 +75,7 @@ class Menu extends React.Component {
   componentDidUpdate(previousProps) {
     if (previousProps.children !== this.props.children) {
       this.setState({
-        active: this.chooseActive(this.props.children) || undefined,
+        active: this.chooseActive(this.props.children, this.state.active),
       })
     }
   }
