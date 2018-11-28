@@ -48,7 +48,7 @@ class SolrPasswordUpdateSpec extends Specification {
     }
 
     @Unroll
-    def 'update solr password when #doit'() {
+    def 'update solr password is #outcome'() {
         given:
         System.setProperty("solr.attemptAutoPasswordChange", attemptAutoPasswordChange);
 
@@ -81,9 +81,9 @@ class SolrPasswordUpdateSpec extends Specification {
         solrPasswordUpdate.isSolrPasswordChangeSuccessfull() == success
 
         where:
-        doit     || attemptAutoPasswordChange | responseCode                        | success | password
-        'case 1' || "true"                    | Response.Status.Family.SUCCESSFUL   | true    | ENCRYPTED_PASSWORD
-        'case 2' || "true"                    | Response.Status.Family.SERVER_ERROR | false   | BOOTSTRAP_PASSWORD
-        'case 3' || "false"                   | null                                | false   | BOOTSTRAP_PASSWORD
+        outcome     || attemptAutoPasswordChange | responseCode                        | success | password
+        'sucessful' || "true"                    | Response.Status.Family.SUCCESSFUL   | true    | ENCRYPTED_PASSWORD
+        'an error'  || "true"                    | Response.Status.Family.SERVER_ERROR | false   | BOOTSTRAP_PASSWORD
+        'disabled'  || "false"                   | null                                | false   | BOOTSTRAP_PASSWORD
     }
 }

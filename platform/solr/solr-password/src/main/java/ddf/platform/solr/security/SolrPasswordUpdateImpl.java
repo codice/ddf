@@ -142,16 +142,12 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       if (isSolrPasswordChangeSuccessfull()) {
         LOGGER.info("New password was set in Solr server.");
       } else {
-        LOGGER.error("Solr password update failed with status code {}.", getResponseStatus());
+        LOGGER.error(
+            "Solr password update failed with status code {}.", solrResponse.getStatusCode());
       }
     } catch (IOException e) {
       LOGGER.info("Solr administration request failed.", e);
     }
-  }
-
-  private String getResponseStatus() {
-    return String.valueOf(
-        solrResponse == null ? "REQUEST FAILED" : String.valueOf(solrResponse.getStatusCode()));
   }
 
   @VisibleForTesting
