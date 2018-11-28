@@ -956,7 +956,7 @@
                   "position": 0.5,
                   "attrs": {
                     "text": {
-                      "text": "flow 13",
+                      "text": "Response",
                       "font-weight": "400",
                       "font-size": "small"
                     }
