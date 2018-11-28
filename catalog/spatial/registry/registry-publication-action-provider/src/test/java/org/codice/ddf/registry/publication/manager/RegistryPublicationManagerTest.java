@@ -72,6 +72,14 @@ public class RegistryPublicationManagerTest {
 
   @Test
   public void testInit() throws Exception {
+    publicationManager.init();
+    verify(executorService).submit(any(Runnable.class));
+    publicationManager.destroy();
+    verify(executorService).shutdown();
+  }
+
+  @Test
+  public void testSetPublications() throws Exception {
     Metacard mcard1 = getRegistryMetacard("regId1");
     Metacard mcard2 = getRegistryMetacard("regId2");
     ArrayList<String> locations = new ArrayList<>();
@@ -83,7 +91,7 @@ public class RegistryPublicationManagerTest {
     metacardList.add(mcard2);
     when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
 
-    publicationManager.init();
+    publicationManager.setPublications();
 
     Map<String, List<String>> publications = publicationManager.getPublications();
     assertThat(publications.size(), is(2));
@@ -92,17 +100,17 @@ public class RegistryPublicationManagerTest {
   }
 
   @Test
-  public void testInitFederationAdminException() throws Exception {
+  public void testSetPublicationsFederationAdminException() throws Exception {
     when(federationAdmin.getRegistryMetacards())
         .thenThrow(new FederationAdminException("Test error"));
-    publicationManager.init();
+    publicationManager.setPublications();
     verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     publicationManager.destroy();
     verify(executorService).shutdown();
   }
 
   @Test
-  public void testInitWithNullMetacard() throws Exception {
+  public void testSetPublicationsWithNullMetacard() throws Exception {
     Metacard mcard1 = getRegistryMetacard("regId1");
     Metacard mcard2 = getRegistryMetacard(null);
     ArrayList<String> locations = new ArrayList<>();
@@ -114,7 +122,7 @@ public class RegistryPublicationManagerTest {
     metacardList.add(mcard2);
     when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
 
-    publicationManager.init();
+    publicationManager.setPublications();
 
     Map<String, List<String>> publications = publicationManager.getPublications();
     assertThat(publications.size(), is(1));
@@ -122,7 +130,7 @@ public class RegistryPublicationManagerTest {
   }
 
   @Test
-  public void testInitWithBlankMetacard() throws Exception {
+  public void testSetPublicationsWithBlankMetacard() throws Exception {
     Metacard mcard1 = getRegistryMetacard("regId1");
     Metacard mcard2 = getRegistryMetacard("");
     ArrayList<String> locations = new ArrayList<>();
@@ -134,11 +142,26 @@ public class RegistryPublicationManagerTest {
     metacardList.add(mcard2);
     when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
 
-    publicationManager.init();
+    publicationManager.setPublications();
 
     Map<String, List<String>> publications = publicationManager.getPublications();
     assertThat(publications.size(), is(1));
     assertThat(publications.get("regId1"), equalTo(locations));
+  }
+
+  @Test
+  public void testDestroy() throws Exception {
+    publicationManager.destroy();
+    verify(executorService).shutdown();
+    verify(executorService).shutdownNow();
+  }
+
+  @Test
+  public void testDestroyInterruptedException() throws Exception {
+    when(executorService.awaitTermination(anyLong(), any(TimeUnit.class)))
+        .thenThrow(new InterruptedException());
+    publicationManager.setPublications();
+    verify(executorService).shutdownNow();
   }
 
   @Test

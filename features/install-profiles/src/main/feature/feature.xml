@@ -35,14 +35,9 @@
     <feature name="profile-development" version="${project.version}"
              description="This will install all the applications for development purposes."
              start-level="3">
-        <feature>ddf-boot-features</feature>
+        <feature>profile-standard</feature>
         <feature>opendj-embedded</feature>
-        <feature>catalog-app</feature>
-        <feature>solr-app</feature>
-        <feature>search-ui-app</feature>
-        <feature>spatial-app</feature>
         <feature>resourcemanagement-app</feature>
-        <feature>geowebcache-app</feature>
         <feature>registry-app</feature>
         <feature>broker-app</feature>
     </feature>
