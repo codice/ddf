@@ -52,6 +52,11 @@
             <artifactId>catalog-transformer-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -66,7 +71,8 @@
                         <Export-Package/>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            catalog-core-actions
+                            catalog-core-actions,
+                            commons-text
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util,

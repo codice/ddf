@@ -21,6 +21,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.Serializable;
 import java.util.Map;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.tika.io.IOUtils;
 
 public class PreviewMetacardTransformer implements MetacardTransformer {
@@ -36,10 +37,8 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     if (metacard.getAttribute(Extracted.EXTRACTED_TEXT) != null
         && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
       preview =
-          metacard
-              .getAttribute(Extracted.EXTRACTED_TEXT)
-              .getValue()
-              .toString()
+          StringEscapeUtils.escapeHtml4(
+                  metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
               .replaceAll("[\n|\r]", "<br>");
       preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
     }
