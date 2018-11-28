@@ -37,8 +37,10 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private static final String KARAF_ETC = "karaf.etc";
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdateImpl.class);
+
   @SuppressWarnings("squid:S2068")
   public static final String SOLR_PASSWORD_PROPERTY_NAME = "solr.password";
+
   private final java.util.Properties properties;
   private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
@@ -149,7 +151,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   private int getStatusCode() {
-    return solrResponse == null ? null : solrResponse.getStatusCode();
+    return solrResponse == null ? 0 : solrResponse.getStatusCode();
   }
 
   @VisibleForTesting

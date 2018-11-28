@@ -53,6 +53,12 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>org.apache.felix.utils</Embed-Dependency>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>
