@@ -39,7 +39,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdateImpl.class);
 
   @SuppressWarnings("squid:S2068")
-  public static final String SOLR_PASSWORD_PROPERTY_NAME = "solr.password";
+  private static final String SOLR_PASSWORD_PROPERTY_NAME = "solr.password";
 
   private final java.util.Properties properties;
   private SolrAuthResource solrAuthResource;
@@ -69,18 +69,17 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   /**
    * If the password is not changed, change it. Only call this method if the system is configured to
-   * use basic authentication for Solr.
+   * use basic authentication for Solr. This method will only change the password if it detects that
+   * the default password is still in use. This object is intended to be a singleton, a blueprint
+   * bean. That is why is can use itself as the lock
    */
-  public void start() {
-
-    synchronized (this) {
-      if (configuredToAttemptAutoPasswordChange() && isUsingDefaultPassword()) {
-        generatePassword();
-        setPasswordInSolr();
-        if (isSolrPasswordChangeSuccessfull()) {
-          setPasswordInMemory();
-          setPasswordInPropertiesFile();
-        }
+  public synchronized void start() {
+    if (configuredToAttemptAutoPasswordChange() && isUsingDefaultPassword()) {
+      generatePassword();
+      setPasswordInSolr();
+      if (isSolrPasswordChangeSuccessfull()) {
+        setPasswordInMemory();
+        setPasswordInPropertiesFile();
       }
     }
   }
@@ -108,8 +107,8 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   /**
-   * Add an encrypted password to the system properties file. This change does not take effect until
-   * the application is restarted.
+   * Persist the encrypted password to the system properties file. This change does not take effect
+   * until the application is restarted.
    */
   private void setPasswordInPropertiesFile() {
 
@@ -129,7 +128,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
                     systemPropertyFilename);
               } catch (IOException e) {
                 LOGGER.error(
-                    "Exception while writing to {}. Solr password change, but new password was not saved.",
+                    "Exception while writing to {}. Solr password was changed, but new password was not saved.",
                     systemPropertyFilename);
               }
               return null;
@@ -141,17 +140,18 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       javax.ws.rs.core.Response response = solrAuthResource.sendRequest(is);
       solrResponse = response.getStatusInfo();
       if (isSolrPasswordChangeSuccessfull()) {
-        LOGGER.info("Set new password in Solr server.");
+        LOGGER.info("New password was set in Solr server.");
       } else {
-        LOGGER.error("Solr password update failed with status code {}.", getStatusCode());
+        LOGGER.error("Solr password update failed with status code {}.", getResponseStatus());
       }
     } catch (IOException e) {
       LOGGER.info("Solr administration request failed.", e);
     }
   }
 
-  private int getStatusCode() {
-    return solrResponse == null ? 0 : solrResponse.getStatusCode();
+  private String getResponseStatus() {
+    return String.valueOf(
+        solrResponse == null ? "REQUEST FAILED" : String.valueOf(solrResponse.getStatusCode()));
   }
 
   @VisibleForTesting
@@ -160,7 +160,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   /**
-   * Create a secure password. Use a UUID because it is long and random enough to withstand
+   * Create a secure password. Use a UUID because it is long enough and random enough to withstand
    * brute-force attacks.
    */
   private void generatePassword() {

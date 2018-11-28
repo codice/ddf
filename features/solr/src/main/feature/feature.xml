@@ -45,6 +45,7 @@
 
     <feature name="persistence-core" version="${project.version}"
         description="Internal Persistence Core Implementation">
+        <feature>solr-password</feature>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
@@ -60,7 +61,6 @@
         <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}
         </bundle>
-        <feature>solr-password</feature>
     </feature>
 
 </features>

@@ -435,7 +435,6 @@ Thumbs.db
 
 6+^h|[[SolrProperties]]General Solr Catalog Properties
 
-
 |[[_solr_client]]Solr Catalog Client
 |solr.client
 |String
@@ -456,21 +455,6 @@ zookeeperhost3:2181
 
 6+^h|[[_managed_solr_properties]]Managed Solr Server Properties
 
-|Start Solr server
-|start.solr
-|Boolean
-|If true, application manages Solr server lifecycle
-|true
-|Yes
-
-|[[_solr_usebasicauth]]Use basic authentication for Solr server
-|solr.useBasicAuth
-|Boolean
-|If true, the HTTP Solr Client sends a username and password when sending requests to Solr server.
-This property is only used if the `solr.client` property is `HttpSolrClient`.
-|true
-|Yes
-
 |[[_solr_autopassword]]Allow ${branding} to change the Solr server password if it detects the default password is in use
 |solr.attemptAutoPasswordChange
 |Boolean
@@ -478,6 +462,34 @@ This property is only used if the `solr.client` property is `HttpSolrClient`.
 generated UUID. This property is only used if the `solr.client` property is `HttpSolrClient`
 and the `solrBasicAuth` property is `true`.
 |true
+|Yes
+
+|Solr Data Directory
+|solr.data.dir
+|String
+|Directory for Solr core files
+|`${home_directory}`/solr/server/solr
+|Yes
+
+|Solr server HTTP port
+|solr.http.port
+|Integer
+|Solr server's port.
+|8994
+|Yes
+
+|[[_solr_server_url]]Solr server URL
+|solr.http.url
+|String
+|URL for a HTTP Solr server (required for HTTP Solr)
+|-
+|Yes
+
+|Solr Heap Size
+|solr.mem
+|String
+|Memory allocated to the Solr Java process
+|2g
 |Yes
 
 |[[_solr_password]]Encrypted Solr server password
@@ -496,32 +508,19 @@ and the `solrBasicAuth` property is `true`.
 |ddf
 |Yes
 
-|Solr server HTTP port
-|solr.http.port
-|Integer
-|Solr server's port.
-|8994
+|[[_solr_usebasicauth]]Use basic authentication for Solr server
+|solr.useBasicAuth
+|Boolean
+|If true, the HTTP Solr Client sends a username and password when sending requests to Solr server.
+This property is only used if the `solr.client` property is `HttpSolrClient`.
+|true
 |Yes
 
-|[[_solr_server_url]]Solr server URL
-|solr.http.url
-|String
-|URL for a HTTP Solr server (required for HTTP Solr)
-|-
-|Yes
-
-|Solr Data Directory
-|solr.data.dir
-|String
-|Directory for Solr core files
-|`${home_directory}`/solr/server/solr
-|Yes
-
-|Solr Heap Size
-|solr.mem
-|String
-|Memory allocated to the Solr Java process
-|2g
+|Start Solr server
+|start.solr
+|Boolean
+|If true, application manages Solr server lifecycle
+|true
 |Yes
 
 |===
