@@ -15,6 +15,7 @@
 /*global require*/
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
+const moment = require('moment')
 import * as React from 'react'
 import DateComponent from '../../react-component/container/input-wrappers/date'
 
@@ -50,7 +51,9 @@ module.exports = Marionette.LayoutView.extend({
     this.updateModelValue()
   },
   getViewValue() {
-    return `${this.fromValue}/${this.toValue}`
+    return this.swapRange
+      ? `${this.toValue}/${this.fromValue}`
+      : `${this.fromValue}/${this.toValue}`
   },
   parseValue(value) {
     if (value === null || value === undefined || !value.includes('/')) {
@@ -69,10 +72,17 @@ module.exports = Marionette.LayoutView.extend({
     return this.parseValue(currentValue)
   },
   updateModelValue() {
-    if (this.model === undefined) {
-      return
+    this.checkRangeValidity()
+    if (this.model !== undefined) {
+      this.model.setValue([this.getViewValue()])
     }
-    this.model.setValue([this.getViewValue()])
+  },
+  checkRangeValidity() {
+    /* Can't swap fromValue and toValue directly because they will be out
+    of sync with what's displayed in the date pickers. */
+    const from = moment(this.fromValue, moment.ISO_8601)
+    const to = moment(this.toValue, moment.ISO_8601)
+    this.swapRange = from.isValid() && to.isValid() && from.isAfter(to)
   },
   getOptionsValue() {
     return this.parseValue(this.options.value)
@@ -86,6 +96,8 @@ module.exports = Marionette.LayoutView.extend({
   },
   isValid() {
     const value = this.getModelValue()
-    return value.from && value.to && new Date(value.from) < new Date(value.to)
+    const from = moment(value.from, moment.ISO_8601)
+    const to = moment(value.to, moment.ISO_8601)
+    return from.isValid() && to.isValid() && from.isBefore(to)
   },
 })
