@@ -11,8 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.platform.solr.security
 
+
+import ddf.platform.solr.security.SolrAuthResource
+import ddf.platform.solr.security.SolrPasswordUpdateImpl
 import ddf.security.encryption.EncryptionService
 import org.codice.ddf.cxf.client.ClientFactoryFactory
 import org.codice.ddf.cxf.client.SecureCxfClientFactory
