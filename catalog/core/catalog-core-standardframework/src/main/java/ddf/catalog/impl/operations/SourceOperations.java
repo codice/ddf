@@ -24,6 +24,7 @@ import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
@@ -67,13 +68,19 @@ public class SourceOperations extends DescribableImpl {
 
   private ActionRegistry sourceActionRegistry;
 
+  private SourceCapabilityRegistry sourceCapabilityRegistry;
+
   public SourceOperations(
-      FrameworkProperties frameworkProperties, ActionRegistry sourceActionRegistry) {
+      FrameworkProperties frameworkProperties,
+      ActionRegistry sourceActionRegistry,
+      SourceCapabilityRegistry sourceCapabilityRegistry) {
     Validate.notNull(frameworkProperties, "frameworkProperties must be non-null");
     Validate.notNull(sourceActionRegistry, "sourceActionRegistry must be non-null");
+    Validate.notNull(sourceCapabilityRegistry, "sourceCapabilityRegistry must be non-null");
 
     this.frameworkProperties = frameworkProperties;
     this.sourceActionRegistry = sourceActionRegistry;
+    this.sourceCapabilityRegistry = sourceCapabilityRegistry;
   }
 
   /**
@@ -357,8 +364,11 @@ public class SourceOperations extends DescribableImpl {
 
       List<Action> actions = getSourceActions(localSource);
 
+      List<String> capabilities = getSourceCapabilities(localSource);
+
       // only reveal this sourceDescriptor, not the federated sources
-      sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes, actions);
+      sourceDescriptor =
+          new SourceDescriptorImpl(this.getId(), contentTypes, actions, capabilities);
       if (this.getVersion() != null) {
         sourceDescriptor.setVersion(this.getVersion());
       }
@@ -376,6 +386,12 @@ public class SourceOperations extends DescribableImpl {
 
   private List<Action> getSourceActions(Source localSource) {
     return localSource != null ? sourceActionRegistry.list(localSource) : Collections.emptyList();
+  }
+
+  private List<String> getSourceCapabilities(Source localSource) {
+    return localSource != null
+        ? sourceCapabilityRegistry.list(localSource)
+        : Collections.emptyList();
   }
 
   /**
@@ -403,7 +419,10 @@ public class SourceOperations extends DescribableImpl {
 
           sourceDescriptor =
               new SourceDescriptorImpl(
-                  sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
+                  sourceId,
+                  source.getContentTypes(),
+                  sourceActionRegistry.list(source),
+                  sourceCapabilityRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
           sourceDescriptor.setAvailable((cachedSource != null) && cachedSource.isAvailable());
 
@@ -454,7 +473,8 @@ public class SourceOperations extends DescribableImpl {
               new SourceDescriptorImpl(
                   this.getId(),
                   cachedSource.getContentTypes(),
-                  sourceActionRegistry.list(cachedSource));
+                  sourceActionRegistry.list(cachedSource),
+                  sourceCapabilityRegistry.list(cachedSource));
           if (this.getVersion() != null) {
             descriptor.setVersion(this.getVersion());
           }

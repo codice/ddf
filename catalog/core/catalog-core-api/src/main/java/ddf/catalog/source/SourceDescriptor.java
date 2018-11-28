@@ -61,4 +61,13 @@ public interface SourceDescriptor extends Describable {
   default List<Action> getActions() {
     return Collections.emptyList();
   }
+
+  /**
+   * Get the list of capabilities associated with the {@link Source}.
+   *
+   * @return list of String
+   */
+  default List<String> getCapabilities() {
+    return Collections.emptyList();
+  }
 }

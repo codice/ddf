@@ -41,6 +41,7 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -101,6 +102,8 @@ public class RemoteDeleteOperationsTest {
   List<PostResourcePlugin> mockPostResourcePlugins;
 
   private ActionRegistry mockSourceActionRegistry;
+
+  private SourceCapabilityRegistry mockSourceSourceCapabilityRegistry;
 
   UuidGenerator uuidGenerator;
 
@@ -318,6 +321,9 @@ public class RemoteDeleteOperationsTest {
 
     mockSourceActionRegistry = mock(ActionRegistry.class);
     when(mockSourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
+
+    mockSourceSourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(mockSourceSourceCapabilityRegistry.list(any())).thenReturn(Collections.emptyList());
   }
 
   private void setUpDeleteRequest() {
@@ -352,7 +358,8 @@ public class RemoteDeleteOperationsTest {
 
   private void setUpDeleteOperations() {
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, mockSourceActionRegistry);
+        new SourceOperations(
+            frameworkProperties, mockSourceActionRegistry, mockSourceSourceCapabilityRegistry);
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);

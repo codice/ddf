@@ -72,6 +72,7 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.impl.SourcePoller;
@@ -106,6 +107,8 @@ public class FanoutCatalogFrameworkTest {
 
   private ActionRegistry sourceActionRegistry;
 
+  private SourceCapabilityRegistry sourceCapabilityRegistry;
+
   private UuidGenerator uuidGenerator;
 
   @Before
@@ -126,6 +129,9 @@ public class FanoutCatalogFrameworkTest {
     sourceActionRegistry = mock(ActionRegistry.class);
     when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
 
+    sourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(sourceCapabilityRegistry.list(any())).thenReturn(Collections.emptyList());
+
     framework = createCatalogFramework(frameworkProperties);
   }
 
@@ -136,7 +142,7 @@ public class FanoutCatalogFrameworkTest {
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(frameworkProperties, sourceActionRegistry, sourceCapabilityRegistry);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
@@ -432,7 +438,7 @@ public class FanoutCatalogFrameworkTest {
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(frameworkProperties, sourceActionRegistry, sourceCapabilityRegistry);
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
 
@@ -497,7 +503,7 @@ public class FanoutCatalogFrameworkTest {
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(frameworkProperties, sourceActionRegistry, sourceCapabilityRegistry);
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
 

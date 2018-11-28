@@ -112,9 +112,11 @@ public class KmlEndpointTest {
     when(mockFramework.getSourceInfo(any(SourceInfoRequest.class)))
         .thenReturn(mockSourceInfoResponse);
     SourceDescriptorImpl localDescriptor =
-        new SourceDescriptorImpl(LOCAL_SITE_NAME, null, Collections.emptyList());
+        new SourceDescriptorImpl(
+            LOCAL_SITE_NAME, null, Collections.emptyList(), Collections.emptyList());
     SourceDescriptorImpl remoteDescriptor =
-        new SourceDescriptorImpl(REMOTE_SITE_NAME, null, Collections.emptyList());
+        new SourceDescriptorImpl(
+            REMOTE_SITE_NAME, null, Collections.emptyList(), Collections.emptyList());
     descriptors.add(localDescriptor);
     descriptors.add(remoteDescriptor);
     when(mockSourceInfoResponse.getSourceInfo()).thenReturn(descriptors);

@@ -22,6 +22,7 @@ import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.Source
 import ddf.catalog.source.SourceUnavailableException
+import ddf.catalog.source.SourceCapabilityRegistry
 import ddf.catalog.util.impl.CachedSource
 import ddf.catalog.util.impl.SourcePoller
 import ddf.catalog.util.impl.SourcePollerRunner
@@ -76,7 +77,7 @@ class SourceOperationsSpec extends Specification {
             federatedSources = fedSources
             sourcePoller = this.sourcePoller
         }
-        sourceOperations = new SourceOperations(frameworkProperties, Mock(ActionRegistry))
+        sourceOperations = new SourceOperations(frameworkProperties, Mock(ActionRegistry), Mock(SourceCapabilityRegistry))
         sourceOperations.setId(SOURCE_ID)
         sourceOperations.bind(catalogProviders.get(0))
     }

@@ -305,6 +305,10 @@ public class CatalogServiceImpl implements CatalogService {
 
         sourceObj.put("sourceActions", sourceActions);
 
+        JSONArray capabilities = new JSONArray();
+        capabilities.addAll(source.getCapabilities());
+        sourceObj.put("capabilities", capabilities);
+
         JSONArray contentTypesObj = new JSONArray();
         if (source.getContentTypes() != null) {
           for (ContentType contentType : source.getContentTypes()) {

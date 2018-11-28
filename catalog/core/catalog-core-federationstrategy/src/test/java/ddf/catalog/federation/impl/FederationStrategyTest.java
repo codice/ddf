@@ -62,6 +62,7 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.SourcePoller;
@@ -112,12 +113,17 @@ public class FederationStrategyTest {
 
   private ActionRegistry sourceActionRegistry;
 
+  private SourceCapabilityRegistry sourceCapabilityRegistry;
+
   @Rule public PowerMockRule rule = new PowerMockRule();
 
   @Before
   public void setup() throws Exception {
     sourceActionRegistry = mock(ActionRegistry.class);
     when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
+
+    sourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(sourceCapabilityRegistry.list(any())).thenReturn(Collections.emptyList());
 
     mockQuery = mock(Query.class);
     when(mockQuery.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
@@ -169,7 +175,8 @@ public class FederationStrategyTest {
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
 
-    SourceOperations sourceOperations = new SourceOperations(props, sourceActionRegistry);
+    SourceOperations sourceOperations =
+        new SourceOperations(props, sourceActionRegistry, sourceCapabilityRegistry);
 
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);

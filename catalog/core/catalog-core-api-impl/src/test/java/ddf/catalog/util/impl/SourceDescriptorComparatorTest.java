@@ -32,10 +32,14 @@ public class SourceDescriptorComparatorTest {
 
   @Before
   public void setup() throws Exception {
-    firstSource = new SourceDescriptorImpl("aSource", null, Collections.emptyList());
-    nextSource = new SourceDescriptorImpl("bSource", null, Collections.emptyList());
-    lastSource = new SourceDescriptorImpl("cSource", null, Collections.emptyList());
-    nullSource = new SourceDescriptorImpl(null, null, Collections.emptyList());
+    firstSource =
+        new SourceDescriptorImpl("aSource", null, Collections.emptyList(), Collections.emptyList());
+    nextSource =
+        new SourceDescriptorImpl("bSource", null, Collections.emptyList(), Collections.emptyList());
+    lastSource =
+        new SourceDescriptorImpl("cSource", null, Collections.emptyList(), Collections.emptyList());
+    nullSource =
+        new SourceDescriptorImpl(null, null, Collections.emptyList(), Collections.emptyList());
   }
 
   @Test

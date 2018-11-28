@@ -103,4 +103,16 @@
         </cm:managed-component>
     </cm:managed-service-factory>
 
+    <cm:managed-service-factory id="ddf.catalog.impl.capability.SourceCapabilityProviderImpl"
+                                factory-pid="ddf.catalog.impl.capability.SourceCapabilityProviderImpl" interface="ddf.catalog.source.SourceCapabilityProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.source.simple"/>
+        </service-properties>
+        <cm:managed-component class="ddf.catalog.impl.capability.SourceCapabilityProviderImpl">
+            <argument value="catalog.data.source.simple"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="container-managed" />
+        </cm:managed-component>
+    </cm:managed-service-factory>
+
 </blueprint>

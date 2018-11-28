@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 
 import ddf.action.Action;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 
 public class SourceDescriptorImplTest {
@@ -27,7 +28,16 @@ public class SourceDescriptorImplTest {
   public void testGetActions() {
     Action action = mock(Action.class);
     SourceDescriptorImpl sourceDescriptor =
-        new SourceDescriptorImpl("", Collections.emptySet(), Collections.singletonList(action));
+        new SourceDescriptorImpl(
+            "", Collections.emptySet(), Collections.singletonList(action), Collections.emptyList());
     assertThat(sourceDescriptor.getActions(), is(Collections.singletonList(action)));
+  }
+
+  @Test
+  public void testGetCapabilities() {
+    List<String> capabilities = Collections.singletonList("capability");
+    SourceDescriptorImpl sourceDescriptor =
+        new SourceDescriptorImpl("", Collections.emptySet(), Collections.emptyList(), capabilities);
+    assertThat(sourceDescriptor.getCapabilities(), is(capabilities));
   }
 }

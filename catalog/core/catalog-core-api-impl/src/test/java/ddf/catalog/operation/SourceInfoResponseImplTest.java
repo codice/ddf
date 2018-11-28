@@ -38,9 +38,12 @@ public class SourceInfoResponseImplTest {
 
   @Before
   public void setup() {
-    firstSource = new SourceDescriptorImpl("aSource", null, Collections.emptyList());
-    nextSource = new SourceDescriptorImpl("BSource", null, Collections.emptyList());
-    lastSource = new SourceDescriptorImpl("cSource", null, Collections.emptyList());
+    firstSource =
+        new SourceDescriptorImpl("aSource", null, Collections.emptyList(), Collections.emptyList());
+    nextSource =
+        new SourceDescriptorImpl("BSource", null, Collections.emptyList(), Collections.emptyList());
+    lastSource =
+        new SourceDescriptorImpl("cSource", null, Collections.emptyList(), Collections.emptyList());
 
     sourceDescriptors = new TreeSet<SourceDescriptor>(new SourceDescriptorComparator());
     sourceDescriptors.add(lastSource);
@@ -62,7 +65,8 @@ public class SourceInfoResponseImplTest {
 
   @Test
   public void testSourceInfoResponseNullSourceId() {
-    SourceDescriptor desc = new SourceDescriptorImpl(null, null, Collections.emptyList());
+    SourceDescriptor desc =
+        new SourceDescriptorImpl(null, null, Collections.emptyList(), Collections.emptyList());
     sourceDescriptors.add(desc);
 
     SourceDescriptor[] expectedDescriptorArr =

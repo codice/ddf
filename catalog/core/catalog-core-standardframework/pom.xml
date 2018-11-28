@@ -406,6 +406,7 @@
                             ddf.catalog.history,
                             ddf.catalog.impl.operations,
                             ddf.catalog.impl.action,
+                            ddf.catalog.impl.capability,
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.actions,
                             ddf.catalog.resource.download,

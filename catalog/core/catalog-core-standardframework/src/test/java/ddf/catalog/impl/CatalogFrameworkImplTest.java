@@ -130,6 +130,7 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.SourceUnavailableException;
@@ -234,6 +235,8 @@ public class CatalogFrameworkImplTest {
   RemoteDeleteOperations mockRemoteDeleteOperations;
 
   private ActionRegistry sourceActionRegistry;
+
+  private SourceCapabilityRegistry sourceCapabilityRegistry;
 
   UuidGenerator uuidGenerator;
 
@@ -400,13 +403,16 @@ public class CatalogFrameworkImplTest {
     sourceActionRegistry = mock(ActionRegistry.class);
     when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
 
+    sourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(sourceCapabilityRegistry.list(any())).thenReturn(Collections.emptyList());
+
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(frameworkProperties, sourceActionRegistry, sourceCapabilityRegistry);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
@@ -1399,7 +1405,7 @@ public class CatalogFrameworkImplTest {
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(frameworkProperties, sourceActionRegistry, sourceCapabilityRegistry);
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
     OperationsStorageSupport opsStorage =
@@ -2774,7 +2780,8 @@ public class CatalogFrameworkImplTest {
     frameworkProperties.setFederationStrategy(strategy);
     frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
-    SourceOperations sourceOps = new SourceOperations(frameworkProperties, sourceActionRegistry);
+    SourceOperations sourceOps =
+        new SourceOperations(frameworkProperties, sourceActionRegistry, sourceCapabilityRegistry);
     QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null, null);
     ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
     resOps.setId(DDF);

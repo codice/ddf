@@ -26,23 +26,30 @@ import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.CachedSource;
 import ddf.catalog.util.impl.SourcePoller;
 import java.util.Collections;
+import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SourceOperationsTest {
 
-  @Test
-  public void testGettingSourceActions() throws SourceUnavailableException {
+  private FrameworkProperties frameworkProperties;
 
-    CachedSource cachedSource = mock(CachedSource.class);
+  private CachedSource cachedSource;
+
+  private SourceInfoRequest sourceInfoRequest;
+
+  @Before
+  public void setup() {
+    cachedSource = mock(CachedSource.class);
     when(cachedSource.getId()).thenReturn("source-id");
 
-    Action action = mock(Action.class);
-    FrameworkProperties frameworkProperties = mock(FrameworkProperties.class);
+    frameworkProperties = mock(FrameworkProperties.class);
 
     CatalogProvider catalogProvider = mock(CatalogProvider.class);
 
@@ -54,17 +61,49 @@ public class SourceOperationsTest {
 
     when(frameworkProperties.getSourcePoller()).thenReturn(sourcePoller);
 
+    sourceInfoRequest = mock(SourceInfoRequest.class);
+  }
+
+  @Test
+  public void testGettingSourceActions() throws SourceUnavailableException {
+
+    Action action = mock(Action.class);
+
     ActionRegistry actionRegistry = mock(ActionRegistry.class);
     when(actionRegistry.list(cachedSource)).thenReturn(Collections.singletonList(action));
 
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties, actionRegistry);
+    SourceCapabilityRegistry sourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(sourceCapabilityRegistry.list(any())).thenReturn(Collections.emptyList());
+
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, actionRegistry, sourceCapabilityRegistry);
     sourceOperations.bind((CatalogProvider) null);
-    SourceInfoRequest sourceInfoRequest = mock(SourceInfoRequest.class);
     SourceInfoResponse sourceInfoResponse = sourceOperations.getSourceInfo(sourceInfoRequest, true);
 
     assertThat(sourceInfoResponse.getSourceInfo(), hasSize(1));
     SourceDescriptor sourceDescriptor =
         sourceInfoResponse.getSourceInfo().toArray(new SourceDescriptor[0])[0];
     assertThat(sourceDescriptor.getActions(), is(Collections.singletonList(action)));
+  }
+
+  @Test
+  public void testGettingSourceCapabilities() throws SourceUnavailableException {
+    List<String> capabilities = Collections.singletonList("capability");
+
+    ActionRegistry actionRegistry = mock(ActionRegistry.class);
+    when(actionRegistry.list(any())).thenReturn(Collections.emptyList());
+
+    SourceCapabilityRegistry sourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(sourceCapabilityRegistry.list(cachedSource)).thenReturn(capabilities);
+
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, actionRegistry, sourceCapabilityRegistry);
+    sourceOperations.bind((CatalogProvider) null);
+    SourceInfoResponse sourceInfoResponse = sourceOperations.getSourceInfo(sourceInfoRequest, true);
+
+    assertThat(sourceInfoResponse.getSourceInfo(), hasSize(1));
+    SourceDescriptor sourceDescriptor =
+        sourceInfoResponse.getSourceInfo().toArray(new SourceDescriptor[0])[0];
+    assertThat(sourceDescriptor.getCapabilities(), is(capabilities));
   }
 }

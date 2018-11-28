@@ -33,7 +33,7 @@
             will not be listed as a configurable source type in the Sources tab of the Admin UI. The pattern
             can be an exact, case-sensitive match, or '*' can be used as a wildcard.
             Ex: '*source*' will match anything containing 'source'."
-            type="String" default="ddf.services.schematron.SchematronValidationServicer,ddf.catalog.impl.action.SourceActionProviderImpl" cardinality="100"/>
+            type="String" default="ddf.services.schematron.SchematronValidationServicer,ddf.catalog.impl.action.SourceActionProviderImpl,ddf.catalog.impl.capability.SourceCapabilityProviderImpl" cardinality="100"/>
 
     </OCD>
 

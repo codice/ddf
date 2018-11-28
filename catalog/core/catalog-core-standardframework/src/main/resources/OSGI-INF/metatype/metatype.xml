@@ -61,8 +61,17 @@
         <AD name="URL" id="url" type="String"/>
     </OCD>
 
+    <OCD name="Source Capabilities" id="ddf.catalog.impl.capability.SourceCapabilityProviderImpl">
+        <AD name="Source ID" id="sourceId" type="String"/>
+        <AD name="Capabilities" id="capabilities" type="String" cardinality="100"/>
+    </OCD>
+
     <Designate pid="ddf.catalog.impl.action.SourceActionProviderImpl">
         <Object ocdref="ddf.catalog.impl.action.SourceActionProviderImpl"/>
+    </Designate>
+
+    <Designate pid="ddf.catalog.impl.capability.SourceCapabilityProviderImpl">
+        <Object ocdref="ddf.catalog.impl.capability.SourceCapabilityProviderImpl"/>
     </Designate>
 
     <Designate

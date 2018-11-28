@@ -50,6 +50,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCapabilityRegistry;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.CachedSource;
@@ -107,11 +108,15 @@ public class CatalogFrameworkQueryTest {
     ActionRegistry sourceActionRegistry = mock(ActionRegistry.class);
     when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
 
+    SourceCapabilityRegistry sourceCapabilityRegistry = mock(SourceCapabilityRegistry.class);
+    when(sourceCapabilityRegistry.list(any())).thenReturn(Collections.emptyList());
+
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(props, sourceActionRegistry);
+    SourceOperations sourceOperations =
+        new SourceOperations(props, sourceActionRegistry, sourceCapabilityRegistry);
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);
     ResourceOperations resourceOperations =
