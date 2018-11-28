@@ -64,14 +64,18 @@ class Menu extends React.Component {
         break
     }
   }
+  componentDidUpdate(previousProps) {
+    const { children } = this.props
+    if (previousProps.children !== children) {
+      if (typeof this.state.active === 'undefined' && children.length > 0) {
+        this.setState({ active: children[0].props.value })
+      } else if (children.length === 0) {
+        this.setState({ active: undefined })
+      }
+    }
+  }
   render() {
     const { value, children } = this.props
-
-    if (typeof this.state.active === 'undefined' && children.length > 0) {
-      this.state.active = children[0].props.value
-    } else if (children.length === 0) {
-      this.state.active = undefined
-    }
 
     const childrenWithProps = React.Children.map(children, (child, i) => {
       return React.cloneElement(child, {
