@@ -34,4 +34,7 @@ public interface UuidGenerator {
    * @return
    */
   boolean validateUuid(String uuid);
+
+  /** Returns true if the generated UUIDs contain hyphens or not */
+  boolean useHyphens();
 }

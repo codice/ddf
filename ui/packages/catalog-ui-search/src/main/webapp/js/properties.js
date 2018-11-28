@@ -15,7 +15,6 @@ var DEFAULT_AUTO_MERGE_TIME = 1000
 
 const $ = require('jquery')
 const _ = require('underscore')
-const plugin = require('plugins/properties')
 
 function match(regexList, attribute) {
   return (
@@ -42,8 +41,6 @@ var properties = {
   CQL_DATE_FORMAT: 'YYYY-MM-DD[T]HH:mm:ss[Z]',
 
   ui: {},
-
-  useHyphensInUUIDGeneration: false,
 
   filters: {
     METADATA_CONTENT_TYPE: 'metadata-content-type',
@@ -110,6 +107,7 @@ var properties = {
     this.handleExperimental()
     this.handleUpload()
     this.handleListTemplates()
+
     return props
   },
   handleListTemplates() {
@@ -171,4 +169,4 @@ var properties = {
   },
 }
 
-module.exports = plugin(properties.init())
+module.exports = properties.init()

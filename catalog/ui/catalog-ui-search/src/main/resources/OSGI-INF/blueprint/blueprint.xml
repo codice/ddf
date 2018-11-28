@@ -75,9 +75,13 @@
                             unbind-method="unbind" ref="configurationApplication"/>
     </reference-list>
 
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"/>
+
     <bean id="configurationApplication"
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
+        <argument ref="uuidGenerator"/>
+
         <cm:managed-properties
             persistent-id="org.codice.ddf.catalog.ui"
             update-strategy="container-managed"/>
@@ -400,9 +404,6 @@
     </bean>
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
-
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
-               filter="(id=uuidGenerator)"/>
 
     <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
 

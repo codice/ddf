@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.proxy.http.HttpProxyService;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class ConfigurationApplicationTest {
 
   @Before
   public void setUp() {
-    configurationApplication = new ConfigurationApplication();
+    configurationApplication = new ConfigurationApplication(mock(UuidGenerator.class));
   }
 
   @Test

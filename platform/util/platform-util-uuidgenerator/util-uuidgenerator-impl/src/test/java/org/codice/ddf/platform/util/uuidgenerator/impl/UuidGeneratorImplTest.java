@@ -55,7 +55,7 @@ public class UuidGeneratorImplTest {
 
   @Test
   public void testGenerateIdHyphens() {
-    uuidGenerator.setRemoveHyphens(false);
+    uuidGenerator.setUseHyphens(true);
     String uuid = uuidGenerator.generateUuid();
     assertThat(uuid.length(), is(36));
     assertThat(uuidGenerator.validateUuid(uuid), is(true));
@@ -70,7 +70,7 @@ public class UuidGeneratorImplTest {
 
   @Test
   public void testValidateUuid() {
-    uuidGenerator.setRemoveHyphens(false);
+    uuidGenerator.setUseHyphens(true);
     for (String id : INVALID_ID_LIST_HYPHENS) {
       assertThat(uuidGenerator.validateUuid(id), is(false));
     }
@@ -78,9 +78,9 @@ public class UuidGeneratorImplTest {
 
   @Test
   public void testValidateUuidBothFormats() {
-    uuidGenerator.setRemoveHyphens(false);
+    uuidGenerator.setUseHyphens(true);
     assertThat(uuidGenerator.validateUuid(UUID.randomUUID().toString()), is(true));
-    uuidGenerator.setRemoveHyphens(true);
+    uuidGenerator.setUseHyphens(true);
     assertThat(uuidGenerator.validateUuid(UUID.randomUUID().toString()), is(false));
   }
 }

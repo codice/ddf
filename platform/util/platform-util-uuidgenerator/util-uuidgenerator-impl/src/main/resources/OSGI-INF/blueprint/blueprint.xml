@@ -18,7 +18,7 @@
     <bean id="uuidGenerator" class="org.codice.ddf.platform.util.uuidgenerator.impl.UuidGeneratorImpl">
         <cm:managed-properties persistent-id="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
                                update-strategy="container-managed" />
-        <property name="removeHyphens" value="true"/>
+        <property name="useHyphens" value="false"/>
     </bean>
 
     <service ref="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator">

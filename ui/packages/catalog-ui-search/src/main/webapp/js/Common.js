@@ -14,7 +14,8 @@
 const $ = require('jquery')
 const moment = require('moment')
 const _ = require('underscore')
-require('./requestAnimationFramePolyfill.js')
+require('./requestAnimationFramePolyfill')
+const properties = require('properties')
 
 const timeZones = {
   UTC: 'Etc/UTC',
@@ -64,7 +65,15 @@ module.exports = {
       d = Math.floor(d / 16)
       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
     })
-    return uuid
+    if (!properties.useHyphensInUuid) return uuid
+
+    const chunks = uuid.match(/.{1,4}/g)
+
+    const prefix = chunks.slice(0, 2).join('')
+    const middle = chunks.slice(2, 5).join('-')
+    const suffix = chunks.slice(5, chunks.length).join('')
+
+    return `${prefix}-${middle}-${suffix}`
   },
   cqlToHumanReadable: function(cql) {
     if (cql === undefined) {

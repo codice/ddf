@@ -26,16 +26,16 @@ public class UuidGeneratorImpl implements UuidGenerator {
       Pattern.compile(
           "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-  private Boolean removeHyphens = true;
+  private Boolean useHyphens = false;
 
-  public void setRemoveHyphens(Boolean removeHyphens) {
-    this.removeHyphens = removeHyphens;
+  public void setUseHyphens(Boolean useHyphens) {
+    this.useHyphens = useHyphens;
   }
 
   @Override
   public String generateUuid() {
     String uuid = UUID.randomUUID().toString();
-    if (removeHyphens) {
+    if (useHyphens) {
       uuid = uuid.replaceAll("-", "");
     }
     return uuid;
@@ -47,11 +47,16 @@ public class UuidGeneratorImpl implements UuidGenerator {
       return false;
     }
 
-    if (removeHyphens && uuid.length() == 32) {
+    if (useHyphens && uuid.length() == 32) {
       return hexPattern.matcher(uuid).matches();
-    } else if (!removeHyphens && uuid.length() == 36) {
+    } else if (!useHyphens && uuid.length() == 36) {
       return hexPatternWithHypens.matcher(uuid).matches();
     }
     return false;
+  }
+
+  @Override
+  public boolean useHyphens() {
+    return this.useHyphens;
   }
 }
