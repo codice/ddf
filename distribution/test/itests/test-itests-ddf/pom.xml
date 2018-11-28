@@ -443,38 +443,35 @@
                             <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codice.acdebugger</groupId>
+                <artifactId>acdebugger-maven-plugin</artifactId>
+                <version>${acdebugger.version}</version>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                    <remoteDebugging>${isDebugEnabled}</remoteDebugging>
+                    <host>localhost</host>
+                    <port>${acdebugger.port}</port>
+                    <wait>false</wait>
+                    <timeout>1</timeout>
+                    <reconnect>false</reconnect>
+                    <continuous>true</continuous>
+                    <admin>false</admin>
+                    <debug>true</debug>
+                    <service>false</service>
+                    <wait>true</wait>
+                    <fail>true</fail>
+                    <grant>false</grant>
+                </configuration>
+                <executions>
                     <execution>
-                        <id>attach-ace-debugger</id>
-                        <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>start</goal>
                         </goals>
-                        <configuration>
-                            <skip>${isDebugEnabled}</skip>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-jar</argument>
-                                <argument>${settings.localRepository}/org/codice/acdebugger/acdebugger-debugger/${acdebugger.version}/acdebugger-debugger-${acdebugger.version}-jar-with-dependencies.jar</argument>
-                                <argument>--port</argument>
-                                <argument>${acdebugger.port}</argument>
-                                <argument>--continuous</argument>
-                                <argument>--debug</argument>
-                                <argument>--wait</argument>
-                                <argument>--fail</argument>
-                            </arguments>
-                            <async>true</async>
-                        </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codice.acdebugger</groupId>
-                        <artifactId>acdebugger-debugger</artifactId>
-                        <version>${acdebugger.version}</version>
-                        <classifier>jar-with-dependencies</classifier>
-                        <type>jar</type>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
