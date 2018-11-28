@@ -56,9 +56,8 @@
         <ddf.support.version>2.3.16</ddf.support.version>
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
         <codice-maven.version>0.1</codice-maven.version>
-
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
-        <acdebugger.version>1.5</acdebugger.version>
+        <acdebugger.version>1.7</acdebugger.version>
         <!--temporary codice version of pax web-->
         <pax.web.codice.version>7.2.4.CODICE</pax.web.codice.version>
         <!-- Do NOT set karaf.data or karaf.base -->
