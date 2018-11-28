@@ -42,9 +42,6 @@
             <argument value="20"/>
             <argument value="5"/>
             <argument ref="inputTransformerIds"/>
-            <argument value="30000"/>
-            <!--<argument value="300000"/>-->
-            <argument value="60000"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>

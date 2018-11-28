@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.transform.InputTransformer;
@@ -65,6 +66,16 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
+  private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS =
+      TimeUnit.MINUTES.toSeconds(5);
+
+  private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(30);
+
+  private static final String TRANSFORMER_WAIT_TIMEOUT_PROPERTY =
+      "org.codice.ddf.cdm.transformerWaitTimeoutSeconds";
+
+  private static final String TRANSFORMER_ID_PROPERTY = "id";
+
   private static final Security SECURITY = Security.getInstance();
 
   private final long transformerCheckPeriodMillis;
@@ -82,8 +93,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private final CamelContext camelContext;
 
   private final AttributeRegistry attributeRegistry;
-
-  private boolean destroyed = false;
 
   private List<ServiceReference<InputTransformer>> inputTransformers;
 
@@ -121,7 +130,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * @param transformerWaitTimeout amount of time in milliseconds to timeout while waiting for
    *     InputTransformers
    */
-  public ContentDirectoryMonitor(
+  @VisibleForTesting
+  ContentDirectoryMonitor(
       CamelContext camelContext,
       AttributeRegistry attributeRegistry,
       int maxRetries,
@@ -136,6 +146,34 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     this.inputTransformerIds = inputTransformerIds;
     transformerCheckPeriodMillis = transformerCheckPeriod;
     transformerWaitTimeoutMillis = transformerWaitTimeout;
+    setBlacklist();
+  }
+
+  /**
+   * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
+   * the given Executor to run the setup and Camel configuration.
+   *
+   * @param camelContext the Camel context to use across all Content directory monitors.
+   * @param attributeRegistry {@link AttributeRegistry} to use to perform attribute lookup for
+   *     attribute overrides for in-place monitoring
+   * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
+   *     directory monitor, the number of times it will poll.
+   * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
+   *     content directory monitor, the number of seconds it will wait between consecutive polls.
+   */
+  public ContentDirectoryMonitor(
+      CamelContext camelContext,
+      AttributeRegistry attributeRegistry,
+      int maxRetries,
+      int delayBetweenRetries,
+      InputTransformerIds inputTransformerIds) {
+    this.camelContext = camelContext;
+    this.attributeRegistry = attributeRegistry;
+    this.maxRetries = maxRetries;
+    this.delayBetweenRetries = delayBetweenRetries;
+    this.inputTransformerIds = inputTransformerIds;
+    transformerCheckPeriodMillis = DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS;
+    transformerWaitTimeoutMillis = getTransformerWaitTimeout();
     setBlacklist();
   }
 
@@ -210,30 +248,20 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   @SuppressWarnings(
       "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
-    synchronized (lock) {
-      destroyed = true;
+    if (routeBuilder == null) {
+      return;
+    }
 
+    for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
-        if (routeBuilder == null) {
-          return;
-        }
-
-        for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
-          try {
-            String routeId = routeDef.getId();
-            LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
-            camelContext.stopRoute(routeId);
-            boolean status = camelContext.removeRoute(routeId);
-            LOGGER.trace("Status of removing route {} is {}", routeId, status);
-            camelContext.removeRouteDefinition(routeDef);
-          } catch (Exception e) {
-            LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
-          }
-        }
-
-      } finally {
-        // Wake up thread waiting for InputTransformer if it was waiting.
-        lock.notifyAll();
+        String routeId = routeDef.getId();
+        LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
+        camelContext.stopRoute(routeId);
+        boolean status = camelContext.removeRoute(routeId);
+        LOGGER.trace("Status of removing route {} is {}", routeId, status);
+        camelContext.removeRouteDefinition(routeDef);
+      } catch (Exception e) {
+        LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
       }
     }
   }
@@ -247,21 +275,18 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    */
   public void updateCallback(Map<String, Object> properties) {
     if (properties != null) {
-      synchronized (lock) {
-        setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
-        setProcessingMechanism((String) properties.get("processingMechanism"));
-        setNumThreads((Integer) properties.get("numThreads"));
-        setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
+      setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
+      setProcessingMechanism((String) properties.get("processingMechanism"));
+      setNumThreads((Integer) properties.get("numThreads"));
+      setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
 
-        String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-        if (parameterArray != null) {
-          setAttributeOverrides(Arrays.asList(parameterArray));
-        }
-
-        destroy(0);
-        destroyed = false;
-        init();
+      String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+      if (parameterArray != null) {
+        setAttributeOverrides(Arrays.asList(parameterArray));
       }
+
+      destroy(0);
+      init();
     }
   }
 
@@ -295,9 +320,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   public void setInputTransformers(List<ServiceReference<InputTransformer>> inputTransformers) {
-    synchronized (lock) {
-      this.inputTransformers = inputTransformers;
-    }
+    this.inputTransformers = inputTransformers;
   }
 
   private String getBlackListAsRegex() {
@@ -329,36 +352,29 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * </ol>
    */
   private void attemptAddRoutes() {
-    synchronized (lock) {
-      try {
-        waitForInputTransformers();
-      } catch (InterruptedException e) {
-        LOGGER.warn(
-            "Interrupted while waiting for InputTransformers, CDM route will not be started, but configuration may still exist. The configuration should be deleted and remade or the system should be restarted.");
-        Thread.currentThread().interrupt();
-        return;
-      } catch (IllegalStateException e) {
-        LOGGER.info(
-            "CDM config for {} deleted while waiting for InputTransformers, CDM camel route won't be started",
-            monitoredDirectory);
-        return;
-      }
+    try {
+      waitForInputTransformers();
+    } catch (InterruptedException e) {
+      LOGGER.warn(
+          "Interrupted while waiting for InputTransformers, CDM route will not be started, but the configuration may still exist. The configuration should be deleted and remade or the system should be restarted.");
+      Thread.currentThread().interrupt();
+      return;
+    }
 
-      LOGGER.trace(
-          "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
-      try {
-        routeBuilder = createRouteBuilder();
-        verifyCamelComponentIsAvailable("content");
-        verifyCamelComponentIsAvailable("catalog");
-        camelContext.addRoutes(routeBuilder);
-      } catch (Exception e) {
-        LOGGER.info(
-            "Unable to configure Camel route. Resources will not be ingested. CDM configuration may still exist and should be remade",
-            e);
-      } finally {
-        if (LOGGER.isDebugEnabled()) {
-          dumpCamelContext("after attemptAddRoutes()");
-        }
+    LOGGER.trace(
+        "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
+    try {
+      routeBuilder = createRouteBuilder();
+      verifyCamelComponentIsAvailable("content");
+      verifyCamelComponentIsAvailable("catalog");
+      camelContext.addRoutes(routeBuilder);
+    } catch (Exception e) {
+      LOGGER.warn(
+          "Unable to configure Camel route. Resources will not be ingested. CDM configuration may still exist and should be deleted and remade or the system should be restarted.",
+          e);
+    } finally {
+      if (LOGGER.isDebugEnabled()) {
+        dumpCamelContext("after attemptAddRoutes()");
       }
     }
   }
@@ -366,54 +382,51 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   /**
    * Blocking method that waits for {@link InputTransformer} services.
    *
-   * @throws IllegalStateException if the CDM configuration was deleted while waiting for
-   *     InputTransformers
    * @throws InterruptedException if the thread was interrupted while waiting for InputTransformers
    * @throws IllegalArgumentException if the expected InputTransformers are not available
    */
-  @SuppressWarnings(
-      "squid:S135" /* 2 breaks are needed in the for loop for the 2 exit conditions */)
   private void waitForInputTransformers() throws InterruptedException {
-    synchronized (lock) {
-      final String propertyId = "id";
-      Set<String> configuredInputTransformers = inputTransformerIds.getIds();
-      if (configuredInputTransformers.isEmpty()) {
-        return;
+    Set<String> configuredInputTransformers = inputTransformerIds.getIds();
+    if (configuredInputTransformers.isEmpty()) {
+      return;
+    }
+
+    Set<String> requiredInputTransformers = new HashSet<>(configuredInputTransformers);
+    long lastChecked = System.currentTimeMillis();
+    long end = lastChecked + transformerWaitTimeoutMillis;
+    LOGGER.trace(
+        "Beginning wait for InputTransformers for {} seconds",
+        TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis));
+    for (; ; ) {
+      for (ServiceReference serviceReference : inputTransformers) {
+        Object propertyValue = serviceReference.getProperty(TRANSFORMER_ID_PROPERTY);
+        if (propertyValue instanceof String) {
+          requiredInputTransformers.remove(propertyValue);
+          LOGGER.debug("Remaining property values {}", requiredInputTransformers);
+        }
       }
 
-      Set<String> requiredInputTransformers = new HashSet<>(configuredInputTransformers);
-      long lastChecked = System.currentTimeMillis();
-      long end = lastChecked + transformerWaitTimeoutMillis;
-      for (; ; ) {
-        if (destroyed) {
-          throw new IllegalStateException();
-        }
+      if (requiredInputTransformers.isEmpty()) {
+        LOGGER.trace("Finished finding all InputTransformers");
+        break;
+      }
 
-        for (ServiceReference serviceReference : inputTransformers) {
-          Object propertyValue = serviceReference.getProperty(propertyId);
-          if (propertyValue instanceof String) {
-            requiredInputTransformers.remove(propertyValue);
-            LOGGER.debug("Remaining property values {}", requiredInputTransformers);
-          }
-        }
-
-        if (requiredInputTransformers.isEmpty()) {
-          LOGGER.trace("Finished finding all InputTransformers");
-          break;
-        }
-
-        if (lastChecked >= end) {
-          throw new IllegalArgumentException(
-              String.format(
-                  "Not all expected Input Transformers were found within %s seconds. Expected: %s, but didn't find: %s.",
-                  TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis),
-                  configuredInputTransformers,
-                  requiredInputTransformers));
-        } else {
-          LOGGER.trace(
-              "Waiting {} seconds before checking InputTransformers again",
-              TimeUnit.MILLISECONDS.toSeconds(transformerCheckPeriodMillis));
-          lastChecked += transformerCheckPeriodMillis;
+      if (lastChecked >= end) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Not all expected Input Transformers were found within %s seconds. Expected: %s, but didn't find: %s. "
+                    + "CDMs will not be able to start without all required InputTransformers. Either remove the un-found "
+                    + "IDs from the InputTransformer ID JSON files under etc/transformers, or ensure the bundle providing "
+                    + "the missing InputTransformer is started.",
+                TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis),
+                configuredInputTransformers,
+                requiredInputTransformers));
+      } else {
+        LOGGER.trace(
+            "Waiting {} seconds before checking InputTransformers again",
+            TimeUnit.MILLISECONDS.toSeconds(transformerCheckPeriodMillis));
+        lastChecked += transformerCheckPeriodMillis;
+        synchronized (lock) {
           lock.wait(transformerCheckPeriodMillis);
         }
       }
@@ -553,5 +566,19 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     public void process(Exchange exchange) {
       ThreadContext.bind(SECURITY.getSystemSubject());
     }
+  }
+
+  private long getTransformerWaitTimeout() {
+    long timeoutSeconds;
+    try {
+      timeoutSeconds = Long.parseLong(System.getProperty(TRANSFORMER_WAIT_TIMEOUT_PROPERTY));
+    } catch (NumberFormatException e) {
+      timeoutSeconds = DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS;
+      LOGGER.debug(
+          "Invalid or no {} property as long. Using default timeout of {} seconds",
+          TRANSFORMER_WAIT_TIMEOUT_PROPERTY,
+          DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS);
+    }
+    return TimeUnit.SECONDS.toMillis(timeoutSeconds);
   }
 }
