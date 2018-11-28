@@ -25,7 +25,11 @@ class Menu extends React.Component {
     this.onKeyDown = this.onKeyDown.bind(this)
   }
   chooseActive(children) {
-    if ((typeof this.state === 'undefined' || typeof this.state.active === 'undefined') && children.length > 0) {
+    if (
+      (typeof this.state === 'undefined' ||
+        typeof this.state.active === 'undefined') &&
+      children.length > 0
+    ) {
       return children[0].props.value
     } else if (children.length === 0) {
       return null
@@ -73,7 +77,9 @@ class Menu extends React.Component {
   }
   componentDidUpdate(previousProps) {
     if (previousProps.children !== this.props.children) {
-      this.setState({ active: this.chooseActive(this.props.children) || undefined })
+      this.setState({
+        active: this.chooseActive(this.props.children) || undefined,
+      })
     }
   }
   render() {
