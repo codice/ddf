@@ -342,7 +342,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private String getPlainTextSolrPassword() {
-    return encryptionService.decrypt(
+    return encryptionService.decryptValue(
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.password")));
   }
