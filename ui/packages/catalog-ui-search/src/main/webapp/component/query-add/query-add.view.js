@@ -124,6 +124,7 @@ module.exports = Marionette.LayoutView.extend({
         model: this.model,
         isForm: false,
         isFormBuilder: false,
+        isAdd: true,
       })
     )
   },
