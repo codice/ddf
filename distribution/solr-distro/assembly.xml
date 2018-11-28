@@ -22,6 +22,10 @@
     <dependencySets>
         <dependencySet>
             <includes>
+                <include>org.codice:lux</include>
+                <include>net.sf.saxon:Saxon-HE</include>
+                <include>org.codehaus.woodstox:stax2-api</include>
+                <include>com.fasterxml.woodstox:woodstox-core</include>
                 <include>ddf.platform.solr:solr-xpath</include>
             </includes>
             <outputDirectory>/plugins</outputDirectory>

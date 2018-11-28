@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>catalog-solr</artifactId>
@@ -32,16 +32,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-dependencies</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-password</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -51,12 +41,22 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>lux</artifactId>
+            <version>${lux.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>${lux.saxon.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -76,82 +76,19 @@
                         <Embed-Dependency>
                             platform-util,
                             catalog-core-solr,
-                            slf4j-simple,
-                            solr-dependencies
+                            catalog-core-api-impl,
+                            lux,
+                            Saxon-HE
                         </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
-                        <!-- We want the maven-populated describable.properties, so we overwrite
-                            the src/main/resources one with the one in target -->
                         <Include-Resource>
                             {maven-resources},
                             target/classes/describable.properties
                         </Include-Resource>
                         <Export-Package/>
                         <Import-Package>
-                            com.vividsolutions.jts.algorithm,
-                            com.vividsolutions.jts.geom,
-                            com.vividsolutions.jts.geom.impl,
-                            com.vividsolutions.jts.io,
-                            com.vividsolutions.jts.operation.union,
-                            com.vividsolutions.jts.operation.valid,
-                            com.vividsolutions.jts.simplify,
-                            com.vividsolutions.jts.util,
-                            ddf.catalog.data;version="[2.0,3)",
-                            ddf.catalog.data.types;version="[2.0,3)",
-                            ddf.catalog.filter;version="[2.0,3)",
-                            ddf.catalog.operation;version="[2.0,3)",
-                            ddf.catalog.source;version="[2.0,3)",
-                            ddf.catalog.util;version="[2.0,3)",
-                            ddf.measure;version="[2.0,3)",
-                            ddf.platform.solr.security,
-                            ddf.security.encryption,
-                            javax.annotation,
-                            javax.crypto,
-                            javax.crypto.spec,
-                            javax.jms,
-                            javax.management,
-                            javax.management.openmbean,
-                            javax.management.remote,
-                            javax.naming,
-                            javax.naming.directory,
-                            javax.naming.ldap,
-                            javax.net,
-                            javax.net.ssl,
-                            javax.security.auth,
-                            javax.security.auth.callback,
-                            javax.security.auth.kerberos,
-                            javax.security.auth.login,
-                            javax.security.auth.spi,
-                            javax.security.auth.x500,
-                            javax.security.sasl,
-                            javax.servlet,
-                            javax.xml.namespace,
-                            javax.xml.parsers,
-                            javax.xml.stream,
-                            javax.xml.stream.events,
-                            javax.xml.stream.util,
-                            javax.xml.transform,
-                            javax.xml.transform.dom,
-                            javax.xml.transform.sax,
-                            javax.xml.transform.stream,
-                            javax.xml.xpath,
-                            org.apache.commons.logging;version="[1.1,2)",
-                            org.apache.xerces.parsers,
-                            org.apache.xerces.xni.parser,
-                            org.codice.ddf.cxf.client,
-                            org.codice.ddf.platform.util.uuidgenerator,
-                            org.ietf.jgss,
-                            org.opengis.filter,
-                            org.opengis.filter.expression,
-                            org.opengis.filter.sort,
-                            org.osgi.framework;version="[1.5,2)",
-                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
-                            org.slf4j;version="[1.6,2)",
-                            org.slf4j.spi;version="[1.6,2)",
-                            org.w3c.dom,
-                            org.xml.sax,
-                            org.xml.sax.ext,
-                            org.xml.sax.helpers
+                            <!--excluded javax.xml.xquery package coming from lux -->
+                            !javax.xml.xquery,
+                            *
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -170,7 +107,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>58.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

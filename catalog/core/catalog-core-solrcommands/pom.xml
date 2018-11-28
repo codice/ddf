@@ -172,65 +172,12 @@
                         <Karaf-Commands>org.codice.ddf.commands.solr</Karaf-Commands>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            solr-core,
-                            solr-solrj,
-                            httpclient,
-                            httpcore,
-                            httpmime,
-                            commons-io,
-                            commons-lang,
-                            lucene-core,
-                            joda-time,
                             platform-util
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.commands.solr
                         </Private-Package>
                         <Export-Package/>
-                        <Import-Package>
-                            !org.eclipse.jetty.server.bio,
-                            !org.eclipse.jetty.server.ssl,
-                            !org.eclipse.jetty.*,
-                            javax.crypto,
-                            javax.crypto.spec,
-                            javax.management,
-                            javax.management.openmbean,
-                            javax.management.remote,
-                            javax.naming,
-                            javax.naming.directory,
-                            javax.naming.ldap,
-                            javax.net,
-                            javax.net.ssl,
-                            javax.script,
-                            javax.security.auth.callback,
-                            javax.security.auth.login,
-                            javax.security.auth.x500,
-                            javax.security.sasl,
-                            javax.xml.bind,
-                            javax.xml.namespace,
-                            javax.xml.parsers,
-                            javax.xml.stream,
-                            javax.xml.transform,
-                            javax.xml.transform.dom,
-                            javax.xml.transform.sax,
-                            javax.xml.transform.stream,
-                            javax.xml.xpath,
-                            org.apache.commons.codec.binary,
-                            org.apache.commons.logging; version="[1.1.0,2.0.0)",
-                            org.apache.karaf.shell.api.action,
-                            org.apache.karaf.shell.api.action.lifecycle,
-                            org.apache.karaf.shell.console,
-                            org.codice.ddf.configuration,
-                            org.fusesource.jansi,
-                            org.ietf.jgss,
-                            org.osgi.framework;version="[1.5,2)",
-                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
-                            org.osgi.service.cm,
-                            org.slf4j;version="[1.6,2)",
-                            org.w3c.dom,
-                            org.xml.sax,
-                            org.xml.sax.ext
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

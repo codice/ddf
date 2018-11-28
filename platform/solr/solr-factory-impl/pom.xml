@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -17,15 +17,70 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf.persistence</groupId>
-        <artifactId>persistence</artifactId>
+        <artifactId>platform-solr</artifactId>
+        <groupId>ddf.platform.solr</groupId>
         <version>2.14.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.persistence.core</groupId>
-    <artifactId>persistence-core-impl</artifactId>
-    <name>DDF :: Persistence :: Core :: Internal Implementation</name>
+    <artifactId>solr-factory-impl</artifactId>
+    <name>DDF :: Platform :: Solr :: Factory Impl</name>
+    <description>Factory to create Solrj clients.</description>
     <packaging>bundle</packaging>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-core</artifactId>
+            <exclusions>
+                <!--excluding so tests don't load two instances of loggers-->
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-schema</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>${jodah-failsafe.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory</artifactId>
@@ -33,28 +88,14 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-query</artifactId>
+            <artifactId>solr-password</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.persistence.core</groupId>
-            <artifactId>persistence-core-api</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>test-common</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-cql</artifactId>
-            <version>${opengis.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>${commons-collections4.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -62,8 +103,22 @@
             <version>${mockito-core.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-junit</artifactId>
+            <version>${hamcrest-junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/solr-schema</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -72,7 +127,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            solr-query
+                            platform-util
                         </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
@@ -80,21 +135,24 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
                 <executions>
                     <execution>
-                        <id>check-artifact-size</id>
-                        <phase>verify</phase>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>enforce</goal>
+                            <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <rules>
-                                <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>4_MB</maxArtifactSize>
-                                </ArtifactSizeEnforcerRule>
-                            </rules>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>solr-schema</artifactId>
+                                    <outputDirectory>
+                                        ${project.build.directory}/solr-schema
+                                    </outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -117,19 +175,18 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.44</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.53</minimum>
+                                            <minimum>0.49</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.49</minimum>
+                                            <minimum>0.63</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

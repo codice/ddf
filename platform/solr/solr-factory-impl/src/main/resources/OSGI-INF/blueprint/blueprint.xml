@@ -10,19 +10,19 @@
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
- **/
+**/
 -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="solrFactory" interface="org.codice.solr.factory.SolrClientFactory"/>
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <reference id="solrPasswordUpdate" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>
 
-    <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">
-        <argument ref="solrFactory" />
+    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+        <argument ref="encryptionService"/>
+        <argument ref="solrPasswordUpdate"/>
     </bean>
-    
-    <service ref="persistentStore" id="persistentStoreService"
-             interface="org.codice.ddf.persistence.PersistentStore">
-    </service>
 
+    <service ref="solrClientFactory"
+             interface="org.codice.solr.factory.SolrClientFactory"/>
 </blueprint>

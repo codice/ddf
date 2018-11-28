@@ -50,8 +50,9 @@
         <module>solr-query</module>
         <module>solr-xpath</module>
         <module>solr-schema</module>
-        <module>solr-factory</module>
         <module>solr-appender</module>
         <module>solr-password</module>
+        <module>solr-factory</module>
+        <module>solr-factory-impl</module>
     </modules>
 </project>

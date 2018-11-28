@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.SolrCloudClientFactory;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
@@ -76,7 +75,7 @@ public class SolrProviderRealTimeQueryTest {
     // Set to false for real time query by ID tests
     store.setForceAutoCommit(false);
     String solrDataPath = Paths.get("target/surefire/solr/realtime").toString();
-    System.getProperty("solr.data.dir", solrDataPath);
+    System.setProperty("solr.data.dir", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
 
     miniSolrCloud =

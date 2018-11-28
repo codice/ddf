@@ -39,7 +39,7 @@ import org.apache.solr.common.params.SolrParams;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.SolrClientFactoryImpl;
+import org.codice.solr.factory.SolrClientFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +51,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PersistentStoreImplTest {
 
-  @Mock private SolrClientFactoryImpl solrClientFactory;
+  @Mock private SolrClientFactory solrClientFactory;
 
   @Mock private SolrClient solrClient;
 

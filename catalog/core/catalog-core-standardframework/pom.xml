@@ -27,21 +27,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-dependencies</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-password</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -234,10 +219,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
         </dependency>
@@ -270,22 +251,9 @@
             <artifactId>xml-apis</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -295,7 +263,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -304,6 +271,27 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>lux</artifactId>
+            <version>${lux.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>javax.servlet</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>${lux.saxon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -322,10 +310,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-defaultvalues</artifactId>
             <version>${project.version}</version>
@@ -340,15 +324,14 @@
         <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>security-rest-cxfwrapper</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>3.0.0</version>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -359,44 +342,19 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-
                         <Embed-Dependency>
                             activities,
                             catalog-core-actions,
                             catalog-core-solr,
-                            commons-collections,
-                            commons-lang3,
                             ddf-security-common,
                             hazelcast;scope=runtime|compile,
                             notifications,
                             platform-util,
                             versioning-common,
-                            tika-core,
-                            failsafe,
-                            solr-dependencies
+                            catalog-core-api-impl;scope=!test,
+                            lux,
+                            Saxon-HE
                         </Embed-Dependency>
-                        <Private-Package>
-                            ddf.catalog.cache.impl,
-                            ddf.catalog.cache.solr.impl,
-                            ddf.catalog.data.impl.*,
-                            ddf.catalog.event.retrievestatus,
-                            ddf.catalog.federation.base,
-                            ddf.catalog.filter.impl,
-                            ddf.catalog.impl,
-                            ddf.catalog.history,
-                            ddf.catalog.impl.operations,
-                            ddf.catalog.impl.action,
-                            ddf.catalog.operation.impl,
-                            ddf.catalog.resource.actions,
-                            ddf.catalog.resource.download,
-                            ddf.catalog.resource.impl,
-                            ddf.catalog.resourceretriever,
-                            ddf.catalog.source.impl,
-                            ddf.catalog.util.impl,
-                            org.codice.ddf.catalog.resource.cache.impl,
-                            org.codice.ddf.catalog.resource.download.impl,
-                            org.codice.ddf.platform.util
-                        </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,
                             ddf.catalog.resourceretriever,
@@ -406,130 +364,9 @@
                             org.codice.ddf.catalog.resource.download.internal
                         </Export-Package>
                         <Import-Package>
-                            !org.eclipse.jetty.server.bio,
-                            !org.eclipse.jetty.server.ssl,
-                            com.vividsolutions.jts.algorithm,
-                            com.vividsolutions.jts.geom,
-                            com.vividsolutions.jts.geom.impl,
-                            com.vividsolutions.jts.geom.prep,
-                            com.vividsolutions.jts.io,
-                            com.vividsolutions.jts.operation.union,
-                            com.vividsolutions.jts.operation.valid,
-                            com.vividsolutions.jts.simplify,
-                            com.vividsolutions.jts.util,
-                            ddf.action.impl,
-                            ddf.action;version="1.0",
-                            ddf.catalog.configuration,
-                            ddf.catalog.content.data;version="2.0",
-                            ddf.catalog.content.operation;version="2.0",
-                            ddf.catalog.content.plugin;version="2.0",
-                            ddf.catalog.content;version="2.0",
-                            ddf.catalog.core.versioning;version="2.0",
-                            ddf.catalog.data;version="2.0",
-                            ddf.catalog.data.types;version="2.0",
-                            ddf.catalog.event;version="2.0",
-                            ddf.catalog.federation;version="2.0",
-                            ddf.catalog.filter.delegate;version=${project.version},
-                            ddf.catalog.filter;version="2.0",
-                            ddf.catalog.operation;version="2.0",
-                            ddf.catalog.plugin;version="2.0",
-                            ddf.catalog.pubsub;version="2.0",
-                            ddf.catalog.resource;version="2.0",
-                            ddf.catalog.source;version="2.0",
-                            ddf.catalog.transform;version="2.0",
-                            ddf.catalog.util;version="2.0",
-                            ddf.catalog;version="2.0",
-                            ddf.platform.solr.security,
-                            ddf.security.common.audit;version="2.0",
-                            ddf.security.encryption,
-                            ddf.measure;version="2.0",
-                            ddf.mime,
-                            ddf.security,
-                            ddf.security.assertion,
-                            ddf.security.permission,
-                            ddf.security.service,
-                            javax.activation,
-                            javax.annotation,
-                            javax.crypto,
-                            javax.crypto.spec,
-                            javax.jms,
-                            javax.management,
-                            javax.management.openmbean,
-                            javax.management.remote,
-                            javax.naming,
-                            javax.naming.directory,
-                            javax.naming.ldap,
-                            javax.net,
-                            javax.net.ssl,
-                            javax.script,
-                            javax.security.auth,
-                            javax.security.auth.callback,
-                            javax.security.auth.kerberos,
-                            javax.security.auth.login,
-                            javax.security.auth.spi,
-                            javax.security.auth.x500,
-                            javax.security.sasl,
-                            javax.servlet,
-                            javax.ws.rs,
-                            javax.ws.rs.core,
-                            javax.ws.rs.ext,
-                            javax.xml.bind,
-                            javax.xml.datatype,
-                            javax.xml.namespace,
-                            javax.xml.parsers,
-                            javax.xml.stream,
-                            javax.xml.stream.events,
-                            javax.xml.stream.util,
-                            javax.xml.transform,
-                            javax.xml.transform.dom,
-                            javax.xml.transform.sax,
-                            javax.xml.transform.stax,
-                            javax.xml.transform.stream,
-                            javax.xml.xpath,
-                            org.apache.commons.collections4,
-                            org.apache.commons.logging;version="[1.1,2)",
-                            org.apache.cxf.jaxrs.client,
-                            org.apache.cxf.jaxrs.ext.multipart,
-                            org.apache.cxf.ws.security.tokenstore,
-                            org.apache.shiro,
-                            org.apache.shiro.authz,
-                            org.apache.shiro.subject,
-                            org.apache.tika,
-                            org.apache.tika.config,
-                            org.apache.tika.detect,
-                            org.apache.tika.metadata,
-                            org.apache.tika.mime,
-                            org.apache.tika.utils,
-                            org.apache.xerces.parsers,
-                            org.apache.xerces.xni.parser,
-                            org.apache.xml.resolver,
-                            org.apache.xml.resolver.helpers,
-                            org.codice.ddf.cxf.client,
-                            org.codice.ddf.platform.util.uuidgenerator,
-                            org.codice.ddf.security.handler.api,
-                            org.geotools.filter.visitor,
-                            org.geotools.geometry.jts.spatialschema,
-                            org.geotools.geometry.jts.spatialschema.geometry.aggregate,
-                            org.geotools.geometry.jts.spatialschema.geometry.geometry,
-                            org.geotools.geometry.jts.spatialschema.geometry.primitive,
-                            org.ietf.jgss,
-                            org.joda.convert,
-                            org.opengis.annotation,
-                            org.opengis.filter,
-                            org.opengis.filter.expression,
-                            org.opengis.filter.sort,
-                            org.opengis.filter.temporal,
-                            org.opengis.temporal,
-                            org.osgi.framework;version="[1.5,2)",
-                            org.osgi.service.blueprint.container,
-                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
-                            org.osgi.service.event,
-                            org.slf4j.ext,
-                            org.slf4j;version="[1.6,2)",
-                            org.w3c.dom,
-                            org.xml.sax,
-                            org.xml.sax.ext,
-                            org.xml.sax.helpers
+                            <!--excluded javax.xml.xquery package coming from lux -->
+                            !javax.xml.xquery,
+                            *
                         </Import-Package>
                     </instructions>
                 </configuration>

@@ -72,6 +72,11 @@
         <feature>joda-converter</feature>
         <feature>jodah-failsafe</feature>
         <feature>slf4j</feature>
+        <bundle>mvn:org.locationtech.spatial4j/spatial4j/${spatial4j.version}</bundle>
+        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+
+        <feature>jackson</feature>
+        <bundle>mvn:nu.validator.htmlparser/htmlparser/1.4</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}
@@ -86,8 +91,15 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment-impl/${project.version}</bundle>
     </feature>
 
+    <feature name="jackson" version="${project.version}">
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+    </feature>
+
     <feature name="catalog-core-plugins" version="${project.version}"
              description="Catalog core plugins">
+        <feature>jackson</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>

@@ -31,13 +31,11 @@ public class ConfigurationStoreTest {
 
   @Test
   public void isASingleton() {
-    store.setDisableTextPath(true);
     store.setInMemory(true);
     store.setForceAutoCommit(true);
 
     ConfigurationStore store2 = ConfigurationStore.getInstance();
 
-    assertThat(store.isDisableTextPath(), is(store2.isDisableTextPath()));
     assertThat(store.isInMemory(), is(store2.isInMemory()));
     assertThat(store.isForceAutoCommit(), is(store2.isForceAutoCommit()));
   }

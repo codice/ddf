@@ -44,15 +44,16 @@
 
 
     <feature name="persistence-core" version="${project.version}"
-        description="Internal Persistence Core Implementation">
-        <feature>solr-password</feature>
+             description="Internal Persistence Core Implementation">
+        <feature>persistence-core-api</feature>
+        <feature>solr-factory-impl</feature>
+
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
         <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
-        <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
@@ -63,4 +64,25 @@
         </bundle>
     </feature>
 
+    <feature name="solr-dependencies" version="${project.version}" >
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${solr.httpcore.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${solr.httpclient.version}</bundle>
+        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0</bundle>
+        <bundle>mvn:ddf.platform.solr/solr-dependencies/${project.version}</bundle>
+    </feature>
+
+    <feature name="solr-factory-api" version="${project.version}" >
+        <feature>solr-dependencies</feature>
+        <bundle>mvn:ddf.platform.solr/solr-factory/${project.version}</bundle>
+    </feature>
+
+    <feature name="solr-factory-impl" version="${project.version}"
+             description="Solr factory">
+        <feature>common-system</feature>
+        <feature>spring</feature>
+        <feature>solr-factory-api</feature>
+        <feature>solr-password</feature>
+        <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
+    </feature>
 </features>

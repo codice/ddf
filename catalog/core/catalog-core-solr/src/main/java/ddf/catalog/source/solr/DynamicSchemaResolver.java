@@ -86,7 +86,6 @@ import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
