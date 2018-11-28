@@ -19,13 +19,11 @@ import ddf.catalog.transform.InputTransformer;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -81,8 +79,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private final int delayBetweenRetries;
 
-  private final Executor configurationExecutor;
-
   private final CamelContext camelContext;
 
   private final AttributeRegistry attributeRegistry;
@@ -113,14 +109,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
    * the given Executor to run the setup and Camel configuration.
    *
-   * @param camelContext the Camel context to use across all Content directory monitors. * @param
+   * @param camelContext the Camel context to use across all Content directory monitors.
    * @param attributeRegistry {@link AttributeRegistry} to use to perform attribute lookup for
    *     attribute overrides for in-place monitoring
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
    * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
    *     content directory monitor, the number of seconds it will wait between consecutive polls.
-   * @param configurationExecutor the executor used to run configuration and updates.
    * @param transformerCheckPeriod amount of time in milliseconds to check for available
    *     InputTransformers
    * @param transformerWaitTimeout amount of time in milliseconds to timeout while waiting for
@@ -131,7 +126,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      Executor configurationExecutor,
       InputTransformerIds inputTransformerIds,
       long transformerCheckPeriod,
       long transformerWaitTimeout) {
@@ -139,7 +133,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
-    this.configurationExecutor = configurationExecutor;
     this.inputTransformerIds = inputTransformerIds;
     transformerCheckPeriodMillis = transformerCheckPeriod;
     transformerWaitTimeoutMillis = transformerWaitTimeout;
@@ -204,7 +197,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       return null;
     }
 
-    configurationExecutor.execute(this::attemptAddRoutes);
+    attemptAddRoutes();
     return null;
   }
 
@@ -341,7 +334,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         waitForInputTransformers();
       } catch (InterruptedException e) {
         LOGGER.warn(
-            "Interrupted while waiting for InputTransformers, CDM route will not be started, but configuration may still exist. The configuration should be deleted and remade.");
+            "Interrupted while waiting for InputTransformers, CDM route will not be started, but configuration may still exist. The configuration should be deleted and remade or the system should be restarted.");
         Thread.currentThread().interrupt();
         return;
       } catch (IllegalStateException e) {
@@ -376,19 +369,20 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * @throws IllegalStateException if the CDM configuration was deleted while waiting for
    *     InputTransformers
    * @throws InterruptedException if the thread was interrupted while waiting for InputTransformers
+   * @throws IllegalArgumentException if the expected InputTransformers are not available
    */
   @SuppressWarnings(
       "squid:S135" /* 2 breaks are needed in the for loop for the 2 exit conditions */)
   private void waitForInputTransformers() throws InterruptedException {
     synchronized (lock) {
       final String propertyId = "id";
-      Set<String> propertyValues = new HashSet<>(inputTransformerIds.getIds());
-
-      if (propertyValues.isEmpty()) {
+      Set<String> configuredInputTransformers = inputTransformerIds.getIds();
+      if (configuredInputTransformers.isEmpty()) {
         return;
       }
 
-      long lastChecked = new Date().getTime();
+      Set<String> requiredInputTransformers = new HashSet<>(configuredInputTransformers);
+      long lastChecked = System.currentTimeMillis();
       long end = lastChecked + transformerWaitTimeoutMillis;
       for (; ; ) {
         if (destroyed) {
@@ -398,20 +392,23 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         for (ServiceReference serviceReference : inputTransformers) {
           Object propertyValue = serviceReference.getProperty(propertyId);
           if (propertyValue instanceof String) {
-            propertyValues.remove(propertyValue);
-            LOGGER.debug("Remaining property values {}", propertyValues);
+            requiredInputTransformers.remove(propertyValue);
+            LOGGER.debug("Remaining property values {}", requiredInputTransformers);
           }
         }
 
-        if (propertyValues.isEmpty()) {
+        if (requiredInputTransformers.isEmpty()) {
           LOGGER.trace("Finished finding all InputTransformers");
           break;
         }
 
         if (lastChecked >= end) {
-          LOGGER.warn(
-              "Not all input transformers were found, starting up CDM route anyways. Ingested resources may not have expected metadata");
-          break;
+          throw new IllegalArgumentException(
+              String.format(
+                  "Not all expected Input Transformers were found within %s seconds. Expected: %s, but didn't find: %s.",
+                  TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis),
+                  configuredInputTransformers,
+                  requiredInputTransformers));
         } else {
           LOGGER.trace(
               "Waiting {} seconds before checking InputTransformers again",

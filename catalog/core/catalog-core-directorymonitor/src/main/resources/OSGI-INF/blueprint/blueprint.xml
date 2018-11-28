@@ -29,17 +29,6 @@
 
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
-    <bean id="executorService" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadExecutor">
-        <argument ref="cdmThreadFactoryBuilder"/>
-    </bean>
-
-    <bean id="cdmThreadFactoryBuilder"
-          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
-          factory-method="newThreadFactory">
-        <argument value="contentDirectoryMonitorThread"/>
-    </bean>
-
     <bean id="inputTransformerIds" class="org.codice.ddf.catalog.content.monitor.InputTransformerIds"/>
 
     <cm:managed-service-factory
@@ -52,10 +41,10 @@
             <argument ref="attributeRegistry"/>
             <argument value="20"/>
             <argument value="5"/>
-            <argument ref="executorService"/>
             <argument ref="inputTransformerIds"/>
             <argument value="30000"/>
-            <argument value="180000"/>
+            <!--<argument value="300000"/>-->
+            <argument value="60000"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>

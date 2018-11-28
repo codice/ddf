@@ -442,14 +442,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext,
-            mock(AttributeRegistry.class),
-            1,
-            1,
-            Runnable::run,
-            inputTransformerIds,
-            1,
-            5);
+            camelContext, mock(AttributeRegistry.class), 1, 1, inputTransformerIds, 1, 5);
 
     monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
