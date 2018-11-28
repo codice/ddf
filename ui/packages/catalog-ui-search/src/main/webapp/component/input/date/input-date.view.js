@@ -43,10 +43,14 @@ define([
             'dp.hide .input-group.date': 'removeResizeHandler'
         },
         serializeData: function () {
-            return _.extend(this.model.toJSON(), {
+            const propertyJSON = _.extend(this.model.toJSON(), {
                 cid: this.cid,
                 humanReadableDate: this.model.getValue() ? user.getUserReadableDate(this.model.getValue()) : this.model.getValue()
             });
+            if (propertyJSON.property.placeholder === undefined) {
+                propertyJSON.property.placeholder = getDateFormat();
+            }
+            return propertyJSON;
         },
         onRender: function () {
             this.initializeDatepicker();
