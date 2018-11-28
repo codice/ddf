@@ -333,15 +333,10 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         hasSize(0));
   }
 
-  @Test
-  public void testTimeoutWaitingForTransformersStartsNormally() {
+  @Test(expected = IllegalArgumentException.class)
+  public void testTimeoutWaitingForTransformersFails() {
     monitor.setInputTransformers(mockServiceReferences("notTheIdYouAreLookingFor"));
     submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
-
-    assertThat(
-        "The content directory monitor should timeout while waiting and start the route",
-        camelContext.getRouteDefinitions(),
-        hasSize(1));
   }
 
   private void doAndVerifyFileMove(
