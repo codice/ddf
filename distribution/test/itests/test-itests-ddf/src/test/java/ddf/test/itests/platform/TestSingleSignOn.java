@@ -841,17 +841,22 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     }
 
     private void parseJson(String json) {
+      final String whiteSpaceRegex = "(^\\s*\")|(\"\\s*$)";
       String[] keyValuePairs = json.split("[,]");
       for (String pair : keyValuePairs) {
-        String key = pair.split("[:]", 2)[0].replaceAll("(^\")|(\"$)", "");
-        String value = pair.split("[:]", 2)[1].replaceAll("(^\")|(\"$)", "");
+        String[] keyVal = pair.split("[:]", 2);
+        String key = keyVal[0].replaceAll(whiteSpaceRegex, "");
+        String value = keyVal[1].replaceAll(whiteSpaceRegex, "");
         params.put(key, value);
       }
     }
 
     private void parseBodyLogin() {
       // We're trying to parse a javascript variable that is embedded in an HTML form
-      Pattern pattern = Pattern.compile("window.idpState *= *\\{(.*)\\}", Pattern.CASE_INSENSITIVE);
+      Pattern pattern =
+          Pattern.compile(
+              "window.idpState\\s*=\\s*\\{\\s*(.*?)\\s?\\}",
+              Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
       Matcher matcher = pattern.matcher(response.body().asString());
       if (matcher.find()) {
         parseJson(matcher.group(1));

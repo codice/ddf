@@ -58,6 +58,7 @@
         <feature>spatial-wfs-core</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-streaming-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-handlebars/${project.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
 
     <feature name="spatial-wfs-core" version="${project.version}"

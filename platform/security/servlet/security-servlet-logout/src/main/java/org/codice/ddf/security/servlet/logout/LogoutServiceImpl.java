@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.security.servlet.logout;
 
-import static org.boon.Boon.toJson;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
@@ -33,8 +33,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.logout.service.LogoutService;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
 public class LogoutServiceImpl implements LogoutService {
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private List<ActionProvider> logoutActionProviders;
 
@@ -76,7 +83,7 @@ public class LogoutServiceImpl implements LogoutService {
       }
     }
 
-    return toJson(realmToPropMaps);
+    return GSON.toJson(realmToPropMaps);
   }
 
   public void setHttpSessionFactory(SessionFactory httpSessionFactory) {

@@ -39,8 +39,9 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
@@ -234,6 +235,7 @@
                             antlr4-runtime,
                             commons-lang3,
                             security-core-impl,
+                            gson-support,
                             httpcore,
                             httpclient
                         </Embed-Dependency>

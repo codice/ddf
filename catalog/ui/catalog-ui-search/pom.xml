@@ -70,8 +70,9 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -371,12 +372,6 @@
         <artifactId>tika-bundle</artifactId>
         <version>${tika.thirdparty.bundle.version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>${gson.version}</version>
-        <scope>test</scope>
-      </dependency>
     </dependencies>
 
     <build>
@@ -428,6 +423,7 @@
                             platform-email-impl,
                             platform-util,
                             tlmatcher,
+                            gson-support,
                             proxy-camel-route,
                             proxy-camel-servlet,
                             quartz,

@@ -17,12 +17,15 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -44,19 +47,17 @@ import ddf.security.Subject;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,15 +67,12 @@ import spark.servlet.SparkApplication;
 
 /** Provides an internal REST interface for working with custom form data for Intrigue. */
 public class SearchFormsApplication implements SparkApplication {
-  private static final ObjectMapper MAPPER =
-      JsonFactory.create(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .addPropertySerializer(new FilterNodeValueSerializer())
-              .useAnnotations()
-              .includeEmpty()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false));
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
+          .create();
 
   private final CatalogFramework catalogFramework;
 
@@ -135,7 +133,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),
-        MAPPER::toJson);
+        GSON::toJson);
 
     get(
         "/forms/result",
@@ -149,7 +147,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),
-        MAPPER::toJson);
+        GSON::toJson);
 
     // If no forms directory was created, disable intrusive catalog operations
     // Bailing out of this method early means the below routes will not be setup
@@ -167,12 +165,12 @@ public class SearchFormsApplication implements SparkApplication {
                     doCreateOrUpdate(
                         res,
                         Stream.of(safeGetBody(req))
-                            .map(MAPPER.parser()::parseMap)
+                            .map(this::parseMap)
                             .map(transformer::toQueryTemplateMetacard)
                             .filter(Objects::nonNull)
                             .findFirst()
                             .orElse(null))),
-        MAPPER::toJson);
+        GSON::toJson);
 
     put(
         "/forms/result",
@@ -184,12 +182,12 @@ public class SearchFormsApplication implements SparkApplication {
                     doCreateOrUpdate(
                         res,
                         Stream.of(safeGetBody(req))
-                            .map(MAPPER.parser()::parseMap)
+                            .map(this::parseMap)
                             .map(transformer::toAttributeGroupMetacard)
                             .filter(Objects::nonNull)
                             .findFirst()
                             .orElse(null))),
-        MAPPER::toJson);
+        GSON::toJson);
 
     delete(
         "/forms/:id",
@@ -264,6 +262,10 @@ public class SearchFormsApplication implements SparkApplication {
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           res.body(util.getJson(ImmutableMap.of(RESP_MSG, SOMETHING_WENT_WRONG)));
         });
+  }
+
+  private Map<String, Object> parseMap(String json) {
+    return GSON.fromJson(json, MAP_STRING_TO_OBJECT_TYPE);
   }
 
   private Map<String, Object> runWhenNotGuest(

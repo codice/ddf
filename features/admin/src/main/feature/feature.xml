@@ -112,8 +112,7 @@
         <bundle>mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
-        <bundle>mvn:com.google.code.gson/gson/${gson-version}</bundle>
-        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
 
         <feature>camel-blueprint</feature>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>

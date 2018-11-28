@@ -19,11 +19,14 @@ import static spark.route.RouteOverview.enableRouteOverview;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.Message;
@@ -34,14 +37,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.shiro.SecurityUtils;
-import org.boon.Boon;
-import org.boon.core.value.ValueList;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.query.feedback.FeedbackRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.platform.email.SmtpClient;
+import org.codice.gsonsupport.GsonTypeAdapters;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -53,7 +54,12 @@ public class FeedbackApplication implements SparkApplication {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackApplication.class);
 
-  private static final ObjectMapper MAPPER = JsonFactory.create();
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .setPrettyPrinting()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private ConfigurationApplication configurationApplication;
 
@@ -157,10 +163,11 @@ public class FeedbackApplication implements SparkApplication {
     String workspaceId = UNKNOWN;
     String workspaceName = UNKNOWN;
     Date searchInitiated = null;
-    ValueList searchStatus = null;
-    ValueList searchResults = null;
+    List<Object> searchStatus = null;
+    List<Object> searchResults = null;
 
-    Map<String, Object> rootObject = MAPPER.parser().parseMap(json);
+    Map<String, Object> rootObject =
+        GSON.fromJson(json, GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE);
 
     Object userObj = rootObject.get("user");
     if (userObj instanceof Map) {
@@ -174,10 +181,10 @@ public class FeedbackApplication implements SparkApplication {
       Map<String, Object> searchObject = (Map<String, Object>) searchObj;
       searchStr = (String) searchObject.get("cql");
       searchInitiated = (Date) searchObject.get("initiated");
-      searchStatus = (ValueList) searchObject.get("status");
+      searchStatus = (List) searchObject.get("status");
       Object resultsObj = searchObject.get("results");
-      if (resultsObj instanceof ValueList) {
-        searchResults = (ValueList) resultsObj;
+      if (resultsObj instanceof List) {
+        searchResults = (List) resultsObj;
       }
     }
 
@@ -197,7 +204,7 @@ public class FeedbackApplication implements SparkApplication {
       feedbackRequest.setQueryInitiated(searchInitiated.toString());
     }
     if (searchResults != null) {
-      String prettyPrintedJson = Boon.toPrettyJson(searchResults);
+      String prettyPrintedJson = GSON.toJson(searchResults);
       feedbackRequest.setQueryResults(prettyPrintedJson);
     }
     if (searchStatus != null) {

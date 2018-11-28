@@ -13,18 +13,26 @@
  */
 package org.codice.ddf.catalog.ui.searchui.standard.endpoints;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
-import org.boon.json.JsonFactory;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
 public class WorkspaceBodyReader implements MessageBodyReader<Map> {
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   @Override
   public boolean isReadable(
@@ -40,7 +48,7 @@ public class WorkspaceBodyReader implements MessageBodyReader<Map> {
       MediaType mediaType,
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream)
-      throws IOException, WebApplicationException {
-    return JsonFactory.create().readValue(entityStream, Map.class);
+      throws IOException {
+    return GSON.fromJson(new InputStreamReader(entityStream), Map.class);
   }
 }

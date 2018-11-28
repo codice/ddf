@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.core.impl;
 
-import static org.boon.Boon.toJson;
 import static org.codice.ddf.admin.core.impl.GuestClaimsHandlerExt.DEFAULT_NAME;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -23,14 +22,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.platform.util.properties.PropertiesFileReader;
@@ -42,8 +38,6 @@ import org.junit.rules.TemporaryFolder;
 public class GuestClaimsHandlerExtTest {
   @ClassRule public static TemporaryFolder testFolder = new TemporaryFolder();
 
-  private static final String GUEST_CLAIMS = "guestClaims";
-
   private static String profilesDotJsonPath;
 
   private static String availableClaimsFilePath;
@@ -51,36 +45,17 @@ public class GuestClaimsHandlerExtTest {
   @BeforeClass
   public static void setUp() throws Exception {
     File availableClaimsFile = testFolder.newFile("attributeMap.properties");
+    try (InputStream is =
+        GuestClaimsHandlerExtTest.class.getResourceAsStream("/attributeMap.properties")) {
+      FileUtils.copyToFile(is, availableClaimsFile);
+    }
     availableClaimsFilePath = availableClaimsFile.getCanonicalPath();
 
-    Properties availableClaims = new Properties();
-    availableClaims.put("testClaim1", "testValue1");
-    availableClaims.put("testClaim2", "testValue2");
-    availableClaims.put("testClaim3", "testValue3");
-    availableClaims.store(new FileWriter(availableClaimsFile), "test");
-
     File profilesJson = testFolder.newFile("profiles.json");
+    try (InputStream is = GuestClaimsHandlerExtTest.class.getResourceAsStream("/profiles.json")) {
+      FileUtils.copyToFile(is, profilesJson);
+    }
     profilesDotJsonPath = profilesJson.getCanonicalPath();
-
-    Map<String, Object> outterMap = new HashMap<>();
-    Map<String, Object> profile1Map = new HashMap<>();
-    Map<String, Object> profile2Map = new HashMap<>();
-
-    outterMap.put("profile1", ImmutableMap.of(GUEST_CLAIMS, profile1Map));
-    outterMap.put("profile2", ImmutableMap.of(GUEST_CLAIMS, profile2Map));
-
-    profile1Map.put("testClaim1", "profile1Value1");
-    profile1Map.put("testClaim2", "profile1Value2");
-    profile1Map.put("testClaim3", "profile1Value3");
-    profile1Map.put("testClaim4", "profile1Value4");
-
-    profile2Map.put("testClaim1", "profile2Value1");
-    profile2Map.put("testClaim2", "profile2Value2");
-    profile2Map.put("testClaim3", "profile2Value3");
-    profile2Map.put("testClaim4", "profile2Value4");
-
-    String json = toJson(outterMap);
-    FileUtils.write(profilesJson, json);
   }
 
   @Test

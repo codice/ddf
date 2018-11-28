@@ -13,6 +13,8 @@
  */
 package ddf.catalog.transformer.metacard.propertyjson;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -37,10 +39,7 @@ import javax.activation.MimeTypeParseException;
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializer;
-import org.boon.json.JsonSerializerFactory;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,15 +69,12 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
 
   private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-  private final JsonSerializer json =
-      JsonFactory.create(
-              new JsonParserFactory(),
-              new JsonSerializerFactory()
-                  .includeNulls()
-                  .includeEmpty()
-                  .includeBlank()
-                  .setJsonFormatForDates(false))
-          .serializer();
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   protected static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
@@ -138,7 +134,7 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
 
     Map<String, Object> rootObject = convertToJSON(metacard);
 
-    String jsonText = json.serialize(rootObject).toString();
+    String jsonText = GSON.toJson(rootObject);
 
     return new BinaryContentImpl(
         new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)), DEFAULT_MIME_TYPE);

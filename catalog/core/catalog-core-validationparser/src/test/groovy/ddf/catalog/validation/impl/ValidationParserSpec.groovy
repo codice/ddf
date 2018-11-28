@@ -14,7 +14,6 @@ import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
-import ddf.catalog.validation.impl.validator.RelationshipValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
@@ -93,7 +92,7 @@ class ValidationParserSpec extends Specification {
         validationParser.install(file)
 
         then:
-        thrown(IllegalArgumentException)
+        thrown(Exception)
     }
 
     def "test valid file install then uninstall"() {
@@ -101,17 +100,17 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         mockStatic(FrameworkUtil.class)
-        def Bundle mockBundle = Mock(Bundle)
+        Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
-        def BundleContext mockBundleContext = Mock(BundleContext)
+        BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
 
-        def ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
-        def ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
-        def ServiceRegistration<InjectableAttribute> injectService1 = Mock(ServiceRegistration)
-        def ServiceRegistration<InjectableAttribute> injectService2 = Mock(ServiceRegistration)
-        def ServiceRegistration<MetacardValidator> validatorService = Mock(ServiceRegistration)
+        ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
+        ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
+        ServiceRegistration<InjectableAttribute> injectService1 = Mock(ServiceRegistration)
+        ServiceRegistration<InjectableAttribute> injectService2 = Mock(ServiceRegistration)
+        ServiceRegistration<MetacardValidator> validatorService = Mock(ServiceRegistration)
 
         def type1Name = "type1"
         def type2Name = "type2"
@@ -420,10 +419,10 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(metacardValidator) }
 
         mockStatic(FrameworkUtil.class)
-        def Bundle mockBundle = Mock(Bundle)
+        Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
-        def BundleContext mockBundleContext = Mock(BundleContext)
+        BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
 
         when:
@@ -456,10 +455,10 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(invalidMetacardValidator) }
 
         mockStatic(FrameworkUtil.class)
-        def Bundle mockBundle = Mock(Bundle)
+        Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
-        def BundleContext mockBundleContext = Mock(BundleContext)
+        BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
 
         when:
@@ -474,10 +473,10 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(matchAnyAttributeValidator) }
 
         mockStatic(FrameworkUtil.class)
-        def Bundle mockBundle = Mock(Bundle)
+        Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
-        def BundleContext mockBundleContext = Mock(BundleContext)
+        BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
 
         when:
@@ -492,10 +491,10 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(relationshipAttributeValidator) }
 
         mockStatic(FrameworkUtil.class)
-        def Bundle mockBundle = Mock(Bundle)
+        Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
-        def BundleContext mockBundleContext = Mock(BundleContext)
+        BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
         when:
         validationParser.install(file)
@@ -553,13 +552,13 @@ class ValidationParserSpec extends Specification {
             },
             {
                 "validator": "pattern",
-                "arguments": ["(hi)+\\d"]
+                "arguments": ["(hi)+\\\\d"]
             },
             {
-                "validator": "iso3_country",
+                "validator": "iso3_country"
             },
             {
-                "validator": "iso3_countryignorecase",
+                "validator": "iso3_countryignorecase"
             }
         ]
     },
@@ -682,7 +681,7 @@ class ValidationParserSpec extends Specification {
         "cool-attribute": [
             {
                 "validator": "spacecats",
-                "arguments": ["(hi)+\\d"]
+                "arguments": ["(hi)+\\\\d"]
             }
         ]
     }
@@ -741,13 +740,13 @@ class ValidationParserSpec extends Specification {
             {
                 "validator": "match_any",
                 "validators": [
-                    { 
-                        "validator": "enumeration", 
-                        "arguments": ["abe", "lincoln"] 
+                    {
+                        "validator": "enumeration",
+                        "arguments": ["abe", "lincoln"]
                     },
                     {
                         "validator": "pattern",
-                        "arguments": ["sc-[0-9]\\+"] 
+                        "arguments": ["sc-[0-9]\\\\+"]
                     }
                 ]
             }

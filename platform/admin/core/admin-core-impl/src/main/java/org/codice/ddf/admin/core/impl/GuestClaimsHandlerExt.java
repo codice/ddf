@@ -13,18 +13,22 @@
  */
 package org.codice.ddf.admin.core.impl;
 
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
-import org.boon.Boon;
 import org.codice.ddf.platform.util.properties.PropertiesFileReader;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +43,13 @@ import org.slf4j.LoggerFactory;
  * guestClaims}, {@code systemClaims}, and {@code configs}. Each have a respective destination:
  * guest claims are sent to the guest claims handler using the appropriate configuration, system
  * claims are written to {@code ~/etc/users.attributes}, and configs allow arbitrary configuration
- * info to be submitted to {@link ConfigurationAdmin}.
+ * info to be submitted to {@code ConfigurationAdmin}.
  *
  * <p>An example use case for the configs entity: setting UI banners based upon the selected
  * profile.
  */
 public class GuestClaimsHandlerExt {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestClaimsHandlerExt.class);
 
   private static final String GUEST_CLAIMS = "guestClaims";
@@ -66,6 +71,12 @@ public class GuestClaimsHandlerExt {
   public static final String IMMUTABLE_CLAIMS = "immutableClaims";
 
   public static final String DEFAULT_NAME = "Default";
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private Map<String, String> availableClaimsMap;
 
@@ -101,8 +112,7 @@ public class GuestClaimsHandlerExt {
   /** Called by the container to initialize the object. */
   public void init() {
     try (InputStream inputStream = new FileInputStream(profilesFilePath)) {
-      String json = IOUtils.toString(inputStream);
-      this.profiles = (Map<String, Object>) Boon.fromJson(json);
+      this.profiles = GSON.fromJson(new InputStreamReader(inputStream), MAP_STRING_TO_OBJECT_TYPE);
     } catch (IOException e) {
       LOGGER.debug("Could not find profiles.json during installation: ", e);
       this.profiles = new HashMap<>();

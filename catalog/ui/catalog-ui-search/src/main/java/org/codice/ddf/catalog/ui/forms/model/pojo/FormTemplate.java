@@ -13,15 +13,15 @@
  */
 package org.codice.ddf.catalog.ui.forms.model.pojo;
 
+import com.google.gson.annotations.SerializedName;
 import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import org.boon.json.annotations.JsonProperty;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 /**
- * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
+ * Provides data model pojo that can be annotated for JSON serialization.
  *
  * <p>{@link FormTemplate} specifies a query template, which is a special type of filter whose nodes
  * and expressions may be annotated with additional data. Contains a {@link FilterNode} which is the
@@ -31,28 +31,11 @@ import org.codice.ddf.catalog.ui.forms.api.FilterNode;
  * in a future version of the library.</i>
  */
 public class FormTemplate extends CommonTemplate {
-  @JsonProperty("filterTemplate")
+  @SerializedName("filterTemplate")
   private FilterNode root;
 
-  @JsonProperty("accessGroups")
-  private List<Serializable> accessGroups;
-
-  @JsonProperty("accessGroupsRead")
-  private List<Serializable> accessGroupsRead;
-
-  @JsonProperty("accessIndividuals")
-  private List<Serializable> accessIndividuals;
-
-  @JsonProperty("accessIndividualsRead")
-  private List<Serializable> accessIndividualsRead;
-
-  @JsonProperty("accessAdministrators")
-  private List<Serializable> accessAdministrators;
-
-  @JsonProperty("creator")
   private String creator;
 
-  @JsonProperty("querySettings")
   private Map<String, Object> querySettings;
 
   public FormTemplate(

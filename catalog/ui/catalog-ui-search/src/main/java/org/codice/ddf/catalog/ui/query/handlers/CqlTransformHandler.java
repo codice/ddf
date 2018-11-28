@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.ui.query.handlers;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -24,6 +26,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +37,13 @@ import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
-import org.boon.json.implementation.ObjectMapperImpl;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.http.HttpStatus;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -60,18 +61,17 @@ public class CqlTransformHandler implements Route {
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlTransformHandler.class);
   private static final String GZIP = "gzip";
 
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
+          .create();
+
   private EndpointUtil util;
   private List<ServiceReference> queryResponseTransformers;
   private BundleContext bundleContext;
-  private ObjectMapper mapper =
-      new ObjectMapperImpl(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .includeEmpty()
-              .includeNulls()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false)
-              .useAnnotations());
 
   public CqlTransformHandler(
       List<ServiceReference> queryResponseTransformers,
@@ -121,7 +121,7 @@ public class CqlTransformHandler implements Route {
     CqlRequest cqlRequest;
 
     try {
-      cqlRequest = mapper.readValue(body, CqlRequest.class);
+      cqlRequest = GSON.fromJson(body, CqlRequest.class);
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       LOGGER.debug("Error fetching cql request");
       response.status(HttpStatus.BAD_REQUEST_400);
@@ -134,7 +134,7 @@ public class CqlTransformHandler implements Route {
     }
 
     Map<String, Serializable> arguments =
-        mapper.readValue(body, Arguments.class).getSerializableArguments();
+        GSON.fromJson(body, Arguments.class).getSerializableArguments();
 
     LOGGER.trace("Finding transformer to transform query response.");
 
@@ -257,14 +257,12 @@ public class CqlTransformHandler implements Route {
 
   private Map<String, Serializable> csvTransformArgumentsAdapter(
       Map<String, Serializable> arguments) {
-    String columnOrder = "\"columnOrder\":" + (String) mapper.toJson(arguments.get("columnOrder"));
-    String hiddenFields =
-        "\"hiddenFields\":" + (String) mapper.toJson(arguments.get("hiddenFields"));
-    String columnAliasMap =
-        "\"columnAliasMap\":" + (String) mapper.toJson(arguments.get("columnAliasMap"));
+    String columnOrder = "\"columnOrder\":" + GSON.toJson(arguments.get("columnOrder"));
+    String hiddenFields = "\"hiddenFields\":" + GSON.toJson(arguments.get("hiddenFields"));
+    String columnAliasMap = "\"columnAliasMap\":" + GSON.toJson(arguments.get("columnAliasMap"));
     String csvBody = String.format("{%s,%s,%s}", columnOrder, columnAliasMap, hiddenFields);
 
-    CsvTransform queryTransform = mapper.readValue(csvBody, CsvTransform.class);
+    CsvTransform queryTransform = GSON.fromJson(csvBody, CsvTransform.class);
 
     Set<String> hiddenFieldsSet =
         queryTransform.getHiddenFields() != null
@@ -281,13 +279,10 @@ public class CqlTransformHandler implements Route {
             ? queryTransform.getColumnAliasMap()
             : Collections.emptyMap();
 
-    Map<String, Serializable> args =
-        ImmutableMap.<String, Serializable>builder()
-            .put("hiddenFields", (Serializable) hiddenFieldsSet)
-            .put("columnOrder", (Serializable) columnOrderList)
-            .put("aliases", (Serializable) aliasMap)
-            .build();
-
-    return args;
+    return ImmutableMap.<String, Serializable>builder()
+        .put("hiddenFields", (Serializable) hiddenFieldsSet)
+        .put("columnOrder", (Serializable) columnOrderList)
+        .put("aliases", (Serializable) aliasMap)
+        .build();
   }
 }

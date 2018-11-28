@@ -13,9 +13,13 @@
  */
 package org.codice.ddf.admin.core.impl;
 
+import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -33,13 +37,11 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.utils.properties.Properties;
-import org.boon.Boon;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
 import org.codice.ddf.admin.core.api.SystemPropertyDetails;
 import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminMBean;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +75,15 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       "The unique name of this instance. This name will be provided via web services that ask for the name.";
   private static final String VERSION_TITLE = "Version";
   private static final String VERSION_DESCRIPTION = "The version of this instance.";
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .setPrettyPrinting()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemPropertiesAdmin.class);
-  private static final ObjectMapper MAPPER = JsonFactory.create();
 
   static {
     PROTOCOL_OPTIONS.add(HTTPS_PROTOCOL);
@@ -199,8 +208,8 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
    */
   private void writeOutUsersDotAttributesFile(File userAttributesFile) {
     Map<String, Object> json = null;
-    try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
-      json = MAPPER.parser().parseMap(stream);
+    try (BufferedReader br = Files.newBufferedReader(Paths.get(userAttributesFile.toURI()))) {
+      json = GSON.fromJson(br, MAP_STRING_TO_OBJECT_TYPE);
     } catch (IOException e) {
       LOGGER.warn("Unable to read system user attribute file for hostname update.", e);
       return;
@@ -217,8 +226,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
 
     try {
-      FileUtils.writeStringToFile(
-          userAttributesFile, Boon.toPrettyJson(json), Charset.defaultCharset());
+      FileUtils.writeStringToFile(userAttributesFile, GSON.toJson(json), Charset.defaultCharset());
     } catch (IOException e) {
       LOGGER.warn("Unable to write user attribute file for system update.", e);
     }
@@ -228,7 +236,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private void addGuestClaimsProfileAttributes(Map<String, Object> json) {
     Map<String, Object> selectedProfileAttributes = guestClaimsHandlerExt.getProfileSystemClaims();
     if (selectedProfileAttributes != null) {
-      Map<String, Object> localhost = ((Map<String, Object>) json.get(LOCAL_HOST));
+      Map<String, Object> localhost = (Map<String, Object>) json.get(LOCAL_HOST);
       if (localhost != null) {
         localhost.putAll(selectedProfileAttributes);
       }

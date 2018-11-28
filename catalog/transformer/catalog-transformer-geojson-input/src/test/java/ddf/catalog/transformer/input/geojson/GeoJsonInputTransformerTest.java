@@ -53,7 +53,7 @@ public class GeoJsonInputTransformerTest {
         + "    \"properties\":{"
         + "        \"title\":{"
         + "            \"value\":\"myTitle\""
-        + "        },"
+        + "        }"
         + "    },"
         + "    \"geometry\":{"
         + "        \"type\":\"GeometryCollection\","

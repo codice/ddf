@@ -13,14 +13,16 @@
  */
 package org.codice.ddf.catalog.ui.config;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
-import static org.boon.HTTP.APPLICATION_JSON;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.configuration.HistorianConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,11 +40,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +58,13 @@ public class ConfigurationApplication implements SparkApplication {
   public static final String ENDPOINT_NAME = "catalog";
 
   public static final Factory NEW_SET_FACTORY = TreeSet::new;
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationApplication.class);
 
@@ -143,10 +149,6 @@ public class ConfigurationApplication implements SparkApplication {
   private Integer autoMergeTime = 1000;
 
   private String mapHome = "";
-
-  private ObjectMapper objectMapper =
-      JsonFactory.create(
-          new JsonParserFactory(), new JsonSerializerFactory().includeNulls().includeEmpty());
 
   private String queryFeedbackEmailSubjectTemplate;
 
@@ -508,7 +510,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   @Override
   public void init() {
-    get("/config", (req, res) -> this.getConfig(), objectMapper::toJson);
+    get("/config", (req, res) -> this.getConfig(), GSON::toJson);
 
     exception(
         Exception.class,
@@ -516,7 +518,7 @@ public class ConfigurationApplication implements SparkApplication {
           res.status(500);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           LOGGER.warn("Failed to serve request.", ex);
-          res.body(objectMapper.toJson(ImmutableMap.of("message", ex.getMessage())));
+          res.body(GSON.toJson(ImmutableMap.of("message", ex.getMessage())));
         });
   }
 
@@ -567,7 +569,7 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public String getImageryProviders() {
-    return JsonFactory.create().writeValueAsString(imageryProviders);
+    return GSON.toJson(imageryProviders);
   }
 
   public void setImageryProviders(String imageryProviders) {
@@ -575,7 +577,7 @@ public class ConfigurationApplication implements SparkApplication {
       this.imageryProviders = Collections.emptyList();
     } else {
       try {
-        Object o = JsonFactory.create().readValue(imageryProviders, List.class);
+        Object o = GSON.fromJson(imageryProviders, List.class);
         if (o != null) {
           this.imageryProviders = (List) o;
           setProxiesForImagery(this.imageryProviders);
@@ -591,7 +593,7 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public String getDefaultLayout() {
-    return JsonFactory.create().writeValueAsString(defaultLayout);
+    return GSON.toJson(defaultLayout);
   }
 
   public void setDefaultLayout(String defaultLayout) {
@@ -599,7 +601,7 @@ public class ConfigurationApplication implements SparkApplication {
       this.defaultLayout = Collections.emptyList();
     } else {
       try {
-        Object o = JsonFactory.create().readValue(defaultLayout, List.class);
+        Object o = GSON.fromJson(defaultLayout, List.class);
         if (o != null) {
           this.defaultLayout = (List) o;
         } else {
@@ -618,7 +620,7 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public String getTerrainProvider() {
-    return JsonFactory.create().writeValueAsString(terrainProvider);
+    return GSON.toJson(terrainProvider);
   }
 
   public void setTerrainProvider(String terrainProvider) {
@@ -626,7 +628,7 @@ public class ConfigurationApplication implements SparkApplication {
       this.terrainProvider = null;
     } else {
       try {
-        Object o = JsonFactory.create().readValue(terrainProvider, Map.class);
+        Object o = GSON.fromJson(terrainProvider, Map.class);
         if (o != null) {
           this.terrainProvider = (Map) o;
         } else {

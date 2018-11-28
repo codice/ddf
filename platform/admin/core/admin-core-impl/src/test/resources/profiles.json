@@ -1,0 +1,18 @@
+{
+  "profile1": {
+    "guestClaims": {
+      "testClaim1": "profile1Value1",
+      "testClaim3": "profile1Value3",
+      "testClaim2": "profile1Value2",
+      "testClaim4": "profile1Value4"
+    }
+  },
+  "profile2": {
+    "guestClaims": {
+      "testClaim1": "profile2Value1",
+      "testClaim3": "profile2Value3",
+      "testClaim2": "profile2Value2",
+      "testClaim4": "profile2Value4"
+    }
+  }
+}

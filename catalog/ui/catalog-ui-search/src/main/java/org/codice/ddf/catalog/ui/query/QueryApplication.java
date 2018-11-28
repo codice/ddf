@@ -21,19 +21,18 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
-import org.boon.json.implementation.ObjectMapperImpl;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
@@ -44,6 +43,8 @@ import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
@@ -56,6 +57,18 @@ public class QueryApplication implements SparkApplication, Function {
 
   private static final String APPLICATION_JSON = "application/json";
 
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
+          .create();
+
+  private static final String MESSAGE = "message";
+
+  private static final String QUERY_ENDPOINT_FAILED = "Query endpoint failed";
+
   private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
   private final MgrsCoordinateProcessor mgrsCoordinateProcessor;
@@ -63,16 +76,6 @@ public class QueryApplication implements SparkApplication, Function {
   private FeatureService featureService;
 
   private CqlTransformHandler cqlTransformHandler;
-
-  private ObjectMapper mapper =
-      new ObjectMapperImpl(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .includeEmpty()
-              .includeNulls()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false)
-              .useAnnotations());
 
   private EndpointUtil util;
 
@@ -87,25 +90,18 @@ public class QueryApplication implements SparkApplication, Function {
 
   @Override
   public void init() {
-    before(
-        (req, res) -> {
-          res.type(APPLICATION_JSON);
-        });
+    before((req, res) -> res.type(APPLICATION_JSON));
 
     post(
         "/cql",
         APPLICATION_JSON,
         (req, res) -> {
-          CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
+          CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
           CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
-          return mapper.toJson(cqlQueryResponse);
+          return GSON.toJson(cqlQueryResponse);
         });
 
-    after(
-        "/cql",
-        (req, res) -> {
-          res.header("Content-Encoding", "gzip");
-        });
+    after("/cql", (req, res) -> res.header("Content-Encoding", "gzip"));
 
     get(
         "/cql/transforms",
@@ -122,10 +118,10 @@ public class QueryApplication implements SparkApplication, Function {
                   .filter(StringUtils::isNotBlank)
                   .collect(Collectors.toList());
 
-          return mapper.toJson(transformers);
+          return GSON.toJson(transformers);
         });
 
-    post("/cql/transform/:transformerId", cqlTransformHandler, mapper::toJson);
+    post("/cql/transform/:transformerId", cqlTransformHandler, GSON::toJson);
 
     get(
         "/geofeature/suggestions",
@@ -135,7 +131,7 @@ public class QueryApplication implements SparkApplication, Function {
           List<Suggestion> efficientPrependingResults = new LinkedList<>(results);
           this.mgrsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           this.latLonCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
-          return mapper.toJson(efficientPrependingResults);
+          return GSON.toJson(efficientPrependingResults);
         });
 
     get(
@@ -145,7 +141,7 @@ public class QueryApplication implements SparkApplication, Function {
           SimpleFeature feature = this.featureService.getFeatureById(id);
           if (feature == null) {
             res.status(404);
-            return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
+            return GSON.toJson(ImmutableMap.of(MESSAGE, "Feature not found"));
           }
           return new FeatureJSON().toString(feature);
         });
@@ -155,8 +151,8 @@ public class QueryApplication implements SparkApplication, Function {
         (e, request, response) -> {
           response.status(400);
           response.header(CONTENT_TYPE, APPLICATION_JSON);
-          response.body(mapper.toJson(ImmutableMap.of("message", "Unsupported query request.")));
-          LOGGER.error("Query endpoint failed", e);
+          response.body(GSON.toJson(ImmutableMap.of(MESSAGE, "Unsupported query request.")));
+          LOGGER.error(QUERY_ENDPOINT_FAILED, e);
         });
 
     exception(IOException.class, util::handleIOException);
@@ -171,8 +167,8 @@ public class QueryApplication implements SparkApplication, Function {
           response.status(500);
           response.header(CONTENT_TYPE, APPLICATION_JSON);
           response.body(
-              mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
-          LOGGER.error("Query endpoint failed", e);
+              GSON.toJson(ImmutableMap.of(MESSAGE, "Error while processing query request.")));
+          LOGGER.error(QUERY_ENDPOINT_FAILED, e);
         });
   }
 
@@ -197,7 +193,7 @@ public class QueryApplication implements SparkApplication, Function {
     CqlRequest cqlRequest;
 
     try {
-      cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+      cqlRequest = GSON.fromJson((String) param, CqlRequest.class);
     } catch (RuntimeException e) {
       return JsonRpc.invalidParams("param not valid json", param);
     }
@@ -205,13 +201,13 @@ public class QueryApplication implements SparkApplication, Function {
     try {
       return util.executeCqlQuery(cqlRequest);
     } catch (UnsupportedQueryException e) {
-      LOGGER.error("Query endpoint failed", e);
+      LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(400, "Unsupported query request.");
     } catch (RuntimeException e) {
       LOGGER.debug("Exception occurred", e);
       return JsonRpc.error(404, "Could not find what you were looking for");
     } catch (Exception e) {
-      LOGGER.error("Query endpoint failed", e);
+      LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(500, "Error while processing query request.");
     }
   }

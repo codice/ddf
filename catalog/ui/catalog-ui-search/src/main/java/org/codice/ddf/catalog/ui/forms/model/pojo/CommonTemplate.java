@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
+ * Provides data model pojo that can be annotated for JSON serialization.
  *
  * <p>{@link CommonTemplate} is the base used for transporting template data completely separate
  * from any filter structures that may be needed. These properties apply to both query templates and
@@ -47,15 +47,15 @@ public class CommonTemplate {
 
   private final String owner;
 
-  private List<Serializable> accessGroups;
+  protected List<Serializable> accessGroups;
 
-  private List<Serializable> accessGroupsRead;
+  protected List<Serializable> accessGroupsRead;
 
-  private List<Serializable> accessIndividuals;
+  protected List<Serializable> accessIndividuals;
 
-  private List<Serializable> accessIndividualsRead;
+  protected List<Serializable> accessIndividualsRead;
 
-  private List<Serializable> accessAdministrators;
+  protected List<Serializable> accessAdministrators;
 
   public CommonTemplate(Metacard metacard) {
     this.id = safeGet(metacard, Core.ID, String.class);

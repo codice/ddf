@@ -13,15 +13,16 @@
  */
 package org.codice.ddf.catalog.ui.ws;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.ObjectMapper;
+import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
+import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.websocket.api.Session;
 
 // An implementation of http://www.jsonrpc.org/specification over websockets
@@ -35,20 +36,18 @@ public class JsonRpc implements WebSocket {
   public static final int INVALID_PARAMS = 32602;
   public static final int INTERNAL_ERROR = -32603;
 
-  private static final String JSONRPC = "jsonrpc";
+  private static final String JSON_RPC = "jsonrpc";
   private static final String METHOD = "method";
 
-  private final Map<String, Function> methods;
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new DateLongFormatTypeAdapter())
+          .create();
 
-  private ObjectMapper mapper =
-      JsonFactory.create(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .includeEmpty()
-              .includeNulls()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false)
-              .useAnnotations());
+  private final Map<String, Function> methods;
 
   public JsonRpc(Map<String, Function> methods) {
     this.methods = methods;
@@ -64,7 +63,7 @@ public class JsonRpc implements WebSocket {
 
   private static Map<String, Object> response(Object id, Object value) {
     Map<String, Object> response = new HashMap<>();
-    response.put(JSONRPC, VERSION);
+    response.put(JSON_RPC, VERSION);
     response.put("id", id);
     if (value instanceof Error) {
       response.put("error", value);
@@ -101,14 +100,7 @@ public class JsonRpc implements WebSocket {
     // no action required on error
   }
 
-  private Object exec(Object message) {
-
-    if (!(message instanceof Map)) {
-      return response(null, invalid("message must be a map", message));
-    }
-
-    Map msg = (Map) message;
-
+  private Object exec(Map msg) {
     if (!msg.containsKey("id")) {
       return response(null, invalid("required key `id` missing"));
     }
@@ -119,12 +111,12 @@ public class JsonRpc implements WebSocket {
       return response(null, invalid("key `id` not string or number or null", id));
     }
 
-    if (!msg.containsKey(JSONRPC)) {
+    if (!msg.containsKey(JSON_RPC)) {
       return response(id, invalid("required key `jsonrpc` missing"));
     }
 
-    if (!VERSION.equals(msg.get(JSONRPC))) {
-      return response(id, invalid("key `jsonrpc` not equal to `2.0`", msg.get(JSONRPC)));
+    if (!VERSION.equals(msg.get(JSON_RPC))) {
+      return response(id, invalid("key `jsonrpc` not equal to `2.0`", msg.get(JSON_RPC)));
     }
 
     if (!msg.containsKey(METHOD)) {
@@ -155,10 +147,17 @@ public class JsonRpc implements WebSocket {
   }
 
   private Object handleMessage(String message) {
-    Object parsed;
+    Map parsed;
 
     try {
-      parsed = mapper.fromJson(message);
+      parsed = GSON.fromJson(message, Map.class);
+      Map<String, Object> numberTypeFix = (Map<String, Object>) parsed;
+      if (numberTypeFix.containsKey("id")) {
+        Object id = numberTypeFix.get("id");
+        if (id instanceof Number) {
+          numberTypeFix.put("id", ((Number) id).intValue());
+        }
+      }
     } catch (RuntimeException ex) {
       return response(null, error(PARSE_ERROR, "Parse error", message));
     }
@@ -168,7 +167,7 @@ public class JsonRpc implements WebSocket {
 
   @Override
   public void onMessage(Session session, String message) throws IOException {
-    session.getRemote().sendStringByFuture(mapper.toJson(handleMessage(message)));
+    session.getRemote().sendStringByFuture(GSON.toJson(handleMessage(message)));
   }
 
   private static class Error {

@@ -68,6 +68,11 @@
             <version>${guava.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
@@ -156,6 +161,7 @@
                         <Embed-Dependency>
                             commons-lang,
                             platform-util,
+                            gson-support,
                             org.apache.felix.utils
                         </Embed-Dependency>
                         <Import-Package>

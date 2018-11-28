@@ -41,8 +41,9 @@
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -63,7 +64,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util
+                            platform-util,
+                            gson-support
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.transformer.metacard.propertyjson;version=${project.version}
@@ -93,17 +95,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.68</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.48</minimum>
+                                            <minimum>0.64</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.48</minimum>
+                                            <minimum>0.59</minimum>
                                         </limit>
 
                                     </limits>
