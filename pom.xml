@@ -292,7 +292,7 @@
         <spring-osgi.version>1.2.1</spring-osgi.version>
         <tika.thirdparty.bundle.version>1.18.0_3</tika.thirdparty.bundle.version>
         <tika.version>1.18</tika.version>
-        <usng4j.version>0.4</usng4j.version>
+        <usng4j.version>0.3</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>5.1.0</woodstox.core.version>
         <woodstox.stax2-api.version>4.1</woodstox.stax2-api.version>
