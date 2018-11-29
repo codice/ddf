@@ -79,6 +79,7 @@ module.exports = Backbone.AssociatedModel.extend({
       key: 'searchForms',
       collectionType: Backbone.Collection.extend({
         model: SearchForm,
+        url: './internal/forms/query',
         initialize: function() {},
       }),
     },
@@ -95,7 +96,7 @@ module.exports = Backbone.AssociatedModel.extend({
               new SearchForm({
                 createdOn: Common.getMomentDate(d),
                 id: value.id,
-                name: value.title,
+                title: value.title,
                 description: value.description,
                 type: 'custom',
                 filterTemplate: JSON.stringify(value.filterTemplate),

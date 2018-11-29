@@ -92,7 +92,7 @@ module.exports = Marionette.ItemView.extend({
             error: function(model, xhr, options) {
               announcement.announce(
                 {
-                  title: 'Error!',
+                  title: 'Error',
                   message: 'Unable to delete the forms: ' + xhr.responseText,
                   type: 'error',
                 },
@@ -144,7 +144,7 @@ module.exports = Marionette.ItemView.extend({
     })
     user.savePreferences()
     this.messageNotifier(
-      'Success!',
+      'Success',
       `\"${this.model.get('name')}\" Saved As Default Query Form`,
       'success'
     )
@@ -155,7 +155,7 @@ module.exports = Marionette.ItemView.extend({
       type: 'text',
     })
     user.savePreferences()
-    this.messageNotifier('Success!', `Default Query Form Cleared`, 'success')
+    this.messageNotifier('Success', `Default Query Form Cleared`, 'success')
   },
   messageNotifier: function(title, message, type) {
     announcement.announce({

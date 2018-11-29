@@ -21,6 +21,7 @@ import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
+import static spark.Spark.post;
 import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
@@ -154,6 +155,23 @@ public class SearchFormsApplication implements SparkApplication {
     if (readOnly) {
       return;
     }
+
+    post(
+        "/forms/query",
+        APPLICATION_JSON,
+        (req, res) ->
+            runWhenNotGuest(
+                res,
+                () ->
+                    doCreateOrUpdate(
+                        res,
+                        Stream.of(safeGetBody(req))
+                            .map(this::parseMap)
+                            .map(transformer::toQueryTemplateMetacard)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(null))),
+        GSON::toJson);
 
     put(
         "/forms/query",

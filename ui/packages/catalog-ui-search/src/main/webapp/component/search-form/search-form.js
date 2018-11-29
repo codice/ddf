@@ -15,6 +15,7 @@ var Backbone = require('backbone')
 module.exports = Backbone.Model.extend({
   defaults: {
     name: 'A Search Form',
+    title: 'A Search Form',
     description: '',
     createdBy: 'admin',
     owner: 'admin',
