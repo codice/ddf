@@ -26,10 +26,10 @@ Provides authentication, authorization, and auditing services for the ${branding
 It is both a framework that developers and integrators can extend and a reference implementation that meets security requirements.
 
 ${ddf-solr} Application::
-Includes the Solr Catalog Provider, an implementation of the Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+Includes the Solr Catalog Provider, an implementation of the Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] {external-link} as a data store.
 
 ${ddf-spatial} Application::
-Provides OGC services, such as http://www.opengeospatial.org/standards/cat[CSW], http://www.opengeospatial.org/standards/wcs[WCS], http://www.opengeospatial.org/standards/wfs[WFS], and http://www.opengeospatial.org/standards/kml[KML].
+Provides OGC services, such as http://www.opengeospatial.org/standards/cat[CSW] {external-link}, http://www.opengeospatial.org/standards/wcs[WCS] {external-link}, http://www.opengeospatial.org/standards/wfs[WFS] {external-link}, and http://www.opengeospatial.org/standards/kml[KML] {external-link}.
 
 ${ddf-ui}::
 Allows a user to search for records in the local Catalog (provider) and federated sources.

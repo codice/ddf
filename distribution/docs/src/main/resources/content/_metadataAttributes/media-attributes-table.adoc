@@ -18,7 +18,7 @@
 
 |[[_media.format]]media.format
 |The file format, physical medium, or dimensions of the
-resource. http://dublincore.org/documents/dcmi-terms/#elements-format[Dublin Core elements-format]
+resource. http://dublincore.org/documents/dcmi-terms/#elements-format[Dublin Core elements-format] {external-link}
 |String
 |< 1024 characters
 |txt, docx, xml - typically the extension or a more complete
@@ -63,7 +63,7 @@ name for such, note that this is not the mime type
 |[[_media.compression]]media.compression
 |The type of compression this media uses.
 
-http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html#Compression[EXIF]
+http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html#Compression[EXIF] {external-link}
 STANAG 4559 NC, NM, C1, M1, I1, C3, M3, C4, M4, C5, M5, C8, M8
 |String
 |One of the values defined for EXIF Compression tag.

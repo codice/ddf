@@ -9,7 +9,7 @@
 
 *${ddf-branding-expanded}* (*${ddf-branding}*) is a free and open-source common data layer that abstracts services and business logic from underlying data structures to enable rapid integration of new data sources.
 
-Licensed under http://www.gnu.org/licenses/gpl.html[LGPL], ${ddf-branding} is an interoperability platform that provides secure and scalable discovery and retrieval from a wide array of disparate sources.
+Licensed under http://www.gnu.org/licenses/gpl.html[LGPL] {external-link}, ${ddf-branding} is an interoperability platform that provides secure and scalable discovery and retrieval from a wide array of disparate sources.
 
 ${ddf-branding} is:
 

@@ -5,6 +5,6 @@
 :order: 00
 
 The ${ddf-branding-expanded} is free and open-source software offered under the GNU Lesser General Public License.
-The ${ddf-branding} is managed under the guidance of the http://codice.org[Codice Foundation].
+The ${ddf-branding} is managed under the guidance of the http://codice.org[Codice Foundation] {external-link}.
 Contributions are welcomed and encouraged.
-Please visit the https://codice.atlassian.net/wiki/display/DDF/Guidelines%2C+Standards+and+Best+Practices[Codice DDF Contributor Guidelines] and the https://github.com/codice/ddf[DDF source code repository] for more information.
+Please visit the https://codice.atlassian.net/wiki/display/DDF/Guidelines%2C+Standards+and+Best+Practices[Codice DDF Contributor Guidelines] {external-link} and the https://github.com/codice/ddf[DDF source code repository] {external-link} for more information.

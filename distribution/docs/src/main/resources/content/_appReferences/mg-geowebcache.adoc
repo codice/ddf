@@ -14,7 +14,7 @@ The ${ddf-geowebcache} application is currently in an EXPERIMENTAL status and sh
 ====
 
 ${ddf-geowebcache} enables a server providing a tile cache and tile service aggregation.
-See (http://geowebcache.org[GeoWebCache]) for more information.
+See (http://geowebcache.org[GeoWebCache] {external-link}) for more information.
 This application also provides an administrative plugin for the management of GeoWebCached layers.
 GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at \${secure_url}/geowebcache/.
 

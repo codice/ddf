@@ -148,4 +148,4 @@ Follow these guidelines for effective exception handling:
 
 ====== External Resources for Developing Sources
 
-* http://today.java.net/pub/a/today/2003/12/04/exceptions.html[Three Rules for Effective Exception Handling]
+* http://today.java.net/pub/a/today/2003/12/04/exceptions.html[Three Rules for Effective Exception Handling] {external-link}.

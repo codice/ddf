@@ -13,7 +13,7 @@ To work with Java signatures, a keystore/truststore is required.
 For testing or trial purposes ${branding} can sign and validate using a self-signed certificate, generated with the keytool utility.
 In an actuall installation, a certificate issued from a trusted Certificate Authority will be used.
 
-Additional documentation on keytool can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/keytool.html[Keytool home].
+Additional documentation on keytool can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/keytool.html[Keytool home] {external-link}.
 
 .Using keytool to generate a self-signed certificate keystore
 [source]
@@ -43,7 +43,7 @@ Re-enter new password:
 Once a keystore is available, the JAR can be signed using the `jarsigner`
  tool.
 
-Additional documentation on jarsigner can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html[Jarsigner].
+Additional documentation on jarsigner can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html[Jarsigner] {external-link}.
 
 .Using jarsigner to sign a KAR
 [source]

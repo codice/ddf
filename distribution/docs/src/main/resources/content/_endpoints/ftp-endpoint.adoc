@@ -3,7 +3,7 @@
 :status: published
 :link: _ftp_endpoint
 :summary: Ingests files directly into the ${branding} Catalog using the FTP protocol.
-:implements: https://tools.ietf.org/html/rfc959[FTP]
+:implements: https://tools.ietf.org/html/rfc959[FTP] {external-link}
 
 The FTP Endpoint provides a method for ingesting files directly into the ${branding} Catalog using the FTP protocol.
 The files sent over FTP are not first written to the file system, like the Directory Monitor, but instead the FTP stream of the file is ingested directly into the ${branding} catalog, thus avoiding extra I/O overhead.

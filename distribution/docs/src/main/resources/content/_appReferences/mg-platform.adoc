@@ -10,9 +10,9 @@ The ${ddf-platform} application is considered to be a core application of the d
 The Platform application provides the fundamental building blocks that the distribution needs to run.
 These building blocks include subsets of:
 
-* http://karaf.apache.org/[Karaf] 
-* http://cxf.apache.org/CXF[CXF] 
-* http://camel.apache.org/[Camel] 
+* http://karaf.apache.org/[Karaf] {external-link}
+* http://cxf.apache.org/CXF[CXF] {external-link}
+* http://camel.apache.org/[Camel] {external-link}
 
 A <<_command_scheduler,Command Scheduler>> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.
 

@@ -74,7 +74,7 @@ Different sections have different headers required, but some common attributes a
 To create a new, standalone documentation page, create a new template in the `templates` directory.
 Optionally, this template can `include` some of the internal templates in the `templates/build` directory, but this is not required.
 
-For guidance on using the freemarker syntax, see the https://freemarker.apache.org/docs/ref.html[Freemarker documentation].
+For guidance on using the freemarker syntax, see the https://freemarker.apache.org/docs/ref.html[Freemarker documentation] {external-link}.
 
 ==== Extending Documentation in Downstream Distributions
 
