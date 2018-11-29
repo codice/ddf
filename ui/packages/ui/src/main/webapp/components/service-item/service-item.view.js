@@ -13,31 +13,52 @@
  *
  **/
 /*global define, window*/
+import * as React from 'react'
 define([
-  'icanhaz',
   'underscore',
   'marionette',
   'js/models/Service',
   'components/configuration-edit/configuration-edit.view',
   'js/wreqr.js',
-  './service-item.hbs',
   'js/CustomElements',
   'components/configuration-item/configuration-item.collection.view',
 ], function(
-  ich,
   _,
   Marionette,
   Service,
   ConfigurationEdit,
   wreqr,
-  serviceRow,
   CustomElements,
   ConfigurationItemCollectionView
 ) {
-  ich.addTemplate('serviceRow', serviceRow)
-
   return Marionette.Layout.extend({
-    template: 'serviceRow',
+    template: function({ name }) {
+      const cid = this.cid
+      return (
+        <React.Fragment>
+          <a
+            href={`#${cid}`}
+            className="newLink"
+            data-toggle="modal"
+            data-backdrop="static"
+            data-keyboard="false"
+          >
+            {name}
+          </a>
+          <hr className="service-divider" />
+          <div id="configurationRegion" />
+          <div className="service-modal-container">
+            <div
+              id={cid}
+              className="service-modal modal"
+              tabIndex="-1"
+              role="dialog"
+              aria-hidden="true"
+            />
+          </div>
+        </React.Fragment>
+      )
+    },
     tagName: CustomElements.register('service-item'),
     events: {
       'click .newLink': 'newConfiguration',

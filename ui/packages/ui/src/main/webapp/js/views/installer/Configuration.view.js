@@ -16,7 +16,6 @@
 /** Main view page for add. */
 define([
   'marionette',
-  'icanhaz',
   'underscore',
   'backbone',
   'jquery',
@@ -27,7 +26,6 @@ define([
   'modelbinder',
 ], function(
   Marionette,
-  ich,
   _,
   Backbone,
   $,
@@ -36,14 +34,11 @@ define([
   CertificateView,
   CertificateModel
 ) {
-  ich.addTemplate('configurationTemplate', configurationTemplate)
-  ich.addTemplate('configurationItemTemplate', configurationItemTemplate)
-
   /*
-     * Item View
-     */
+   * Item View
+   */
   var SystemPropertyView = Marionette.ItemView.extend({
-    template: 'configurationItemTemplate',
+    template: configurationItemTemplate,
     className: 'property-item col-md-6',
     initialize: function() {
       this.modelBinder = new Backbone.ModelBinder()
@@ -74,18 +69,18 @@ define([
   })
 
   /*
-     * Collection View
-     */
+   * Collection View
+   */
   var SystemPropertiesView = Marionette.CollectionView.extend({
     className: 'row',
     itemView: SystemPropertyView,
   })
 
   /*
-* Layout
-*/
+   * Layout
+   */
   var ConfigurationView = Marionette.Layout.extend({
-    template: 'configurationTemplate',
+    template: configurationTemplate,
     className: 'full-height',
     regions: {
       configurationItems: '#config-form',

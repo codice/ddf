@@ -14,15 +14,12 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define([
-  'marionette',
-  'icanhaz',
-  'templates/installer/welcome.handlebars',
-], function(Marionette, ich, welcomeTemplate) {
-  ich.addTemplate('welcomeTemplate', welcomeTemplate)
-
+define(['marionette', 'templates/installer/welcome.handlebars'], function(
+  Marionette,
+  welcomeTemplate
+) {
   var WelcomeView = Marionette.ItemView.extend({
-    template: 'welcomeTemplate',
+    template: welcomeTemplate,
     tagName: 'div',
     className: 'full-height',
     initialize: function(options) {
