@@ -15,7 +15,6 @@ const $ = require('jquery')
 const moment = require('moment')
 const _ = require('underscore')
 require('./requestAnimationFramePolyfill')
-const properties = require('properties')
 
 const timeZones = {
   UTC: 'Etc/UTC',
@@ -55,7 +54,7 @@ module.exports = {
   //randomly generated guid guaranteed to be unique ;)
   undefined: '2686dcb5-7578-4957-974d-aaa9289cd2f0',
   coreTransitionTime: 250,
-  generateUUID: function() {
+  generateUUID(properties = require('properties')) {
     var d = new Date().getTime()
     if (window.performance && typeof window.performance.now === 'function') {
       d += performance.now() //use high-precision timer if available

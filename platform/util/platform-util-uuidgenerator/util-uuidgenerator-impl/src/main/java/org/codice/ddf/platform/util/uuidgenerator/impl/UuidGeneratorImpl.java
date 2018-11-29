@@ -35,7 +35,7 @@ public class UuidGeneratorImpl implements UuidGenerator {
   @Override
   public String generateUuid() {
     String uuid = UUID.randomUUID().toString();
-    if (useHyphens) {
+    if (!useHyphens) {
       uuid = uuid.replaceAll("-", "");
     }
     return uuid;
@@ -47,9 +47,9 @@ public class UuidGeneratorImpl implements UuidGenerator {
       return false;
     }
 
-    if (useHyphens && uuid.length() == 32) {
+    if (!useHyphens && uuid.length() == 32) {
       return hexPattern.matcher(uuid).matches();
-    } else if (!useHyphens && uuid.length() == 36) {
+    } else if (useHyphens && uuid.length() == 36) {
       return hexPatternWithHypens.matcher(uuid).matches();
     }
     return false;

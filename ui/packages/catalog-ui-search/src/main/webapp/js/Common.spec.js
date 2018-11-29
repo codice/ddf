@@ -53,4 +53,14 @@ describe('Common', () => {
       expect(results.length).to.equal(3)
     })
   })
+  describe('generateUUID', () => {
+    it('has dashes', () => {
+      const uuid = Common.generateUUID({ useHyphensInUuid: true })
+      expect(uuid).to.satisfy(value => value.indexOf('-') >= 0)
+    })
+    it('does not have dashes', () => {
+      const uuid = Common.generateUUID({})
+      expect(uuid).to.satisfy(value => value.indexOf('-') === -1)
+    })
+  })
 })

@@ -78,9 +78,9 @@ public class UuidGeneratorImplTest {
 
   @Test
   public void testValidateUuidBothFormats() {
+    uuidGenerator.setUseHyphens(false);
+    assertThat(uuidGenerator.validateUuid(UUID.randomUUID().toString()), is(false));
     uuidGenerator.setUseHyphens(true);
     assertThat(uuidGenerator.validateUuid(UUID.randomUUID().toString()), is(true));
-    uuidGenerator.setUseHyphens(true);
-    assertThat(uuidGenerator.validateUuid(UUID.randomUUID().toString()), is(false));
   }
 }
