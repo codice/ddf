@@ -13,18 +13,14 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.transform.InputTransformer;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -42,7 +38,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.common.Security;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,25 +61,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
-  private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS =
-      TimeUnit.MINUTES.toSeconds(5);
-
-  private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(30);
-
-  private static final String TRANSFORMER_WAIT_TIMEOUT_PROPERTY =
-      "org.codice.ddf.cdm.transformerWaitTimeoutSeconds";
-
-  private static final String TRANSFORMER_ID_PROPERTY = "id";
-
   private static final Security SECURITY = Security.getInstance();
-
-  private final long transformerCheckPeriodMillis;
-
-  private final long transformerWaitTimeoutMillis;
-
-  private final InputTransformerIds inputTransformerIds;
-
-  private final Object lock = new Object();
 
   private final int maxRetries;
 
@@ -93,8 +70,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private final CamelContext camelContext;
 
   private final AttributeRegistry attributeRegistry;
-
-  private List<ServiceReference<InputTransformer>> inputTransformers;
 
   private String monitoredDirectory = null;
 
@@ -123,57 +98,20 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    *     attribute overrides for in-place monitoring
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
-   * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
-   *     content directory monitor, the number of seconds it will wait between consecutive polls.
-   * @param transformerCheckPeriod amount of time in milliseconds to check for available
-   *     InputTransformers
-   * @param transformerWaitTimeout amount of time in milliseconds to timeout while waiting for
-   *     InputTransformers
-   */
-  @VisibleForTesting
-  ContentDirectoryMonitor(
-      CamelContext camelContext,
-      AttributeRegistry attributeRegistry,
-      int maxRetries,
-      int delayBetweenRetries,
-      InputTransformerIds inputTransformerIds,
-      long transformerCheckPeriod,
-      long transformerWaitTimeout) {
-    this.camelContext = camelContext;
-    this.attributeRegistry = attributeRegistry;
-    this.maxRetries = maxRetries;
-    this.delayBetweenRetries = delayBetweenRetries;
-    this.inputTransformerIds = inputTransformerIds;
-    transformerCheckPeriodMillis = transformerCheckPeriod;
-    transformerWaitTimeoutMillis = transformerWaitTimeout;
-    setBlacklist();
-  }
-
-  /**
-   * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
-   * the given Executor to run the setup and Camel configuration.
-   *
-   * @param camelContext the Camel context to use across all Content directory monitors.
-   * @param attributeRegistry {@link AttributeRegistry} to use to perform attribute lookup for
-   *     attribute overrides for in-place monitoring
-   * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
-   *     directory monitor, the number of times it will poll.
-   * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
-   *     content directory monitor, the number of seconds it will wait between consecutive polls.
+   * @param inputTransformerWaiter used to block creation of services from the MSF in blueprint. the
+   *     MSF will not start creating CDM services until the {@link InputTransformerWaiter} is
+   *     injected.
    */
   public ContentDirectoryMonitor(
       CamelContext camelContext,
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      InputTransformerIds inputTransformerIds) {
+      InputTransformerWaiter inputTransformerWaiter) {
     this.camelContext = camelContext;
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
-    this.inputTransformerIds = inputTransformerIds;
-    transformerCheckPeriodMillis = DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS;
-    transformerWaitTimeoutMillis = getTransformerWaitTimeout();
     setBlacklist();
   }
 
@@ -319,10 +257,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     this.attributeOverrides = attributeOverrideMap;
   }
 
-  public void setInputTransformers(List<ServiceReference<InputTransformer>> inputTransformers) {
-    this.inputTransformers = inputTransformers;
-  }
-
   private String getBlackListAsRegex() {
     List<String> patterns = new ArrayList<>();
 
@@ -341,26 +275,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     return String.join("|", patterns);
   }
 
-  /**
-   * This method acquires a lock on initialization and:
-   *
-   * <ol>
-   *   <li>Waits for configured {@link InputTransformer}s to be available
-   *   <li>Waits for "content" and "catalog" CamelComponents, which ensures the CDM will correctly
-   *       start and ingest after a system shutdown
-   *   <li>Starts the configured CDM camel route
-   * </ol>
-   */
+  /*
+     Task that waits for the "content" and "catalog" CamelComponents before adding the routes from the
+     RouteBuilder to the CamelContext. This ensures content directory monitors will
+     automatically start after a system shutdown.
+  */
   private void attemptAddRoutes() {
-    try {
-      waitForInputTransformers();
-    } catch (InterruptedException e) {
-      LOGGER.warn(
-          "Interrupted while waiting for InputTransformers, CDM route will not be started, but the configuration may still exist. The configuration should be deleted and remade or the system should be restarted.");
-      Thread.currentThread().interrupt();
-      return;
-    }
-
     LOGGER.trace(
         "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
     try {
@@ -379,63 +299,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
   }
 
-  /**
-   * Blocking method that waits for {@link InputTransformer} services.
-   *
-   * @throws InterruptedException if the thread was interrupted while waiting for InputTransformers
-   * @throws IllegalArgumentException if the expected InputTransformers are not available
-   */
-  private void waitForInputTransformers() throws InterruptedException {
-    Set<String> configuredInputTransformers = inputTransformerIds.getIds();
-    if (configuredInputTransformers.isEmpty()) {
-      return;
-    }
-
-    Set<String> requiredInputTransformers = new HashSet<>(configuredInputTransformers);
-    long lastChecked = System.currentTimeMillis();
-    long end = lastChecked + transformerWaitTimeoutMillis;
-    LOGGER.trace(
-        "Beginning wait for InputTransformers for {} seconds",
-        TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis));
-    for (; ; ) {
-      for (ServiceReference serviceReference : inputTransformers) {
-        Object propertyValue = serviceReference.getProperty(TRANSFORMER_ID_PROPERTY);
-        if (propertyValue instanceof String) {
-          requiredInputTransformers.remove(propertyValue);
-          LOGGER.debug("Remaining property values {}", requiredInputTransformers);
-        }
-      }
-
-      if (requiredInputTransformers.isEmpty()) {
-        LOGGER.trace("Finished finding all InputTransformers");
-        break;
-      }
-
-      if (lastChecked >= end) {
-        throw new IllegalArgumentException(
-            String.format(
-                "Not all expected Input Transformers were found within %s seconds. Expected: %s, but didn't find: %s. "
-                    + "CDMs will not be able to start without all required InputTransformers. Either remove the un-found "
-                    + "IDs from the InputTransformer ID JSON files under etc/transformers, or ensure the bundle providing "
-                    + "the missing InputTransformer is started.",
-                TimeUnit.MILLISECONDS.toSeconds(transformerWaitTimeoutMillis),
-                configuredInputTransformers,
-                requiredInputTransformers));
-      } else {
-        LOGGER.trace(
-            "Waiting {} seconds before checking InputTransformers again",
-            TimeUnit.MILLISECONDS.toSeconds(transformerCheckPeriodMillis));
-        lastChecked += transformerCheckPeriodMillis;
-        synchronized (lock) {
-          lock.wait(transformerCheckPeriodMillis);
-        }
-      }
-    }
-  }
-
-  /*
-     Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
-  */
   private void verifyCamelComponentIsAvailable(String componentName) {
     Failsafe.with(
             new RetryPolicy()
@@ -566,19 +429,5 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     public void process(Exchange exchange) {
       ThreadContext.bind(SECURITY.getSystemSubject());
     }
-  }
-
-  private long getTransformerWaitTimeout() {
-    long timeoutSeconds;
-    try {
-      timeoutSeconds = Long.parseLong(System.getProperty(TRANSFORMER_WAIT_TIMEOUT_PROPERTY));
-    } catch (NumberFormatException e) {
-      timeoutSeconds = DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS;
-      LOGGER.debug(
-          "Invalid or no {} property as long. Using default timeout of {} seconds",
-          TRANSFORMER_WAIT_TIMEOUT_PROPERTY,
-          DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS);
-    }
-    return TimeUnit.SECONDS.toMillis(timeoutSeconds);
   }
 }

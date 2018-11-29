@@ -89,4 +89,8 @@ public class InputTransformerIds {
 
     return ImmutableSet.copyOf(allTransformerIds);
   }
+
+  public String getTransformerPath() {
+    return transformerFolder.toString();
+  }
 }

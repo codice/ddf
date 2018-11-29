@@ -31,6 +31,11 @@
 
     <bean id="inputTransformerIds" class="org.codice.ddf.catalog.content.monitor.InputTransformerIds"/>
 
+    <bean id="transformerWaiter" class="org.codice.ddf.catalog.content.monitor.InputTransformerWaiter">
+        <argument ref="inputTransformerIds"/>
+        <argument ref="inputTransformers"/>
+    </bean>
+
     <cm:managed-service-factory
             id="contentDirectoryMonitor_MSF"
             factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
@@ -41,14 +46,14 @@
             <argument ref="attributeRegistry"/>
             <argument value="20"/>
             <argument value="5"/>
-            <argument ref="inputTransformerIds"/>
+            <!-- The transformerWaiter argument is only used to prevent instantiation of CDM services until configured InputTransformers are ready -->
+            <argument ref="transformerWaiter"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>
             <property name="attributeOverrides">
                 <list/>
             </property>
-            <property name="inputTransformers" ref="inputTransformers"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed"
                                    update-method="updateCallback"/>

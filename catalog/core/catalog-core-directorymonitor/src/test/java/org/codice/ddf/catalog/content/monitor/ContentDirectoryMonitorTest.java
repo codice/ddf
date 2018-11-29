@@ -19,17 +19,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.transform.InputTransformer;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +49,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.osgi.framework.ServiceReference;
 
 @RunWith(JUnit4.class)
 public class ContentDirectoryMonitorTest extends CamelTestSupport {
@@ -309,36 +304,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         empty());
   }
 
-  @Test
-  public void testInterruptedWhileWaitingForInputTransformers() {
-    Thread.currentThread().interrupt();
-
-    monitor.setInputTransformers(Collections.emptyList());
-
-    monitor.init();
-    assertThat(
-        "The content directory monitor should have no route definitions",
-        camelContext.getRouteDefinitions(),
-        hasSize(0));
-  }
-
-  @Test
-  public void testInitWithConfigDeleted() {
-    monitor.destroy(0);
-    monitor.init();
-
-    assertThat(
-        "The content directory monitor should have no route definitions",
-        camelContext.getRouteDefinitions(),
-        hasSize(0));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testTimeoutWaitingForTransformersFails() {
-    monitor.setInputTransformers(mockServiceReferences("notTheIdYouAreLookingFor"));
-    submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
-  }
-
   private void doAndVerifyFileMove(
       File destinationFolder, File monitoredFolder, String inputFileName) throws Exception {
     doFileMove(destinationFolder, inputFileName);
@@ -437,22 +402,11 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext, mock(AttributeRegistry.class), 1, 1, inputTransformerIds, 1, 5);
+            camelContext, mock(AttributeRegistry.class), 1, 1, mock(InputTransformerWaiter.class));
 
     monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
     monitor.setReadLockIntervalMilliseconds(1000);
-    monitor.setInputTransformers(mockServiceReferences("id1", "id2", "id3"));
     return monitor;
-  }
-
-  private List<ServiceReference<InputTransformer>> mockServiceReferences(String... propertyValues) {
-    List<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
-    for (String propertyValue : propertyValues) {
-      ServiceReference<InputTransformer> mockReference = mock(ServiceReference.class);
-      when(mockReference.getProperty("id")).thenReturn(propertyValue);
-      serviceReferences.add(mockReference);
-    }
-    return serviceReferences;
   }
 }
