@@ -14,6 +14,8 @@
  **/
 /*global define, window*/
 import * as React from 'react'
+import styled from '../../styles/styled-components'
+import MarionetteRegionContainer from '../container/marionette-region-container'
 define([
   'underscore',
   'marionette',
@@ -31,12 +33,21 @@ define([
   CustomElements,
   ConfigurationItemCollectionView
 ) {
+  const Link = styled.a`
+    text-decoration: none !important;
+    width: 100%;
+    font-weight: bold;
+  `
+  const ServiceDivider = styled.hr`
+    border-bottom: solid 3px #eee;
+    margin: 0;
+  `
   return Marionette.Layout.extend({
     template: function({ name }) {
       const cid = this.cid
       return (
         <React.Fragment>
-          <a
+          <Link
             href={`#${cid}`}
             className="newLink"
             data-toggle="modal"
@@ -44,18 +55,22 @@ define([
             data-keyboard="false"
           >
             {name}
-          </a>
-          <hr className="service-divider" />
+          </Link>
+          <ServiceDivider />
+          <MarionetteRegionContainer
+            view={ConfigurationItemCollectionView}
+            viewOptions={{
+              collection: this.model.get('configurations'),
+            }}
+          />
           <div id="configurationRegion" />
-          <div className="service-modal-container">
-            <div
-              id={cid}
-              className="service-modal modal"
-              tabIndex="-1"
-              role="dialog"
-              aria-hidden="true"
-            />
-          </div>
+          <div
+            id={cid}
+            className="service-modal modal"
+            tabIndex="-1"
+            role="dialog"
+            aria-hidden="true"
+          />
         </React.Fragment>
       )
     },
@@ -64,15 +79,7 @@ define([
       'click .newLink': 'newConfiguration',
     },
     regions: {
-      collectionRegion: '#configurationRegion',
       editModal: '.service-modal',
-    },
-    onRender: function() {
-      this.collectionRegion.show(
-        new ConfigurationItemCollectionView({
-          collection: this.model.get('configurations'),
-        })
-      )
     },
     /**
      * If it is a factory OR it has no existing configurations, generate a configuration from the model.

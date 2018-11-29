@@ -9,23 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette')
-import { render } from 'react-dom'
-import React from 'react'
-import Theme from '../components/container/theme'
-
-Marionette.ItemView.prototype.attachElContent = function(rendering) {
-  this.triggerMethod('before:react:attach', rendering)
-  if (React.isValidElement(rendering)) {
-    render(
-      <Theme>
-        <React.Fragment>{rendering}</React.Fragment>
-      </Theme>,
-      this.el
-    )
-  } else {
-    this.$el.html(rendering)
-  }
-  this.triggerMethod('after:react:attach', rendering)
-  return this
-}
+export { default } from './marionette-region-container'
