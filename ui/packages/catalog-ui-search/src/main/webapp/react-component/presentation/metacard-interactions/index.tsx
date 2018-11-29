@@ -90,11 +90,5 @@ export const render = (props: Props) => (
       <div className="interaction-icon fa fa-globe" />
       <div className="interaction-text">Create Search from Location</div>
     </div>
-    <div
-      className="metacard-interaction interaction-actions-export composed-menu"
-      data-help="Opens the available actions for the item."
-    />
-
-    <div className="composed-menu interaction-extensions" />
   </>
 )

@@ -35,9 +35,10 @@ import * as sources from '../../../component/singletons/sources-instance'
 import * as store from '../../../js/store'
 import * as user from '../../../component/singletons/user-instance'
 
+import MarionetteRegionContainer from '../marionette-region-container'
+
 const Query = require('../../../js/model/Query')
 const wreqr = require('wreqr')
-const Marionette = require('marionette')
 
 type Props = {
   model: {} | any
@@ -83,12 +84,6 @@ const withCloseDropdown = (
   context.el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
   action(context)
 }
-
-const handleAdd = (context: Props) =>
-  context.el
-    .find('.interaction-add > *')
-    .mousedown()
-    .click()
 
 const handleDownload = (context: Props) => {
   const openValidUrl = (result: Result) => {
@@ -281,9 +276,6 @@ const isRemoteResourceCached = (model: Model) => {
 
 const hasLocation = (model: Model) => getGeoLocations(model).length > 0
 
-const getRegionForSelector = (el: El, selector: any) =>
-  new Marionette.Region({ el: el.find(selector) })
-
 const createAddRemoveRegion = (model: Model) =>
   PopoutView.createSimpleDropdown({
     componentToShow: ResultAddView,
@@ -306,13 +298,6 @@ const createResultActionsExportRegion = (model: Model) =>
   })
 
 const defaultLinks = [
-  {
-    parent: `interaction-add`,
-    dataHelp: `Add the result to a list.`,
-    icon: `fa fa-plus`,
-    linkText: `Add / Remove from List`,
-    actionHandler: handleAdd,
-  },
   {
     parent: `interaction-hide`,
     dataHelp: `Adds to a list
@@ -359,16 +344,7 @@ const viewModelFromProps = (props: Props): ViewModel => {
 class MetacardInteractions extends React.Component<Props> {
   componentDidMount = () => {
     appendCssIfNeeded(this.props.model, this.props.el)
-    getRegionForSelector(this.props.el, '.interaction-add').show(
-      createAddRemoveRegion(this.props.model)
-    )
-    getRegionForSelector(this.props.el, '.interaction-actions-export').show(
-      createResultActionsExportRegion(this.props.model)
-    )
-    this.props.extensions &&
-      getRegionForSelector(this.props.el, '.interaction-extensions').show(
-        this.props.extensions
-      )
+
     const setState = (model: Model) => this.setState({ model: model })
 
     const toggleIsBlacklisted = () =>
@@ -393,15 +369,36 @@ class MetacardInteractions extends React.Component<Props> {
   }
 
   render = () => (
-    <View
-      handleCreateSearch={() =>
-        withCloseDropdown(this.props, handleCreateSearch)
-      }
-      handleDownload={() => withCloseDropdown(this.props, handleDownload)}
-      isRemoteResourceCached={isRemoteResourceCached(this.props.model)}
-      withCloseDropdown={handler => withCloseDropdown(this.props, handler)}
-      viewModel={viewModelFromProps(this.props)}
-    />
+    <>
+      <MarionetteRegionContainer
+        data-help="Add the result to a list."
+        className="metacard-interaction interaction-add"
+        view={createAddRemoveRegion(this.props.model)}
+        viewOptions={{ model: this.props.model }}
+      />
+      <View
+        handleCreateSearch={() =>
+          withCloseDropdown(this.props, handleCreateSearch)
+        }
+        handleDownload={() => withCloseDropdown(this.props, handleDownload)}
+        isRemoteResourceCached={isRemoteResourceCached(this.props.model)}
+        withCloseDropdown={handler => withCloseDropdown(this.props, handler)}
+        viewModel={viewModelFromProps(this.props)}
+      />
+      <MarionetteRegionContainer
+        data-help="Opens the available actions for the item."
+        className="metacard-interaction interaction-actions-export composed-menu"
+        view={createResultActionsExportRegion(this.props.model)}
+        viewOptions={{ model: this.props.model }}
+      />
+      {this.props.extensions && (
+        <MarionetteRegionContainer
+          className="composed-menu interaction-extensions"
+          view={this.props.extensions}
+          viewOptions={{ mode: this.props.model }}
+        />
+      )}
+    </>
   )
 }
 
