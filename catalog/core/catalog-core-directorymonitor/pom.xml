@@ -374,7 +374,6 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
-                            failsafe,
                             sardine
                         </Embed-Dependency>
                         <Import-Package>

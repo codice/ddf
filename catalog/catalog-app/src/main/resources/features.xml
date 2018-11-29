@@ -110,6 +110,7 @@
         <bundle>mvn:com.hazelcast/hazelcast/${hazelcast.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcontext/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
     </feature>
