@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.cxf.paos;
 
+import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpRequest;
@@ -24,11 +25,10 @@ import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteSource;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.samlp.SamlProtocol;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,6 +56,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -312,10 +313,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     // This used to use the ApacheHttpTransport which appeared to not work with 2 way TLS auth but
     // this one does
     HttpTransport httpTransport = new NetHttpTransport();
-    HttpContent httpContent =
-        new InputStreamContent(TEXT_XML, new ByteArrayInputStream(soapResponse.getBytes("UTF-8")));
-    // this handles redirects for us
-    ((InputStreamContent) httpContent).setRetrySupported(true);
+    HttpContent httpContent = new ByteArrayContent(TEXT_XML, soapResponse.getBytes("UTF-8"));
     HttpRequest httpRequest =
         httpTransport
             .createRequestFactory()
@@ -341,14 +339,16 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
         String method = (String) message.get(Message.HTTP_REQUEST_METHOD);
         HttpContent content = null;
         if (!isRedirectable(method)) {
-          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-          message.setContent(OutputStream.class, byteArrayOutputStream);
-          BodyWriter bodyWriter = new BodyWriter();
-          bodyWriter.handleMessage(message);
-          content =
-              new InputStreamContent(
-                  (String) message.get(Message.CONTENT_TYPE),
-                  new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+          try (TemporaryFileBackedOutputStream tfbos = new TemporaryFileBackedOutputStream()) {
+            message.setContent(OutputStream.class, tfbos);
+            BodyWriter bodyWriter = new BodyWriter();
+            bodyWriter.handleMessage(message);
+            ByteSource byteSource = tfbos.asByteSource();
+            content =
+                new InputStreamContent(
+                        (String) message.get(Message.CONTENT_TYPE), byteSource.openStream())
+                    .setLength(byteSource.size());
+          }
         }
 
         // resolve the redirect location relative to the current location
