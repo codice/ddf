@@ -266,7 +266,7 @@ module.exports = Backbone.AssociatedModel.extend({
       )
     }
 
-    this.addQueuedResults(resp)
+    this.addQueuedResults(resp.results)
 
     return {
       queuedResults: [],
@@ -276,9 +276,9 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
-  addQueuedResults(resp) {
+  addQueuedResults(results) {
     const existingQueue = this.get('queuedResults').fullCollection.models
-    this.get('queuedResults').fullCollection.reset(existingQueue.concat(resp.results))
+    this.get('queuedResults').fullCollection.reset(existingQueue.concat(results))
   },
   allowAutoMerge: function() {
     if (this.get('results').length === 0 || !this.get('currentlyViewed')) {
