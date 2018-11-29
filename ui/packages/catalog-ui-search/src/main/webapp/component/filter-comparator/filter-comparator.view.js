@@ -21,7 +21,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 var geometryComparators = ['INTERSECTS']
-var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE']
+var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN']
 var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
 var numberComparators = ['>', '<', '=', '>=', '<=']
 var booleanComparators = ['=']

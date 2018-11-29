@@ -15,7 +15,6 @@
 /*global define, alert, setTimeout*/
 const Marionette = require('marionette')
 const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./filter.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const FilterComparatorDropdownView = require('../dropdown/filter-comparator/dropdown.filter-comparator.view.js')
@@ -25,6 +24,7 @@ const PropertyModel = require('../property/property.js')
 const DropdownModel = require('../dropdown/dropdown.js')
 const DropdownView = require('../dropdown/dropdown.view.js')
 const RelativeTimeView = require('../relative-time/relative-time.view.js')
+const BetweenTimeView = require('../between-time/between-time.view.js')
 const ValueModel = require('../value/value.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const properties = require('../../js/properties.js')
@@ -58,20 +58,22 @@ const generatePropertyJSON = (value, type, comparator) => {
     delete propertyJSON.enum
   }
 
-  // if we don't set this the property model will transform the value as if it's a date, clobbering the duration format
-  if (comparator === 'RELATIVE') {
+  // if we don't set this the property model will transform the value as if it's a date, clobbering the special format
+  if (comparator === 'RELATIVE' || comparator === 'BETWEEN') {
     propertyJSON.transformValue = false
   }
 
   return propertyJSON
 }
 
-// Relative time view is needed for the relative date, multivalue for all else
 const determineView = comparator => {
   let necessaryView
   switch (comparator) {
     case 'RELATIVE':
       necessaryView = RelativeTimeView
+      break
+    case 'BETWEEN':
+      necessaryView = BetweenTimeView
       break
     default:
       necessaryView = MultivalueView
@@ -175,6 +177,7 @@ module.exports = Marionette.LayoutView.extend({
       BEFORE: 'BEFORE',
       AFTER: 'AFTER',
       RELATIVE: '=',
+      BETWEEN: 'DURING',
       INTERSECTS: 'INTERSECTS',
       CONTAINS: 'ILIKE',
       MATCHCASE: 'LIKE',
@@ -235,7 +238,11 @@ module.exports = Marionette.LayoutView.extend({
         this.toggleLocationClass(true)
         break
       case 'DATE':
-        if (['BEFORE', 'AFTER', 'RELATIVE'].indexOf(currentComparator) === -1) {
+        if (
+          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN'].indexOf(
+            currentComparator
+          ) === -1
+        ) {
           this.model.set('comparator', 'BEFORE')
         }
         break
@@ -351,8 +358,12 @@ module.exports = Marionette.LayoutView.extend({
           // attribute is what actually contains that proximity() call.
           this.setFilterFromFilterFunction(filter.property)
         } else {
+          let value = [filter.value]
+          if (filter.type === 'DURING') {
+            value = [`${filter.from}/${filter.to}`]
+          }
           this.model.set({
-            value: [filter.value],
+            value,
             type: filter.property.split('"').join(''),
             comparator: this.getComparatorForFilter(filter),
           })

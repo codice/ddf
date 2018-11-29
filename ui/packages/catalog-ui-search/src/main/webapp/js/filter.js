@@ -268,6 +268,12 @@ function matchesRelative(value, filter) {
   return false
 }
 
+function matchesDURING(value, filter) {
+  return (
+    filter.from && filter.to && moment(value).isBetween(filter.from, filter.to)
+  )
+}
+
 /*
     Because the relative and = matchers use the same comparator we need to differentiate them by type
 */
@@ -404,6 +410,11 @@ function matchesFilter(metacard, filter) {
           break
         case 'BEFORE':
           if (matchesBEFORE(valuesToCheck[i], filter)) {
+            return true
+          }
+          break
+        case 'DURING':
+          if (matchesDURING(valuesToCheck[i], filter)) {
             return true
           }
           break

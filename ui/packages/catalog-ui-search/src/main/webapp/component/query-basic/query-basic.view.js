@@ -114,6 +114,11 @@ function handleAnyDateFilter(propertyValueMap, filter) {
   )
   existingFilter.type = filter.filters ? filter.filters[0].type : filter.type
   existingFilter.value = filter.filters ? filter.filters[0].value : filter.value
+
+  if (existingFilter.type === 'DURING') {
+    existingFilter.from = filter.filters ? filter.filters[0].from : filter.from
+    existingFilter.to = filter.filters ? filter.filters[0].to : filter.to
+  }
 }
 
 function translateFilterToBasicMap(filter) {
