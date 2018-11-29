@@ -84,8 +84,8 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
    * bean. That is why is can use itself as the lock
    */
   public synchronized void start() {
-    initialize();
     if (configuredToAttemptAutoPasswordChange() && isUsingDefaultPassword()) {
+      initialize();
       generatePassword();
       setPasswordInSolr();
       if (isSolrPasswordChangeSuccessfull()) {
