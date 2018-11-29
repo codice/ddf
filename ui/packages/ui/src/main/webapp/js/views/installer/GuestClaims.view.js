@@ -16,7 +16,6 @@
 /** Main view page for add. */
 define([
   'marionette',
-  'icanhaz',
   'underscore',
   'backbone',
   'js/models/Service',
@@ -31,7 +30,6 @@ define([
   'templates/installer/guestClaimsTable.handlebars',
 ], function(
   Marionette,
-  ich,
   _,
   Backbone,
   Service,
@@ -43,10 +41,10 @@ define([
   guestClaimsListHeader,
   guestClaimsList,
   guestWarningModal,
-  guestClaimsHanlderTable
+  guestClaimsTable
 ) {
   var GuestClaimProfiles = Marionette.ItemView.extend({
-    template: 'guestClaimProfiles',
+    template: guestClaimProfiles,
     events: {
       'change .profile': 'updateValues',
     },
@@ -67,7 +65,7 @@ define([
   })
 
   var GuestClaimsMultiValuedEntry = Marionette.ItemView.extend({
-    template: 'guestClaimsList',
+    template: guestClaimsList,
     tagName: 'tr',
     initialize: function() {
       this.modelBinder = new Backbone.ModelBinder()
@@ -130,7 +128,7 @@ define([
 
   var GuestClaimsMultiValueCollection = Marionette.CompositeView.extend({
     itemView: GuestClaimsMultiValuedEntry,
-    template: 'guestClaimsTable',
+    template: guestClaimsTable,
     tagName: 'table',
     className: 'claim-table',
     appendHtml: function(collectionView, itemView) {
@@ -139,7 +137,7 @@ define([
   })
 
   var GuestClaimsMultiValuedLayout = Marionette.Layout.extend({
-    template: 'guestClaimsListHeader',
+    template: guestClaimsListHeader,
     tagName: 'div',
     regions: {
       listItems: '#listItems',
@@ -300,7 +298,7 @@ define([
   })
 
   var GuestWarningModal = Modal.extend({
-    template: 'guestWarningModal',
+    template: guestWarningModal,
     onRender: function() {
       this.show()
     },
@@ -309,15 +307,8 @@ define([
     },
   })
 
-  ich.addTemplate('guestClaimsTemplate', guestClaimsTemplate)
-  ich.addTemplate('guestClaimProfiles', guestClaimProfiles)
-  ich.addTemplate('guestClaimsListHeader', guestClaimsListHeader)
-  ich.addTemplate('guestClaimsList', guestClaimsList)
-  ich.addTemplate('guestWarningModal', guestWarningModal)
-  ich.addTemplate('guestClaimsTable', guestClaimsHanlderTable)
-
   var GuestClaimsView = Marionette.Layout.extend({
-    template: 'guestClaimsTemplate',
+    template: guestClaimsTemplate,
     className: 'full-height',
     regions: {
       guestClaimProfiles: '#claims-profiles',

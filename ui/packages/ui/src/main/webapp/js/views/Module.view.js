@@ -18,16 +18,20 @@ define([
   'js/modules/Application.module.js',
   'js/modules/Configuration.module.js',
   'js/modules/Installer.module.js',
+  'templates/tabs.handlebars',
+  'templates/moduleTab.handlebars',
 ], function(
   Marionette,
   $,
   Application,
   ApplicationModule,
   ConfigurationModule,
-  InstallerModule
+  InstallerModule,
+  tabs,
+  moduleTab
 ) {
   var ModuleView = Marionette.Layout.extend({
-    template: 'tabs',
+    template: tabs,
     className: 'relative full-height',
     regions: {
       tabs: '#tabs',
@@ -56,7 +60,7 @@ define([
           collection: this.model.get('value'),
           itemView: Marionette.ItemView.extend({
             tagName: 'li',
-            template: 'moduleTab',
+            template: moduleTab,
             events: {
               click: 'setHeader',
             },

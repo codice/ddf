@@ -14,16 +14,13 @@
  **/
 /* global define */
 define([
-  'icanhaz',
   'backbone',
   'js/views/Modal',
   'properties',
   'templates/systemUsage.layout.handlebars',
-], function(ich, Backbone, Modal, properties, systemUsageTemplate) {
-  ich.addTemplate('systemUsageTemplate', systemUsageTemplate)
-
+], function(Backbone, Modal, properties, systemUsageTemplate) {
   var SystemUsageModal = Modal.extend({
-    template: 'systemUsageTemplate',
+    template: systemUsageTemplate,
     model: new Backbone.Model(properties),
     initialize: function() {
       // there is no automatic chaining of initialize.

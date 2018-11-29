@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,14 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<a href='#{{cid}}' class='newLink' data-toggle="modal" data-backdrop="static" data-keyboard="false">
-    {{name}}
-</a>
-<hr class="service-divider"/>
-<div id="configurationRegion"></div>
-<div class="service-modal-container">
-    <div id="{{cid}}" class="service-modal modal" tabindex="-1" role="dialog" aria-hidden="true">
+const Marionette = require('marionette')
 
-    </div>
-</div>
+Marionette.View.prototype._isMarionetteView = true

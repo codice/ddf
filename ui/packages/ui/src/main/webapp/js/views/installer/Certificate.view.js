@@ -16,7 +16,6 @@
 /** Main view page for add. */
 define([
   'marionette',
-  'icanhaz',
   'underscore',
   'backbone',
   'jquery',
@@ -27,7 +26,6 @@ define([
   'blueimp-file-upload/js/jquery.fileupload',
 ], function(
   Marionette,
-  ich,
   _,
   Backbone,
   $,
@@ -35,10 +33,8 @@ define([
   FileHelper,
   certificateTemplate
 ) {
-  ich.addTemplate('certificateTemplate', certificateTemplate)
-
   var CertificateView = Marionette.Layout.extend({
-    template: 'certificateTemplate',
+    template: certificateTemplate,
     model: new CertsModel(),
     initialize: function() {
       this.modelBinder = new Backbone.ModelBinder()

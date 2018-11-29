@@ -14,7 +14,6 @@
  **/
 /*global define, window*/
 define([
-  'icanhaz',
   'underscore',
   'marionette',
   'components/configuration-edit/configuration-edit.view',
@@ -22,7 +21,6 @@ define([
   './configuration-item.hbs',
   'js/CustomElements',
 ], function(
-  ich,
   _,
   Marionette,
   ConfigurationEdit,
@@ -30,10 +28,8 @@ define([
   configurationRow,
   CustomElements
 ) {
-  ich.addTemplate('configurationRow', configurationRow)
-
   return Marionette.Layout.extend({
-    template: 'configurationRow',
+    template: configurationRow,
     tagName: CustomElements.register('configuration-item'),
     events: {
       'click .editLink': 'editConfiguration',
