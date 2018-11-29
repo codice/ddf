@@ -20,18 +20,19 @@ class DocumentListener extends React.Component {
 class Menu extends React.Component {
   constructor(props) {
     super(props)
-    const children = React.Children.toArray(props.children)
-    this.state = { active: this.chooseActive(children, props.value) }
+    this.state = { active: this.chooseActive() }
     this.onKeyDown = this.onKeyDown.bind(this)
   }
-  chooseActive(children, selection, active) {
-    const found = children.some(child => child.props.value === active)
-    if (found) {
+  chooseActive() {
+    const selection = this.props.value
+    const active = this.state ? this.state.active : undefined
+    const itemNames = this.props.children.map(child => child.props.value)
+    if (itemNames.includes(active)) {
       return active
-    } else if (selection) {
+    } else if (itemNames.includes(selection)) {
       return selection
-    } else if (children.length > 0) {
-      return children[0].props.value
+    } else if (itemNames.length > 0) {
+      return itemNames[0]
     } else {
       return undefined
     }
@@ -76,9 +77,7 @@ class Menu extends React.Component {
   }
   componentDidUpdate(previousProps) {
     if (previousProps.children !== this.props.children) {
-      this.setState({
-        active: this.chooseActive(this.props.children, this.props.value, this.state.active),
-      })
+      this.setState({ active: this.chooseActive() })
     }
   }
   render() {
