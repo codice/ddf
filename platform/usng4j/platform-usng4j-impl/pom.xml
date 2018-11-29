@@ -54,6 +54,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            !javax.annotation,
+                            *
+                        </Import-Package>
                         <Export-Package/>
                         <Embed-Dependency>
                             usng4j-impl,

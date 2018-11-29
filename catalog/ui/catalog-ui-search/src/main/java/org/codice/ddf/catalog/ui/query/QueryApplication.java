@@ -40,6 +40,7 @@ import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler;
 import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
+import org.codice.ddf.catalog.ui.query.suggestion.UtmUpsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -73,6 +74,8 @@ public class QueryApplication implements SparkApplication, Function {
 
   private final MgrsCoordinateProcessor mgrsCoordinateProcessor;
 
+  private final UtmUpsCoordinateProcessor utmUpsCoordinateProcessor;
+
   private FeatureService featureService;
 
   private CqlTransformHandler cqlTransformHandler;
@@ -82,9 +85,11 @@ public class QueryApplication implements SparkApplication, Function {
   public QueryApplication(
       CqlTransformHandler cqlTransformHandler,
       LatLonCoordinateProcessor latLonCoordinateProcessor,
-      MgrsCoordinateProcessor mgrsCoordinateProcessor) {
+      MgrsCoordinateProcessor mgrsCoordinateProcessor,
+      UtmUpsCoordinateProcessor utmUpsCoordinateProcessor) {
     this.latLonCoordinateProcessor = latLonCoordinateProcessor;
     this.mgrsCoordinateProcessor = mgrsCoordinateProcessor;
+    this.utmUpsCoordinateProcessor = utmUpsCoordinateProcessor;
     this.cqlTransformHandler = cqlTransformHandler;
   }
 
@@ -129,6 +134,7 @@ public class QueryApplication implements SparkApplication, Function {
           String query = req.queryParams("q");
           List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
           List<Suggestion> efficientPrependingResults = new LinkedList<>(results);
+          this.utmUpsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           this.mgrsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           this.latLonCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           return GSON.toJson(efficientPrependingResults);
