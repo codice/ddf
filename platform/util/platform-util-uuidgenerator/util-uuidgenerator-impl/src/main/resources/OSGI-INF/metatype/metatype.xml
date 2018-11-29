@@ -17,8 +17,8 @@
     <OCD name="Metacard UUID Generator Service" id="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
          description="The Metacard UUID Generator Service generates UUIDs for Metacards.">
 
-        <AD description="Remove hyphens from the Metacard UUID during generation" name="Remove Hyphens"
-            id="removeHyphens" required="true" type="Boolean" default="true"/>
+        <AD description="Use hyphens in Metacard UUID generation" name="Use Hyphens"
+            id="useHyphens" required="true" type="Boolean" default="false"/>
 
     </OCD>
 

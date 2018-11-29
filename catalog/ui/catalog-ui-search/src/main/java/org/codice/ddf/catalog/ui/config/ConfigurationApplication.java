@@ -41,6 +41,7 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
@@ -67,6 +68,8 @@ public class ConfigurationApplication implements SparkApplication {
           .create();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationApplication.class);
+
+  private final UuidGenerator uuidGenerator;
 
   private String format;
 
@@ -289,7 +292,9 @@ public class ConfigurationApplication implements SparkApplication {
     setAttributeEnumMap(mergedEntryMap);
   }
 
-  public ConfigurationApplication() {}
+  public ConfigurationApplication(UuidGenerator uuidGenerator) {
+    this.uuidGenerator = uuidGenerator;
+  }
 
   public List<Long> getScheduleFrequencyList() {
     return scheduleFrequencyList;
@@ -505,6 +510,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("enums", getAttributeEnumMap());
     config.put("basicSearchTemporalSelectionDefault", basicSearchTemporalSelectionDefault);
     config.put("basicSearchMatchType", basicSearchMatchType);
+    config.put("useHyphensInUuid", uuidGenerator.useHyphens());
     return config;
   }
 

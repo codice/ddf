@@ -14,7 +14,7 @@
 const $ = require('jquery')
 const moment = require('moment')
 const _ = require('underscore')
-require('./requestAnimationFramePolyfill.js')
+require('./requestAnimationFramePolyfill')
 
 const timeZones = {
   UTC: 'Etc/UTC',
@@ -54,7 +54,7 @@ module.exports = {
   //randomly generated guid guaranteed to be unique ;)
   undefined: '2686dcb5-7578-4957-974d-aaa9289cd2f0',
   coreTransitionTime: 250,
-  generateUUID: function() {
+  generateUUID(properties = require('properties')) {
     var d = new Date().getTime()
     if (window.performance && typeof window.performance.now === 'function') {
       d += performance.now() //use high-precision timer if available
@@ -64,7 +64,15 @@ module.exports = {
       d = Math.floor(d / 16)
       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
     })
-    return uuid
+    if (!properties.useHyphensInUuid) return uuid
+
+    const chunks = uuid.match(/.{1,4}/g)
+
+    const prefix = chunks.slice(0, 2).join('')
+    const middle = chunks.slice(2, 5).join('-')
+    const suffix = chunks.slice(5, chunks.length).join('')
+
+    return `${prefix}-${middle}-${suffix}`
   },
   cqlToHumanReadable: function(cql) {
     if (cql === undefined) {
