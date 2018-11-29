@@ -112,7 +112,7 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.listenTo(
       this.get('queuedResults'),
-      'add',
+      'reset',
       _.throttle(this.mergeQueue, 30, {
         leading: false,
       })
@@ -266,12 +266,19 @@ module.exports = Backbone.AssociatedModel.extend({
       )
     }
 
+    this.addQueuedResults(resp)
+
     return {
-      queuedResults: resp.results,
+      queuedResults: [],
       results: [],
       status: resp.status,
       merged: this.get('merged') === false ? false : resp.results.length === 0,
     }
+  },
+  // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
+  addQueuedResults(resp) {
+    const existingQueue = this.get('queuedResults').fullCollection.models
+    this.get('queuedResults').fullCollection.reset(existingQueue.concat(resp.results))
   },
   allowAutoMerge: function() {
     if (this.get('results').length === 0 || !this.get('currentlyViewed')) {
