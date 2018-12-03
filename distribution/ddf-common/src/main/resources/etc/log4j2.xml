@@ -14,14 +14,8 @@
 -->
 <Configuration status="FATAL">
     <Properties>
-        <Property name="color.fatal">bright red</Property>
-        <Property name="color.error">bright red</Property>
-        <Property name="color.warn">bright yellow</Property>
-        <Property name="color.info">bright green</Property>
-        <Property name="color.debug">cyan</Property>
-        <Property name="color.trace">cyan</Property>
-        <Property name="log-pattern">%-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id} - %X{bundle.name} - %X{bundle.version} | %m%n</Property>
-        <Property name="log-out-pattern">\u001b[90m%d{HH:mm:ss\.SSS}\u001b[0m %highlight{%-5level}{FATAL=${color.fatal}, ERROR=${color.error}, WARN=${color.warn}, INFO=${color.info}, DEBUG=${color.debug}, TRACE=${color.trace}} \u001b[90m[%t]\u001b[0m %msg%n%throwable</Property>
+        <!--Common pattern layout for appenders-->
+        <Property name="log4j2.pattern">%d{ISO8601} | %-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id} - %X{bundle.name} - %X{bundle.version} | %m%n</Property>
     </Properties>
 
     <Appenders>
@@ -36,13 +30,13 @@
         <Syslog name="syslog" facility="AUTH" host="localhost" protocol="UDP" port="514"/>
 
         <Console name="stdout" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{ISO8601} | ${log-pattern}"/>
+            <PatternLayout pattern="${log4j2.pattern}"/>
         </Console>
 
         <RollingFile name="out" append="true"
                      fileName="${sys:karaf.data}/log/${sys:org.codice.ddf.system.branding}.log"
                      filePattern="${sys:karaf.data}/log/${sys:org.codice.ddf.system.branding}.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="%d{ISO8601} | ${log-out-pattern}"/>
+            <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
@@ -52,7 +46,7 @@
         <RollingFile name="ingestError" append="true"
                      fileName="${sys:karaf.data}/log/ingest_error.log"
                      filePattern="${sys:karaf.data}/log/ingest_error.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="%d{ISO8601} | ${log-pattern}"/>
+            <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
@@ -90,7 +84,7 @@
         <RollingFile name="solr" append="true"
                      fileName="${sys:karaf.data}/log/solr.log"
                      filePattern="${sys:karaf.data}/log/solr.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="%d{ISO8601} | ${log-pattern}"/>
+            <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
@@ -100,7 +94,7 @@
         <RollingFile name="artemis" append="true"
                      fileName="${sys:karaf.data}/log/artemis.log"
                      filePattern="${sys:karaf.data}/log/artemis.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="%d{ISO8601} | ${log-pattern}"/>
+            <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
