@@ -77,6 +77,7 @@ define([
           uuid: options.properties['service.pid'].replace(/\./g, ''),
         })
       }
+      this.set('displayName', this.getConfigurationDisplayName())
     },
 
     /**

@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,22 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div>
-    <a href='#{{cid}}' class='editLink' data-toggle="modal" data-backdrop="static" data-keyboard="false">
-        {{displayName}}
-    </a>
-    <div class="config-modal-container">
-        <div id="{{cid}}" class="config-modal modal" tabindex="-1" role="dialog" aria-hidden="true">
-
-        </div>
-    </div>
-</div>
-<div>
-    {{bundle_name}}
-</div>
-<div>
-    {{#if hasFactory}}
-    <a href='#' class='removeLink glyphicon glyphicon-remove'></a>
-    {{/if}}
-</div>
+export { default, WithBackboneProps } from './backbone'

@@ -147,8 +147,7 @@ define([
           )
         })
         .done(function() {
-          view.$el.parent().modal('hide')
-          view.close()
+          view.options.stopEditing()
           wreqr.vent.trigger('refreshConfigurations')
         })
       wreqr.vent.trigger('sync')
@@ -164,7 +163,7 @@ define([
       wreqr.vent.trigger('poller:start')
       var view = this
       _.defer(function() {
-        view.close()
+        view.options.stopEditing()
       })
     },
     /**
