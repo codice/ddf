@@ -26,7 +26,7 @@ class Menu extends React.Component {
   chooseActive() {
     const selection = this.props.value
     const active = this.state ? this.state.active : undefined
-    const itemNames = this.props.children.map(child => child.props.value)
+    const itemNames = (this.props.children || []).map(child => child.props.value)
     if (itemNames.includes(active)) {
       return active
     } else if (itemNames.includes(selection)) {
