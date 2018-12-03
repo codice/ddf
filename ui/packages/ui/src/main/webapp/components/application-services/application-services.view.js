@@ -13,48 +13,24 @@
  *
  **/
 /*global define, window*/
-define([
-  'marionette',
-  'js/models/Service',
-  './application-services.hbs',
-  'components/service-item/service-item.collection.view',
-  'js/CustomElements',
-  'js/wreqr.js',
-], function(
+import * as React from 'react'
+import ApplicationServices from './application-services.tsx'
+define(['marionette', 'js/CustomElements'], function(
   Marionette,
-  Service,
-  template,
-  ServiceItemCollectionView,
-  CustomElements,
-  wreqr
+  CustomElements
 ) {
   return Marionette.Layout.extend({
     tagName: CustomElements.register('application-services'),
-    template: template,
-    regions: {
-      collectionRegion: '.services',
-    },
-    initialize: function(options) {
-      this.options.url = this.model
-        ? './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/' +
-          this.model.get('appId')
-        : undefined
-      this.model = new Service.Response({ url: this.options.url })
-      this.model.fetch()
-      this.listenTo(
-        wreqr.vent,
-        'refreshConfigurations',
-        function() {
-          this.model.fetch()
-        }.bind(this)
-      )
-    },
-    onRender: function() {
-      this.collectionRegion.show(
-        new ServiceItemCollectionView({
-          collection: this.model.get('value'),
-          showWarnings: true,
-        })
+    template() {
+      return (
+        <ApplicationServices
+          url={
+            this.model
+              ? './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/' +
+                this.model.get('appId')
+              : undefined
+          }
+        />
       )
     },
   })

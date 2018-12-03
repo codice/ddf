@@ -73,7 +73,7 @@ define([
             console.log('todo: what do we do?')
             break
         }
-        var newView = new newView({ model: view.applicationModel })
+        newView = new newView({ model: view.applicationModel })
         view.tabContentInner.show(newView)
       } else if (iframeLocation) {
         view.tabContentInner.show(
