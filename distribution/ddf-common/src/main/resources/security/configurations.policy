@@ -11,7 +11,7 @@ priority "grant";
 //
 // When adding permissions for directories, trailing slashes have no effect on the permissions
 // granted. For example, adding a permission for "${/}test${/}path" and "${/}test${/}path${/}" are
-// equivalent. The recursive forms "${/}test${/}path${/}-" and "${/}test${/}path${/}${/}-" are also
+// equivalent. The recursive forms "${/}test${/}path${/}-" and "${/}test${/}path${/}-${/}" are also
 // equivalent.
 //
 // IMPORTANT! - Adding new permissions requires a system restart to take affect.
