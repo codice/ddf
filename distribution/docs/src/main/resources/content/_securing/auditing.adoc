@@ -69,8 +69,8 @@ If you want to change the location of your systems security backup log from the 
 [source,xml,linenums]
 ----
 <RollingFile name="securityBackup" append="true" ignoreExceptions="false"
-                     fileName="${sys:karaf.data}/log/<NEW_LOG_FILE>"
-                     filePattern="${sys:karaf.data}/log/<NEW_LOG_FILE>-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="<NEW_LOG_FILE>"
+                     filePattern="<NEW_LOG_FILE>-%d{yyyy-MM-dd-HH}-%i.log.gz">
 ----
 
 [WARNING]

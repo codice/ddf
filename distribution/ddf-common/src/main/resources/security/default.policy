@@ -205,7 +205,7 @@ grant codeBase "file:/pax-logging-log4j2" {
 }
 
 grant codebase "file:/org.apache.karaf.log.core" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.config.xml", "read,write";
 }
 
 grant codeBase "file:/woodstox-core/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
