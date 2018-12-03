@@ -45,10 +45,14 @@ import org.slf4j.LoggerFactory;
 public class MgrsCoordinateProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(MgrsCoordinateProcessor.class);
 
-  private static final Pattern PATTERN_MGRS_ZONE = Pattern.compile("\\d\\d?[C-HJ-NP-X]");
-
-  private static final Pattern PATTERN_MGRS_100KM = Pattern.compile("[A-HJ-NP-Z][A-HJ-NP-V]");
-
+  private static final Pattern PATTERN_MGRS_ZONE_AND_LATITUDE_BAND =
+      Pattern.compile(
+          "("
+              + UsngCoordinate.ZONE_REGEX_STRING
+              + ")"
+              + UsngCoordinate.LATITUDE_BAND_PART_ONE_REGEX_STRING);
+  private static final Pattern PATTERN_MGRS_100KM =
+      Pattern.compile(UsngCoordinate.LATITUDE_BAND_PART_TWO_REGEX_STRING);
   private static final Pattern PATTERN_MGRS_NUMERIC =
       Pattern.compile("((\\d){1,5}(\\h)+(\\d){1,5}(\\W)+)|((\\d){2,10})");
 
@@ -56,7 +60,7 @@ public class MgrsCoordinateProcessor {
       Pattern.compile(
           format(
               "(%s)|(%s)|(%s)",
-              PATTERN_MGRS_ZONE.pattern(),
+              PATTERN_MGRS_ZONE_AND_LATITUDE_BAND.pattern(),
               PATTERN_MGRS_100KM.pattern(),
               PATTERN_MGRS_NUMERIC.pattern()),
           Pattern.CASE_INSENSITIVE);
@@ -334,7 +338,7 @@ public class MgrsCoordinateProcessor {
   }
 
   private static MgrsPartType getPartType(String mgrsPart) {
-    if (PATTERN_MGRS_ZONE.matcher(mgrsPart).matches()) return MgrsPartType.ZONE;
+    if (PATTERN_MGRS_ZONE_AND_LATITUDE_BAND.matcher(mgrsPart).matches()) return MgrsPartType.ZONE;
     if (PATTERN_MGRS_100KM.matcher(mgrsPart).matches()) return MgrsPartType.HUNDRED_KM;
     if (PATTERN_MGRS_NUMERIC.matcher(mgrsPart).matches()) return MgrsPartType.NUMERIC;
     return MgrsPartType.NONE;

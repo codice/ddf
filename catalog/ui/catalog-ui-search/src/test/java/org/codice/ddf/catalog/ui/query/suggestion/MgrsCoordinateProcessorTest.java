@@ -300,6 +300,16 @@ public class MgrsCoordinateProcessorTest {
   }
 
   @Test
+  public void testProcessorIgnoresInvalidZoneNumbers() {
+    List<String> zoneZero = processor.getMgrsCoordinateStrings("0D");
+    List<String> zoneSixtyOne = processor.getMgrsCoordinateStrings("61D");
+    List<String> zoneThreeDigits = processor.getMgrsCoordinateStrings("100D");
+    assertThat(zoneZero, hasSize(0));
+    assertThat(zoneSixtyOne, hasSize(0));
+    assertThat(zoneThreeDigits, hasSize(0));
+  }
+
+  @Test
   public void testProcessorIgnoresInvalid100KmLetters() {
     List<String> kmIJ = processor.getMgrsCoordinateStrings("14Q IJ");
     List<String> kmOJ = processor.getMgrsCoordinateStrings("14Q OJ");
