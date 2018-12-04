@@ -56,23 +56,23 @@ describe('<Menu />', () => {
   const table = [
     {
       events: [],
-      state: 'one',
-    },
-    {
-      events: ['ArrowDown'],
       state: 'two',
     },
     {
-      events: ['ArrowUp'],
+      events: ['ArrowDown'],
       state: 'three',
+    },
+    {
+      events: ['ArrowUp'],
+      state: 'one',
     },
     {
       events: ['ArrowDown', 'ArrowDown'],
-      state: 'three',
+      state: 'one',
     },
     {
       events: ['ArrowDown', 'ArrowDown', 'ArrowDown'],
-      state: 'one',
+      state: 'two',
     },
   ]
 
@@ -113,8 +113,8 @@ describe('<Menu />', () => {
         <MenuItem value="three" />
       </Menu>
     )
-    expect(wrapper.state('active')).to.equal('one')
-    wrapper.find({ value: 'two' }).prop('onHover')()
     expect(wrapper.state('active')).to.equal('two')
+    wrapper.find({ value: 'one' }).prop('onHover')()
+    expect(wrapper.state('active')).to.equal('one')
   })
 })
