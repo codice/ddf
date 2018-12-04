@@ -85,6 +85,24 @@ public class XmlModelBuilderTest {
   }
 
   @Test
+  public void testBinarySpatialTypeDWithin() throws Exception {
+    JAXBElement filter =
+        builder
+            .beginBinarySpatialType("DWITHIN")
+            .setProperty("name")
+            .setValue("value")
+            .setDistance(10.5)
+            .endTerminalType()
+            .getResult();
+
+    assertTrue(filter.getDeclaredType().equals(FilterType.class));
+
+    forNode(filter)
+        .verifyTerminalNode("/Filter/DWithin", "name", "value")
+        .verifyTerminalNode("/Filter/DWithin", 10.5);
+  }
+
+  @Test
   public void testBinaryLogicTypeAnd() throws Exception {
     JAXBElement filter =
         builder
@@ -176,6 +194,15 @@ public class XmlModelBuilderTest {
       try (InputStream inputStream = new ByteArrayInputStream(rawXml.getBytes())) {
         this.document = builder.parse(inputStream);
       }
+    }
+
+    private XPathAssertionSupport verifyTerminalNode(String xpathToNode, Double distance)
+        throws XPathExpressionException {
+      Number actualDistance =
+          (Number)
+              xPath.compile(xpathToNode + "/Distance").evaluate(document, XPathConstants.NUMBER);
+      assertThat(actualDistance, is(distance));
+      return this;
     }
 
     private XPathAssertionSupport verifyTerminalNode(

@@ -220,7 +220,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
-  public FlatFilterBuilder setDistance(Double distance) {
+  public JsonModelBuilder setDistance(Double distance) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
     nodeInProgress.setDistance(distance);

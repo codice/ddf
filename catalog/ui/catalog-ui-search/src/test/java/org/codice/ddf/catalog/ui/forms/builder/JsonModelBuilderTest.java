@@ -67,6 +67,20 @@ public class JsonModelBuilderTest {
   }
 
   @Test
+  public void testBinarySpatialTypeDWithin() {
+    FilterNode node =
+        builder
+            .beginBinarySpatialType("DWITHIN")
+            .setProperty("name")
+            .setValue("value")
+            .setDistance(10.5)
+            .endTerminalType()
+            .getResult();
+
+    assertLeafNode(node, "DWITHIN", "name", "value", 10.5);
+  }
+
+  @Test
   public void testBinaryLogicTypeAnd() {
     FilterNode node =
         builder
