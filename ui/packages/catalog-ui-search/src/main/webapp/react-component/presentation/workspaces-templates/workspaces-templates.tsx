@@ -34,8 +34,10 @@ const Root = styled.div`
       transparentize(0.9, readableColor(props.theme.backgroundAccentContent))};
 
     .home-templates-adhoc {
-        text-align: center;
-        white-space: nowrap;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
 
         .adhoc-search {
             display: inline-block;
@@ -49,8 +51,10 @@ const Root = styled.div`
             input {
                 text-align: left;
             }
-            padding: ${props => props.theme.minimumSpacing} 0px ${props =>
-  props.theme.minimumSpacing} 0px;
+            padding: 0px;
+            intrigue-input { /* stylelint-disable-line */ 
+              height: ${props => props.theme.minimumButtonSize};
+            }
         }
 
         .adhoc-go {

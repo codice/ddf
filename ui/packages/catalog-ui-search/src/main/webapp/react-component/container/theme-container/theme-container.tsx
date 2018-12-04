@@ -112,17 +112,17 @@ type ThemesInterface = {
 
 const themes: ThemesInterface = {
   dark: {
-    primaryColor: '#3c6dd5',
-    positiveColor: '#428442',
-    negativeColor: '#8a423c',
-    warningColor: '#c89600',
+    primaryColor: '#32a6ad',
+    positiveColor: '#5b963e',
+    negativeColor: '#943838',
+    warningColor: '#decd39',
     favoriteColor: '#d1d179',
-    backgroundNavigation: '#252529',
-    backgroundAccentContent: '#2A2A2E',
-    backgroundDropdown: '#35353a',
-    backgroundContent: '#35353a',
-    backgroundModal: '#252529',
-    backgroundSlideout: '#252529',
+    backgroundNavigation: '#213137',
+    backgroundAccentContent: '#34434c',
+    backgroundDropdown: '#253540',
+    backgroundContent: '#253540',
+    backgroundModal: '#253540',
+    backgroundSlideout: '#435059',
   },
   sea: {
     primaryColor: '#32a6ad',
