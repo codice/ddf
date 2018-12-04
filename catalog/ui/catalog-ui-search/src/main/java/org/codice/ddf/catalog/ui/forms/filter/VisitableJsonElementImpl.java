@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -141,13 +141,13 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   }
 
   private static List<VisitableElement<?>> wrap(String property, String value) {
-    return Arrays.asList(
+    return ImmutableList.of(
         new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
         new VisitableJsonElementImpl(FAKE_VALUE_OPERATOR, Collections.singletonList(value)));
   }
 
   private static List<VisitableElement<?>> wrap(String property, String value, Double distance) {
-    return Arrays.asList(
+    return ImmutableList.of(
         new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
         new VisitableJsonElementImpl(FAKE_DISTANCE_OPERATOR, distance),
         new VisitableJsonElementImpl(FAKE_VALUE_OPERATOR, Collections.singletonList(value)));
@@ -155,7 +155,7 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
 
   private static List<VisitableElement<?>> wrap(
       String property, Map<String, Object> templateProperties) {
-    return Arrays.asList(
+    return ImmutableList.of(
         new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
         new VisitableJsonElementImpl(
             FAKE_VALUE_OPERATOR, templateProperties, FilterVisitor2::visitFunctionType));
