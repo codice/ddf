@@ -77,7 +77,7 @@ class SolrPasswordUpdateSpec extends Specification {
 
         when:
         def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, clientFactoryFactory, encryptionService);
-        solrPasswordUpdate.start()
+        solrPasswordUpdate.updateSolrPassword()
 
         then:
         System.getProperty("solr.password").equals(password)

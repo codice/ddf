@@ -42,7 +42,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdateImpl.class);
 
-  @SuppressWarnings("squid:S2068")
+  @SuppressWarnings("squid:S2068" /* This constant does hold an actual password */)
   private static final String SOLR_PASSWORD_PROPERTY_NAME = "solr.password";
 
   private final ClientFactoryFactory restClientFactoryFactory;
@@ -83,7 +83,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
    * the default password is still in use. This object is intended to be a singleton, a blueprint
    * bean. That is why is can use itself as the lock
    */
-  public synchronized void start() {
+  public synchronized void updateSolrPassword() {
     if (configuredToAttemptAutoPasswordChange() && isUsingDefaultPassword()) {
       initialize();
       generatePassword();

@@ -16,5 +16,5 @@ package ddf.platform.solr.security;
 public interface SolrPasswordUpdate {
 
   /** Begin the passsword update process */
-  void start();
+  void updateSolrPassword();
 }
