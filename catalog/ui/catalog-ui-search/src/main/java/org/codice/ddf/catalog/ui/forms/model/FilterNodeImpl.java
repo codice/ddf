@@ -119,6 +119,9 @@ public class FilterNodeImpl implements FilterNode {
   @Override
   @Nullable
   public Double getDistance() {
+    if (!isLeaf()) {
+      throw new IllegalStateException("No distance value exists for a logical operator");
+    }
     return distance;
   }
 

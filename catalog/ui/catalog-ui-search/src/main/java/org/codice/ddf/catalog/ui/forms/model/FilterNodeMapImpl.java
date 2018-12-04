@@ -105,7 +105,7 @@ public class FilterNodeMapImpl implements FilterNode {
   @Override
   public Double getDistance() {
     if (!isLeaf()) {
-      throw new IllegalStateException("No target value exists for a logical operator");
+      throw new IllegalStateException("No distance value exists for a logical operator");
     }
 
     Object distance = json.get(DISTANCE);
