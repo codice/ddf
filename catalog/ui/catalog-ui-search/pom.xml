@@ -362,31 +362,6 @@
             <version>${usng4j.version}</version>
             <scope>test</scope>
         </dependency>
-      <dependency>
-        <groupId>ddf.mime.core</groupId>
-        <artifactId>mime-core-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codice.thirdparty</groupId>
-        <artifactId>tika-bundle</artifactId>
-        <version>${tika.thirdparty.bundle.version}</version>
-      </dependency>
-        <dependency>
-            <groupId>ddf.mime.core</groupId>
-            <artifactId>mime-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>tika-bundle</artifactId>
-            <version>${tika.thirdparty.bundle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>resource-bundle-locator</artifactId>
