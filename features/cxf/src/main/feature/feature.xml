@@ -663,7 +663,7 @@
         <bundle start-level="35" dependency="true">
             mvn:org.apache.commons/commons-lang3/${cxf.commons-lang3.version}
         </bundle>
-        <bundle start-level="35" dependency="true">mvn:org.apache.commons/commons-text/1.2</bundle>
+        <bundle start-level="35" dependency="true">mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
         <bundle dependency="true">
             wrap:mvn:org.apache.velocity/velocity-engine-core/${cxf.velocity.version}
         </bundle>
