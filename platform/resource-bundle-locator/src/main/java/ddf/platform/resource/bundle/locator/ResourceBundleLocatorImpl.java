@@ -52,9 +52,7 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
           "An error occurred while creating class loader to URL for ResourceBundle: "
               + baseName
               + ","
-              + locale.getCountry()
-              + ","
-              + locale.getLanguage(),
+              + locale,
           getClass().getName(),
           baseName);
     }
