@@ -21,9 +21,11 @@ import org.codice.ddf.cxf.client.SecureCxfClientFactory
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.util.environment.RestoreSystemProperties
 
 import javax.ws.rs.core.Response
 
+@RestoreSystemProperties
 class SolrPasswordUpdateSpec extends Specification {
 
     public static final String PLAINTEXT_PASSWORD = 'plaintext password'
