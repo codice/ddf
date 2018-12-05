@@ -42,10 +42,10 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
     try {
       URL[] urls = {resourceBundleDir.toURI().toURL()};
 
-      try (URLClassLoader loader = new URLClassLoader(urls)) {
-        return AccessController.doPrivileged(
-            (PrivilegedAction<ResourceBundle>)
-                () -> ResourceBundle.getBundle(baseName, locale, loader));
+      try (URLClassLoader loader =
+          AccessController.doPrivileged(
+              (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urls))) {
+        return ResourceBundle.getBundle(baseName, locale, loader);
       }
     } catch (IOException e) {
       throw new MissingResourceException(
