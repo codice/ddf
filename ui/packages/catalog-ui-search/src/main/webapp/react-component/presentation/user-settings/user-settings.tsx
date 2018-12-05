@@ -52,6 +52,7 @@ const Root = styled<State, 'div'>('div')`
     width: 100%;
     transition: transform ${props => props.theme.coreTransitionTime} ease-in-out;
     transform: translate(${props => (props.component ? '0%' : '100%')});
+    overflow: auto;
   }
   .user-settings-navigation {
     position: absolute;
