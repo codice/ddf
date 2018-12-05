@@ -69,18 +69,12 @@ If you want to change the location of your systems security backup log from the 
 [source,xml,linenums]
 ----
 <RollingFile name="securityBackup" append="true" ignoreExceptions="false"
-                     fileName="${sys:karaf.data}/log/<NEW_LOG_FILE>"
-                     filePattern="${sys:karaf.data}/log/<NEW_LOG_FILE>-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="<NEW_LOG_FILE>"
+                     filePattern="<NEW_LOG_FILE>-%d{yyyy-MM-dd-HH}-%i.log.gz">
 ----
 
 [WARNING]
 ====
 If the system is unable to write to the `security.log` file on system startup, fallback logging will be unavailable.
 Verify that the `security.log` file is properly configured and contains logs before configuring a fall back.
-====
-
-[WARNING]
-====
-The Karaf console command `log:set` currently does not work for the `log4j2.xml` configuration.
-//See https://issues.apache.org/jira/browse/KARAF-5354
 ====
