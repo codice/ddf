@@ -349,7 +349,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
 
     public DistanceBufferSupplier setDistance(Double distance) {
-      notNull(distance);
       this.distance = distance;
       return this;
     }
@@ -357,7 +356,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     @Override
     public JAXBElement<?> get() {
       JAXBElement<?> reduced = super.get();
-      notNull(distance);
+      notNull(distance, "The Distance element cannot be created without a distance value");
       if (!DistanceBufferType.class.equals(reduced.getDeclaredType())
           || !(reduced.getValue() instanceof DistanceBufferType)) {
         throw new FilterProcessingException(
