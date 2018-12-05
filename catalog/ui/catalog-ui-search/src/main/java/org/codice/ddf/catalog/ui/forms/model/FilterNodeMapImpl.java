@@ -111,15 +111,13 @@ public class FilterNodeMapImpl implements FilterNode {
     Object distance = json.get(DISTANCE);
     if (distance == null) {
       return null;
-    } else if (distance instanceof Double) {
-      return (Double) distance;
-    } else if (distance instanceof Integer) {
-      return ((Integer) distance).doubleValue();
-    } else if (distance instanceof Long) {
-      return ((Long) distance).doubleValue();
-    } else {
-      throw new IllegalStateException("The distance value could not be converted into a double");
     }
+
+    if (distance instanceof Number) {
+      return ((Number) distance).doubleValue();
+    }
+
+    throw new IllegalStateException("The distance value could not be converted into a double");
   }
 
   @Override
