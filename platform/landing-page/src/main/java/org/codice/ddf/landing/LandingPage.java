@@ -127,6 +127,10 @@ public class LandingPage extends HttpServlet {
     }
   }
 
+  public void setSourceKeyword(String sourceKeyword) {
+    this.sourceKeyword = sourceKeyword;
+  }
+
   public String getSourceKeyword() {
     return this.sourceKeyword;
   }

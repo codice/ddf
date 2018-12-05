@@ -262,6 +262,10 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
+  public void setKeywords(Map<String, String> keywords) {
+    this.keywords = keywords;
+  }
+
   public Map<String, String> getKeywords() {
     return this.keywords;
   }
