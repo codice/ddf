@@ -320,9 +320,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
             (PrivilegedAction<Boolean>)
                 () -> Boolean.valueOf(System.getProperty("solr.useBasicAuth")));
     if (useBasicAuth) {
-      // TODO: When this JAR becomes a bundle, convert SolrPasswordUpdate to become a bean.
       solrPasswordUpdate.updateSolrPassword();
-
       httpClientBuilder.setDefaultCredentialsProvider(getCredentialsProvider());
       httpClientBuilder.addInterceptorFirst(new PreemptiveAuth(new BasicScheme()));
     }

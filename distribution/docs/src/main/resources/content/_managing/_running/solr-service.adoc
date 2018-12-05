@@ -56,6 +56,7 @@ These instructions are for unix operating systems running the systemd
 . Edit the file `${home_directory}/solr/services/solr.service`
   .. Edit the property `ExecStart` and replace ${home_directory} with the absolute path to the `ddfsolr` file.
   .. Edit the property `ExecStopt` and replace ${home_directory} with the absolute path to the `ddfsolr` file.
+  .. Edit the property `User` and replace `<USER>` with the user ID of the Solr process owner.
 . From the operating system command line, enable a Solr service using a provided configuration file.
 Use the full path to the file.
 +

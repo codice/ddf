@@ -42,30 +42,30 @@
         </dependencySet>
     </dependencySets>
     <fileSets>
+        <!-- The order of the <fileSet> elements is important. The assumbly plugin will not
+        replace an existing file. Therefore, files that override behavior in the Apache Solr
+        distribution must be come before the Apache Solr files themselves. -->
+
+        <!-- Files with executable permissions -->
         <fileSet>
             <directory>src/main/resources
             </directory>
             <outputDirectory>/</outputDirectory>
-            <!--These changes are included to turn on Pro-Grade Security Manager for Solr-->
             <includes>
-                <include>security/solr-default.policy</include>
-                <include>bin/solr</include>
-                <!--This can be changed once Solr is upgraded to 7.5/8.0-->
-                <!--https://issues.apache.org/jira/browse/SOLR-12538-->
-                <include>bin/solr.cmd</include>
+                <include>bin/*</include>
             </includes>
-            <fileMode>0755</fileMode>
         </fileSet>
-        <fileSet>
-            <directory>${project.build.directory}/solr-${solr.version}</directory>
-            <outputDirectory>/</outputDirectory>
-        </fileSet>
+
+        <!-- The rest of the files. No executable permissions. -->
         <fileSet>
             <directory>src/main/resources</directory>
             <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>server/solr/security.json</include>
-            </includes>
+        </fileSet>
+
+        <!--The files from the Apache Solr distribution-->
+        <fileSet>
+            <directory>${project.build.directory}/solr-${solr.version}</directory>
+            <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>
