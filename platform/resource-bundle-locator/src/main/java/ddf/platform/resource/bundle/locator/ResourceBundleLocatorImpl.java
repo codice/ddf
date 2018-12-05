@@ -20,10 +20,13 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBundleLocatorImpl.class);
 
   private File resourceBundleBaseDir;
 
@@ -48,14 +51,14 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
         return ResourceBundle.getBundle(baseName, locale, loader);
       }
     } catch (IOException e) {
-      throw new MissingResourceException(
-          "An error occurred while creating class loader to URL for ResourceBundle: "
-              + baseName
-              + ","
-              + locale,
-          getClass().getName(),
-          baseName);
+      LOGGER.debug(
+          "An error occurred while creating class loader to URL for ResourceBundle: [{}], {}",
+          baseName,
+          locale,
+          e);
     }
+
+    return null;
   }
 
   public void setResourceBundleBaseDir(String resourceBundleBaseDir) {

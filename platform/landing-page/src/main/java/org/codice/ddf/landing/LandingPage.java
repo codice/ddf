@@ -109,7 +109,7 @@ public class LandingPage extends HttpServlet {
   public void setSourceKeyword(ResourceBundleLocator resourceBundleLocator) {
     ResourceBundle resourceBundle = resourceBundleLocator.getBundle("LandingPageBundle");
 
-    if (resourceBundle.containsKey("dataSource")) {
+    if (resourceBundle != null && resourceBundle.containsKey("dataSource")) {
       this.sourceKeyword = (String) resourceBundle.getObject("dataSource");
     } else {
       this.sourceKeyword = "Data Source";

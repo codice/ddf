@@ -231,19 +231,22 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
 
-  private volatile Map<String, String> keywords;
+  private volatile Map<String, String> keywords = Collections.emptyMap();
 
   public void setKeywords(ResourceBundleLocator resourceBundleLocator) {
     ResourceBundle resourceBundle = resourceBundleLocator.getBundle("IntrigueBundle");
-    Enumeration bundleKeys = resourceBundle.getKeys();
 
-    keywords = new HashMap<>();
+    if (resourceBundle != null) {
+      Enumeration bundleKeys = resourceBundle.getKeys();
 
-    while (bundleKeys.hasMoreElements()) {
-      String key = (String) bundleKeys.nextElement();
-      String value = resourceBundle.getString(key);
+      keywords = new HashMap<>();
 
-      keywords.put(key, value);
+      while (bundleKeys.hasMoreElements()) {
+        String key = (String) bundleKeys.nextElement();
+        String value = resourceBundle.getString(key);
+
+        keywords.put(key, value);
+      }
     }
   }
 
