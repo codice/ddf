@@ -54,10 +54,12 @@
             <includes>
                 <include>bin/*</include>
             </includes>
+            <fileMode>0754</fileMode>
         </fileSet>
 
         <!-- The rest of the files. No executable permissions. -->
         <fileSet>
+            <fileMode>0644</fileMode>
             <directory>src/main/resources</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
