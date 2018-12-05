@@ -47,12 +47,12 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   private final ClientFactoryFactory restClientFactoryFactory;
   private final UuidGenerator uuidGenerator;
-  private java.util.Properties properties;
+  private final java.util.Properties properties;
   private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
   private String newPasswordEncrypted;
-  private EncryptionService encryptionService;
-  private StatusType solrResponse;
+  private final EncryptionService encryptionService;
+  private StatusType solrResponse = null;
   private String newPasswordWrappedEncrypted;
 
   public SolrPasswordUpdateImpl(
