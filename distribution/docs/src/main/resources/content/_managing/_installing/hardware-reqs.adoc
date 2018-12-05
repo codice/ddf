@@ -1,0 +1,71 @@
+:title: Hardware Requirements
+:type: subInstalling
+:status: published
+:parent: Installation Prerequisites
+:order: 00
+
+== Hardware Requirements
+
+======
+
+.Using the Standard installation of the ${branding} application:
+[cols="2,3,3" options="header"]
+|===
+
+3+^|Minimum and Recommended Requirements for ${branding} Systems
+
+
+|*Criteria*
+|*Minimum*
+|*Recommended*
+
+|CPU
+|Dual Core 1.6 GHz
+|Quad Core 2.6 GHz
+
+|RAM
+|8 GB^*^
+|32 GB
+
+|Disk Space
+|40 GB
+|80 GB
+
+|Video Card
+|--
+|WebGL capable GPU
+
+|Additional Software
+|JDK 8 x64
+|JDK 8 x64
+
+|===
+
+^*^The amount of RAM can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>
+
+======
+
+.Operating Systems
+${branding} has been tested on the following operating systems and with the following browsers.
+Other operating systems or browsers may be used but have not been officially tested.
+
+=====
+
+.Tested Operating Systems and Browsers
+[cols="2,2" options="header"]
+|===
+|Operating Systems
+|Browsers
+
+|Windows Server 2012 R2 +
+Windows Server 2008 R2 Service Pack 1 +
+Windows 10 +
+Linux CentOS 7 +
+Debian 9
+
+|Internet Explorer 11 +
+Microsoft Edge +
+Firefox +
+Chrome
+
+=====
