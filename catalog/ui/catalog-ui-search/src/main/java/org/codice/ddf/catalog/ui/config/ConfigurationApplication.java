@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.configuration.HistorianConfiguration;
 import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -231,23 +233,37 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
 
+  private static final String INTRIGUE_BASE_NAME = "IntrigueBundle";
+
   private volatile Map<String, String> keywords = Collections.emptyMap();
 
   public void setKeywords(ResourceBundleLocator resourceBundleLocator) {
-    ResourceBundle resourceBundle = resourceBundleLocator.getBundle("IntrigueBundle");
+    try {
+      ResourceBundle resourceBundle = resourceBundleLocator.getBundle(INTRIGUE_BASE_NAME);
 
-    if (resourceBundle != null) {
-      Enumeration bundleKeys = resourceBundle.getKeys();
+      if (resourceBundle != null) {
+        Enumeration bundleKeys = resourceBundle.getKeys();
 
-      keywords = new HashMap<>();
+        keywords = new HashMap<>();
 
-      while (bundleKeys.hasMoreElements()) {
-        String key = (String) bundleKeys.nextElement();
-        String value = resourceBundle.getString(key);
+        while (bundleKeys.hasMoreElements()) {
+          String key = (String) bundleKeys.nextElement();
+          String value = resourceBundle.getString(key);
 
-        keywords.put(key, value);
+          keywords.put(key, value);
+        }
       }
+    } catch (IOException e) {
+      LOGGER.debug(
+          "An error occurred while creating class loader to URL for ResourceBundle: {}, {}",
+          INTRIGUE_BASE_NAME,
+          Locale.getDefault(),
+          e);
     }
+  }
+
+  public Map<String, String> getKeywords() {
+    return this.keywords;
   }
 
   public Set<String> getEditorAttributes() {

@@ -31,34 +31,24 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   private File resourceBundleBaseDir;
 
   @Override
-  public ResourceBundle getBundle(String baseName) {
+  public ResourceBundle getBundle(String baseName) throws IOException {
     return getBundle(baseName, Locale.getDefault());
   }
 
   @Override
-  public ResourceBundle getBundle(String baseName, Locale locale) {
+  public ResourceBundle getBundle(String baseName, Locale locale) throws IOException {
     File resourceBundleDir = resourceBundleBaseDir;
     if (resourceBundleDir == null) {
       resourceBundleDir = new File(String.format("%s/etc/i18n/", System.getProperty("ddf.home")));
     }
 
-    try {
-      URL[] urls = {resourceBundleDir.toURI().toURL()};
+    URL[] urls = {resourceBundleDir.toURI().toURL()};
 
-      try (URLClassLoader loader =
-          AccessController.doPrivileged(
-              (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urls))) {
-        return ResourceBundle.getBundle(baseName, locale, loader);
-      }
-    } catch (IOException e) {
-      LOGGER.debug(
-          "An error occurred while creating class loader to URL for ResourceBundle: [{}], {}",
-          baseName,
-          locale,
-          e);
+    try (URLClassLoader loader =
+        AccessController.doPrivileged(
+            (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urls))) {
+      return ResourceBundle.getBundle(baseName, locale, loader);
     }
-
-    return null;
   }
 
   public void setResourceBundleBaseDir(String resourceBundleBaseDir) {

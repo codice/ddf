@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -85,6 +86,8 @@ public class LandingPage extends HttpServlet {
 
   private static final String NO_DATE = "No date specified";
 
+  private static final String LANDING_PAGE_BASE_NAME = "LandingPageBundle";
+
   private static final List<String> ACCEPTED_PATHS =
       Arrays.asList(
           "/index.html",
@@ -107,13 +110,25 @@ public class LandingPage extends HttpServlet {
   private String foreground;
 
   public void setSourceKeyword(ResourceBundleLocator resourceBundleLocator) {
-    ResourceBundle resourceBundle = resourceBundleLocator.getBundle("LandingPageBundle");
+    try {
+      ResourceBundle resourceBundle = resourceBundleLocator.getBundle(LANDING_PAGE_BASE_NAME);
 
-    if (resourceBundle != null && resourceBundle.containsKey("dataSource")) {
-      this.sourceKeyword = (String) resourceBundle.getObject("dataSource");
-    } else {
-      this.sourceKeyword = "Data Source";
+      if (resourceBundle.containsKey("dataSource")) {
+        this.sourceKeyword = (String) resourceBundle.getObject("dataSource");
+      } else {
+        this.sourceKeyword = "Data Source";
+      }
+    } catch (IOException e) {
+      LOGGER.debug(
+          "An error occurred while creating class loader to URL for ResourceBundle: {}, {}",
+          LANDING_PAGE_BASE_NAME,
+          Locale.getDefault(),
+          e);
     }
+  }
+
+  public String getSourceKeyword() {
+    return this.sourceKeyword;
   }
 
   public List<String> getAnnouncements() {

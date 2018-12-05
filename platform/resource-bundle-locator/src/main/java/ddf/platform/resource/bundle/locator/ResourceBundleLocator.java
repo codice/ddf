@@ -13,6 +13,7 @@
  */
 package ddf.platform.resource.bundle.locator;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -34,7 +35,7 @@ public interface ResourceBundleLocator {
    *     occurs while loading the file
    * @throws SecurityException if read file permissions are not granted for <ddf.home>/etc/i18n
    */
-  ResourceBundle getBundle(String baseName);
+  ResourceBundle getBundle(String baseName) throws IOException;
 
   /**
    * Retrieves a resource bundle for a given properties file
@@ -46,5 +47,5 @@ public interface ResourceBundleLocator {
    *     occurs while loading the file
    * @throws SecurityException if read file permissions are not granted for <ddf.home>/etc/i18n
    */
-  ResourceBundle getBundle(String baseName, Locale locale);
+  ResourceBundle getBundle(String baseName, Locale locale) throws IOException;
 }

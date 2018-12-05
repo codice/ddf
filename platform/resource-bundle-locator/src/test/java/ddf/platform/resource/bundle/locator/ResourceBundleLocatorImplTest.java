@@ -16,6 +16,7 @@ package ddf.platform.resource.bundle.locator;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -34,7 +35,7 @@ public class ResourceBundleLocatorImplTest {
   }
 
   @Test
-  public void testGetResourceBundle() {
+  public void testGetResourceBundle() throws IOException {
     resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     ResourceBundle resourceBundle = resourceBundleLocator.getBundle(TEST_BASE_NAME);
 
@@ -45,7 +46,7 @@ public class ResourceBundleLocatorImplTest {
   }
 
   @Test
-  public void testGetResourceBundleWithLocale() {
+  public void testGetResourceBundleWithLocale() throws IOException {
     resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     ResourceBundle resourceBundle =
         resourceBundleLocator.getBundle("TestFrenchResourceBundle", Locale.FRENCH);
@@ -56,7 +57,7 @@ public class ResourceBundleLocatorImplTest {
   }
 
   @Test
-  public void testResourceBundleFallback() {
+  public void testResourceBundleFallback() throws IOException {
     resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     ResourceBundle resourceBundle =
         resourceBundleLocator.getBundle(TEST_BASE_NAME, Locale.JAPANESE);
@@ -68,13 +69,13 @@ public class ResourceBundleLocatorImplTest {
   }
 
   @Test(expected = MissingResourceException.class)
-  public void testGetResourceBundleNonExistentBaseName() {
+  public void testGetResourceBundleNonExistentBaseName() throws IOException {
     resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     resourceBundleLocator.getBundle("FooBarBundle");
   }
 
   @Test(expected = MissingResourceException.class)
-  public void testGetResourceBundleNullBaseDir() {
+  public void testGetResourceBundleNullBaseDir() throws IOException {
     resourceBundleLocator.getBundle("FooBarBundle");
   }
 }
