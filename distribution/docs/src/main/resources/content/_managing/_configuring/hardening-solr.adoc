@@ -68,7 +68,6 @@ The encryption command enciphers the password. It is safe to save the peristed p
 be the ouput from the encryption command. Be sure to include `ENC(` and `)` characters produced by
 the encryption comand. Note that the default password is not enclosed in `ENC()` because that
 is not necessary for cleartext. Cleartext is used by the system exactly as it appears.
-. To prevent ${branding} from overwriting the new password
 <<_do_not_autogenerate_a_solr_password, follow these instructions>>.
 . Finally, restart ${branding}
 
