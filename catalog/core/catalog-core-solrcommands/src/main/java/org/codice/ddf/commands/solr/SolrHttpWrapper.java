@@ -17,14 +17,16 @@ import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -34,7 +36,6 @@ import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,11 +77,10 @@ public class SolrHttpWrapper implements HttpWrapper {
     return keyStore;
   }
 
-  private static String[] getCipherSuites() {
-    if (System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES) != null) {
-      return StringUtils.split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES), ",");
-    }
-    return HttpSolrClientFactory.DEFAULT_CIPHER_SUITES;
+  private String[] getCipherSuites() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String[]>)
+            () -> commaSeparatedToArray(System.getProperty("https.cipherSuites")));
   }
 
   @Override
@@ -140,9 +140,12 @@ public class SolrHttpWrapper implements HttpWrapper {
   }
 
   private String[] getProtocols() {
-    if (System.getProperty("https.protocols") != null) {
-      return StringUtils.split(System.getProperty("https.protocols"), ",");
-    }
-    return HttpSolrClientFactory.DEFAULT_PROTOCOLS;
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String[]>)
+            () -> commaSeparatedToArray(System.getProperty("https.protocols")));
+  }
+
+  private static String[] commaSeparatedToArray(@Nullable String commaDelimitedString) {
+    return (commaDelimitedString != null) ? commaDelimitedString.split("\\s*,\\s*") : new String[0];
   }
 }

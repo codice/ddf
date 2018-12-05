@@ -50,10 +50,6 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-factory</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
         </dependency>
@@ -178,7 +174,6 @@
                         <Embed-Dependency>
                             solr-core,
                             solr-solrj,
-                            solr-factory,
                             httpclient,
                             httpcore,
                             httpmime,

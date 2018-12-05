@@ -68,8 +68,6 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
 
-  public static final String[] DEFAULT_PROTOCOLS;
-  public static final String[] DEFAULT_CIPHER_SUITES;
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
   public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
   private static final String HTTPS_PROTOCOLS = "https.protocols";
@@ -83,19 +81,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String KEY_STORE = "javax.net.ssl.keyStore";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
 
-  static {
-    DEFAULT_PROTOCOLS =
-        AccessController.doPrivileged(
-            (PrivilegedAction<String[]>)
-                () -> commaSeparatedToArray(System.getProperty(HTTPS_PROTOCOLS)));
-    DEFAULT_CIPHER_SUITES =
-        AccessController.doPrivileged(
-            (PrivilegedAction<String[]>)
-                () -> commaSeparatedToArray(System.getProperty(HTTPS_CIPHER_SUITES)));
-  }
-
   private SolrPasswordUpdate solrPasswordUpdate;
-
   private EncryptionService encryptionService;
 
   public HttpSolrClientFactory(
@@ -307,11 +293,21 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
             .setMaxConnPerRoute(32);
 
     if (useTls()) {
+      String[] defaultProtocols =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String[]>)
+                  () -> commaSeparatedToArray(System.getProperty(HTTPS_PROTOCOLS)));
+
+      String[] defaultCipherSuites =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String[]>)
+                  () -> commaSeparatedToArray(System.getProperty(HTTPS_CIPHER_SUITES)));
+
       httpClientBuilder.setSSLSocketFactory(
           new SSLConnectionSocketFactory(
               getSslContext(),
-              DEFAULT_PROTOCOLS,
-              DEFAULT_CIPHER_SUITES,
+              defaultProtocols,
+              defaultCipherSuites,
               SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
     }
 
