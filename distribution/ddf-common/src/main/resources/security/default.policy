@@ -577,6 +577,6 @@ grant {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}-", "read";
 };
 
-grant codeBase "file:/resource-bundle-locator/landing-page/catalog-ui-search" {
+grant codeBase "file:/resource-bundle-locator" {
     permission java.lang.RuntimePermission "createClassLoader";
 }

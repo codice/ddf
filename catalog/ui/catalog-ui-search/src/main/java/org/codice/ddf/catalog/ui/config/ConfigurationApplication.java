@@ -231,7 +231,7 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
 
-  private Map<String, String> keywords;
+  private volatile Map<String, String> keywords;
 
   public void setKeywords(ResourceBundleLocator resourceBundleLocator) {
     ResourceBundle resourceBundle = resourceBundleLocator.getBundle("IntrigueBundle");

@@ -25,12 +25,14 @@ import java.util.ResourceBundle;
 public interface ResourceBundleLocator {
 
   /**
-   * Retrieves a resource bundle for a given properties file
+   * Retrieves a resource bundle for a given properties file. By default it uses the default locale
+   * for this instance of the java virtual machine
    *
    * @param baseName The base name of the resource bundle
    * @return A resource bundle for the given base name
    * @throws java.util.MissingResourceException if the resource bundle does not exist or if an error
    *     occurs while loading the file
+   * @throws SecurityException if read file permissions are not granted for <ddf.home>/etc/i18n
    */
   ResourceBundle getBundle(String baseName);
 
@@ -40,6 +42,9 @@ public interface ResourceBundleLocator {
    * @param baseName The base name of the resource bundle
    * @param locale The locale of the desired resource bundle
    * @return A resource bundle for the given base name and locale
+   * @throws java.util.MissingResourceException if the resource bundle does not exist or if an error
+   *     occurs while loading the file
+   * @throws SecurityException if read file permissions are not granted for <ddf.home>/etc/i18n
    */
   ResourceBundle getBundle(String baseName, Locale locale);
 }

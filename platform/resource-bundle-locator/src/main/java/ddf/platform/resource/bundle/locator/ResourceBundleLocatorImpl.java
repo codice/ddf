@@ -15,9 +15,10 @@ package ddf.platform.resource.bundle.locator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -42,20 +43,18 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
       URL[] urls = {resourceBundleDir.toURI().toURL()};
 
       try (URLClassLoader loader = new URLClassLoader(urls)) {
-        return ResourceBundle.getBundle(baseName, locale, loader);
+        return AccessController.doPrivileged(
+            (PrivilegedAction<ResourceBundle>)
+                () -> ResourceBundle.getBundle(baseName, locale, loader));
       }
-
-    } catch (MalformedURLException e) {
-      throw new MissingResourceException(
-          "An error occurred while loading ResourceBundle: " + baseName + "," + locale.getCountry(),
-          getClass().getName(),
-          baseName);
     } catch (IOException e) {
       throw new MissingResourceException(
           "An error occurred while creating class loader to URL for ResourceBundle: "
               + baseName
               + ","
-              + locale.getCountry(),
+              + locale.getCountry()
+              + ","
+              + locale.getLanguage(),
           getClass().getName(),
           baseName);
     }
