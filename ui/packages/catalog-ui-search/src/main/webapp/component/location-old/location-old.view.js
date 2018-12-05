@@ -10,16 +10,37 @@
  *
  **/
 
-const { reactToMarionette } = require('../transmute/index.js')
-const LocationView = reactToMarionette(
+const React = require('react')
+
+const withAdapter = Component =>
+  class extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = props.model.toJSON()
+    }
+    setModelState() {
+      this.setState(this.props.model.toJSON())
+    }
+    componentWillMount() {
+      this.props.model.on('change', this.setModelState, this)
+    }
+    componentWillUnmount() {
+      this.props.model.off('change', this.setModelState)
+    }
+    render() {
+      return (
+        <Component
+          state={this.state}
+          options={this.props.options}
+          setState={(...args) => this.props.model.set(...args)}
+        />
+      )
+    }
+  }
+
+const LocationView = withAdapter(
   require('../../react-component/location/index.js')
 )
-
-if (process.env.NODE_ENV !== 'production') {
-  module.hot.accept('react-component/location', () => {
-    LocationView.reload(require('../../react-component/location/index.js'))
-  })
-}
 
 const Marionette = require('marionette')
 const _ = require('underscore')
@@ -35,7 +56,17 @@ const minimumDifference = 0.0001
 const minimumBuffer = 0.000001
 
 module.exports = Marionette.LayoutView.extend({
-  template: () => `<div class="location-input"></div>`,
+  template: function() {
+    const props = {
+      model: this.model,
+      options: {
+        onDraw: drawingType => {
+          wreqr.vent.trigger('search:draw' + this.model.get('mode'), this.model)
+        },
+      },
+    }
+    return <LocationView {...props} />
+  },
   tagName: CustomElements.register('location-old'),
   regions: {
     location: '.location-input',
@@ -215,16 +246,6 @@ module.exports = Marionette.LayoutView.extend({
     })
     wreqr.vent.trigger('search:drawend', this.model)
     this.$el.trigger('change')
-  },
-  onRender: function() {
-    this.location.show(
-      new LocationView({
-        model: this.model,
-        onDraw: drawingType => {
-          wreqr.vent.trigger('search:draw' + this.model.get('mode'), this.model)
-        },
-      })
-    )
   },
   getCurrentValue: function() {
     var modelJSON = this.model.toJSON()

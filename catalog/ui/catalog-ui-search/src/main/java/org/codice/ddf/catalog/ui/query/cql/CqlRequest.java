@@ -24,11 +24,14 @@ import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.impl.FacetedQueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.TermFacetPropertiesImpl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,6 +76,16 @@ public class CqlRequest {
   private String batchId;
 
   private List<Sort> sorts = Collections.emptyList();
+
+  private Set<String> facets = Collections.emptySet();
+
+  public Set<String> getFacets() {
+    return facets;
+  }
+
+  public void setFacets(Set<String> facets) {
+    this.facets = facets;
+  }
 
   private boolean normalize = false;
 
@@ -158,6 +171,19 @@ public class CqlRequest {
     this.normalize = normalize;
   }
 
+  private QueryRequest facetQueryRequest(QueryRequest request) {
+    if (facets.isEmpty()) {
+      return request;
+    }
+
+    return new FacetedQueryRequest(
+        request.getQuery(),
+        request.isEnterprise(),
+        request.getSourceIds(),
+        request.getProperties(),
+        new TermFacetPropertiesImpl(facets));
+  }
+
   public QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder) {
     List<SortBy> sortBys =
         sorts
@@ -189,6 +215,8 @@ public class CqlRequest {
         queryRequest.getProperties().put(MODE, UPDATE);
       }
     }
+
+    queryRequest = facetQueryRequest(queryRequest);
 
     if (excludeUnnecessaryAttributes) {
       queryRequest

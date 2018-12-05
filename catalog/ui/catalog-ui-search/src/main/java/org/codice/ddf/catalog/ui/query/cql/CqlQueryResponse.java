@@ -13,16 +13,21 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
+
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.FacetAttributeResult;
+import ddf.catalog.operation.FacetValueCount;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.UnsupportedQueryException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +54,8 @@ public class CqlQueryResponse {
   private final Map<String, Map<String, MetacardAttribute>> types;
 
   private final Status status;
+
+  private final Map<String, List<FacetValueCount>> facets;
 
   // Transient so as not to be serialized to/from JSON
   private final transient QueryResponse queryResponse;
@@ -126,6 +133,21 @@ public class CqlQueryResponse {
                         filterAdapter,
                         actionRegistry))
             .collect(Collectors.toList());
+
+    this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));
+  }
+
+  private Map<String, List<FacetValueCount>> getFacetResults(Serializable facetResults) {
+    if (!(facetResults instanceof List)) return Collections.emptyMap();
+    List<Object> list = (List<Object>) facetResults;
+    return list.stream()
+        .filter(result -> result instanceof FacetAttributeResult)
+        .map(result -> (FacetAttributeResult) result)
+        .collect(
+            Collectors.toMap(
+                FacetAttributeResult::getAttributeName,
+                FacetAttributeResult::getFacetValues,
+                (a, b) -> b));
   }
 
   private Set<SearchTerm> extractSearchTerms(Query query, FilterAdapter filterAdapter) {

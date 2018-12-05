@@ -29,15 +29,6 @@ describe('<Dropdown />', () => {
         <Mock />
       </Dropdown>
     )
-    expect(wrapper.text()).to.equal('test')
-  })
-
-  it('should allow props to override local state', () => {
-    const wrapper = shallow(
-      <Dropdown open={true}>
-        <Mock />
-      </Dropdown>
-    )
-    expect(wrapper.find('Mock').length).to.equal(1)
+    expect(wrapper.find({ children: 'test' })).to.have.length(1)
   })
 })

@@ -49,7 +49,9 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String SCHEDULES = "schedules";
 
-  public static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
+  public static final String FACETS = "facets";
+
+  private static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
 
   public static final Set<String> QUERY_ATTRIBUTE_NAMES;
 
@@ -149,6 +151,15 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* tokenized */,
             true /* multivalued */,
             BasicTypes.XML_TYPE));
+
+    QUERY_DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            FACETS,
+            false /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            true /* multivalued */,
+            BasicTypes.STRING_TYPE));
 
     QUERY_ATTRIBUTE_NAMES =
         QUERY_DESCRIPTORS.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());

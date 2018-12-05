@@ -117,4 +117,21 @@ describe('<Menu />', () => {
     wrapper.find({ value: 'one' }).prop('onHover')()
     expect(wrapper.state('active')).to.equal('one')
   })
+
+  it('should support multi', done => {
+    const onChange = value => {
+      expect(value).to.deep.equal(['one', 'two'])
+      done()
+    }
+    const wrapper = shallow(
+      <Menu multi value={['one']} onChange={onChange}>
+        <MenuItem value="one" />
+        <MenuItem value="two" />
+        <MenuItem value="three" />
+      </Menu>
+    )
+    const selected = wrapper.find({ value: 'one' }).prop('selected')
+    expect(selected).to.equal(true)
+    wrapper.find({ value: 'two' }).prop('onClick')()
+  })
 })

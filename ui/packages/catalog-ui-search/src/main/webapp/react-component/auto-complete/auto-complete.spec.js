@@ -7,8 +7,6 @@ const { expect } = require('chai')
 
 Enzyme.configure({ adapter: new Adapter() })
 
-const TextField = require('../text-field')
-const { Menu, MenuItem } = require('../menu')
 const AutoComplete = require('./auto-complete')
 
 const { shallow } = Enzyme

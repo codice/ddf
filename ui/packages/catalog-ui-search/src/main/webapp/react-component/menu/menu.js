@@ -51,10 +51,21 @@ class Menu extends React.Component {
     const next = mod(index + offset, values.length)
     this.onHover(values[next])
   }
+  getValue(value) {
+    if (this.props.multi) {
+      if (this.props.value.indexOf(value) !== -1) {
+        return this.props.value.filter(v => v !== value)
+      } else {
+        return this.props.value.concat(value)
+      }
+    } else {
+      return value
+    }
+  }
   onChange(value) {
-    this.props.onChange(value)
+    this.props.onChange(this.getValue(value))
 
-    if (typeof this.props.onClose === 'function') {
+    if (!this.props.multi && typeof this.props.onClose === 'function') {
       this.props.onClose()
     }
   }
@@ -83,14 +94,17 @@ class Menu extends React.Component {
     }
   }
   render() {
-    const { value, children } = this.props
+    const { multi, value, children } = this.props
 
     const childrenWithProps = React.Children.map(children, (child, i) => {
       return React.cloneElement(child, {
-        selected: value === child.props.value,
+        selected: multi
+          ? value.indexOf(child.props.value) !== -1
+          : value === child.props.value,
         onClick: () => this.onChange(child.props.value),
         active: this.state.active === child.props.value,
         onHover: () => this.onHover(child.props.value),
+        ...child.props,
       })
     })
 
@@ -105,13 +119,18 @@ class Menu extends React.Component {
 
 class MenuItem extends React.Component {
   render() {
-    const { value, children, selected, onClick, active, onHover } = this.props
-    if (active && this.ref !== undefined) {
-      this.ref.scrollIntoView({ block: 'nearest' })
-    }
+    const {
+      value,
+      children,
+      selected,
+      onClick,
+      active,
+      onHover,
+      style,
+    } = this.props
     return (
       <div
-        ref={ref => (this.ref = ref)}
+        style={style}
         onMouseEnter={() => onHover(value)}
         onFocus={() => onHover(value)}
         tabIndex="0"
