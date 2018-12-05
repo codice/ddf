@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 
 public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
-  private static final String ENC_TEMPLATE = "ENC(%s)";
-
   private static final String SYSTEM_PROPERTIES_FILE = "custom.system.properties";
   private static final String KARAF_ETC = "karaf.etc";
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
@@ -50,7 +48,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private final java.util.Properties properties;
   private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
-  private String newPasswordEncrypted;
   private final EncryptionService encryptionService;
   private StatusType solrResponse = null;
   private String newPasswordWrappedEncrypted;
@@ -174,8 +171,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   @VisibleForTesting
   void generatePassword() {
     newPasswordPlainText = uuidGenerator.generateUuid();
-    newPasswordEncrypted = encryptionService.encrypt(newPasswordPlainText);
-    newPasswordWrappedEncrypted = String.format(ENC_TEMPLATE, newPasswordEncrypted);
+    newPasswordWrappedEncrypted = encryptionService.encryptValue(newPasswordPlainText);
   }
 
   /**
@@ -192,11 +188,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   @VisibleForTesting
   String getNewPasswordPlainText() {
     return newPasswordPlainText;
-  }
-
-  @VisibleForTesting
-  String getNewPasswordEncrypted() {
-    return newPasswordEncrypted;
   }
 
   @VisibleForTesting

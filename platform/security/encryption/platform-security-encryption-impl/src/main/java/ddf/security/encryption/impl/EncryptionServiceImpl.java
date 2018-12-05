@@ -17,6 +17,7 @@ import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.keyczar.Crypter;
 import org.keyczar.KeyczarTool;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class EncryptionServiceImpl implements EncryptionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImpl.class);
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
+  private static final String ENC_TEMPLATE = "ENC(%s)";
 
   private final Crypter crypter;
 
@@ -112,6 +114,15 @@ public class EncryptionServiceImpl implements EncryptionService {
     }
     LOGGER.debug("Unwrapped encrypted password is now being decrypted");
     return decrypt(encryptedValue);
+  }
+
+  @Override
+  public String encryptValue(String unwrappedPlaintext) {
+    if (StringUtils.isEmpty(unwrappedPlaintext)) {
+      return null;
+    }
+
+    return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));
   }
 
   /**
