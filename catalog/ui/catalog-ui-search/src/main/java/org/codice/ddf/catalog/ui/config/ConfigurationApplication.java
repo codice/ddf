@@ -234,7 +234,7 @@ public class ConfigurationApplication implements SparkApplication {
   private Map<String, String> keywords;
 
   public void setKeywords(ResourceBundleLocator resourceBundleLocator) {
-    ResourceBundle resourceBundle = resourceBundleLocator.getBundle("SourceKeywordsBundle");
+    ResourceBundle resourceBundle = resourceBundleLocator.getBundle("IntrigueBundle");
     Enumeration bundleKeys = resourceBundle.getKeys();
 
     keywords = new HashMap<>();
