@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSException;
 import org.w3c.dom.ls.LSOutput;
@@ -165,11 +164,15 @@ public class XPathHelper {
       lsout.setEncoding(encoding);
       lsout.setCharacterStream(stringOut);
 
-      NodeList childNodes = n.getChildNodes();
-      // Loop through nodelist in order to have it process xml attributes correctly DDF-4382
-      for (int i = 0; i < childNodes.getLength(); i++) {
-        lsSerializer.write(childNodes.item(i), lsout);
+      /*DDF-4382 Serializer doesn't serialize attribute nodes - attribute node's child node is a
+      NODE.TEXT_NODE version with the same information. If Attribute node, get the child
+      NODE.TEXT_NODE version and then use that node for serialization*/
+      if (n.getNodeType() == Node.ATTRIBUTE_NODE && n.hasChildNodes()) {
+        n = n.getFirstChild();
       }
+
+      lsSerializer.write(n, lsout);
+
       return stringOut.toString();
     } catch (DOMException | LSException e) {
       LOGGER.debug(e.getMessage(), e);
