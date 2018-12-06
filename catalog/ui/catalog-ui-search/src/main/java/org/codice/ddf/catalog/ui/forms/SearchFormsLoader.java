@@ -81,8 +81,6 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
   private static final String RESULTS_FILE_NAME = "results.json";
 
-  private static final int PAGE_SIZE = 250;
-
   private static final Gson GSON =
       new GsonBuilder()
           .disableHtmlEscaping()
