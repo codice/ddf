@@ -17,7 +17,6 @@ import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 import org.keyczar.Crypter;
 import org.keyczar.KeyczarTool;
 import org.slf4j.Logger;
@@ -118,7 +117,7 @@ public class EncryptionServiceImpl implements EncryptionService {
 
   @Override
   public String encryptValue(String unwrappedPlaintext) {
-    if (StringUtils.isEmpty(unwrappedPlaintext)) {
+    if (unwrappedPlaintext == null || unwrappedPlaintext.equals("")) {
       return null;
     }
 
