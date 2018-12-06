@@ -75,19 +75,23 @@ class SolrPasswordUpdateSpec extends Specification {
             getSecureCxfClientFactory(SOLR_URL, _, SOLR_USERNAME, BOOTSTRAP_PASSWORD) >> secureClientFactory
         }
 
+        def spySolrPasswordUpdate = Spy(SolrPasswordUpdateImpl, constructorArgs: [uuidGenerator, clientFactoryFactory, encryptionService]) {
+            isPasswordSavedSuccessfully() >> fileUpdateSuccess
+        }
+
         when:
-        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, clientFactoryFactory, encryptionService);
-        solrPasswordUpdate.updateSolrPassword()
+        spySolrPasswordUpdate.updateSolrPassword()
 
         then:
-        System.getProperty('solr.password').equals(password)
-        solrPasswordUpdate.isSolrPasswordChangeSuccessfull().equals(success)
+        System.getProperty('solr.password').equals(passwordInMemory)
+        spySolrPasswordUpdate.isSolrPasswordChangeSuccessfull().equals(solrUpdateSuccess)
 
         where:
-        outcome     || attemptAutoPasswordChange | responseCode                        | success | password
-        'sucessful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true    | WRAPPED_PASSWORD
-        'an error'  || 'true'                    | Response.Status.Family.SERVER_ERROR | false   | BOOTSTRAP_PASSWORD
-        'disabled'  || 'false'                   | null                                | false   | BOOTSTRAP_PASSWORD
+        outcome     || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess  | fileUpdateSuccess | passwordInMemory
+        'sucessful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true               | true              | WRAPPED_PASSWORD
+        'partial'   || 'true'                    | Response.Status.Family.SUCCESSFUL   | true               | false             | BOOTSTRAP_PASSWORD
+        'an error'  || 'true'                    | Response.Status.Family.SERVER_ERROR | false              | false             | BOOTSTRAP_PASSWORD
+        'disabled'  || 'false'                   | null                                | false              | false             | BOOTSTRAP_PASSWORD
     }
 
     def 'password generation wrapping encrypted string'() {

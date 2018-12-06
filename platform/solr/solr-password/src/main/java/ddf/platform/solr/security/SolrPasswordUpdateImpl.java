@@ -46,11 +46,12 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private final ClientFactoryFactory restClientFactoryFactory;
   private final UuidGenerator uuidGenerator;
   private final java.util.Properties properties;
+  private final EncryptionService encryptionService;
   private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
-  private final EncryptionService encryptionService;
   private StatusType solrResponse = null;
   private String newPasswordWrappedEncrypted;
+  private boolean passwordSavedSuccessfully = false;
 
   public SolrPasswordUpdateImpl(
       UuidGenerator uuidGenerator,
@@ -86,8 +87,15 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       generatePassword();
       setPasswordInSolr();
       if (isSolrPasswordChangeSuccessfull()) {
-        setPasswordInMemory();
         setPasswordInPropertiesFile();
+        // Do not update the password in memory if the password could not be saved to a file.
+        // If the password is not be saved to the properties file, but is updated in memory,
+        // then communication with Solr would continue to work until the system was rebooted. That
+        // might be very hard to diagnose. If the password cannot be saved to a file, let
+        // communication with Solr stop immediately so an operator can begin troubleshooting.
+        if (isPasswordSavedSuccessfully()) {
+          setPasswordInMemory();
+        }
       }
     }
   }
@@ -135,6 +143,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       Properties systemDotProperties = new Properties(systemPropertiesFile);
       systemDotProperties.setProperty(SOLR_PASSWORD_PROPERTY_NAME, newPasswordWrappedEncrypted);
       systemDotProperties.save();
+      passwordSavedSuccessfully = true;
       LOGGER.info("Updated encrypted Solr password in properties file {}.", systemPropertyFilename);
     } catch (IOException e) {
       LOGGER.error(
@@ -193,5 +202,10 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   @VisibleForTesting
   String getNewPasswordWrappedEncrypted() {
     return newPasswordWrappedEncrypted;
+  }
+
+  @VisibleForTesting
+  boolean isPasswordSavedSuccessfully() {
+    return passwordSavedSuccessfully;
   }
 }
