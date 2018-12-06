@@ -3,7 +3,7 @@
 :status: published
 :link: _opensearch_endpoint
 :summary: Sends query parameters and receives search results.
-:implements: https://jax-rs-spec.java.net/[JAX-RS]
+:implements: https://jax-rs-spec.java.net/[JAX-RS] {external-link}
 
 The OpenSearch Endpoint enables a client to send query parameters and receive search results. This endpoint uses the input query parameters to create an OpenSearch query. The client does not need to specify all of the query parameters, only the query parameters of interest.
 

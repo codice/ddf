@@ -107,5 +107,5 @@ Startup and shutdown settings can then be managed through *Services -> MMC Start
 
 ===== Karaf Documentation
 
-Because ${branding} is built on top of Apache Karaf, more information on operating ${branding} can be found in the http://karaf.apache.org/index/documentation.html[Karaf documentation].
+Because ${branding} is built on top of Apache Karaf, more information on operating ${branding} can be found in the http://karaf.apache.org/index/documentation.html[Karaf documentation] {external-link}.
 

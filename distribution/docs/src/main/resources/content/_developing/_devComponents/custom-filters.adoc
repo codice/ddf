@@ -33,9 +33,9 @@ The OGC Filter Specification has several types of filters that can be combined i
 
 ==== Units of Measure
 
-According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095], units of measure can be expressed as a URI.
+According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] {external-link} and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095] {external-link}, units of measure can be expressed as a URI.
 To fulfill that requirement, ${branding} utilizes the GeoTools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
-Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] standard URIs to Java Units.
+Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] {external-link} standard URIs to Java Units.
 This class provides three options for units of measure: 
 
 * FOOT
@@ -205,7 +205,7 @@ QueryImpl query = new QueryImpl(fuzzyFilter);
 
 ==== Parsing Filters
 
-According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specification 04-095]: a "(filter expression) representation can be ... parsed and then transformed into whatever target language is required to retrieve or modify object instances stored in some persistent object store."
+According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specification 04-095] {external-link}: a "(filter expression) representation can be ... parsed and then transformed into whatever target language is required to retrieve or modify object instances stored in some persistent object store."
 Filters can be thought of as the `WHERE` clause for a SQL SELECT statement to "fetch data stored in a SQL-based relational database." 
 
 Sources can parse OGC Filters using the `FilterAdapter` and `FilterDelegate`.
@@ -213,7 +213,7 @@ See Developing a Filter Delegate for more details on implementing a new `Filt
 This is the preferred way to handle OGC Filters in a consistent manner.
 
 Alternately, `org.opengis.filter.Filter` implementations can be parsed using implementations of the interface `org.opengis.filter.FilterVisitor`. 
-The `FilterVisitor` uses the http://www.oodesign.com/visitor-pattern.html[Visitor pattern]. Essentially, `FilterVisitor` instances "visit" each part of the `Filter` tree allowing developers to implement logic to handle the filter's operations. 
+The `FilterVisitor` uses the http://www.oodesign.com/visitor-pattern.html[Visitor pattern] {external-link}. Essentially, `FilterVisitor` instances "visit" each part of the `Filter` tree allowing developers to implement logic to handle the filter's operations. 
 GeoTools 8 includes implementations of the `FilterVisitor` interface.
 The `DefaultFilterVisitor`, as an example, provides only business logic to visit every node in the `Filter` tree.
 The `DefaultFilterVisitor` methods are meant to be overwritten with the correct business logic. 

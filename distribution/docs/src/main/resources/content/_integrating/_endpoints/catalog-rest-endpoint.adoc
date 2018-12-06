@@ -3,7 +3,7 @@
 :status: published
 :link: _catalog_rest_endpoint
 :summary: Allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP.
-:implements: https://www.w3.org/2001/sw/wiki/REST[REST specification].
+:implements: https://www.w3.org/2001/sw/wiki/REST[REST specification] {external-link}.
 
 The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
 

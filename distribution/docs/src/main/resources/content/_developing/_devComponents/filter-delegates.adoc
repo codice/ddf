@@ -128,7 +128,7 @@ a|True if the two geometries intersect. This is a convenience method as `Not Dis
 [cols="1" options="header"]
 |===
 |Temporal
-|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/After.html[After]
-|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/Before.html[Before]
-|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/During.html[During]
+|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/After.html[After] {external-link}
+|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/Before.html[Before] {external-link}
+|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/During.html[During] {external-link}
 |===

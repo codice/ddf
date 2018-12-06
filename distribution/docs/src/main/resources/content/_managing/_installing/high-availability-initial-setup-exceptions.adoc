@@ -50,7 +50,7 @@ A third party tool will have to be used to persist the logs in a highly availabl
 
 * Edit the `${home_directory}/etc/org.ops4j.pax.logging.cfg` file to enable log4j2, following the steps in <<{managing-prefix}enabling_fallback_audit_logging, Enabling Fallback Audit Logging>>.
 * Then put the appropriate log4j2 appender in `${home_directory}/etc/log4j2.xml` to send logs to the chosen third party tool.
-See https://logging.apache.org/log4j/2.x/manual/appenders.html[Log4j Appenders].
+See https://logging.apache.org/log4j/2.x/manual/appenders.html[Log4j Appenders] {external-link}.
 
 === Shared Storage Provider
 

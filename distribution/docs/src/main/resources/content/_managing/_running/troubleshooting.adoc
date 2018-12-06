@@ -38,7 +38,7 @@ If using an unsupported terminal, `java.lang.NoClassDefFoundError: Could not ini
 
 |Install missing Windows libraries.
 
-Some Windows platforms are missing libraries that are required by ${branding}.  These libraries are provided by the http://www.microsoft.com/en-us/download/details.aspx?id=15336[Microsoft Visual C++ 2008 Redistributable Package x64].
+Some Windows platforms are missing libraries that are required by ${branding}.  These libraries are provided by the http://www.microsoft.com/en-us/download/details.aspx?id=15336[Microsoft Visual C++ 2008 Redistributable Package x64] {external-link}.
 
 |CXF BusException
 

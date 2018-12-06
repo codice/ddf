@@ -30,7 +30,7 @@ public class TestResourceReader implements ${ddf-branding}.catalog.resource.Reso
 ====
 *URI* +
 It is recommended to become familiar with the Java API URI class in order to properly build a `ResourceReader`. 
-Furthermore, a URI should be used according to its http://www.w3.org/Addressing/URL/uri-spec.html[specification].
+Furthermore, a URI should be used according to its http://www.w3.org/Addressing/URL/uri-spec.html[specification] {external-link}.
 ====
 
 ===== retrieveResource

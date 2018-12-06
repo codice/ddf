@@ -3,7 +3,7 @@
 :status: published
 :link: _csw_endpoint
 :summary: Searches collections of descriptive information (metadata) about geospatial data and services.
-:implements: http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard], http://xmlrpc.scripting.com/spec.html[XML-RPC], https://portal.opengeospatial.org/modules/admin/license_agreement.php?suppressHeaders=0&access_license_id=3&target=http://portal.opengeospatial.org/files/%3fartifact_id=12597[ISO 19115/ISO191119].
+:implements: http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard] {external-link}, http://xmlrpc.scripting.com/spec.html[XML-RPC] {external-link}, https://portal.opengeospatial.org/modules/admin/license_agreement.php?suppressHeaders=0&access_license_id=3&target=http://portal.opengeospatial.org/files/%3fartifact_id=12597[ISO 19115/ISO191119] {external-link}.
 
 The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.
 
@@ -29,7 +29,7 @@ Actual responses may vary from these samples, depending on your configuration.
 Send a GET or POST request to obtain an accurate response.
 ====
 
-`GetCapabilities` Operation:: The `GetCapabilities` operation is meant to describe the operations the catalog supports and the URLs used to access those operations. The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation. The response to either request will always be a `csw:Capabilities` XML document. This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
+`GetCapabilities` Operation:: The `GetCapabilities` operation is meant to describe the operations the catalog supports and the URLs used to access those operations. The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation. The response to either request will always be a `csw:Capabilities` XML document. This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema] {external-link}.
 
 .`GetCapabilities` HTTP GET
 The `HTTP GET` form of `GetCapabilities` uses query parameters via the following URL:
@@ -40,7 +40,7 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
 ----
 
 .`GetCapabilities` HTTP POST
-The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\${secure_url}/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
+The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\${secure_url}/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema] {external-link}.
 
 .`GetCapabilities` XML Request
 [source,xml]
