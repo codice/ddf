@@ -16,6 +16,7 @@ package ddf.platform.solr.security;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -144,7 +145,11 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       systemDotProperties.setProperty(SOLR_PASSWORD_PROPERTY_NAME, newPasswordWrappedEncrypted);
       systemDotProperties.save();
       passwordSavedSuccessfully = true;
-      LOGGER.info("Updated encrypted Solr password in properties file {}.", systemPropertyFilename);
+      String msg =
+          String.format(
+              "\"Updated encrypted Solr password in properties file %s.", systemPropertyFilename);
+      SecurityLogger.audit(msg);
+      LOGGER.info(msg);
     } catch (IOException e) {
       LOGGER.error(
           "Exception while writing to {}. Solr password was changed, but new password was not saved.",
@@ -159,6 +164,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       solrResponse = response.getStatusInfo();
       if (isSolrPasswordChangeSuccessfull()) {
         LOGGER.info("New password was set in Solr server.");
+        SecurityLogger.audit("New password was set in Solr server by the Solr password updater.");
       } else {
         LOGGER.error(
             "Solr password update failed with status code {}.", solrResponse.getStatusCode());
