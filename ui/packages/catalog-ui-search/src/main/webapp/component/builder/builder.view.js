@@ -14,7 +14,6 @@
  **/
 /*global define*/
 
-const Backbone = require('backbone')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
@@ -22,10 +21,10 @@ const template = require('./builder.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const PropertyCollectionView = require('../property/property.collection.view.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
-const DropdownView = require('../dropdown/dropdown.view.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
+const announcement = require('../announcement/index.jsx')
 
 let availableTypes
 
@@ -34,6 +33,13 @@ const ajaxCall = $.get({
 }).then(response => {
   availableTypes = response
 })
+
+const announceMissingDefinition = definition =>
+  announcement.announce({
+    title: 'Missing Metacard Definition',
+    message: `Could not find metacard definition "${definition}". Please check the metacard type whitelist.`,
+    type: 'warn',
+  })
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -132,8 +138,6 @@ module.exports = Marionette.LayoutView.extend({
     this.showMetacardTypeSelection()
   },
   handleAvailableTypes() {
-    const availableTypes = this.model.get('availableTypes')
-
     if (this.isSingleAvailableType()) {
       this.model.set(
         'selectedAvailableType',
@@ -163,8 +167,6 @@ module.exports = Marionette.LayoutView.extend({
     this.showMetacardBuilder()
   },
   showMetacardBuilder() {
-    const availableTypes = this.model.get('availableTypes').availabletypes
-
     const selectedAvailableType = this.model.get('selectedAvailableType')
 
     const metacardDefinition =
@@ -172,26 +174,36 @@ module.exports = Marionette.LayoutView.extend({
         selectedAvailableType.metacardType
       ]
 
-    const propertyCollection = {
+    const propertyCollection = selectedAvailableType.visibleAttributes
+      .filter(attribute => !metacardDefinitions.isHiddenType(attribute))
+      .filter(
+        attribute =>
+          metacardDefinition && !metacardDefinition[attribute].readOnly
+      )
+      .filter(attribute => attribute !== 'id')
+      .reduce((obj, attribute) => {
+        if (metacardDefinition[attribute].multivalued)
+          return { ...obj, [attribute]: [] }
+
+        if (metacardDefinitions.enums[attribute])
+          return {
+            ...obj,
+            [attribute]: metacardDefinitions.enums[attribute][0],
+          }
+
+        return { ...obj, [attribute]: undefined }
+      }, {})
+
+    this.model.set('metacard', {
       'metacard-type': selectedAvailableType.metacardType,
+      ...propertyCollection,
+    })
+
+    if (Object.keys(propertyCollection).length === 0) {
+      announceMissingDefinition(selectedAvailableType.metacardType)
+      return
     }
 
-    selectedAvailableType.visibleAttributes
-      .filter(attribute => !metacardDefinitions.isHiddenType(attribute))
-      .filter(attribute => !metacardDefinition[attribute].readOnly)
-      .filter(attribute => attribute !== 'id')
-      .forEach(attribute => {
-        if (metacardDefinition[attribute].multivalued) {
-          propertyCollection[attribute] = []
-        } else if (metacardDefinitions.enums[attribute]) {
-          propertyCollection[attribute] =
-            metacardDefinitions.enums[attribute][0]
-        } else {
-          propertyCollection[attribute] = undefined
-        }
-      })
-
-    this.model.set('metacard', propertyCollection)
     this.handleMetacard()
     this.$el.addClass('is-building')
   },
