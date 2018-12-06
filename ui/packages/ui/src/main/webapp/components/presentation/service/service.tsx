@@ -11,15 +11,13 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import styled from '../../styles/styled-components'
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import styled from '../../../styles/styled-components'
+import MarionetteRegionContainer from '../../container/marionette-region-container'
 const ConfigurationEditView = require('components/configuration-edit/configuration-edit.view')
   .View
-import Configuration, { ConfigurationType } from './configuration'
-const ServiceModel = require('js/models/Service')
-const wreqr = require('js/wreqr.js')
+import Configuration, { ConfigurationType } from '../../container/configuration'
 const $ = require('jquery')
-import getId from '../uuid'
+import getId from '../../uuid'
 const Root = styled.div`
   padding: ${props => props.theme.minimumSpacing};
 `
@@ -42,7 +40,10 @@ export type ServiceType = {
   uuid: string
   model: any
 }
-type Props = {} & ServiceType
+
+type Props = {
+  getViewOptions: () => { model: any; service: any }
+} & ServiceType
 type State = {
   isEditing: boolean
 }
@@ -70,7 +71,7 @@ class Service extends React.Component<Props, State> {
   id = getId()
   modalRef = React.createRef() as any
   render() {
-    const { name, configurations, model } = this.props
+    const { name, configurations } = this.props
     return (
       <Root>
         <Link
@@ -99,22 +100,9 @@ class Service extends React.Component<Props, State> {
             <MarionetteRegionContainer
               view={ConfigurationEditView}
               viewOptions={(() => {
-                var configuration
-                var hasFactory = model.get('factory')
-                var existingConfigurations = model.get('configurations')
-
-                if (hasFactory || existingConfigurations.isEmpty()) {
-                  wreqr.vent.trigger('poller:stop')
-                  configuration = new ServiceModel.Configuration().initializeFromModel(
-                    model
-                  )
-                } else {
-                  configuration = existingConfigurations.at(0)
-                }
                 return {
-                  model: configuration,
-                  service: model,
                   stopEditing: this.stopEditing,
+                  ...this.props.getViewOptions(),
                 }
               })()}
             />

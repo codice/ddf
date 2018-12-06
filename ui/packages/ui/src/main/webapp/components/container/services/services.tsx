@@ -11,11 +11,11 @@
  **/
 import * as React from 'react'
 const Service = require('js/models/Service')
-import ServiceElement, { ServiceType } from './service'
-import { ConfigurationType } from './configuration'
-import styled from '../../styles/styled-components'
+import { ServiceType } from '../../presentation/service'
+import { ConfigurationType } from '../../presentation/configuration'
+import ServicesElement from '../../presentation/services'
 
-import WithBackbone, { WithBackboneProps } from '../hocs/backbone'
+import WithBackbone, { WithBackboneProps } from '../../hocs/backbone'
 import { hot } from 'react-hot-loader'
 const wreqr = require('js/wreqr.js')
 
@@ -25,9 +25,6 @@ type Props = {
 type State = {
   collection: any[]
 }
-const Header = styled.h4`
-  text-align: center;
-`
 
 const mapModelToState = (model: any) => {
   const collection = model.get('value')
@@ -61,20 +58,7 @@ class ApplicationServices extends React.Component<Props, State> {
     this.setState(mapModelToState(this.model))
   }
   render() {
-    return (
-      <>
-        {this.state.collection.length === 0 ? (
-          <Header>
-            <span className="fa fa-refresh fa-spin fa-5x" />
-            <div>Loading Configurations</div>
-          </Header>
-        ) : (
-          this.state.collection.map((service: ServiceType) => {
-            return <ServiceElement key={service.id} {...service} />
-          })
-        )}
-      </>
-    )
+    return <ServicesElement services={this.state.collection} />
   }
 }
 
