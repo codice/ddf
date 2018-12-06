@@ -319,6 +319,14 @@ define([
       }
       return false
     },
+    parse(data) {
+      /**
+       * The backend leaves off empty configurations, so our collection won't update.
+       * We can work around this by setting the configurations to empty if it's left off.
+       */
+      data.configurations = data.configurations || []
+      return data
+    },
   })
 
   Service.Response = Backbone.AssociatedModel.extend({

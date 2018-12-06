@@ -14,7 +14,7 @@
  **/
 /*global define, window*/
 import * as React from 'react'
-import ApplicationServices from './application-services.tsx'
+import Services from '../container/services'
 define(['marionette', 'js/CustomElements'], function(
   Marionette,
   CustomElements
@@ -23,7 +23,7 @@ define(['marionette', 'js/CustomElements'], function(
     tagName: CustomElements.register('application-services'),
     template() {
       return (
-        <ApplicationServices
+        <Services
           url={
             this.model
               ? './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/' +

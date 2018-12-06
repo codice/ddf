@@ -11,24 +11,13 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import MarionetteRegionContainer from '../../container/marionette-region-container'
 const ConfigurationEditView = require('components/configuration-edit/configuration-edit.view')
   .View
-import styled from '../../styles/styled-components'
-const configUrl =
-  './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0'
+import styled from '../../../styles/styled-components'
 const $ = require('jquery')
-const wreqr = require('js/wreqr.js')
-import getId from '../uuid'
+import getId from '../../uuid'
 
-const destroy = (id: string) => {
-  var deleteUrl = [configUrl, 'delete', id].join('/')
-
-  return $.ajax({
-    type: 'GET',
-    url: deleteUrl,
-  })
-}
 const ConfigurationElement = styled.div`
   display: block;
   white-space: nowrap;
@@ -61,7 +50,10 @@ export type ConfigurationType = {
   model: any
   serviceModel: any
 }
-type Props = {} & ConfigurationType
+type Props = {
+  destroy: () => void
+  onBeforeEdit: () => void
+} & ConfigurationType
 type State = {
   isEditing: boolean
 }
@@ -90,13 +82,14 @@ class Configuration extends React.Component<Props, State> {
   modalRef = React.createRef() as any
   render() {
     const {
-      id,
       displayName,
       bundle_name,
       fpid,
       properties,
       model,
       serviceModel,
+      onBeforeEdit,
+      destroy,
     } = this.props
     const { isEditing } = this.state
     return (
@@ -109,9 +102,8 @@ class Configuration extends React.Component<Props, State> {
             data-backdrop="static"
             data-keyboard="false"
             onClick={() => {
-              wreqr.vent.trigger('poller:stop')
+              onBeforeEdit()
               this.startEditing()
-              wreqr.vent.trigger('refresh')
             }}
           >
             {displayName}
@@ -144,16 +136,15 @@ class Configuration extends React.Component<Props, State> {
             <a
               href="#"
               className="removeLink glyphicon glyphicon-remove"
-              onClick={() => {
+              onClick={e => {
+                e.preventDefault()
                 var question =
                   'Are you sure you want to remove the configuration: ' +
                   properties['service.pid'] +
                   '?'
                 var confirmation = window.confirm(question)
                 if (confirmation) {
-                  destroy(id).done(() => {
-                    wreqr.vent.trigger('refreshConfigurations')
-                  })
+                  destroy()
                 }
               }}
             />
