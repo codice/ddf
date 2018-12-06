@@ -49,6 +49,6 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   }
 
   public void setResourceBundleBaseDir(String resourceBundleBaseDir) {
-    this.resourceBundleBaseDir = new File(Paths.get(resourceBundleBaseDir).toUri());
+    this.resourceBundleBaseDir = Paths.get(resourceBundleBaseDir).toFile();
   }
 }
