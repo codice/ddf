@@ -64,7 +64,7 @@
         <feature>pax-http-whiteboard</feature>
         <feature>resource-bundle-locator</feature>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
-        <configfile finalname="${ddf.etc}/i18n/LandingPageBundle.properties">
+        <configfile finalname="${ddf.etc}/i18n/LandingPageBundle_en.properties">
             mvn:ddf.platform/landing-page/${project.version}/config/landing-page-bundle-config
         </configfile>
     </feature>

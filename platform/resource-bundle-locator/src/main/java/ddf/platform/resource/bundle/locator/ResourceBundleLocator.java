@@ -34,6 +34,7 @@ public interface ResourceBundleLocator {
    * @throws java.util.MissingResourceException if the resource bundle does not exist or if an error
    *     occurs while loading the file
    * @throws SecurityException if read file permissions are not granted for <ddf.home>/etc/i18n
+   * @throws IOException if an error occurs while reading or parsing the file
    */
   ResourceBundle getBundle(String baseName) throws IOException;
 
@@ -46,6 +47,7 @@ public interface ResourceBundleLocator {
    * @throws java.util.MissingResourceException if the resource bundle does not exist or if an error
    *     occurs while loading the file
    * @throws SecurityException if read file permissions are not granted for <ddf.home>/etc/i18n
+   * @throws IOException if an error occurs while reading or parsing the file
    */
   ResourceBundle getBundle(String baseName, Locale locale) throws IOException;
 }

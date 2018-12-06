@@ -43,7 +43,7 @@
         <property name="links">
             <list></list>
         </property>
-        <property name="sourceKeyword" ref="resourceBundleLocator"/>
+        <property name="sourceAvailabilityHeader" ref="resourceBundleLocator"/>
     </bean>
 
     <service ref="landingPage" interface="javax.servlet.http.HttpServlet">

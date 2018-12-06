@@ -124,20 +124,12 @@ public class LandingPageTest {
   }
 
   @Test
-  public void testGetDefaultKeywords() throws IOException {
-    doReturn(ResourceBundle.getBundle("NoDataSourceKeywordBundle"))
-        .when(resourceBundleLocator)
-        .getBundle(any(String.class));
-    landingPage.setSourceKeyword(resourceBundleLocator);
-    MatcherAssert.assertThat(landingPage.getSourceKeyword(), is("Data Source"));
-  }
-
-  @Test
   public void testGetKeywords() throws IOException {
     doReturn(ResourceBundle.getBundle("LandingPageBundle"))
         .when(resourceBundleLocator)
         .getBundle(any(String.class));
-    landingPage.setSourceKeyword(resourceBundleLocator);
-    MatcherAssert.assertThat(landingPage.getSourceKeyword(), is("Data Source"));
+    landingPage.setSourceAvailabilityHeader(resourceBundleLocator);
+    MatcherAssert.assertThat(
+        landingPage.getSourceAvailabilityHeader(), is("Data Source Availability"));
   }
 }

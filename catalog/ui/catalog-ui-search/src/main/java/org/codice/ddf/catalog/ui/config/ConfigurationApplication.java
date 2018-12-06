@@ -18,6 +18,7 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -244,14 +245,16 @@ public class ConfigurationApplication implements SparkApplication {
       if (resourceBundle != null) {
         Enumeration bundleKeys = resourceBundle.getKeys();
 
-        i18n = new HashMap<>();
+        Map<String, String> keywords = new HashMap<>();
 
         while (bundleKeys.hasMoreElements()) {
           String key = (String) bundleKeys.nextElement();
           String value = resourceBundle.getString(key);
 
-          i18n.put(key, value);
+          keywords.put(key, value);
         }
+
+        i18n = keywords;
       }
     } catch (IOException e) {
       LOGGER.debug(
@@ -262,11 +265,13 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
-  public void setI18n(Map<String, String> i18n) {
+  @VisibleForTesting
+  void setI18n(Map<String, String> i18n) {
     this.i18n = i18n;
   }
 
-  public Map<String, String> getI18n() {
+  @VisibleForTesting
+  Map<String, String> getI18n() {
     return this.i18n;
   }
 

@@ -20,6 +20,7 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import com.google.common.annotations.VisibleForTesting;
 import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -72,7 +73,7 @@ public class LandingPage extends HttpServlet {
 
   private String externalUrl;
 
-  private String sourceKeyword;
+  private String sourceAvailabilityHeader;
 
   private List<String> announcements;
 
@@ -109,15 +110,10 @@ public class LandingPage extends HttpServlet {
 
   private String foreground;
 
-  public void setSourceKeyword(ResourceBundleLocator resourceBundleLocator) {
+  public void setSourceAvailabilityHeader(ResourceBundleLocator resourceBundleLocator) {
     try {
       ResourceBundle resourceBundle = resourceBundleLocator.getBundle(LANDING_PAGE_BASE_NAME);
-
-      if (resourceBundle.containsKey("dataSource")) {
-        this.sourceKeyword = (String) resourceBundle.getObject("dataSource");
-      } else {
-        this.sourceKeyword = "Data Source";
-      }
+      this.sourceAvailabilityHeader = resourceBundle.getString("data.source.availability");
     } catch (IOException e) {
       LOGGER.debug(
           "An error occurred while creating class loader to URL for ResourceBundle: {}, {}",
@@ -127,12 +123,14 @@ public class LandingPage extends HttpServlet {
     }
   }
 
-  public void setSourceKeyword(String sourceKeyword) {
-    this.sourceKeyword = sourceKeyword;
+  @VisibleForTesting
+  void setSourceAvailabilityHeader(String sourceKeyword) {
+    this.sourceAvailabilityHeader = sourceKeyword;
   }
 
-  public String getSourceKeyword() {
-    return this.sourceKeyword;
+  @VisibleForTesting
+  String getSourceAvailabilityHeader() {
+    return this.sourceAvailabilityHeader;
   }
 
   public List<String> getAnnouncements() {
