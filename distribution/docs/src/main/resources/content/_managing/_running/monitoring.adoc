@@ -111,12 +111,6 @@ This is the most popular format for access logs and can be parsed by many web se
 
 ===== Using the LogViewer
 
-Monitor system logs with the *LogViewer*, a convenient "viewing portal" for incoming logs.
-
-* Navigate to the LogViewer at \${secure_url}/admin/logviewer
-
-or
-
 * Navigate to the ${admin-console}
 * Navigate to the *System* tab
 * Select *Logs*
