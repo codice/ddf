@@ -26,14 +26,6 @@
   <artifactId>resource-bundle-locator</artifactId>
   <packaging>bundle</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${org.slf4j.version}</version>
-    </dependency>
-  </dependencies>
-
   <build>
     <plugins>
       <plugin>

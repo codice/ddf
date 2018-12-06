@@ -74,7 +74,7 @@ module.exports = plugin(
                 <FormattedMessage
                   id="sourcesKeyword"
                   defaultMessage={`{sources}`}
-                  values={{ sources: properties.keywords['Sources'] }}
+                  values={{ sources: properties.i18n['Sources'] }}
                 />
               </IntlProvider>
               <span className="sources-indicator fa fa-bolt" />

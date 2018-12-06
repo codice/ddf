@@ -17,16 +17,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBundleLocatorImpl.class);
 
   private File resourceBundleBaseDir;
 
@@ -39,7 +37,8 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   public ResourceBundle getBundle(String baseName, Locale locale) throws IOException {
     File resourceBundleDir = resourceBundleBaseDir;
     if (resourceBundleDir == null) {
-      resourceBundleDir = new File(String.format("%s/etc/i18n/", System.getProperty("ddf.home")));
+      Path path = Paths.get(System.getProperty("ddf.home"), "etc", "i18n");
+      resourceBundleDir = new File(path.toUri());
     }
 
     URL[] urls = {resourceBundleDir.toURI().toURL()};

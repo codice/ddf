@@ -32,7 +32,7 @@ module.exports = Marionette.ItemView.extend({
               <FormattedMessage
                 id="sourcesKeyword"
                 defaultMessage={`All {sources}`}
-                values={{ sources: properties.keywords['Sources'] }}
+                values={{ sources: properties.i18n['Sources'] }}
               />
             </IntlProvider>
           </span>

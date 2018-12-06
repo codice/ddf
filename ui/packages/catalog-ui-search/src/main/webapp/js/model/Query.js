@@ -278,9 +278,9 @@ Query.Model = PartialAssociatedModel.extend({
         title: 'Search "' + this.get('title') + '" cannot be run.',
         message:
           'No ' +
-          properties.keywords['sources'] +
+          properties.i18n['sources'] +
           ' are currently selected.  Edit the search and select at least one ' +
-          properties.keywords['source'] +
+          properties.i18n['source'] +
           '.',
         type: 'warn',
       })

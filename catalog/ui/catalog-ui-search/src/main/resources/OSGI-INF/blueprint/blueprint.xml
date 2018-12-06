@@ -108,7 +108,7 @@
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
         <property name="historianConfigurations" ref="historianConfigurations"/>
-        <property name="keywords" ref="resourceBundleLocator"/>
+        <property name="i18n" ref="resourceBundleLocator"/>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">

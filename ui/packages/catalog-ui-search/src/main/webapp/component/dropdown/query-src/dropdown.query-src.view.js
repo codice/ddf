@@ -54,7 +54,7 @@ module.exports = DropdownView.extend({
             <FormattedMessage
               id="sourcesKeyword"
               defaultMessage={`{sources}`}
-              values={{ sources: properties.keywords['Sources'] }}
+              values={{ sources: properties.i18n['Sources'] }}
             />
           </IntlProvider>
         </div>
@@ -66,7 +66,7 @@ module.exports = DropdownView.extend({
                   <FormattedMessage
                     id="sourcesKeyword"
                     defaultMessage={`All {sources}`}
-                    values={{ sources: properties.keywords['Sources'] }}
+                    values={{ sources: properties.i18n['Sources'] }}
                   />
                 </IntlProvider>
               </span>

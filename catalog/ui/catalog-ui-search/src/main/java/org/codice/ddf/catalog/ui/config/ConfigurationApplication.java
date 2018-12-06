@@ -235,22 +235,22 @@ public class ConfigurationApplication implements SparkApplication {
 
   private static final String INTRIGUE_BASE_NAME = "IntrigueBundle";
 
-  private volatile Map<String, String> keywords = Collections.emptyMap();
+  private volatile Map<String, String> i18n = Collections.emptyMap();
 
-  public void setKeywords(ResourceBundleLocator resourceBundleLocator) {
+  public void setI18n(ResourceBundleLocator resourceBundleLocator) {
     try {
       ResourceBundle resourceBundle = resourceBundleLocator.getBundle(INTRIGUE_BASE_NAME);
 
       if (resourceBundle != null) {
         Enumeration bundleKeys = resourceBundle.getKeys();
 
-        keywords = new HashMap<>();
+        i18n = new HashMap<>();
 
         while (bundleKeys.hasMoreElements()) {
           String key = (String) bundleKeys.nextElement();
           String value = resourceBundle.getString(key);
 
-          keywords.put(key, value);
+          i18n.put(key, value);
         }
       }
     } catch (IOException e) {
@@ -262,12 +262,12 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
-  public void setKeywords(Map<String, String> keywords) {
-    this.keywords = keywords;
+  public void setI18n(Map<String, String> i18n) {
+    this.i18n = i18n;
   }
 
-  public Map<String, String> getKeywords() {
-    return this.keywords;
+  public Map<String, String> getI18n() {
+    return this.i18n;
   }
 
   public Set<String> getEditorAttributes() {
@@ -553,7 +553,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("basicSearchTemporalSelectionDefault", basicSearchTemporalSelectionDefault);
     config.put("basicSearchMatchType", basicSearchMatchType);
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
-    config.put("keywords", keywords);
+    config.put("i18n", i18n);
     return config;
   }
 

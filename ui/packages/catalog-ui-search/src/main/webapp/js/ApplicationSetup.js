@@ -83,9 +83,9 @@ let getErrorResponse = function(event, jqxhr, settings, throwError) {
     settings.type === 'GET'
   ) {
     return {
-      title: `Error Polling ${properties.keywords['Sources']}`,
+      title: `Error Polling ${properties.i18n['Sources']}`,
       message: `Unable to query server for list of active ${
-        properties.keywords['sources']
+        properties.i18n['sources']
       }`,
     }
   } else if (

@@ -204,7 +204,7 @@ public class ConfigurationApplicationTest {
 
   @Test
   public void testGetDefaultKeywords() {
-    assertThat(configurationApplication.getKeywords(), is(Collections.emptyMap()));
+    assertThat(configurationApplication.getI18n(), is(Collections.emptyMap()));
   }
 
   @Test
@@ -212,9 +212,9 @@ public class ConfigurationApplicationTest {
     doReturn(ResourceBundle.getBundle("IntrigueBundle"))
         .when(resourceBundleLocator)
         .getBundle(any(String.class));
-    configurationApplication.setKeywords(resourceBundleLocator);
+    configurationApplication.setI18n(resourceBundleLocator);
 
-    Map<String, String> keywords = configurationApplication.getKeywords();
+    Map<String, String> keywords = configurationApplication.getI18n();
 
     assertThat(keywords.size(), is(4));
     assertThat(keywords.get("Source"), is("Source"));

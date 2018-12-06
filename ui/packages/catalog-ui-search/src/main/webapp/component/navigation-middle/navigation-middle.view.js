@@ -34,7 +34,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   tagName: CustomElements.register('navigation-middle'),
   serializeData: function() {
-    const menuText = properties.keywords[this.options.text] || this.options.text
+    const menuText = properties.i18n[this.options.text] || this.options.text
 
     return {
       menuClass: this.options.classes,

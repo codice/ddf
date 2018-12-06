@@ -32,15 +32,15 @@ export default hot(module)(({ amountDown }: Props) => {
   return (
     <Root>
       {amountDown == 0 ? (
-        <p>All {properties.keywords.sources} are currently up</p>
+        <p>All {properties.i18n.sources} are currently up</p>
       ) : (
         <FormattedMessage
           id="sourceAvailability"
           defaultMessage={`${amountDown} {amountDown, plural, one {{source} is} other {{sources} are}} currently down`}
           values={{
             amountDown: amountDown,
-            source: properties.keywords['source'],
-            sources: properties.keywords['sources'],
+            source: properties.i18n['source'],
+            sources: properties.i18n['sources'],
           }}
         />
       )}
