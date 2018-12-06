@@ -50,6 +50,7 @@ const Root = styled<State, 'div'>('div')`
     top: 0px;
     height: 100%;
     width: 100%;
+    overflow: auto;
     transition: transform ${props => props.theme.coreTransitionTime} ease-in-out;
     transform: translate(${props => (props.component ? '0%' : '100%')});
   }
@@ -59,6 +60,7 @@ const Root = styled<State, 'div'>('div')`
     top: 0px;
     height: 100%;
     width: 100%;
+    overflow: auto;
     transition: transform ${props => props.theme.coreTransitionTime} ease-in-out;
     transform: translate(${props => (props.component ? '-100%' : '0%')});
   }
