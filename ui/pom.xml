@@ -358,11 +358,6 @@
                                     <classifier>features</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/admin-core-logviewer/target/logviewer-ui.jar</file>
-                                    <type>jar</type>
-                                    <classifier>logviewer-ui</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/admin-federation-ui/target/federation-admin-module.jar</file>
                                     <type>jar</type>
                                     <classifier>federation-admin-module</classifier>

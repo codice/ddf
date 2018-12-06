@@ -69,6 +69,5 @@
   "files": [
     "target/webapp/",
     "src/main/resources"
-  ],
-  "context-path": "/admin/logviewer"
+  ]
 }
