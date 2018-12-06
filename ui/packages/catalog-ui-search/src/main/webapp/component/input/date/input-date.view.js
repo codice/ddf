@@ -47,12 +47,16 @@ module.exports = InputView.extend({
     'dp.hide .input-group.date': 'removeResizeHandler',
   },
   serializeData: function() {
-    return _.extend(this.model.toJSON(), {
+    const propertyJSON = _.extend(this.model.toJSON(), {
       cid: this.cid,
       humanReadableDate: this.model.getValue()
         ? user.getUserReadableDateTime(this.model.getValue())
         : this.model.getValue(),
     })
+    if (propertyJSON.property.placeholder === undefined) {
+      propertyJSON.property.placeholder = getDateFormat()
+    }
+    return propertyJSON
   },
   initialize: function() {
     this.listenTo(
