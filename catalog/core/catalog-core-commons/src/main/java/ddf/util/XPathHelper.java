@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSException;
 import org.w3c.dom.ls.LSOutput;
@@ -156,13 +157,16 @@ public class XPathHelper {
       StringWriter stringOut = new StringWriter();
 
       DOMImplementationLS domImpl = (DOMImplementationLS) document.getImplementation();
-      LSSerializer serializer = domImpl.createLSSerializer();
-      LSOutput lsOut = domImpl.createLSOutput();
-      lsOut.setEncoding(encoding);
-      lsOut.setCharacterStream(stringOut);
+      LSSerializer lsSerializer = domImpl.createLSSerializer();
+      lsSerializer.getDomConfig().setParameter("xml-declaration", false);
+      LSOutput lsout = domImpl.createLSOutput();
+      lsout.setEncoding(encoding);
+      lsout.setCharacterStream(stringOut);
 
-      serializer.write(n, lsOut);
-
+      NodeList childNodes = n.getChildNodes();
+      for (int i = 0; i < childNodes.getLength(); i++) {
+        lsSerializer.write(childNodes.item(i), lsout);
+      }
       return stringOut.toString();
     } catch (DOMException | LSException e) {
       LOGGER.debug(e.getMessage(), e);
