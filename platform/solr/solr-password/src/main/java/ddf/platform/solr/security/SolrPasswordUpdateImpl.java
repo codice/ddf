@@ -46,7 +46,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   private final ClientFactoryFactory restClientFactoryFactory;
   private final UuidGenerator uuidGenerator;
-  private final java.util.Properties properties;
   private final EncryptionService encryptionService;
   private SolrAuthResource solrAuthResource;
   private String newPasswordPlainText;
@@ -61,19 +60,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
     this.encryptionService = encryptionService;
     this.uuidGenerator = uuidGenerator;
     this.restClientFactoryFactory = clientFactoryFactory;
-    properties =
-        AccessController.doPrivileged(
-            (PrivilegedAction<java.util.Properties>) System::getProperties);
-  }
-
-  private void initialize() {
-    SecureCxfClientFactory<SolrAuthResource> factory =
-        restClientFactoryFactory.getSecureCxfClientFactory(
-            properties.getProperty("solr.http.url"),
-            SolrAuthResource.class,
-            properties.getProperty("solr.username"),
-            getPlaintextPasswordFromProperties());
-    solrAuthResource = factory.getClient();
   }
 
   /**
@@ -101,13 +87,23 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
     }
   }
 
+  private void initialize() {
+    SecureCxfClientFactory<SolrAuthResource> factory =
+        restClientFactoryFactory.getSecureCxfClientFactory(
+            getProperty("solr.http.url"),
+            SolrAuthResource.class,
+            getProperty("solr.username"),
+            getPlaintextPasswordFromProperties());
+    solrAuthResource = factory.getClient();
+  }
+
   private void setPasswordInMemory() {
-    properties.setProperty(SOLR_PASSWORD_PROPERTY_NAME, newPasswordWrappedEncrypted);
+    setProperty(SOLR_PASSWORD_PROPERTY_NAME, newPasswordWrappedEncrypted);
     LOGGER.info("Updated encrypted Solr password in memory.");
   }
 
   private boolean configuredToAttemptAutoPasswordChange() {
-    return Boolean.valueOf(properties.getProperty("solr.attemptAutoPasswordChange"));
+    return Boolean.valueOf(getProperty("solr.attemptAutoPasswordChange"));
   }
 
   /**
@@ -120,7 +116,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   private @Nullable String getPlaintextPasswordFromProperties() {
-    String property = properties.getProperty(SOLR_PASSWORD_PROPERTY_NAME);
+    String property = getProperty(SOLR_PASSWORD_PROPERTY_NAME);
     if (StringUtils.isBlank(property)) {
       LOGGER.info(
           "Solr password system property is missing or blank. System might not be able to communicate with Solr.");
@@ -137,7 +133,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   }
 
   private Void updatePropertiesFile() {
-    String etcDir = properties.getProperty(KARAF_ETC);
+    String etcDir = getProperty(KARAF_ETC);
     String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
     File systemPropertiesFile = new File(systemPropertyFilename);
     try {
@@ -197,7 +193,15 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
    */
   private String getSetUserJson() {
     return String.format(
-        SET_USER_JSON_TEMPLATE, properties.getProperty("solr.username"), newPasswordPlainText);
+        SET_USER_JSON_TEMPLATE, getProperty("solr.username"), newPasswordPlainText);
+  }
+
+  private String getProperty(String key) {
+    return AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(key));
+  }
+
+  private void setProperty(String key, String value) {
+    AccessController.doPrivileged((PrivilegedAction<String>) () -> System.setProperty(key, value));
   }
 
   @VisibleForTesting
