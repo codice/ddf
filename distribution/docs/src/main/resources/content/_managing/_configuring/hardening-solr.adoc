@@ -51,7 +51,8 @@ be necessary to reset the password:
 ==== Do not Autogenerate a Solr Password
 
 . **To prevent ${branding} from attempting to change the password** set the property
-`solr.attemptAutoPasswordChange` to `false` in the file `${home_directory}/etc/custom.system.properties`
+<<{managing-prefix}solr_autopassword,`solr.attemptAutoPasswordChange` to `false` in the
+file `${home_directory}/etc/custom.system.properties`
 
 ==== Change the Password to a Specific String
 
@@ -99,7 +100,9 @@ To disable Solr's basic authentication mechanism, rename or remove the file
 `${home_directory}/solr/server/solr/security.json` and restart Solr. The file `security.json`
 configures Solr to use basic authetnication and defines Solr users. If the file is not present,
 Solr requires no login. This could a security issue in many environments and it is recommended
-to never disable Solr authentication in an operational environment.
+to never disable Solr authentication in an operational environment. If authentication is disabled,
+the system property <<{managing-prefix}solr_usebasicauth, `solr.useBasicAuth`>> may be set to
+`false`.
 
 === Configuring Solr Encryption
 
