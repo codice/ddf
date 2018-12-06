@@ -188,6 +188,42 @@
             default="true"
             required="false"/>
 
+        <AD id="metacardPreviewEnabled"
+            name="Enable Metacard Preview"
+            description="Enable Metacard Preview in the Inspector."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="metacardHistoryEnabled"
+            name="Enable Metacard History"
+            description="Enable Metacard History in the Inspector."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="metacardAssociationsEnabled"
+            name="Enable Metacard Associations"
+            description="Enable Metacard Associations in the Inspector."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="metacardQualityEnabled"
+            name="Enable Metacard Quality"
+            description="Enable Metacard Quality in the Inspector."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="metacardArchiveEnabled"
+            name="Enable Metacard Archive"
+            description="Enable Metacard Archive in the Inspector."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="metacardOverwriteEnabled"
+            name="Enable Metacard Overwrite"
+            description="Enable Metacard Overwrite in the Inspector."
+            type="Boolean"
+            default="true"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."

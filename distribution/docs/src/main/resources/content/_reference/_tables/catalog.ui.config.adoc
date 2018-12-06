@@ -209,6 +209,48 @@ Example:
 |true
 |false
 
+|Enable Metacard Preview
+|metacardPreviewEnabled
+|Boolean
+|Enable Metacard Preview in the Inspector.
+|true
+|true
+
+|Enable Metacard History
+|metacardHistoryEnabled
+|Boolean
+|Enable Metacard History in the Inspector.
+|true
+|true
+
+|Enable Metacard Associations
+|metacardAssociationsEnabled
+|Boolean
+|Enable Metacard Associations in the Inspector.
+|true
+|true
+
+|Enable Metacard Quality
+|metacardQualityEnabled
+|Boolean
+|Enable Metacard Quality in the Inspector.
+|true
+|true
+
+|Enable Metacard Archive
+|metacardArchiveEnabled
+|Boolean
+|Enable Metacard Archive in the Inspector.
+|true
+|true
+
+|Enable Metacard Overwrite
+|metacardOverwriteEnabled
+|Boolean
+|Enable Metacard Overwrite in the Inspector.
+|true
+|true
+
 |Basic Search Temporal Selections
 |basicSearchTemporalSelectionDefault
 |String

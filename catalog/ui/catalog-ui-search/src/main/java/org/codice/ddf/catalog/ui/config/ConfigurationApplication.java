@@ -131,6 +131,18 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean archiveSearchEnabled = true;
 
+  private Boolean metacardPreviewEnabled = true;
+
+  private Boolean metacardHistoryEnabled = true;
+
+  private Boolean metacardAssociationsEnabled = true;
+
+  private Boolean metacardQualityEnabled = true;
+
+  private Boolean metacardArchiveEnabled = true;
+
+  private Boolean metacardOverwriteEnabled = true;
+
   private BrandingPlugin branding;
 
   private Integer timeout = 300000;
@@ -536,6 +548,12 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showLogo", logoEnabled);
     config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
     config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
+    config.put("isMetacardPreviewDisabled", !metacardPreviewEnabled);
+    config.put("isMetacardHistoryDisabled", !metacardHistoryEnabled);
+    config.put("isMetacardAssociationsDisabled", !metacardAssociationsEnabled);
+    config.put("isMetacardQualityDisabled", !metacardQualityEnabled);
+    config.put("isMetacardArchiveDisabled", !metacardArchiveEnabled);
+    config.put("isMetacardOverwriteDisabled", !metacardOverwriteEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -1095,6 +1113,54 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setArchiveSearchEnabled(Boolean archiveSearchEnabled) {
     this.archiveSearchEnabled = archiveSearchEnabled;
+  }
+
+  public Boolean getMetacardPreviewEnabled() {
+    return metacardPreviewEnabled;
+  }
+
+  public void setMetacardPreviewEnabled(Boolean metacardPreviewEnabled) {
+    this.metacardPreviewEnabled = metacardPreviewEnabled;
+  }
+
+  public Boolean getMetacardHistoryEnabled() {
+    return metacardHistoryEnabled;
+  }
+
+  public void setMetacardHistoryEnabled(Boolean metacardHistoryEnabled) {
+    this.metacardHistoryEnabled = metacardHistoryEnabled;
+  }
+
+  public Boolean getMetacardAssociationsEnabled() {
+    return metacardAssociationsEnabled;
+  }
+
+  public void setMetacardAssociationsEnabled(Boolean metacardAssociationsEnabled) {
+    this.metacardAssociationsEnabled = metacardAssociationsEnabled;
+  }
+
+  public Boolean getMetacardQualityEnabled() {
+    return metacardQualityEnabled;
+  }
+
+  public void setMetacardQualityEnabled(Boolean metacardQualityEnabled) {
+    this.metacardQualityEnabled = metacardQualityEnabled;
+  }
+
+  public Boolean getMetacardArchiveEnabled() {
+    return metacardArchiveEnabled;
+  }
+
+  public void setMetacardArchiveEnabled(Boolean metacardArchiveEnabled) {
+    this.metacardArchiveEnabled = metacardArchiveEnabled;
+  }
+
+  public Boolean getMetacardOverwriteEnabled() {
+    return metacardOverwriteEnabled;
+  }
+
+  public void setMetacardOverwriteEnabled(Boolean metacardOverwriteEnabled) {
+    this.metacardOverwriteEnabled = metacardOverwriteEnabled;
   }
 
   public void setHistorianConfigurations(List<HistorianConfiguration> historians) {

@@ -33,6 +33,7 @@ module.exports = TabsView.extend({
     if (options.model === undefined) {
       this.setDefaultModel()
     }
+    this.determineDisabledContent()
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
     var debounceDetermineContent = _.debounce(this.handleMetacardChange, 200)
@@ -125,5 +126,31 @@ module.exports = TabsView.extend({
       this.$el.toggleClass('is-remote', result.isRemote())
       this.$el.toggleClass('lacks-preview', !result.hasPreview())
     }
+  },
+  determineDisabledContent: function() {
+    this.$el.toggleClass(
+      'is-history-disabled',
+      !properties.isMetacardHistoryEnabled()
+    )
+    this.$el.toggleClass(
+      'is-associations-disabled',
+      !properties.isMetacardAssociationsEnabled()
+    )
+    this.$el.toggleClass(
+      'is-archive-disabled',
+      !properties.isMetacardArchiveEnabled()
+    )
+    this.$el.toggleClass(
+      'is-quality-disabled',
+      !properties.isMetacardQualityEnabled()
+    )
+    this.$el.toggleClass(
+      'is-overwrite-disabled',
+      !properties.isMetacardOverwriteEnabled()
+    )
+    this.$el.toggleClass(
+      'lacks-preview',
+      !properties.isMetacardPreviewEnabled()
+    )
   },
 })
