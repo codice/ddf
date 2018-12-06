@@ -1,61 +1,68 @@
-@border: #ccc;
-@fg: #2c3e50;
-@bg: #fff;
-@grey: #ecf0f1;
+.logviewer-ui-root {
+  @border: #ccc;
+  @fg: #2c3e50;
+  @bg: #fff;
+  @grey: #ecf0f1;
 
-.container {
-  position: relative;
-  height: 100%;
-  background: #ccc;
-}
+  .container {
+    position: relative;
+    height: 100%;
+    background: #ccc;
+    max-width: 100%;
+    padding: 0px;
+  }
 
-.filterRow {
-  color: @fg;
-  background: @bg;
-  width: 100%;
-  height: 60px;
-  border-bottom: 1px @border solid;
-  position: absolute;
-  z-index: 1;
-  box-shadow: 0 0 3px 0px rgba(0, 0, 0, 0.3);
-}
+  .filterRow {
+    color: @fg;
+    background: @bg;
+    width: 100%;
+    height: 60px;
+    border-bottom: 1px @border solid;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 3px 0px rgba(0, 0, 0, 0.3);
 
-.logRows {
-  position: absolute;
-  overflow-y: auto;
-  overflow-x: hidden;
-  top: 60px;
-  bottom: 0px;
-}
+    select {
+      width: 100%;
+      position: relative;
+      top: 4px;
+    }
+  }
 
-.table {
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-}
+  .logRows {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 
-.header {
-  color: @fg;
-  background: @grey;
-  padding: 2px;
-}
+  .table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+  }
 
-.logs {
-  display: table-row;
-  position: relative;
-}
+  .header {
+    color: @fg;
+    background: @grey;
+    padding: 2px;
+  }
 
-.controls {
-  padding: 4px;
-}
+  .logs {
+    display: table-row;
+    position: relative;
+  }
 
-.loading {
-  color: @fg;
-  padding: 10px;
-  font-size: 24px;
-  text-align: center;
-}
+  .controls {
+    padding: 4px;
+  }
 
-.dimUnselected tr:not(.selectedRow) {
-  opacity: 0.6;
+  .loading {
+    color: @fg;
+    padding: 10px;
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .dimUnselected tr:not(.selectedRow) {
+    opacity: 0.6;
+  }
 }

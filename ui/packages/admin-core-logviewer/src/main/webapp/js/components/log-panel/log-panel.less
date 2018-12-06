@@ -1,26 +1,16 @@
-@btnGreen: #18bc9c;
+.logviewer-ui-root {
+  @btnGreen: #18bc9c;
 
-.panel-base(@top) {
-  position: fixed;
-  top: @top;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  font-family: sans-serif;
-  font-size: 14px;
-}
+  .panel {
+    position: relative;
+    font-family: sans-serif;
+    font-size: 14px;
+  }
 
-.panel {
-  .panel-base(0px);
-}
-
-.panel-iframe {
-  .panel-base(20px);
-}
-
-.newTabLink {
-  color: @btnGreen;
-  text-align: right;
-  float: right;
-  font-family: sans-serif;
+  .newTabLink {
+    color: @btnGreen;
+    text-align: right;
+    float: right;
+    font-family: sans-serif;
+  }
 }

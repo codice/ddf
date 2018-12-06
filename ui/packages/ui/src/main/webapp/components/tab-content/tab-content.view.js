@@ -14,7 +14,6 @@
  **/
 /* global define */
 import { iframeResizer } from 'iframe-resizer'
-
 define([
   'require',
   'marionette',
