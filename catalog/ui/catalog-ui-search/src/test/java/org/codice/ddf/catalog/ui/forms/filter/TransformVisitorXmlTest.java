@@ -86,7 +86,6 @@ public class TransformVisitorXmlTest {
         .withBinding(DistanceBufferType.class)
         .verifyExpressionOrAny(DistanceBufferType::getExpressionOrAny)
         .withData("anyGeo", "WKT()");
-    // TODO verify DistanceBufferType::getDistance
   }
 
   @Test
