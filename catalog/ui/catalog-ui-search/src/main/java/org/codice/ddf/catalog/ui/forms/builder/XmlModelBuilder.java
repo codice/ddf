@@ -225,7 +225,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   public XmlModelBuilder setDistance(Double distance) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    supplierInProgress = new DistanceBufferSupplier(supplierInProgress).setDistance(distance);
+    supplierInProgress = new DistanceBufferSupplier(supplierInProgress, distance);
     return this;
   }
 
@@ -339,7 +339,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     private static final String UOM_METERS = "m";
     private Double distance = null;
 
-    DistanceBufferSupplier(final TerminalNodeSupplier original) {
+    DistanceBufferSupplier(final TerminalNodeSupplier original, Double distance) {
       super(original.reducer);
       if (original.propertyNode != null) {
         this.setProperty(original.propertyNode);
@@ -347,11 +347,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       if (original.valueNode != null) {
         this.setValue(original.valueNode);
       }
-    }
-
-    public DistanceBufferSupplier setDistance(Double distance) {
       this.distance = distance;
-      return this;
     }
 
     @Override
