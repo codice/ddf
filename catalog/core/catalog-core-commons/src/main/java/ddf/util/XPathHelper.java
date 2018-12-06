@@ -61,6 +61,8 @@ public class XPathHelper {
 
   private final TransformerFactory tf;
 
+  private static final String XML_DECLARATION = "xml-declaration";
+
   /** The XML document being worked on by this XPathHelper utility class. */
   private Document document;
 
@@ -158,7 +160,7 @@ public class XPathHelper {
 
       DOMImplementationLS domImpl = (DOMImplementationLS) document.getImplementation();
       LSSerializer lsSerializer = domImpl.createLSSerializer();
-      lsSerializer.getDomConfig().setParameter("xml-declaration", false);
+      lsSerializer.getDomConfig().setParameter(XML_DECLARATION, false);
       LSOutput lsout = domImpl.createLSOutput();
       lsout.setEncoding(encoding);
       lsout.setCharacterStream(stringOut);
