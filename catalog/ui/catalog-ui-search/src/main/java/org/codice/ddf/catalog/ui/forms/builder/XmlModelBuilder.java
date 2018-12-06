@@ -336,6 +336,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   private static class DistanceBufferSupplier extends TerminalNodeSupplier {
+    private static final String UOM_METERS = "m";
     private Double distance = null;
 
     DistanceBufferSupplier(final TerminalNodeSupplier original) {
@@ -363,7 +364,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
             "Incorrect use of DistanceBufferSupplier for given type " + reduced.toString());
       }
       DistanceBufferType value = (DistanceBufferType) reduced.getValue();
-      value.setDistance(new MeasureType().withUom("m").withValue(distance));
+      value.setDistance(new MeasureType().withUom(UOM_METERS).withValue(distance));
       return reduced;
     }
   }
