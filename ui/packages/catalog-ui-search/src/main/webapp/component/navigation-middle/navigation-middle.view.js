@@ -34,6 +34,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   tagName: CustomElements.register('navigation-middle'),
   serializeData: function() {
+    /**
+     * In order to support different locales in the future, this manual approach for keyword replacement
+     * will need to include some sort of contextual key so that this text can be internationalized.
+     */
     const menuText = properties.i18n[this.options.text] || this.options.text
 
     return {
