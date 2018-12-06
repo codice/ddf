@@ -281,7 +281,7 @@ public class GeoUtilTest {
 
     assertThat(actualCircleCoords.length, Is.is(equalTo(expectedCircleCoords.length)));
 
-    for(int i = 0; i < actualCircleCoords.length; i++){
+    for (int i = 0; i < actualCircleCoords.length; i++) {
       assertThat(actualCircleCoords[i].x, closeTo(expectedCircleCoords[i].x, tolerance));
       assertThat(actualCircleCoords[i].y, closeTo(expectedCircleCoords[i].y, tolerance));
     }
