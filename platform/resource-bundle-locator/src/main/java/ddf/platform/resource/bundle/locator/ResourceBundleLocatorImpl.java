@@ -28,8 +28,7 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   private File resourceBundleBaseDir;
 
   public ResourceBundleLocatorImpl() {
-    this.resourceBundleBaseDir =
-        new File(Paths.get(System.getProperty("ddf.home"), "etc", "i18n").toUri());
+    this.resourceBundleBaseDir = Paths.get(System.getProperty("ddf.home"), "etc", "i18n").toFile();
   }
 
   @Override
