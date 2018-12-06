@@ -98,7 +98,7 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
               <td className="header" width={175}>
                 Time
               </td>
-              <td className="header" width={75}>
+              <td className="header" width={90}>
                 Level
               </td>
               <td className="header">Message</td>

@@ -13,13 +13,27 @@
  *
  **/
 /* global define */
+import React from 'react'
+import AdminLogViewer from 'logviewer-ui/src/main/webapp/js/main'
 define(['marionette', './iframe.hbs', 'js/CustomElements'], function(
   Marionette,
   template,
   CustomElements
 ) {
   return Marionette.ItemView.extend({
-    template: template,
+    template({ url }) {
+      let Component = () => (
+        <iframe src={url} width="100%" scrolling="no">
+          <p>Your browser does not support iframes.</p>
+        </iframe>
+      )
+      switch (url) {
+        case './logviewer/index.html':
+          Component = AdminLogViewer
+          break
+      }
+      return <Component />
+    },
     tagName: CustomElements.register('iframe'),
     className: 'iframe-view',
   })

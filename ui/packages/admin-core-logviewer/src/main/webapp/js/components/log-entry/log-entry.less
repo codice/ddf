@@ -1,75 +1,77 @@
-@keyframes slideAnimationKeyframes {
-  0% {
-    opacity: 0;
-    transform: translateY(50px);
+.logviewer-ui-root {
+  @keyframes slideAnimationKeyframes {
+    0% {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
-  100% {
+  .rowData {
+    border-bottom: 1px #ccc solid;
+    padding: 5px;
+    word-wrap: break-word;
+    cursor: pointer;
+  }
+
+  .selectedRow {
     opacity: 1;
-    transform: translateX(0);
   }
-}
 
-.rowData {
-  border-bottom: 1px #ccc solid;
-  padding: 5px;
-  word-wrap: break-word;
-  cursor: pointer;
-}
+  .dim {
+    opacity: 0.5;
+  }
 
-.selectedRow {
-  opacity: 1;
-}
+  .rowAnimation {
+    position: relative;
+    animation: slideAnimationKeyframes ease 0.25s;
+  }
 
-.dim {
-  opacity: 0.5;
-}
+  .timestampColumn {
+    width: 175px;
+  }
 
-.rowAnimation {
-  position: relative;
-  animation: slideAnimationKeyframes ease 0.25s;
-}
+  .levelColumn {
+    width: 90px;
+  }
 
-.timestampColumn {
-  width: 175px;
-}
+  .message {
+    text-overflow: ellipsis;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    background-color: inherit;
+  }
 
-.levelColumn {
-  width: 75px;
-}
+  .messageExpanded {
+    white-space: normal;
+  }
 
-.message {
-  text-overflow: ellipsis;
-  width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  background-color: inherit;
-}
+  .bundleColumn {
+    width: 200px;
+  }
 
-.messageExpanded {
-  white-space: normal;
-}
+  .errorLevel {
+    background: #ffe6e6;
+  }
 
-.bundleColumn {
-  width: 200px;
-}
+  .warnLevel {
+    background: #ffffe6;
+  }
 
-.errorLevel {
-  background: #ffe6e6;
-}
+  .infoLevel {
+    background: white;
+  }
 
-.warnLevel {
-  background: #ffffe6;
-}
+  .debugLevel {
+    background: #e6ffe6;
+  }
 
-.infoLevel {
-  background: white;
-}
-
-.debugLevel {
-  background: #e6ffe6;
-}
-
-.traceLevel {
-  background: #e6e6ff;
+  .traceLevel {
+    background: #e6e6ff;
+  }
 }

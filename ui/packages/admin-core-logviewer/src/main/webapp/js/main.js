@@ -13,34 +13,20 @@
  *
  **/
 
+import { render } from 'react-dom'
 import React from 'react'
-import { connect } from 'react-redux'
 
-import LogViewer from '../log-viewer/log-viewer'
-
-import './log-panel.less'
-
-const panelClass = () => {
-  if (window === window.top) {
-    return 'panel'
-  } else {
-    return 'panel-iframe'
-  }
-}
-
-const LogPanel = connect(({ filter, logs, displaySize, expandedHash }) => ({
-  filter,
-  logs,
-  displaySize,
-  expandedHash,
-}))(LogViewer)
+import store from './store'
+import { fetchLoop } from './actions'
+import LogPanel from './components/log-panel/log-panel'
+import { Provider } from 'react-redux'
+import { getLogs } from './backend'
 
 export default () => {
+  store.dispatch(fetchLoop(getLogs))
   return (
-    <div className="logviewer-ui-root">
-      <div className={panelClass()}>
-        <LogPanel />
-      </div>
-    </div>
+    <Provider store={store}>
+      <LogPanel />
+    </Provider>
   )
 }
