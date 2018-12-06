@@ -363,16 +363,19 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
       EndpointUtil util, List<Metacard> systemTemplates, CatalogFramework catalogFramework) {
     Set<String> queryTitles = titlesTransform(util.getMetacardsByTag(QUERY_TEMPLATE_TAG));
     Set<String> resultTitles = titlesTransform(util.getMetacardsByTag(ATTRIBUTE_GROUP_TAG));
+    Set<String> existentSystemTemplates = titlesTransform(util.getMetacardsByTag(SYSTEM_TEMPLATE));
     List<Metacard> dedupedTemplateMetacards =
         Stream.concat(
                 systemTemplates
                     .stream()
                     .filter(QueryTemplateMetacard::isQueryTemplateMetacard)
-                    .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
+                    .filter(metacard -> !queryTitles.contains(metacard.getTitle()))
+                    .filter(metacard -> !existentSystemTemplates.contains(metacard.getTitle())),
                 systemTemplates
                     .stream()
                     .filter(AttributeGroupMetacard::isAttributeGroupMetacard)
                     .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
+            .filter(metacard -> !existentSystemTemplates.contains(metacard.getTitle()))
             .collect(Collectors.toList());
 
     if (!dedupedTemplateMetacards.isEmpty()) {
