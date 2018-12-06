@@ -74,6 +74,38 @@ function getHiddenFields(): string[] {
     .get('columnHide')
 }
 
+function getHits(sources: Source[]): number {
+  return sources
+    .filter(source => source.id !== 'cache')
+    .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
+}
+
+function getExportCount(exportSize: string, selectionInterface: any): number {
+  const result = selectionInterface.getCurrentQuery().get('result')
+  return exportSize === 'all'
+    ? getHits(result.get('status').toJSON())
+    : result.get('results').length
+}
+
+function getSorts(selectionInterface: any) {
+  return selectionInterface.getCurrentQuery().get('sorts')
+}
+
+function getQueryCount(selectionInterface: any): number {
+  return selectionInterface.getCurrentQuery().get('count')
+}
+
+function getWarning(exportSize: string, selectionInterface: any): string {
+  const exportCount = getExportCount(exportSize, selectionInterface)
+  if (exportCount > 100) {
+    const queryCount = getQueryCount(selectionInterface)
+    return `You are about to export ${exportCount} results. ${
+      exportCount > queryCount ? `Only ${queryCount} will be exported.` : ''
+    } This may take a long time.`
+  }
+  return ''
+}
+
 type Props = {
   selectionInterface: () => void
 }
@@ -88,6 +120,11 @@ type State = {
   exportSizes: Option[]
   exportFormat: string
   exportSize: string
+}
+
+type Source = {
+  id: string
+  hits: number
 }
 
 export default hot(module)(
@@ -147,6 +184,14 @@ export default hot(module)(
             this.state.exportSize,
             this.props.selectionInterface
           ),
+          count: Math.min(
+            getExportCount(
+              this.state.exportSize,
+              this.props.selectionInterface
+            ),
+            getQueryCount(this.props.selectionInterface)
+          ),
+          sorts: getSorts(this.props.selectionInterface),
           srcs: getSrcs(this.props.selectionInterface),
         }
         const response = await exportDataAs(url, payload, 'application/json')
@@ -199,6 +244,10 @@ export default hot(module)(
               )}
               handleExportSizeChange={this.handleExportSizeChange.bind(this)}
               onDownloadClick={this.onDownloadClick.bind(this)}
+              warning={getWarning(
+                this.state.exportSize,
+                this.props.selectionInterface
+              )}
             />
           ) : null}
         </LoadingCompanion>

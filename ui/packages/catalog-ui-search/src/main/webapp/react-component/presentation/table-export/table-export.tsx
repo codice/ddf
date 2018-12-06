@@ -25,6 +25,10 @@ const Root = styled<{}, 'div'>('div')`
     margin-top: ${props => props.theme.minimumSpacing};
     width: 100%;
   }
+
+  .warning {
+    text-align: center;
+  }
 `
 
 type Option = {
@@ -40,6 +44,7 @@ type Props = {
   exportSizeOptions: Option[]
   exportFormatOptions: Option[]
   onDownloadClick: () => void
+  warning: string
 }
 
 export default hot(module)((props: Props) => {
@@ -51,6 +56,7 @@ export default hot(module)((props: Props) => {
     handleExportFormatChange,
     handleExportSizeChange,
     onDownloadClick,
+    warning,
   } = props
   return (
     <Root>
@@ -66,6 +72,12 @@ export default hot(module)((props: Props) => {
         label="as"
         onChange={handleExportFormatChange}
       />
+      {warning && (
+        <div className="warning">
+          <i className="fa fa-warning" />
+          <span>{warning}</span>
+        </div>
+      )}
       <Button
         buttonType={buttonTypeEnum.primary}
         icon="fa fa-download"
