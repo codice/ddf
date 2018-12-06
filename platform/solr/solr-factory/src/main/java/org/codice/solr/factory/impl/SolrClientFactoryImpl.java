@@ -29,14 +29,15 @@ import org.codice.solr.factory.SolrClientFactory;
  * solr.client} system property.
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
+
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
-  private EncryptionService encryptionService;
-  private SolrPasswordUpdate solrPasswordUpdate;
+  private final EncryptionService encryptionService;
+  private final SolrPasswordUpdate solrPasswordUpdate;
 
   @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl(
       EncryptionService encryptionService, SolrPasswordUpdate solrPasswordUpdate) {
-    this((factory, core) -> factory.newClient(core));
+    this.newClientFunction = (factory, core) -> factory.newClient(core);
     this.encryptionService = encryptionService;
     this.solrPasswordUpdate = solrPasswordUpdate;
   }
@@ -44,6 +45,8 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   @VisibleForTesting
   SolrClientFactoryImpl(BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
     this.newClientFunction = newClientFunction;
+    this.encryptionService = null;
+    this.solrPasswordUpdate = null;
   }
 
   @Override

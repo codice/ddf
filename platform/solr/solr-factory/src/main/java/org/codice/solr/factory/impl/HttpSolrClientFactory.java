@@ -81,8 +81,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String KEY_STORE = "javax.net.ssl.keyStore";
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
 
-  private SolrPasswordUpdate solrPasswordUpdate;
-  private EncryptionService encryptionService;
+  private final SolrPasswordUpdate solrPasswordUpdate;
+  private final EncryptionService encryptionService;
 
   public HttpSolrClientFactory(
       EncryptionService encryptionService, SolrPasswordUpdate solrPasswordUpdate) {
@@ -91,7 +91,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   @VisibleForTesting
-  HttpSolrClientFactory() {}
+  HttpSolrClientFactory() {
+    solrPasswordUpdate = null;
+    encryptionService = null;
+  }
 
   /**
    * Gets the default Solr server secure HTTP address.
