@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -36,11 +35,6 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   @Override
   public ResourceBundle getBundle(String baseName, Locale locale) throws IOException {
     File resourceBundleDir = resourceBundleBaseDir;
-    if (resourceBundleDir == null) {
-      Path path = Paths.get(System.getProperty("ddf.home"), "etc", "i18n");
-      resourceBundleDir = new File(path.toUri());
-    }
-
     URL[] urls = {resourceBundleDir.toURI().toURL()};
 
     try (URLClassLoader loader =
@@ -51,6 +45,6 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   }
 
   public void setResourceBundleBaseDir(String resourceBundleBaseDir) {
-    this.resourceBundleBaseDir = new File(resourceBundleBaseDir);
+    this.resourceBundleBaseDir = new File(Paths.get(resourceBundleBaseDir).toUri());
   }
 }

@@ -32,11 +32,11 @@ public class ResourceBundleLocatorImplTest {
   @Before
   public void setup() {
     this.resourceBundleLocator = new ResourceBundleLocatorImpl();
+    resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
   }
 
   @Test
   public void testGetResourceBundle() throws IOException {
-    resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     ResourceBundle resourceBundle = resourceBundleLocator.getBundle(TEST_BASE_NAME);
 
     assertThat(resourceBundle.keySet().size(), is(3));
@@ -47,7 +47,6 @@ public class ResourceBundleLocatorImplTest {
 
   @Test
   public void testGetResourceBundleWithLocale() throws IOException {
-    resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     ResourceBundle resourceBundle =
         resourceBundleLocator.getBundle("TestFrenchResourceBundle", Locale.FRENCH);
 
@@ -58,7 +57,6 @@ public class ResourceBundleLocatorImplTest {
 
   @Test
   public void testResourceBundleFallback() throws IOException {
-    resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
     ResourceBundle resourceBundle =
         resourceBundleLocator.getBundle(TEST_BASE_NAME, Locale.JAPANESE);
 
@@ -70,12 +68,6 @@ public class ResourceBundleLocatorImplTest {
 
   @Test(expected = MissingResourceException.class)
   public void testGetResourceBundleNonExistentBaseName() throws IOException {
-    resourceBundleLocator.setResourceBundleBaseDir("src/test/resources/");
-    resourceBundleLocator.getBundle("FooBarBundle");
-  }
-
-  @Test(expected = MissingResourceException.class)
-  public void testGetResourceBundleNullBaseDir() throws IOException {
     resourceBundleLocator.getBundle("FooBarBundle");
   }
 }
