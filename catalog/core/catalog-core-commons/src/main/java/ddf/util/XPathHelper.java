@@ -166,6 +166,7 @@ public class XPathHelper {
       lsout.setCharacterStream(stringOut);
 
       NodeList childNodes = n.getChildNodes();
+      // Loop through nodelist in order to have it process xml attributes correctly DDF-4382
       for (int i = 0; i < childNodes.getLength(); i++) {
         lsSerializer.write(childNodes.item(i), lsout);
       }
