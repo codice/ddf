@@ -268,6 +268,10 @@ module.exports = Backbone.AssociatedModel.extend({
 
     this.addQueuedResults(resp.results)
 
+    if (this.get('queuedResults').fullCollection.length !== 0) {
+      this.mergeQueue(true)
+    }
+
     return {
       queuedResults: [],
       results: [],
