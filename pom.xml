@@ -308,7 +308,9 @@
         <xstream.version>1.4.9</xstream.version>
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append/>
+        <!--suppress UnresolvedMavenProperty -->
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>
+        <!--suppress UnresolvedMavenProperty -->
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
     </properties>
     <!--
@@ -600,7 +602,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.5.0</version>
+                    <version>1.6.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -624,9 +626,7 @@
                         <failOnError>false</failOnError>
                         <show>protected</show>
                         <skip>false</skip>
-                        <additionalparam>
-                            -Xdoclint:none
-                        </additionalparam>
+                        <doclint>none</doclint>
                         <outputDirectory>${project.build.directory}</outputDirectory>
                     </configuration>
                 </plugin>
@@ -850,8 +850,6 @@
                                         <headerLocation>lpgl-header-check.txt</headerLocation>
                                         <consoleOutput>true</consoleOutput>
                                         <failsOnError>true</failsOnError>
-                                        <linkXRef>false</linkXRef>
-                                        <aggregate>true</aggregate>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -868,8 +866,6 @@
                                         <includes>src/**/*.xml, pom.xml</includes>
                                         <consoleOutput>true</consoleOutput>
                                         <failsOnError>true</failsOnError>
-                                        <linkXRef>false</linkXRef>
-                                        <aggregate>true</aggregate>
                                     </configuration>
                                 </execution>
                             </executions>
@@ -880,7 +876,6 @@
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
-                                <aggregate>true</aggregate>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             </configuration>
                         </plugin>
