@@ -84,7 +84,8 @@ public class TransformVisitorXmlTest {
         .withBinding(FilterType.class)
         .forElement(FilterType::getSpatialOps)
         .withBinding(DistanceBufferType.class)
-        .verifyExpressionOrAny(DistanceBufferType::getExpressionOrAny)
+        .verifyDistanceBuffer()
+        .withDistance(123.45)
         .withData("anyGeo", "WKT()");
   }
 
