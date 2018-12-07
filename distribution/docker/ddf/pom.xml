@@ -27,6 +27,7 @@
     <name>DDF :: Distribution :: Docker :: DDF</name>
 
     <properties>
+        <!-- Set the version of the codice/ddf-base docker image to build on top of here -->
         <docker.ddf.base.version>2.14-alpine</docker.ddf.base.version>
     </properties>
 
@@ -36,6 +37,9 @@
             <artifactId>ddf</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+            <!-- Exclude all transitives of the ddf distribution.
+              This ensures that extra files are not sent to the docker daemon
+              as part of the build context. -->
             <exclusions>
                 <exclusion>
                   <groupId>*</groupId>
@@ -47,6 +51,9 @@
 
     <profiles>
         <profile>
+            <!-- The docker profile activates automatically on linux systems
+              otherwise docker builds will be skipped. This will be removed in the future 
+              once testing has been done on running docker builds cross-platform. -->
             <id>docker</id>
             <activation>
                 <os>
