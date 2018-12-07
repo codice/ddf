@@ -13,6 +13,7 @@
  */
 package ddf.platform.resource.bundle.locator;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -38,7 +39,7 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
 
   @Override
   public ResourceBundle getBundle(String baseName, Locale locale) throws IOException {
-    File resourceBundleDir = resourceBundleBaseDir;
+    File resourceBundleDir = Paths.get(resourceBundleBaseDir.toString(), baseName).toFile();
     URL[] urls = {resourceBundleDir.toURI().toURL()};
 
     try (URLClassLoader loader =
@@ -48,7 +49,8 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
     }
   }
 
-  public void setResourceBundleBaseDir(String resourceBundleBaseDir) {
+  @VisibleForTesting
+  void setResourceBundleBaseDir(String resourceBundleBaseDir) {
     this.resourceBundleBaseDir = Paths.get(resourceBundleBaseDir).toFile();
   }
 }
