@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XPathHelperTest {
@@ -101,6 +102,46 @@ public class XPathHelperTest {
       assertEquals(6, nodeList.getLength());
     } catch (Exception e1) {
       LOGGER.error("Exception thrown during testXPathHelper_WithXmlFile", e1);
+    }
+  }
+
+  @Test
+  public void testXPathHelperPrintAttributeNode() throws Exception {
+    try {
+      String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
+
+      XPathHelper xHelper = new XPathHelper(xmlString);
+      Node node =
+          (Node)
+              xHelper.evaluate(
+                  "//ddms:publisher/@ICISM:classification",
+                  XPathConstants.NODE,
+                  new MockNamespaceResolver());
+      String printNode = XPathHelper.print(node);
+      LOGGER.debug("testXPathHelperPrintAttributeNode() - string value = {}", printNode);
+      assertEquals("U", printNode);
+    } catch (Exception e1) {
+      LOGGER.error("Exception thrown during testXPathHelperPrintAttributeNode()", e1);
+    }
+  }
+
+  @Test
+  public void testXPathHelperPrintElementNode() throws Exception {
+    try {
+      String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
+
+      XPathHelper xHelper = new XPathHelper(xmlString);
+      Node node =
+          (Node)
+              xHelper.evaluate(
+                  "//ddms:publisher/ddms:Organization/ddms:name/text()",
+                  XPathConstants.NODE,
+                  new MockNamespaceResolver());
+      String printNode = XPathHelper.print(node);
+      LOGGER.debug("testXPathHelperPrintElementNode() - string value = {}", printNode);
+      assertEquals("American Forces Press Service", printNode);
+    } catch (Exception e1) {
+      LOGGER.error("Exception thrown during testXPathHelperPrintElementNode()", e1);
     }
   }
 
