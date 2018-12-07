@@ -128,7 +128,7 @@ module.exports = Marionette.LayoutView.extend({
               {
                 title: 'Some fields need your attention',
                 message: 'Search form title cannot be blank.',
-                type: 'error'
+                type: 'error',
               },
               2500
             )
@@ -146,8 +146,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  getQueryAsQueryTemplate: function (collection, id) {
-    debugger
+  getQueryAsQueryTemplate: function(collection, id) {
     const formModel = collection.get(id) || new SearchFormModel()
     const formParameters = this.editor.currentView.serializeTemplateParameters()
     let filterTree = cql.simplify(formParameters.filterTree || {})
@@ -172,7 +171,7 @@ module.exports = Marionette.LayoutView.extend({
       querySettings: filterSettings,
     }
   },
-  createUsingPut: function (data) {
+  createUsingPut: function(data) {
     let loadingView = new LoadingView()
     let _this = this
     let _user = user
@@ -217,12 +216,12 @@ module.exports = Marionette.LayoutView.extend({
         loadingView.remove()
       })
   },
-  saveTemplateToBackend: function (collection, id) {
-    const json = JSON.stringify(this.getQueryAsQueryTemplate(collection, id))
-    collection.create(json)
-    // this.createUsingPut(json)
+  saveTemplateToBackend: function(collection, id) {
+    const json = this.getQueryAsQueryTemplate(collection, id)
+    this.model.set(json)
+    json.id ? this.model.save() : collection.create(json)
   },
-  navigateToForms: function () {
+  navigateToForms: function() {
     const fragment = `forms`
     wreqr.vent.trigger('router:navigate', {
       fragment,

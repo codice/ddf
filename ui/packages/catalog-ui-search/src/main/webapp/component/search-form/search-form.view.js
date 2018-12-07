@@ -22,6 +22,7 @@ const SearchFormInteractionsDropdownView = require('../dropdown/search-form-inte
 const wreqr = require('../../exports/wreqr.js')
 const Router = require('../router/router.js')
 const announcement = require('../announcement')
+const Common = require('../../js/Common.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -34,6 +35,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   events: {
     click: 'changeView',
+  },
+  modelEvents: {
+    change: 'render',
   },
   regions: {
     searchFormActions: '.choice-actions',
@@ -58,6 +62,12 @@ module.exports = Marionette.LayoutView.extend({
     ) {
       this.$el.addClass('is-static')
     } else {
+      if (typeof this.model.get('createdOn') === 'number') {
+        var utcSeconds = this.model.get('createdOn') / 1000
+        var d = new Date(0)
+        d.setUTCSeconds(utcSeconds)
+        this.model.set('createdOn', Common.getMomentDate(d))
+      }
       if (!this.options.hideInteractionMenu) {
         this.searchFormActions.show(
           new SearchFormInteractionsDropdownView({
@@ -80,7 +90,7 @@ module.exports = Marionette.LayoutView.extend({
         this.options.queryModel.set({
           type: 'new-form',
           associatedFormModel: this.model,
-          title: this.model.get('name'),
+          title: this.model.get('title'),
           filterTree: this.model.get('filterTemplate'),
         })
         if (oldType === 'new-form') {
@@ -114,7 +124,7 @@ module.exports = Marionette.LayoutView.extend({
                 title: 'Error',
                 message:
                   'You have read-only permission on search form ' +
-                  this.model.get('name') +
+                  this.model.get('title') +
                   '.',
                 type: 'error',
               },
@@ -124,7 +134,7 @@ module.exports = Marionette.LayoutView.extend({
           }
 
           this.model.set({
-            title: this.model.get('name'),
+            title: this.model.get('title'),
             filterTree: this.model.get('filterTemplate'),
             id: this.model.get('id'),
             accessGroups: this.model.get('accessGroups'),
@@ -144,7 +154,7 @@ module.exports = Marionette.LayoutView.extend({
           }
           this.options.queryModel.set({
             type: 'custom',
-            title: this.model.get('name'),
+            title: this.model.get('title'),
             filterTree: this.model.get('filterTemplate'),
             src:
               (this.model.get('querySettings') &&

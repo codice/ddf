@@ -66,7 +66,9 @@ module.exports = Marionette.LayoutView.extend({
       this.model.get('filterTree') !== undefined
     ) {
       this.queryAdvanced.currentView.deserialize(
-        cql.simplify(JSON.parse(this.model.get('filterTree')))
+        typeof this.model.get('filterTree') === 'string'
+          ? JSON.parse(this.model.get('filterTree'))
+          : this.model.get('filterTree')
       )
     } else if (this.options.isAdd) {
       this.queryAdvanced.currentView.deserialize(cql.read("anyText ILIKE '%'"))

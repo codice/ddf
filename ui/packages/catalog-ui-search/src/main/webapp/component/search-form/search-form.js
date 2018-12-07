@@ -11,22 +11,24 @@
  **/
 /*global require*/
 var Backbone = require('backbone')
+const user = require('../singletons/user-instance.js')
 
 module.exports = Backbone.Model.extend({
-  defaults: {
-    name: 'A Search Form',
-    title: 'A Search Form',
-    description: '',
-    createdBy: 'admin',
-    owner: 'admin',
-    createdOn: '',
-    type: 'custom',
-    id: undefined,
-    filterTemplate: '{"property":"anyText","value":"","type":"ILIKE"}',
-    descriptors: [],
-    accessIndividuals: [],
-    accessGroups: [],
-    accessAdministrators: [],
-    querySettings: {},
+  defaults() {
+    return {
+      title: 'A Search Form',
+      description: '',
+      createdBy: user.getEmail(),
+      owner: user.getEmail(),
+      createdOn: '',
+      type: 'custom',
+      id: undefined,
+      filterTemplate: '{"property":"anyText","value":"","type":"ILIKE"}',
+      descriptors: [],
+      accessIndividuals: [],
+      accessGroups: [],
+      accessAdministrators: [],
+      querySettings: {},
+    }
   },
 })

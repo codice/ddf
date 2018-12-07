@@ -174,7 +174,7 @@ public class SearchFormsApplication implements SparkApplication {
         GSON::toJson);
 
     put(
-        "/forms/query",
+        "/forms/query/:id",
         APPLICATION_JSON,
         (req, res) ->
             runWhenNotGuest(
@@ -329,8 +329,13 @@ public class SearchFormsApplication implements SparkApplication {
         return ImmutableMap.of(RESP_MSG, "Successfully updated");
       }
     }
-    catalogFramework.create(new CreateRequestImpl(metacard));
-    return ImmutableMap.of(RESP_MSG, "Successfully created");
+    Metacard metacard1 =
+        catalogFramework.create(new CreateRequestImpl(metacard)).getCreatedMetacards().get(0);
+    return ImmutableMap.of(
+        "id",
+        metacard1.getAttribute("id").getValue(),
+        "createdOn",
+        metacard1.getAttribute("created").getValue());
   }
 
   private Metacard getMetacardIfExistsOrNull(String id)

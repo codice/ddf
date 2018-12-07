@@ -118,7 +118,7 @@ module.exports = Marionette.ItemView.extend({
           } else {
             const defaults = {
               type: 'custom',
-              title: template.name,
+              title: template.title,
               filterTree: template.filterTemplate,
               src: (template.querySettings && template.querySettings.src) || '',
               federation:
@@ -145,7 +145,7 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.messageNotifier(
       'Success',
-      `\"${this.model.get('name')}\" Saved As Default Query Form`,
+      `\"${this.model.get('title')}\" Saved As Default Query Form`,
       'success'
     )
   },
@@ -179,7 +179,7 @@ module.exports = Marionette.ItemView.extend({
   handleEdit: function() {
     if (this.model.get('type') === 'custom') {
       this.model.set({
-        title: this.model.get('name'),
+        title: this.model.get('title'),
         filterTree: this.model.get('filterTemplate'),
         id: this.model.get('id'),
         accessGroups: this.model.get('accessGroups'),
@@ -196,7 +196,7 @@ module.exports = Marionette.ItemView.extend({
     } else if (this.model.get('type') === 'result') {
       this.model.set({
         type: 'result',
-        title: this.model.get('name'),
+        title: this.model.get('title'),
         formId: this.model.get('id'),
         accessGroups: this.model.get('accessGroups'),
         accessIndividuals: this.model.get('accessIndividuals'),
