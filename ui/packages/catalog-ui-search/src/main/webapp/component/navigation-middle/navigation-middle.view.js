@@ -17,32 +17,26 @@ var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 const properties = require('properties')
 import * as React from 'react'
-import { IntlProvider, FormattedMessage } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 
 module.exports = Marionette.LayoutView.extend({
+  getLabel() {
+    const { i18n, text } = this.options
+
+    if (i18n) {
+      const { id, defaultMessage } = this.options
+      return <FormattedMessage id={id} defaultMessage={defaultMessage} />
+    }
+
+    return text
+  },
   template(props) {
-    return (
-      <div className={props.menuClass}>
-        <IntlProvider locale={navigator.language}>
-          <FormattedMessage
-            id="sourcesKeyword"
-            defaultMessage={props.menuText}
-          />
-        </IntlProvider>
-      </div>
-    )
+    return <div className={props.menuClass}>{this.getLabel()}</div>
   },
   tagName: CustomElements.register('navigation-middle'),
   serializeData: function() {
-    /**
-     * In order to support different locales in the future, this manual approach for keyword replacement
-     * will need to include some sort of contextual key so that this text can be internationalized.
-     */
-    const menuText = properties.i18n[this.options.text] || this.options.text
-
     return {
       menuClass: this.options.classes,
-      menuText: menuText,
     }
   },
 })

@@ -25,7 +25,7 @@ var sources = require('../singletons/sources-instance.js')
 const plugin = require('plugins/navigator')
 const $ = require('jquery')
 import * as React from 'react'
-import { IntlProvider, FormattedMessage } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 
 const visitFragment = fragment =>
   wreqr.vent.trigger('router:navigate', {
@@ -70,13 +70,7 @@ module.exports = plugin(
               data-fragment="sources"
             >
               <span className="fa fa-cloud" />
-              <IntlProvider locale={navigator.language}>
-                <FormattedMessage
-                  id="sourcesKeyword"
-                  defaultMessage={`{sources}`}
-                  values={{ sources: properties.i18n['Sources'] }}
-                />
-              </IntlProvider>
+              <FormattedMessage id="sources.title" defaultMessage="Sources" />
               <span className="sources-indicator fa fa-bolt" />
             </button>
             <button

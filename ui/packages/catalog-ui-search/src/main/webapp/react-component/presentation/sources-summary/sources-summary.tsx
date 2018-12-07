@@ -13,7 +13,6 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import { FormattedMessage } from 'react-intl'
-const properties = require('properties')
 
 const Root = styled<{}, 'div'>('div')`
   display: block;
@@ -32,16 +31,15 @@ export default hot(module)(({ amountDown }: Props) => {
   return (
     <Root>
       {amountDown == 0 ? (
-        <p>All {properties.i18n.sources} are currently up</p>
+        <FormattedMessage
+          id="sources.available"
+          defaultMessage="All sources are currently up"
+        />
       ) : (
         <FormattedMessage
-          id="sourceAvailability"
-          defaultMessage={`${amountDown} {amountDown, plural, one {{source} is} other {{sources} are}} currently down`}
-          values={{
-            amountDown: amountDown,
-            source: properties.i18n['source'],
-            sources: properties.i18n['sources'],
-          }}
+          id="sources.unavailable"
+          defaultMessage="{amountDown} {amountDown, plural, one {source is} other {sources are}} currently down"
+          values={{ amountDown }}
         />
       )}
     </Root>

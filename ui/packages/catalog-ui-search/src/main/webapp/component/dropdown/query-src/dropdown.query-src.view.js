@@ -21,7 +21,7 @@ const ComponentView = require('../../query-src/query-src.view.js')
 const sources = require('../../singletons/sources-instance.js')
 const properties = require('../../../js/properties.js')
 import * as React from 'react'
-import { IntlProvider, FormattedMessage } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 
 const renderSourceLocal = source => (
   <React.Fragment>
@@ -36,10 +36,10 @@ const renderSourceLocal = source => (
 const renderSourceAvailable = source => (
   <React.Fragment>
     <span className={'text-src ' + (source.available ? 'is-available' : '')}>
-      {source.available ? (
+      {!source.available ? (
         <i class="fa fa-exclamation-triangle src-availability" />
       ) : null}
-      renderSourceLocal(source)
+      {renderSourceLocal(source)}
       <span class="src-title">{source.id}</span>
     </span>
   </React.Fragment>
@@ -50,25 +50,16 @@ module.exports = DropdownView.extend({
     return (
       <div>
         <div className="dropdown-label">
-          <IntlProvider locale={navigator.language}>
-            <FormattedMessage
-              id="sourcesKeyword"
-              defaultMessage={`{sources}`}
-              values={{ sources: properties.i18n['Sources'] }}
-            />
-          </IntlProvider>
+          <FormattedMessage id="sources.title" defaultMessage="Sources" />
         </div>
         <div className="dropdown-container">
           <div className="dropdown-text is-input">
             {props.enterprise ? (
               <span className="text-src is-available">
-                <IntlProvider locale={navigator.language}>
-                  <FormattedMessage
-                    id="sourcesKeyword"
-                    defaultMessage={`All {sources}`}
-                    values={{ sources: properties.i18n['Sources'] }}
-                  />
-                </IntlProvider>
+                <FormattedMessage
+                  id="sources.options.all"
+                  defaultMessage="All Sources"
+                />
               </span>
             ) : (
               props.sources.map(source => renderSourceAvailable(source))

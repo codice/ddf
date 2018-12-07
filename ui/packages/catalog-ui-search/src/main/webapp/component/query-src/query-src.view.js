@@ -20,7 +20,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const sources = require('../singletons/sources-instance.js')
 const properties = require('properties')
 import React from 'react'
-import { IntlProvider, FormattedMessage } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 
 module.exports = Marionette.ItemView.extend({
   template(props) {
@@ -28,13 +28,10 @@ module.exports = Marionette.ItemView.extend({
       <React.Fragment key={Math.random()}>
         <div className="choice is-all is-available">
           <span className="choice-text">
-            <IntlProvider locale={navigator.language}>
-              <FormattedMessage
-                id="sourcesKeyword"
-                defaultMessage={`All {sources}`}
-                values={{ sources: properties.i18n['Sources'] }}
-              />
-            </IntlProvider>
+            <FormattedMessage
+              id="sources.options.all"
+              defaultMessage="All Sources"
+            />
           </span>
           <span className="choice-selected fa fa-check" />
         </div>

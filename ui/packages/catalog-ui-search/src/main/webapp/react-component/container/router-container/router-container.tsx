@@ -15,6 +15,10 @@ import Router from '../../presentation/router'
 import Navigation from '../navigation-container'
 import ThemeContainer from '../theme-container'
 
+import { IntlProvider } from 'react-intl'
+
+const properties = require('properties')
+
 type Props = {
   navigation: React.ReactNode
   routeDefinitions: object
@@ -28,11 +32,17 @@ class RouterContainer extends React.Component<Props, {}> {
     const navigation = <Navigation {...this.props} />
     return (
       <ThemeContainer>
-        <Router
-          nav={navigation}
-          routeDefinitions={this.props.routeDefinitions}
-          {...this.props}
-        />
+        <React.Fragment>
+          <IntlProvider locale={navigator.language} messages={properties.i18n}>
+            <React.Fragment>
+              <Router
+                nav={navigation}
+                routeDefinitions={this.props.routeDefinitions}
+                {...this.props}
+              />
+            </React.Fragment>
+          </IntlProvider>
+        </React.Fragment>
       </ThemeContainer>
     )
   }
