@@ -60,6 +60,8 @@ public class XPathHelper {
 
   private final TransformerFactory tf;
 
+  private static final String XML_DECLARATION = "xml-declaration";
+
   /** The XML document being worked on by this XPathHelper utility class. */
   private Document document;
 
@@ -156,12 +158,20 @@ public class XPathHelper {
       StringWriter stringOut = new StringWriter();
 
       DOMImplementationLS domImpl = (DOMImplementationLS) document.getImplementation();
-      LSSerializer serializer = domImpl.createLSSerializer();
-      LSOutput lsOut = domImpl.createLSOutput();
-      lsOut.setEncoding(encoding);
-      lsOut.setCharacterStream(stringOut);
+      LSSerializer lsSerializer = domImpl.createLSSerializer();
+      lsSerializer.getDomConfig().setParameter(XML_DECLARATION, false);
+      LSOutput lsout = domImpl.createLSOutput();
+      lsout.setEncoding(encoding);
+      lsout.setCharacterStream(stringOut);
 
-      serializer.write(n, lsOut);
+      /*DDF-4382 Serializer doesn't serialize attribute nodes - attribute node's child node is a
+      NODE.TEXT_NODE version with the same information. If Attribute node, get the child
+      NODE.TEXT_NODE version and then use that node for serialization*/
+      if (n.getNodeType() == Node.ATTRIBUTE_NODE && n.hasChildNodes()) {
+        n = n.getFirstChild();
+      }
+
+      lsSerializer.write(n, lsout);
 
       return stringOut.toString();
     } catch (DOMException | LSException e) {
