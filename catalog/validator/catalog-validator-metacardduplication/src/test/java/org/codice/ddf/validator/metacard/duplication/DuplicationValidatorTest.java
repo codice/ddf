@@ -107,17 +107,18 @@ public class DuplicationValidatorTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testValidateMetacardNullInput() {
+  public void testValidateMetacardNullInput() throws StopProcessingException {
     validator.validateMetacard(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testValidateNullInput() throws ValidationException {
+  public void testValidateNullInput() throws ValidationException, StopProcessingException {
     validator.validate(null);
   }
 
   @Test
-  public void testValidateMetacardNullConfiguration() throws ValidationException {
+  public void testValidateMetacardNullConfiguration()
+      throws ValidationException, StopProcessingException {
 
     validator.setWarnOnDuplicateAttributes(null);
     validator.setErrorOnDuplicateAttributes(null);
@@ -127,7 +128,7 @@ public class DuplicationValidatorTest {
   }
 
   @Test
-  public void testValidateNullConfiguration() throws ValidationException {
+  public void testValidateNullConfiguration() throws ValidationException, StopProcessingException {
 
     validator.setWarnOnDuplicateAttributes(null);
     validator.setErrorOnDuplicateAttributes(null);
@@ -137,7 +138,8 @@ public class DuplicationValidatorTest {
   }
 
   @Test
-  public void testValidateMetacardBlankConfiguration() throws ValidationException {
+  public void testValidateMetacardBlankConfiguration()
+      throws ValidationException, StopProcessingException {
 
     validator.setWarnOnDuplicateAttributes(new String[0]);
     validator.setErrorOnDuplicateAttributes(new String[0]);
@@ -147,7 +149,7 @@ public class DuplicationValidatorTest {
   }
 
   @Test
-  public void testValidateBlankConfiguration() throws ValidationException {
+  public void testValidateBlankConfiguration() throws ValidationException, StopProcessingException {
 
     validator.setWarnOnDuplicateAttributes(new String[0]);
     validator.setErrorOnDuplicateAttributes(new String[0]);
@@ -157,7 +159,7 @@ public class DuplicationValidatorTest {
   }
 
   @Test
-  public void testValidateMetacardWithValidationErrorAndWarning() {
+  public void testValidateMetacardWithValidationErrorAndWarning() throws StopProcessingException {
 
     String[] checksumAttribute = {Metacard.CHECKSUM};
     String[] idAttribute = {Metacard.ID};
@@ -187,7 +189,8 @@ public class DuplicationValidatorTest {
   }
 
   @Test
-  public void testValidateWithValidationErrorAndWarning() throws ValidationException {
+  public void testValidateWithValidationErrorAndWarning()
+      throws ValidationException, StopProcessingException {
 
     String[] checksumAttribute = {Metacard.CHECKSUM};
     String[] idAttribute = {Metacard.ID};
@@ -243,5 +246,54 @@ public class DuplicationValidatorTest {
                   violation.getAttributes(), is(new HashSet<>(Arrays.asList(tagAttributes))));
               assertThat(violation.getMessage(), containsString(Metacard.TAGS));
             });
+  }
+
+  @Test
+  public void testRejectDuplicate() throws ValidationException, StopProcessingException {
+    String[] checksumAttribute = {Metacard.CHECKSUM};
+    StopProcessingException expectedException = null;
+
+    validator.setRejectOnDuplicateAttributes(checksumAttribute);
+
+    try {
+      validator.checkForDuplicates(testMetacard);
+    } catch (StopProcessingException e) {
+      expectedException = e;
+    }
+
+    assertThat(expectedException, is(not(nullValue())));
+
+    // do more assertions
+
+  }
+
+  @Test
+  public void testCheckForDuplicatesWithValidationErrorAndWarning()
+      throws ValidationException, StopProcessingException {
+    String[] checksumAttribute = {Metacard.CHECKSUM};
+    String[] idAttribute = {Metacard.ID};
+    ValidationException expectedException = null;
+
+    validator.setWarnOnDuplicateAttributes(checksumAttribute);
+    validator.setErrorOnDuplicateAttributes(idAttribute);
+    validator.checkForDuplicates(testMetacard);
+
+    // do assertions
+
+  }
+
+  @Test
+  public void testProcessCreate() throws ValidationException, StopProcessingException {
+    // to do
+  }
+
+  @Test
+  public void testProcessUpdate() throws ValidationException, StopProcessingException {
+    // to do
+  }
+
+  @Test
+  public void testProcessDelete() throws ValidationException, StopProcessingException {
+    // to do
   }
 }

@@ -23,19 +23,21 @@
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <property name="warnOnDuplicateAttributes">
-            <array>
-                <value>checksum</value>
-            </array>
+            <array/>
         </property>
         <property name="errorOnDuplicateAttributes">
             <array/>
+        </property>
+        <property name="rejectOnDuplicateAttributes">
+            <array>
+                <value>checksum</value>
+            </array>
         </property>
     </bean>
 
     <service ref="duplicateValidator">
         <interfaces>
-            <value>ddf.catalog.validation.MetacardValidator</value>
-            <value>ddf.catalog.validation.ReportingMetacardValidator</value>
+            <value>ddf.catalog.plugin.PreIngestPlugin</value>
         </interfaces>
     </service>
 
