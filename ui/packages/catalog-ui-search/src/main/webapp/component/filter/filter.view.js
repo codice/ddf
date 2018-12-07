@@ -45,10 +45,9 @@ const generatePropertyJSON = (value, type, comparator) => {
     propertyJSON.type = 'LOCATION'
   }
 
-  propertyJSON.placeholder =
-    propertyJSON.type === 'DATE'
-      ? 'DD MMM YYYY HH:mm:ss.SSS'
-      : 'Use * for wildcard.'
+  if (propertyJSON.type === 'STRING') {
+    propertyJSON.placeholder = 'Use * for wildcard.'
+  }
 
   if (comparator === 'NEAR') {
     propertyJSON.type = 'NEAR'
@@ -227,8 +226,12 @@ module.exports = Marionette.LayoutView.extend({
   toggleLocationClass: function(toggle) {
     this.$el.toggleClass('is-location', toggle)
   },
+  toggleDateClass: function(toggle) {
+    this.$el.toggleClass('is-date', toggle)
+  },
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
+    this.toggleDateClass(false)
     var currentComparator = this.model.get('comparator')
     switch (propertyJSON.type) {
       case 'LOCATION':
@@ -245,6 +248,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
+        this.toggleDateClass(true)
         break
       case 'BOOLEAN':
         if (['='].indexOf(currentComparator) === -1) {
