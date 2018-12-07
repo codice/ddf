@@ -51,7 +51,7 @@ const renderLink = (
   link: Link
 ) => (
   <div
-    key={`key-${link.parent}-${link.icon}`}
+    key={`key-${link.parent}-${link.linkText}`}
     className={`metacard-interaction ${link.parent}`}
     data-help={link.dataHelp}
     onClick={() => withCloseDropdown(link.actionHandler)}

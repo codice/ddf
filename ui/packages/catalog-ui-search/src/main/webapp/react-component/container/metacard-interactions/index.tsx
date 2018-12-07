@@ -45,7 +45,7 @@ type Props = {
   el: {} | any
   extensions: {} | any
   handleShare?: () => void
-  categories: Array<{}>
+  categories: { [key: string]: Array<{}> }
 } & WithBackboneProps
 
 type El = {
@@ -239,14 +239,15 @@ const appendCssIfNeeded = (model: Model, el: El) => {
   el.toggleClass('has-location', hasLocation(model))
 }
 
-const isDownloadable = (model: Model) =>
-  model.find((result: Result) =>
+const isDownloadable = (model: Model): boolean =>
+  model.some((result: Result) =>
     result
       .get('metacard')
       .get('properties')
       .get('resource-download-url')
   )
-const isRouted = () => router && router.toJSON().name === 'openMetacard'
+const isRouted = (): boolean =>
+  router && router.toJSON().name === 'openMetacard'
 const isBlacklisted = (model: Model): boolean => {
   const blacklist = user
     .get('user')
@@ -257,11 +258,11 @@ const isBlacklisted = (model: Model): boolean => {
       .get('metacard')
       .get('properties')
       .get('id')
-    return blacklist.get(id) || accum
+    return blacklist.get(id) !== undefined || accum
   }, false)
 }
 
-const isRemoteResourceCached = (model: Model) => {
+const isRemoteResourceCached = (model: Model): boolean => {
   if (!model) return false
 
   const modelJson = model.toJSON()
@@ -274,7 +275,7 @@ const isRemoteResourceCached = (model: Model) => {
   )
 }
 
-const hasLocation = (model: Model) => getGeoLocations(model).length > 0
+const hasLocation = (model: Model): boolean => getGeoLocations(model).length > 0
 
 const createAddRemoveRegion = (model: Model) =>
   PopoutView.createSimpleDropdown({
@@ -336,9 +337,14 @@ const defaultLinks = [
 
 const viewModelFromProps = (props: Props): ViewModel => {
   const defaultCategories = [{ name: 'default', items: defaultLinks }]
-  return ((props.categories && {
-    categories: [...defaultCategories, ...props.categories],
-  }) || { categories: defaultCategories }) as ViewModel
+
+  if (!props.categories) return { categories: defaultCategories } as ViewModel
+
+  const categories = Object.keys(props.categories).map(key => ({
+    name: key,
+    items: props.categories[key],
+  }))
+  return { categories: [...defaultCategories, ...categories] } as ViewModel
 }
 
 class MetacardInteractions extends React.Component<Props> {
