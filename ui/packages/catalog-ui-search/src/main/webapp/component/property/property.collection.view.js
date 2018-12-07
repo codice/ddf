@@ -287,14 +287,7 @@ module.exports = Marionette.CollectionView.extend(
     },
     /* Generates a collection view containing all properties from the metacard intersection */
     generateCollectionView: function(metacards) {
-      let propertyIntersection = this.determinePropertyIntersection(metacards)
-
-      if (
-        Array.isArray(propertyIntersection) &&
-        propertyIntersection.length === 0
-      ) {
-        propertyIntersection = metacards.flatMap(card => Object.keys(card))
-      }
+      const propertyIntersection = this.determinePropertyIntersection(metacards)
 
       const propertyArray = propertyIntersection.map(prop => ({
         enumFiltering: true,
@@ -399,7 +392,6 @@ module.exports = Marionette.CollectionView.extend(
           return false
         }
       })
-
       return propertyIntersection
     },
   }

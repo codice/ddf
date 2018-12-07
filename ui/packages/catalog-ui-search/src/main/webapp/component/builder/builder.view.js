@@ -13,6 +13,7 @@
  *
  **/
 /*global define*/
+import fetch from '../../react-component/utils/fetch'
 
 const Marionette = require('marionette')
 const _ = require('underscore')
@@ -26,20 +27,22 @@ const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 const announcement = require('../announcement/index.jsx')
 
-let availableTypes
+const AVAILABLE_TYPES_ATTRIBUTE = 'availableTypes'
+const SELECTED_AVAILABLE_TYPE_ATTRIBUTE = 'selectedAvailableType'
 
-const ajaxCall = $.get({
-  url: './internal/builder/availabletypes',
-}).then(response => {
-  availableTypes = response
-})
+let retrievedAvailableTypes
 
 const announceMissingDefinition = definition =>
   announcement.announce({
-    title: 'Missing Metacard Definition',
-    message: `Could not find metacard definition "${definition}". Please check the metacard type whitelist.`,
+    title: 'Missing Type Definition',
+    message: `Could not find type definition "${definition}". Please contact the system administrator to add this type to the whitelist.`,
     type: 'warn',
   })
+
+const retrieveAvailableTypes = async () => {
+  const response = await fetch('./internal/builder/availabletypes')
+  return await response.json()
+}
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -57,20 +60,20 @@ module.exports = Marionette.LayoutView.extend({
     builderAvailableType:
       '> .builder-select-available-type > .builder-select-available-type-dropdown',
   },
-  initialize(options) {
-    if (!availableTypes) {
-      const loadingview = new LoadingCompanionView()
-      ajaxCall.then(() => {
-        loadingview.remove()
-        this.model.set('availableTypes', availableTypes)
-        this.handleAvailableTypes()
-      })
+  async initialize(options) {
+    if (!retrievedAvailableTypes) {
+      LoadingCompanionView.beginLoading(this)
+      retrievedAvailableTypes = await retrieveAvailableTypes()
+      LoadingCompanionView.endLoading(this)
+
+      this.model.set(AVAILABLE_TYPES_ATTRIBUTE, retrievedAvailableTypes)
+      this.handleAvailableTypes()
     } else {
-      this.model.set('availableTypes', availableTypes)
+      this.model.set(AVAILABLE_TYPES_ATTRIBUTE, retrievedAvailableTypes)
     }
   },
   isSingleAvailableType() {
-    const availableTypes = this.model.get('availableTypes')
+    const availableTypes = this.model.get(AVAILABLE_TYPES_ATTRIBUTE)
     return (
       availableTypes &&
       availableTypes.availabletypes &&
@@ -78,24 +81,22 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   isMultipleAvailableTypes() {
-    const availableTypes = this.model.get('availableTypes')
+    const availableTypes = this.model.get(AVAILABLE_TYPES_ATTRIBUTE)
     return (
       availableTypes &&
       availableTypes.availabletypes &&
       availableTypes.availabletypes.length > 1
     )
   },
-  showMetacardTypeSelection() {
-    const enums = this.model
-      .get('availableTypes')
-      .availabletypes.map(availableType => ({
-        label: availableType.metacardType,
-        value: availableType.metacardType,
-      }))
+  showMetacardTypeSelection(availableTypes) {
+    const enums = availableTypes.map(availableType => ({
+      label: availableType.metacardType,
+      value: availableType.metacardType,
+    }))
 
     const availableTypesModel = new Property({
       label: 'Select An Available Metacard Type',
-      value: [this.model.get('availableTypes').availabletypes[0].metacardType],
+      value: [availableTypes[0].metacardType],
       enum: enums,
       id: 'Select Metacard Type',
     })
@@ -113,6 +114,9 @@ module.exports = Marionette.LayoutView.extend({
       'change:value',
       this.handleSelectedAvailableType
     )
+
+    //This selects the first element in the drop-down
+    this.handleSelectedAvailableType(this, Object.values(availableTypes)[0])
 
     this.$el.addClass('is-selecting-available-types')
   },
@@ -133,42 +137,48 @@ module.exports = Marionette.LayoutView.extend({
         { availabletypes: [] }
       )
 
-    this.model.set('availableTypes', allTypes)
+    this.model.set(AVAILABLE_TYPES_ATTRIBUTE, allTypes)
 
-    this.showMetacardTypeSelection()
+    this.showMetacardTypeSelection(allTypes.availabletypes)
   },
   handleAvailableTypes() {
     if (this.isSingleAvailableType()) {
-      this.model.set(
-        'selectedAvailableType',
-        this.model.get('availableTypes').availabletypes[0]
-      )
-      this.showMetacardBuilder()
+      const selectedAvailableType = this.model.get(AVAILABLE_TYPES_ATTRIBUTE)
+        .availabletypes[0]
+      this.model.set(SELECTED_AVAILABLE_TYPE_ATTRIBUTE, selectedAvailableType)
+      this.showMetacardBuilder(selectedAvailableType)
     } else if (this.isMultipleAvailableTypes()) {
-      this.showMetacardTypeSelection()
+      this.showMetacardTypeSelection(
+        this.model.get(AVAILABLE_TYPES_ATTRIBUTE).availabletypes
+      )
     } else {
       this.handleSystemTypes()
     }
   },
-  handleSelectedAvailableType() {
-    this.$el.removeClass('is-selecting-available-types')
+  handleSelectedAvailableType(reference, selectedAvailableTypeList) {
+    const selectedAvailableType =
+      selectedAvailableTypeList && Array.isArray(selectedAvailableTypeList)
+        ? selectedAvailableTypeList[0]
+        : selectedAvailableTypeList
 
-    const selectedAvailableType = this.builderAvailableType.currentView.model.getValue()[0]
+    const availableTypes = this.model.get(AVAILABLE_TYPES_ATTRIBUTE)
+      .availabletypes
 
-    const availableTypes = this.model.get('availableTypes').availabletypes
+    const selection = availableTypes.find(type => {
+      const selectedType =
+        (selectedAvailableType && selectedAvailableType.metacardType) ||
+        selectedAvailableType
+      return type.metacardType === selectedType
+    })
 
-    this.model.set(
-      'selectedAvailableType',
-      availableTypes.filter(
-        availableType => availableType.metacardType === selectedAvailableType
-      )[0]
-    )
+    if (!selection) {
+      return
+    }
+    this.model.set(SELECTED_AVAILABLE_TYPE_ATTRIBUTE, selection)
 
-    this.showMetacardBuilder()
+    this.showMetacardBuilder(selection)
   },
-  showMetacardBuilder() {
-    const selectedAvailableType = this.model.get('selectedAvailableType')
-
+  showMetacardBuilder(selectedAvailableType) {
     const metacardDefinition =
       metacardDefinitions.metacardDefinitions[
         selectedAvailableType.metacardType
@@ -230,7 +240,8 @@ module.exports = Marionette.LayoutView.extend({
   save() {
     this.$el.removeClass('is-editing')
 
-    const metacardType = this.model.get('selectedAvailableType').metacardType
+    const metacardType = this.model.get(SELECTED_AVAILABLE_TYPE_ATTRIBUTE)
+      .metacardType
 
     const metacardDefinition =
       metacardDefinitions.metacardDefinitions[metacardType]
