@@ -23,7 +23,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>DDF :: Catalog :: Validator :: Metacard WKT</name>
-    <groupId>org.codice.ddf.validator</groupId>
     <artifactId>catalog-validator-metacardwkt</artifactId>
     <packaging>bundle</packaging>
 
