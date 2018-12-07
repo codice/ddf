@@ -15,7 +15,7 @@ package ddf.catalog.resource.download;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -79,7 +79,7 @@ public class ReliableResourceDownloaderTest {
 
   private ReliableResourceDownloaderConfig downloaderConfig;
 
-  private DownloadsStatusEventPublisher mockPublisher = mock(DownloadsStatusEventPublisher.class);
+  private DownloadsStatusEventPublisher mockPublisher;
 
   private Metacard mockMetacard;
 
@@ -92,6 +92,7 @@ public class ReliableResourceDownloaderTest {
 
   @Before
   public void setUp() {
+    mockPublisher = mock(DownloadsStatusEventPublisher.class);
     downloaderConfig = new ReliableResourceDownloaderConfig();
     downloaderConfig.setEventListener(mock(DownloadsStatusEventListener.class));
     downloaderConfig.setEventPublisher(mockPublisher);
@@ -118,13 +119,13 @@ public class ReliableResourceDownloaderTest {
             downloaderConfig, new AtomicBoolean(), DOWNLOAD_ID, mockResponse, getMockRetriever());
 
     downloader.setupDownload(metacard, new DownloadStatusInfoImpl());
-    verify(mockCache, never()).addPendingCacheEntry(any(ReliableResource.class));
+    verify(mockCache, never()).addPendingCacheEntry(nullable(ReliableResource.class));
   }
 
   @Test
   public void testIOExceptionDuringRead() throws Exception {
     ResourceResponse mockResponse = getMockResourceResponse(mockStream);
-    when(mockStream.read(any(byte[].class))).thenThrow(new IOException());
+    when(mockStream.read(nullable(byte[].class))).thenThrow(new IOException());
 
     int retries = 5;
     downloaderConfig.setMaxRetryAttempts(retries);
@@ -137,9 +138,9 @@ public class ReliableResourceDownloaderTest {
 
     verify(mockPublisher, times(retries))
         .postRetrievalStatus(
-            any(ResourceResponse.class),
+            nullable(ResourceResponse.class),
             eq(ProductRetrievalStatus.RETRYING),
-            any(Metacard.class),
+            nullable(Metacard.class),
             anyString(),
             anyLong(),
             eq(DOWNLOAD_ID));
@@ -164,16 +165,16 @@ public class ReliableResourceDownloaderTest {
     downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
 
     FileOutputStream mockFos = mock(FileOutputStream.class);
-    doThrow(new IOException()).when(mockFos).write(any(byte[].class), anyInt(), anyInt());
+    doThrow(new IOException()).when(mockFos).write(nullable(byte[].class), anyInt(), anyInt());
 
     downloader.setFileOutputStream(mockFos);
     downloader.run();
 
     verify(mockPublisher, times(1))
         .postRetrievalStatus(
-            any(ResourceResponse.class),
+            nullable(ResourceResponse.class),
             eq(ProductRetrievalStatus.RETRYING),
-            any(Metacard.class),
+            nullable(Metacard.class),
             anyString(),
             anyLong(),
             eq(DOWNLOAD_ID));
@@ -211,9 +212,9 @@ public class ReliableResourceDownloaderTest {
 
     verify(mockPublisher, times(1))
         .postRetrievalStatus(
-            any(ResourceResponse.class),
+            nullable(ResourceResponse.class),
             eq(ProductRetrievalStatus.CANCELLED),
-            any(Metacard.class),
+            nullable(Metacard.class),
             anyString(),
             anyLong(),
             eq(DOWNLOAD_ID));
@@ -226,7 +227,7 @@ public class ReliableResourceDownloaderTest {
     ResourceResponse mockResponse = getMockResourceResponse(mockStream);
 
     ResourceRetriever mockResourceRetriever = mock(ResourceRetriever.class);
-    when(mockResourceRetriever.retrieveResource(any(Byte.class))).thenReturn(mockResponse);
+    when(mockResourceRetriever.retrieveResource(nullable(Long.class))).thenReturn(mockResponse);
 
     ReliableResourceStatus resourceStatus =
         new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED, 0L);
@@ -250,11 +251,11 @@ public class ReliableResourceDownloaderTest {
         .doReturn(mockCallable)
         .when(downloader)
         .constructReliableResourceCallable(
-            any(InputStream.class),
-            any(CountingOutputStream.class),
-            any(FileOutputStream.class),
+            nullable(InputStream.class),
+            nullable(CountingOutputStream.class),
+            nullable(FileOutputStream.class),
             anyInt(),
-            any(Object.class));
+            nullable(Object.class));
     doThrow(new CancellationException()).when(downloader).constructResourceRetrievalMonitor();
 
     downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
@@ -262,11 +263,11 @@ public class ReliableResourceDownloaderTest {
 
     verify(mockPublisher, times(retries))
         .postRetrievalStatus(
-            any(ResourceResponse.class),
+            nullable(ResourceResponse.class),
             eq(ProductRetrievalStatus.RETRYING),
-            any(Metacard.class),
-            anyString(),
-            anyLong(),
+            nullable(Metacard.class),
+            nullable(String.class),
+            nullable(Long.class),
             eq(DOWNLOAD_ID));
   }
 

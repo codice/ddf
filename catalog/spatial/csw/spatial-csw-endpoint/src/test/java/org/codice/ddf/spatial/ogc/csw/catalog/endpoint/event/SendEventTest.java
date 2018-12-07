@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
@@ -132,7 +133,8 @@ public class SendEventTest {
     AccessPlugin accessPlugin = mock(AccessPlugin.class);
     accessPlugins.add(accessPlugin);
     when(mockCxfClientFactory.getWebClient()).thenReturn(webclient);
-    when(webclient.invoke(anyString(), any(QueryResponse.class))).thenReturn(response);
+    when(webclient.invoke(nullable(String.class), nullable(QueryResponse.class)))
+        .thenReturn(response);
     when(response.getHeaders()).thenReturn(headers);
     when(accessPlugin.processPostQuery(any(QueryResponse.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);

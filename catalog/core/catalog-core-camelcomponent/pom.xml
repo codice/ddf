@@ -127,6 +127,17 @@
             <artifactId>tika-bundle</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAF Dependencies -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -184,7 +195,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>4_MB</maxArtifactSize>
+                                    <maxArtifactSize>10_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

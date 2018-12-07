@@ -273,7 +273,9 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <finalName>packages</finalName>
-                    <descriptor>packages.xml</descriptor>
+                    <descriptors>
+                        <descriptor>packages.xml</descriptor>
+                    </descriptors>
                 </configuration>
                 <executions>
                     <execution>

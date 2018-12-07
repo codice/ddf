@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UndeliveredMessagesTest {
@@ -169,12 +169,7 @@ public class UndeliveredMessagesTest {
   }
 
   @Test
-  public void testDeleteInvalidMessage()
-      throws MBeanException, InstanceNotFoundException, ReflectionException {
-    when(mockMBeanServer.invoke(
-            objectName, REMOVE_MESSAGE, new Object[] {1L}, new String[] {long.class.getName()}))
-        .thenThrow(MBeanException.class);
-
+  public void testDeleteInvalidMessage() {
     long messageDeleted =
         undeliveredMessagesService.deleteMessages(ADDRESS, QUEUE, Collections.singletonList("2"));
 
@@ -208,12 +203,7 @@ public class UndeliveredMessagesTest {
   }
 
   @Test
-  public void testRetryInvalidMessage()
-      throws MBeanException, InstanceNotFoundException, ReflectionException {
-    when(mockMBeanServer.invoke(
-            objectName, RETRY_MESSAGE, new Object[] {1L}, new String[] {long.class.getName()}))
-        .thenThrow(InstanceNotFoundException.class);
-
+  public void testRetryInvalidMessage() {
     long messageResent =
         undeliveredMessagesService.resendMessages(ADDRESS, QUEUE, Collections.singletonList("2"));
 

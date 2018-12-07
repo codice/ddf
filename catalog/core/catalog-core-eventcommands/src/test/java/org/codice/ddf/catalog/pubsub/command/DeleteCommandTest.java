@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.pubsub.command;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -103,7 +104,8 @@ public class DeleteCommandTest {
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(
+            eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), nullable(String.class)))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -159,7 +161,8 @@ public class DeleteCommandTest {
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(
+            eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), nullable(String.class)))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -220,7 +223,8 @@ public class DeleteCommandTest {
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(
+            eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), nullable(String.class)))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -285,7 +289,8 @@ public class DeleteCommandTest {
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(
+            eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), nullable(String.class)))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(eq(MY_SUBSCRIPTION_ID))).thenReturn(true);
@@ -344,7 +349,8 @@ public class DeleteCommandTest {
 
     Subscriber mockSubscriber = mock(Subscriber.class);
     ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-    when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(
+            eq(DeleteCommand.SUBSCRIBER_SERVICE_PID), nullable(String.class)))
         .thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
     when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
     when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);

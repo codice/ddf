@@ -16,7 +16,7 @@ package ddf.security.service.impl.cas;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +40,7 @@ public class CASTokenRequestHandlerTest {
   public void testDefaultAddress() throws SecurityServiceException {
     // setup mock classes
     AttributePrincipal principal = mock(AttributePrincipal.class);
-    when(principal.getProxyTicketFor(anyString())).thenReturn(SAMPLE_TICKET);
+    when(principal.getProxyTicketFor(nullable(String.class))).thenReturn(SAMPLE_TICKET);
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getUserPrincipal()).thenReturn(principal);
 

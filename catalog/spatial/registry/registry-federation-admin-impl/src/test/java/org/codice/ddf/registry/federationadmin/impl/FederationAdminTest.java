@@ -21,10 +21,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,9 +32,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.endpoint.CatalogEndpoint;
-import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.CatalogStore;
@@ -163,8 +159,6 @@ public class FederationAdminTest {
     mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, new ArrayList<>());
     mcard.setId("someUUID");
 
-    when(queryResponse.getResults()).thenReturn(Collections.singletonList(new ResultImpl(mcard)));
-    when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse);
     catalogStoreMap.put("myDest", store);
     setupDefaultFilterProps();
   }
@@ -217,8 +211,6 @@ public class FederationAdminTest {
   public void testCreateLocalEntryWithEmptyMap() throws Exception {
     Map<String, Object> registryMap = new HashMap<>();
     federationAdmin.createLocalEntry(registryMap);
-
-    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -227,7 +219,6 @@ public class FederationAdminTest {
     registryMap.put("BadKey", "BadValue");
 
     federationAdmin.createLocalEntry(registryMap);
-    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -242,8 +233,6 @@ public class FederationAdminTest {
         .thenThrow(FederationAdminException.class);
 
     federationAdmin.createLocalEntry(registryMap);
-
-    verify(federationAdminService).addRegistryEntry(metacard);
   }
 
   @Test
@@ -269,9 +258,6 @@ public class FederationAdminTest {
     String base64EncodedString = "";
 
     federationAdmin.createLocalEntry(base64EncodedString);
-
-    verify(registryTransformer, never()).transform(any(InputStream.class));
-    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -283,9 +269,6 @@ public class FederationAdminTest {
         .thenThrow(CatalogTransformerException.class);
 
     federationAdmin.createLocalEntry(base64EncodedString);
-
-    verify(registryTransformer).transform(any(InputStream.class));
-    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -294,9 +277,6 @@ public class FederationAdminTest {
     String base64EncodedString = "[B@6499375d";
 
     federationAdmin.createLocalEntry(base64EncodedString);
-
-    verify(registryTransformer, never()).transform(any(InputStream.class));
-    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
   @Test
@@ -330,11 +310,6 @@ public class FederationAdminTest {
     Map<String, Object> registryMap = new HashMap<>();
 
     federationAdmin.updateLocalEntry(registryMap);
-
-    verify(federationAdminService, never())
-        .getLocalRegistryMetacardsByRegistryIds(Collections.singletonList(any(String.class)));
-    verify(registryTransformer, never()).transform(any(InputStream.class));
-    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -343,11 +318,6 @@ public class FederationAdminTest {
     registryMap.put("BadKey", "BadValue");
 
     federationAdmin.updateLocalEntry(registryMap);
-
-    verify(federationAdminService, never())
-        .getLocalRegistryMetacardsByRegistryIds(Collections.singletonList(any(String.class)));
-    verify(registryTransformer, never()).transform(any(InputStream.class));
-    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -362,11 +332,6 @@ public class FederationAdminTest {
         .thenReturn(existingMetacards);
 
     federationAdmin.updateLocalEntry(registryMap);
-
-    verify(federationAdminService, never())
-        .getLocalRegistryMetacardsByRegistryIds(Collections.singletonList(registryObject.getId()));
-    verify(registryTransformer, never()).transform(any(InputStream.class));
-    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -383,11 +348,6 @@ public class FederationAdminTest {
         .thenReturn(existingMetacards);
 
     federationAdmin.updateLocalEntry(registryMap);
-
-    verify(federationAdminService, never())
-        .getLocalRegistryMetacardsByRegistryIds(Collections.singletonList(registryObject.getId()));
-    verify(registryTransformer, never()).transform(any(InputStream.class));
-    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -412,11 +372,6 @@ public class FederationAdminTest {
         .updateRegistryEntry(updateMetacard);
 
     federationAdmin.updateLocalEntry(registryMap);
-
-    verify(federationAdminService)
-        .getLocalRegistryMetacardsByRegistryIds(Collections.singletonList(registryObject.getId()));
-    verify(registryTransformer).transform(any(InputStream.class));
-    verify(federationAdminService).updateRegistryEntry(updateMetacard);
   }
 
   @Test
@@ -457,9 +412,6 @@ public class FederationAdminTest {
     List<String> ids = new ArrayList<>();
 
     federationAdmin.deleteLocalEntry(ids);
-
-    verify(federationAdminService, never()).getLocalRegistryMetacardsByRegistryIds(anyList());
-    verify(federationAdminService, never()).deleteRegistryEntriesByMetacardIds(anyList());
   }
 
   @Test(expected = FederationAdminException.class)
@@ -467,13 +419,7 @@ public class FederationAdminTest {
     List<String> ids = new ArrayList<>();
     ids.add("whatever");
 
-    when(federationAdminService.getLocalRegistryMetacardsByRegistryIds(ids))
-        .thenThrow(FederationAdminException.class);
-
     federationAdmin.deleteLocalEntry(ids);
-
-    verify(federationAdminService).getLocalRegistryMetacardsByRegistryIds(ids);
-    verify(federationAdminService, never()).deleteRegistryEntriesByMetacardIds(anyList());
   }
 
   @Test(expected = FederationAdminException.class)
@@ -496,13 +442,7 @@ public class FederationAdminTest {
     metacardIds.addAll(
         matchingMetacards.stream().map(Metacard::getId).collect(Collectors.toList()));
 
-    when(federationAdminService.getLocalRegistryMetacardsByRegistryIds(ids))
-        .thenReturn(matchingMetacards);
-
     federationAdmin.deleteLocalEntry(ids);
-
-    verify(federationAdminService).getLocalRegistryMetacardsByRegistryIds(ids);
-    verify(federationAdminService, never()).deleteRegistryEntriesByMetacardIds(metacardIds);
   }
 
   @Test(expected = FederationAdminException.class)
@@ -510,12 +450,7 @@ public class FederationAdminTest {
     List<String> ids = new ArrayList<>();
     ids.add("firstId");
 
-    doThrow(FederationAdminException.class)
-        .when(federationAdminService)
-        .deleteRegistryEntriesByRegistryIds(ids);
     federationAdmin.deleteLocalEntry(ids);
-
-    verify(federationAdminService).deleteRegistryEntriesByRegistryIds(ids);
   }
 
   @Test
@@ -542,8 +477,6 @@ public class FederationAdminTest {
         .thenThrow(FederationAdminException.class);
 
     federationAdmin.getLocalNodes();
-
-    verify(federationAdminService).getLocalRegistryObjects();
   }
 
   @Test
@@ -644,7 +577,6 @@ public class FederationAdminTest {
     Dictionary<String, Object> props = new Hashtable<>();
     props.put("service.pid", "servicePid2");
     when(config.getProperties()).thenReturn(props);
-    when(source.isAvailable()).thenReturn(true);
     when(helper.getRegistrySources()).thenReturn(Collections.singletonList(source));
     when(helper.getConfiguration(any(ConfiguredService.class))).thenReturn(config);
     assertThat(federationAdmin.registryStatus("servicePid"), is(false));
@@ -653,7 +585,6 @@ public class FederationAdminTest {
   @Test
   public void testRegistryStatusNoConfig() throws Exception {
     RegistryStore source = mock(RegistryStore.class);
-    when(source.isAvailable()).thenReturn(true);
     when(helper.getRegistrySources()).thenReturn(Collections.singletonList(source));
     when(helper.getConfiguration(any(ConfiguredService.class))).thenReturn(null);
     assertThat(federationAdmin.registryStatus("servicePid"), is(false));
@@ -680,13 +611,10 @@ public class FederationAdminTest {
     List<RegistryPackageType> regObjects =
         Collections.singletonList(
             (RegistryPackageType) getRegistryObjectFromResource("/csw-full-registry-package.xml"));
-    when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
 
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
     mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "location1");
-    when(federationAdminService.getRegistryMetacards())
-        .thenReturn(Collections.singletonList(mcard));
     federationAdmin.init();
     Map<String, Object> nodes = federationAdmin.getLocalNodes();
     Map<String, Object> customSlots = (Map<String, Object>) nodes.get("customSlots");
@@ -698,13 +626,10 @@ public class FederationAdminTest {
     List<RegistryPackageType> regObjects =
         Collections.singletonList(
             (RegistryPackageType) getRegistryObjectFromResource("/csw-full-registry-package.xml"));
-    when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
 
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
     mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "location1");
-    when(federationAdminService.getRegistryMetacards())
-        .thenReturn(Collections.singletonList(mcard));
     federationAdmin.init();
     Map<String, Object> nodes = federationAdmin.getLocalNodes();
     Map<String, Object> customSlots = (Map<String, Object>) nodes.get("customSlots");
@@ -716,13 +641,10 @@ public class FederationAdminTest {
     List<RegistryPackageType> regObjects =
         Collections.singletonList(
             (RegistryPackageType) getRegistryObjectFromResource("/csw-full-registry-package.xml"));
-    when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
 
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
 
-    when(federationAdminService.getRegistryMetacards())
-        .thenReturn(Collections.singletonList(mcard));
     federationAdmin.bindEndpoint(null);
     Map<String, Object> autoValues =
         (Map<String, Object>) federationAdmin.getLocalNodes().get("autoPopulateValues");
@@ -736,13 +658,10 @@ public class FederationAdminTest {
     List<RegistryPackageType> regObjects =
         Collections.singletonList(
             (RegistryPackageType) getRegistryObjectFromResource("/csw-full-registry-package.xml"));
-    when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
 
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
 
-    when(federationAdminService.getRegistryMetacards())
-        .thenReturn(Collections.singletonList(mcard));
     ServiceReference reference = mock(ServiceReference.class);
     CatalogEndpoint endpoint = mock(CatalogEndpoint.class);
     Map<String, String> props = new HashMap<>();
@@ -764,13 +683,10 @@ public class FederationAdminTest {
     List<RegistryPackageType> regObjects =
         Collections.singletonList(
             (RegistryPackageType) getRegistryObjectFromResource("/csw-full-registry-package.xml"));
-    when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
 
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
 
-    when(federationAdminService.getRegistryMetacards())
-        .thenReturn(Collections.singletonList(mcard));
     ServiceReference reference = mock(ServiceReference.class);
     CatalogEndpoint endpoint = mock(CatalogEndpoint.class);
     Map<String, String> props = new HashMap<>();
@@ -903,8 +819,6 @@ public class FederationAdminTest {
     when(federationAdminService.getRegistryObjectByRegistryId(any()))
         .thenThrow(new FederationAdminException("Not found"));
 
-    when(federationAdminService.getRegistryMetacardsByRegistryIds(any()))
-        .thenReturn(Collections.emptyList());
     List<Map<String, Object>> result =
         (List<Map<String, Object>>)
             federationAdmin

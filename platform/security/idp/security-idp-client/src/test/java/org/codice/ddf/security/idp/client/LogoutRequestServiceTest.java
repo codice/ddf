@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
@@ -165,8 +166,9 @@ public class LogoutRequestServiceTest {
   @Test
   public void testSendLogoutRequestGetRedirectRequest() throws Exception {
     String encryptedNameIdWithTime = nameId + "\n" + time;
-    when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
-    when(logoutMessage.signSamlGetRequest(any(LogoutRequest.class), any(URI.class), anyString()))
+    when(encryptionService.decrypt(nullable(String.class))).thenReturn(nameId + "\n" + time);
+    when(logoutMessage.signSamlGetRequest(
+            nullable(LogoutRequest.class), nullable(URI.class), nullable(String.class)))
         .thenReturn(new URI(logoutUrl));
     Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
     assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -377,7 +379,8 @@ public class LogoutRequestServiceTest {
     doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString(), any());
     initializeLogutRequestService();
     insertLogoutRequest();
-    when(logoutMessage.signSamlGetResponse(any(LogoutRequest.class), any(URI.class), anyString()))
+    when(logoutMessage.signSamlGetResponse(
+            nullable(LogoutRequest.class), nullable(URI.class), nullable(String.class)))
         .thenReturn(new URI(redirectLogoutUrl));
     Response response =
         logoutRequestService.getLogoutRequest(
@@ -496,7 +499,8 @@ public class LogoutRequestServiceTest {
     doReturn(logoutRequest)
         .when(logoutMessage)
         .extractSamlLogoutRequest(eq(UNENCODED_SAML_REQUEST));
-    when(logoutMessage.signSamlGetResponse(any(LogoutRequest.class), any(URI.class), anyString()))
+    when(logoutMessage.signSamlGetResponse(
+            nullable(LogoutRequest.class), nullable(URI.class), nullable(String.class)))
         .thenReturn(new URI(redirectLogoutUrl));
     Response response =
         logoutRequestService.getLogoutRequest(

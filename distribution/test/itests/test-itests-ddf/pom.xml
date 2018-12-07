@@ -446,34 +446,34 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codice.acdebugger</groupId>
-                <artifactId>acdebugger-maven-plugin</artifactId>
-                <version>${acdebugger.version}</version>
-                <configuration>
-                    <skip>${skipTests}</skip>
-                    <remoteDebugging>${isDebugEnabled}</remoteDebugging>
-                    <host>localhost</host>
-                    <port>${acdebugger.port}</port>
-                    <wait>false</wait>
-                    <timeout>1</timeout>
-                    <reconnect>false</reconnect>
-                    <continuous>true</continuous>
-                    <admin>false</admin>
-                    <debug>true</debug>
-                    <service>false</service>
-                    <wait>true</wait>
-                    <fail>true</fail>
-                    <grant>false</grant>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codice.acdebugger</groupId>-->
+                <!--<artifactId>acdebugger-maven-plugin</artifactId>-->
+                <!--<version>${acdebugger.version}</version>-->
+                <!--<configuration>-->
+                    <!--<skip>${skipTests}</skip>-->
+                    <!--<remoteDebugging>${isDebugEnabled}</remoteDebugging>-->
+                    <!--<host>localhost</host>-->
+                    <!--<port>${acdebugger.port}</port>-->
+                    <!--<wait>false</wait>-->
+                    <!--<timeout>1</timeout>-->
+                    <!--<reconnect>false</reconnect>-->
+                    <!--<continuous>true</continuous>-->
+                    <!--<admin>false</admin>-->
+                    <!--<debug>true</debug>-->
+                    <!--<service>false</service>-->
+                    <!--<wait>true</wait>-->
+                    <!--<fail>true</fail>-->
+                    <!--<grant>false</grant>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>start</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>

@@ -24,7 +24,6 @@ import org.apache.karaf.bundle.core.internal.BundleServiceImpl;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.internal.service.FeaturesServiceImpl;
 import org.codice.ddf.admin.application.service.ApplicationService;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,12 +44,6 @@ public class AbstractProfileCommandTest {
     this.bundleService = mock(BundleServiceImpl.class);
 
     this.abstractProfileCommand = getCommand(applicationService, featuresService, bundleService);
-  }
-
-  @Test(expected = ApplicationServiceException.class)
-  public void testApplicationServiceFailure() throws Exception {
-    doThrow(ApplicationServiceException.class).when(applicationService).getApplication(anyString());
-    abstractProfileCommand.execute();
   }
 
   @Test(expected = ResolutionException.class)

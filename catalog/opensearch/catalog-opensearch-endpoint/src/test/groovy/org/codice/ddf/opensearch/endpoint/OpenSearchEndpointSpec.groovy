@@ -36,7 +36,7 @@ class OpenSearchEndpointSpec extends Specification {
     @Unroll
     def 'test parsing sort parameter "#sort"'() {
         given:
-        final sortBy
+        def sortBy
         final catalogFramework = Mock(CatalogFramework)
         final endpoint = new OpenSearchEndpoint(catalogFramework, Mock(FilterBuilder) {
             attribute(_) >> Mock(AttributeBuilder) {

@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -428,7 +429,7 @@ public class CswSubscriptionEndpointTest {
   public void testUpdateEvent() throws Exception {
 
     cswSubscriptionEndpoint.updateEvent(getRecordsResponse(2));
-    verify(eventProcessor).notifyUpdated(any(Metacard.class), any(Metacard.class));
+    verify(eventProcessor).notifyUpdated(any(Metacard.class), nullable(Metacard.class));
   }
 
   @Test

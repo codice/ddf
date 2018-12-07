@@ -254,7 +254,8 @@ public class CatalogServiceImplTest {
 
     LOGGER.debug(ToStringBuilder.reflectionToString(response));
 
-    ArgumentCaptor<CreateStorageRequest> captor = new ArgumentCaptor<>();
+    ArgumentCaptor<CreateStorageRequest> captor =
+        ArgumentCaptor.forClass(CreateStorageRequest.class);
     verify(framework, times(1)).create(captor.capture());
     assertThat(
         captor

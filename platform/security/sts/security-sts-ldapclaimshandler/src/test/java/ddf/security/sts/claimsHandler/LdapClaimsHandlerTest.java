@@ -101,9 +101,9 @@ public class LdapClaimsHandlerTest {
     AttributeMapLoader mockAttributeMapLoader = mock(AttributeMapLoader.class);
     when(mockAttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
     when(mockAttributeMapLoader.getUser(any(Principal.class)))
-        .then(i -> i.getArgumentAt(0, Principal.class).getName());
+        .then(i -> i.<Principal>getArgument(0).getName());
     when(mockAttributeMapLoader.getBaseDN(any(Principal.class), anyString(), eq(false)))
-        .then(i -> i.getArgumentAt(1, String.class));
+        .then(i -> i.getArgument(1));
     claimsHandler = spy(new LdapClaimsHandler(mockAttributeMapLoader));
     doReturn(mockBindRequest).when(claimsHandler).selectBindMethod();
     mockBindResult = mock(BindResult.class);
@@ -127,6 +127,7 @@ public class LdapClaimsHandlerTest {
     claimsHandler.setRealm(REALM);
     claimsHandler.setKdcAddress(KCD);
     claimsHandler.setUserBaseDN(USER_BASE_DN);
+    claimsHandler.setBindUserDN(BIND_USER_DN);
     claims = new ClaimCollection();
     Claim claim = new Claim();
     claim.setClaimType(new URI(NAME_IDENTIFIER_CLAIM_URI));

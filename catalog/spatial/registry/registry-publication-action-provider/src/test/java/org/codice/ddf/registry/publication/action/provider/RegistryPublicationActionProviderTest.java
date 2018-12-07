@@ -138,7 +138,6 @@ public class RegistryPublicationActionProviderTest {
   @Test
   public void testGetActionMcardForSameRegistry() throws Exception {
     when(store.isPushAllowed()).thenReturn(true);
-    when(store.getId()).thenReturn("store1");
     when(store.getRegistryId()).thenReturn("regId1");
     List<Action> actions = publicationActionProvider.getActions(getRegistryMetacard("regId1"));
     assertThat(actions.size(), is(0));
@@ -147,8 +146,6 @@ public class RegistryPublicationActionProviderTest {
   @Test
   public void testGetActionMcardForNoPushRegistry() throws Exception {
     when(store.isPushAllowed()).thenReturn(false);
-    when(store.getId()).thenReturn("store1");
-    when(store.getRegistryId()).thenReturn("regId2");
     List<Action> actions = publicationActionProvider.getActions(getRegistryMetacard("regId1"));
     assertThat(actions.size(), is(0));
   }

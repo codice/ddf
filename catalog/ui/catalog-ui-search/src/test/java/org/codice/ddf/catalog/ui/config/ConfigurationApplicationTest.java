@@ -106,15 +106,14 @@ public class ConfigurationApplicationTest {
   public void testContentTypeMappings() throws Exception {
     // Setup
     configurationApplication.setTypeNameMapping(
-        (String[])
-            Arrays.asList(
-                    "foo=bar,foo=baz",
-                    "foo=qux",
-                    "alpha=beta, alpha = omega ",
-                    "=,=,",
-                    "bad,input",
-                    "name=,=type")
-                .toArray());
+        Arrays.asList(
+                "foo=bar,foo=baz",
+                "foo=qux",
+                "alpha=beta, alpha = omega ",
+                "=,=,",
+                "bad,input",
+                "name=,=type")
+            .toArray(new String[6]));
 
     // Verify
     assertThat(configurationApplication.getTypeNameMapping().size(), is(2));

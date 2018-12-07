@@ -390,7 +390,7 @@ public final class CswConstants {
 
   public static final String CSW_CONSTRAINT = "csw:Constraint";
 
-  public static final String CSW_CQL_TEXT = "ogc:CqlText";
+  public static final String CSW_CQL_TEXT = "csw:CqlText";
 
   // Exception Codes
   public static final String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";

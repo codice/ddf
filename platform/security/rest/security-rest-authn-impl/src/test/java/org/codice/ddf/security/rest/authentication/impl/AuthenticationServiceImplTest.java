@@ -160,7 +160,7 @@ public class AuthenticationServiceImplTest {
         .thenReturn(subject);
   }
 
-  private class UsernamePasswordTokenMatcher extends ArgumentMatcher<UPAuthenticationToken> {
+  private class UsernamePasswordTokenMatcher implements ArgumentMatcher<UPAuthenticationToken> {
 
     private UPAuthenticationToken left;
 
@@ -169,15 +169,18 @@ public class AuthenticationServiceImplTest {
     }
 
     @Override
-    public boolean matches(Object object) {
-      if (object instanceof UPAuthenticationToken) {
-        UPAuthenticationToken right = (UPAuthenticationToken) object;
-        return left.getUsername().equals(right.getUsername())
-            && left.getPassword().equals(right.getPassword())
-            && left.getRealm().equals(right.getRealm());
+    public boolean matches(UPAuthenticationToken token) {
+      if (left == null) {
+        return token == null;
       }
 
-      return false;
+      if (token == null) {
+        return false;
+      }
+
+      return left.getUsername().equals(token.getUsername())
+          && left.getPassword().equals(token.getPassword())
+          && left.getRealm().equals(token.getRealm());
     }
   }
 }

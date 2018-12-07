@@ -15,6 +15,7 @@ package org.codice.ddf.registry.rest.endpoint;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anySet;
@@ -227,9 +228,9 @@ public class RegistryRestEndpointTest {
   public void testSummaryReportWithIOException() throws FederationAdminException, IOException {
     List<Metacard> metacardList = mock(List.class);
 
-    when(federationAdminService.getRegistryMetacardsByRegistryIds(anyList()))
+    when(federationAdminService.getRegistryMetacardsByRegistryIds(nullable(List.class)))
         .thenReturn(metacardList);
-    when(registryReportBuilder.getSummaryHtmlFromMetacard(any(Metacard.class)))
+    when(registryReportBuilder.getSummaryHtmlFromMetacard(nullable(Metacard.class)))
         .thenThrow(new IOException());
 
     Response response = restEndpoint.viewSummaryInfoHtml("metacardId");

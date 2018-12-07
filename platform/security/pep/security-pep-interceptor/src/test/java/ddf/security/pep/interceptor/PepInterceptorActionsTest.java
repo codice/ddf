@@ -79,14 +79,12 @@ public class PepInterceptorActionsTest {
     when(mockBOI.getExtensor(SoapOperationInfo.class)).thenReturn(null);
 
     doAnswer(
-            new Answer<Boolean>() {
-              @Override
-              public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                CollectionPermission perm = (CollectionPermission) invocation.getArguments()[0];
-                assertEquals("urn:catalog:query:query-port:searchRequest", perm.getAction());
-                return true;
-              }
-            })
+            (Answer<Boolean>)
+                invocation -> {
+                  CollectionPermission perm = (CollectionPermission) invocation.getArguments()[0];
+                  assertEquals("urn:catalog:query:query-port:searchRequest", perm.getAction());
+                  return true;
+                })
         .when(mockSubject)
         .isPermitted(isA(CollectionPermission.class));
 

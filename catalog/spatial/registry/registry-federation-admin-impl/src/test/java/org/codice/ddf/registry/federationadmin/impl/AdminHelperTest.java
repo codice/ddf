@@ -15,7 +15,7 @@ package org.codice.ddf.registry.federationadmin.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,7 +55,8 @@ public class AdminHelperTest {
     props.put("registryEntryIds", filters);
 
     when(config.getProperties()).thenReturn(props);
-    when(felixConfigAdmin.getConfiguration(anyString(), anyString())).thenReturn(config);
+    when(felixConfigAdmin.getConfiguration(nullable(String.class), nullable(String.class)))
+        .thenReturn(config);
     Map<String, Object> properties = helper.getFilterProperties();
     assertThat(properties.size(), equalTo(3));
     assertThat(properties.get(FederationAdmin.FILTER_INVERTED), equalTo(true));
@@ -67,7 +68,8 @@ public class AdminHelperTest {
   public void testFilterPropertiesNullProperties() throws Exception {
     Configuration config = mock(Configuration.class);
     when(config.getProperties()).thenReturn(null);
-    when(felixConfigAdmin.getConfiguration(anyString(), anyString())).thenReturn(config);
+    when(felixConfigAdmin.getConfiguration(nullable(String.class), nullable(String.class)))
+        .thenReturn(config);
     Map<String, Object> properties = helper.getFilterProperties();
     assertThat(properties.get(FederationAdmin.FILTER_INVERTED), equalTo(false));
     assertThat(properties.get(FederationAdmin.CLIENT_MODE), equalTo(false));
@@ -79,7 +81,8 @@ public class AdminHelperTest {
     ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
     Configuration config = mock(Configuration.class);
     when(config.getProperties()).thenReturn(null);
-    when(felixConfigAdmin.getConfiguration(anyString(), anyString())).thenReturn(config);
+    when(felixConfigAdmin.getConfiguration(nullable(String.class), nullable(String.class)))
+        .thenReturn(config);
     helper.setFilterInverted(true);
     verify(config).update(captor.capture());
     assertThat(captor.getValue().get("whiteList"), equalTo(true));

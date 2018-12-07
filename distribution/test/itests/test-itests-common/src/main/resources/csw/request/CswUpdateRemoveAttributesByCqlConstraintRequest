@@ -15,9 +15,9 @@ version="2.0.2"
       <csw:Name>location</csw:Name>
     </csw:RecordProperty>
     <csw:Constraint version="2.0.0">
-      <ogc:CqlText>
+      <csw:CqlText>
         title = 'Aliquam fermentum purus quis arcu'
-      </ogc:CqlText>
+      </csw:CqlText>
     </csw:Constraint>
   </csw:Update>
 </csw:Transaction>

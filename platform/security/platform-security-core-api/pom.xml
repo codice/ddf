@@ -154,6 +154,15 @@
             <artifactId>alerts</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAX-WS (Includes SOAP) -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-ri</artifactId>
+            <type>pom</type>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

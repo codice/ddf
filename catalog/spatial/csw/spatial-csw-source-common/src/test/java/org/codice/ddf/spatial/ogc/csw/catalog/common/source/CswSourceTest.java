@@ -23,12 +23,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -36,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.data.ContentType;
@@ -77,7 +77,9 @@ import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
@@ -1416,43 +1418,62 @@ public class CswSourceTest extends TestCswSourceBase {
 
     SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
     doReturn(csw).when(mockFactory).getClient();
-    doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
+    doReturn(csw).when(mockFactory).getClientForSubject(nullable(Subject.class));
 
     ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+    when(clientFactoryFactory.getSecureCxfClientFactory(nullable(String.class), any(Class.class)))
         .thenReturn(mockFactory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean()))
         .thenReturn(mockFactory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(PropertyResolver.class)))
         .thenReturn(mockFactory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString()))
+            nullable(Integer.class),
+            nullable(Integer.class)))
         .thenReturn(mockFactory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
             anyBoolean(),
             anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString(),
-            anyString()))
+            nullable(Integer.class),
+            nullable(Integer.class),
+            nullable(String.class),
+            nullable(String.class)))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(Integer.class),
+            nullable(Integer.class),
+            nullable(String.class),
+            nullable(String.class),
+            nullable(String.class)))
         .thenReturn(mockFactory);
 
     CswSourceStub cswSource =

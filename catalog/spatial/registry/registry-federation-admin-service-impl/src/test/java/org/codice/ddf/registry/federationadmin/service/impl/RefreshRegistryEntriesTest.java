@@ -115,13 +115,10 @@ public class RefreshRegistryEntriesTest {
   @Test
   public void testCreateRemoteEntriesSourceUnavailable() throws Exception {
     Metacard remoteMetacard = getPopulatedTestRegistryMetacard();
-    when(federationAdminService.getInternalRegistryMetacards()).thenReturn(Collections.emptyList());
     SourceResponse response =
         new SourceResponseImpl(null, Collections.singletonList(new ResultImpl(remoteMetacard)));
-    when(registryStore.query(any(QueryRequest.class))).thenReturn(response);
 
     refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
-    when(registryStore.isPullAllowed()).thenReturn(true);
     when(registryStore.isAvailable()).thenReturn(false);
 
     refreshRegistryEntries.refreshRegistryEntries();
@@ -136,7 +133,6 @@ public class RefreshRegistryEntriesTest {
     when(federationAdminService.getInternalRegistryMetacards()).thenReturn(Collections.emptyList());
     SourceResponse response =
         new SourceResponseImpl(null, Collections.singletonList(new ResultImpl(remoteMetacard)));
-    when(registryStore.query(any(QueryRequest.class))).thenReturn(response);
 
     refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
     when(registryStore.isPullAllowed()).thenReturn(false);
@@ -201,7 +197,6 @@ public class RefreshRegistryEntriesTest {
         .thenThrow(new UnsupportedQueryException("query error"));
 
     when(registryStore.isPullAllowed()).thenReturn(true);
-    when(registryStore.getId()).thenReturn(TEST_ID);
     when(registryStore.getRegistryId()).thenReturn("remoteRegId");
     when(registryStore.isAvailable()).thenReturn(true);
     refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
@@ -295,7 +290,6 @@ public class RefreshRegistryEntriesTest {
     when(registryStore2.isPullAllowed()).thenReturn(true);
     SourceResponse response =
         new SourceResponseImpl(null, Collections.singletonList(new ResultImpl(mcard)));
-    when(registryStore2.query(any(QueryRequest.class))).thenReturn(response);
     when(registryStore.query(any(QueryRequest.class))).thenThrow(new UnsupportedQueryException());
     when(registryStore.isAvailable()).thenReturn(true);
     when(registryStore.isPullAllowed()).thenReturn(true);

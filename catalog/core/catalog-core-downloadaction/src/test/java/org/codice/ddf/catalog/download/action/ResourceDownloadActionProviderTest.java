@@ -22,7 +22,6 @@ import ddf.action.Action;
 import ddf.catalog.data.Metacard;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -89,7 +88,7 @@ public class ResourceDownloadActionProviderTest {
 
   @Test
   public void getMetacardActionUrl() throws Exception {
-    setupMockBasicMetacard(REMOTE_SITE_NAME, REMOTE_RESOURCE_URI, DEFAULT_METACARD_ID);
+    when(mockMetacard.getId()).thenReturn(DEFAULT_METACARD_ID);
     URL url = actionProvider.getMetacardActionUrl(REMOTE_SITE_NAME, mockMetacard);
 
     assertThat(url, is(getUrl(DEFAULT_METACARD_ID)));
@@ -98,7 +97,7 @@ public class ResourceDownloadActionProviderTest {
   @Test
   public void getMetacardActionUrlEncodedAmpersand() throws Exception {
     String metacardId = "abc&def";
-    setupMockBasicMetacard(LOCAL_SITE_NAME, REMOTE_RESOURCE_URI, metacardId);
+    when(mockMetacard.getId()).thenReturn(metacardId);
     URL url = actionProvider.getMetacardActionUrl(REMOTE_SITE_NAME, mockMetacard);
     assertThat(url, is(getUrl(metacardId)));
   }
@@ -108,7 +107,7 @@ public class ResourceDownloadActionProviderTest {
     String invalidHost = "23^&*#";
     System.setProperty(SystemBaseUrl.EXTERNAL_HOST, invalidHost);
 
-    setupMockBasicMetacard(REMOTE_SITE_NAME, REMOTE_RESOURCE_URI, DEFAULT_METACARD_ID);
+    when(mockMetacard.getId()).thenReturn(DEFAULT_METACARD_ID);
     actionProvider.getMetacardActionUrl(REMOTE_SITE_NAME, mockMetacard);
   }
 
@@ -118,16 +117,5 @@ public class ResourceDownloadActionProviderTest {
         String.format(
             "%s?source=%s&metacard=%s", CONTEXT_PATH, REMOTE_SITE_NAME, encodedMetacardId);
     return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
-  }
-
-  private void setupMockBasicMetacard(String sourceId, String resourceUri, String metacardId)
-      throws URISyntaxException {
-    when(mockMetacard.getId()).thenReturn(metacardId);
-    if (sourceId != null) {
-      when(mockMetacard.getSourceId()).thenReturn(sourceId);
-    }
-    if (resourceUri != null) {
-      when(mockMetacard.getResourceURI()).thenReturn(new URI(resourceUri));
-    }
   }
 }

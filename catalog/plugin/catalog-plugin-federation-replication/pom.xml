@@ -45,6 +45,13 @@
             <artifactId>catalog-core-api-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAXB Dependencies -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

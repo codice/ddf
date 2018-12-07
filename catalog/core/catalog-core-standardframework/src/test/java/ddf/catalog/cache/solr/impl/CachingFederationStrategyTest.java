@@ -79,7 +79,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opengis.filter.sort.SortBy;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -244,8 +244,6 @@ public class CachingFederationStrategyTest {
 
     long numHits = 5;
 
-    when(mockResponse.getHits()).thenReturn(numHits);
-
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getHits(), is((long) 0));
@@ -258,7 +256,6 @@ public class CachingFederationStrategyTest {
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
 
     Source mockSource = mock(Source.class);
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
     QueryResponse federateResponse = strategy.federate(Arrays.asList(mockSource), fedQueryRequest);
 
@@ -543,9 +540,6 @@ public class CachingFederationStrategyTest {
 
     MetacardImpl newMetacard = mock(MetacardImpl.class);
 
-    when(newMetacard.getId()).thenReturn("new metacard");
-    when(newMetacard.getSourceId()).thenReturn("new source ID");
-
     UpdateImpl updateImpl = mock(UpdateImpl.class);
     when(updateImpl.getNewMetacard()).thenReturn(newMetacard);
 
@@ -758,7 +752,6 @@ public class CachingFederationStrategyTest {
     List<Source> sources = new ArrayList<>();
     sources.add(null);
     QueryRequest fedQueryRequest = mock(QueryRequest.class);
-    when(fedQueryRequest.getQuery()).thenReturn(mockQuery);
     strategy.federate(sources, fedQueryRequest);
   }
 

@@ -46,8 +46,8 @@ public class CsvQueryResponseTransformerTest {
 
   private static final Object[][] ATTRIBUTE_DATA = {
     {"attribute1", "value1", BasicTypes.STRING_TYPE},
-    {"attribute2", new Integer(101), BasicTypes.INTEGER_TYPE},
-    {"attribute3", new Double(3.14159), BasicTypes.DOUBLE_TYPE},
+    {"attribute2", 101, BasicTypes.INTEGER_TYPE},
+    {"attribute3", 3.14159, BasicTypes.DOUBLE_TYPE},
     {"attribute4", "value,4", BasicTypes.STRING_TYPE},
     {"attribute5", "value5", BasicTypes.STRING_TYPE},
     {"attribute6", "OBJECT", BasicTypes.OBJECT_TYPE},
@@ -181,7 +181,7 @@ public class CsvQueryResponseTransformerTest {
 
     Answer<Serializable> answer =
         invocation -> {
-          String key = invocation.getArgumentAt(0, String.class);
+          String key = invocation.getArgument(0);
           return METACARD_DATA_MAP.get(key);
         };
 

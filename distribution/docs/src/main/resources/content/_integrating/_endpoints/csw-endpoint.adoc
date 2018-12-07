@@ -1969,9 +1969,10 @@ The following example shows how the newly inserted record could be updated to mo
             <csw:Value></csw:Value>
         </csw:RecordProperty>
         <csw:Constraint version="2.0.0">
-            <ogc:CqlText>
+            <csw:CqlText>
                 title = 'Aliquam fermentum purus quis arcu'
-            </ogc:CqlText>
+            </csw:CqlText>
+            </csw:CqlText>
         </csw:Constraint>
     </csw:Update>
 </csw:Transaction>
@@ -2040,9 +2041,9 @@ The following example shows a delete operation specifying a CQL constraint to de
     xmlns:ogc="http://www.opengis.net/ogc">
     <csw:Delete typeName="csw:Record" handle="something">
         <csw:Constraint version="2.0.0">
-            <ogc:CqlText>
+            <csw:CqlText>
                  title = 'Aliquam fermentum purus quis arcu'
-            </ogc:CqlText>
+            </csw:CqlText>
         </csw:Constraint>
     </csw:Delete>
 </csw:Transaction>

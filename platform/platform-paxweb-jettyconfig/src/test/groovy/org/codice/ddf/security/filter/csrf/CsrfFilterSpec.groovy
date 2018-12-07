@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.filter.csrf
 
-import com.google.common.collect.ImmutableList
 import com.google.common.net.HttpHeaders
 import org.codice.ddf.pax.web.jetty.CsrfFilter
 import org.codice.ddf.platform.filter.AuthenticationException
@@ -235,12 +234,12 @@ class CsrfFilterSpec extends Specification {
         request.getMethod() >> method
         request.getQueryString() >> param
 
-        csrfFilter.setWhiteListContexts(ImmutableList.of('/services/admin/config[/]?$=GET',
-                '/services/content[/]?$=GET',
-                '/services/catalog/query[/]?$=GET',
-                '/services/catalog/sources.*=GET',
-                '/services/idp/login[/]?$=POST',
-                '/services/saml/sso[/]?$=POST'))
+        csrfFilter.setWhiteListContexts(['/services/admin/config[/]?$=GET',
+                                         '/services/content[/]?$=GET',
+                                         '/services/catalog/query[/]?$=GET',
+                                         '/services/catalog/sources.*=GET',
+                                         '/services/idp/login[/]?$=POST',
+                                         '/services/saml/sso[/]?$=POST'])
 
         try {
             csrfFilter.doFilter(request, response, chain)
@@ -303,12 +302,12 @@ class CsrfFilterSpec extends Specification {
         request.getMethod() >> method
         request.getQueryString() >> param
 
-        csrfFilter.setWhiteListContexts(ImmutableList.of('/services/admin/config[/]?$=GET',
-                '/services/content[/]?$=GET',
-                '/services/catalog/query[/]?$=GET',
-                '/services/catalog/sources.*=GET',
-                '/services/idp/login[/]?$=POST',
-                '/services/saml/sso[/]?$=POST'))
+        csrfFilter.setWhiteListContexts(['/services/admin/config[/]?$=GET',
+                                         '/services/content[/]?$=GET',
+                                         '/services/catalog/query[/]?$=GET',
+                                         '/services/catalog/sources.*=GET',
+                                         '/services/idp/login[/]?$=POST',
+                                         '/services/saml/sso[/]?$=POST'])
 
         try {
             csrfFilter.doFilter(request, response, chain)

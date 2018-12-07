@@ -47,6 +47,6 @@ public class TimeLimitedMatcherTest {
 
   @Test(expected = TimeoutException.class)
   public void questionableMatchFails() throws Exception {
-    TimeLimitedMatcher.create(Pattern.compile("(a+)+"), StringUtils.repeat("a", 1000) + "!");
+    TimeLimitedMatcher.create(Pattern.compile("(a+)+"), StringUtils.repeat("a", 1000000) + "!");
   }
 }

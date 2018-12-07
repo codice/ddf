@@ -206,9 +206,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>br.com.ingenieux</groupId>
+                <groupId>org.jbake</groupId>
                 <artifactId>jbake-maven-plugin</artifactId>
-                <version>${jbake.maven.plugin.version}</version>
+                <version>0.3.1</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -299,11 +299,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/adoc-files</outputDirectory>
                         </configuration>
                         <id>include-adocs</id>
@@ -314,7 +316,9 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/images</outputDirectory>
                         </configuration>
                         <id>include-images</id>
@@ -325,7 +329,9 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/export-templates</outputDirectory>
                         </configuration>
                         <id>include-templates</id>
@@ -336,7 +342,9 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/docs-export.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/docs-export.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/export-docs</outputDirectory>
                         </configuration>
                         <id>include-docs</id>

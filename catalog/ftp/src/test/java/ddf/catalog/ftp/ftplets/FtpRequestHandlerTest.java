@@ -26,7 +26,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.data.Metacard;
@@ -132,7 +131,7 @@ public class FtpRequestHandlerTest {
     when(session
             .getDataConnection()
             .openConnection()
-            .transferFromClient(eq(session), any(FileBackedOutputStream.class)))
+            .transferFromClient(eq(session), any(TemporaryFileBackedOutputStream.class)))
         .thenThrow(new IOException());
 
     ftplet.onUploadStart(session, request);

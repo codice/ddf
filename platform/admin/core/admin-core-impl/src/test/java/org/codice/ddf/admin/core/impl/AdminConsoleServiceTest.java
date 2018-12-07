@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -61,7 +61,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -289,7 +289,7 @@ public class AdminConsoleServiceTest {
     List<Service> result = configAdmin.listServices();
 
     assertTrue("Should return an empty list.", result.isEmpty());
-    verify(testConfigAdminExt).listServices(anyString(), anyString());
+    verify(testConfigAdminExt).listServices(nullable(String.class), nullable(String.class));
   }
 
   /**
@@ -439,7 +439,6 @@ public class AdminConsoleServiceTest {
         };
 
     Configuration testConfig = mock(Configuration.class);
-    when(testConfig.getPid()).thenReturn(TEST_PID);
 
     when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
     configAdmin.delete(TEST_PID);
@@ -478,7 +477,7 @@ public class AdminConsoleServiceTest {
 
     Configuration testConfig = mock(Configuration.class);
 
-    when(testConfigAdmin.listConfigurations(anyString()))
+    when(testConfigAdmin.listConfigurations(nullable(String.class)))
         .thenReturn(new Configuration[] {testConfig});
 
     configAdmin.deleteConfigurations(TEST_FILTER_1);
@@ -606,7 +605,7 @@ public class AdminConsoleServiceTest {
     when(testConfig.getPid()).thenReturn(TEST_PID);
     when(testConfig.getBundleLocation()).thenReturn(TEST_LOCATION);
 
-    when(testConfigAdmin.listConfigurations(anyString())).thenReturn(configs);
+    when(testConfigAdmin.listConfigurations(nullable(String.class))).thenReturn(configs);
 
     String[][] result = configAdmin.getConfigurations(TEST_FILTER_1);
 
@@ -648,7 +647,7 @@ public class AdminConsoleServiceTest {
 
     doThrow(new InvalidSyntaxException("", ""))
         .when(testConfigAdmin)
-        .listConfigurations(anyString());
+        .listConfigurations(nullable(String.class));
     configAdmin.getConfigurations(TEST_FILTER_1);
   }
 
@@ -835,8 +834,6 @@ public class AdminConsoleServiceTest {
     Map<String, Object> configTable = new HashMap<>();
     AdminConsoleService configAdmin = spy(getConfigAdmin());
 
-    when(mockGuestClaimsHandlerExt.getProfileGuestClaims()).thenReturn(guestClaims);
-    when(mockGuestClaimsHandlerExt.getProfileSystemClaims()).thenReturn(systemClaims);
     when(mockGuestClaimsHandlerExt.getProfileConfigs()).thenReturn(configs);
 
     assertFalse(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
@@ -1050,11 +1047,6 @@ public class AdminConsoleServiceTest {
     testProperties.put(
         org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID_DISABLED);
 
-    when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-        .thenReturn(new Configuration[] {testConfig});
-    when(testConfig.getProperties()).thenReturn(testProperties);
-    when(testFactoryConfig.getPid()).thenReturn(TEST_FACT_PID_DISABLED);
-
     configAdmin.disableConfiguration(TEST_PID);
   }
 
@@ -1093,13 +1085,6 @@ public class AdminConsoleServiceTest {
 
     testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
 
-    when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-        .thenReturn(new Configuration[] {testConfig});
-    when(testConfig.getProperties()).thenReturn(testProperties);
-    when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
-    when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null))
-        .thenReturn(testFactoryConfig);
-
     configAdmin.enableConfiguration(TEST_PID);
   }
 
@@ -1121,7 +1106,6 @@ public class AdminConsoleServiceTest {
           }
         };
 
-    when(testConfigAdmin.listConfigurations(anyString())).thenReturn(null);
     configAdmin.enableConfiguration(TEST_PID);
   }
 
@@ -1221,29 +1205,30 @@ public class AdminConsoleServiceTest {
     when(testRef1.getBundle()).thenReturn(testBundle);
 
     when(testBundle.getLocation()).thenReturn(TEST_LOCATION);
-    when(testBundle.getHeaders(anyString())).thenReturn(bundleHeaders);
+    when(testBundle.getHeaders(nullable(String.class))).thenReturn(bundleHeaders);
     when(bundleHeaders.get(Constants.BUNDLE_NAME)).thenReturn(TEST_BUNDLE_NAME);
 
     when(testOCD.getName()).thenReturn(TEST_OCD);
     when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL))
         .thenReturn(attDefs.toArray(new AttributeDefinition[attDefs.size()]));
 
-    when(testMTI.getBundle()).thenReturn(testBundle);
     when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_FACTORY_PID});
     when(testMTI.getPids()).thenReturn(new String[] {TEST_PID});
-    when(testMTI.getObjectClassDefinition(anyString(), anyString())).thenReturn(testOCD);
+    when(testMTI.getObjectClassDefinition(nullable(String.class), nullable(String.class)))
+        .thenReturn(testOCD);
 
     when(testMTS.getMetaTypeInformation(testBundle)).thenReturn(testMTI);
 
     when(testBundleContext.getBundles()).thenReturn(new Bundle[] {testBundle});
 
-    when(CONFIGURATION_ADMIN.listConfigurations(anyString()))
+    when(CONFIGURATION_ADMIN.listConfigurations(nullable(String.class)))
         .thenReturn(new Configuration[] {testConfig});
-    when(CONFIGURATION_ADMIN.getConfiguration(anyString(), anyString())).thenReturn(testConfig);
+    when(CONFIGURATION_ADMIN.getConfiguration(nullable(String.class), nullable(String.class)))
+        .thenReturn(testConfig);
 
-    when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
+    when(testBundleContext.getAllServiceReferences(nullable(String.class), nullable(String.class)))
         .thenReturn(testServRefs);
-    when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
+    when(testBundleContext.getAllServiceReferences(nullable(String.class), nullable(String.class)))
         .thenReturn(testServRefs);
 
     return configurationAdmin;

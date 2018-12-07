@@ -45,6 +45,14 @@
             <artifactId>action-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAF Dependencies -->
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

@@ -16,6 +16,7 @@ package org.codice.ddf.commands.spatial.gazetteer;
 import static org.codice.ddf.spatial.geocoding.GeoEntryExtractor.ExtractionCallback;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -209,7 +210,10 @@ public class GazetteerUpdateCommandTest {
     doThrow(geoEntryIndexingException)
         .when(geoEntryIndexer)
         .updateIndex(
-            anyString(), any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
+            anyString(),
+            nullable(GeoEntryExtractor.class),
+            anyBoolean(),
+            any(ProgressCallback.class));
 
     gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
     gazetteerUpdateCommand.setResource("temp");

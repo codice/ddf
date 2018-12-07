@@ -155,11 +155,9 @@ public class FederationAdminServiceImplTest {
     System.setProperty(SystemInfo.VERSION, TEST_VERSION);
     testMetacard = getPopulatedTestRegistryMetacard();
     when(deleteResponse.getProcessingErrors()).thenReturn(new HashSet<ProcessingDetails>());
-    when(createResponse.getProcessingErrors()).thenReturn(new HashSet<ProcessingDetails>());
     when(updateResponse.getProcessingErrors()).thenReturn(new HashSet<ProcessingDetails>());
     when(catalogFramework.update(any(UpdateRequest.class))).thenReturn(updateResponse);
     when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(deleteResponse);
-    when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
     when(security.runWithSubjectOrElevate(any(Callable.class)))
         .thenAnswer(
             invocation -> {
@@ -190,7 +188,7 @@ public class FederationAdminServiceImplTest {
 
   @Test(expected = FederationAdminException.class)
   public void getRegistryObjectByRegistryIdEmptyString() throws FederationAdminException {
-    assertThat(federationAdminServiceImpl.getRegistryObjectByRegistryId(""), is(nullValue()));
+    federationAdminServiceImpl.getRegistryObjectByRegistryId("");
   }
 
   @Test(expected = FederationAdminException.class)
@@ -198,9 +196,7 @@ public class FederationAdminServiceImplTest {
     QueryRequest request = getTestQueryRequest();
     QueryResponse response = getPopulatedTestQueryResponse(request);
     Metacard metacard = getTestMetacard();
-    when(security.getSystemSubject()).thenReturn(subject);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-    when(registryTransformer.transform(any(InputStream.class))).thenReturn(metacard);
     federationAdminServiceImpl.getRegistryObjectByRegistryId("Not a metacard");
   }
 
@@ -209,7 +205,6 @@ public class FederationAdminServiceImplTest {
     Metacard metacard = testMetacard;
     QueryRequest request = getTestQueryRequest();
     QueryResponse response = getPopulatedTestQueryResponse(request, metacard, metacard);
-    when(security.getSystemSubject()).thenReturn(subject);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.getRegistryObjectByRegistryId(TEST_METACARD_ID);
   }
@@ -260,7 +255,6 @@ public class FederationAdminServiceImplTest {
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
     federationAdminServiceImpl.addRegistryEntry(metacard, destinations);
-    verify(catalogFramework, never()).create(any(CreateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -272,7 +266,6 @@ public class FederationAdminServiceImplTest {
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
     federationAdminServiceImpl.addRegistryEntry(metacard, destinations);
-    verify(catalogFramework, never()).create(any(CreateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -283,7 +276,6 @@ public class FederationAdminServiceImplTest {
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
     federationAdminServiceImpl.addRegistryEntry(metacard, destinations);
-    verify(catalogFramework, never()).create(any(CreateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -294,7 +286,6 @@ public class FederationAdminServiceImplTest {
     destinations.add(destination);
     when(catalogFramework.create(any(CreateRequest.class))).thenThrow(IngestException.class);
     federationAdminServiceImpl.addRegistryEntry(metacard, destinations);
-    verify(catalogFramework, never()).create(any(CreateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -306,7 +297,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.create(any(CreateRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.addRegistryEntry(metacard, destinations);
-    verify(catalogFramework, never()).create(any(CreateRequest.class));
   }
 
   @Test
@@ -360,8 +350,6 @@ public class FederationAdminServiceImplTest {
     when(registryTransformer.transform(any(InputStream.class)))
         .thenThrow(CatalogTransformerException.class);
     federationAdminServiceImpl.addRegistryEntry(TEST_XML_STRING, destinations);
-    verify(registryTransformer).transform(any(InputStream.class));
-    verify(catalogFramework, never()).create(any(CreateRequest.class));
   }
 
   @Test
@@ -407,7 +395,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.query(any(QueryRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test
@@ -416,7 +403,6 @@ public class FederationAdminServiceImplTest {
     Metacard existingMetacard = testMetacard;
     Set<String> destinations = null;
     QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest(), existingMetacard);
-    when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
     verify(catalogFramework).update(any(UpdateRequest.class));
   }
@@ -432,8 +418,6 @@ public class FederationAdminServiceImplTest {
     Set<String> destinations = new HashSet<>();
     destinations.add(TEST_DESTINATION);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-    verify(catalogFramework, never()).query(any(QueryRequest.class));
-    verify(catalogFramework, never()).update(any(UpdateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -444,8 +428,6 @@ public class FederationAdminServiceImplTest {
     QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest());
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-    verify(catalogFramework).query(any(QueryRequest.class));
-    verify(catalogFramework, never()).update(any(UpdateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -458,8 +440,6 @@ public class FederationAdminServiceImplTest {
         getPopulatedTestQueryResponse(getTestQueryRequest(), existingMetacard, getTestMetacard());
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-    verify(catalogFramework).query(any(QueryRequest.class));
-    verify(catalogFramework, never()).update(any(UpdateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -472,8 +452,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     when(catalogFramework.update(any(UpdateRequest.class))).thenThrow(IngestException.class);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-    verify(catalogFramework).query(any(QueryRequest.class));
-    verify(catalogFramework).update(any(UpdateRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -487,8 +465,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.update(any(UpdateRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-    verify(catalogFramework).query(any(QueryRequest.class));
-    verify(catalogFramework).update(any(UpdateRequest.class));
   }
 
   @Test
@@ -496,7 +472,6 @@ public class FederationAdminServiceImplTest {
     Metacard metacard = testMetacard;
     Metacard existingMetacard = testMetacard;
     QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest(), existingMetacard);
-    when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.updateRegistryEntry(metacard);
     verify(catalogFramework).update(any(UpdateRequest.class));
   }
@@ -523,9 +498,6 @@ public class FederationAdminServiceImplTest {
     when(registryTransformer.transform(any(InputStream.class)))
         .thenThrow(CatalogTransformerException.class);
     federationAdminServiceImpl.updateRegistryEntry(TEST_XML_STRING, destinations);
-    verify(registryTransformer).transform(any(InputStream.class));
-    verify(catalogFramework, never()).query(any(QueryRequest.class));
-    verify(catalogFramework, never()).update(any(UpdateRequest.class));
   }
 
   @Test
@@ -534,7 +506,6 @@ public class FederationAdminServiceImplTest {
     Metacard existingMetacard = getTestMetacard();
     QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest(), existingMetacard);
     when(registryTransformer.transform(any(InputStream.class))).thenReturn(metacard);
-    when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.updateRegistryEntry(TEST_XML_STRING);
     verify(registryTransformer).transform(any(InputStream.class));
     verify(catalogFramework).update(any(UpdateRequest.class));
@@ -588,7 +559,6 @@ public class FederationAdminServiceImplTest {
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
     federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(ids, destinations);
-    verify(catalogFramework, never()).delete(any(DeleteRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -600,10 +570,7 @@ public class FederationAdminServiceImplTest {
     String destination = TEST_DESTINATION;
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
-    when(catalogFramework.delete(any(DeleteRequest.class)))
-        .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(ids, destinations);
-    verify(catalogFramework).delete(any(DeleteRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -614,9 +581,7 @@ public class FederationAdminServiceImplTest {
     String destination = TEST_DESTINATION;
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
-    when(catalogFramework.delete(any(DeleteRequest.class))).thenThrow(IngestException.class);
     federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(ids, destinations);
-    verify(catalogFramework).delete(any(DeleteRequest.class));
   }
 
   @Test
@@ -647,7 +612,6 @@ public class FederationAdminServiceImplTest {
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
     federationAdminServiceImpl.deleteRegistryEntriesByMetacardIds(ids, destinations);
-    verify(catalogFramework, never()).delete(any(DeleteRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -662,7 +626,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.delete(any(DeleteRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.deleteRegistryEntriesByMetacardIds(ids, destinations);
-    verify(catalogFramework).delete(any(DeleteRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -675,7 +638,6 @@ public class FederationAdminServiceImplTest {
     destinations.add(destination);
     when(catalogFramework.delete(any(DeleteRequest.class))).thenThrow(IngestException.class);
     federationAdminServiceImpl.deleteRegistryEntriesByMetacardIds(ids, destinations);
-    verify(catalogFramework).delete(any(DeleteRequest.class));
   }
 
   @Test
@@ -695,7 +657,6 @@ public class FederationAdminServiceImplTest {
     QueryRequest request = getTestQueryRequest();
     QueryResponse response =
         getPopulatedTestQueryResponse(request, findThisMetacard, getTestMetacard());
-    when(security.getSystemSubject()).thenReturn(subject);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     List<Metacard> metacards = federationAdminServiceImpl.getRegistryMetacards();
     assertThat(metacards, hasSize(2));
@@ -712,7 +673,6 @@ public class FederationAdminServiceImplTest {
     QueryRequest request = getTestQueryRequest();
     QueryResponse response =
         getPopulatedTestQueryResponse(request, findThisMetacard, getTestMetacard());
-    when(security.getSystemSubject()).thenReturn(subject);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     List<Metacard> metacards = federationAdminServiceImpl.getRegistryMetacards(destinations);
     assertThat(metacards, hasSize(2));
@@ -720,26 +680,20 @@ public class FederationAdminServiceImplTest {
 
   @Test(expected = FederationAdminException.class)
   public void testGetRegistryMetacardsWithUnsupportedQueryException() throws Exception {
-    when(security.getSystemSubject()).thenReturn(subject);
     doThrow(UnsupportedQueryException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getRegistryMetacards();
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
   public void testGetRegistryMetacardsWithSourceUnavailableException() throws Exception {
-    when(security.getSystemSubject()).thenReturn(subject);
     doThrow(SourceUnavailableException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getRegistryMetacards();
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
   public void testGetRegistryMetacardsWithFederationException() throws Exception {
-    when(security.getSystemSubject()).thenReturn(subject);
     doThrow(FederationException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getRegistryMetacards();
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test
@@ -747,7 +701,6 @@ public class FederationAdminServiceImplTest {
     QueryRequest request = getTestQueryRequest();
     QueryResponse response =
         getPopulatedTestQueryResponse(request, getTestMetacard(), getTestMetacard());
-    when(security.getSystemSubject()).thenReturn(subject);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     List<Metacard> metacards = federationAdminServiceImpl.getLocalRegistryMetacards();
     verify(catalogFramework).query(any(QueryRequest.class));
@@ -756,26 +709,20 @@ public class FederationAdminServiceImplTest {
 
   @Test(expected = FederationAdminException.class)
   public void testGetLocalRegistryMetacardsWithUnsupportedQueryException() throws Exception {
-    when(security.getSystemSubject()).thenReturn(subject);
     doThrow(UnsupportedQueryException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getLocalRegistryMetacards();
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
   public void testGetLocalRegistryMetacardsWithSourceUnavailableException() throws Exception {
-    when(security.getSystemSubject()).thenReturn(subject);
     doThrow(SourceUnavailableException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getLocalRegistryMetacards();
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
   public void testGetLocalRegistryMetacardsWithFederationException() throws Exception {
-    when(security.getSystemSubject()).thenReturn(subject);
     doThrow(FederationException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getLocalRegistryMetacards();
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test
@@ -825,7 +772,6 @@ public class FederationAdminServiceImplTest {
   public void testGetRegistryMetacardsByRegistryIdsWithEmptyList() throws Exception {
     List<String> ids = new ArrayList<>();
     federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework, never()).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -838,7 +784,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.query(any(QueryRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -851,7 +796,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.query(any(QueryRequest.class)))
         .thenThrow(UnsupportedQueryException.class);
     federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -862,7 +806,6 @@ public class FederationAdminServiceImplTest {
     ids.add(RegistryObjectMetacardType.REGISTRY_ID + "2");
     when(catalogFramework.query(any(QueryRequest.class))).thenThrow(FederationException.class);
     federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test
@@ -886,7 +829,6 @@ public class FederationAdminServiceImplTest {
   public void testGetLocalRegistryMetacardsByRegistryIdsWithEmptyList() throws Exception {
     List<String> ids = new ArrayList<>();
     federationAdminServiceImpl.getLocalRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework, never()).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -899,7 +841,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.query(any(QueryRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     federationAdminServiceImpl.getLocalRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -912,7 +853,6 @@ public class FederationAdminServiceImplTest {
     when(catalogFramework.query(any(QueryRequest.class)))
         .thenThrow(UnsupportedQueryException.class);
     federationAdminServiceImpl.getLocalRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -923,7 +863,6 @@ public class FederationAdminServiceImplTest {
     ids.add(RegistryObjectMetacardType.REGISTRY_ID + "2");
     when(catalogFramework.query(any(QueryRequest.class))).thenThrow(FederationException.class);
     federationAdminServiceImpl.getLocalRegistryMetacardsByRegistryIds(ids);
-    verify(catalogFramework).query(any(QueryRequest.class));
   }
 
   @Test
@@ -953,8 +892,6 @@ public class FederationAdminServiceImplTest {
     localMetacards.add(localMetacard);
     doReturn(localMetacards).when(federationAdminServiceImpl).getLocalRegistryMetacards();
     federationAdminServiceImpl.getLocalRegistryObjects();
-    verify(parser, never())
-        .unmarshal(any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -963,8 +900,6 @@ public class FederationAdminServiceImplTest {
         .when(federationAdminServiceImpl)
         .getLocalRegistryMetacards();
     federationAdminServiceImpl.getLocalRegistryObjects();
-    verify(parser, never())
-        .unmarshal(any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -977,8 +912,6 @@ public class FederationAdminServiceImplTest {
             any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class)))
         .thenThrow(ParserException.class);
     federationAdminServiceImpl.getLocalRegistryObjects();
-    verify(parser)
-        .unmarshal(any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class));
   }
 
   @Test
@@ -1018,17 +951,12 @@ public class FederationAdminServiceImplTest {
     QueryResponse response = getPopulatedTestQueryResponse(request, metacard);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
     federationAdminServiceImpl.getRegistryObjects();
-    verify(catalogFramework).query(any(QueryRequest.class));
-    verify(parser, never())
-        .unmarshal(any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class));
   }
 
   @Test(expected = FederationAdminException.class)
   public void testGetRegistryObjectsWithQueryException() throws Exception {
-    doThrow(FederationAdminException.class).when(catalogFramework).query(any(QueryRequest.class));
+    doThrow(FederationException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getRegistryObjects();
-    // throws exception
-    catalogFramework.query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -1041,8 +969,6 @@ public class FederationAdminServiceImplTest {
         .when(parser)
         .unmarshal(any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class));
     federationAdminServiceImpl.getRegistryObjects();
-    // throws exception
-    catalogFramework.query(any(QueryRequest.class));
   }
 
   @Test

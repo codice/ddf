@@ -49,6 +49,12 @@
             <groupId>org.codice.acdebugger</groupId>
             <artifactId>acdebugger-api</artifactId>
             <version>${acdebugger.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codice.pro-grade</groupId>

@@ -125,7 +125,7 @@
         <cxf.httpcomponents.core.version>${httpcore.version}</cxf.httpcomponents.core.version>
         <cxf.james.mim4j.version>0.7.2</cxf.james.mim4j.version>
         <cxf.jasypt.bundle.version>1.9.2_1</cxf.jasypt.bundle.version>
-        <cxf.javassist.version>3.21.0-GA</cxf.javassist.version>
+        <cxf.javassist.version>3.24.0-GA</cxf.javassist.version>
         <cxf.javax.annotation-api.version>${javax.annotation-api.version}</cxf.javax.annotation-api.version>
         <cxf.javax.mail.version>1.4.4</cxf.javax.mail.version>
         <cxf.javax.servlet-api.version>${javax.servlet-api.version}</cxf.javax.servlet-api.version>

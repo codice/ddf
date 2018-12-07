@@ -72,7 +72,7 @@ public class TransactionRequestConverterTest {
       "<csw:Transaction service=\"CSW\" version=\"2.0.2\" verboseResponse=\"true\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
           + "  <csw:Delete typeName=\"csw:Record\">\n"
           + "    <csw:Constraint version=\"1.1.0\">\n"
-          + "      <ogc:CqlText>identifier = metacard1</ogc:CqlText>\n"
+          + "      <csw:CqlText>identifier = metacard1</csw:CqlText>\n"
           + "    </csw:Constraint>\n"
           + "  </csw:Delete>\n"
           + "</csw:Transaction>";
@@ -83,7 +83,7 @@ public class TransactionRequestConverterTest {
           + "  <csw:Update typeName=\"csw:Record\" reference=\"../csw:Insert\"/>\n"
           + "  <csw:Delete typeName=\"csw:Record\">\n"
           + "    <csw:Constraint version=\"1.1.0\">\n"
-          + "      <ogc:CqlText>identifier = metacard1</ogc:CqlText>\n"
+          + "      <csw:CqlText>identifier = metacard1</csw:CqlText>\n"
           + "    </csw:Constraint>\n"
           + "  </csw:Delete>\n"
           + "</csw:Transaction>";

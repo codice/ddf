@@ -19,10 +19,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,8 +67,10 @@ import ogc.schema.opengis.wfs.v_1_0_0.QueryType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeListType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -233,38 +235,56 @@ public class WfsSourceTest {
 
     when(mockClientFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean()))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(PropertyResolver.class)))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt()))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
             anyBoolean(),
             anyBoolean(),
             anyInt(),
             anyInt(),
-            anyString(),
-            anyString()))
+            nullable(String.class),
+            nullable(String.class)))
         .thenReturn(mockFactory);
     when(mockClientFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
             anyBoolean(),
             anyBoolean(),
             anyInt(),
             anyInt(),
-            anyString(),
-            anyString(),
-            anyString()))
+            nullable(String.class),
+            nullable(String.class),
+            nullable(String.class)))
         .thenReturn(mockFactory);
 
     // GetCapabilities Response

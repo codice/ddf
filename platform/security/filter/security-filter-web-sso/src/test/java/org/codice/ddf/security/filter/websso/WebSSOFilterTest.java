@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.filter.websso;
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -67,8 +68,8 @@ public class WebSSOFilterTest {
     ContextPolicy testPolicy = mock(ContextPolicy.class);
     when(testPolicy.getRealm()).thenReturn("TestRealm");
     ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-    when(policyManager.getContextPolicy(anyString())).thenReturn(testPolicy);
-    when(policyManager.isWhiteListed(anyString())).thenReturn(true);
+    when(policyManager.getContextPolicy(nullable(String.class))).thenReturn(testPolicy);
+    when(policyManager.isWhiteListed(nullable(String.class))).thenReturn(true);
 
     WebSSOFilter filter = new WebSSOFilter();
     // set handlers

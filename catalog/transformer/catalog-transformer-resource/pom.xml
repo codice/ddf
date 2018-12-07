@@ -32,6 +32,13 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAF Dependencies -->
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

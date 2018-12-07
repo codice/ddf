@@ -191,7 +191,7 @@ public class AttributeQueryClientTest {
     if (!throwException) {
       when(dispatch.invoke(any(StreamSource.class))).thenReturn(streamSource);
     } else {
-      when(dispatch.invoke(any(StreamSource.class))).thenThrow(Exception.class);
+      when(dispatch.invoke(any(StreamSource.class))).thenThrow(RuntimeException.class);
     }
   }
 }

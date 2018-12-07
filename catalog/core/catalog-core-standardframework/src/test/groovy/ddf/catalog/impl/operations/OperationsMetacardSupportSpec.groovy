@@ -240,11 +240,14 @@ class OperationsMetacardSupportSpec extends Specification {
     }
 
     def 'test multiple detector fall through'() {
-        mimeTypeMapper.guessMimeType(_, _) >> null
+        setup:
+        mimeTypeMapper.guessMimeType(_, _) >> { null }
         def tempFile = Files.createTempFile("test", "bin")
         Files.write(tempFile.toAbsolutePath(), "test file content".getBytes())
+
         when:
         def mimeType = opsMetacard.guessMimeType(ContentItem.DEFAULT_MIME_TYPE, tempFile.getFileName().toString(), tempFile.toAbsolutePath())
+
         then:
         !ContentItem.DEFAULT_MIME_TYPE.equals(mimeType)
         "text/plain".equals(mimeType)

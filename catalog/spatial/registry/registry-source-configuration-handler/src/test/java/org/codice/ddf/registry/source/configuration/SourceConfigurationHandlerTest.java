@@ -15,6 +15,7 @@ package org.codice.ddf.registry.source.configuration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -137,7 +138,8 @@ public class SourceConfigurationHandlerTest {
     when(metaTypeService.getMetaTypeInformation(any(Bundle.class))).thenReturn(mti);
     when(mti.getObjectClassDefinition(anyString(), anyString())).thenReturn(ocd);
     when(ocd.getAttributeDefinitions(anyInt())).thenReturn(new AttributeDefinition[] {adi});
-    when(configAdmin.createFactoryConfiguration(anyString(), anyString())).thenReturn(config);
+    when(configAdmin.createFactoryConfiguration(anyString(), nullable(String.class)))
+        .thenReturn(config);
 
     mcard = new MetacardImpl(new RegistryObjectMetacardType());
     mcard.setTags(Collections.singleton(RegistryConstants.REGISTRY_TAG));
@@ -849,7 +851,8 @@ public class SourceConfigurationHandlerTest {
     when(adminService.getRegistryMetacardsByRegistryIds(any(List.class)))
         .thenReturn(Collections.singletonList(mcard));
     when(configAdmin.listConfigurations(anyString())).thenReturn(null);
-    when(configAdmin.createFactoryConfiguration(anyString(), anyString())).thenReturn(config);
+    when(configAdmin.createFactoryConfiguration(anyString(), nullable(String.class)))
+        .thenReturn(config);
     sch.regenerateOneSource("regId");
     verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled", null);
   }
@@ -881,7 +884,8 @@ public class SourceConfigurationHandlerTest {
     sch.setSourceActivationPriorityOrder(priority);
     when(adminService.getRegistryMetacards()).thenReturn(Collections.singletonList(mcard));
     when(configAdmin.listConfigurations(anyString())).thenReturn(null);
-    when(configAdmin.createFactoryConfiguration(anyString(), anyString())).thenReturn(config);
+    when(configAdmin.createFactoryConfiguration(anyString(), nullable(String.class)))
+        .thenReturn(config);
     sch.regenerateAllSources();
     verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled", null);
   }

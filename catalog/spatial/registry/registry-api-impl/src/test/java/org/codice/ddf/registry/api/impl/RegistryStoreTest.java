@@ -17,10 +17,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -76,6 +75,8 @@ import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionSummaryType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
+import org.apache.cxf.interceptor.Interceptor;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.parser.Parser;
@@ -143,43 +144,7 @@ public class RegistryStoreTest {
     context = mock(BundleContext.class);
     provider = mock(Converter.class);
     cswSourceConfiguration = new CswSourceConfiguration();
-    factory = mock(SecureCxfClientFactory.class);
-    clientFactoryFactory = mock(ClientFactoryFactory.class);
-    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(),
-            any(),
-            any(),
-            any(),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt(),
-            anyString(),
-            anyString(),
-            anyString()))
-        .thenReturn(factory);
+    setupMockCxfClientFactory();
     transformer = mock(TransformerManager.class);
     encryptionService = mock(EncryptionService.class);
     configAdmin = mock(ConfigurationAdmin.class);
@@ -402,7 +367,8 @@ public class RegistryStoreTest {
     FilterAdapter mockAdaptor = mock(FilterAdapter.class);
     CswFilterFactory filterFactory = new CswFilterFactory(CswAxisOrder.LAT_LON, false);
     FilterType filterType = filterFactory.buildPropertyIsLikeFilter(Metacard.ID, "testId", false);
-    when(mockAdaptor.adapt(any(Filter.class), any(FilterDelegate.class))).thenReturn(filterType);
+    when(mockAdaptor.adapt(nullable(Filter.class), nullable(FilterDelegate.class)))
+        .thenReturn(filterType);
     registryStore.setFilterAdapter(mockAdaptor);
     DeleteRequestImpl request =
         new DeleteRequestImpl(
@@ -599,5 +565,64 @@ public class RegistryStoreTest {
     BundleContext getBundleContext() {
       return context;
     }
+  }
+
+  private void setupMockCxfClientFactory() {
+    factory = mock(SecureCxfClientFactory.class);
+    clientFactoryFactory = mock(ClientFactoryFactory.class);
+    when(clientFactoryFactory.getSecureCxfClientFactory(nullable(String.class), any(Class.class)))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean()))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(PropertyResolver.class)))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(Integer.class),
+            nullable(Integer.class)))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(Integer.class),
+            nullable(Integer.class),
+            nullable(String.class),
+            nullable(String.class)))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            nullable(String.class),
+            nullable(Class.class),
+            nullable(List.class),
+            nullable(Interceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            nullable(Integer.class),
+            nullable(Integer.class),
+            nullable(String.class),
+            nullable(String.class),
+            nullable(String.class)))
+        .thenReturn(factory);
   }
 }

@@ -50,6 +50,13 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-common</artifactId>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAF Dependencies -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>

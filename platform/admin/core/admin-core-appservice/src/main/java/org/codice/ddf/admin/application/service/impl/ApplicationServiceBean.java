@@ -371,8 +371,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         .filter(Objects::nonNull)
         .map(List.class::cast)
         .flatMap(List::stream)
-        .map(Map.class::cast)
-        .map(m -> m.get("bundle_location"))
+        // Casting inline rather than with a class cast call on the stream
+        // to work around a compiler quirk
+        //        .map(Map.class::cast)
+        .map(m -> ((Map) m).get("bundle_location"))
         .filter(Objects::nonNull)
         .map(String.class::cast)
         .anyMatch(bundleLocations::contains);

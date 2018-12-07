@@ -3,6 +3,7 @@ package ddf.security.samlp.impl
 import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.SystemCrypto
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.opensaml.saml.common.SAMLVersion
@@ -53,7 +54,7 @@ class LogoutMessageSpec extends Specification {
         logoutMessage.systemCrypto = new SystemCrypto(encryptionFile.absolutePath,
                 signatureFile.absolutePath,
                 encryptionService)
-        logoutMessage.uuidGenerator = Mock(org.codice.ddf.platform.util.uuidgenerator.UuidGenerator.class) {
+        logoutMessage.uuidGenerator = Mock(UuidGenerator.class) {
             generateUuid() >> { UUID.randomUUID().toString() }
         }
     }

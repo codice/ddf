@@ -63,6 +63,22 @@
             <version>${tika.thirdparty.bundle.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAXB Dependencies -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -25,6 +25,7 @@ import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.usermanager.AnonymousAuthentication;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -83,7 +84,7 @@ public class UserManagerImplTest {
 
     when(upa.getUsername()).thenReturn(USER);
     when(upa.getPassword()).thenReturn(PASSWORD);
-    when(securityManager.getSubject(any(Authentication.class))).thenReturn(subject);
+    when(securityManager.getSubject(any(UPAuthenticationToken.class))).thenReturn(subject);
     userManager.setKarafLocalRoles("admin,localhost");
 
     assertEquals(userManager.createUser(USER, subject), userManager.authenticate(upa));

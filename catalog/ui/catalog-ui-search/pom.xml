@@ -376,7 +376,9 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <finalName>catalog-ui-search</finalName>
-                    <descriptor>catalog-ui-search.xml</descriptor>
+                    <descriptors>
+                        <descriptor>catalog-ui-search.xml</descriptor>
+                    </descriptors>
                 </configuration>
                 <executions>
                     <execution>

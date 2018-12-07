@@ -62,7 +62,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.TimeZone;
 import org.junit.Before;
@@ -180,7 +180,7 @@ public class TikaInputTransformerTest {
         new TikaInputTransformer(mockBundleContext, getMetacardType(COMMON_METACARDTYPE_NAME));
     verify(mockBundleContext)
         .registerService(
-            eq(InputTransformer.class), eq(tikaInputTransformer), any(Hashtable.class));
+            eq(InputTransformer.class), eq(tikaInputTransformer), any(Dictionary.class));
   }
 
   @Test

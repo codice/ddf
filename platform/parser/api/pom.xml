@@ -22,6 +22,24 @@
     <artifactId>platform-parser-api</artifactId>
     <name>DDF :: Platform :: Parser :: API</name>
     <packaging>bundle</packaging>
+
+    <dependencies>
+        <!-- Java 11 -->
+        <!-- JAXB Dependencies -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

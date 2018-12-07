@@ -13,7 +13,7 @@
  */
 package ddf.catalog.impl.operations;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -208,7 +208,7 @@ public class ResourceOperationsOptionsTest {
   @Test(expected = ResourceNotFoundException.class)
   public void testGetLocalResourceOptionsCatchesUnsupportedQueryException() throws Exception {
 
-    whenQueried().thenThrow(ResourceNotFoundException.class);
+    whenQueried().thenThrow(UnsupportedQueryException.class);
     helperGetLocalResourceOptions();
   }
 
@@ -247,11 +247,18 @@ public class ResourceOperationsOptionsTest {
   protected OngoingStubbing<QueryResponse> whenQueried() throws Exception {
     return when(
         queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()));
+            nullable(QueryRequest.class),
+            nullable(FederationStrategy.class),
+            anyBoolean(),
+            anyBoolean()));
   }
 
   private void verifyQueryOperations() throws FederationException, UnsupportedQueryException {
     verify(queryOperationsMock)
-        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean());
+        .query(
+            nullable(QueryRequest.class),
+            nullable(FederationStrategy.class),
+            anyBoolean(),
+            anyBoolean());
   }
 }

@@ -27,7 +27,9 @@
     <properties>
         <parboiled.version>1.2.0</parboiled.version>
         <!-- Overriding the asm version from the root pom to stay in sync with parboiled-java -->
-        <opensearch.asm.version>6.2.1</opensearch.asm.version>
+        <!-- TODO Java 11: Need to build latest parboiled master with this PR's changes in order for
+         this module's tests to pass. https://github.com/sirthias/parboiled/pull/129 -->
+        <opensearch.asm.version>7.0</opensearch.asm.version>
     </properties>
     <dependencies>
         <dependency>

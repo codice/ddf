@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -264,7 +265,7 @@ public class CswEndpointTest {
 
     QueryResponse[] qrRest =
         queryResponseBatch.subList(1, queryResponseBatch.size()).toArray(new QueryResponse[0]);
-    when(catalogFramework.query(any(QueryRequest.class)))
+    when(catalogFramework.query(nullable(QueryRequest.class)))
         .thenReturn(queryResponseBatch.get(0), qrRest);
     when(catalogFramework.getSourceIds())
         .thenReturn(new HashSet<>(Arrays.asList("source1", "source2", "source3")));
@@ -280,10 +281,10 @@ public class CswEndpointTest {
     when(query.getTimeoutMillis()).thenReturn(1L);
     when(queryRequest.getQuery()).thenReturn(query);
 
-    when(queryFactory.getQuery(any(GetRecordsType.class))).thenReturn(queryRequest);
-    when(queryFactory.getQuery(any(QueryConstraintType.class), anyString()))
+    when(queryFactory.getQuery(nullable(GetRecordsType.class))).thenReturn(queryRequest);
+    when(queryFactory.getQuery(nullable(QueryConstraintType.class), nullable(String.class)))
         .thenReturn(queryRequest);
-    when(queryFactory.updateQueryRequestTags(any(QueryRequest.class), anyString()))
+    when(queryFactory.updateQueryRequestTags(nullable(QueryRequest.class), nullable(String.class)))
         .thenReturn(queryRequest);
   }
 
@@ -1255,7 +1256,7 @@ public class CswEndpointTest {
     final List<Result> mockResults = Collections.singletonList(new ResultImpl(metacard));
     final QueryResponseImpl queryResponse =
         new QueryResponseImpl(null, mockResults, mockResults.size());
-    doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
+    doReturn(queryResponse).when(catalogFramework).query(nullable(QueryRequest.class));
 
     final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest, null);
     verifyCswRecordCollection(cswRecordCollection, metacard);
@@ -1279,7 +1280,7 @@ public class CswEndpointTest {
         Arrays.asList(new ResultImpl(metacard1), new ResultImpl(metacard2));
     final QueryResponse queryResponse =
         new QueryResponseImpl(null, mockResults, mockResults.size());
-    doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
+    doReturn(queryResponse).when(catalogFramework).query(nullable(QueryRequest.class));
 
     final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType, null);
     verifyCswRecordCollection(cswRecordCollection, metacard1, metacard2);

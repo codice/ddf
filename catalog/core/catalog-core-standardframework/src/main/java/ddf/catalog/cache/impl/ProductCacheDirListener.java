@@ -19,6 +19,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.query.PagingPredicate;
 import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.data.ReliableResourceComparator;
@@ -125,6 +126,16 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
       LOGGER.debug("entry evicted event triggered: {}", resource.getKey());
       cacheDirSize.addAndGet(-resource.getSize());
     }
+  }
+
+  @Override
+  public void mapCleared(MapEvent mapEvent) {
+    // TODO: 2018-12-07 What needs to happen here?
+  }
+
+  @Override
+  public void mapEvicted(MapEvent mapEvent) {
+    // TODO: 2018-12-07 What needs to happen here?
   }
 
   private void deleteFromCache(IMap<String, ReliableResource> cacheMap, ReliableResource rr) {

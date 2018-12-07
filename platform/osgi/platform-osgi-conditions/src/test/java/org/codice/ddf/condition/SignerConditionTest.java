@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import javax.security.auth.x500.X500Principal;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.service.condpermadmin.ConditionInfo;
-import sun.security.x509.X509CertImpl; // suppress checkstyle:IllegalImport required for testing
 
 public class SignerConditionTest {
 
@@ -38,7 +38,9 @@ public class SignerConditionTest {
     Bundle bundle = mock(Bundle.class);
     Map<X509Certificate, List<X509Certificate>> trustedCerts = new HashMap<>();
     X509Certificate key =
-        new X509CertImpl(SignerConditionTest.class.getResourceAsStream("/asdf.der"));
+        (X509Certificate)
+            CertificateFactory.getInstance("X.509")
+                .generateCertificate(SignerConditionTest.class.getResourceAsStream("/asdf.der"));
     trustedCerts.put(key, new ArrayList<>());
     when(bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED)).thenReturn(trustedCerts);
     SignerCondition principalCondition =
@@ -55,7 +57,9 @@ public class SignerConditionTest {
     Bundle bundle = mock(Bundle.class);
     Map<X509Certificate, List<X509Certificate>> trustedCerts = new HashMap<>();
     X509Certificate key =
-        new X509CertImpl(SignerConditionTest.class.getResourceAsStream("/asdf.der"));
+        (X509Certificate)
+            CertificateFactory.getInstance("X.509")
+                .generateCertificate(SignerConditionTest.class.getResourceAsStream("/asdf.der"));
     trustedCerts.put(key, new ArrayList<>());
     when(bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED)).thenReturn(trustedCerts);
     SignerCondition principalCondition =
@@ -109,7 +113,9 @@ public class SignerConditionTest {
     Bundle bundle = mock(Bundle.class);
     Map<X509Certificate, List<X509Certificate>> trustedCerts = new HashMap<>();
     X509Certificate key =
-        new X509CertImpl(SignerConditionTest.class.getResourceAsStream("/test.der"));
+        (X509Certificate)
+            CertificateFactory.getInstance("X.509")
+                .generateCertificate(SignerConditionTest.class.getResourceAsStream("/test.der"));
     trustedCerts.put(key, new ArrayList<>());
     when(bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED)).thenReturn(trustedCerts);
     SignerCondition principalCondition =

@@ -52,6 +52,14 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAX-WS (Includes SOAP) -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-ri</artifactId>
+            <type>pom</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

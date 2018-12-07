@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -70,7 +71,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     when(mockManager.getTransformerBySchema(anyString())).thenReturn(mockTransformer);
 
     ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-    when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
+    when(mockTransformer.transform(nullable(SourceResponse.class), any(Map.class)))
         .thenReturn(mockContent);
     when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
@@ -89,7 +90,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
     writer.writeTo(collection, null, null, null, null, null, stream);
 
-    verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
+    verify(mockTransformer).transform(nullable(SourceResponse.class), captor.capture());
 
     Map arguments = captor.getValue();
     assertThat(arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
@@ -97,7 +98,9 @@ public class CswRecordCollectionMessageBodyWriterTest {
     assertThat(arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.HITS));
     assertThat(arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
     assertThat(arguments.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
-    assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
+
+    QName elemZero = (QName) ((Object[]) arguments.get(CswConstants.ELEMENT_NAMES))[0];
+    assertThat(elemZero, is(example));
   }
 
   @Test
@@ -108,7 +111,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     when(mockManager.getTransformerBySchema(anyString())).thenReturn(mockTransformer);
 
     ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-    when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
+    when(mockTransformer.transform(nullable(SourceResponse.class), any(Map.class)))
         .thenReturn(mockContent);
     when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
@@ -127,7 +130,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     writer.writeTo(collection, null, null, null, null, null, stream);
 
     verify(mockManager, times(1)).getTransformerBySchema(anyString());
-    verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
+    verify(mockTransformer).transform(nullable(SourceResponse.class), captor.capture());
 
     Map arguments = captor.getValue();
     assertThat(arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
@@ -136,7 +139,9 @@ public class CswRecordCollectionMessageBodyWriterTest {
     assertThat(arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.VALIDATE));
     assertThat(arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
     assertThat(arguments.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
-    assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
+
+    QName elemZero = (QName) ((Object[]) arguments.get(CswConstants.ELEMENT_NAMES))[0];
+    assertThat(elemZero, is(example));
   }
 
   @Test
@@ -145,7 +150,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     CswRecordCollectionMessageBodyWriter writer =
         new CswRecordCollectionMessageBodyWriter(mockManager);
     when(mockManager.getTransformerByMimeType(any(String.class))).thenReturn(mockTransformer);
-    when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
+    when(mockTransformer.transform(nullable(SourceResponse.class), any(Map.class)))
         .thenReturn(mockContent);
     when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 

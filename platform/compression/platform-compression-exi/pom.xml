@@ -71,6 +71,14 @@
             <version>2.7.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Java 11 -->
+        <!-- JAX-WS (Includes SOAP) -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-ri</artifactId>
+            <type>pom</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

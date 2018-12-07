@@ -213,7 +213,7 @@ public class WorkspaceTransformerImplTest {
 
     final EndpointUtil mockEndpointUtils = Mockito.mock(EndpointUtil.class);
     when(mockEndpointUtils.convertDateEntries(any(Map.Entry.class)))
-        .then(invocation -> invocation.getArgumentAt(0, Map.Entry.class));
+        .then(invocation -> invocation.getArgument(0));
 
     metacard = new MetacardImpl(DUMMY_METACARD_TYPE);
 

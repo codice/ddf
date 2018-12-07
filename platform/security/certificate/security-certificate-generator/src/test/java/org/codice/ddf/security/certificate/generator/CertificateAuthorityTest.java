@@ -32,7 +32,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateAuthorityTest {
@@ -70,15 +70,12 @@ public class CertificateAuthorityTest {
         };
 
     X509Certificate mockSignedCert = demoCa.getCertificate();
-    X509Certificate mockIssuerCert = demoCa.getCertificate();
 
     when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
     when(mockBuilder.build(any(ContentSigner.class))).thenReturn(mockHolder);
     when(mockConverter.getCertificate(any(X509CertificateHolder.class))).thenReturn(mockSignedCert);
     when(csr.getSubjectPrivateKey()).thenReturn(mockPrivateKey);
-    when(csr.getSubjectPublicKey()).thenReturn(mockPublicKey);
     when(mockPrivateKey.getAlgorithm()).thenReturn("RSA");
-    when(mockPublicKey.getAlgorithm()).thenReturn("RSA");
 
     KeyStore.PrivateKeyEntry newObject = demoCa.sign(csr);
     assertThat(
@@ -97,13 +94,15 @@ public class CertificateAuthorityTest {
         };
 
     when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
-    when(mockBuilder.build(any(ContentSigner.class))).thenThrow(CertificateException.class);
+    when(mockBuilder.build(any(ContentSigner.class))).thenReturn(mockHolder);
+    when(mockConverter.getCertificate(any(X509CertificateHolder.class)))
+        .thenThrow(CertificateException.class);
 
     demoCa.sign(csr);
   }
 
   @Test(expected = CertificateGeneratorException.class)
-  public void testSignWithCertIOException() throws Exception {
+  public void testSignWithCertErrorCreatingBuilder() throws Exception {
     DemoCertificateAuthority demoCa =
         new DemoCertificateAuthority() {
           JcaX509CertificateConverter newCertConverter() {
@@ -111,8 +110,7 @@ public class CertificateAuthorityTest {
           }
         };
 
-    when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
-    when(mockBuilder.build(any(ContentSigner.class))).thenThrow(CertIOException.class);
+    when(csr.newCertificateBuilder(any(X509Certificate.class))).thenThrow(CertIOException.class);
 
     demoCa.sign(csr);
   }

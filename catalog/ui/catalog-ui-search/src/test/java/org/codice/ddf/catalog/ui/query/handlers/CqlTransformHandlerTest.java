@@ -17,7 +17,7 @@ import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.when;
@@ -87,7 +87,7 @@ public class CqlTransformHandlerTest {
   private static final String SERVICE_NOT_FOUND = "\"Service not found\"";
   private static final String SERVICE_SUCCESS = GSON.toJson("");
   private static final String ATTACHMENT_REGEX =
-      "^attachment;filename=export-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z."
+      "^attachment;filename=export-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{6})?Z."
           + RETURN_ID
           + "$";
 

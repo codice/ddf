@@ -24,6 +24,17 @@
     <artifactId>mime-core-api</artifactId>
     <name>DDF :: MIME :: Core :: MIME API</name>
     <packaging>bundle</packaging>
+
+    <dependencies>
+        <!-- Java 11 -->
+        <!-- JAF Dependencies -->
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+        </dependency>
+
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
