@@ -166,12 +166,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>${xmlunit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
         </dependency>

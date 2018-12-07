@@ -143,12 +143,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>${xmlunit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
