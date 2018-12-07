@@ -632,11 +632,11 @@ public class MetacardApplication implements SparkApplication {
 
           String[] queryIds = workspace.getQueries().toArray(new String[0]);
 
+          catalogFramework.delete(new DeleteRequestImpl(id));
+
           if (queryIds.length > 0) {
             catalogFramework.delete(new DeleteRequestImpl(queryIds));
           }
-
-          catalogFramework.delete(new DeleteRequestImpl(id));
 
           subscriptions.removeSubscriptions(id);
           return ImmutableMap.of("message", "Successfully deleted.");
