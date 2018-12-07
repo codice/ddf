@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# createCores.sh
+# This script can be used to pre-create solr cores for use with DDF. If a specific core name already exists no action will be performed for that core.
+# ARGS: coreNames...
+# 
+# By default this script assumes that there are template files for creating ddf solr cores in the ./configs directory. To override this set the CONFIG_SRC environment variable
+# By default this script assumes that cores should be created in the ./cores directory. To override this set the CORE_DEST environment variable
+
 SRC=${CONFIG_SRC:=configs}
 DEST=${CORE_DEST:=cores/}
 

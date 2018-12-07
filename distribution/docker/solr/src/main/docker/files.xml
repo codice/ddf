@@ -13,6 +13,8 @@
  **/
 -->
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0">
+  <!-- This assembly descriptor is used to provide files and dependencies
+    to the docker build context. -->
   <dependencySets>
     <dependencySet>
       <includes>
