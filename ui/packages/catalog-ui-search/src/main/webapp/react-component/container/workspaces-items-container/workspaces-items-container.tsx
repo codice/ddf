@@ -58,7 +58,8 @@ function sortWorkspaces(workspaces: Backbone.Model[]) {
       case 'Title':
         return workspace.get('title').toLowerCase()
       default:
-        return -workspace.get('metacard.modified')
+        //We want to sort in descending order. Parse the timestamp to a Date and find seconds since the epoch. Sort by the inverse of that.
+        return -(new Date(workspace.get('metacard.modified')).getTime())
     }
   })
 }
