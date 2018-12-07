@@ -47,6 +47,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
+                            <!--suppress MavenModelInspection -->
                             <skip>${skipTests}</skip>
                             <arguments>test</arguments>
                         </configuration>

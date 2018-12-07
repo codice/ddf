@@ -315,6 +315,7 @@
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
                             <!--Do not run this plugin execution if the we are skipping tests-->
+                            <!--suppress MavenModelInspection -->
                             <skip>${skipTests}</skip>
                             <longModulepath>false</longModulepath>
                         </configuration>
@@ -380,6 +381,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
                     <!--Do not run this plugin execution if the we are skipping tests-->
+                    <!--suppress MavenModelInspection -->
                     <skip>${skipTests}</skip>
                     <longModulepath>false</longModulepath>
                 </configuration>
@@ -451,7 +453,9 @@
                 <artifactId>acdebugger-maven-plugin</artifactId>
                 <version>${acdebugger.version}</version>
                 <configuration>
+                    <!--suppress MavenModelInspection -->
                     <skip>${skipTests}</skip>
+                    <!--suppress MavenModelInspection -->
                     <remoteDebugging>${isDebugEnabled}</remoteDebugging>
                     <host>localhost</host>
                     <port>${acdebugger.port}</port>

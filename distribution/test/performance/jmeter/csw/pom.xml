@@ -45,8 +45,11 @@
                                 </goals>
                                 <configuration>
                                     <propertiesJMeter>
+                                        <!--suppress UnresolvedMavenProperty -->
                                         <target.host>${target.host}</target.host>
+                                        <!--suppress UnresolvedMavenProperty -->
                                         <target.port>${target.port}</target.port>
+                                        <!--suppress UnresolvedMavenProperty -->
                                         <target.protocol>${target.protocol}</target.protocol>
                                     </propertiesJMeter>
                                     <testResultsTimestamp>false</testResultsTimestamp>

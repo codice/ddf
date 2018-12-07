@@ -368,6 +368,7 @@
         </snapshotRepository>
         <repository>
             <id>releases</id>
+            <!--suppress UnresolvedMavenProperty -->
             <url>${releases.repository.url}</url>
         </repository>
         <site>
@@ -391,6 +392,7 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.5</version>
                     <configuration>
+                        <!--suppress UnresolvedMavenProperty -->
                         <rulesUri>file:///${session.executionRootDirectory}/rules.xml</rulesUri>
                     </configuration>
                 </plugin>
@@ -400,9 +402,13 @@
                     <version>${dependency-check-maven.version}</version>
                     <configuration>
                         <!-- The following properties enable using a mirror for nist NVD data -->
+                        <!--suppress UnresolvedMavenProperty -->
                         <cveUrl12Modified>${owasp.cveUrl12Modified}</cveUrl12Modified>
+                        <!--suppress UnresolvedMavenProperty -->
                         <cveUrl20Modified>${owasp.cveUrl20Modified}</cveUrl20Modified>
+                        <!--suppress UnresolvedMavenProperty -->
                         <cveUrl12Base>${owasp.cveUrl12Base}</cveUrl12Base>
+                        <!--suppress UnresolvedMavenProperty -->
                         <cveUrl20Base>${owasp.cveUrl20Base}</cveUrl20Base>
                         <!-- End NVD mirror configuration -->
                         <failBuildOnCVSS>7</failBuildOnCVSS>
@@ -515,6 +521,7 @@
                         <source>8</source>
                         <target>8</target>
                         <maxmem>512M</maxmem>
+                        <!--suppress MavenModelInspection -->
                         <fork>${compiler.fork}</fork>
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
@@ -541,6 +548,7 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <preparationGoals>clean install</preparationGoals>
                         <pushChanges>false</pushChanges>
+                        <!--suppress UnresolvedMavenProperty -->
                         <arguments>-Prelease ${arguments}</arguments>
                         <useReleaseProfile>false</useReleaseProfile>
                     </configuration>
@@ -635,7 +643,9 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <yarnVersion>${yarn.version}</yarnVersion>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <nodeDownloadRoot>${node.download.root}</nodeDownloadRoot>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <yarnDownloadRoot>${yarn.download.root}</yarnDownloadRoot>
                             </configuration>
                         </execution>
