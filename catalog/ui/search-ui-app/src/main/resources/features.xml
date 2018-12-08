@@ -40,6 +40,10 @@
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-attribute-hidden-config
         </configfile>
 
+        <configfile finalname="${ddf.etc}/i18n/IntrigueBundle/IntrigueBundle_en.properties" override="false">
+            mvn:ddf.ui/search-ui-app/${project.version}/config/intrigue-bundle-config
+        </configfile>
+
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>

@@ -1,4 +1,5 @@
-{{!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,7 +11,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="{{menuClasses}}">
-    {{menuText}}
-</div>
+-->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+  <bean id="resourceBundleLocator" class="ddf.platform.resource.bundle.locator.ResourceBundleLocatorImpl"/>
+
+  <service ref="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
+
+</blueprint>

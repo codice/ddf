@@ -376,5 +376,6 @@
         <module>osgi</module>
         <module>branding-registry-impl</module>
         <module>sync-installer</module>
+        <module>resource-bundle-locator</module>
     </modules>
 </project>

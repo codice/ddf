@@ -20,6 +20,8 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import com.google.common.annotations.VisibleForTesting;
+import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,8 +31,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
@@ -69,6 +73,8 @@ public class LandingPage extends HttpServlet {
 
   private String externalUrl;
 
+  private String sourceAvailabilityHeader;
+
   private List<String> announcements;
 
   private String linksTitle;
@@ -80,6 +86,8 @@ public class LandingPage extends HttpServlet {
   private static final String LANDING_PAGE_FILE = "index";
 
   private static final String NO_DATE = "No date specified";
+
+  private static final String LANDING_PAGE_BASE_NAME = "LandingPageBundle";
 
   private static final List<String> ACCEPTED_PATHS =
       Arrays.asList(
@@ -101,6 +109,29 @@ public class LandingPage extends HttpServlet {
   private String background;
 
   private String foreground;
+
+  public void setSourceAvailabilityHeader(ResourceBundleLocator resourceBundleLocator) {
+    try {
+      ResourceBundle resourceBundle = resourceBundleLocator.getBundle(LANDING_PAGE_BASE_NAME);
+      this.sourceAvailabilityHeader = resourceBundle.getString("data.source.availability");
+    } catch (IOException e) {
+      LOGGER.debug(
+          "An error occurred while creating class loader to URL for ResourceBundle: {}, {}",
+          LANDING_PAGE_BASE_NAME,
+          Locale.getDefault(),
+          e);
+    }
+  }
+
+  @VisibleForTesting
+  void setSourceAvailabilityHeader(String sourceKeyword) {
+    this.sourceAvailabilityHeader = sourceKeyword;
+  }
+
+  @VisibleForTesting
+  String getSourceAvailabilityHeader() {
+    return this.sourceAvailabilityHeader;
+  }
 
   public List<String> getAnnouncements() {
     return announcements;

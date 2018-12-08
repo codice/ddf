@@ -15,7 +15,6 @@
 /*global require*/
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
-var template = require('./navigator.hbs')
 var wreqr = require('../../js/wreqr.js')
 var properties = require('../../js/properties.js')
 var store = require('../../js/store.js')
@@ -25,6 +24,8 @@ var UnsavedIndicatorView = require('../unsaved-indicator/workspaces/workspaces-u
 var sources = require('../singletons/sources-instance.js')
 const plugin = require('plugins/navigator')
 const $ = require('jquery')
+import * as React from 'react'
+import { FormattedMessage } from 'react-intl'
 
 const visitFragment = fragment =>
   wreqr.vent.trigger('router:navigate', {
@@ -36,7 +37,115 @@ const visitFragment = fragment =>
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
-    template: template,
+    template(props) {
+      return (
+        <React.Fragment>
+          <button
+            className="navigation-choice is-neutral choice-product is-button"
+            data-fragment="workspaces"
+          >
+            <span className="is-bold">{props.properties.branding}</span>
+            <span className="">{props.properties.product}</span>
+          </button>
+          <div className="is-divider" />
+          <div className="navigation-links">
+            <button
+              className="navigation-choice is-neutral choice-workspaces is-button"
+              data-fragment="workspaces"
+            >
+              <span className="fa fa-book" />
+              <span>Workspaces</span>
+              <div className="workspaces-indicator" />
+            </button>
+            <div className="workspaces-save" />
+            <button
+              className="navigation-choice is-neutral choice-upload is-button"
+              data-fragment="ingest"
+            >
+              <span className="fa fa-upload" />
+              <span>Upload</span>
+            </button>
+            <button
+              className="navigation-choice is-neutral choice-sources is-button"
+              data-fragment="sources"
+            >
+              <span className="fa fa-cloud" />
+              <FormattedMessage id="sources.title" defaultMessage="Sources" />
+              <span className="sources-indicator fa fa-bolt" />
+            </button>
+            <button
+              className="navigation-choice is-neutral choice-search-forms is-button"
+              data-fragment="forms"
+            >
+              <span className="fa cf cf-search-forms" />
+              <span>Search Forms</span>
+              <div className="forms-indicator" />
+            </button>
+            <button
+              className="navigation-choice is-neutral choice-result-forms is-button"
+              data-fragment="resultForms"
+            >
+              <span className="fa cf cf-result-forms" />
+              <span>Result Forms</span>
+              <div className="forms-indicator" />
+            </button>
+            <div className="navigation-extensions" />
+          </div>
+          {props.recent && (
+            <React.Fragment>
+              <div className="is-divider" />
+              <div className="navigation-links">
+                {props.workspace && (
+                  <button
+                    className="navigation-choice is-neutral choice-previous-workspace is-button"
+                    title={`Most Recent Workspace: ${props.workspace.title}`}
+                    data-fragment={`workspaces/${props.workspace.id}`}
+                  >
+                    <div>Most Recent Workspace</div>
+                    <span className="fa fa-history" />
+                    <span className="dynamic-text">
+                      {props.workspace.title}
+                    </span>
+                  </button>
+                )}
+                {props.metacard ? (
+                  <button
+                    className="navigation-choice is-neutral choice-previous-metacard is-button"
+                    title={`Most Recent Metacard: ${
+                      props.metacard.metacard.properties.title
+                    }`}
+                    data-fragment={`metacards/${props.metacard.metacard.id}`}
+                  >
+                    <div className="">Most Recent Metacard</div>
+                    <span className="fa fa-history" />
+                    <span className="dynamic-text">
+                      {props.metacard.metacard.properties.title}
+                    </span>
+                  </button>
+                ) : null}
+              </div>
+            </React.Fragment>
+          )}
+          <div className="is-divider" />
+          <div className="navigation-links">
+            <button
+              className="navigation-choice is-neutral choice-about is-button"
+              data-fragment="about"
+            >
+              <span className="fa fa-info" />
+              <span>About</span>
+            </button>
+            <button
+              className="navigation-choice is-neutral choice-dev is-button"
+              data-fragment="_dev"
+            >
+              <span className="fa fa-user-md" />
+              <span>Developer</span>
+            </button>
+          </div>
+        </React.Fragment>
+      )
+    },
     tagName: CustomElements.register('navigator'),
     regions: {
       workspacesIndicator: '.workspaces-indicator',

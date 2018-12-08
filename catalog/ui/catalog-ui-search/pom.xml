@@ -362,16 +362,11 @@
             <version>${usng4j.version}</version>
             <scope>test</scope>
         </dependency>
-      <dependency>
-        <groupId>ddf.mime.core</groupId>
-        <artifactId>mime-core-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codice.thirdparty</groupId>
-        <artifactId>tika-bundle</artifactId>
-        <version>${tika.thirdparty.bundle.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>resource-bundle-locator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -507,12 +502,12 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.37</minimum>
+                                            <minimum>0.38</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.35</minimum>
+                                            <minimum>0.36</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

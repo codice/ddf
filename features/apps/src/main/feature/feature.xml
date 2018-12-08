@@ -73,6 +73,7 @@
         <feature>util-uuidgenerator</feature>
         <feature>platform-alerts</feature>
         <feature>session-manager-command</feature>
+        <feature>resource-bundle-locator</feature>
     </feature>
 
     <feature name="security-services-app" version="${project.version}"

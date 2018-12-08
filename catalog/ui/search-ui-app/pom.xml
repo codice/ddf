@@ -90,6 +90,11 @@
                                     <type>properties</type>
                                     <classifier>catalog-ui-attribute-hidden-config</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>src/main/resources/etc/IntrigueBundle.properties</file>
+                                    <type>config</type>
+                                    <classifier>intrigue-bundle-config</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

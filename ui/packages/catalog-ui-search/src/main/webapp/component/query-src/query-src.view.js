@@ -18,17 +18,24 @@ const _ = require('underscore')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const sources = require('../singletons/sources-instance.js')
+const properties = require('properties')
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
 
 module.exports = Marionette.ItemView.extend({
   template(props) {
     return (
       <React.Fragment key={Math.random()}>
         <div className="choice is-all is-available">
-          <span className="choice-text">All Sources</span>
+          <span className="choice-text">
+            <FormattedMessage
+              id="sources.options.all"
+              defaultMessage="All Sources"
+            />
+          </span>
           <span className="choice-selected fa fa-check" />
         </div>
-        {props.map(source => {
+        {props.sources.map(source => {
           return (
             <div
               key={source.id}
@@ -112,6 +119,8 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   serializeData: function() {
-    return sources.toJSON()
+    return {
+      sources: sources.toJSON(),
+    }
   },
 })

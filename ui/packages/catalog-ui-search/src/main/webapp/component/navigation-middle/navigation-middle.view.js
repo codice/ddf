@@ -14,17 +14,29 @@
  **/
 /*global require*/
 var Marionette = require('marionette')
-var template = require('./navigation-middle.hbs')
 var CustomElements = require('../../js/CustomElements.js')
-const router = require('../router/router.js')
+const properties = require('properties')
+import * as React from 'react'
+import { FormattedMessage } from 'react-intl'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  getLabel() {
+    const { i18n, text } = this.options
+
+    if (i18n) {
+      const { id, defaultMessage } = this.options
+      return <FormattedMessage id={id} defaultMessage={defaultMessage} />
+    }
+
+    return text
+  },
+  template(props) {
+    return <div className={props.menuClass}>{this.getLabel()}</div>
+  },
   tagName: CustomElements.register('navigation-middle'),
   serializeData: function() {
     return {
       menuClass: this.options.classes,
-      menuText: this.options.text,
     }
   },
 })

@@ -18,23 +18,27 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.ddf.branding.impl.BrandingRegistryImpl;
+import org.hamcrest.MatcherAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -49,6 +53,8 @@ public class LandingPageTest {
   private static LandingPage landingPage;
 
   private static List<String> sorted;
+
+  private static ResourceBundleLocator resourceBundleLocator;
 
   @BeforeClass
   public static void setupLandingPage() throws IOException {
@@ -70,6 +76,7 @@ public class LandingPageTest {
         Arrays.asList(secondDateNoLeadingZeroes, noDate, firstDateLeadingZeroes);
     sorted = Arrays.asList(firstDateLeadingZeroes, secondDateNoLeadingZeroes, noDate);
     landingPage.setAnnouncements(unsorted);
+    resourceBundleLocator = mock(ResourceBundleLocator.class);
   }
 
   @Test
@@ -114,5 +121,15 @@ public class LandingPageTest {
     when(response.getWriter()).thenReturn(writer);
     landingPage.doGet(request, response);
     verify(writer, times(1)).write(compiledTemplate);
+  }
+
+  @Test
+  public void testGetKeywords() throws IOException {
+    doReturn(ResourceBundle.getBundle("LandingPageBundle"))
+        .when(resourceBundleLocator)
+        .getBundle(any(String.class));
+    landingPage.setSourceAvailabilityHeader(resourceBundleLocator);
+    MatcherAssert.assertThat(
+        landingPage.getSourceAvailabilityHeader(), is("Data Source Availability"));
   }
 }

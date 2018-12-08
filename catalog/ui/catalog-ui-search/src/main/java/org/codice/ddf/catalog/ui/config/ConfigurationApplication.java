@@ -18,21 +18,27 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.configuration.HistorianConfiguration;
+import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -227,6 +233,47 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
+
+  private static final String INTRIGUE_BASE_NAME = "IntrigueBundle";
+
+  private volatile Map<String, String> i18n = Collections.emptyMap();
+
+  public void setI18n(ResourceBundleLocator resourceBundleLocator) {
+    try {
+      ResourceBundle resourceBundle = resourceBundleLocator.getBundle(INTRIGUE_BASE_NAME);
+
+      if (resourceBundle != null) {
+        Enumeration bundleKeys = resourceBundle.getKeys();
+
+        Map<String, String> keywords = new HashMap<>();
+
+        while (bundleKeys.hasMoreElements()) {
+          String key = (String) bundleKeys.nextElement();
+          String value = resourceBundle.getString(key);
+
+          keywords.put(key, value);
+        }
+
+        i18n = keywords;
+      }
+    } catch (IOException e) {
+      LOGGER.debug(
+          "An error occurred while creating class loader to URL for ResourceBundle: {}, {}",
+          INTRIGUE_BASE_NAME,
+          Locale.getDefault(),
+          e);
+    }
+  }
+
+  @VisibleForTesting
+  void setI18n(Map<String, String> i18n) {
+    this.i18n = i18n;
+  }
+
+  @VisibleForTesting
+  Map<String, String> getI18n() {
+    return this.i18n;
+  }
 
   public Set<String> getEditorAttributes() {
     return editorAttributes;
@@ -511,6 +558,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("basicSearchTemporalSelectionDefault", basicSearchTemporalSelectionDefault);
     config.put("basicSearchMatchType", basicSearchMatchType);
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
+    config.put("i18n", i18n);
     return config;
   }
 

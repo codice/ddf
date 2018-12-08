@@ -20,13 +20,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -45,9 +51,12 @@ public class ConfigurationApplicationTest {
 
   private ConfigurationApplication configurationApplication;
 
+  private ResourceBundleLocator resourceBundleLocator;
+
   @Before
   public void setUp() {
     configurationApplication = new ConfigurationApplication(mock(UuidGenerator.class));
+    resourceBundleLocator = mock(ResourceBundleLocator.class);
   }
 
   @Test
@@ -191,5 +200,26 @@ public class ConfigurationApplicationTest {
 
     assertThat(requiredAttributes.size(), is(1));
     assertThat(requiredAttributes, hasItem("attribute"));
+  }
+
+  @Test
+  public void testGetDefaultKeywords() {
+    assertThat(configurationApplication.getI18n(), is(Collections.emptyMap()));
+  }
+
+  @Test
+  public void testGetKeywords() throws IOException {
+    doReturn(ResourceBundle.getBundle("IntrigueBundle"))
+        .when(resourceBundleLocator)
+        .getBundle(any(String.class));
+    configurationApplication.setI18n(resourceBundleLocator);
+
+    Map<String, String> keywords = configurationApplication.getI18n();
+
+    assertThat(keywords.size(), is(4));
+    assertThat(keywords.get("Source"), is("Source"));
+    assertThat(keywords.get("source"), is("source"));
+    assertThat(keywords.get("Sources"), is("Sources"));
+    assertThat(keywords.get("sources"), is("sources"));
   }
 }
