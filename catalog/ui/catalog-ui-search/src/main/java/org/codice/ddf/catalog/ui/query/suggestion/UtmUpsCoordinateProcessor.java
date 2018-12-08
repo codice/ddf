@@ -95,7 +95,7 @@ public class UtmUpsCoordinateProcessor {
       final String utmOrUpsText = normalizeCoordinate(group);
       final UtmUpsCoordinate utmUps = parseUtmUpsString(utmOrUpsText);
       if (utmUps != null) {
-        nameBuilder.append("[ ").append(utmUps.toString()).append(" ]");
+        nameBuilder.append(" [ ").append(utmUps.toString()).append(" ]");
         utmUpsCoords.add(utmUps);
       }
     }
