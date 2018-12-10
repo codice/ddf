@@ -92,7 +92,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
   private MBeanServer mbeanServer;
   private ObjectName objectName;
-  private String oldHostName = SystemBaseUrl.EXTERNAL.getHost();
+  private String oldHostName = SystemBaseUrl.INTERNAL.getHost();
   private GuestClaimsHandlerExt guestClaimsHandlerExt;
 
   public SystemPropertiesAdmin(GuestClaimsHandlerExt guestClaimsHandlerExt)
@@ -215,7 +215,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
         if (oldHostValue != null) {
           usersDotProperties.remove(oldHostName);
           usersDotProperties.setProperty(
-              System.getProperty(SystemBaseUrl.EXTERNAL_HOST), oldHostValue);
+              System.getProperty(SystemBaseUrl.INTERNAL_HOST), oldHostValue);
 
           usersDotProperties.save();
         }
@@ -240,7 +240,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     addGuestClaimsProfileAttributes(json);
 
     if (json.containsKey(oldHostName)) {
-      json.put(System.getProperty(SystemBaseUrl.EXTERNAL_HOST), json.remove(oldHostName));
+      json.put(System.getProperty(SystemBaseUrl.INTERNAL_HOST), json.remove(oldHostName));
     }
 
     for (Map.Entry<String, Object> entry : json.entrySet()) {
@@ -291,7 +291,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       if (val.contains(DEFAULT_LOCALHOST_DN)) {
         map.put(
             entry.getKey(),
-            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.EXTERNAL_HOST)));
+            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.INTERNAL_HOST)));
       }
     }
     return map;
