@@ -41,7 +41,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdateImpl.class);
 
-  @SuppressWarnings("squid:S2068" /* This constant does hold an actual password */)
+  @SuppressWarnings("squid:S2068" /* This constant does not hold an actual password */)
   private static final String SOLR_PASSWORD_PROPERTY_NAME = "solr.password";
 
   private final ClientFactoryFactory restClientFactoryFactory;
