@@ -152,29 +152,43 @@ public class UtmUpsCoordinateProcessor {
       LOGGER.trace("No transform necessary, coordinate [{}] was not UTM", utmOrUps);
       return utmOrUps; // Must be UPS, do nothing
     }
-    if (hasLatBand(utmOrUps)) {
-      LOGGER.trace("Found lat band on input [{}]", utmOrUps);
-      return utmOrUps;
+    final Character latBand = getLatBand(utmOrUps);
+    if (latBand == null) {
+      final String withDefaultNorthLatBand = useDefaultNorthLatBand(utmOrUps);
+      LOGGER.trace(
+          "No lat band found on input [{}], setting it to default for north hemisphere [{}]",
+          utmOrUps,
+          withDefaultNorthLatBand);
+      return withDefaultNorthLatBand;
     }
-    final String withDefaultNorthLatBand = useDefaultNorthLatBand(utmOrUps);
-    LOGGER.trace(
-        "No lat band found on input [{}], setting it to default for north hemisphere [{}]",
-        utmOrUps,
-        withDefaultNorthLatBand);
-    return withDefaultNorthLatBand;
+    if (Character.isLowerCase(latBand)) {
+      final String asUpperCase = setLatBand(utmOrUps, Character.toUpperCase(latBand));
+      LOGGER.trace(
+          "Found lower case lat band on input [{}], converting to upper case [{}]",
+          utmOrUps,
+          asUpperCase);
+      return asUpperCase;
+    }
+    LOGGER.trace("Found lat band on input [{}]", utmOrUps);
+    return utmOrUps;
   }
 
   /**
-   * Private utility method that detects if a latitude band is present in a UTM input string. The
-   * provided input <b>must</b> match {@link #PATTERN_UTM_COORDINATE}.
+   * Private utility method that detects if a latitude band is present in a UTM input string and
+   * returns it, or null if it didn't exist. The provided input <b>must</b> match {@link
+   * #PATTERN_UTM_COORDINATE}.
    *
    * @param input UTM string input to search.
-   * @return true if the string has a latitude band, false otherwise.
+   * @return the lat band character, or null if it wasn't on the input string.
    */
-  private static boolean hasLatBand(final String input) {
+  @Nullable
+  private static Character getLatBand(final String input) {
     final int indexOfLastSymbolInZoneClause = input.indexOf(SPACE_CHAR) - 1;
     final char lastSymbolInZoneClause = input.charAt(indexOfLastSymbolInZoneClause);
-    return Character.isLetter(lastSymbolInZoneClause);
+    if (Character.isLetter(lastSymbolInZoneClause)) {
+      return lastSymbolInZoneClause;
+    }
+    return null;
   }
 
   /**

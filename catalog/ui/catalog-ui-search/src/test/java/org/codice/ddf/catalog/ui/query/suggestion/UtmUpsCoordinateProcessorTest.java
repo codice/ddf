@@ -136,6 +136,15 @@ public class UtmUpsCoordinateProcessorTest {
   }
 
   @Test
+  public void testUtmStringWithLowerCaseLatBand() throws Exception {
+    setupMocks("13M 234789mE 234789mN", 1.0, 2.0);
+    assertSuggestion(
+        "13m 234789mE 234789mN",
+        "UTM/UPS: [ 13M 234789mE 234789mN ]",
+        ImmutableList.of(new LatLon(1.0, 2.0)));
+  }
+
+  @Test
   public void testUpsStringWithInvalidLatBand() {
     assertSuggestionDoesNotExist("C 2347891mE 2347891mN");
   }
