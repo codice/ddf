@@ -69,6 +69,15 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
    * bean. That is why is can use itself as the lock
    */
   public synchronized void updateSolrPassword() {
+    try {
+      run();
+    } finally {
+      cleanup();
+    }
+  }
+
+  @VisibleForTesting
+  void run() {
     if (configuredToAttemptAutoPasswordChange() && isUsingDefaultPassword()) {
       initialize();
       generatePassword();
@@ -85,6 +94,15 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
         }
       }
     }
+  }
+
+  @VisibleForTesting
+  void cleanup() {
+    solrAuthResource = null;
+    newPasswordPlainText = null;
+    solrResponse = null;
+    newPasswordWrappedEncrypted = null;
+    passwordSavedSuccessfully = false;
   }
 
   private void initialize() {
@@ -202,16 +220,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   private void setProperty(String key, String value) {
     AccessController.doPrivileged((PrivilegedAction<String>) () -> System.setProperty(key, value));
-  }
-
-  @VisibleForTesting
-  String getNewPasswordPlainText() {
-    return newPasswordPlainText;
-  }
-
-  @VisibleForTesting
-  String getNewPasswordWrappedEncrypted() {
-    return newPasswordWrappedEncrypted;
   }
 
   @VisibleForTesting

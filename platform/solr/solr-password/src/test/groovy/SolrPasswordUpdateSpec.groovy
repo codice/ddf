@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-
 import ddf.platform.solr.security.SolrAuthResource
 import ddf.platform.solr.security.SolrPasswordUpdateImpl
 import ddf.security.encryption.EncryptionService
@@ -80,18 +79,18 @@ class SolrPasswordUpdateSpec extends Specification {
         }
 
         when:
-        spySolrPasswordUpdate.updateSolrPassword()
+        spySolrPasswordUpdate.run()
 
         then:
         System.getProperty('solr.password').equals(passwordInMemory)
         spySolrPasswordUpdate.isSolrPasswordChangeSuccessfull().equals(solrUpdateSuccess)
 
         where:
-        outcome     || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess  | fileUpdateSuccess | passwordInMemory
-        'sucessful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true               | true              | WRAPPED_PASSWORD
-        'partial'   || 'true'                    | Response.Status.Family.SUCCESSFUL   | true               | false             | BOOTSTRAP_PASSWORD
-        'an error'  || 'true'                    | Response.Status.Family.SERVER_ERROR | false              | false             | BOOTSTRAP_PASSWORD
-        'disabled'  || 'false'                   | null                                | false              | false             | BOOTSTRAP_PASSWORD
+        outcome     || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess | fileUpdateSuccess | passwordInMemory
+        'sucessful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | true              | WRAPPED_PASSWORD
+        'partial'   || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | false             | BOOTSTRAP_PASSWORD
+        'an error'  || 'true'                    | Response.Status.Family.SERVER_ERROR | false             | false             | BOOTSTRAP_PASSWORD
+        'disabled'  || 'false'                   | null                                | false             | false             | BOOTSTRAP_PASSWORD
     }
 
     def 'password generation wrapping encrypted string'() {
@@ -100,8 +99,8 @@ class SolrPasswordUpdateSpec extends Specification {
         solrPasswordUpdate.generatePassword()
 
         then:
-        solrPasswordUpdate.getNewPasswordPlainText().equals(PLAINTEXT_PASSWORD)
-        solrPasswordUpdate.getNewPasswordWrappedEncrypted().equals(WRAPPED_PASSWORD)
+        solrPasswordUpdate.newPasswordPlainText.equals(PLAINTEXT_PASSWORD)
+        solrPasswordUpdate.newPasswordWrappedEncrypted.equals(WRAPPED_PASSWORD)
     }
 
     def 'password property not defined'() {
@@ -114,5 +113,25 @@ class SolrPasswordUpdateSpec extends Specification {
 
         then:
         solrPasswordUpdate.getPlaintextPasswordFromProperties() == null
+    }
+
+    def 'object cleanup'() {
+        given:
+        SolrPasswordUpdateImpl solrPasswordUpdate = new SolrPasswordUpdateImpl(null, null, null)
+        solrPasswordUpdate.newPasswordPlainText = "not null"
+        solrPasswordUpdate.newPasswordWrappedEncrypted = "not null"
+        solrPasswordUpdate.passwordSavedSuccessfully = true
+        solrPasswordUpdate.solrAuthResource = Mock(SolrAuthResource)
+        solrPasswordUpdate.solrResponse = Mock(javax.ws.rs.core.Response.StatusType)
+
+        when:
+        solrPasswordUpdate.cleanup()
+
+        then:
+        solrPasswordUpdate.newPasswordPlainText == null
+        solrPasswordUpdate.newPasswordWrappedEncrypted == null
+        solrPasswordUpdate.passwordSavedSuccessfully == false
+        solrPasswordUpdate.solrAuthResource == null
+        solrPasswordUpdate.solrResponse == null
     }
 }
