@@ -553,4 +553,22 @@
         <cve>CVE-2013-2249</cve>
         <cve>CVE-2017-7679</cve>
     </suppress>
+    <suppress>
+        <notes>
+            False positives against cxf
+        </notes>
+        <cve>CVE-2007-6423</cve>
+        <cve>CVE-2010-0425</cve>
+        <cve>CVE-2009-1890</cve>
+        <cve>CVE-2009-1891</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            False positives against artemis
+        </notes>
+        <cve>CVE-2007-6423</cve>
+        <cve>CVE-2010-0425</cve>
+        <cve>CVE-2009-1890</cve>
+        <cve>CVE-2009-1891</cve>
+    </suppress>
 </suppressions>
