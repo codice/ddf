@@ -35,11 +35,11 @@ module.exports = Marionette.LayoutView.extend({
   },
   serializeData: function() {
     var countdownSeconds = sessionTimeoutModel.getIdleSeconds()
-    if(countdownSeconds < 1) {
-        sessionTimeoutModel.logout()
+    if (countdownSeconds < 1) {
+      sessionTimeoutModel.logout()
     }
     return {
-        timeLeft: countdownSeconds
+      timeLeft: countdownSeconds,
     }
   },
   renewSession: function() {
