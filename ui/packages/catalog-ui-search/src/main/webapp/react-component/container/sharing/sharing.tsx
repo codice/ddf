@@ -35,6 +35,7 @@ export enum Category {
 export type Item = {
   id: string
   value: string
+  editable: boolean
   category: Category
   access: Access
 }
@@ -67,6 +68,7 @@ const getGroups = function(
       return {
         id: common.generateUUID(),
         category: Category.Role,
+        editable: true,
         access:
           groupsWrite.indexOf(role) > -1
             ? Access.Write
@@ -84,14 +86,12 @@ const getIndividuals = function(
   individualsRead: string[],
   accessAdministrators: string[]
 ): Item[] {
-  return _.union(individualsWrite, individualsRead, accessAdministrators)
-    .filter((id: string) => {
-      return id !== owner
-    }) // don't display the owner
-    .map((id: string) => {
+  return _.union(individualsWrite, individualsRead, accessAdministrators).map(
+    (id: string) => {
       return {
         id: common.generateUUID(),
         category: Category.User,
+        editable: id !== owner,
         access:
           accessAdministrators.indexOf(id) > -1
             ? Access.Share
@@ -102,7 +102,8 @@ const getIndividuals = function(
                 : Access.None,
         value: id,
       } as Item
-    })
+    }
+  )
 }
 
 export class Sharing extends React.Component<Props, State> {
@@ -114,6 +115,10 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
 
+  private static _compareFn = (a: Item, b: Item): number => {
+    return a.value < b.value ? -1 : a.value > b.value ? 1 : 0
+  }
+
   componentDidMount = () => {
     fetch(`/search/catalog/internal/metacard/${this.props.id}`)
       .then(response => response.json())
@@ -122,14 +127,16 @@ export class Sharing extends React.Component<Props, State> {
         const items = getGroups(
           metacard[Security.GroupsWrite] || [],
           metacard[Security.GroupsRead] || []
-        ).concat(
-          getIndividuals(
-            metacard['metacard.owner'] || [],
-            metacard[Security.IndividualsWrite] || [],
-            metacard[Security.IndividualsRead] || [],
-            metacard[Security.AccessAdministrators] || []
-          )
         )
+          .sort(Sharing._compareFn)
+          .concat(
+            getIndividuals(
+              metacard['metacard.owner'] || [],
+              metacard[Security.IndividualsWrite] || [],
+              metacard[Security.IndividualsRead] || [],
+              metacard[Security.AccessAdministrators] || []
+            ).sort(Sharing._compareFn)
+          )
         this.setState({ items: items })
         this.add()
       })
@@ -215,6 +222,7 @@ export class Sharing extends React.Component<Props, State> {
     this.state.items.push({
       id: common.generateUUID(),
       value: '',
+      editable: true,
       category: Category.User,
       access: Access.Read,
     })

@@ -75,7 +75,7 @@ const render = (props: Props) => {
                       : 'fa fa-users'
                   }
                 />
-                {item.category === Category.User ? (
+                {item.category === Category.User && item.editable ? (
                   <Text
                     style={{
                       display: 'inline-block',
@@ -91,30 +91,43 @@ const render = (props: Props) => {
                   <span style={{ marginLeft: '12px' }}> {item.value} </span>
                 )}
               </div>
-              <Enum
-                style={{ display: 'inline-block', width: 'calc(50% - 70px)' }}
-                options={
-                  item.category === Category.User ? userDropdown : roleDropdown
-                }
-                value={item.access}
-                showLabel={false}
-                onChange={value => handleChangeSelect(i, value)}
-              />
-              {item.category === Category.User && (
-                <button
-                  style={{
-                    display: 'inline-block',
-                    width: '50px',
-                    verticalAlign: 'middle',
-                  }}
-                  onClick={() => {
-                    remove(i)
-                  }}
-                  className="is-negative"
-                >
-                  <span className="fa fa-minus" />
-                </button>
+              {item.editable ? (
+                <Enum
+                  style={{ display: 'inline-block', width: 'calc(50% - 70px)' }}
+                  options={
+                    item.category === Category.User
+                      ? userDropdown
+                      : roleDropdown
+                  }
+                  value={item.access}
+                  showLabel={false}
+                  onChange={value => handleChangeSelect(i, value)}
+                />
+              ) : (
+                <span style={{ marginLeft: '12px' }}>
+                  {
+                    userDropdown.filter(o => {
+                      return o.value === item.access
+                    })[0].label
+                  }
+                </span>
               )}
+              {item.category === Category.User &&
+                item.editable && (
+                  <button
+                    style={{
+                      display: 'inline-block',
+                      width: '50px',
+                      verticalAlign: 'middle',
+                    }}
+                    onClick={() => {
+                      remove(i)
+                    }}
+                    className="is-negative"
+                  >
+                    <span className="fa fa-minus" />
+                  </button>
+                )}
             </div>
           )
         })}
