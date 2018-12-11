@@ -181,6 +181,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   updateResults: function() {
     var collection = ResultFormsCollection.getCollection()
+    this.model.set('type', 'result')
     this.model.id ? this.model.save() : collection.create(this.model)
     this.cleanup()
   },
