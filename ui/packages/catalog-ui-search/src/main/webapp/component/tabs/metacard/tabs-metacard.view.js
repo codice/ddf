@@ -130,7 +130,7 @@ module.exports = TabsView.extend({
   determineDisabledContent: function() {
     this.$el.toggleClass(
       'is-editing-disabled',
-      properties.isEditingRestricted
+      properties.isEditingRestricted()
     )
     this.$el.toggleClass(
       'lacks-preview',
