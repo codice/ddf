@@ -129,24 +129,8 @@ module.exports = TabsView.extend({
   },
   determineDisabledContent: function() {
     this.$el.toggleClass(
-      'is-history-disabled',
-      !properties.isMetacardHistoryEnabled()
-    )
-    this.$el.toggleClass(
-      'is-associations-disabled',
-      !properties.isMetacardAssociationsEnabled()
-    )
-    this.$el.toggleClass(
-      'is-archive-disabled',
-      !properties.isMetacardArchiveEnabled()
-    )
-    this.$el.toggleClass(
-      'is-quality-disabled',
-      !properties.isMetacardQualityEnabled()
-    )
-    this.$el.toggleClass(
-      'is-overwrite-disabled',
-      !properties.isMetacardOverwriteEnabled()
+      'is-editing-disabled',
+      properties.isEditingRestricted
     )
     this.$el.toggleClass(
       'lacks-preview',

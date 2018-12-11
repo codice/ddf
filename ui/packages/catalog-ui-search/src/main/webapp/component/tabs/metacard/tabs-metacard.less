@@ -65,40 +65,12 @@
   }
 }
 
-@{customElementNamespace}tabs.is-history-disabled {
+@{customElementNamespace}tabs.is-editing-disabled {
   > .tabs-list {
-    [data-id='History'] {
-      display: none !important;
-    }
-  }
-}
-
-@{customElementNamespace}tabs.is-associations-disabled {
-  > .tabs-list {
-    [data-id='Associations'] {
-      display: none !important;
-    }
-  }
-}
-
-@{customElementNamespace}tabs.is-archive-disabled {
-  > .tabs-list {
-    [data-id='Archive'] {
-      display: none !important;
-    }
-  }
-}
-
-@{customElementNamespace}tabs.is-quality-disabled {
-  > .tabs-list {
-    [data-id='Quality'] {
-      display: none !important;
-    }
-  }
-}
-
-@{customElementNamespace}tabs.is-overwrite-disabled {
-  > .tabs-list {
+    [data-id='History'],
+    [data-id='Associations'],
+    [data-id='Archive'],
+    [data-id='Quality'],
     [data-id='Overwrite'] {
       display: none !important;
     }

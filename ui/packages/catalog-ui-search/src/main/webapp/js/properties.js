@@ -170,21 +170,6 @@ var properties = {
   isMetacardPreviewEnabled: function() {
     return !this.isMetacardPreviewDisabled
   },
-  isMetacardHistoryEnabled: function() {
-    return !this.isMetacardHistoryDisabled
-  },
-  isMetacardAssociationsEnabled: function() {
-    return !this.isMetacardAssociationsDisabled
-  },
-  isMetacardQualityEnabled: function() {
-    return !this.isMetacardQualityDisabled
-  },
-  isMetacardArchiveEnabled: function() {
-    return !this.isMetacardArchiveDisabled
-  },
-  isMetacardOverwriteEnabled: function() {
-    return !this.isMetacardOverwriteDisabled
-  },
 }
 
 module.exports = properties.init()
