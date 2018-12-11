@@ -25,6 +25,7 @@ const Loading = require('../loading-companion/loading-companion.view.js')
 const _ = require('underscore')
 const announcement = require('../announcement/index.jsx')
 const ResultFormCollection = require('./result-form.js')
+const ResultFormsCollection = require('../result-form/result-form-collection-instance.js')
 const Common = require('../../js/Common.js')
 const ResultForm = require('../search-form/search-form.js')
 
@@ -88,11 +89,10 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTitleInput: function() {
-    let currentValue = this.model.get('name') ? this.model.get('name') : ''
     this.basicTitle.show(
       new PropertyView({
         model: new Property({
-          value: [currentValue],
+          value: [this.model.get('title')],
           id: 'Title',
           placeholder: 'Result Form Title',
         }),
@@ -180,37 +180,12 @@ module.exports = Marionette.LayoutView.extend({
     $validationElement.attr('title', message)
   },
   updateResults: function() {
-    let resultEndpoint = `/search/catalog/internal/forms/result`
-    var _this = this
-    $.ajax({
-      url: resultEndpoint,
-      contentType: 'application/json; charset=utf-8',
-      dataType: 'json',
-      type: 'PUT',
-      data: JSON.stringify(_this.model.toJSON()),
-      context: this,
-      success: function(data) {
-        ResultFormCollection.getResultCollection().filteredList = _.filter(
-          ResultFormCollection.getResultCollection().filteredList,
-          function(template) {
-            return template.id !== _this.model.get('id')
-          }
-        )
-        ResultFormCollection.getResultCollection().filteredList.push({
-          id: _this.model.get('id'),
-          label: _this.model.get('title'),
-          value: _this.model.get('title'),
-          type: 'result',
-          owner: _this.model.get('owner'),
-          descriptors: _this.model.get('descriptors'),
-          description: _this.model.get('description'),
-          accessGroups: _this.model.get('accessGroups'),
-          accessIndividuals: _this.model.get('accessIndividual'),
-          accessAdministrators: _this.model.get('accessAdministrators'),
-        })
-        ResultFormCollection.getResultCollection().toggleUpdate()
-        _this.cleanup()
-      },
+    var collection = ResultFormsCollection.getCollection()
+    this.model.id ? this.model.save() : collection.create(this.model)
+    this.cleanup()
+  },
+  /* TODO: reactivate announcements
+
       error: _this.cleanup(),
     })
       .done((data, textStatus, jqxhr) => {
@@ -223,7 +198,7 @@ module.exports = Marionette.LayoutView.extend({
           'error'
         )
       })
-  },
+  */
   message: function(title, message, type) {
     announcement.announce({
       title: title,

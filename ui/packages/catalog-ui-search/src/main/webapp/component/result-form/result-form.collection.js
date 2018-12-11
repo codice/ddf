@@ -44,7 +44,7 @@ module.exports = Backbone.AssociatedModel.extend({
   initialize: function() {
     this.addResultForm(
       new ResultForm({
-        name: 'Create New Data View',
+        title: 'Create New Data View',
         type: 'new-result',
       })
     )
@@ -56,6 +56,7 @@ module.exports = Backbone.AssociatedModel.extend({
       key: 'resultForms',
       collectionType: Backbone.Collection.extend({
         model: ResultForm,
+        url: './internal/forms/result',
         initialize: function() {},
       }),
     },
@@ -87,19 +88,16 @@ module.exports = Backbone.AssociatedModel.extend({
         this.resetResultForm()
         this.addResultForm(
           new ResultForm({
-            name: 'Create New Data View',
+            title: 'Create New Data View',
             type: 'new-result',
           })
         )
         this.filteredList.forEach(element => {
-          let utcSeconds = element.created / 1000
-          let d = new Date(0)
-          d.setUTCSeconds(utcSeconds)
           this.addResultForm(
             new ResultForm({
-              createdOn: Common.getMomentDate(d),
+              createdOn: element.created,
               id: element.id,
-              name: element.label,
+              title: element.label,
               type: 'result',
               descriptors: element.descriptors,
               owner: element.owner,

@@ -44,7 +44,7 @@ module.exports = SearchFormViews.extend({
     }
 
     lightboxInstance.model.updateTitle(
-      this.model.get('type') === 'new-result' ? '' : this.model.get('name')
+      this.model.get('type') === 'new-result' ? '' : this.model.get('title')
     )
     lightboxInstance.model.open()
     lightboxInstance.showContent(

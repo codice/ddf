@@ -89,12 +89,9 @@ module.exports = Backbone.AssociatedModel.extend({
       cachedTemplates.forEach(
         function(value, index) {
           if (value.creator === user.getEmail()) {
-            var utcSeconds = value.created / 1000
-            var d = new Date(0)
-            d.setUTCSeconds(utcSeconds)
             this.addSearchForm(
               new SearchForm({
-                createdOn: Common.getMomentDate(d),
+                createdOn: value.created,
                 id: value.id,
                 title: value.title,
                 description: value.description,

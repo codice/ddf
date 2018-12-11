@@ -190,7 +190,7 @@ public class SearchFormsApplication implements SparkApplication {
                             .orElse(null))),
         GSON::toJson);
 
-    put(
+    post(
         "/forms/result",
         APPLICATION_JSON,
         (req, res) ->

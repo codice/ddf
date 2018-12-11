@@ -51,6 +51,10 @@ module.exports = Marionette.LayoutView.extend({
       this.handleDefault
     )
   },
+  serializeData: function() {
+    const { createdOn, ...json } = this.model.toJSON()
+    return { createdOn: Common.getMomentDate(createdOn), ...json }
+  },
   onRender: function() {
     if (
       this.model.get('type') === 'basic' ||
@@ -62,12 +66,6 @@ module.exports = Marionette.LayoutView.extend({
     ) {
       this.$el.addClass('is-static')
     } else {
-      if (typeof this.model.get('createdOn') === 'number') {
-        var utcSeconds = this.model.get('createdOn') / 1000
-        var d = new Date(0)
-        d.setUTCSeconds(utcSeconds)
-        this.model.set('createdOn', Common.getMomentDate(d))
-      }
       if (!this.options.hideInteractionMenu) {
         this.searchFormActions.show(
           new SearchFormInteractionsDropdownView({

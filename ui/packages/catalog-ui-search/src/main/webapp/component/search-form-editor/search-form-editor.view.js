@@ -171,28 +171,8 @@ module.exports = Marionette.LayoutView.extend({
       querySettings: filterSettings,
     }
   },
-  createUsingPut: function(data) {
-    let loadingView = new LoadingView()
-    let _this = this
-    let _user = user
-    $.ajax({
-      url: './internal/forms/query',
-      data: data,
-      method: 'PUT',
-      contentType: 'application/json',
-      customErrorHandling: true,
-    })
-      .done((data, textStatus, jqxhr) => {
-        _this.model.set({
-          type: 'custom',
-        })
-        const preferences = _user.getQuerySettings()
-        if (preferences.get('template')) {
-          preferences.set('type', 'custom')
-        } else {
-          preferences.set('type', 'text')
-        }
-        _user.savePreferences()
+  /* TODO: reactivate announcements
+  
         announcement.announce(
           {
             title: 'Success',
@@ -215,7 +195,7 @@ module.exports = Marionette.LayoutView.extend({
       .always(() => {
         loadingView.remove()
       })
-  },
+  */
   saveTemplateToBackend: function(collection, id) {
     const json = this.getQueryAsQueryTemplate(collection, id)
     this.model.set(json)
