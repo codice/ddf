@@ -92,6 +92,7 @@ import org.slf4j.LoggerFactory;
 public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactoryImpl.class);
+  public static final String HTTPS = "https";
 
   private final JAXRSClientFactoryBean clientFactory;
 
@@ -216,8 +217,11 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     jaxrsClientFactoryBean.setClassLoader(interfaceClass.getClassLoader());
     jaxrsClientFactoryBean.getInInterceptors().add(new LoggingInInterceptor());
     jaxrsClientFactoryBean.getOutInterceptors().add(new LoggingOutInterceptor());
-    jaxrsClientFactoryBean.getInInterceptors().add(new PaosInInterceptor(Phase.RECEIVE));
-    jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
+
+    if (!basicAuth && StringUtils.startsWithIgnoreCase(endpointUrl, HTTPS)) {
+      jaxrsClientFactoryBean.getInInterceptors().add(new PaosInInterceptor(Phase.RECEIVE));
+      jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
+    }
 
     if (CollectionUtils.isNotEmpty(providers)) {
       jaxrsClientFactoryBean.setProviders(providers);
@@ -383,7 +387,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
               T newClient = getNewClient();
 
-              if (!basicAuth && StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+              if (!basicAuth && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)) {
                 if (subject instanceof ddf.security.Subject) {
                   RestSecurity.setSubjectOnClient(
                       (ddf.security.Subject) subject, WebClient.client(newClient));

@@ -115,6 +115,8 @@ public class IdpHandler implements AuthenticationHandler {
 
   public static final String ECP_NS = "urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp";
 
+  public static final String HTTPS = "https";
+
   public static final String SAML_REQUEST = "SAMLRequest";
 
   public static final String PAOS_REQUEST = "PAOSRequest";
@@ -306,7 +308,8 @@ public class IdpHandler implements AuthenticationHandler {
         && paosHeader != null
         && acceptHeader.contains(PAOS_MIME)
         && paosHeader.contains(PAOS_NS)
-        && paosHeader.contains(ECP_NS);
+        && paosHeader.contains(ECP_NS)
+        && StringUtils.equalsIgnoreCase(request.getScheme(), HTTPS);
   }
 
   private HandlerResult doPaosRequest(ServletRequest request, ServletResponse response) {
