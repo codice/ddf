@@ -83,10 +83,8 @@ let getErrorResponse = function(event, jqxhr, settings, throwError) {
     settings.type === 'GET'
   ) {
     return {
-      title: `Error Polling ${properties.i18n['Sources']}`,
-      message: `Unable to query server for list of active ${
-        properties.i18n['sources']
-      }`,
+      title: properties.i18n['sources.polling.error.title'],
+      message: properties.i18n['sources.polling.error.message'],
     }
   } else if (
     settings.url.indexOf('./internal/workspaces') > -1 &&
