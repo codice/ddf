@@ -300,7 +300,7 @@ public class SecureCxfClientFactoryTest {
     DocumentBuilder db = dbf.newDocumentBuilder();
     db.setEntityResolver(new DOMUtils.NullResolver());
 
-    return db.parse(SecureCxfClientFactoryTest.class.getResourceAsStream("/samlAssertion.xml"))
+    return db.parse(SecureCxfClientFactoryTest.class.getResourceAsStream("/SAMLAssertion.xml"))
         .getDocumentElement();
   }
 
