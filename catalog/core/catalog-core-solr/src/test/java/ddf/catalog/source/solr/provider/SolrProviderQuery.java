@@ -39,7 +39,9 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Core;
@@ -63,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -1281,6 +1284,51 @@ public class SolrProviderQuery {
     queryAndVerifyCount(0, getFilterBuilder().proximity(Core.TITLE, 2, "Mary ham"), provider);
     queryAndVerifyCount(2, getFilterBuilder().proximity(Core.TITLE, 2, "Mary little"), provider);
     queryAndVerifyCount(0, getFilterBuilder().proximity(Core.TITLE, 1, "Mary little"), provider);
+  }
+
+  @Test
+  public void testPropertyIsDivisibleBy() throws Exception {
+
+    deleteAll(provider);
+
+    String longField = "divisibleByCounter";
+
+    Set<AttributeDescriptor> descriptors =
+        new HashSet<>(
+            Arrays.asList(
+                new AttributeDescriptorImpl(
+                    Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE),
+                new AttributeDescriptorImpl(
+                    longField, true, true, true, true, BasicTypes.LONG_TYPE)));
+
+    MetacardTypeImpl mType = new MetacardTypeImpl("divisibleByMetacard", descriptors);
+
+    MetacardImpl customMetacard1 = new MetacardImpl(mType);
+    customMetacard1.setAttribute(longField, 6L);
+
+    MetacardImpl customMetacard2 = new MetacardImpl(mType);
+    customMetacard2.setAttribute(longField, 12L);
+
+    create(Arrays.asList(customMetacard1, customMetacard2), provider);
+
+    queryAndVerifyCount(
+        2,
+        getFilterBuilder()
+            .function("divisibleBy")
+            .attributeArg(longField)
+            .numberArg(3L)
+            .equalTo()
+            .bool(true),
+        provider);
+    queryAndVerifyCount(
+        0,
+        getFilterBuilder()
+            .function("divisibleBy")
+            .attributeArg(longField)
+            .numberArg(7L)
+            .equalTo()
+            .bool(true),
+        provider);
   }
 
   @Test(expected = UnsupportedQueryException.class)

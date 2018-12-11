@@ -598,16 +598,16 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   }
 
   public SolrQuery propertyIsDivisibleBy(String propertyName, long divisor) {
-    // use the sort key for the field since divisible can't operate on multivalued fields (it will
-    // always be a single value).
+    // {frange l=0 u=0} only return results when the value is between 0 and 0
+    // mod(x,y) computes the modulus of the function x by the function y.
+    // field(myMultiValuedFloatField,min) Returns the numeric docValues or indexed value of the
+    //   field with the specified name... When using docValues, an optional 2nd argument can be
+    //   specified to select the min or max value of multivalued fields.
     List<String> solrExpressions =
         resolver
             .getAnonymousField(propertyName)
             .stream()
-            .map(
-                f ->
-                    String.format(
-                        "_val_:\"{!frange l=0 u=0}mod(%s,%d)\"", resolver.getSortKey(f), divisor))
+            .map(f -> String.format("_val_:\"{!frange l=0 u=0}mod(field(%s,min),%d)\"", f, divisor))
             .collect(Collectors.toList());
 
     if (solrExpressions.isEmpty()) {
