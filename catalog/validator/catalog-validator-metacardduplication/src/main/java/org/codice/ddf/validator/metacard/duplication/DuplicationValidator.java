@@ -13,10 +13,11 @@
  */
 package org.codice.ddf.validator.metacard.duplication;
 
-import com.google.common.base.Preconditions;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
@@ -26,32 +27,25 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PreIngestPlugin;
-import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.validation.ValidationException;
-import ddf.catalog.validation.impl.ValidationExceptionImpl;
-import ddf.catalog.validation.impl.report.MetacardValidationReportImpl;
-import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
-import ddf.catalog.validation.report.MetacardValidationReport;
-import ddf.catalog.validation.violation.ValidationViolation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,6 +62,8 @@ public class DuplicationValidator
         org.codice.ddf.platform.services.common.Describable {
   private static final Logger LOGGER = LoggerFactory.getLogger(DuplicationValidator.class);
 
+  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
   private static final String ORGANIZATION = "organization";
@@ -75,14 +71,6 @@ public class DuplicationValidator
   private static final String VERSION = "version";
 
   private static final String INVALID_TAG = "INVALID";
-
-  private static final String VALID_TAG = "VALID";
-
-  private boolean enforceErrors = true;
-
-  private boolean enforceWarnings = true;
-
-  private List<String> enforcedMetacardValidators;
 
   private static Properties describableProperties = new Properties();
 
@@ -148,132 +136,173 @@ public class DuplicationValidator
     }
   }
 
-  public Optional<MetacardValidationReport> validateMetacard(Metacard metacard)
-      throws StopProcessingException {
-    Preconditions.checkArgument(metacard != null, "The metacard cannot be null.");
-
-    return getReport(reportDuplicates(metacard));
+  @Override
+  public CreateRequest process(CreateRequest input) {
+    List<Metacard> validatedMetacards = handleDuplicates(input.getMetacards());
+    return new CreateRequestImpl(validatedMetacards, input.getProperties(), input.getStoreIds());
   }
 
-  public void validate(Metacard metacard) throws ValidationException, StopProcessingException {
+  private List<Metacard> handleDuplicates(List<Metacard> metacards) {
+    List<Metacard> acceptedMetacards =
+        metacards
+            .stream()
+            .map(item -> validateDuplicates(item))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
-    final Optional<MetacardValidationReport> report = validateMetacard(metacard);
-
-    if (report.isPresent()) {
-      final List<String> errors =
-          report
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
-              .filter(
-                  validationViolation ->
-                      validationViolation.getSeverity().equals(ValidationViolation.Severity.ERROR))
-              .map(ValidationViolation::getMessage)
-              .collect(Collectors.toList());
-      final List<String> warnings =
-          report
-              .get()
-              .getMetacardValidationViolations()
-              .stream()
-              .filter(
-                  validationViolation ->
-                      validationViolation
-                          .getSeverity()
-                          .equals(ValidationViolation.Severity.WARNING))
-              .map(ValidationViolation::getMessage)
-              .collect(Collectors.toList());
-
-      String message =
-          String.format("Duplicate data found in catalog for ID {%s}.", metacard.getId());
-      final ValidationExceptionImpl exception = new ValidationExceptionImpl(message);
-      exception.setErrors(errors);
-      exception.setWarnings(warnings);
-      throw exception;
-    }
+    return acceptedMetacards;
   }
 
-  private Set<ValidationViolation> reportDuplicates(final Metacard metacard)
-      throws StopProcessingException {
+  @Override
+  public UpdateRequest process(UpdateRequest input) {
+    List<Entry<Serializable, Metacard>> result = handleDuplicatesEntries(input.getUpdates());
+    return new UpdateRequestImpl(result, input.getAttributeName(), input.getProperties());
+  }
 
-    Set<ValidationViolation> violations = new HashSet<>();
+  private List<Entry<Serializable, Metacard>> handleDuplicatesEntries(
+      List<Entry<Serializable, Metacard>> updateList) {
+    List acceptedMetacards =
+        updateList
+            .stream()
+            .map(entry -> new SimpleEntry<>(entry.getKey(), validateDuplicates(entry.getValue())))
+            .filter(entry -> entry.getValue() != null)
+            .collect(Collectors.toList());
+
+    return acceptedMetacards;
+  }
+
+  private Metacard validateDuplicates(Metacard metacard) {
+    Set<String> rejectedAttributes;
+    Set<String> errorAttributes;
+    Set<String> warningAttributes;
+    String validationMessage = "Duplicates values of existing metacard for attribute(s): %s";
 
     if (ArrayUtils.isNotEmpty(rejectOnDuplicateAttributes)) {
-      reportDuplicates(
-          metacard, rejectOnDuplicateAttributes, ValidationViolation.Severity.ERROR, true);
-    }
-    if (ArrayUtils.isNotEmpty(warnOnDuplicateAttributes)) {
-      ValidationViolation warnValidation =
-          reportDuplicates(
-              metacard, warnOnDuplicateAttributes, ValidationViolation.Severity.WARNING, false);
-      if (warnValidation != null) {
-        violations.add(warnValidation);
-      }
-    }
-    if (ArrayUtils.isNotEmpty(errorOnDuplicateAttributes)) {
-      ValidationViolation errorViolation =
-          reportDuplicates(
-              metacard, errorOnDuplicateAttributes, ValidationViolation.Severity.ERROR, false);
-      if (errorViolation != null) {
-        violations.add(errorViolation);
+      rejectedAttributes = reportDuplicates(metacard, rejectOnDuplicateAttributes);
+      if (!rejectedAttributes.isEmpty()) {
+        INGEST_LOGGER.debug(
+            "The metacard with id={} is being removed from the operation because it duplicates the attribute(s) {} of an existing metacard",
+            metacard.getId(),
+            rejectedAttributes);
+        return null;
       }
     }
 
-    return violations;
+    if (ArrayUtils.isNotEmpty(errorOnDuplicateAttributes)) {
+      errorAttributes = reportDuplicates(metacard, errorOnDuplicateAttributes);
+      if (!errorAttributes.isEmpty()) {
+        addAttribute(
+            metacard,
+            Validation.VALIDATION_ERRORS,
+            String.format(validationMessage, collectionToString(errorAttributes)));
+        addAttribute(metacard, Metacard.TAGS, INVALID_TAG);
+      }
+    }
+
+    if (ArrayUtils.isNotEmpty(warnOnDuplicateAttributes)) {
+      warningAttributes = reportDuplicates(metacard, warnOnDuplicateAttributes);
+      if (!warningAttributes.isEmpty()) {
+        addAttribute(
+            metacard,
+            Validation.VALIDATION_WARNINGS,
+            String.format(validationMessage, collectionToString(warningAttributes)));
+        addAttribute(metacard, Metacard.TAGS, INVALID_TAG);
+      }
+    }
+
+    return metacard;
   }
 
-  private ValidationViolation reportDuplicates(
-      final Metacard metacard,
-      String[] attributeNames,
-      ValidationViolation.Severity severity,
-      Boolean rejectMetacard)
-      throws StopProcessingException {
+  private void addAttribute(Metacard metacard, String attribute, Serializable value) {
+    Attribute existingAttribute = metacard.getAttribute(attribute);
+    if (existingAttribute == null || existingAttribute.getValue() == null) {
+      metacard.setAttribute(new AttributeImpl(attribute, value));
+    } else {
+      List<Serializable> existingValues = existingAttribute.getValues();
+      List<Serializable> newValues = new ArrayList<>();
 
-    Set<String> duplicates = new HashSet<>();
-    ValidationViolation violation = null;
+      // Attribute.getValues() can return null even if there is a single value present
+      if (existingValues == null) {
+        newValues.add(existingAttribute.getValue());
+      } else {
+        newValues.addAll(existingValues);
+      }
 
-    final Set<String> uniqueAttributeNames =
+      newValues.add(value);
+
+      metacard.setAttribute(new AttributeImpl(attribute, newValues));
+    }
+  }
+
+  private Set<String> reportDuplicates(final Metacard metacard, String[] attributeNames) {
+    Set<String> duplicatedAttributes = new HashSet<>();
+
+    final Set<String> nonNullAttributeNames =
         Stream.of(attributeNames)
             .filter(attribute -> metacard.getAttribute(attribute) != null)
             .collect(Collectors.toSet());
-    final Set<Attribute> uniqueAttributes =
-        uniqueAttributeNames.stream().map(metacard::getAttribute).collect(Collectors.toSet());
-    if (!uniqueAttributes.isEmpty()) {
+    final Set<Attribute> nonNullAttributes =
+        nonNullAttributeNames.stream().map(metacard::getAttribute).collect(Collectors.toSet());
+    if (!nonNullAttributes.isEmpty()) {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(
             "Checking for duplicates for id {} against attributes [{}]",
             metacard.getId(),
-            collectionToString(uniqueAttributeNames));
+            collectionToString(nonNullAttributeNames));
       }
 
-      SourceResponse response = query(uniqueAttributes);
+      SourceResponse response = query(nonNullAttributes);
       if (response != null) {
-        response
-            .getResults()
-            .stream()
-            .filter(result -> !result.getMetacard().getId().equals(metacard.getId()))
-            .forEach(result -> duplicates.add(result.getMetacard().getId()));
-      }
-      if (!duplicates.isEmpty()) {
-        if (rejectMetacard) {
-          LOGGER.debug("Rejecting duplicate metacard.");
-          throw new StopProcessingException("Rejecting duplicate metacard.");
-        } else {
-          violation = createViolation(uniqueAttributeNames, duplicates, severity);
-          LOGGER.debug(violation.getMessage());
+        for (String attribute : nonNullAttributeNames) {
+          for (Result result : response.getResults()) {
+            Metacard resultMetacard = result.getMetacard();
+            if (doAttributesIntersect(resultMetacard, metacard, attribute)) {
+              duplicatedAttributes.add(attribute);
+              break;
+            }
+          }
         }
       }
     }
-    return violation;
+    return duplicatedAttributes;
+  }
+
+  private boolean doAttributesIntersect(
+      Metacard metacard1, Metacard metacard2, String attributeName) {
+    if (metacard1 == null || metacard2 == null) {
+      return false;
+    }
+
+    List<Serializable> values1 = getAttributeValues(metacard1, attributeName);
+    List<Serializable> values2 = getAttributeValues(metacard2, attributeName);
+
+    return CollectionUtils.containsAny(values1, values2);
+  }
+
+  private List<Serializable> getAttributeValues(Metacard metacard, String attributeName) {
+    Attribute attribute = metacard.getAttribute(attributeName);
+    return getAttributeValues(attribute);
+  }
+
+  private List<Serializable> getAttributeValues(Attribute attribute) {
+    List<Serializable> values = attribute.getValues();
+    if (values == null) { // 1 or 0 values
+      Serializable singleValue = attribute.getValue();
+      if (singleValue != null) {
+        values = Collections.singletonList(singleValue);
+      } else {
+        return Collections.EMPTY_LIST;
+      }
+    }
+    return values;
   }
 
   private Filter[] buildFilters(Set<Attribute> attributes) {
-
     return attributes
         .stream()
         .flatMap(
             attribute ->
-                attribute
-                    .getValues()
+                getAttributeValues(attribute)
                     .stream()
                     .map(
                         value ->
@@ -303,31 +332,16 @@ public class DuplicationValidator
     return response;
   }
 
-  private ValidationViolation createViolation(
-      final Set<String> attributes, Set<String> duplicates, ValidationViolation.Severity severity) {
-
-    return new ValidationViolationImpl(
-        attributes,
-        String.format(
-            "Duplicate data found in catalog: {%s}, based on attributes: {%s}.",
-            collectionToString(duplicates), collectionToString(attributes)),
-        severity);
-  }
-
   private String collectionToString(final Collection collection) {
 
     return (String)
         collection.stream().map(Object::toString).sorted().collect(Collectors.joining(", "));
   }
 
-  private Optional<MetacardValidationReport> getReport(final Set<ValidationViolation> violations) {
-    if (CollectionUtils.isNotEmpty(violations)) {
-      final MetacardValidationReportImpl report = new MetacardValidationReportImpl();
-      violations.forEach(report::addMetacardViolation);
-      return Optional.of(report);
-    }
-
-    return Optional.empty();
+  @Override
+  public DeleteRequest process(DeleteRequest input) {
+    // No operation for delete
+    return input;
   }
 
   @Override
@@ -353,160 +367,5 @@ public class DuplicationValidator
   @Override
   public String getOrganization() {
     return describableProperties.getProperty(ORGANIZATION);
-  }
-
-  public void checkForDuplicates(Metacard metacard) throws StopProcessingException {
-    Set<Serializable> newErrors = new HashSet<>();
-    Set<Serializable> newWarnings = new HashSet<>();
-    Set<Serializable> errorValidators = new HashSet<>();
-    Set<Serializable> warningValidators = new HashSet<>();
-    Map<String, Integer> counter = new HashMap<>();
-    String validatorName = getClass().getCanonicalName();
-    Set<String> tags = metacard.getTags();
-    tags.remove(VALID_TAG);
-    tags.remove(INVALID_TAG);
-    String valid = VALID_TAG;
-
-    try {
-      validate(metacard);
-    } catch (ValidationException e) {
-
-      boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
-      boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
-
-      if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
-          || isValidatorEnforced(validatorName) && validationWarningsExist && enforceWarnings) {
-        LOGGER.debug(
-            "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
-            metacard.getId(),
-            validatorName);
-      } else {
-        getValidationProblems(
-            validatorName, e, newErrors, newWarnings, errorValidators, warningValidators, counter);
-      }
-    }
-    Attribute existingErrors = metacard.getAttribute(Validation.VALIDATION_ERRORS);
-    Attribute existingWarnings = metacard.getAttribute(Validation.VALIDATION_WARNINGS);
-
-    if (existingErrors != null) {
-      newErrors.addAll(existingErrors.getValues());
-    }
-
-    if (existingWarnings != null) {
-      newWarnings.addAll(existingWarnings.getValues());
-    }
-
-    if (!newErrors.isEmpty() || !newWarnings.isEmpty()) {
-      valid = INVALID_TAG;
-    }
-
-    tags.add(valid);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
-
-    metacard.setAttribute(
-        new AttributeImpl(
-            Validation.VALIDATION_ERRORS, (List<Serializable>) new ArrayList<>(newErrors)));
-    metacard.setAttribute(
-        new AttributeImpl(
-            Validation.VALIDATION_WARNINGS, (List<Serializable>) new ArrayList<>(newWarnings)));
-    metacard.setAttribute(
-        new AttributeImpl(
-            Validation.FAILED_VALIDATORS_WARNINGS,
-            (List<Serializable>) new ArrayList<>(warningValidators)));
-    metacard.setAttribute(
-        new AttributeImpl(
-            Validation.FAILED_VALIDATORS_ERRORS,
-            (List<Serializable>) new ArrayList<>(errorValidators)));
-  }
-
-  private void getValidationProblems(
-      String validatorName,
-      ValidationException e,
-      Set<Serializable> errors,
-      Set<Serializable> warnings,
-      Set<Serializable> errorValidators,
-      Set<Serializable> warningValidators,
-      Map<String, Integer> counter) {
-    boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
-    boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
-    if (validationErrorsExist || validationWarningsExist) {
-      if (validationErrorsExist) {
-        errors.addAll(e.getErrors());
-        errorValidators.add(validatorName);
-        counter.merge(Validation.VALIDATION_ERRORS, 1, Integer::sum);
-      }
-      if (validationWarningsExist) {
-        warnings.addAll(e.getWarnings());
-        warningValidators.add(validatorName);
-        counter.merge(Validation.VALIDATION_WARNINGS, 1, Integer::sum);
-      }
-    } else {
-      LOGGER.debug(
-          "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
-              + " There is likely something wrong with your implementation. This will result in the metacard not"
-              + " being properly marked as invalid.",
-          validatorName);
-    }
-  }
-
-  private boolean isValidatorEnforced(String validatorName) {
-    return enforcedMetacardValidators != null && enforcedMetacardValidators.contains(validatorName);
-  }
-
-  public void setEnforcedMetacardValidators(List<String> enforcedMetacardValidators) {
-    this.enforcedMetacardValidators = enforcedMetacardValidators;
-  }
-
-  public void setEnforceErrors(boolean enforceErrors) {
-    this.enforceErrors = enforceErrors;
-  }
-
-  public boolean getEnforceErrors() {
-    return enforceErrors;
-  }
-
-  public void setEnforceWarnings(boolean enforceWarnings) {
-    this.enforceWarnings = enforceWarnings;
-  }
-
-  public boolean getEnforceWarnings() {
-    return enforceWarnings;
-  }
-
-  @Override
-  public CreateRequest process(CreateRequest input)
-      throws PluginExecutionException, StopProcessingException {
-
-    List<Metacard> metacards = input.getMetacards();
-    Iterator<Metacard> iter = metacards.iterator();
-
-    while (iter.hasNext()) {
-      Metacard currCard = iter.next();
-      try {
-        checkForDuplicates(currCard);
-      } catch (StopProcessingException e) {
-        iter.remove();
-        LOGGER.debug("Rejecting duplicate metacard.", e);
-        throw new StopProcessingException("Rejecting duplicate metacard.");
-      }
-    }
-
-    return input;
-  }
-
-  @Override
-  public UpdateRequest process(UpdateRequest input)
-      throws PluginExecutionException, StopProcessingException {
-    for (Entry<Serializable, Metacard> entry : input.getUpdates()) {
-      checkForDuplicates(entry.getValue());
-    }
-    return input;
-  }
-
-  @Override
-  public DeleteRequest process(DeleteRequest input)
-      throws PluginExecutionException, StopProcessingException {
-    // No operation for delete
-    return input;
   }
 }

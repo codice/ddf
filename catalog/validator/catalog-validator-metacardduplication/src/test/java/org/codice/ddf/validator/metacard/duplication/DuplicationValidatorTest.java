@@ -14,52 +14,52 @@
 
 package org.codice.ddf.validator.metacard.duplication;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.validation.ValidationException;
-import ddf.catalog.validation.report.MetacardValidationReport;
-import ddf.catalog.validation.violation.ValidationViolation;
+import java.io.Serializable;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opengis.filter.Filter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DuplicationValidatorTest {
@@ -71,11 +71,9 @@ public class DuplicationValidatorTest {
 
   private DuplicationValidator validator;
 
-  private MetacardImpl matchingMetacard;
+  private Metacard matchingMetacard;
 
-  private MetacardImpl testMetacard;
-
-  private static final String ID = "matching metacard id";
+  private static final String EXISTING_CHECKSUM = "1";
 
   private static final String TAG1 = "1";
 
@@ -83,217 +81,200 @@ public class DuplicationValidatorTest {
 
   private Set tags = new HashSet<>(Arrays.asList(TAG1, TAG2));
 
+  @Captor ArgumentCaptor<Attribute> attributeCaptor;
+
   @Before
   public void setup()
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
+    matchingMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    List<Result> results = Arrays.asList(new ResultImpl(matchingMetacard));
+
     QueryResponse response = mock(QueryResponse.class);
+    when(response.getResults()).thenReturn(results);
 
     when(mockFramework.query(any(QueryRequest.class))).thenReturn(response);
 
-    testMetacard = new MetacardImpl();
-    matchingMetacard = new MetacardImpl();
-    matchingMetacard.setId(ID);
-    testMetacard.setId("test metacard ID");
-    matchingMetacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, "checksum-value"));
-    testMetacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, "checksum-value"));
-    matchingMetacard.setTags(tags);
-    testMetacard.setTags(tags);
-
-    List<Result> results = Arrays.asList(new ResultImpl(matchingMetacard));
-
-    when(response.getResults()).thenReturn(results);
     validator = new DuplicationValidator(mockFramework, mockFilterBuilder);
+
+    // set default configuration
+    validator.setErrorOnDuplicateAttributes(new String[] {Metacard.CHECKSUM});
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testValidateMetacardNullInput() throws StopProcessingException {
-    validator.validateMetacard(null);
+  @Test
+  public void testMarkDuplicateChecksumError()
+      throws StopProcessingException, PluginExecutionException {
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+
+    CreateRequest result =
+        validator.process(
+            getMockCreateRequest(ImmutableList.of(duplicateMetacard, nonDuplicateMetacard)));
+    assertThat(result.getMetacards().size(), Matchers.is(2));
+    verify(duplicateMetacard, atLeastOnce()).setAttribute(attributeCaptor.capture());
+    assertThat(
+        attributeCaptor
+            .getAllValues()
+            .stream()
+            .anyMatch(attr -> attr.getName().equals(Validation.VALIDATION_ERRORS)),
+        Matchers.is(true));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testValidateNullInput() throws ValidationException, StopProcessingException {
-    validator.validate(null);
+  @Test
+  public void testMarkDuplicateChecksumWarning()
+      throws StopProcessingException, PluginExecutionException {
+    validator.setWarnOnDuplicateAttributes(new String[] {Metacard.CHECKSUM});
+
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+
+    CreateRequest result =
+        validator.process(
+            getMockCreateRequest(ImmutableList.of(duplicateMetacard, nonDuplicateMetacard)));
+    assertThat(result.getMetacards().size(), Matchers.is(2));
+    verify(duplicateMetacard, atLeastOnce()).setAttribute(attributeCaptor.capture());
+    assertThat(
+        attributeCaptor
+            .getAllValues()
+            .stream()
+            .anyMatch(attr -> attr.getName().equals(Validation.VALIDATION_WARNINGS)),
+        Matchers.is(true));
+  }
+
+  @Test
+  public void testRejectDuplicateChecksum()
+      throws StopProcessingException, PluginExecutionException {
+    validator.setRejectOnDuplicateAttributes(new String[] {Metacard.CHECKSUM});
+
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+
+    CreateRequest result =
+        validator.process(
+            getMockCreateRequest(ImmutableList.of(duplicateMetacard, nonDuplicateMetacard)));
+    assertThat(result.getMetacards().size(), Matchers.is(1));
   }
 
   @Test
   public void testValidateMetacardNullConfiguration()
-      throws ValidationException, StopProcessingException {
+      throws StopProcessingException, PluginExecutionException {
+    // remove default
+    validator.setErrorOnDuplicateAttributes(new String[0]);
 
     validator.setWarnOnDuplicateAttributes(null);
     validator.setErrorOnDuplicateAttributes(null);
+    validator.setRejectOnDuplicateAttributes(null);
 
-    Optional<MetacardValidationReport> report = validator.validateMetacard(testMetacard);
-    assertThat(report.isPresent(), is(false));
-  }
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
 
-  @Test
-  public void testValidateNullConfiguration() throws ValidationException, StopProcessingException {
-
-    validator.setWarnOnDuplicateAttributes(null);
-    validator.setErrorOnDuplicateAttributes(null);
-
-    // verify no exception thrown
-    validator.validate(testMetacard);
+    CreateRequest result =
+        validator.process(
+            getMockCreateRequest(ImmutableList.of(duplicateMetacard, nonDuplicateMetacard)));
+    assertThat(result.getMetacards().size(), Matchers.is(2));
+    verify(duplicateMetacard, times(0)).setAttribute(attributeCaptor.capture());
   }
 
   @Test
   public void testValidateMetacardBlankConfiguration()
-      throws ValidationException, StopProcessingException {
+      throws StopProcessingException, PluginExecutionException {
 
     validator.setWarnOnDuplicateAttributes(new String[0]);
     validator.setErrorOnDuplicateAttributes(new String[0]);
+    validator.setRejectOnDuplicateAttributes(new String[0]);
 
-    Optional<MetacardValidationReport> report = validator.validateMetacard(testMetacard);
-    assertThat(report.isPresent(), is(false));
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+
+    CreateRequest result =
+        validator.process(
+            getMockCreateRequest(ImmutableList.of(duplicateMetacard, nonDuplicateMetacard)));
+    assertThat(result.getMetacards().size(), Matchers.is(2));
+    verify(duplicateMetacard, times(0)).setAttribute(attributeCaptor.capture());
   }
 
   @Test
-  public void testValidateBlankConfiguration() throws ValidationException, StopProcessingException {
+  public void testRejectUpdate() {
+    validator.setRejectOnDuplicateAttributes(new String[] {Metacard.CHECKSUM});
 
-    validator.setWarnOnDuplicateAttributes(new String[0]);
-    validator.setErrorOnDuplicateAttributes(new String[0]);
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+    List<Entry<Serializable, Metacard>> entryList =
+        ImmutableList.of(
+            new SimpleEntry<>("attr", duplicateMetacard),
+            new SimpleEntry<>("attr", nonDuplicateMetacard));
 
-    // verify no exception thrown
-    validator.validate(testMetacard);
+    UpdateRequest result = validator.process(getMockUpdateRequest("attr", entryList));
+    assertThat(result.getUpdates().size(), Matchers.is(1));
   }
 
   @Test
-  public void testValidateMetacardWithValidationErrorAndWarning() throws StopProcessingException {
+  public void testMarkErrorUpdate() {
 
-    String[] checksumAttribute = {Metacard.CHECKSUM};
-    String[] idAttribute = {Metacard.ID};
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+    List<Entry<Serializable, Metacard>> entryList =
+        ImmutableList.of(
+            new SimpleEntry<>("attr", duplicateMetacard),
+            new SimpleEntry<>("attr", nonDuplicateMetacard));
 
-    validator.setWarnOnDuplicateAttributes(checksumAttribute);
-    validator.setErrorOnDuplicateAttributes(idAttribute);
+    UpdateRequest result = validator.process(getMockUpdateRequest("attr", entryList));
 
-    Optional<MetacardValidationReport> report = validator.validateMetacard(testMetacard);
-    assertThat(report.isPresent(), is(true));
-
-    assertThat(report.get().getMetacardValidationViolations(), hasSize(2));
-
-    Map<ValidationViolation.Severity, ValidationViolation> violations =
-        report
-            .get()
-            .getMetacardValidationViolations()
+    assertThat(result.getUpdates().size(), Matchers.is(2));
+    verify(duplicateMetacard, atLeastOnce()).setAttribute(attributeCaptor.capture());
+    assertThat(
+        attributeCaptor
+            .getAllValues()
             .stream()
-            .collect(Collectors.toMap(ValidationViolation::getSeverity, Function.identity()));
-
-    ValidationViolation warnViolation = violations.get(ValidationViolation.Severity.WARNING);
-    ValidationViolation errorViolation = violations.get(ValidationViolation.Severity.ERROR);
-
-    assertThat(warnViolation.getAttributes(), is(new HashSet<>(Arrays.asList(checksumAttribute))));
-    assertThat(warnViolation.getMessage(), containsString(Metacard.CHECKSUM));
-    assertThat(errorViolation.getAttributes(), is(new HashSet<>(Arrays.asList(idAttribute))));
-    assertThat(errorViolation.getMessage(), containsString(Metacard.ID));
+            .anyMatch(attr -> attr.getName().equals(Validation.VALIDATION_ERRORS)),
+        Matchers.is(true));
   }
 
   @Test
-  public void testValidateWithValidationErrorAndWarning()
-      throws ValidationException, StopProcessingException {
+  public void testMarkWarningUpdate() {
+    validator.setWarnOnDuplicateAttributes(new String[] {Metacard.CHECKSUM});
 
-    String[] checksumAttribute = {Metacard.CHECKSUM};
-    String[] idAttribute = {Metacard.ID};
-    ValidationException expectedException = null;
+    Metacard duplicateMetacard = getMockMetacard(EXISTING_CHECKSUM);
+    Metacard nonDuplicateMetacard = getMockMetacard("Not Duplicating!");
+    List<Entry<Serializable, Metacard>> entryList =
+        ImmutableList.of(
+            new SimpleEntry<>("attr", duplicateMetacard),
+            new SimpleEntry<>("attr", nonDuplicateMetacard));
 
-    validator.setWarnOnDuplicateAttributes(checksumAttribute);
-    validator.setErrorOnDuplicateAttributes(idAttribute);
+    UpdateRequest result = validator.process(getMockUpdateRequest("attr", entryList));
 
-    try {
-      validator.validate(testMetacard);
-    } catch (ValidationException e) {
-      expectedException = e;
-    }
-
-    assertThat(expectedException, is(not(nullValue())));
-    assertThat(expectedException.getMessage(), is(not(nullValue())));
-    assertThat(expectedException.getErrors().size(), is(1));
-    assertThat(expectedException.getWarnings().size(), is(1));
-
-    expectedException
-        .getWarnings()
-        .forEach(warning -> assertThat(warning, containsString(Metacard.CHECKSUM)));
-    expectedException.getErrors().forEach(error -> assertThat(error, containsString(Metacard.ID)));
+    assertThat(result.getUpdates().size(), Matchers.is(2));
+    verify(duplicateMetacard, atLeastOnce()).setAttribute(attributeCaptor.capture());
+    assertThat(
+        attributeCaptor
+            .getAllValues()
+            .stream()
+            .anyMatch(attr -> attr.getName().equals(Validation.VALIDATION_WARNINGS)),
+        Matchers.is(true));
   }
 
-  @Test
-  public void testValidateMetacardWithMultiValuedAttribute()
-      throws StopProcessingException, PluginExecutionException, FederationException,
-          UnsupportedQueryException, SourceUnavailableException {
-    String[] tagAttributes = {Metacard.TAGS};
-
-    ArgumentCaptor<String> attributeValueCaptor = ArgumentCaptor.forClass(String.class);
-
-    ArgumentCaptor<QueryRequest> queryRequestCaptor = ArgumentCaptor.forClass(QueryRequest.class);
-    when(mockFilterBuilder.attribute(anyString()).equalTo().text(attributeValueCaptor.capture()))
-        .thenReturn(mock(Filter.class));
-
-    String[] attributes = {Metacard.TAGS};
-    validator.setWarnOnDuplicateAttributes(attributes);
-
-    Optional<MetacardValidationReport> report = validator.validateMetacard(testMetacard);
-    assertThat(report.isPresent(), is(true));
-
-    assertThat(report.get().getMetacardValidationViolations().size(), is(1));
-    verify(mockFramework).query(queryRequestCaptor.capture());
-    assertThat(attributeValueCaptor.getAllValues(), hasItems(TAG1, TAG2));
-    report
-        .get()
-        .getMetacardValidationViolations()
-        .forEach(
-            violation -> {
-              assertThat(
-                  violation.getAttributes(), is(new HashSet<>(Arrays.asList(tagAttributes))));
-              assertThat(violation.getMessage(), containsString(Metacard.TAGS));
-            });
+  private CreateRequest getMockCreateRequest(List<Metacard> metacards) {
+    CreateRequest mockCreateRequest = mock(CreateRequest.class);
+    doReturn(metacards).when(mockCreateRequest).getMetacards();
+    return mockCreateRequest;
   }
 
-  @Test
-  public void testRejectDuplicate() throws ValidationException, StopProcessingException {
-    String[] checksumAttribute = {Metacard.CHECKSUM};
-    StopProcessingException expectedException = null;
-
-    validator.setRejectOnDuplicateAttributes(checksumAttribute);
-
-    try {
-      validator.checkForDuplicates(testMetacard);
-    } catch (StopProcessingException e) {
-      expectedException = e;
-    }
-
-    assertThat(expectedException, is(not(nullValue())));
-
-    // do more assertions
-
+  private UpdateRequest getMockUpdateRequest(
+      String attribute, List<Entry<Serializable, Metacard>> entries) {
+    return new UpdateRequestImpl(
+        entries, attribute, ImmutableMap.of("foo", "bar"), ImmutableSet.of("foo"));
   }
 
-  @Test
-  public void testCheckForDuplicatesWithValidationErrorAndWarning()
-      throws ValidationException, StopProcessingException {
-    String[] checksumAttribute = {Metacard.CHECKSUM};
-    String[] idAttribute = {Metacard.ID};
-    ValidationException expectedException = null;
+  private Metacard getMockMetacard(String checksum) {
+    Metacard mockMetacard = mock(Metacard.class);
+    Attribute mockAttribute = mock(Attribute.class);
+    Attribute mockWarningAttribute = mock(Attribute.class);
 
-    validator.setWarnOnDuplicateAttributes(checksumAttribute);
-    validator.setErrorOnDuplicateAttributes(idAttribute);
-    validator.checkForDuplicates(testMetacard);
-
-    // do assertions
-
-  }
-
-  @Test
-  public void testProcessCreate() throws ValidationException, StopProcessingException {
-    // to do
-  }
-
-  @Test
-  public void testProcessUpdate() throws ValidationException, StopProcessingException {
-    // to do
-  }
-
-  @Test
-  public void testProcessDelete() throws ValidationException, StopProcessingException {
-    // to do
+    doReturn("warning").when(mockWarningAttribute).getValue();
+    doReturn(checksum).when(mockAttribute).getValue();
+    doReturn(null).when(mockAttribute).getValues();
+    doReturn(mockAttribute).when(mockMetacard).getAttribute(eq(Metacard.CHECKSUM));
+    doReturn(mockAttribute).when(mockMetacard).getAttribute(eq(Validation.VALIDATION_WARNINGS));
+    return mockMetacard;
   }
 }

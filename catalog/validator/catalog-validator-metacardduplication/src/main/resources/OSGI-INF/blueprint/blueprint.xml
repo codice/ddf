@@ -23,15 +23,15 @@
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <property name="warnOnDuplicateAttributes">
-            <array/>
+            <array>
+                <value>checksum</value>
+            </array>
         </property>
         <property name="errorOnDuplicateAttributes">
             <array/>
         </property>
         <property name="rejectOnDuplicateAttributes">
-            <array>
-                <value>checksum</value>
-            </array>
+            <array/>
         </property>
     </bean>
 
