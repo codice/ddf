@@ -80,6 +80,7 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
 
   @Override
   public void visitDistanceType(VisitableElement<Double> visitable) {
+    super.visitDistanceType(visitable);
     Double value = visitable.getValue();
     if (value == null) {
       LOGGER.debug("No values found on distance type");

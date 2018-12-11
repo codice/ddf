@@ -415,9 +415,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
           new VisitableElement<Double>() {
             @Override
             public String getName() {
-              // This shouldn't be called because this element only contains the buffer value
-              throw new FilterProcessingException(
-                  "Unexpected call to getName: the name should be owned by the parent visitable but was found in the child");
+              return "Distance";
             }
 
             @Override
