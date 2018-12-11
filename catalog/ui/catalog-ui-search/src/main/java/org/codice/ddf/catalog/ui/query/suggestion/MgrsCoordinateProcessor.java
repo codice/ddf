@@ -17,7 +17,6 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.leftPad;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +50,10 @@ public class MgrsCoordinateProcessor {
               + UsngCoordinate.ZONE_REGEX_STRING
               + ")"
               + UsngCoordinate.LATITUDE_BAND_PART_ONE_REGEX_STRING);
+
   private static final Pattern PATTERN_MGRS_100KM =
       Pattern.compile(UsngCoordinate.LATITUDE_BAND_PART_TWO_REGEX_STRING);
+
   private static final Pattern PATTERN_MGRS_NUMERIC =
       Pattern.compile("((\\d){1,5}(\\h)+(\\d){1,5}(\\W)+)|((\\d){2,10})");
 
@@ -123,7 +124,7 @@ public class MgrsCoordinateProcessor {
   private LiteralSuggestion getMgrsSuggestion(String query) {
     final List<String> matches = getMgrsCoordinateStrings(query);
     if (matches.isEmpty()) {
-      LOGGER.debug("No valid MGRS strings were found or could be inferred from query [{}]", query);
+      LOGGER.debug("No valid MGRS strings could be inferred from query [{}]", query);
       return null;
     }
 
@@ -142,7 +143,7 @@ public class MgrsCoordinateProcessor {
       final UsngCoordinate mgrsCoord = mgrsCoordinates.get(0);
       final BoundingBox bb = translator.toBoundingBox(mgrsCoord);
       return new LiteralSuggestion(
-          LITERAL_SUGGESTION_ID, nameBuilder.toString(), latLonFromBoundingBox(bb));
+          LITERAL_SUGGESTION_ID, nameBuilder.toString(), LatLon.fromBoundingBox(bb));
     }
     return new LiteralSuggestion(
         LITERAL_SUGGESTION_ID,
@@ -162,14 +163,6 @@ public class MgrsCoordinateProcessor {
       LOGGER.debug("Detected string [{}] was not valid MGRS", mgrs, e);
       return null;
     }
-  }
-
-  private static List<LatLon> latLonFromBoundingBox(BoundingBox bb) {
-    return ImmutableList.of(
-        new LatLon(bb.getSouth(), bb.getWest()),
-        new LatLon(bb.getNorth(), bb.getWest()),
-        new LatLon(bb.getNorth(), bb.getEast()),
-        new LatLon(bb.getSouth(), bb.getEast()));
   }
 
   /**

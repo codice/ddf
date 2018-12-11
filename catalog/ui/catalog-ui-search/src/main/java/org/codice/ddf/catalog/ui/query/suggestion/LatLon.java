@@ -13,11 +13,31 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import org.codice.usng4j.BoundingBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This class is used to serialize lat/lon data for the frontend. While there exists several third
+ * party classes that could have been used, taking this approach ensures that:
+ *
+ * <ol>
+ *   <li>The serialization format lives within the application, nearby its usage.
+ *   <li>The serialization format cannot break when third party dependencies are upgraded.
+ * </ol>
+ */
 class LatLon {
+  private static final Logger LOGGER = LoggerFactory.getLogger(LatLon.class);
+
   private final Double lat;
   private final Double lon;
 
   LatLon(Double lat, Double lon) {
+    LOGGER.trace("Creating LatLon ({}, {})", lat, lon);
     this.lat = lat;
     this.lon = lon;
   }
@@ -60,5 +80,15 @@ class LatLon {
 
   static boolean isValidLongitude(double longitude) {
     return longitude >= -180 && longitude <= 180;
+  }
+
+  static List<LatLon> fromBoundingBox(BoundingBox bb) {
+    LOGGER.trace("Creating LatLon from BoundingBox [{}]", bb);
+    notNull(bb, "The provided bounding box cannot be null");
+    return ImmutableList.of(
+        new LatLon(bb.getSouth(), bb.getWest()),
+        new LatLon(bb.getNorth(), bb.getWest()),
+        new LatLon(bb.getNorth(), bb.getEast()),
+        new LatLon(bb.getSouth(), bb.getEast()));
   }
 }
