@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.security.idp.client;
 
+import static org.codice.ddf.security.idp.client.IdpHandler.ECP_NS;
+import static org.codice.ddf.security.idp.client.IdpHandler.HTTPS;
+import static org.codice.ddf.security.idp.client.IdpHandler.PAOS;
+import static org.codice.ddf.security.idp.client.IdpHandler.PAOS_MIME;
+import static org.codice.ddf.security.idp.client.IdpHandler.PAOS_NS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -29,10 +34,13 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.HandlerResult.Status;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -122,6 +130,32 @@ public class IdpHandlerTest {
     assertThat(
         "Expected a non null handlerRequest", handlerResult, is(notNullValue(HandlerResult.class)));
     assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
+  }
+
+  @Test
+  public void testGetNormalizedTokenShouldUseECP() throws Exception {
+    when(httpRequest.getHeader(HttpHeaders.ACCEPT)).thenReturn(PAOS_MIME);
+    when(httpRequest.getHeader(PAOS)).thenReturn(PAOS_NS + ECP_NS);
+    when(httpRequest.getScheme()).thenReturn(HTTPS);
+    when(httpResponse.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+    HandlerResult handlerResult =
+        idpHandler.getNormalizedToken(httpRequest, httpResponse, null, false);
+    assertThat(
+        "Expected a non null handlerRequest", handlerResult, is(notNullValue(HandlerResult.class)));
+    assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.REDIRECTED));
+  }
+
+  @Test
+  public void testGetNormalizedTokenWithNoTlsShouldNotUseECP() throws Exception {
+    when(httpRequest.getHeader(HttpHeaders.ACCEPT)).thenReturn(PAOS_MIME);
+    when(httpRequest.getHeader(PAOS)).thenReturn(PAOS_NS + ECP_NS);
+    when(httpRequest.getScheme()).thenReturn("http");
+    when(httpResponse.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+    HandlerResult handlerResult =
+        idpHandler.getNormalizedToken(httpRequest, httpResponse, null, false);
+    assertThat(
+        "Expected a non null handlerRequest", handlerResult, is(notNullValue(HandlerResult.class)));
+    assertThat(handlerResult.getStatus(), equalTo(Status.NO_ACTION));
   }
 
   @Test
