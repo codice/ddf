@@ -608,6 +608,13 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-gazetteer/${project.version}</bundle>
     </feature>
 
+    <feature name="data-migration" version="${project.version}"
+      description="Provides a framework for data migration and karaf commands.">
+        <bundle>mvn:ddf.migration/migration-api/${project.version}</bundle>
+        <bundle>mvn:ddf.migration/migration-commands/${project.version}</bundle>
+        <bundle>mvn:ddf.migration/workspace-query-separation/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-app" version="${project.version}"
              description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.">
         <feature>admin-app</feature>
@@ -662,5 +669,6 @@
         <feature>catalog-metacardingest-network</feature>
         <feature>catalog-core-attachment</feature>
         <feature>catalog-plugin-gazetteer</feature>
+        <feature>data-migration</feature>
     </feature>
 </features>

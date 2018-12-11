@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" xmlns:xlink="http://www.w3.org/1999/xlink" gml:id="d3b929e1271b4c9dae0f9c64e41d4a97">
+  <type>metacard.query</type>
+  <string name="title">
+    <value>("anyText" ILIKE 'hello world')</value>
+  </string>
+  <string name="federation">
+    <value>enterprise</value>
+  </string>
+  <string name="cql">
+    <value>("anyText" ILIKE 'hello world')</value>
+  </string>
+  <string name="type">
+    <value>advanced</value>
+  </string>
+  <string name="sorts">
+    <value>modified,descending</value>
+  </string>
+  <string name="filterTree">
+    <value>{"type":"AND","filters":[{"type":"ILIKE","property":"\\"anyText\\"","value":"hello world"}]}</value>
+  </string>
+</metacard>

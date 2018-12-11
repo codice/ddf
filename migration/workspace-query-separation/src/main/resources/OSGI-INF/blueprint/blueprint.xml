@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+  <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+
+  <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+  <reference id="xmlInputTransformer" interface="ddf.catalog.transform.InputTransformer" filter="(id=xml)"/>
+
+  <bean id="workspaceQueryMigration" class="ddf.migration.workspace.query.separation.WorkspaceQueryMigration">
+    <argument ref="catalogFramework"/>
+    <argument ref="filterBuilder"/>
+    <argument ref="xmlInputTransformer"/>
+  </bean>
+
+  <service ref="workspaceQueryMigration" interface="ddf.migration.api.DataMigratable">
+    <service-properties>
+      <entry key="id" value="workspace-query"/>
+      <entry key="name" value="Workspace Query"/>
+      <entry key="description" value="Unembeds query metacards from their workspaces and updates associations"/>
+    </service-properties>
+  </service>
+
+</blueprint>

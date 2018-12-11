@@ -1,0 +1,32 @@
+:title: Migrate Data Command
+:type: dataManagement
+:status: published
+:summary: Data migration
+:parent: Data Migration
+:order: 00
+
+== {title}
+
+[NOTE]
+====
+Performing a data migration will may create, update, or delete existing metacards within the system.
+It is highly recommended that all of your data is backed up in the event that you wish to revert this operation.
+====
+
+The syntax for the migration command is
+
+`migrate:data --all`
+
+`migrate:data <serviceId>`
+
+Select the `<serviceId>` based on which data migration task you wish to run.
+To see a list of all data migrations tasks that are currently available, run the `migrate:data --services` command.
+
+The `--all` option will run every data migration task that is available.
+
+The `--services` option will list all available data migration tasks.
+
+[NOTE]
+====
+If an error occurred while performing a data migration the specifics of that error will be available in the logs or it may be printed to the karaf console.
+====

@@ -523,6 +523,21 @@
                 <artifactId>branding-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ddf.migration</groupId>
+                <artifactId>migration-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.migration</groupId>
+                <artifactId>migration-commands</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.migration</groupId>
+                <artifactId>workspace-query-separation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
