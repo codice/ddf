@@ -106,9 +106,7 @@ const render = (props: Props) => {
               ) : (
                 <span style={{ marginLeft: '12px' }}>
                   {
-                    userDropdown.filter(o => {
-                      return o.value === item.access
-                    })[0].label
+                    userDropdown.find(o => o.value === item.access).label
                   }
                 </span>
               )}
