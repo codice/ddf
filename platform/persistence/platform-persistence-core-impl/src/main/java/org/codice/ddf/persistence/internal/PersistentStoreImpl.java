@@ -14,6 +14,8 @@
 package org.codice.ddf.persistence.internal;
 
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -61,6 +64,11 @@ public class PersistentStoreImpl implements PersistentStore {
   public static final int DEFAULT_PAGE_SIZE = 10;
 
   public static final int MAX_PAGE_SIZE = 1000;
+
+  private static final String SOLR_COMMIT_NRT_COMMITWITHINMS = "solr.commit.nrt.commitWithinMs";
+
+  private final int commitNrtCommitWithinMs =
+      Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
   public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
     this.clientFactory = clientFactory;
@@ -102,7 +110,7 @@ public class PersistentStoreImpl implements PersistentStore {
     }
 
     try {
-      UpdateResponse response = solrClient.add(inputDocuments);
+      UpdateResponse response = solrClient.add(inputDocuments, commitNrtCommitWithinMs);
       LOGGER.debug("UpdateResponse from add of SolrInputDocument:  {}", response);
     } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Exception while adding Solr index for persistent type {}", type, e);
@@ -296,5 +304,13 @@ public class PersistentStoreImpl implements PersistentStore {
       Thread.currentThread().interrupt();
     }
     throw new PersistenceException("Solr client is not available");
+  }
+
+  private static String accessProperty(String key, String defaultValue) {
+    String value =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(key, defaultValue));
+    LOGGER.debug("Read system property [{}] with value [{}]", key, value);
+    return value;
   }
 }
