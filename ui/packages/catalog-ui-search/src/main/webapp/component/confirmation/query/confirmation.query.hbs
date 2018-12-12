@@ -13,12 +13,16 @@
  --}}
 <div class="confirmation-container">
     <div class="confirmation-prompt">
-        You are at the max number of searches allowed for a workspace.  
-        You can either select a current search to replace from the dropdown below,
-        or you can choose to start a new workspace with this search by not selecting 
-        any searches and simply pressing continue.
+        <div class="confirmation-header">
+            <span class="fa fa-exclamation-triangle"></span> Maximum Search Limit</span>
+        </div>
+        <hr>
+        You have reached the maximum number of searches (10) for the current workspace.
+        <br>
+        <div class="search-replace-wrapper">
+            <span class="replace-query-label">Replace a Search:</span><div class="confirmation-query">
+        </div>
     </div>
-    <div class="confirmation-query">
 
     </div>
     <div class="confirmation-choices">
@@ -34,7 +38,7 @@
         </button>
         <button class="confirmation-new is-negative">
             <span>
-                Create New Workspace
+                Create New Workspace from Search
             </span>
         </button>
     </div>
