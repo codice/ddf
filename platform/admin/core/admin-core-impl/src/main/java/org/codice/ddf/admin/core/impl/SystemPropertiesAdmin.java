@@ -159,7 +159,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
     // Get custom.system.properties file
     // save off the current/old hostname before we make any changes
-    oldHostName = SystemBaseUrl.EXTERNAL.getHost();
+    oldHostName = SystemBaseUrl.INTERNAL.getHost();
 
     String etcDir = System.getProperty(KARAF_ETC);
     String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
