@@ -171,35 +171,18 @@ module.exports = Marionette.LayoutView.extend({
       querySettings: filterSettings,
     }
   },
-  /* TODO: reactivate announcements
-  
-        announcement.announce(
-          {
-            title: 'Success',
-            message: 'Search form successfully saved',
-            type: 'success',
-          },
-          1500
-        )
-      })
-      .fail((jqxhr, textStatus, errorThrown) => {
-        announcement.announce(
-          {
-            title: 'Search form failed to be saved',
-            message: jqxhr.responseJSON.message,
-            type: 'error',
-          },
-          2500
-        )
-      })
-      .always(() => {
-        loadingView.remove()
-      })
-  */
   saveTemplateToBackend: function(collection, id) {
     const json = this.getQueryAsQueryTemplate(collection, id)
+    const options = {
+      success: () => {
+        this.successMessage()
+      },
+      error: () => {
+        this.errorMessage()
+      },
+    }
     this.model.set(json)
-    json.id ? this.model.save() : collection.create(json)
+    json.id ? this.model.save({}, options) : collection.create(json, options)
   },
   navigateToForms: function() {
     const fragment = `forms`
@@ -208,6 +191,20 @@ module.exports = Marionette.LayoutView.extend({
       options: {
         trigger: true,
       },
+    })
+  },
+  successMessage: function() {
+    announcement.announce({
+      title: 'Success',
+      message: 'Result form successfully saved',
+      type: 'success',
+    })
+  },
+  errorMessage: function() {
+    announcement.announce({
+      title: 'Error',
+      message: 'Result form failed to save',
+      type: 'error',
     })
   },
 })

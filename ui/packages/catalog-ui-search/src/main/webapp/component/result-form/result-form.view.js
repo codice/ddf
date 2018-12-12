@@ -24,7 +24,6 @@ const metacardDefinitions = require('../singletons/metacard-definitions.js')
 const Loading = require('../loading-companion/loading-companion.view.js')
 const _ = require('underscore')
 const announcement = require('../announcement/index.jsx')
-const ResultFormCollection = require('./result-form.js')
 const ResultFormsCollection = require('../result-form/result-form-collection-instance.js')
 const Common = require('../../js/Common.js')
 const ResultForm = require('../search-form/search-form.js')
@@ -181,30 +180,32 @@ module.exports = Marionette.LayoutView.extend({
   },
   updateResults: function() {
     var collection = ResultFormsCollection.getCollection()
+    const options = {
+      success: () => {
+        this.successMessage()
+      },
+      error: () => {
+        this.errorMessage()
+      },
+    }
     this.model.set('type', 'result')
-    this.model.id ? this.model.save() : collection.create(this.model)
+    this.model.id
+      ? this.model.save({}, options)
+      : collection.create(this.model, options)
     this.cleanup()
   },
-  /* TODO: reactivate announcements
-
-      error: _this.cleanup(),
-    })
-      .done((data, textStatus, jqxhr) => {
-        this.message('Success', 'Result form successfully saved', 'success')
-      })
-      .fail((jqxhr, textStatus, errorThrown) => {
-        this.message(
-          'Result form failed to be saved',
-          jqxhr.responseJSON.message,
-          'error'
-        )
-      })
-  */
-  message: function(title, message, type) {
+  successMessage: function() {
     announcement.announce({
-      title: title,
-      message: message,
-      type: type,
+      title: 'Success',
+      message: 'Result form successfully saved',
+      type: 'success',
+    })
+  },
+  errorMessage: function() {
+    announcement.announce({
+      title: 'Error',
+      message: 'Result form failed to save',
+      type: 'error',
     })
   },
   cleanup: function() {

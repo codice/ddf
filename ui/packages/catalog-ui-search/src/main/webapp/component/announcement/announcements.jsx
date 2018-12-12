@@ -44,7 +44,7 @@ var Announcment = dim(function (props) {
     return (
         <div style={{ height: height }} className={classes + ' ' + props.type}>
             <div className='announcement-title'>{props.title}</div>
-            <div className='announcement-message'>{Array.isArray(props.message) ? props.message.map((submessage) => <div>submessage</div>) : props.message}</div>
+            <div className='announcement-message'>{Array.isArray(props.message) ? props.message.map((submessage) => <div key={submessage}>{submessage}</div>) : props.message}</div>
             <div className='announcement-action is-button' onClick={props.onDismiss}>
                 <span className='fa fa-times dismiss'></span>
             </div>
