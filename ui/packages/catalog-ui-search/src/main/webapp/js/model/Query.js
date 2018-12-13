@@ -93,7 +93,7 @@ Query.Model = PartialAssociatedModel.extend({
     return _merge(
       {
         cql: "anyText ILIKE ''",
-        filterTree: '{"property":"anyText","value":"","type":"ILIKE"}',
+        filterTree: { property: 'anyText', value: '', type: 'ILIKE' },
         associatedFormModel: undefined,
         excludeUnnecessaryAttributes: true,
         count: properties.resultCount,

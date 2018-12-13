@@ -196,14 +196,14 @@ module.exports = Marionette.LayoutView.extend({
   successMessage: function() {
     announcement.announce({
       title: 'Success',
-      message: 'Result form successfully saved',
+      message: 'Search form successfully saved',
       type: 'success',
     })
   },
   errorMessage: function() {
     announcement.announce({
       title: 'Error',
-      message: 'Result form failed to save',
+      message: 'Search form failed to save',
       type: 'error',
     })
   },

@@ -23,7 +23,7 @@ module.exports = Backbone.Model.extend({
       createdOn: Date.now(),
       type: 'custom',
       id: undefined,
-      filterTemplate: '{"property":"anyText","value":"","type":"ILIKE"}',
+      filterTemplate: { property: 'anyText', value: '', type: 'ILIKE' },
       descriptors: [],
       accessIndividuals: [],
       accessGroups: [],

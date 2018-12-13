@@ -65,11 +65,7 @@ module.exports = Marionette.LayoutView.extend({
       this.options.isForm === true &&
       this.model.get('filterTree') !== undefined
     ) {
-      this.queryAdvanced.currentView.deserialize(
-        typeof this.model.get('filterTree') === 'string'
-          ? JSON.parse(this.model.get('filterTree'))
-          : this.model.get('filterTree')
-      )
+      this.queryAdvanced.currentView.deserialize(this.model.get('filterTree'))
     } else if (this.options.isAdd) {
       this.queryAdvanced.currentView.deserialize(cql.read("anyText ILIKE '%'"))
     } else if (this.model.get('cql')) {
@@ -120,7 +116,7 @@ module.exports = Marionette.LayoutView.extend({
         this.options.isFormBuilder !== true
           ? this.queryAdvanced.currentView.transformToCql()
           : '',
-      filterTree: JSON.stringify(this.queryAdvanced.currentView.getFilters()),
+      filterTree: this.queryAdvanced.currentView.getFilters(),
     })
     if (typeof this.options.onSave === 'function') {
       this.options.onSave()

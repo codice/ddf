@@ -54,11 +54,6 @@ module.exports = Marionette.LayoutView.extend({
     this.edit()
   },
   setupAttributeSpecific: function() {
-    let currentValue =
-      this.model.get('descriptors') !== {} ||
-      this.model.get('descriptors') !== []
-        ? this.model.get('descriptors')
-        : []
     let excludedList = metacardDefinitions.getMetacardStartingTypes()
     this.basicAttributeSpecific.show(
       new PropertyView({
@@ -81,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
               }
             }),
           values: this.model.get('descriptors'),
-          value: [currentValue],
+          value: [this.model.get('descriptors')],
           id: 'Attributes',
         }),
       })
@@ -99,13 +94,10 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupDescription: function() {
-    let currentValue = this.model.get('description')
-      ? this.model.get('description')
-      : ''
     this.basicDescription.show(
       new PropertyView({
         model: new Property({
-          value: [currentValue],
+          value: [this.model.get('description')],
           id: 'Description',
           placeholder: 'Result Form Description',
         }),

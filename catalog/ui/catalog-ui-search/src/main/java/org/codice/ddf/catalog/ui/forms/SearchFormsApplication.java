@@ -32,6 +32,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
@@ -54,6 +55,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -88,6 +90,10 @@ public class SearchFormsApplication implements SparkApplication {
   private static final String RESP_MSG = "message";
 
   private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
+
+  private static final String NO_VALID_TEMPLATE = "Could not update, no valid template specified";
+
+  private static final String CREATED_ON = "createdOn";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
@@ -163,7 +169,7 @@ public class SearchFormsApplication implements SparkApplication {
             runWhenNotGuest(
                 res,
                 () ->
-                    doCreateOrUpdate(
+                    doCreate(
                         res,
                         Stream.of(safeGetBody(req))
                             .map(this::parseMap)
@@ -180,14 +186,15 @@ public class SearchFormsApplication implements SparkApplication {
             runWhenNotGuest(
                 res,
                 () ->
-                    doCreateOrUpdate(
+                    doUpdate(
                         res,
                         Stream.of(safeGetBody(req))
                             .map(this::parseMap)
                             .map(transformer::toQueryTemplateMetacard)
                             .filter(Objects::nonNull)
                             .findFirst()
-                            .orElse(null))),
+                            .orElse(null),
+                        req.params("id"))),
         GSON::toJson);
 
     post(
@@ -197,7 +204,7 @@ public class SearchFormsApplication implements SparkApplication {
             runWhenNotGuest(
                 res,
                 () ->
-                    doCreateOrUpdate(
+                    doCreate(
                         res,
                         Stream.of(safeGetBody(req))
                             .map(this::parseMap)
@@ -214,14 +221,15 @@ public class SearchFormsApplication implements SparkApplication {
             runWhenNotGuest(
                 res,
                 () ->
-                    doCreateOrUpdate(
+                    doUpdate(
                         res,
                         Stream.of(safeGetBody(req))
                             .map(this::parseMap)
                             .map(transformer::toAttributeGroupMetacard)
                             .filter(Objects::nonNull)
                             .findFirst()
-                            .orElse(null))),
+                            .orElse(null),
+                        req.params("id"))),
         GSON::toJson);
 
     delete(
@@ -321,40 +329,69 @@ public class SearchFormsApplication implements SparkApplication {
     }
   }
 
-  private Map<String, Object> doCreateOrUpdate(Response response, Metacard metacard)
-      throws IngestException, SourceUnavailableException, FederationException,
-          UnsupportedQueryException {
+  private Map<String, Object> doCreate(Response response, @Nullable Metacard metacard)
+      throws IngestException, SourceUnavailableException {
     if (metacard == null) {
       response.status(400);
-      return ImmutableMap.of(RESP_MSG, "Could not create, no valid template specified");
+      return ImmutableMap.of(RESP_MSG, "Could not create metacard, no valid template specified");
     }
-
-    // The UI should not send an ID during a PUT unless the metacard already exists
-    String id = metacard.getId();
-    if (id != null) {
-      Metacard oldMetacard = getMetacardIfExistsOrNull(id);
-      if (oldMetacard != null) {
-        for (AttributeDescriptor descriptor :
-            oldMetacard.getMetacardType().getAttributeDescriptors()) {
-          Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
-          if (metacardAttribute == null || metacardAttribute.getValue() == null) {
-            continue;
-          }
-          oldMetacard.setAttribute(metacardAttribute);
-        }
-        catalogFramework.update(new UpdateRequestImpl(id, oldMetacard));
-        return ImmutableMap.of(RESP_MSG, "Successfully updated");
-      }
+    if (metacard.getId() != null) {
+      LOGGER.debug(
+          "Cannot specify an ID [{}] when creating form/result metacard", metacard.getId());
+      response.status(400);
+      return ImmutableMap.of(RESP_MSG, "Could not create metacard, ID attribute not allowed");
     }
     Metacard createdMetacard =
         catalogFramework.create(new CreateRequestImpl(metacard)).getCreatedMetacards().get(0);
-    return ImmutableMap.of(
-        "id",
-        createdMetacard.getAttribute("id").getValue(),
-        "createdOn",
-        createdMetacard.getAttribute("created").getValue());
+    return ImmutableMap.<String, Object>builder()
+        .put(Core.ID, createdMetacard.getId())
+        .put(CREATED_ON, createdMetacard.getAttribute(Core.CREATED).getValue())
+        .build();
   }
 
+  private Map<String, Object> doUpdate(
+      Response response, @Nullable Metacard metacard, @Nullable String expectedId)
+      throws IngestException, SourceUnavailableException, FederationException,
+          UnsupportedQueryException {
+    if (metacard == null) {
+      LOGGER.debug("Form/Result metacard was null");
+      response.status(400);
+      return ImmutableMap.of(RESP_MSG, NO_VALID_TEMPLATE);
+    }
+    String id = metacard.getId();
+    if (id == null) {
+      LOGGER.debug("Form/Result metacard [{}] had no ID on HTTP body", metacard);
+      response.status(400);
+      return ImmutableMap.of(RESP_MSG, NO_VALID_TEMPLATE);
+    }
+    if (expectedId == null || !expectedId.equals(id)) {
+      LOGGER.debug(
+          "Query param ID [{}] did not match body ID [{}] or was not provided", expectedId, id);
+      response.status(400);
+      return ImmutableMap.of(RESP_MSG, NO_VALID_TEMPLATE);
+    }
+    Metacard oldMetacard = getMetacardIfExistsOrNull(id);
+    if (oldMetacard == null) {
+      LOGGER.debug(
+          "Form/Result metacard [{}] with ID [{}] does not exist and cannot be updated",
+          metacard,
+          id);
+      response.status(400);
+      return ImmutableMap.of(RESP_MSG, NO_VALID_TEMPLATE);
+    }
+    for (AttributeDescriptor descriptor : oldMetacard.getMetacardType().getAttributeDescriptors()) {
+      Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
+      if (metacardAttribute == null || metacardAttribute.getValue() == null) {
+        continue;
+      }
+      LOGGER.trace("Setting attribute [{}]", metacardAttribute);
+      oldMetacard.setAttribute(metacardAttribute);
+    }
+    catalogFramework.update(new UpdateRequestImpl(id, oldMetacard));
+    return ImmutableMap.of(RESP_MSG, "Successfully updated");
+  }
+
+  @Nullable
   private Metacard getMetacardIfExistsOrNull(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
