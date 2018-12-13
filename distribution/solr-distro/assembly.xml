@@ -54,7 +54,7 @@
             <includes>
                 <include>bin/*</include>
             </includes>
-            <fileMode>0754</fileMode>
+            <fileMode>0750</fileMode>
         </fileSet>
 
         <!-- The rest of the files. No executable permissions. -->

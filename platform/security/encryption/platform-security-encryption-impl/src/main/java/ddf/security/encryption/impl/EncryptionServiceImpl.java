@@ -117,8 +117,11 @@ public class EncryptionServiceImpl implements EncryptionService {
 
   @Override
   public String encryptValue(String unwrappedPlaintext) {
-    if (unwrappedPlaintext == null || unwrappedPlaintext.equals("")) {
+    if (unwrappedPlaintext == null) {
       return null;
+    }
+    if (unwrappedPlaintext.equals("")) {
+      return "";
     }
 
     return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));
