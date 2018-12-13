@@ -13,6 +13,7 @@
  */
 package ddf.security.encryption;
 
+import javax.annotation.Nullable;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
 
 public interface EncryptionService extends PasswordEncryptor {
@@ -26,6 +27,16 @@ public interface EncryptionService extends PasswordEncryptor {
    * @return a decryption of the given value after removing the leading "ENC(" and trailing ")".
    */
   String decryptValue(String wrappedEncryptedValue);
+
+  /**
+   * Encrypts a plaintext string and wraps the encrypted string in a leading "ENC(" and trailing
+   * ")".
+   *
+   * @param unwrappedPlaintext a plaintext string to be encrypted.
+   * @return encrypted text wrapped in a leading "ENC(" and trailing ")".
+   */
+  @Nullable
+  String encryptValue(String unwrappedPlaintext);
 
   /**
    * Unwraps an encrypted value in the "ENC(*)" format. Inputs that are not wrapped are returned as

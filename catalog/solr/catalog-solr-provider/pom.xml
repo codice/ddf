@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>catalog-solr</artifactId>
@@ -34,6 +34,12 @@
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-dependencies</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -97,6 +103,8 @@
                             ddf.catalog.source;version="[2.0,3)",
                             ddf.catalog.util;version="[2.0,3)",
                             ddf.measure;version="[2.0,3)",
+                            ddf.platform.solr.security,
+                            ddf.security.encryption,
                             javax.annotation,
                             javax.crypto,
                             javax.crypto.spec,
@@ -130,6 +138,8 @@
                             org.apache.commons.logging;version="[1.1,2)",
                             org.apache.xerces.parsers,
                             org.apache.xerces.xni.parser,
+                            org.codice.ddf.cxf.client,
+                            org.codice.ddf.platform.util.uuidgenerator,
                             org.ietf.jgss,
                             org.opengis.filter,
                             org.opengis.filter.expression,

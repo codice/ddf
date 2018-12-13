@@ -160,6 +160,10 @@ grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-securit
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
 }
 
+grant codeBase "file:/solr-password" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
+}
+
 // Any command executed via SSH will use other bundles that have their file access properly secured
 // so allowing karaf's SSH bundles access to all files won't create any security vulnerabilities.
 grant codeBase "file:/org.apache.karaf.shell.ssh/org.apache.sshd.core" {

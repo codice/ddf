@@ -61,6 +61,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.persistence.core</groupId>
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
@@ -168,6 +174,7 @@
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
+                            ddf.platform.solr.security,
                             ddf.security.encryption,
                             javax.crypto,
                             javax.crypto.spec,
@@ -198,7 +205,9 @@
                             javax.xml.transform.stream,
                             javax.xml.xpath,
                             org.apache.commons.logging,
+                            org.codice.ddf.cxf.client,
                             org.codice.ddf.persistence;version=1.0.0-SNAPSHOT,
+                            org.codice.ddf.platform.util.uuidgenerator,
                             org.geotools.factory,
                             org.geotools.filter,
                             org.geotools.filter.capability,

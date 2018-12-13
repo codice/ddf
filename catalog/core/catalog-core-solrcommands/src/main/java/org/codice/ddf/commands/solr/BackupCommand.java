@@ -16,6 +16,8 @@ package org.codice.ddf.commands.solr;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
@@ -30,7 +32,6 @@ import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.osgi.service.cm.Configuration;
 
 @Service
@@ -185,7 +186,9 @@ public class BackupCommand extends SolrCommands {
   }
 
   private String getBackupUrl(String coreName) {
-    String backupUrl = HttpSolrClientFactory.getDefaultHttpsAddress();
+    String solrUrl =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
 
     if (configurationAdmin != null) {
       try {
@@ -195,18 +198,16 @@ public class BackupCommand extends SolrCommands {
         if (solrConfig != null) {
           if (solrConfig.getProperties() != null && solrConfig.getProperties().get("url") != null) {
             LOGGER.debug("Found url property in config, setting backup url");
-            backupUrl = (String) solrConfig.getProperties().get("url");
+            solrUrl = (String) solrConfig.getProperties().get("url");
           } else {
             LOGGER.debug("No Solr config found, checking System settings");
             if (System.getProperty("hostContext") != null) {
-              backupUrl =
+              solrUrl =
                   SystemBaseUrl.INTERNAL.constructUrl(
                       SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
-              LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
+              LOGGER.debug("Trying system configured URL instead: {}", solrUrl);
             } else {
-              LOGGER.info(
-                  "No Solr url configured, defaulting to: {}",
-                  HttpSolrClientFactory.getDefaultHttpsAddress());
+              LOGGER.info("No Solr url configured, backup command will fail.");
             }
           }
         }
@@ -214,7 +215,7 @@ public class BackupCommand extends SolrCommands {
         LOGGER.debug("Unable to get Solr url from bundle config, will check system properties.");
       }
     }
-    return backupUrl + "/" + coreName + "/replication";
+    return solrUrl + "/" + coreName + "/replication";
   }
 
   private boolean isSystemConfiguredWithSolrCloud() {

@@ -26,6 +26,7 @@ public class EncryptionServiceImpl implements EncryptionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImpl.class);
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
+  private static final String ENC_TEMPLATE = "ENC(%s)";
 
   private final Crypter crypter;
 
@@ -112,6 +113,15 @@ public class EncryptionServiceImpl implements EncryptionService {
     }
     LOGGER.debug("Unwrapped encrypted password is now being decrypted");
     return decrypt(encryptedValue);
+  }
+
+  @Override
+  public String encryptValue(String unwrappedPlaintext) {
+    if (unwrappedPlaintext == null || unwrappedPlaintext.equals("")) {
+      return null;
+    }
+
+    return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));
   }
 
   /**

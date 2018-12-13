@@ -284,7 +284,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       LOGGER.trace("Password already encrypted");
       return plaintextValue;
     }
-    return format("ENC(%s)", encryptionService.encrypt(plaintextValue));
+    return encryptionService.encryptValue(plaintextValue);
   }
 
   /**

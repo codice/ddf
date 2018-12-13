@@ -12,16 +12,16 @@
  **/
  -->
 <features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          name="${project.artifactId}-${project.version}"
-          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
-          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+    name="${project.artifactId}-${project.version}"
+    xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+    xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
     <feature name="solr-decanter-appender" version="${project.version}"
-             description="A Decanter appender that writes to solr">
+        description="A Decanter appender that writes to solr">
         <feature>persistence-core</feature>
         <feature>spring</feature>
         <feature>common-system</feature>
@@ -29,13 +29,23 @@
     </feature>
 
     <feature name="persistence-core-api" version="${project.version}"
-             description="Internal Persistence Core API">
+        description="Internal Persistence Core API">
         <feature>security-encryption</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
     </feature>
 
+    <feature name="solr-password" version="${project.version}"
+        description="Automatically change Solr password if the default password is in use.">
+        <feature>security-core</feature>
+        <feature>security-encryption</feature>
+        <feature>util-uuidgenerator</feature>
+        <bundle>mvn:ddf.platform.solr/solr-password/${project.version}</bundle>
+    </feature>
+
+
     <feature name="persistence-core" version="${project.version}"
-             description="Internal Persistence Core Implementation">
+        description="Internal Persistence Core Implementation">
+        <feature>solr-password</feature>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
