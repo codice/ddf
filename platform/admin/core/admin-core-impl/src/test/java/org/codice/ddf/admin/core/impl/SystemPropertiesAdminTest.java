@@ -64,6 +64,12 @@ public class SystemPropertiesAdminTest {
     expectedSystemPropertiesCount++;
     System.setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, "8901");
     expectedSystemPropertiesCount++;
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "internal_host");
+    expectedSystemPropertiesCount++;
+    System.setProperty(SystemBaseUrl.INTERNAL_HTTP_PORT, "5567");
+    expectedSystemPropertiesCount++;
+    System.setProperty(SystemBaseUrl.INTERNAL_HTTPS_PORT, "9901");
+    expectedSystemPropertiesCount++;
     System.setProperty(SystemInfo.ORGANIZATION, "org");
     expectedSystemPropertiesCount++;
     System.setProperty(SystemInfo.SITE_CONTACT, "contact");
@@ -90,6 +96,9 @@ public class SystemPropertiesAdminTest {
     assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HOST), equalTo("host"));
     assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("4567"));
     assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("8901"));
+    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HOST), equalTo("internal_host"));
+    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("5567"));
+    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("9901"));
     assertThat(getDetailsValue(details, SystemInfo.ORGANIZATION), equalTo("org"));
     assertThat(getDetailsValue(details, SystemInfo.SITE_CONTACT), equalTo("contact"));
     assertThat(getDetailsValue(details, SystemInfo.SITE_NAME), equalTo("site"));
@@ -106,6 +115,9 @@ public class SystemPropertiesAdminTest {
     assertThat(SystemBaseUrl.EXTERNAL.getPort(), equalTo("1234"));
     assertThat(SystemBaseUrl.EXTERNAL.getHttpPort(), equalTo("4567"));
     assertThat(SystemBaseUrl.EXTERNAL.getHttpsPort(), equalTo("8901"));
+    assertThat(SystemBaseUrl.INTERNAL.getHost(), equalTo("internal_host"));
+    assertThat(SystemBaseUrl.INTERNAL.getHttpPort(), equalTo("5567"));
+    assertThat(SystemBaseUrl.INTERNAL.getHttpsPort(), equalTo("9901"));
     assertThat(SystemBaseUrl.EXTERNAL.getProtocol(), equalTo("https://"));
     assertThat(SystemInfo.getOrganization(), equalTo("org"));
     assertThat(SystemInfo.getSiteContatct(), equalTo("contact"));
@@ -119,7 +131,7 @@ public class SystemPropertiesAdminTest {
 
     Properties userProps = new Properties();
     userProps.put("admin", "admin,group,somethingelse");
-    userProps.put("host", "host,group,somethingelse");
+    userProps.put("internal_host", "host,group,somethingelse");
     try (FileOutputStream outProps = new FileOutputStream(userPropsFile)) {
       userProps.store(outProps, null);
     }
@@ -130,7 +142,7 @@ public class SystemPropertiesAdminTest {
               + "    \"admin\" : {\n"
               + "\n"
               + "    },\n"
-              + "    \"host\" : {\n"
+              + "    \"internal_host\" : {\n"
               + "\n"
               + "    }\n"
               + "}";
@@ -139,13 +151,16 @@ public class SystemPropertiesAdminTest {
 
     SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
     Map<String, String> map = new HashMap<>();
-    map.put(SystemBaseUrl.EXTERNAL_HOST, "newhost");
+    map.put(SystemBaseUrl.INTERNAL_HOST, "newhost");
     spa.writeSystemProperties(map);
     List<SystemPropertyDetails> details = spa.readSystemProperties();
-    assertThat(SystemBaseUrl.EXTERNAL.getHost(), equalTo("newhost"));
+    assertThat(SystemBaseUrl.EXTERNAL.getHost(), equalTo("host"));
     assertThat(SystemBaseUrl.EXTERNAL.getPort(), equalTo("8901"));
     assertThat(SystemBaseUrl.EXTERNAL.getHttpPort(), equalTo("4567"));
     assertThat(SystemBaseUrl.EXTERNAL.getHttpsPort(), equalTo("8901"));
+    assertThat(SystemBaseUrl.INTERNAL.getHost(), equalTo("newhost"));
+    assertThat(SystemBaseUrl.INTERNAL.getHttpPort(), equalTo("5567"));
+    assertThat(SystemBaseUrl.INTERNAL.getHttpsPort(), equalTo("9901"));
     assertThat(SystemBaseUrl.EXTERNAL.getProtocol(), equalTo("https://"));
     assertThat(SystemInfo.getOrganization(), equalTo("org"));
     assertThat(SystemInfo.getSiteContatct(), equalTo("contact"));
@@ -159,7 +174,7 @@ public class SystemPropertiesAdminTest {
     try (FileReader sysPropsReader = new FileReader(systemPropsFile)) {
       sysProps.load(sysPropsReader);
       assertThat(sysProps.size(), is(2));
-      assertThat(sysProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("newhost"));
+      assertThat(sysProps.getProperty(SystemBaseUrl.INTERNAL_HOST), equalTo("newhost"));
     }
 
     userProps = new Properties();
@@ -169,7 +184,7 @@ public class SystemPropertiesAdminTest {
       assertThat(userProps.getProperty("newhost"), equalTo("host,group,somethingelse"));
     }
 
-    map.put(SystemBaseUrl.EXTERNAL_HOST, "anotherhost");
+    map.put(SystemBaseUrl.INTERNAL_HOST, "anotherhost");
     spa.writeSystemProperties(map);
     userProps = new Properties();
     try (FileReader userPropsReader = new FileReader(userPropsFile)) {

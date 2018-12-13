@@ -119,13 +119,13 @@ define([
       this.model.each(function(model) {
         hasErrors = hasErrors || model.validationError
 
-        if (model.get('title') === 'Host') {
+        if (model.get('title') === 'Internal Host') {
           hostName = model.get('value')
           layout.certificateModel.set('hostName', hostName)
           if (model.get('value') === model.get('defaultValue')) {
             hostChange = false
           }
-        } else if (model.get('title') === 'HTTPS Port') {
+        } else if (model.get('title') === 'Internal HTTPS Port') {
           port = model.get('value')
         }
       })
