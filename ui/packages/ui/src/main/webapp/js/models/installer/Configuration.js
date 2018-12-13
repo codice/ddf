@@ -74,8 +74,8 @@ define(['backbone', 'jquery', 'backboneassociations'], function(Backbone, $) {
         propertiesMap[model.get('key')] = model.get('value')
       })
 
-            data.arguments = [propertiesMap];
-            data = JSON.stringify(data);
+      data.arguments = [propertiesMap]
+      data = JSON.stringify(data)
 
       return $.ajax({
         type: 'POST',
