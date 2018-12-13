@@ -13,6 +13,7 @@
  *
  **/
 /*global require*/
+const React = require('react')
 var Marionette = require('marionette')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.map-settings.hbs')

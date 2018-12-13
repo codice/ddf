@@ -42,6 +42,7 @@ module.exports = Marionette.LayoutView.extend(
     handleClick: function(e) {
       e.preventDefault()
       e.stopPropagation()
+      debugger
       if (this.model.get('isEditing') && !this.wasOpen) {
         this.model.toggleOpen()
       }
