@@ -17,6 +17,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+import static org.codice.ddf.platform.util.JSONUtils.isJSONValid;
 import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
@@ -55,6 +56,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
@@ -131,6 +134,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .map(TemplateTransformer::toFormTemplate)
                 .filter(Objects::nonNull)
+                .filter(this::isFormJSONValid)
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),
         GSON::toJson);
@@ -145,6 +149,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .map(transformer::toFieldFilter)
                 .filter(Objects::nonNull)
+                .filter(this::isFieldJSONValid)
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),
         GSON::toJson);
@@ -335,5 +340,23 @@ public class SearchFormsApplication implements SparkApplication {
   @SuppressWarnings("squid:S00112" /* Supplier to mimic Spark's routing API */)
   private interface CheckedSupplier<T> {
     T get() throws Exception;
+  }
+
+  private boolean isFormJSONValid(FormTemplate jsonInFormTemplate) {
+    String jsonString = GSON.toJson(jsonInFormTemplate);
+    if (isJSONValid(jsonString)) {
+      return true;
+    }
+    LOGGER.debug("Invalid JSON found: {}", jsonString);
+    return false;
+  }
+
+  private boolean isFieldJSONValid(FieldFilter jsonInFieldFilter) {
+    String jsonString = GSON.toJson(jsonInFieldFilter);
+    if (isJSONValid(jsonString)) {
+      return true;
+    }
+    LOGGER.debug("Invalid JSON found: {}", jsonString);
+    return false;
   }
 }
