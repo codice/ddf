@@ -22,18 +22,12 @@ import static org.mockito.Mockito.when;
 
 import javax.security.auth.login.LoginException;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LDAPConnectionFactory.class)
 public class SslLdapLoginModuleTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);

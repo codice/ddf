@@ -73,7 +73,6 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
-    when(serviceReference.getProperty(SERVICE_ID)).thenReturn(null);
     when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferencesFiltered);
 
@@ -97,7 +96,6 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
-    when(serviceReference.getProperty(SERVICE_ID)).thenReturn(null);
     when(bundleContext.getServiceReferences(MetacardTransformer.class, FILTER))
         .thenReturn(serviceReferencesFiltered);
 

@@ -23,11 +23,6 @@
     <name>DDF :: Security :: PEP :: Interceptor</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <!-- For maven-surefire-plugin -->
-        <surefire.argline.append>-javaagent:${powermock.agent}</surefire.argline.append>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.shiro</groupId>
@@ -56,18 +51,6 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4-rule-agent</artifactId>
-        </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>

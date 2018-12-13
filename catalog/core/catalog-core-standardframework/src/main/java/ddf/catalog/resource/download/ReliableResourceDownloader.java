@@ -224,7 +224,7 @@ public class ReliableResourceDownloader implements Runnable {
 
     try {
       reliableResourceCallable =
-          new ReliableResourceCallable(
+          constructReliableResourceCallable(
               resourceInputStream, countingFbos, fos, downloaderConfig.getChunkSize(), lock);
       downloadFuture = null;
       ResourceRetrievalMonitor resourceRetrievalMonitor = null;
@@ -271,15 +271,7 @@ public class ReliableResourceDownloader implements Runnable {
           // detected, the Callable will be canceled and a new download attempt (retry)
           // will be started.
           final Timer downloadTimer = new Timer();
-          resourceRetrievalMonitor =
-              new ResourceRetrievalMonitor(
-                  downloadFuture,
-                  reliableResourceCallable,
-                  downloaderConfig.getMonitorPeriodMS(),
-                  eventPublisher,
-                  resourceResponse,
-                  metacard,
-                  downloadIdentifier);
+          resourceRetrievalMonitor = constructResourceRetrievalMonitor();
           LOGGER.debug(
               "Configuring resourceRetrievalMonitor to run every {} ms",
               downloaderConfig.getMonitorPeriodMS());
@@ -396,8 +388,8 @@ public class ReliableResourceDownloader implements Runnable {
               downloadState.setContinueCaching(doCaching);
             }
             reliableResourceCallable =
-                new ReliableResourceCallable(
-                    resourceInputStream, countingFbos, downloaderConfig.getChunkSize(), lock);
+                constructReliableResourceCallable(
+                    resourceInputStream, countingFbos, null, downloaderConfig.getChunkSize(), lock);
             reliableResourceCallable.setBytesRead(bytesRead);
 
           } else if (DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION.equals(
@@ -420,8 +412,8 @@ public class ReliableResourceDownloader implements Runnable {
             LOGGER.debug("Cancelling resourceRetrievalMonitor");
             resourceRetrievalMonitor.cancel();
             reliableResourceCallable =
-                new ReliableResourceCallable(
-                    resourceInputStream, fos, downloaderConfig.getChunkSize(), lock);
+                constructReliableResourceCallable(
+                    resourceInputStream, null, fos, downloaderConfig.getChunkSize(), lock);
             reliableResourceCallable.setBytesRead(bytesRead);
 
           } else if (DownloadStatus.RESOURCE_DOWNLOAD_CANCELED.equals(
@@ -442,8 +434,8 @@ public class ReliableResourceDownloader implements Runnable {
             if (doCaching && downloaderConfig.isCacheWhenCanceled()) {
               LOGGER.debug("Continuing to cache product");
               reliableResourceCallable =
-                  new ReliableResourceCallable(
-                      resourceInputStream, fos, downloaderConfig.getChunkSize(), lock);
+                  constructReliableResourceCallable(
+                      resourceInputStream, null, fos, downloaderConfig.getChunkSize(), lock);
               reliableResourceCallable.setBytesRead(bytesRead);
             } else {
               break;
@@ -528,7 +520,7 @@ public class ReliableResourceDownloader implements Runnable {
       resourceInputStream = resourceResponse.getResource().getInputStream();
 
       reliableResourceCallable =
-          new ReliableResourceCallable(
+          constructReliableResourceCallable(
               resourceInputStream, countingFbos, fos, downloaderConfig.getChunkSize(), lock);
 
       // So that Callable can account for bytes read in previous download attempt(s)
@@ -630,5 +622,27 @@ public class ReliableResourceDownloader implements Runnable {
   @VisibleForTesting
   void setCountingOutputStream(CountingOutputStream countingFbos) {
     this.countingFbos = countingFbos;
+  }
+
+  @VisibleForTesting
+  ReliableResourceCallable constructReliableResourceCallable(
+      InputStream input,
+      CountingOutputStream countingFbos,
+      FileOutputStream fos,
+      int chunkSize,
+      Object lock) {
+    return new ReliableResourceCallable(input, countingFbos, fos, chunkSize, lock);
+  }
+
+  @VisibleForTesting
+  ResourceRetrievalMonitor constructResourceRetrievalMonitor() {
+    return new ResourceRetrievalMonitor(
+        downloadFuture,
+        reliableResourceCallable,
+        downloaderConfig.getMonitorPeriodMS(),
+        eventPublisher,
+        resourceResponse,
+        metacard,
+        downloadIdentifier);
   }
 }

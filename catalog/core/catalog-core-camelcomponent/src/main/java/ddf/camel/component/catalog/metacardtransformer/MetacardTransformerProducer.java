@@ -13,6 +13,7 @@
  */
 package ddf.camel.component.catalog.metacardtransformer;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.MetacardTransformer;
@@ -77,7 +78,8 @@ public class MetacardTransformerProducer extends DefaultProducer {
     }
   }
 
-  private MetacardTransformer lookupTransformerReference(String metacardTransformerId) {
+  @VisibleForTesting
+  MetacardTransformer lookupTransformerReference(String metacardTransformerId) {
     Bundle bundle = FrameworkUtil.getBundle(this.getClass());
     if (bundle != null) {
       BundleContext bundleContext = bundle.getBundleContext();

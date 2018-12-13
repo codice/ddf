@@ -13,11 +13,13 @@
  */
 package ddf.catalog.federation.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
@@ -94,6 +96,12 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
       final Query query) {
 
     return new SortedQueryMonitor(pool, futures, returnResults, query);
+  }
+
+  @Override
+  @VisibleForTesting
+  protected QueryResponseImpl getQueryResponseQueue(QueryRequest queryRequest) {
+    return new QueryResponseImpl(queryRequest, null);
   }
 
   private static class SortedQueryMonitor implements Runnable {

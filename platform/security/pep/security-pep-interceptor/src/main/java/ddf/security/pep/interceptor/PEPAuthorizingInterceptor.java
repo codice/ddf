@@ -13,6 +13,7 @@
  */
 package ddf.security.pep.interceptor;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -76,7 +77,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
     if (message != null) {
       // grab the SAML assertion associated with this Message from the
       // token store
-      SecurityAssertion assertion = SecurityAssertionStore.getSecurityAssertion(message);
+      SecurityAssertion assertion = getSecurityAssertion(message);
       boolean isPermitted = false;
 
       if ((assertion != null) && (assertion.getSecurityToken() != null)) {
@@ -139,6 +140,11 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
           "Unable to retrieve the current message associated with the web service call.");
       throw new AccessDeniedException("Unauthorized");
     }
+  }
+
+  @VisibleForTesting
+  SecurityAssertion getSecurityAssertion(Message message) {
+    return SecurityAssertionStore.getSecurityAssertion(message);
   }
 
   /**

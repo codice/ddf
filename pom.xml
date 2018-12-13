@@ -141,7 +141,6 @@
         <pax.url.version>2.5.4</pax.url.version>
         <pax.transx.version>0.2.0</pax.transx.version>
         <pax.web.version>7.2.3</pax.web.version>
-        <powermock.version>1.6.4</powermock.version>
         <restito.version>0.8.2</restito.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.5.1</xmlunit-matchers.version>

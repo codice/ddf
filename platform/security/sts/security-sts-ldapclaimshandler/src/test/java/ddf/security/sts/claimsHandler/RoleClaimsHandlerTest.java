@@ -34,22 +34,17 @@ import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
+import org.forgerock.opendj.ldap.ConnectionFactory;
 import org.forgerock.opendj.ldap.DN;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.LinkedAttribute;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
+import org.forgerock.util.promise.Promise;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LDAPConnectionFactory.class})
 public class RoleClaimsHandlerTest {
   public static final String USER_CN = "tstark";
 
@@ -71,7 +66,6 @@ public class RoleClaimsHandlerTest {
     Connection connection = mock(Connection.class);
     ConnectionEntryReader membershipReader = mock(ConnectionEntryReader.class);
     ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
-    LDAPConnectionFactory connectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
     LinkedAttribute membershipAttribute = new LinkedAttribute("uid");
     LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
     ProcessedClaimCollection processedClaims;
@@ -110,10 +104,8 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
-    when(connectionFactory.getConnection()).thenReturn(connection);
-
     claimsHandler = new RoleClaimsHandler();
-    claimsHandler.setLdapConnectionFactory(connectionFactory);
+    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory(connection));
     claimsHandler.setBindMethod("Simple");
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
@@ -137,7 +129,6 @@ public class RoleClaimsHandlerTest {
     Connection connection = mock(Connection.class);
     ConnectionEntryReader membershipReader = mock(ConnectionEntryReader.class);
     ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
-    LDAPConnectionFactory connectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
     LinkedAttribute membershipAttribute = new LinkedAttribute("cn");
     LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
     ProcessedClaimCollection processedClaims;
@@ -177,10 +168,8 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("cn")))
         .thenReturn(membershipReader);
 
-    when(connectionFactory.getConnection()).thenReturn(connection);
-
     claimsHandler = new RoleClaimsHandler();
-    claimsHandler.setLdapConnectionFactory(connectionFactory);
+    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory(connection));
     claimsHandler.setBindMethod("Simple");
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
@@ -206,7 +195,6 @@ public class RoleClaimsHandlerTest {
     Connection connection = mock(Connection.class);
     ConnectionEntryReader membershipReader = mock(ConnectionEntryReader.class);
     ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
-    LDAPConnectionFactory connectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
     LinkedAttribute membershipAttribute = new LinkedAttribute("uid");
     LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
     ProcessedClaimCollection processedClaims;
@@ -246,10 +234,8 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
-    when(connectionFactory.getConnection()).thenReturn(connection);
-
     claimsHandler = new RoleClaimsHandler();
-    claimsHandler.setLdapConnectionFactory(connectionFactory);
+    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory(connection));
     claimsHandler.setBindMethod("Simple");
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
@@ -270,5 +256,28 @@ public class RoleClaimsHandlerTest {
     RoleClaimsHandler claimsHandler = new RoleClaimsHandler();
     List<URI> uris = claimsHandler.getSupportedClaimTypes();
     assertThat(uris, hasSize(1));
+  }
+
+  private class MockConnectionFactory implements ConnectionFactory {
+    private Connection connection;
+
+    public MockConnectionFactory(Connection connection) {
+      this.connection = connection;
+    }
+
+    @Override
+    public void close() {
+      // no-op
+    }
+
+    @Override
+    public Promise<Connection, LdapException> getConnectionAsync() {
+      return null;
+    }
+
+    @Override
+    public Connection getConnection() throws LdapException {
+      return connection;
+    }
   }
 }

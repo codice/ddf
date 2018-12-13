@@ -23,14 +23,6 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <properties>
-        <powermock.agent>
-            ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
-        </powermock.agent>
-        <!-- For maven-surefire-plugin -->
-        <surefire.argline.append>-javaagent:${powermock.agent}</surefire.argline.append>
-    </properties>
-
 
     <name>DDF :: Catalog :: Plugin :: Security Audit</name>
     <artifactId>catalog-plugin-security-audit</artifactId>
@@ -51,21 +43,9 @@
             <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4-rule-agent</artifactId>
-            <version>1.6.6</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

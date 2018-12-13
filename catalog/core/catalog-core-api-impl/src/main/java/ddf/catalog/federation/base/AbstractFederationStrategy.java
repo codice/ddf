@@ -13,6 +13,7 @@
  */
 package ddf.catalog.federation.base;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.Query;
@@ -131,7 +132,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
       offset = this.maxStartIndex;
     }
 
-    final QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest, null);
+    final QueryResponseImpl queryResponseQueue = getQueryResponseQueue(queryRequest);
 
     Map<Source, Future<SourceResponse>> futures = new HashMap<Source, Future<SourceResponse>>();
 
@@ -180,7 +181,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
     // transfer them into a different Queue. That is what the
     // OffsetResultHandler does.
     if (offset > 1 && sources.size() > 1) {
-      offsetResults = new QueryResponseImpl(queryRequest, null);
+      offsetResults = getQueryResponseQueue(queryRequest);
       queryExecutorService.submit(
           new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
     }
@@ -215,6 +216,9 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
 
     return queryResponse;
   }
+
+  @VisibleForTesting
+  protected abstract QueryResponseImpl getQueryResponseQueue(QueryRequest queryRequest);
 
   private Query getModifiedQuery(
       Query originalQuery, int numberOfSources, int offset, int pageSize) {

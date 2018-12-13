@@ -15,6 +15,7 @@ package org.codice.ddf.security.common;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
@@ -174,11 +175,11 @@ public class Security {
       Subject subject = getSystemSubject();
 
       if (subject == null) {
-        SecurityLogger.audit(INSUFFICIENT_PERMISSIONS_ERROR);
+        auditInsufficientPermissions();
         throw new SecurityServiceException(INSUFFICIENT_PERMISSIONS_ERROR);
       }
 
-      SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
+      auditSystemSubjectElevation();
       return subject.execute(codeToRun);
     } catch (ExecutionException e) {
       throw new InvocationTargetException(e.getCause());
@@ -350,8 +351,9 @@ public class Security {
     return new javax.security.auth.Subject(true, principals, new HashSet(), new HashSet());
   }
 
+  @VisibleForTesting
   @Nullable
-  private org.apache.shiro.subject.Subject getShiroSubject() {
+  org.apache.shiro.subject.Subject getShiroSubject() {
     try {
       return org.apache.shiro.SecurityUtils.getSubject();
     } catch (IllegalStateException | UnavailableSecurityManagerException e) { // ignore
@@ -359,12 +361,23 @@ public class Security {
     return null;
   }
 
-  private BundleContext getBundleContext() {
+  @VisibleForTesting
+  BundleContext getBundleContext() {
     Bundle bundle = FrameworkUtil.getBundle(Security.class);
     if (bundle != null) {
       return bundle.getBundleContext();
     }
     return null;
+  }
+
+  @VisibleForTesting
+  void auditInsufficientPermissions() {
+    SecurityLogger.audit(INSUFFICIENT_PERMISSIONS_ERROR);
+  }
+
+  @VisibleForTesting
+  void auditSystemSubjectElevation() {
+    SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
   }
 
   private PKIAuthenticationTokenFactory createPKITokenFactory() {

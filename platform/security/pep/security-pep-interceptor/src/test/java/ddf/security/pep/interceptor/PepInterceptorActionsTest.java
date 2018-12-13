@@ -17,16 +17,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.service.impl.SecurityAssertionStore;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
@@ -37,22 +37,15 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 
-@PrepareForTest({SecurityAssertionStore.class, SecurityLogger.class})
 public class PepInterceptorActionsTest {
-
-  @Rule public PowerMockRule rule = new PowerMockRule();
 
   @Test
   public void testMessageWithDefaultUriAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
@@ -63,10 +56,7 @@ public class PepInterceptorActionsTest {
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    PowerMockito.mockStatic(SecurityAssertionStore.class);
-    PowerMockito.mockStatic(SecurityLogger.class);
-    when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-        .thenReturn(mockSecurityAssertion);
+    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -98,13 +88,11 @@ public class PepInterceptorActionsTest {
 
     // This should work.
     interceptor.handleMessage(messageWithAction);
-
-    PowerMockito.verifyStatic();
   }
 
   @Test
   public void testMessageWithDefaultUrlAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
@@ -115,10 +103,7 @@ public class PepInterceptorActionsTest {
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    PowerMockito.mockStatic(SecurityAssertionStore.class);
-    PowerMockito.mockStatic(SecurityLogger.class);
-    when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-        .thenReturn(mockSecurityAssertion);
+    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -150,13 +135,11 @@ public class PepInterceptorActionsTest {
 
     // This should work.
     interceptor.handleMessage(messageWithAction);
-
-    PowerMockito.verifyStatic();
   }
 
   @Test
   public void testMessageWithMessageAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
@@ -167,10 +150,7 @@ public class PepInterceptorActionsTest {
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    PowerMockito.mockStatic(SecurityAssertionStore.class);
-    PowerMockito.mockStatic(SecurityLogger.class);
-    when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-        .thenReturn(mockSecurityAssertion);
+    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -197,13 +177,11 @@ public class PepInterceptorActionsTest {
 
     // This should work.
     interceptor.handleMessage(messageWithAction);
-
-    PowerMockito.verifyStatic();
   }
 
   @Test
   public void testMessageWithOperationAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
@@ -214,10 +192,7 @@ public class PepInterceptorActionsTest {
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    PowerMockito.mockStatic(SecurityAssertionStore.class);
-    PowerMockito.mockStatic(SecurityLogger.class);
-    when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-        .thenReturn(mockSecurityAssertion);
+    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -246,13 +221,11 @@ public class PepInterceptorActionsTest {
 
     // This should work.
     interceptor.handleMessage(messageWithAction);
-
-    PowerMockito.verifyStatic();
   }
 
   @Test(expected = AccessDeniedException.class)
   public void testMessageWithNoAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
@@ -263,10 +236,7 @@ public class PepInterceptorActionsTest {
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    PowerMockito.mockStatic(SecurityAssertionStore.class);
-    PowerMockito.mockStatic(SecurityLogger.class);
-    when(SecurityAssertionStore.getSecurityAssertion(messageWithoutAction))
-        .thenReturn(mockSecurityAssertion);
+    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithoutAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -283,7 +253,5 @@ public class PepInterceptorActionsTest {
 
     // This should throw an exception.
     interceptor.handleMessage(messageWithoutAction);
-
-    PowerMockito.verifyStatic();
   }
 }

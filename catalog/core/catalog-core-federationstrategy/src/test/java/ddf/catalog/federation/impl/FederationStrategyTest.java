@@ -20,7 +20,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +33,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.CatalogFrameworkImpl;
@@ -82,19 +83,14 @@ import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortOrder;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@PrepareForTest(AbstractFederationStrategy.class)
 public class FederationStrategyTest {
 
   private static final long SHORT_TIMEOUT = 25;
@@ -111,8 +107,6 @@ public class FederationStrategyTest {
   private Query mockQuery;
 
   private ActionRegistry sourceActionRegistry;
-
-  @Rule public PowerMockRule rule = new PowerMockRule();
 
   @Before
   public void setup() throws Exception {
@@ -419,16 +413,18 @@ public class FederationStrategyTest {
             mockSortedResult7,
             mockSortedResult8);
     QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
-    PowerMockito.whenNew(QueryResponseImpl.class)
-        .withArguments(queryRequest, (Map<String, Serializable>) null)
-        .thenReturn(mockOriginalResults, offsetResultQueue);
 
     SortedFederationStrategy strategy =
-        new SortedFederationStrategy(
-            executor,
-            new ArrayList<PreFederatedQueryPlugin>(),
-            new ArrayList<PostFederatedQueryPlugin>());
+        spy(
+            new SortedFederationStrategy(
+                executor,
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>()));
 
+    doReturn(mockOriginalResults)
+        .doReturn(offsetResultQueue)
+        .when(strategy)
+        .getQueryResponseQueue(queryRequest);
     // Run Test
     QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
 
