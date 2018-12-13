@@ -276,12 +276,7 @@ Query.Model = PartialAssociatedModel.extend({
     if (sources.length === 0) {
       announcement.announce({
         title: 'Search "' + this.get('title') + '" cannot be run.',
-        message:
-          'No ' +
-          properties.i18n['sources'] +
-          ' are currently selected.  Edit the search and select at least one ' +
-          properties.i18n['source'] +
-          '.',
+        message: properties.i18n['search.sources.selected.none.message'],
         type: 'warn',
       })
       return []
