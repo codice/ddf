@@ -17,7 +17,15 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
+import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.security.liberty.paos.Request;
@@ -223,5 +231,39 @@ public class PaosInInterceptorTest {
         };
     paosInInterceptor.handleMessage(message);
     assertThat(IOUtils.toString(message.getContent(InputStream.class)), is("error content"));
+  }
+
+  @Test
+  public void getHttpUnsuccessfulResponseHandlerHeaderTest() throws IOException {
+    Message message = new MessageImpl();
+    message.put(Message.HTTP_REQUEST_METHOD, "GET");
+
+    HashMap<String, List> protocolHeaders = new HashMap<>();
+    message.put(Message.PROTOCOL_HEADERS, protocolHeaders);
+    protocolHeaders.put("X-Custom-Header", Collections.singletonList("Custom"));
+
+    PaosInInterceptor paosInInterceptor = spy(new PaosInInterceptor(Phase.RECEIVE));
+    doReturn(true)
+        .when(paosInInterceptor)
+        .isRedirect(any(HttpRequest.class), any(HttpResponse.class), any(String.class));
+
+    GenericUrl url = new GenericUrl("https://localhost:8993/PAOSConsumer");
+    HttpRequest request = new MockHttpTransport().createRequestFactory().buildGetRequest(url);
+    request.getUrl().set("url", "https://localhost:8993/PAOSConsumer");
+
+    // Using request.execute to create an HttpResponse since it's final and cannot be mocked
+    HttpResponse response = request.execute();
+    response.getHeaders().setLocation("https://localhost:8993/PAOSConsumer");
+    response.getHeaders().set("set-cookie", Collections.singletonList("cookie"));
+
+    HttpUnsuccessfulResponseHandler responseHandler =
+        paosInInterceptor.getHttpUnsuccessfulResponseHandler(message);
+    boolean returned = responseHandler.handleResponse(request, response, true);
+
+    assertThat(returned, is(true));
+    // HttpHeaders ignores header case
+    assertThat(request.getHeaders().containsKey("x-custom-header"), is(true));
+    assertThat(
+        request.getHeaders().get("x-custom-header"), is(Collections.singletonList("Custom")));
   }
 }

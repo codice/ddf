@@ -22,6 +22,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
@@ -305,6 +306,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     return token;
   }
 
+  @VisibleForTesting
   HttpResponseWrapper getHttpResponse(
       String responseConsumerURL, String soapResponse, Message message) throws IOException {
     // This used to use the ApacheHttpTransport which appeared to not work with 2 way TLS auth but
@@ -319,42 +321,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
             .createRequestFactory()
             .buildPostRequest(new GenericUrl(responseConsumerURL), httpContent);
     HttpUnsuccessfulResponseHandler httpUnsuccessfulResponseHandler =
-        (request, response, supportsRetry) -> {
-          String redirectLocation = response.getHeaders().getLocation();
-          if (request.getFollowRedirects()
-              && HttpStatusCodes.isRedirect(response.getStatusCode())
-              && redirectLocation != null) {
-            String method = (String) message.get(Message.HTTP_REQUEST_METHOD);
-            HttpContent content = null;
-            if (!isRedirectable(method)) {
-              ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-              message.setContent(OutputStream.class, byteArrayOutputStream);
-              BodyWriter bodyWriter = new BodyWriter();
-              bodyWriter.handleMessage(message);
-              content =
-                  new InputStreamContent(
-                      (String) message.get(Message.CONTENT_TYPE),
-                      new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
-            }
-
-            // resolve the redirect location relative to the current location
-            request.setUrl(new GenericUrl(request.getUrl().toURL(redirectLocation)));
-            request.setRequestMethod(method);
-            request.setContent(content);
-            // remove Authorization and If-* headers
-            request.getHeaders().setAuthorization((String) null);
-            request.getHeaders().setIfMatch(null);
-            request.getHeaders().setIfNoneMatch(null);
-            request.getHeaders().setIfModifiedSince(null);
-            request.getHeaders().setIfUnmodifiedSince(null);
-            request.getHeaders().setIfRange(null);
-            request
-                .getHeaders()
-                .setCookie((String) ((List) response.getHeaders().get("set-cookie")).get(0));
-            return true;
-          }
-          return false;
-        };
+        getHttpUnsuccessfulResponseHandler(message);
     httpRequest.setUnsuccessfulResponseHandler(httpUnsuccessfulResponseHandler);
     httpRequest.getHeaders().put(SOAP_ACTION, HTTP_WWW_OASIS_OPEN_ORG_COMMITTEES_SECURITY);
     // has 20 second timeout by default
@@ -364,6 +331,55 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     httpResponseWrapper.content = httpResponse.getContent();
     httpResponseWrapper.headers = httpResponse.getHeaders().entrySet();
     return httpResponseWrapper;
+  }
+
+  @VisibleForTesting
+  HttpUnsuccessfulResponseHandler getHttpUnsuccessfulResponseHandler(Message message) {
+    return (request, response, supportsRetry) -> {
+      String redirectLocation = response.getHeaders().getLocation();
+      if (isRedirect(request, response, redirectLocation)) {
+        String method = (String) message.get(Message.HTTP_REQUEST_METHOD);
+        HttpContent content = null;
+        if (!isRedirectable(method)) {
+          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          message.setContent(OutputStream.class, byteArrayOutputStream);
+          BodyWriter bodyWriter = new BodyWriter();
+          bodyWriter.handleMessage(message);
+          content =
+              new InputStreamContent(
+                  (String) message.get(Message.CONTENT_TYPE),
+                  new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+        }
+
+        // resolve the redirect location relative to the current location
+        request.setUrl(new GenericUrl(request.getUrl().toURL(redirectLocation)));
+        request.setRequestMethod(method);
+        request.setContent(content);
+        // remove Authorization and If-* headers
+        request.getHeaders().setAuthorization((String) null);
+        request.getHeaders().setIfMatch(null);
+        request.getHeaders().setIfNoneMatch(null);
+        request.getHeaders().setIfModifiedSince(null);
+        request.getHeaders().setIfUnmodifiedSince(null);
+        request.getHeaders().setIfRange(null);
+        request
+            .getHeaders()
+            .setCookie((String) ((List) response.getHeaders().get("set-cookie")).get(0));
+
+        Map<String, List<String>> headers =
+            (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
+        headers.forEach((key, value) -> request.getHeaders().set(key, value));
+        return true;
+      }
+      return false;
+    };
+  }
+
+  @VisibleForTesting
+  boolean isRedirect(HttpRequest request, HttpResponse response, String redirectLocation) {
+    return request.getFollowRedirects()
+        && HttpStatusCodes.isRedirect(response.getStatusCode())
+        && redirectLocation != null;
   }
 
   @Override
