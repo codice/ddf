@@ -55,16 +55,25 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private static final String SYSTEM_PROPERTIES_FILE = "custom.system.properties";
   private static final String USERS_PROPERTIES_FILE = "users.properties";
   private static final String USERS_ATTRIBUTES_FILE = "users.attributes";
-  private static final String HOST_TITLE = "Host";
-  private static final String HOST_DESCRIPTION =
+  private static final String EXTERNAL_HOST_TITLE = "External Host";
+  private static final String INTERNAL_HOST_TITLE = "Internal Host";
+  private static final String INTERNAL_HOST_DESCRIPTION =
+      "The hostname or IP address this system runs on. NOTE: This setting will take effect after a system restart.";
+  private static final String EXTERNAL_HOST_DESCRIPTION =
       "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
   private static final ArrayList<String> PROTOCOL_OPTIONS = new ArrayList<>();
-  private static final String HTTP_PORT_TITLE = "HTTP Port";
-  private static final String HTTP_PORT_DESCRIPTION =
+  private static final String EXTERNAL_HTTP_PORT_TITLE = "External HTTP Port";
+  private static final String INTERNAL_HTTP_PORT_TITLE = "Internal HTTP Port";
+  private static final String EXTERNAL_HTTP_PORT_DESCRIPTION =
       "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
-  private static final String HTTPS_PORT_TITLE = "HTTPS Port";
-  private static final String HTTPS_PORT_DESCRIPTION =
+  private static final String INTERNAL_HTTP_PORT_DESCRIPTION =
+      "The http port that the system uses. NOTE: This *DOES* change the port the system runs on.";
+  private static final String EXTERNAL_HTTPS_PORT_TITLE = "External HTTPS Port";
+  private static final String INTERNAL_HTTPS_PORT_TITLE = "Internal HTTPS Port";
+  private static final String EXTERNAL_HTTPS_PORT_DESCRIPTION =
       "The secure port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
+  private static final String INTERNAL_HTTPS_PORT_DESCRIPTION =
+      "The https port that the system uses. NOTE: This *DOES* change the port the system runs on.";
   private static final String ORGANIZATION_TITLE = "Organization";
   private static final String ORGANIZATION_DESCRIPTION =
       "The name of the organization that runs this instance.";
@@ -92,7 +101,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
   private MBeanServer mbeanServer;
   private ObjectName objectName;
-  private String oldHostName = SystemBaseUrl.EXTERNAL.getHost();
+  private String oldHostName = SystemBaseUrl.INTERNAL.getHost();
   private GuestClaimsHandlerExt guestClaimsHandlerExt;
 
   public SystemPropertiesAdmin(GuestClaimsHandlerExt guestClaimsHandlerExt)
@@ -108,13 +117,35 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
     ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
     properties.add(
-        getSystemPropertyDetails(SystemBaseUrl.EXTERNAL_HOST, HOST_TITLE, HOST_DESCRIPTION, null));
+        getSystemPropertyDetails(
+            SystemBaseUrl.EXTERNAL_HOST, EXTERNAL_HOST_TITLE, EXTERNAL_HOST_DESCRIPTION, null));
     properties.add(
         getSystemPropertyDetails(
-            SystemBaseUrl.EXTERNAL_HTTP_PORT, HTTP_PORT_TITLE, HTTP_PORT_DESCRIPTION, null));
+            SystemBaseUrl.EXTERNAL_HTTP_PORT,
+            EXTERNAL_HTTP_PORT_TITLE,
+            EXTERNAL_HTTP_PORT_DESCRIPTION,
+            null));
     properties.add(
         getSystemPropertyDetails(
-            SystemBaseUrl.EXTERNAL_HTTPS_PORT, HTTPS_PORT_TITLE, HTTPS_PORT_DESCRIPTION, null));
+            SystemBaseUrl.EXTERNAL_HTTPS_PORT,
+            EXTERNAL_HTTPS_PORT_TITLE,
+            EXTERNAL_HTTPS_PORT_DESCRIPTION,
+            null));
+    properties.add(
+        getSystemPropertyDetails(
+            SystemBaseUrl.INTERNAL_HOST, INTERNAL_HOST_TITLE, INTERNAL_HOST_DESCRIPTION, null));
+    properties.add(
+        getSystemPropertyDetails(
+            SystemBaseUrl.INTERNAL_HTTP_PORT,
+            INTERNAL_HTTP_PORT_TITLE,
+            INTERNAL_HTTP_PORT_DESCRIPTION,
+            null));
+    properties.add(
+        getSystemPropertyDetails(
+            SystemBaseUrl.INTERNAL_HTTPS_PORT,
+            INTERNAL_HTTPS_PORT_TITLE,
+            INTERNAL_HTTPS_PORT_DESCRIPTION,
+            null));
     properties.add(
         getSystemPropertyDetails(
             SystemInfo.ORGANIZATION, ORGANIZATION_TITLE, ORGANIZATION_DESCRIPTION, null));
@@ -137,7 +168,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
     // Get custom.system.properties file
     // save off the current/old hostname before we make any changes
-    oldHostName = SystemBaseUrl.EXTERNAL.getHost();
+    oldHostName = SystemBaseUrl.INTERNAL.getHost();
 
     String etcDir = System.getProperty(KARAF_ETC);
     String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
@@ -193,7 +224,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
         if (oldHostValue != null) {
           usersDotProperties.remove(oldHostName);
           usersDotProperties.setProperty(
-              System.getProperty(SystemBaseUrl.EXTERNAL_HOST), oldHostValue);
+              System.getProperty(SystemBaseUrl.INTERNAL_HOST), oldHostValue);
 
           usersDotProperties.save();
         }
@@ -218,7 +249,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     addGuestClaimsProfileAttributes(json);
 
     if (json.containsKey(oldHostName)) {
-      json.put(System.getProperty(SystemBaseUrl.EXTERNAL_HOST), json.remove(oldHostName));
+      json.put(System.getProperty(SystemBaseUrl.INTERNAL_HOST), json.remove(oldHostName));
     }
 
     for (Map.Entry<String, Object> entry : json.entrySet()) {
@@ -268,7 +299,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       if (val.contains(DEFAULT_LOCALHOST_DN)) {
         map.put(
             entry.getKey(),
-            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.EXTERNAL_HOST)));
+            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.INTERNAL_HOST)));
       }
     }
     return map;
