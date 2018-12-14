@@ -89,7 +89,7 @@ public class WorkspaceQueryMigration implements DataMigratable {
 
   @VisibleForTesting
   void migrateWorkspaces() {
-    LOGGER.info("Beginning workspace query data migration");
+    LOGGER.debug("Beginning workspace query data migration");
     System.out.println("Started: Workspace Query Data Migration");
 
     Filter workspaceFilter =
@@ -106,17 +106,17 @@ public class WorkspaceQueryMigration implements DataMigratable {
         .filter(Objects::nonNull)
         .forEach(this::migrateWorkspaceMetacard);
 
-    LOGGER.info("Completed workspace query data migration");
+    LOGGER.debug("Completed workspace query data migration");
     System.out.println("Completed: Workspace Query Data Migration");
   }
 
   private void migrateWorkspaceMetacard(Metacard workspaceMetacard) {
-    LOGGER.info("Migrating workspace metacard with id [{}]", workspaceMetacard.getId());
+    LOGGER.debug("Migrating workspace metacard with id [{}]", workspaceMetacard.getId());
 
     final Attribute queriesAttribute = workspaceMetacard.getAttribute(WORKSPACE_QUERIES);
     final List<Serializable> queriesAsXml = queriesAttribute.getValues();
 
-    LOGGER.info(
+    LOGGER.debug(
         "Beginning migration of {} query metacards from workspace [{}]",
         queriesAsXml.size(),
         workspaceMetacard.getId());
@@ -132,7 +132,7 @@ public class WorkspaceQueryMigration implements DataMigratable {
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
 
-    LOGGER.info("Creating query metacards for workspace [{}]", workspaceMetacard.getId());
+    LOGGER.debug("Creating query metacards for workspace [{}]", workspaceMetacard.getId());
 
     CreateResponse response = createMetacards(queryMetacards);
 
@@ -140,14 +140,14 @@ public class WorkspaceQueryMigration implements DataMigratable {
       List<String> createdMetacardIds =
           response.getCreatedMetacards().stream().map(Metacard::getId).collect(Collectors.toList());
 
-      LOGGER.info("Created query metacards with IDs {}", createdMetacardIds);
+      LOGGER.debug("Created query metacards with IDs {}", createdMetacardIds);
 
       workspaceMetacard.setAttribute(
           new AttributeImpl(WORKSPACE_QUERIES, (Serializable) createdMetacardIds));
 
       updateMetacard(workspaceMetacard);
 
-      LOGGER.info(
+      LOGGER.debug(
           "Updated workspace metacard [{}] with query metacard associations {}",
           workspaceMetacard.getId(),
           createdMetacardIds);
@@ -187,7 +187,7 @@ public class WorkspaceQueryMigration implements DataMigratable {
       Metacard metacard = xmlInputTransformer.transform(inputStream);
       metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "query"));
 
-      LOGGER.info("Successfully parsed query metacard with id [{}]", metacard.getId());
+      LOGGER.debug("Successfully parsed query metacard with id [{}]", metacard.getId());
 
       return metacard;
     } catch (IOException | CatalogTransformerException e) {
