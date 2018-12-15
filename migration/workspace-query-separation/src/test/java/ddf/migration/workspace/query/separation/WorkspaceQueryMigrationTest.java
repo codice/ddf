@@ -14,6 +14,8 @@
 package ddf.migration.workspace.query.separation;
 
 import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_QUERIES;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -69,18 +71,19 @@ public class WorkspaceQueryMigrationTest {
   @Test
   public void testDataMigration() throws Exception {
     Result result = mock(Result.class);
-    doReturn(getWorkspaceMetacard("workspaceId")).when(result).getMetacard();
+    Metacard workspace = getWorkspaceMetacard("workspaceId");
+    doReturn(workspace).when(result).getMetacard();
 
     doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
     doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 
     doReturn(new MetacardImpl()).when(xmlInputTransformer).transform(any(InputStream.class));
 
-    Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Core.ID, "queryId"));
+    Metacard query1 = getQueryMetacard("queryId1");
+    Metacard query2 = getQueryMetacard("queryId2");
 
     CreateResponse createResponse = mock(CreateResponse.class);
-    doReturn(ImmutableList.of(metacard, metacard)).when(createResponse).getCreatedMetacards();
+    doReturn(ImmutableList.of(query1, query2)).when(createResponse).getCreatedMetacards();
 
     doReturn(createResponse).when(catalogFramework).create(any(CreateRequest.class));
 
@@ -88,6 +91,16 @@ public class WorkspaceQueryMigrationTest {
 
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogFramework, times(1)).update(any(UpdateRequest.class));
+
+    assertThat(
+        workspace.getAttribute(WORKSPACE_QUERIES).getValues(),
+        is(ImmutableList.of("queryId1", "queryId2")));
+  }
+
+  private Metacard getQueryMetacard(String id) {
+    Metacard metacard = new MetacardImpl();
+    metacard.setAttribute(new AttributeImpl(Core.ID, id));
+    return metacard;
   }
 
   private Metacard getWorkspaceMetacard(String id) throws IOException {
