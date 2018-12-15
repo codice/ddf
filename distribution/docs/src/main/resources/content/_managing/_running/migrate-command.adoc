@@ -9,7 +9,7 @@
 
 [NOTE]
 ====
-Performing a data migration will may create, update, or delete existing metacards within the system.
+Performing a data migration will create, update, or delete existing metacards within the system.
 It is highly recommended that all of your data is backed up in the event that you wish to revert this operation.
 ====
 
@@ -20,11 +20,11 @@ The syntax for the migration command is
 `migrate:data <serviceId>`
 
 Select the `<serviceId>` based on which data migration task you wish to run.
-To see a list of all data migrations tasks that are currently available, run the `migrate:data --services` command.
+To see a list of all data migrations tasks that are currently available, run the `migrate:data --list` command.
 
 The `--all` option will run every data migration task that is available.
 
-The `--services` option will list all available data migration tasks.
+The `--list` option will list all available data migration tasks.
 
 [NOTE]
 ====

@@ -19,7 +19,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
 import ddf.catalog.CatalogFramework;
@@ -63,8 +62,6 @@ public class WorkspaceQueryMigrationTest {
 
   @Before
   public void setup() throws Exception {
-    initMocks(this);
-
     workspaceQueryMigration =
         new WorkspaceQueryMigration(catalogFramework, filterBuilder, xmlInputTransformer);
   }

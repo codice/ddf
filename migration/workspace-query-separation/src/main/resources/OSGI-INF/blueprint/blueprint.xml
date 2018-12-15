@@ -30,7 +30,7 @@
     <service-properties>
       <entry key="id" value="workspace-query"/>
       <entry key="name" value="Workspace Query"/>
-      <entry key="description" value="Unembeds query metacards from their workspaces and updates associations"/>
+      <entry key="description" value="Unembeds query metacards from their workspaces and updates workspaces' associations"/>
     </service-properties>
   </service>
 

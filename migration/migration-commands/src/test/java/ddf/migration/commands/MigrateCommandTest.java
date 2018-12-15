@@ -13,7 +13,7 @@
  */
 package ddf.migration.commands;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
 import ddf.migration.api.DataMigratable;
@@ -60,9 +59,6 @@ public class MigrateCommandTest {
 
   @Before
   public void setup() {
-    initMocks(this);
-    bundleContext = mock(BundleContext.class);
-
     migrateCommand = new MigrateCommand();
     migrateCommand.setBundleContext(bundleContext);
   }
@@ -91,7 +87,10 @@ public class MigrateCommandTest {
 
     migrateCommand.executeWithSubject();
 
-    assertThat(getOutput(), is("name\n\tdesc\n\n"));
+    String output = getOutput();
+    assertThat(output, containsString("Data Migration"));
+    assertThat(output, containsString("name"));
+    assertThat(output, containsString("desc"));
   }
 
   @Test
@@ -100,7 +99,8 @@ public class MigrateCommandTest {
     migrateCommand.setListMigrationTasks(false);
     migrateCommand.setServiceId("serviceId");
 
-    ServiceReference<DataMigratable> serviceRef = getMockServiceReference("serviceId", null, null);
+    ServiceReference<DataMigratable> serviceRef =
+        getMockServiceReference("serviceId", "service", null);
     Collection<ServiceReference<DataMigratable>> services = ImmutableList.of(serviceRef);
 
     when(bundleContext.getServiceReferences(eq(DataMigratable.class), anyString()))

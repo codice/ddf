@@ -13,6 +13,8 @@
  */
 package ddf.migration.commands;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 import com.google.common.annotations.VisibleForTesting;
 import ddf.migration.api.DataMigratable;
 import ddf.migration.api.ServiceNotFoundException;
@@ -40,27 +42,20 @@ public class MigrateCommand extends SubjectCommands {
   private boolean allMigrationTasks = false;
 
   @Option(
-    name = "-s",
-    aliases = "--services",
+    name = "-l",
+    aliases = "--list",
     description = "Lists all available data migration options"
   )
   private boolean listMigrationTasks = false;
 
   @Reference private BundleContext bundleContext;
 
-  public void setServiceId(String serviceId) {
-    this.serviceId = serviceId;
-  }
-
-  public void setBundleContext(BundleContext bundleContext) {
-    this.bundleContext = bundleContext;
-  }
-
   @Override
-  @VisibleForTesting
   protected Object executeWithSubject() throws Exception {
     Collection<ServiceReference<DataMigratable>> services =
         bundleContext.getServiceReferences(DataMigratable.class, null);
+
+    printSectionHeading("Data Migration");
 
     if (allMigrationTasks) {
       LOGGER.trace("Running all data migration tasks");
@@ -96,7 +91,22 @@ public class MigrateCommand extends SubjectCommands {
 
   private void migrate(ServiceReference<DataMigratable> serviceRef) {
     DataMigratable dataMigration = bundleContext.getService(serviceRef);
+
+    printItemStatusPending("Starting: ", serviceRef.getProperty("name").toString());
     dataMigration.migrate();
+    printItemStatusSuccess("Complete: ", serviceRef.getProperty("name").toString());
+  }
+
+  void printSectionHeading(String heading) {
+    console.print(ansi().fgBrightDefault().bold().a(heading).newline().reset());
+  }
+
+  void printItemStatusPending(String message, String item) {
+    console.print(ansi().fgBlue().a(message).fgYellow().a(item).newline().reset());
+  }
+
+  void printItemStatusSuccess(String message, String item) {
+    console.print(ansi().fgBlue().a(message).fgGreen().a(item).newline().reset());
   }
 
   @VisibleForTesting
@@ -107,5 +117,15 @@ public class MigrateCommand extends SubjectCommands {
   @VisibleForTesting
   void setListMigrationTasks(boolean listMigrationTasks) {
     this.listMigrationTasks = listMigrationTasks;
+  }
+
+  @VisibleForTesting
+  void setServiceId(String serviceId) {
+    this.serviceId = serviceId;
+  }
+
+  @VisibleForTesting
+  void setBundleContext(BundleContext bundleContext) {
+    this.bundleContext = bundleContext;
   }
 }
