@@ -14,7 +14,7 @@
 package org.codice.ddf.platform.util;
 
 import com.google.gson.JsonParser;
-import  com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonSyntaxException;
 
 public class JSONUtils {
 
