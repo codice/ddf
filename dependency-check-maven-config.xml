@@ -543,4 +543,10 @@
         <cve>CVE-2013-2249</cve>
         <cve>CVE-2017-7679</cve>
     </suppress>
+    <suppress>
+        <notes>
+            A CVE against slf4j for the class "EventData", which is not used in DDF or pax-logging.
+        </notes>
+        <cve>CVE-2018-8088</cve>
+    </suppress>
 </suppressions>
