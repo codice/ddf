@@ -342,21 +342,23 @@ public class SearchFormsApplication implements SparkApplication {
     T get() throws Exception;
   }
 
-  private boolean isFormJSONValid(FormTemplate jsonInFormTemplate) {
-    String jsonString = GSON.toJson(jsonInFormTemplate);
+  private boolean isFormJSONValid(FormTemplate formTemplate) {
+    String jsonString = GSON.toJson(formTemplate);
     if (isJSONValid(jsonString)) {
       return true;
     }
-    LOGGER.debug("Invalid JSON found: {}", jsonString);
+    LOGGER.warn("Filtered out invalid JSON");
+    LOGGER.debug("Invalid JSON: {}", jsonString);
     return false;
   }
 
-  private boolean isFieldJSONValid(FieldFilter jsonInFieldFilter) {
-    String jsonString = GSON.toJson(jsonInFieldFilter);
+  private boolean isFieldJSONValid(FieldFilter fieldFilter) {
+    String jsonString = GSON.toJson(fieldFilter);
     if (isJSONValid(jsonString)) {
       return true;
     }
-    LOGGER.debug("Invalid JSON found: {}", jsonString);
+    LOGGER.warn("Filtered out invalid JSON");
+    LOGGER.debug("Invalid JSON: {}", jsonString);
     return false;
   }
 }

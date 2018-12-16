@@ -14,11 +14,12 @@
 package org.codice.ddf.platform.util;
 
 import com.google.gson.JsonParser;
+import  com.google.gson.JsonSyntaxException;
 
 public class JSONUtils {
 
   /**
-   * Verifies the Sysntax of a JSON
+   * Verifies the Syntax of a JSON
    *
    * @param jsonInString JSON String to check for validation
    * @return Boolean results of the validation check
@@ -29,7 +30,7 @@ public class JSONUtils {
     try {
       parser.parse(jsonInString);
       return true;
-    } catch (com.google.gson.JsonSyntaxException ex) {
+    } catch (JsonSyntaxException ex) {
       return false;
     }
   }

@@ -43,7 +43,7 @@ public class JSONUtilsTest {
   }
 
   @Test
-  public void testValidQuotesJSON() {
+  public void testInvalidQuotesJSON() {
     assertThat(isJSONValid(INVALID_JSON_WITH_QUOTES), is(FALSE));
   }
 }
