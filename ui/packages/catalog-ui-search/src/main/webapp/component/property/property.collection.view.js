@@ -287,22 +287,21 @@ module.exports = Marionette.CollectionView.extend(
     },
     /* Generates a collection view containing all properties from the metacard intersection */
     generateCollectionView: function(metacards) {
-      var propertyIntersection = this.determinePropertyIntersection(metacards)
-      var propertyArray = []
-      propertyIntersection.forEach(function(property) {
-        propertyArray.push({
-          enumFiltering: true,
-          enum: metacardDefinitions.enums[property],
-          validation: metacardDefinitions.validation[property],
-          label: properties.attributeAliases[property],
-          readOnly: metacardDefinitions.metacardTypes[property].readOnly,
-          id: property,
-          type: metacardDefinitions.metacardTypes[property].type,
-          values: {},
-          multivalued: metacardDefinitions.metacardTypes[property].multivalued,
-          required: false,
-        })
-      })
+      const propertyIntersection = this.determinePropertyIntersection(metacards)
+
+      const propertyArray = propertyIntersection.map(prop => ({
+        enumFiltering: true,
+        enum: metacardDefinitions.enums[prop],
+        validation: metacardDefinitions.validation[prop],
+        label: properties.attributeAliases[prop],
+        readOnly: metacardDefinitions.metacardTypes[prop].readOnly,
+        id: prop,
+        type: metacardDefinitions.metacardTypes[prop].type,
+        values: {},
+        multivalued: metacardDefinitions.metacardTypes[prop].multivalued,
+        required: false,
+      }))
+
       return this.generateFilteredCollectionView(propertyArray, metacards)
     },
     /* Generates a collection view containing only properties in the propertyArray */
@@ -352,22 +351,26 @@ module.exports = Marionette.CollectionView.extend(
       })
     },
     determinePropertyIntersection: function(metacards) {
-      var metacardTypes = metacards.reduce((types, metacard) => {
+      const metacardTypes = metacards.reduce((types, metacard) => {
         if (types.indexOf(metacard['metacard-type']) === -1) {
           types.push(metacard['metacard-type'])
         }
         return types
       }, [])
-      var typeIntersection = _.intersection.apply(
+      const typeIntersection = _.intersection.apply(
         _,
-        metacardTypes.map(type => {
-          return Object.keys(metacardDefinitions.metacardDefinitions[type])
-        })
+        metacardTypes
+          .filter(
+            type => metacardDefinitions.metacardDefinitions[type] !== undefined
+          )
+          .map(type =>
+            Object.keys(metacardDefinitions.metacardDefinitions[type])
+          )
       )
-      var attributeKeys = metacards.map(function(metacard) {
+      const attributeKeys = metacards.map(function(metacard) {
         return Object.keys(metacard)
       })
-      var propertyIntersection = _.intersection(
+      let propertyIntersection = _.intersection(
         _.union.apply(_, attributeKeys),
         typeIntersection
       )
