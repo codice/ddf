@@ -98,7 +98,7 @@ module.exports = Backbone.AssociatedModel.extend({
         this.listenTo(this.get('queuedResults'), 'add change remove reset', _.throttle(this.updateMerged, 2500, {
             leading: false
         }));
-        this.listenTo(this.get('queuedResults'), 'add', _.throttle(this.mergeQueue, 30, {
+        this.listenTo(this.get('queuedResults'), 'reset', _.throttle(this.mergeQueue, 30, {
             leading: false
         }));
         this.listenTo(this, 'change:currentlyViewed', this.handleCurrentlyViewed);
@@ -212,11 +212,25 @@ module.exports = Backbone.AssociatedModel.extend({
             this.updateResultCountsBySource(this.createIndexOfSourceToResultCount(metacardIdToSourcesIndex, resp.results));
         }
 
+        this.addQueuedResults(resp.results);
+
+        if (this.get('queuedResults').fullCollection.length !== 0) {
+          // merges the remaining queued results not from the cache
+          this.mergeQueue(true)
+        }
+
         return {
-            queuedResults: resp.results,
+            queuedResults: [],
             results: [],
             status: resp.status
         };
+    },
+    // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
+    addQueuedResults(results) {
+      const existingQueue = this.get('queuedResults').fullCollection.models;
+      this.get('queuedResults').fullCollection.reset(
+        existingQueue.concat(results)
+      );
     },
     allowAutoMerge: function () {
         if (this.get('results').length === 0 || !this.get('currentlyViewed')) {
