@@ -64,6 +64,8 @@ public class CsrfFilter implements Filter {
 
   private static final String CSRF_ENABLED = "csrf.enabled";
 
+  private static final String CSRF_TRUSTED_AUTHORITIES = "csrf.trustedAuthorities";
+
   // List of context paths that require cross-site protections
   private List<String> protectedContexts;
   // List of authorities that are treated as same-origin as the system
@@ -127,7 +129,7 @@ public class CsrfFilter implements Filter {
   private List<String> getAdministratorTrustedAuthorities() {
     String administratorTrustedAuthorities =
         AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(CSRF_ENABLED, ""));
+            (PrivilegedAction<String>) () -> System.getProperty(CSRF_TRUSTED_AUTHORITIES, ""));
 
     return StringUtils.isNotEmpty(administratorTrustedAuthorities)
         ? Arrays.asList(administratorTrustedAuthorities.split(","))
