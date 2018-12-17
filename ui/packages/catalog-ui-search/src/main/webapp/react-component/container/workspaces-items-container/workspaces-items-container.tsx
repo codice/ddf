@@ -58,7 +58,8 @@ function sortWorkspaces(workspaces: Backbone.Model[]) {
       case 'Title':
         return workspace.get('title').toLowerCase()
       default:
-        return -workspace.get('metacard.modified')
+        // We want to sort in descending order. Parse the timestamp to a Date and find seconds since the epoch. Sort by the inverse of that.
+        return -new Date(workspace.get('metacard.modified')).getTime()
     }
   })
 }
@@ -95,7 +96,7 @@ class WorkspacesItemsContainer extends React.Component<
   componentDidMount() {
     this.props.listenTo(
       store.get('workspaces'),
-      'add reset remove',
+      'add reset remove change',
       this.updateWorkspaces.bind(this)
     )
     this.props.listenTo(
