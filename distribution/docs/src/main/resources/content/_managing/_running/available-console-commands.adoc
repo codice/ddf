@@ -36,4 +36,7 @@ They provide general useful queries and functions against the Catalog API that c
 |<<{managing-prefix}store_command_descriptions, store>>
 |The Persistence Shell Commands are meant to be used with any `PersistentStore` implementations. They provide the ability to query and delete entries from the persistence store.
 
+|<<{managing-prefix}migrate_command_descriptions, migrate>>
+|The Migrate Shell Commands provide functions to perform data migrations.
+
 |===
