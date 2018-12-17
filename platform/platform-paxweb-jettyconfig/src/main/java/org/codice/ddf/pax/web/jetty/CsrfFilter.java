@@ -184,8 +184,6 @@ public class CsrfFilter implements Filter {
   /**
    * NOTE: This should only be disabled for debugging and testing purposes. A system is left
    * insecure without CSRF protection.
-   *
-   * @return
    */
   private boolean csrfEnabled() {
     return Boolean.parseBoolean(System.getProperty(CSRF_ENABLED, "true"));
