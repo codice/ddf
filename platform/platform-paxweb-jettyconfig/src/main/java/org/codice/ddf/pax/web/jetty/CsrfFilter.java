@@ -17,6 +17,8 @@ import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -58,10 +60,14 @@ public class CsrfFilter implements Filter {
   private static final MultivaluedMap<Pattern, String> SYSTEM_PROTECTION_WHITELIST =
       new MultivaluedHashMap<>();
 
+  private static final String CSRF_ENABLED = "csrf.enabled";
+
   // List of context paths that require cross-site protections
   private List<String> protectedContexts;
   // List of authorities that are treated as same-origin as the system
   private List<String> trustedAuthorities;
+
+  private boolean shouldFilter;
 
   public CsrfFilter() {
     super();
@@ -75,6 +81,15 @@ public class CsrfFilter implements Filter {
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
+
+    shouldFilter = csrfEnabled();
+
+    if (!shouldFilter) {
+      LOGGER.warn(
+          "CSRF filter disabled. This should only be done for testing or debugging purposes, and leaves your system in an insecure state.");
+      return;
+    }
+
     LOGGER.debug("Starting CSRF filter.");
 
     // internal authority system properties
@@ -120,28 +135,44 @@ public class CsrfFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-    LOGGER.debug("Performing doFilter() on CsrfFilter");
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    String targetContextPath = httpRequest.getRequestURI();
-    String requestMethod = httpRequest.getMethod();
-    String userAgentHeader = httpRequest.getHeader(HttpHeaders.USER_AGENT);
 
-    // Begin CSRF checks if request is accessing a Cross-Site protected context
-    if (protectedContexts.stream().anyMatch(targetContextPath::startsWith)
-        && doBrowserProtectionFilter(httpRequest, httpResponse, targetContextPath, requestMethod)) {
-      return;
-    }
+    if (shouldFilter) {
+      LOGGER.debug("Performing doFilter() on CsrfFilter");
+      HttpServletRequest httpRequest = (HttpServletRequest) request;
+      HttpServletResponse httpResponse = (HttpServletResponse) response;
+      String targetContextPath = httpRequest.getRequestURI();
+      String requestMethod = httpRequest.getMethod();
+      String userAgentHeader = httpRequest.getHeader(HttpHeaders.USER_AGENT);
 
-    // Execute CSRF check if user is accessing /services
-    if (targetContextPath.startsWith(SERVICE_CONTEXT)
-        && doSystemProtectionFilter(
-            httpRequest, httpResponse, targetContextPath, requestMethod, userAgentHeader)) {
-      return;
+      // Begin CSRF checks if request is accessing a Cross-Site protected context
+      if (protectedContexts.stream().anyMatch(targetContextPath::startsWith)
+          && doBrowserProtectionFilter(
+              httpRequest, httpResponse, targetContextPath, requestMethod)) {
+        return;
+      }
+
+      // Execute CSRF check if user is accessing /services
+      if (targetContextPath.startsWith(SERVICE_CONTEXT)
+          && doSystemProtectionFilter(
+              httpRequest, httpResponse, targetContextPath, requestMethod, userAgentHeader)) {
+        return;
+      }
     }
 
     // All checks passed
     chain.doFilter(request, response);
+  }
+
+  /**
+   * NOTE: This should only be disabled for debugging and testing purposes. A system is left
+   * insecure without CSRF protection.
+   *
+   * @return
+   */
+  private boolean csrfEnabled() {
+    return Boolean.getBoolean(
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(CSRF_ENABLED, "true")));
   }
 
   private boolean doBrowserProtectionFilter(
