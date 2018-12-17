@@ -20,6 +20,8 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.servlet.Filter;
@@ -110,12 +112,26 @@ public class CsrfFilter implements Filter {
     trustedAuthorities.add(externalHostname + ":" + externalHttpPort);
     trustedAuthorities.add(externalHostname + ":" + externalHttpsPort);
 
+    // administator trusted authorities
+    List<String> administratorTrustedAuthorities = getAdministratorTrustedAuthorities();
+    trustedAuthorities.addAll(administratorTrustedAuthorities);
+
     // WebSockets API does not allow for custom headers, authority check is sufficient
     BROWSER_PROTECTION_WHITELIST.add(
         Pattern.compile(WEBSOCKET_CONTEXT_REGEX), HttpMethod.GET.asString());
 
     // Downloading does not allow adding headers, authority check is sufficient
     BROWSER_PROTECTION_WHITELIST.add(Pattern.compile(CATALOG_CONTEXT), HttpMethod.GET.asString());
+  }
+
+  private List<String> getAdministratorTrustedAuthorities() {
+    String administratorTrustedAuthorities =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(CSRF_ENABLED, ""));
+
+    return StringUtils.isNotEmpty(administratorTrustedAuthorities)
+        ? Arrays.asList(administratorTrustedAuthorities.split(","))
+        : Collections.emptyList();
   }
 
   /**
