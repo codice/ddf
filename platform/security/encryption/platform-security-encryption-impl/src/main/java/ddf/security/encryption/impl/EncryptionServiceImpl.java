@@ -104,7 +104,7 @@ public class EncryptionServiceImpl implements EncryptionService {
     }
     if (wrappedEncryptedValue.isEmpty()) {
       LOGGER.debug("A blank password was provided in the configuration.");
-      return "";
+      return wrappedEncryptedValue;
     }
     // If the password is not in the form ENC(my-encrypted-password),
     // we assume the password is not encrypted.
@@ -120,8 +120,8 @@ public class EncryptionServiceImpl implements EncryptionService {
     if (unwrappedPlaintext == null) {
       return null;
     }
-    if (unwrappedPlaintext.equals("")) {
-      return "";
+    if (unwrappedPlaintext.isEmpty()) {
+      return unwrappedPlaintext;
     }
 
     return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));

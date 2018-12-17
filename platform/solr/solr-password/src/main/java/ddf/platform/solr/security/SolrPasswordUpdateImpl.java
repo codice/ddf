@@ -167,7 +167,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
     } catch (IOException e) {
       String msgFail =
           String.format(
-              "Exception while writing to %s. Solr password was changed, but new password was not saved.",
+              "Exception while writing to %s. Solr password was changed, but new password was not saved. The application cannot communicate with Solr until the password is restored.",
               systemPropertyFilename);
       LOGGER.error(msgFail);
       SecurityLogger.audit(msgFail);
