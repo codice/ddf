@@ -19,6 +19,8 @@ The syntax for the migration command is
 
 `migrate:data <serviceId>`
 
+`migrate:data --list`
+
 Select the `<serviceId>` based on which data migration task you wish to run.
 To see a list of all data migrations tasks that are currently available, run the `migrate:data --list` command.
 
