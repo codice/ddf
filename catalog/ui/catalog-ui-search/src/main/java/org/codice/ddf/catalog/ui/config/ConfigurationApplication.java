@@ -131,6 +131,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean archiveSearchEnabled = true;
 
+  private Boolean metacardPreviewEnabled = true;
+
   private BrandingPlugin branding;
 
   private Integer timeout = 300000;
@@ -536,6 +538,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showLogo", logoEnabled);
     config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
     config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
+    config.put("isMetacardPreviewDisabled", !metacardPreviewEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -1095,6 +1098,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setArchiveSearchEnabled(Boolean archiveSearchEnabled) {
     this.archiveSearchEnabled = archiveSearchEnabled;
+  }
+
+  public Boolean getMetacardPreviewEnabled() {
+    return metacardPreviewEnabled;
+  }
+
+  public void setMetacardPreviewEnabled(Boolean metacardPreviewEnabled) {
+    this.metacardPreviewEnabled = metacardPreviewEnabled;
   }
 
   public void setHistorianConfigurations(List<HistorianConfiguration> historians) {

@@ -188,6 +188,12 @@
             default="true"
             required="false"/>
 
+        <AD id="metacardPreviewEnabled"
+            name="Enable Metacard Preview"
+            description="Enable Metacard Preview in the Inspector."
+            type="Boolean"
+            default="true"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."

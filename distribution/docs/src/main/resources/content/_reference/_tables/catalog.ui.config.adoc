@@ -209,6 +209,13 @@ Example:
 |true
 |false
 
+|Enable Metacard Preview
+|metacardPreviewEnabled
+|Boolean
+|Enable Metacard Preview in the Inspector.
+|true
+|true
+
 |Basic Search Temporal Selections
 |basicSearchTemporalSelectionDefault
 |String

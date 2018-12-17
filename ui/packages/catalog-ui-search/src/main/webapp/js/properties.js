@@ -167,6 +167,9 @@ var properties = {
   isUploadEnabled: function() {
     return this.showIngest
   },
+  isMetacardPreviewEnabled: function() {
+    return !this.isMetacardPreviewDisabled
+  },
 }
 
 module.exports = properties.init()

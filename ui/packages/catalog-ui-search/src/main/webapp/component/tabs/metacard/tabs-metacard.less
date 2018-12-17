@@ -64,3 +64,23 @@
     }
   }
 }
+
+@{customElementNamespace}tabs.is-editing-disabled {
+  > .tabs-list {
+    [data-id='History'],
+    [data-id='Associations'],
+    [data-id='Archive'],
+    [data-id='Quality'],
+    [data-id='Overwrite'] {
+      display: none !important;
+    }
+  }
+}
+
+@{customElementNamespace}tabs.is-preview-disabled {
+  > .tabs-list {
+    [data-id='Preview'] {
+      display: none !important;
+    }
+  }
+}
