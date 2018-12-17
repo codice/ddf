@@ -15,6 +15,67 @@ import { hot } from 'react-hot-loader'
 import Text from '../../container/input-wrappers/text/text'
 import Enum from '../../container/input-wrappers/enum/enum'
 import { Access, Category, Item } from '../../container/sharing'
+import styled from '../../styles/styled-components/styled-components'
+
+const Root = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`
+
+const Items = styled.div`
+  top: 0;
+  overflow: auto;
+  position: absolute;
+  width: 100%;
+  bottom: 130px;
+`
+
+const Item = styled.div`
+  margin: 0px 50px;
+`
+
+const IconAndName = styled.div`
+  display: inline-block;
+  width: 50%;
+`
+
+const ReadOnlyLabel = styled.span`
+  margin-left: 12px;
+`
+
+const EditableLabelText = styled(Text)`
+  display: inline-block;
+  padding: 5px;
+  width: 80%;
+`
+
+const AccessEnum = styled(Enum)`
+  display: inline-block;
+  width: calc(50% - 70px);
+`
+
+const Buttons = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: calc(100% - 40px);
+`
+
+const DeleteButton = styled.button`
+  display: inline-block;
+  width: 50px;
+  vertical-align: middle;
+`
+
+const FullWidthButton = styled.button`
+  width: 100%;
+  margin-bottom: 10px;
+`
+
+const HalfWidthButton = styled.button`
+  width: 50%;
+`
 
 type Props = {
   items: Item[]
@@ -44,27 +105,13 @@ const render = (props: Props) => {
   const userDropdown = roleDropdown.slice()
   userDropdown.push({ label: 'Read, Write, and Share', value: Access.Share })
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-      }}
-    >
-      <div
-        style={{
-          top: '0',
-          overflow: 'auto',
-          position: 'absolute',
-          width: '100%',
-          bottom: '130px',
-        }}
-      >
+    <Root>
+      <Items>
         {items.map((item, i) => {
           return (
             item.visible && (
-              <div key={item.id} style={{ margin: '0 50px' }}>
-                <div style={{ display: 'inline-block', width: '50%' }}>
+              <Item key={item.id}>
+                <IconAndName>
                   <span
                     className={
                       item.category === Category.User
@@ -73,26 +120,17 @@ const render = (props: Props) => {
                     }
                   />
                   {item.category === Category.User ? (
-                    <Text
-                      style={{
-                        display: 'inline-block',
-                        padding: '5px',
-                        width: '80%',
-                      }}
+                    <EditableLabelText
                       value={item.value}
                       placeholder="user@example.com"
                       showLabel={false}
                       onChange={value => handleChangeInput(i, value)}
                     />
                   ) : (
-                    <span style={{ marginLeft: '12px' }}> {item.value} </span>
+                    <ReadOnlyLabel> {item.value} </ReadOnlyLabel>
                   )}
-                </div>
-                <Enum
-                  style={{
-                    display: 'inline-block',
-                    width: 'calc(50% - 70px)',
-                  }}
+                </IconAndName>
+                <AccessEnum
                   options={
                     item.category === Category.User
                       ? userDropdown
@@ -103,62 +141,47 @@ const render = (props: Props) => {
                   onChange={value => handleChangeSelect(i, value)}
                 />
                 {item.category === Category.User && (
-                  <button
-                    style={{
-                      display: 'inline-block',
-                      width: '50px',
-                      verticalAlign: 'middle',
-                    }}
+                  <DeleteButton
                     onClick={() => {
                       remove(i)
                     }}
                     className="is-negative"
                   >
                     <span className="fa fa-minus" />
-                  </button>
+                  </DeleteButton>
                 )}
-              </div>
+              </Item>
             )
           )
         })}
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '20px',
-          width: 'calc(100% - 40px)',
-        }}
-      >
-        <button
-          style={{ width: '100%', marginBottom: '10px' }}
+      </Items>
+      <Buttons>
+        <FullWidthButton
           onClick={() => {
             add()
           }}
           className="is-positive"
         >
           <span className="fa fa-plus" /> Add User
-        </button>
-        <button
+        </FullWidthButton>
+        <HalfWidthButton
           className="is-negative reset"
-          style={{ width: '50%' }}
           onClick={() => {
             reset()
           }}
         >
           <i className="fa fa-undo" aria-hidden="true" /> Reset
-        </button>
-        <button
+        </HalfWidthButton>
+        <HalfWidthButton
           className="is-positive save"
-          style={{ width: '50%' }}
           onClick={() => {
             save()
           }}
         >
           <i className="fa fa-floppy-o" aria-hidden="true" /> Apply
-        </button>
-      </div>
-    </div>
+        </HalfWidthButton>
+      </Buttons>
+    </Root>
   )
 }
 
