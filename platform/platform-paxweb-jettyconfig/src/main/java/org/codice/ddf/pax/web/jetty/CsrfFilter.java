@@ -188,9 +188,7 @@ public class CsrfFilter implements Filter {
    * @return
    */
   private boolean csrfEnabled() {
-    return Boolean.getBoolean(
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(CSRF_ENABLED, "true")));
+    return Boolean.parseBoolean(System.getProperty(CSRF_ENABLED, "true"));
   }
 
   private boolean doBrowserProtectionFilter(
