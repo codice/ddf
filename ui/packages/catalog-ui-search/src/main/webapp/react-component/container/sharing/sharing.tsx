@@ -35,7 +35,7 @@ export enum Category {
 export type Item = {
   id: string
   value: string
-  editable: boolean
+  visible: boolean
   category: Category
   access: Access
 }
@@ -59,16 +59,12 @@ const getGroups = function(
   groupsWrite: string[],
   groupsRead: string[]
 ): Item[] {
-  // only display the roles the current user has (even if other roles have
-  // permissions on this metacard)
-  return user
-    .get('user')
-    .get('roles')
-    .map((role: string) => {
+  return _.union(user.getRoles(), groupsWrite, groupsRead).map(
+    (role: string) => {
       return {
         id: common.generateUUID(),
         category: Category.Role,
-        editable: true,
+        visible: user.getRoles().indexOf(role) > -1, // only display the roles the current user has
         access:
           groupsWrite.indexOf(role) > -1
             ? Access.Write
@@ -77,7 +73,8 @@ const getGroups = function(
               : Access.None,
         value: role,
       } as Item
-    })
+    }
+  )
 }
 
 const getIndividuals = function(
@@ -91,7 +88,7 @@ const getIndividuals = function(
       return {
         id: common.generateUUID(),
         category: Category.User,
-        editable: id !== owner,
+        visible: id !== owner, // hide owner
         access:
           accessAdministrators.indexOf(id) > -1
             ? Access.Share
@@ -222,7 +219,7 @@ export class Sharing extends React.Component<Props, State> {
     this.state.items.push({
       id: common.generateUUID(),
       value: '',
-      editable: true,
+      visible: true,
       category: Category.User,
       access: Access.Read,
     })

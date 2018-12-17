@@ -36,17 +36,13 @@ const render = (props: Props) => {
     handleChangeSelect,
     handleChangeInput,
   } = props
-  const userDropdown = [
-    { label: 'No Access', value: Access.None },
-    { label: 'Read Only', value: Access.Read },
-    { label: 'Read and Write', value: Access.Write },
-    { label: 'Read, Write, and Share', value: Access.Share },
-  ]
   const roleDropdown = [
     { label: 'No Access', value: Access.None },
     { label: 'Read Only', value: Access.Read },
     { label: 'Read and Write', value: Access.Write },
   ]
+  const userDropdown = roleDropdown.slice()
+  userDropdown.push({ label: 'Read, Write, and Share', value: Access.Share })
   return (
     <div
       style={{
@@ -66,34 +62,37 @@ const render = (props: Props) => {
       >
         {items.map((item, i) => {
           return (
-            <div key={item.id} style={{ margin: '0 50px' }}>
-              <div style={{ display: 'inline-block', width: '50%' }}>
-                <span
-                  className={
-                    item.category === Category.User
-                      ? 'fa fa-user'
-                      : 'fa fa-users'
-                  }
-                />
-                {item.category === Category.User && item.editable ? (
-                  <Text
-                    style={{
-                      display: 'inline-block',
-                      padding: '5px',
-                      width: '80%',
-                    }}
-                    value={item.value}
-                    placeholder="user@example.com"
-                    showLabel={false}
-                    onChange={value => handleChangeInput(i, value)}
+            item.visible && (
+              <div key={item.id} style={{ margin: '0 50px' }}>
+                <div style={{ display: 'inline-block', width: '50%' }}>
+                  <span
+                    className={
+                      item.category === Category.User
+                        ? 'fa fa-user'
+                        : 'fa fa-users'
+                    }
                   />
-                ) : (
-                  <span style={{ marginLeft: '12px' }}> {item.value} </span>
-                )}
-              </div>
-              {item.editable ? (
+                  {item.category === Category.User ? (
+                    <Text
+                      style={{
+                        display: 'inline-block',
+                        padding: '5px',
+                        width: '80%',
+                      }}
+                      value={item.value}
+                      placeholder="user@example.com"
+                      showLabel={false}
+                      onChange={value => handleChangeInput(i, value)}
+                    />
+                  ) : (
+                    <span style={{ marginLeft: '12px' }}> {item.value} </span>
+                  )}
+                </div>
                 <Enum
-                  style={{ display: 'inline-block', width: 'calc(50% - 70px)' }}
+                  style={{
+                    display: 'inline-block',
+                    width: 'calc(50% - 70px)',
+                  }}
                   options={
                     item.category === Category.User
                       ? userDropdown
@@ -103,15 +102,7 @@ const render = (props: Props) => {
                   showLabel={false}
                   onChange={value => handleChangeSelect(i, value)}
                 />
-              ) : (
-                <span style={{ marginLeft: '12px' }}>
-                  {
-                    userDropdown.find(o => o.value === item.access).label
-                  }
-                </span>
-              )}
-              {item.category === Category.User &&
-                item.editable && (
+                {item.category === Category.User && (
                   <button
                     style={{
                       display: 'inline-block',
@@ -126,7 +117,8 @@ const render = (props: Props) => {
                     <span className="fa fa-minus" />
                   </button>
                 )}
-            </div>
+              </div>
+            )
           )
         })}
       </div>
