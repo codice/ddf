@@ -60,10 +60,10 @@ public class WorkspaceQueryMigrationTest {
 
   @Mock private InputTransformer xmlInputTransformer;
 
-  private static WorkspaceQueryMigration workspaceQueryMigration;
+  private WorkspaceQueryMigration workspaceQueryMigration;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     workspaceQueryMigration =
         new WorkspaceQueryMigration(catalogFramework, filterBuilder, xmlInputTransformer);
   }
