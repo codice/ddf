@@ -20,7 +20,6 @@ import java.net.URISyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -264,14 +263,6 @@ public class RestoreCommand extends SolrCommands {
             .setMaxConnTotal(128)
             .setMaxConnPerRoute(32);
 
-    if (StringUtils.startsWithIgnoreCase(url, "https")) {
-      builder.setSSLSocketFactory(
-          new SSLConnectionSocketFactory(
-              HttpSolrClientFactory.getSslContext(),
-              HttpSolrClientFactory.getProtocols(),
-              HttpSolrClientFactory.getCipherSuites(),
-              SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
-    }
     final String solrDataDir = HttpSolrClientFactory.getSolrDataDir();
     if (solrDataDir != null) {
       ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);

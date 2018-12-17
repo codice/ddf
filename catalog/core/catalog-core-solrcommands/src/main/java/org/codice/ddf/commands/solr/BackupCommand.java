@@ -16,8 +16,6 @@ package org.codice.ddf.commands.solr;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
@@ -28,11 +26,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
-import org.apache.solr.client.solrj.response.RequestStatusState;
-import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.util.NamedList;
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.osgi.service.cm.Configuration;
 
 @Service
 @Command(
@@ -160,54 +153,7 @@ public class BackupCommand extends SolrCommands {
               "Backup command failed due to: %d - %s %n Request: %s",
               responseWrapper.getStatusCode(),
               responseWrapper.getStatusPhrase(),
-              getBackupUrl(coreName)));
-    }
-  }
-
-  private String getBackupUrl(String coreName) {
-    String solrUrl =
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
-
-    if (configurationAdmin != null) {
-      try {
-        Configuration solrConfig =
-            configurationAdmin.getConfiguration(
-                "(service.pid=ddf.catalog.solr.external.SolrHttpCatalogProvider)");
-        if (solrConfig != null) {
-          if (solrConfig.getProperties() != null && solrConfig.getProperties().get("url") != null) {
-            LOGGER.debug("Found url property in config, setting backup url");
-            solrUrl = (String) solrConfig.getProperties().get("url");
-          } else {
-            LOGGER.debug("No Solr config found, checking System settings");
-            if (System.getProperty("hostContext") != null) {
-              solrUrl =
-                  SystemBaseUrl.INTERNAL.constructUrl(
-                      SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
-              LOGGER.debug("Trying system configured URL instead: {}", solrUrl);
-            } else {
-              LOGGER.info("No Solr url configured, backup command will fail.");
-            }
-          }
-        }
-      } catch (IOException e) {
-        LOGGER.debug("Unable to get Solr url from bundle config, will check system properties.");
-      }
-    }
-    return solrUrl + "/" + coreName + "/replication";
-  }
-
-  private boolean isSystemConfiguredWithSolrCloud() {
-    String solrClientType = System.getProperty(SOLR_CLIENT_PROP);
-    LOGGER.debug("solr client type: {}", solrClientType);
-    if (solrClientType != null) {
-      return StringUtils.equals(solrClientType, CLOUD_SOLR_CLIENT_TYPE);
-    } else {
-      printErrorMessage(
-          String.format(
-              "Could not determine Solr Client Type. Please verify that the system property %s is configured in %s.",
-              SOLR_CLIENT_PROP, SYSTEM_PROPERTIES_PATH));
-      return false;
+              getReplicationUrl(coreName)));
     }
   }
 
