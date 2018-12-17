@@ -161,6 +161,7 @@
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory-impl</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

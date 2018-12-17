@@ -144,7 +144,7 @@ public class BackupCommand extends SolrCommands {
     String url =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
-    String backupUrl = String.format("%s/%s/replication", url, coreName);
+    String backupUrl = url + "/" + coreName;
 
     URIBuilder uriBuilder = new URIBuilder(backupUrl);
     uriBuilder.addParameter("command", "backup");
@@ -171,7 +171,7 @@ public class BackupCommand extends SolrCommands {
       LOGGER.debug("Sending request to {}", backupUri);
       httpResponse = client.execute(get);
     } catch (IOException e) {
-      LOGGER.debug("Error during request. Returning null response.", e);
+      LOGGER.debug("Error during request. Returning null response.");
     }
 
     return httpResponse;
@@ -195,19 +195,19 @@ public class BackupCommand extends SolrCommands {
   }
 
   private void processResponse(@Nullable HttpResponse response) {
-    if (response == null) {
-      printErrorMessage(String.format("Could not communicate with Solr. %n"));
-      return;
-    }
-    StatusLine statusLine = response.getStatusLine();
-    if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-      printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
+    if (response != null) {
+      StatusLine statusLine = response.getStatusLine();
+      if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+        printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
+      } else {
+        printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
+        printErrorMessage(
+            String.format(
+                "Backup request failed: %d - %s %n",
+                statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+      }
     } else {
-      printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
-      printErrorMessage(
-          String.format(
-              "Backup request failed: %d - %s %n",
-              statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+      printErrorMessage(String.format("Could not communicate with Solr. %n"));
     }
   }
 
