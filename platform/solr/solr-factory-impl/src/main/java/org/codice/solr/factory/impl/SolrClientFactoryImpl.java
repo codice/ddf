@@ -16,8 +16,6 @@ package org.codice.solr.factory.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.platform.solr.security.SolrPasswordUpdate;
-import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.BiFunction;
@@ -31,22 +29,20 @@ import org.codice.solr.factory.SolrClientFactory;
 public final class SolrClientFactoryImpl implements SolrClientFactory {
 
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
-  private final EncryptionService encryptionService;
-  private final SolrPasswordUpdate solrPasswordUpdate;
+  private final HttpSolrClientFactory httpSolrClientFactory;
 
   @SuppressWarnings("unused" /* used by blueprint */)
-  public SolrClientFactoryImpl(
-      EncryptionService encryptionService, SolrPasswordUpdate solrPasswordUpdate) {
+  public SolrClientFactoryImpl(HttpSolrClientFactory httpSolrClientFactory) {
     this.newClientFunction = (factory, core) -> factory.newClient(core);
-    this.encryptionService = encryptionService;
-    this.solrPasswordUpdate = solrPasswordUpdate;
+    this.httpSolrClientFactory = httpSolrClientFactory;
   }
 
   @VisibleForTesting
-  SolrClientFactoryImpl(BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
+  SolrClientFactoryImpl(
+      HttpSolrClientFactory httpSolrClientFactory,
+      BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
     this.newClientFunction = newClientFunction;
-    this.encryptionService = null;
-    this.solrPasswordUpdate = null;
+    this.httpSolrClientFactory = httpSolrClientFactory;
   }
 
   @Override
@@ -63,7 +59,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      factory = new HttpSolrClientFactory(encryptionService, solrPasswordUpdate);
+      factory = httpSolrClientFactory;
     }
 
     return newClientFunction.apply(factory, core);

@@ -56,10 +56,6 @@ public abstract class SolrCommands implements Action {
     this.configurationAdmin = configurationAdmin;
   }
 
-  protected HttpWrapper getHttpClient() {
-    return new SolrHttpWrapper();
-  }
-
   protected void printColor(Color color, String message) {
     String colorString;
     if (color == null || color.equals(Ansi.Color.DEFAULT)) {

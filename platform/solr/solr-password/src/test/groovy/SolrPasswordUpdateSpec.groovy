@@ -47,6 +47,7 @@ class SolrPasswordUpdateSpec extends Specification {
         System.setProperty('solr.username', SOLR_USERNAME);
         System.setProperty('solr.password', BOOTSTRAP_PASSWORD);
         System.setProperty('solr.attemptAutoPasswordChange', 'true')
+        System.setProperty('solr.useBasicAuth', 'true')
     }
 
     @Unroll
@@ -79,7 +80,7 @@ class SolrPasswordUpdateSpec extends Specification {
         }
 
         when:
-        spySolrPasswordUpdate.run()
+        spySolrPasswordUpdate.execute()
 
         then:
         System.getProperty('solr.password').equals(passwordInMemory)

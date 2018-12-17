@@ -13,8 +13,7 @@
  */
 package ddf.platform.solr.security;
 
-public interface SolrPasswordUpdate {
+public interface SolrPasswordUpdate extends Runnable {
 
-  /** Begin the passsword update process */
-  void updateSolrPassword();
+  void run();
 }

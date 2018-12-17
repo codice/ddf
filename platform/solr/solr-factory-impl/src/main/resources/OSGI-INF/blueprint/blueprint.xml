@@ -18,11 +18,19 @@
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
     <reference id="solrPasswordUpdate" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>
 
-    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+    <bean id="httpClientBuilder" class="org.codice.solr.factory.impl.HttpClientBuilder">
         <argument ref="encryptionService"/>
+    </bean>
+
+    <bean id="httpSolrClientFactory" class="org.codice.solr.factory.impl.HttpSolrClientFactory">
+        <argument ref="httpClientBuilder"/>
         <argument ref="solrPasswordUpdate"/>
     </bean>
 
+    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+        <argument ref="httpSolrClientFactory"/>
+    </bean>
+
     <service ref="solrClientFactory"
-             interface="org.codice.solr.factory.SolrClientFactory"/>
+        interface="org.codice.solr.factory.SolrClientFactory"/>
 </blueprint>
