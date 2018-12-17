@@ -63,10 +63,8 @@
         <feature>cxf-frontend-javascript</feature>
         <feature>pax-http-whiteboard</feature>
         <feature>resource-bundle-locator</feature>
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
-        <configfile finalname="${ddf.etc}/i18n/LandingPageBundle/LandingPageBundle_en.properties">
-            mvn:ddf.platform/landing-page/${project.version}/config/landing-page-bundle-config
-        </configfile>
     </feature>
 
     <feature name="resource-bundle-locator" version="${project.version}"
