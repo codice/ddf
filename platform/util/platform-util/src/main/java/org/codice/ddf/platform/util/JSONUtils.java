@@ -18,6 +18,7 @@ import com.google.gson.JsonSyntaxException;
 
 public class JSONUtils {
 
+  private static final JsonParser JSON_PARSER = new JsonParser();
   /**
    * Verifies the Syntax of a JSON
    *
@@ -25,10 +26,8 @@ public class JSONUtils {
    * @return Boolean results of the validation check
    */
   public static boolean isJSONValid(String jsonInString) {
-
-    JsonParser parser = new JsonParser();
     try {
-      parser.parse(jsonInString);
+      JSON_PARSER.parse(jsonInString);
       return true;
     } catch (JsonSyntaxException ex) {
       return false;
