@@ -128,6 +128,11 @@
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
+        <Logger name="org.apache.lucene" level="info" additivity="false">
+            <AppenderRef ref="syslog"/>
+            <AppenderRef ref="osgi-platformLogging"/>
+        </Logger>
+
         <Logger name="org.apache.sshd" level="INFO"/>
 
         <!--START Suppress logging for miscellaneous packages-->
