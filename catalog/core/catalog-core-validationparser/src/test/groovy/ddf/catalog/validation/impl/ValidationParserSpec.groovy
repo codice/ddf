@@ -25,7 +25,6 @@ import java.time.ZoneOffset
 
 import static org.mockito.Matchers.isNull
 import static org.mockito.Mockito.doReturn
-import static org.mockito.Mockito.spy
 
 class ValidationParserSpec extends Specification {
 
@@ -50,9 +49,8 @@ class ValidationParserSpec extends Specification {
         attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
-
-        validationParser = spy(new ValidationParser(attributeRegistry, attributeValidatorRegistry,
-                defaultAttributeValueRegistry))
+        validationParser = Spy(ValidationParser, constructorArgs: [attributeRegistry, attributeValidatorRegistry,
+                defaultAttributeValueRegistry])
 
 
         file = temporaryFolder.newFile("temp.json")
@@ -93,7 +91,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
         ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
@@ -172,7 +170,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         def ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
         def ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
@@ -283,7 +281,7 @@ class ValidationParserSpec extends Specification {
         setup:
         file.withPrintWriter { it.write(defaultValues) }
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -343,7 +341,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -365,7 +363,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         def attribute1Name = "attribute1";
         def attribute2Name = "attribute2";
@@ -396,7 +394,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(metacardValidator) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -410,7 +408,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(invalidRequiredAttrMetacardValidator) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -424,7 +422,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(invalidMetacardValidator) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -438,7 +436,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(matchAnyAttributeValidator) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -452,7 +450,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(relationshipAttributeValidator) }
 
         BundleContext mockBundleContext = Mock(BundleContext)
-        doReturn(mockBundleContext).when(validationParser).getBundleContext()
+        validationParser.getBundleContext() >> mockBundleContext
         when:
         validationParser.install(file)
 
