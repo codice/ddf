@@ -28,13 +28,8 @@
             <artifactId>security-encryption-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
-            <version>1.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.keyczar</groupId>
@@ -63,9 +58,6 @@
                             keyczar,
                             gson
                         </Embed-Dependency>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
