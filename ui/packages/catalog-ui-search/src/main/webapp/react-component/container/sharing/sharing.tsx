@@ -84,20 +84,20 @@ const getIndividuals = function(
   accessAdministrators: string[]
 ): Item[] {
   return _.union(individualsWrite, individualsRead, accessAdministrators).map(
-    (id: string) => {
+    (username: string) => {
       return {
         id: common.generateUUID(),
         category: Category.User,
-        visible: id !== owner, // hide owner
+        visible: username !== owner, // hide owner
         access:
-          accessAdministrators.indexOf(id) > -1
+          accessAdministrators.indexOf(username) > -1
             ? Access.Share
-            : individualsWrite.indexOf(id) > -1
+            : individualsWrite.indexOf(username) > -1
               ? Access.Write
-              : individualsRead.indexOf(id) > -1
+              : individualsRead.indexOf(username) > -1
                 ? Access.Read
                 : Access.None,
-        value: id,
+        value: username,
       } as Item
     }
   )
