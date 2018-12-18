@@ -599,7 +599,7 @@ grant codeBase "file:/catalog-ui-search" {
 }
 
 grant
-  codeBase "file:/migration-commands/workspace-query-separation" {
+  codeBase "file:/migration-command/workspace-query-separation" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";

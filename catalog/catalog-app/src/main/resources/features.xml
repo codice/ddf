@@ -610,9 +610,9 @@
 
     <feature name="data-migration" version="${project.version}"
       description="Provides a framework for data migration and karaf commands.">
-        <bundle>mvn:ddf.migration/migration-api/${project.version}</bundle>
-        <bundle>mvn:ddf.migration/migration-commands/${project.version}</bundle>
-        <bundle>mvn:ddf.migration/workspace-query-separation/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.migrate/migration-api/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.migrate/migration-command/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.migrate/workspace-query-separation/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-app" version="${project.version}"

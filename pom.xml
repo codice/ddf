@@ -1222,6 +1222,5 @@
         <module>broker</module>
         <module>distribution</module>
         <module>features</module>
-        <module>migration</module>
     </modules>
 </project>
