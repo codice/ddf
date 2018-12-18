@@ -13,13 +13,13 @@
  */
 package ddf.camel.component.catalog.metacardtransformer;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.MetacardTransformer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -43,8 +43,15 @@ public class MetacardTransformerProducer extends DefaultProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTransformerProducer.class);
 
+  private final Function<Class, Bundle> bundleLookup;
+
   public MetacardTransformerProducer(Endpoint endpoint) {
+    this(endpoint, FrameworkUtil::getBundle);
+  }
+
+  public MetacardTransformerProducer(Endpoint endpoint, Function<Class, Bundle> bundleLookup) {
     super(endpoint);
+    this.bundleLookup = bundleLookup;
   }
 
   @Override
@@ -78,9 +85,8 @@ public class MetacardTransformerProducer extends DefaultProducer {
     }
   }
 
-  @VisibleForTesting
-  MetacardTransformer lookupTransformerReference(String metacardTransformerId) {
-    Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+  private MetacardTransformer lookupTransformerReference(String metacardTransformerId) {
+    Bundle bundle = bundleLookup.apply(this.getClass());
     if (bundle != null) {
       BundleContext bundleContext = bundle.getBundleContext();
       try {

@@ -17,9 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
@@ -37,26 +35,32 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 public class PepInterceptorActionsTest {
 
+  private PEPAuthorizingInterceptor interceptor;
+
+  private SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
+
+  @Before
+  public void setup() {
+    interceptor = new PEPAuthorizingInterceptor(m -> mockSecurityAssertion);
+  }
+
   @Test
   public void testMessageWithDefaultUriAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
-
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithAction = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -92,18 +96,14 @@ public class PepInterceptorActionsTest {
 
   @Test
   public void testMessageWithDefaultUrlAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
-
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithAction = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -139,18 +139,14 @@ public class PepInterceptorActionsTest {
 
   @Test
   public void testMessageWithMessageAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
-
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithAction = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -181,18 +177,14 @@ public class PepInterceptorActionsTest {
 
   @Test
   public void testMessageWithOperationAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
-
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithAction = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -225,18 +217,14 @@ public class PepInterceptorActionsTest {
 
   @Test(expected = AccessDeniedException.class)
   public void testMessageWithNoAction() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
-
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithoutAction = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    doReturn(mockSecurityAssertion).when(interceptor).getSecurityAssertion(messageWithoutAction);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);

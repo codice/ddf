@@ -20,9 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,6 +77,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.After;
@@ -414,17 +413,23 @@ public class FederationStrategyTest {
             mockSortedResult8);
     QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
 
+    final boolean[] responseFactoryCalledOnce = {false};
+    Function<QueryRequest, QueryResponseImpl> returnResultsThenOffset =
+        request -> {
+          if (!responseFactoryCalledOnce[0]) {
+            responseFactoryCalledOnce[0] = true;
+            return mockOriginalResults;
+          } else {
+            return offsetResultQueue;
+          }
+        };
     SortedFederationStrategy strategy =
-        spy(
-            new SortedFederationStrategy(
-                executor,
-                new ArrayList<PreFederatedQueryPlugin>(),
-                new ArrayList<PostFederatedQueryPlugin>()));
+        new SortedFederationStrategy(
+            executor,
+            new ArrayList<PreFederatedQueryPlugin>(),
+            new ArrayList<PostFederatedQueryPlugin>(),
+            returnResultsThenOffset);
 
-    doReturn(mockOriginalResults)
-        .doReturn(offsetResultQueue)
-        .when(strategy)
-        .getQueryResponseQueue(queryRequest);
     // Run Test
     QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
 

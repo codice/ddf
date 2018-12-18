@@ -5,17 +5,14 @@ import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
-import ddf.catalog.data.impl.AttributeDescriptorImpl
-import ddf.catalog.data.impl.AttributeRegistryImpl
-import ddf.catalog.data.impl.BasicTypes
-import ddf.catalog.data.impl.MetacardImpl
-import ddf.catalog.data.impl.MetacardTypeImpl
+import ddf.catalog.data.impl.*
 import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceRegistration
 import spock.lang.Specification
@@ -24,7 +21,6 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 import static org.mockito.Matchers.isNull
-import static org.mockito.Mockito.doReturn
 
 class ValidationParserSpec extends Specification {
 
@@ -41,6 +37,10 @@ class ValidationParserSpec extends Specification {
 
     File file
 
+    Bundle mockBundle = Mock(Bundle)
+
+    BundleContext mockBundleContext = Mock(BundleContext)
+
     void setup() {
         attributeRegistry = new AttributeRegistryImpl()
 
@@ -49,9 +49,10 @@ class ValidationParserSpec extends Specification {
         attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
-        validationParser = Spy(ValidationParser, constructorArgs: [attributeRegistry, attributeValidatorRegistry,
-                defaultAttributeValueRegistry])
+        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
+                defaultAttributeValueRegistry, { clazz -> mockBundle })
 
+        mockBundle.getBundleContext() >> mockBundleContext
 
         file = temporaryFolder.newFile("temp.json")
     }
@@ -89,9 +90,6 @@ class ValidationParserSpec extends Specification {
     def "test valid file install then uninstall"() {
         setup:
         file.withPrintWriter { it.write(valid) }
-
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
 
         ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
         ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
@@ -168,9 +166,6 @@ class ValidationParserSpec extends Specification {
     def "test valid file update"() {
         setup:
         file.withPrintWriter { it.write(valid) }
-
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
 
         def ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
         def ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
@@ -280,8 +275,6 @@ class ValidationParserSpec extends Specification {
     def "test default values"() {
         setup:
         file.withPrintWriter { it.write(defaultValues) }
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -340,9 +333,6 @@ class ValidationParserSpec extends Specification {
         setup:
         file.withPrintWriter { it.write(valid) }
 
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
-
         when:
         validationParser.install(file)
 
@@ -361,9 +351,6 @@ class ValidationParserSpec extends Specification {
     def "test metacard types"() {
         setup:
         file.withPrintWriter { it.write(valid) }
-
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
 
         def attribute1Name = "attribute1";
         def attribute2Name = "attribute2";
@@ -393,9 +380,6 @@ class ValidationParserSpec extends Specification {
         setup:
         file.withPrintWriter { it.write(metacardValidator) }
 
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
-
         when:
         validationParser.install(file)
 
@@ -406,9 +390,6 @@ class ValidationParserSpec extends Specification {
     def "test invalid required attribute metacard validator"() {
         setup:
         file.withPrintWriter { it.write(invalidRequiredAttrMetacardValidator) }
-
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -421,9 +402,6 @@ class ValidationParserSpec extends Specification {
         setup:
         file.withPrintWriter { it.write(invalidMetacardValidator) }
 
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
-
         when:
         validationParser.install(file)
 
@@ -434,9 +412,6 @@ class ValidationParserSpec extends Specification {
     def "test match_any validator "() {
         setup:
         file.withPrintWriter { it.write(matchAnyAttributeValidator) }
-
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
 
         when:
         validationParser.install(file)
@@ -449,8 +424,6 @@ class ValidationParserSpec extends Specification {
         setup:
         file.withPrintWriter { it.write(relationshipAttributeValidator) }
 
-        BundleContext mockBundleContext = Mock(BundleContext)
-        validationParser.getBundleContext() >> mockBundleContext
         when:
         validationParser.install(file)
 

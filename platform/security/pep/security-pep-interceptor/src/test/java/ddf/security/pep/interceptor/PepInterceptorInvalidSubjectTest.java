@@ -15,7 +15,6 @@ package ddf.security.pep.interceptor;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -45,20 +44,18 @@ public class PepInterceptorInvalidSubjectTest {
 
   @Test
   public void testMessageInvalidSecurityAssertionToken() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
+    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
+    PEPAuthorizingInterceptor interceptor =
+        spy(new PEPAuthorizingInterceptor(m -> mockSecurityAssertion));
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithInvalidSecurityAssertion = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    doReturn(mockSecurityAssertion)
-        .when(interceptor)
-        .getSecurityAssertion(messageWithInvalidSecurityAssertion);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);

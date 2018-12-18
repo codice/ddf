@@ -16,9 +16,7 @@ package ddf.camel.component.catalog.metacardtransformer;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,11 +24,17 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.MetacardTransformer;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 public class MetacardTransformerProducerTest {
 
@@ -44,23 +48,35 @@ public class MetacardTransformerProducerTest {
 
   private Metacard mockMetacard = mock(Metacard.class);
 
+  private Bundle mockBundle = mock(Bundle.class);
+
+  private BundleContext mockBundleContext = mock(BundleContext.class);
+
   private MetacardTransformerProducer metacardTransformerProducer;
 
   private MetacardTransformer mockTransformer = mock(MetacardTransformer.class);
 
+  private ServiceReference mockServiceReference = mock(ServiceReference.class);
+
   private BinaryContent mockBinaryContent = mock(BinaryContent.class);
 
+  private Collection transformerReferences = new ArrayList<>();
+
   @Before
-  public void setUp() {
+  public void setUp() throws InvalidSyntaxException {
+    transformerReferences.add(mockServiceReference);
+
+    when(mockBundle.getBundleContext()).thenReturn(mockBundleContext);
+    when(mockBundleContext.getServiceReferences(any(Class.class), any(String.class)))
+        .thenReturn(transformerReferences);
+    when(mockBundleContext.getService(any())).thenReturn(mockTransformer);
     when(mockExchange.getIn()).thenReturn(mockMessage);
     when(mockExchange.getOut()).thenReturn(mockMessage);
     when(mockMessage.getBody()).thenReturn(mockMetacard);
     when(mockMessage.getHeader(any(String.class), any(Class.class)))
         .thenReturn(TEST_TRANSFORMER_ID);
-    metacardTransformerProducer = spy(new MetacardTransformerProducer(mockEndpoint));
-    doReturn(mockTransformer)
-        .when(metacardTransformerProducer)
-        .lookupTransformerReference(any(String.class));
+    metacardTransformerProducer =
+        new MetacardTransformerProducer(mockEndpoint, clazz -> mockBundle);
   }
 
   @Test

@@ -13,7 +13,6 @@
  */
 package ddf.catalog.federation.impl;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
@@ -45,6 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -80,12 +80,32 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
    * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
    *
    * @param queryExecutorService the {@link ExecutorService} for queries
+   * @param preQuery the plugins to execute before the federated query
+   * @param postQuery the plugins to execute after the federated query
    */
   public SortedFederationStrategy(
       ExecutorService queryExecutorService,
       List<PreFederatedQueryPlugin> preQuery,
       List<PostFederatedQueryPlugin> postQuery) {
-    super(queryExecutorService, preQuery, postQuery);
+    super(
+        queryExecutorService, preQuery, postQuery, request -> new QueryResponseImpl(request, null));
+  }
+
+  /**
+   * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
+   *
+   * @param queryExecutorService the {@link ExecutorService} for queries
+   * @param preQuery the plugins to execute before the federated query
+   * @param postQuery the plugins to execute after the federated query
+   * @param queryResponseFactory a {@link Function} that returns a {@link QueryResponseImpl}, given
+   *     a {@link QueryRequest}
+   */
+  public SortedFederationStrategy(
+      ExecutorService queryExecutorService,
+      List<PreFederatedQueryPlugin> preQuery,
+      List<PostFederatedQueryPlugin> postQuery,
+      Function<QueryRequest, QueryResponseImpl> queryResponseFactory) {
+    super(queryExecutorService, preQuery, postQuery, queryResponseFactory);
   }
 
   @Override
@@ -96,12 +116,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
       final Query query) {
 
     return new SortedQueryMonitor(pool, futures, returnResults, query);
-  }
-
-  @Override
-  @VisibleForTesting
-  protected QueryResponseImpl getQueryResponseQueue(QueryRequest queryRequest) {
-    return new QueryResponseImpl(queryRequest, null);
   }
 
   private static class SortedQueryMonitor implements Runnable {

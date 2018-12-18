@@ -42,7 +42,6 @@ import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
-import org.forgerock.util.promise.Promise;
 import org.junit.Test;
 
 public class RoleClaimsHandlerTest {
@@ -50,7 +49,7 @@ public class RoleClaimsHandlerTest {
 
   @Test
   public void testRetrieveClaimsValuesNullPrincipal() {
-    RoleClaimsHandler claimsHandler = new RoleClaimsHandler();
+    RoleClaimsHandler claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
     ClaimsParameters claimsParameters = new ClaimsParameters();
     ClaimCollection claimCollection = new ClaimCollection();
     ProcessedClaimCollection processedClaims =
@@ -104,8 +103,10 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
-    claimsHandler = new RoleClaimsHandler();
-    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory(connection));
+    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
+    when(mockConnectionFactory.getConnection()).thenReturn(connection);
+    claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
     claimsHandler.setBindMethod("Simple");
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
@@ -168,8 +169,10 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("cn")))
         .thenReturn(membershipReader);
 
-    claimsHandler = new RoleClaimsHandler();
-    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory(connection));
+    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
+    when(mockConnectionFactory.getConnection()).thenReturn(connection);
+    claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
     claimsHandler.setBindMethod("Simple");
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
@@ -234,8 +237,10 @@ public class RoleClaimsHandlerTest {
     when(connection.search(anyString(), anyObject(), anyString(), matches("uid")))
         .thenReturn(membershipReader);
 
-    claimsHandler = new RoleClaimsHandler();
-    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory(connection));
+    claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
+    ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
+    when(mockConnectionFactory.getConnection()).thenReturn(connection);
+    claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
     claimsHandler.setBindMethod("Simple");
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
@@ -253,31 +258,8 @@ public class RoleClaimsHandlerTest {
 
   @Test
   public void testSupportClaimTypes() {
-    RoleClaimsHandler claimsHandler = new RoleClaimsHandler();
+    RoleClaimsHandler claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
     List<URI> uris = claimsHandler.getSupportedClaimTypes();
     assertThat(uris, hasSize(1));
-  }
-
-  private class MockConnectionFactory implements ConnectionFactory {
-    private Connection connection;
-
-    public MockConnectionFactory(Connection connection) {
-      this.connection = connection;
-    }
-
-    @Override
-    public void close() {
-      // no-op
-    }
-
-    @Override
-    public Promise<Connection, LdapException> getConnectionAsync() {
-      return null;
-    }
-
-    @Override
-    public Connection getConnection() throws LdapException {
-      return connection;
-    }
   }
 }

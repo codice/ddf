@@ -13,7 +13,6 @@
  */
 package ddf.security.pep.interceptor;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -28,10 +27,9 @@ public class PepInterceptorNullAssertionTest {
 
   @Test
   public void testMessageNullSecurityAssertion() {
-    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor());
+    PEPAuthorizingInterceptor interceptor = spy(new PEPAuthorizingInterceptor(m -> null));
 
     Message messageWithNullSecurityAssertion = mock(Message.class);
-    doReturn(null).when(interceptor).getSecurityAssertion(messageWithNullSecurityAssertion);
     // SecurityLogger is already stubbed out
     expectedExForNullMessage.expect(AccessDeniedException.class);
     expectedExForNullMessage.expectMessage("Unauthorized");

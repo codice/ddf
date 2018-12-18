@@ -22,7 +22,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -46,7 +46,6 @@ import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
-import org.forgerock.util.promise.Promise;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,15 +98,14 @@ public class LdapClaimsHandlerTest {
     mockBindRequest = mock(BindRequest.class);
     Map<String, String> map = new HashMap<>();
     map.put(NAME_IDENTIFIER_CLAIM_URI, ATTRIBUTE_NAME);
-    claimsHandler = spy(new LdapClaimsHandler());
+    AttributeMapLoader mockAttributeMapLoader = mock(AttributeMapLoader.class);
+    when(mockAttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
+    when(mockAttributeMapLoader.getUser(any(Principal.class)))
+        .then(i -> i.getArgumentAt(0, Principal.class).getName());
+    when(mockAttributeMapLoader.getBaseDN(any(Principal.class), anyString(), eq(false)))
+        .then(i -> i.getArgumentAt(1, String.class));
+    claimsHandler = spy(new LdapClaimsHandler(mockAttributeMapLoader));
     doReturn(mockBindRequest).when(claimsHandler).selectBindMethod();
-    doReturn(map).when(claimsHandler).buildClaimsMapFile(anyString());
-    doAnswer(i -> i.getArgumentAt(0, Principal.class).getName())
-        .when(claimsHandler)
-        .getUser(any(Principal.class));
-    doAnswer(i -> claimsHandler.getUserBaseDN())
-        .when(claimsHandler)
-        .getBaseDN(any(Principal.class));
     mockBindResult = mock(BindResult.class);
     mockConnection = mock(Connection.class);
     when(mockConnection.bind(anyString(), any(char[].class))).thenReturn(mockBindResult);
@@ -120,7 +118,9 @@ public class LdapClaimsHandlerTest {
     when(mockEntryReader.isEntry()).thenReturn(false, true);
     when(mockEntryReader.readEntry()).thenReturn(mockEntry);
     when(mockEntry.getAttribute(anyString())).thenReturn(attribute);
-    claimsHandler.setLdapConnectionFactory(new MockConnectionFactory());
+    ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
+    when(mockConnectionFactory.getConnection()).thenReturn(mockConnection);
+    claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
     claimsHandler.setPropertyFileLocation("thisstringisnotempty");
     claimsHandler.setBindMethod(BINDING_TYPE);
     claimsHandler.setBindUserCredentials(BIND_USER_CREDENTIALS);
@@ -158,23 +158,5 @@ public class LdapClaimsHandlerTest {
     assertThat(processedClaims, hasSize(1));
     Claim claim = processedClaims.get(0);
     assertThat(claim.getValues(), contains(DUMMY_VALUE));
-  }
-
-  private class MockConnectionFactory implements ConnectionFactory {
-
-    @Override
-    public void close() {
-      // no-op
-    }
-
-    @Override
-    public Promise<Connection, LdapException> getConnectionAsync() {
-      return null;
-    }
-
-    @Override
-    public Connection getConnection() throws LdapException {
-      return mockConnection;
-    }
   }
 }

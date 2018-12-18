@@ -18,7 +18,6 @@ import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.security.auth.x500.X500Principal;
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
@@ -44,6 +43,8 @@ import org.springframework.ldap.filter.EqualsFilter;
 public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandler.class);
 
+  private final AttributeMapLoader attributeMapLoader;
+
   private String propertyFileLocation;
 
   private ConnectionFactory connectionFactory;
@@ -60,8 +61,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
   private boolean overrideCertDn = false;
 
-  public LdapClaimsHandler() {
+  public LdapClaimsHandler(AttributeMapLoader attributeMapLoader) {
     super();
+    this.attributeMapLoader = attributeMapLoader;
   }
 
   public ConnectionFactory getLdapConnectionFactory() {
@@ -80,7 +82,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     if (propertyFileLocation != null
         && !propertyFileLocation.isEmpty()
         && !propertyFileLocation.equals(this.propertyFileLocation)) {
-      setClaimsLdapAttributeMapping(buildClaimsMapFile(propertyFileLocation));
+      setClaimsLdapAttributeMapping(attributeMapLoader.buildClaimsMapFile(propertyFileLocation));
     }
     this.propertyFileLocation = propertyFileLocation;
   }
@@ -91,7 +93,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
     Principal principal = parameters.getPrincipal();
 
-    String user = getUser(principal);
+    String user = attributeMapLoader.getUser(principal);
     if (user == null) {
       LOGGER.info(
           "Could not determine user name, possible authentication error. Returning no claims.");
@@ -124,7 +126,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         BindRequest request = selectBindMethod();
         BindResult bindResult = connection.bind(request);
         if (bindResult.isSuccess()) {
-          String baseDN = getBaseDN(principal);
+          String baseDN = attributeMapLoader.getBaseDN(principal, getUserBaseDN(), overrideCertDn);
           LOGGER.trace("Executing ldap search with base dn of {} and filter of {}", baseDN, filter);
 
           ConnectionEntryReader entryReader =
@@ -224,20 +226,5 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
   BindRequest selectBindMethod() {
     return BindMethodChooser.selectBindMethod(
         bindMethod, bindUserDN, bindUserCredentials, kerberosRealm, kdcAddress);
-  }
-
-  @VisibleForTesting
-  Map<String, String> buildClaimsMapFile(String propertyFileLocation) {
-    return AttributeMapLoader.buildClaimsMapFile(propertyFileLocation);
-  }
-
-  @VisibleForTesting
-  String getUser(Principal principal) {
-    return AttributeMapLoader.getUser(principal);
-  }
-
-  @VisibleForTesting
-  String getBaseDN(Principal principal) {
-    return AttributeMapLoader.getBaseDN(principal, getUserBaseDN(), overrideCertDn);
   }
 }

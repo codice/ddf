@@ -45,6 +45,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RoleClaimsHandler.class);
 
+  private final AttributeMapLoader attributeMapLoader;
+
   private boolean overrideCertDn = false;
 
   private Map<String, String> claimsLdapAttributeMapping;
@@ -81,6 +83,10 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
   private String kdcAddress;
 
+  public RoleClaimsHandler(AttributeMapLoader attributeMapLoader) {
+    this.attributeMapLoader = attributeMapLoader;
+  }
+
   public URI getRoleURI() {
     URI uri = null;
     try {
@@ -101,7 +107,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
     if (propertyFileLocation != null
         && !propertyFileLocation.isEmpty()
         && !propertyFileLocation.equals(this.propertyFileLocation)) {
-      setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+      setClaimsLdapAttributeMapping(attributeMapLoader.buildClaimsMapFile(propertyFileLocation));
     }
     this.propertyFileLocation = propertyFileLocation;
   }
@@ -223,7 +229,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
     try {
       Principal principal = parameters.getPrincipal();
 
-      String user = AttributeMapLoader.getUser(principal);
+      String user = attributeMapLoader.getUser(principal);
       if (user == null) {
         LOGGER.info(
             "Could not determine user name, possible authentication error. Returning no claims.");
@@ -241,7 +247,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
         String membershipValue = user;
 
-        String baseDN = AttributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
+        String baseDN = attributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
         AndFilter filter = new AndFilter();
         filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
         ConnectionEntryReader entryReader =

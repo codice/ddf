@@ -13,7 +13,6 @@
  */
 package ddf.catalog.federation.base;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.Query;
@@ -36,6 +35,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +49,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
   private static final String CLASS_NAME = AbstractFederationStrategy.class.getName();
 
   private static final int DEFAULT_MAX_START_INDEX = 50000;
+  private final Function<QueryRequest, QueryResponseImpl> queryResponseFactory;
 
   /**
    * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -73,11 +74,14 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
    * @deprecated - only to provide support for deprecated FifoFederationStrategy and
    *     SortedFederationStrategy
    */
-  public AbstractFederationStrategy(ExecutorService queryExecutorService) {
+  public AbstractFederationStrategy(
+      ExecutorService queryExecutorService,
+      Function<QueryRequest, QueryResponseImpl> queryResponseFactory) {
     this(
         queryExecutorService,
         new ArrayList<PreFederatedQueryPlugin>(),
-        new ArrayList<PostFederatedQueryPlugin>());
+        new ArrayList<PostFederatedQueryPlugin>(),
+        queryResponseFactory);
   }
 
   /**
@@ -88,11 +92,13 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
   public AbstractFederationStrategy(
       ExecutorService queryExecutorService,
       List<PreFederatedQueryPlugin> preQuery,
-      List<PostFederatedQueryPlugin> postQuery) {
+      List<PostFederatedQueryPlugin> postQuery,
+      Function<QueryRequest, QueryResponseImpl> queryResponseFactory) {
     this.queryExecutorService = queryExecutorService;
     this.preQuery = preQuery;
     this.postQuery = postQuery;
     this.maxStartIndex = DEFAULT_MAX_START_INDEX;
+    this.queryResponseFactory = queryResponseFactory;
   }
 
   /**
@@ -132,7 +138,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
       offset = this.maxStartIndex;
     }
 
-    final QueryResponseImpl queryResponseQueue = getQueryResponseQueue(queryRequest);
+    final QueryResponseImpl queryResponseQueue = queryResponseFactory.apply(queryRequest);
 
     Map<Source, Future<SourceResponse>> futures = new HashMap<Source, Future<SourceResponse>>();
 
@@ -181,7 +187,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
     // transfer them into a different Queue. That is what the
     // OffsetResultHandler does.
     if (offset > 1 && sources.size() > 1) {
-      offsetResults = getQueryResponseQueue(queryRequest);
+      offsetResults = queryResponseFactory.apply(queryRequest);
       queryExecutorService.submit(
           new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
     }
@@ -216,9 +222,6 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
 
     return queryResponse;
   }
-
-  @VisibleForTesting
-  protected abstract QueryResponseImpl getQueryResponseQueue(QueryRequest queryRequest);
 
   private Query getModifiedQuery(
       Query originalQuery, int numberOfSources, int offset, int pageSize) {

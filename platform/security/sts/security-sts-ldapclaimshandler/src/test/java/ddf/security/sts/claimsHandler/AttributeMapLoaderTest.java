@@ -51,6 +51,8 @@ public class AttributeMapLoaderTest {
     "OU=LDAP", "OU=DEFAULT", "O=DDF", "C=US"
   };
 
+  AttributeMapLoader attributeMapLoader = new AttributeMapLoader();
+
   /**
    * Tests loading the attributes from a file.
    *
@@ -58,7 +60,7 @@ public class AttributeMapLoaderTest {
    */
   @Test
   public void testAttributeFile() {
-    Map<String, String> returnedMap = AttributeMapLoader.buildClaimsMapFile(MAP_FILE);
+    Map<String, String> returnedMap = attributeMapLoader.buildClaimsMapFile(MAP_FILE);
     assertEquals(
         "uid",
         returnedMap.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
@@ -70,7 +72,7 @@ public class AttributeMapLoaderTest {
   /** Tests Loading the attributes from a non-existing file. Should return an empty map. */
   @Test
   public void testNoAttributeFile() {
-    Map<String, String> returnedMap = AttributeMapLoader.buildClaimsMapFile(NO_MAP_FILE);
+    Map<String, String> returnedMap = attributeMapLoader.buildClaimsMapFile(NO_MAP_FILE);
     assertNotNull(returnedMap);
     assertTrue(returnedMap.isEmpty());
   }
@@ -80,28 +82,28 @@ public class AttributeMapLoaderTest {
     Principal principal = mock(Principal.class);
     when(principal.getName()).thenReturn(TEST_USER);
 
-    assertEquals(TEST_USER, AttributeMapLoader.getUser(principal));
+    assertEquals(TEST_USER, attributeMapLoader.getUser(principal));
   }
 
   @Test
   public void testKerberosGetUser() {
     Principal principal = new KerberosPrincipal(KERBEROS_PRINCIPAL);
 
-    assertEquals(TEST_USER, AttributeMapLoader.getUser(principal));
+    assertEquals(TEST_USER, attributeMapLoader.getUser(principal));
   }
 
   @Test
   public void testX500GetUser() {
     Principal principal = new X500Principal(X500_DN);
 
-    assertEquals(TEST_USER, AttributeMapLoader.getUser(principal));
+    assertEquals(TEST_USER, attributeMapLoader.getUser(principal));
   }
 
   @Test
   public void testGetBaseDnX500() {
     Principal principal = new X500Principal(X500_DN);
 
-    String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, false);
+    String baseDN = attributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, false);
 
     String[] split = baseDN.replaceAll("\\s", "").split(",");
     assertArrayEquals(X500_BASE_DN_ARR, split);
@@ -111,7 +113,7 @@ public class AttributeMapLoaderTest {
   public void testGetBaseDnX500Override() {
     Principal principal = new X500Principal(X500_DN);
 
-    String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, true);
+    String baseDN = attributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, true);
 
     String[] split = baseDN.replaceAll("\\s", "").split(",");
     assertArrayEquals(X500_DEFAULT_BASE_DN_ARR, split);
@@ -121,7 +123,7 @@ public class AttributeMapLoaderTest {
   public void testGetBaseDnX500EmptyDN() {
     Principal principal = new X500Principal("CN=FOOBAR");
 
-    String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, false);
+    String baseDN = attributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, false);
 
     String[] split = baseDN.replaceAll("\\s", "").split(",");
     assertArrayEquals(X500_DEFAULT_BASE_DN_ARR, split);
@@ -131,7 +133,7 @@ public class AttributeMapLoaderTest {
   public void testGetBaseDnNonX500() {
     Principal principal = new KerberosPrincipal(KERBEROS_PRINCIPAL);
 
-    String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, false);
+    String baseDN = attributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN, false);
 
     String[] split = baseDN.replaceAll("\\s", "").split(",");
     assertArrayEquals(X500_DEFAULT_BASE_DN_ARR, split);
