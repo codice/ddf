@@ -98,10 +98,10 @@ export class Security {
     return this.canAccess(user, Access.Share)
   }
 
-  private getRoleAccess(role: string) {
-    return this.res.accessGroups.indexOf(role) > -1
+  private getGroupAccess(group: string) {
+    return this.res.accessGroups.indexOf(group) > -1
       ? Access.Write
-      : this.res.accessGroupsRead.indexOf(role) > -1
+      : this.res.accessGroupsRead.indexOf(group) > -1
         ? Access.Read
         : Access.None
   }
@@ -119,7 +119,7 @@ export class Security {
   private getAccess(user: any): Access {
     return Math.max(
       this.getIndividualAccess(user.getEmail()),
-      ...user.getRoles().map((role: string) => this.getRoleAccess(role))
+      ...user.getRoles().map((group: string) => this.getGroupAccess(group))
     )
   }
 
@@ -129,10 +129,10 @@ export class Security {
       this.res.accessGroups,
       this.res.accessGroupsRead
     )
-      .map((role: string) => {
+      .map((group: string) => {
         return {
-          value: role,
-          access: this.getRoleAccess(role),
+          value: group,
+          access: this.getGroupAccess(group),
         } as Entry
       })
       .sort(Security.compareFn)

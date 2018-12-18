@@ -29,7 +29,7 @@ type State = {
 
 export enum Category {
   User = 'user',
-  Role = 'role',
+  Group = 'group',
 }
 
 export type Item = {
@@ -67,8 +67,8 @@ export class Sharing extends React.Component<Props, State> {
           return {
             ...e,
             id: common.generateUUID(),
-            category: Category.Role,
-            visible: user.getRoles().indexOf(e.value) > -1, // only display the roles the current user has
+            category: Category.Group,
+            visible: user.getRoles().indexOf(e.value) > -1, // only display the groups the current user has
           } as Item
         })
         this.setState({ items: groups.concat(individuals) })
@@ -77,7 +77,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   save = () => {
-    const roles = this.state.items.filter(e => e.category === Category.Role)
+    const groups = this.state.items.filter(e => e.category === Category.Group)
     const users = this.state.items.filter(
       e => e.value !== '' && e.category === Category.User
     )
@@ -103,13 +103,13 @@ export class Sharing extends React.Component<Props, State> {
             },
             {
               attribute: Restrictions.GroupsWrite,
-              values: roles
+              values: groups
                 .filter(e => e.access === Access.Write)
                 .map(e => e.value),
             },
             {
               attribute: Restrictions.GroupsRead,
-              values: roles
+              values: groups
                 .filter(e => e.access === Access.Read)
                 .map(e => e.value),
             },
