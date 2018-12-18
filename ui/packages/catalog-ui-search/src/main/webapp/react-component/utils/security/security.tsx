@@ -1,3 +1,5 @@
+import { Item } from '../../container/sharing'
+
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,6 +11,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+const _ = require('underscore')
+
+export type Entry = {
+  value: string
+  access: Access
+}
 
 export enum Access {
   None = 0,
@@ -90,7 +98,7 @@ export class Security {
     return this.canAccess(user, Access.Share)
   }
 
-  getRoleAccess(role: string) {
+  private getRoleAccess(role: string) {
     return this.res.accessGroups.indexOf(role) > -1
       ? Access.Write
       : this.res.accessGroupsRead.indexOf(role) > -1
@@ -98,17 +106,17 @@ export class Security {
         : Access.None
   }
 
-  getIndividualAccess(username: string) {
-    return this.res.accessAdministrators.indexOf(username) > -1
+  private getIndividualAccess(email: string) {
+    return this.res.accessAdministrators.indexOf(email) > -1
       ? Access.Share
-      : this.res.accessIndividuals.indexOf(username) > -1
+      : this.res.accessIndividuals.indexOf(email) > -1
         ? Access.Write
-        : this.res.accessIndividualsRead.indexOf(username) > -1
+        : this.res.accessIndividualsRead.indexOf(email) > -1
           ? Access.Read
           : Access.None
   }
 
-  getAccess(user: any): Access {
+  private getAccess(user: any): Access {
     return Math.max(
       Access.None,
       ...user
@@ -116,5 +124,39 @@ export class Security {
         .map((role: string) => this.getRoleAccess(role))
         .append(this.getIndividualAccess(user.getEmail()))
     )
+  }
+
+  getGroups(user: any): Entry[] {
+    return _.union(
+      user.getRoles(),
+      this.res.accessGroups,
+      this.res.accessGroupsRead
+    )
+      .map((role: string) => {
+        return {
+          value: role,
+          access: this.getRoleAccess(role),
+        } as Entry
+      })
+      .sort(Security.compareFn)
+  }
+
+  getIndividuals(): Entry[] {
+    return _.union(
+      this.res.accessIndividuals,
+      this.res.accessIndividualsRead,
+      this.res.accessAdministrators
+    )
+      .map((username: string) => {
+        return {
+          value: username,
+          access: this.getIndividualAccess(username),
+        } as Entry
+      })
+      .sort(Security.compareFn)
+  }
+
+  private static compareFn = (a: Item, b: Item): number => {
+    return a.value < b.value ? -1 : a.value > b.value ? 1 : 0
   }
 }

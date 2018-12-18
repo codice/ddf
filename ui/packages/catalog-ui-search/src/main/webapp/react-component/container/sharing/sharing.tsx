@@ -12,9 +12,8 @@
 import * as React from 'react'
 import SharingPresentation from '../../presentation/sharing'
 import fetch from '../../utils/fetch/index'
-import { Restrictions, Access, Security } from '../../utils/security'
+import { Restrictions, Access, Security, Entry } from '../../utils/security'
 
-const _ = require('underscore')
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
 const announcement = require('component/announcement')
@@ -41,36 +40,6 @@ export type Item = {
   access: Access
 }
 
-const getGroups = function(res: Restrictions, security: Security): Item[] {
-  return _.union(user.getRoles(), res.accessGroups, res.accessGroupsRead).map(
-    (role: string) => {
-      return {
-        id: common.generateUUID(),
-        category: Category.Role,
-        visible: user.getRoles().indexOf(role) > -1, // only display the roles the current user has
-        access: security.getRoleAccess(role),
-        value: role,
-      } as Item
-    }
-  )
-}
-
-const getIndividuals = function(res: Restrictions, security: Security): Item[] {
-  return _.union(
-    res.accessIndividuals,
-    res.accessIndividualsRead,
-    res.accessAdministrators
-  ).map((username: string) => {
-    return {
-      id: common.generateUUID(),
-      category: Category.User,
-      visible: username !== res.owner, // hide owner
-      access: security.getIndividualAccess(username),
-      value: username,
-    } as Item
-  })
-}
-
 export class Sharing extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
@@ -79,11 +48,6 @@ export class Sharing extends React.Component<Props, State> {
       items: [],
     }
   }
-
-  private static _compareFn = (a: Item, b: Item): number => {
-    return a.value < b.value ? -1 : a.value > b.value ? 1 : 0
-  }
-
   componentDidMount = () => {
     fetch(`/search/catalog/internal/metacard/${this.props.id}`)
       .then(response => response.json())
@@ -91,10 +55,23 @@ export class Sharing extends React.Component<Props, State> {
         const metacard = data.metacards[0]
         const res = Restrictions.from(metacard)
         const security = new Security(res)
-        const items = getGroups(res, security)
-          .sort(Sharing._compareFn)
-          .concat(getIndividuals(res, security).sort(Sharing._compareFn))
-        this.setState({ items: items })
+        const individuals = security.getIndividuals().map((e: Entry) => {
+          return {
+            ...e,
+            id: common.generateUUID(),
+            category: Category.User,
+            visible: e.value !== res.owner, // hide owner
+          } as Item
+        })
+        const groups = security.getGroups(user).map((e: Entry) => {
+          return {
+            ...e,
+            id: common.generateUUID(),
+            category: Category.Role,
+            visible: user.getRoles().indexOf(e.value) > -1, // only display the roles the current user has
+          } as Item
+        })
+        this.setState({ items: groups.concat(individuals) })
         this.add()
       })
   }

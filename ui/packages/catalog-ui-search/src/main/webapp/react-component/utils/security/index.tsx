@@ -9,4 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { Security, Restrictions, Access } from './security'
+export { Access, Restrictions, Security, Entry } from './security'
