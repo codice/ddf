@@ -76,13 +76,10 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Private-Package>
-              ddf.catalog.data.impl,
-              ddf.catalog.operation.impl,
-              ddf.catalog.util.impl,
-              ddf.catalog.data.impl.types,
-              org.codice.ddf.platform.util
-            </Private-Package>
+            <Embed-Dependency>
+              platform-util,
+              catalog-core-api-impl
+            </Embed-Dependency>
           </instructions>
         </configuration>
       </plugin>
