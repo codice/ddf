@@ -12,8 +12,8 @@
 [NOTE]
 ====
 Performing a data migration creates, updates, or deletes existing metacards within the system.
-The effects of this command cannot be reverted or undone. It is highly recommended to back up the
-catalog before performing a data migration.
+A data migration needs to be run when the structure of the data changes to ensure that existing resources function as expected.
+The effects of this command cannot be reverted or undone. It is highly recommended to back up the catalog before performing a data migration.
 ====
 
 The syntax for the migration command is

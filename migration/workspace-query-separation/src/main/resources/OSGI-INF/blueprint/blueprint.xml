@@ -34,7 +34,9 @@
         Formerly, queries were embedded in workspace metacards. This command will extract all
         queries from all workspace metacards, create new query metacards, and link the workspaces to
         their new query metacards. If the workspace metacards are not migrated with this command,
-        Intrigue (and any other service that depends on workspace metacards) will fail."/>
+        Intrigue (and any other service that depends on workspace metacards) will fail. This data
+        migration task must be run if you are upgrading an existing system from any version older
+        than 2.14.0. "/>
     </service-properties>
   </service>
 

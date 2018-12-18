@@ -26,11 +26,6 @@
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.apache.karaf.shell</groupId>
-      <artifactId>org.apache.karaf.shell.core</artifactId>
-      <version>${karaf.version}</version>
-    </dependency>
-    <dependency>
       <groupId>ddf.platform.util</groupId>
       <artifactId>platform-util</artifactId>
       <version>${project.version}</version>
@@ -84,10 +79,6 @@
               ddf.catalog.data.impl.types,
               org.codice.ddf.platform.util
             </Private-Package>
-            <Import-Package>
-              org.apache.karaf.shell*;version="[4,5)",
-              *
-            </Import-Package>
           </instructions>
         </configuration>
       </plugin>
