@@ -82,7 +82,7 @@ export class Security {
     return (
       this.res.owner === undefined ||
       this.res.owner === user.getEmail() ||
-      this.getAccess(user) > accessLevel
+      this.getAccess(user) >= accessLevel
     )
   }
 
@@ -118,11 +118,8 @@ export class Security {
 
   private getAccess(user: any): Access {
     return Math.max(
-      Access.None,
-      ...user
-        .getRoles()
-        .map((role: string) => this.getRoleAccess(role))
-        .append(this.getIndividualAccess(user.getEmail()))
+      this.getIndividualAccess(user.getEmail()),
+      ...user.getRoles().map((role: string) => this.getRoleAccess(role))
     )
   }
 
