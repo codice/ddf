@@ -30,7 +30,7 @@
     <service-properties>
       <entry key="id" value="workspace-query"/>
       <entry key="name" value="Workspace Query"/>
-      <entry key="description" value="The DDF now expects queries to be separate from workspaces.
+      <entry key="description" value="DDF now expects queries to be separate from workspaces.
         Formerly, queries were embedded in workspace metacards. This command will extract all
         queries from all workspace metacards, create new query metacards, and link the workspaces to
         their new query metacards. If the workspace metacards are not migrated with this command,
