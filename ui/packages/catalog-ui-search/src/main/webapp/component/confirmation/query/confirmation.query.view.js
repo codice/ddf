@@ -55,7 +55,6 @@ module.exports = ConfirmationView.extend({
         },
       })
     )
-    this.$el.find('.querySelect-default').addClass('is-input')
     this.listenTo(
       this.querySelect.currentView.model,
       'change:value',
