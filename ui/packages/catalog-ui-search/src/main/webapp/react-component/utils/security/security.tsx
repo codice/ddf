@@ -102,20 +102,13 @@ export class Security {
           : Access.None
   }
 
-  static getAccess(user: any, res: Restrictions) {
-    return this.highestAccess(
-      user
+  static getAccess(user: any, res: Restrictions): Access {
+    return Math.max(
+      Access.None,
+      ...user
         .getRoles()
         .map((role: string) => this.getRoleAccess(res, role))
         .append(this.getIndividualAccess(res, user.getEmail()))
     )
-  }
-
-  private static highestAccess(accesses: Access[]): Access {
-    let max = Access.None
-    accesses.forEach(a => {
-      if (a > max) max = a
-    })
-    return max
   }
 }
