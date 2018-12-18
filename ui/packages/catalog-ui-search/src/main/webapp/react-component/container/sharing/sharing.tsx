@@ -12,6 +12,7 @@
 import * as React from 'react'
 import SharingPresentation from '../../presentation/sharing'
 import fetch from '../../utils/fetch/index'
+import { Restrictions, Access, Security } from '../../utils/security'
 
 const _ = require('underscore')
 const user = require('component/singletons/user-instance')
@@ -40,67 +41,34 @@ export type Item = {
   access: Access
 }
 
-export enum Access {
-  None = 'none',
-  Read = 'read',
-  Write = 'write',
-  Share = 'share',
-}
-
-export enum Security {
-  GroupsRead = 'security.access-groups-read',
-  GroupsWrite = 'security.access-groups',
-  IndividualsRead = 'security.access-individuals-read',
-  IndividualsWrite = 'security.access-individuals',
-  AccessAdministrators = 'security.access-administrators',
-}
-
-const getGroups = function(
-  groupsWrite: string[],
-  groupsRead: string[]
-): Item[] {
-  return _.union(user.getRoles(), groupsWrite, groupsRead).map(
+const getGroups = function(res: Restrictions): Item[] {
+  return _.union(user.getRoles(), res.accessGroups, res.accessGroupsRead).map(
     (role: string) => {
       return {
         id: common.generateUUID(),
         category: Category.Role,
         visible: user.getRoles().indexOf(role) > -1, // only display the roles the current user has
-        access:
-          groupsWrite.indexOf(role) > -1
-            ? Access.Write
-            : groupsRead.indexOf(role) > -1
-              ? Access.Read
-              : Access.None,
+        access: Security.getRoleAccess(res, role),
         value: role,
       } as Item
     }
   )
 }
 
-const getIndividuals = function(
-  owner: string,
-  individualsWrite: string[],
-  individualsRead: string[],
-  accessAdministrators: string[]
-): Item[] {
-  return _.union(individualsWrite, individualsRead, accessAdministrators).map(
-    (username: string) => {
-      return {
-        id: common.generateUUID(),
-        category: Category.User,
-        visible: username !== owner, // hide owner
-        access:
-          accessAdministrators.indexOf(username) > -1
-            ? Access.Share
-            : individualsWrite.indexOf(username) > -1
-              ? Access.Write
-              : individualsRead.indexOf(username) > -1
-                ? Access.Read
-                : Access.None,
-        value: username,
-      } as Item
-    }
-  )
+const getIndividuals = function(res: Restrictions): Item[] {
+  return _.union(
+    res.accessIndividuals,
+    res.accessIndividualsRead,
+    res.accessAdministrators
+  ).map((username: string) => {
+    return {
+      id: common.generateUUID(),
+      category: Category.User,
+      visible: username !== res.owner, // hide owner
+      access: Security.getIndividualAccess(res, username),
+      value: username,
+    } as Item
+  })
 }
 
 export class Sharing extends React.Component<Props, State> {
@@ -121,19 +89,10 @@ export class Sharing extends React.Component<Props, State> {
       .then(response => response.json())
       .then(data => {
         const metacard = data.metacards[0]
-        const items = getGroups(
-          metacard[Security.GroupsWrite] || [],
-          metacard[Security.GroupsRead] || []
-        )
+        const restrictions = Security.extractRestrictions(metacard)
+        const items = getGroups(restrictions)
           .sort(Sharing._compareFn)
-          .concat(
-            getIndividuals(
-              metacard['metacard.owner'] || [],
-              metacard[Security.IndividualsWrite] || [],
-              metacard[Security.IndividualsRead] || [],
-              metacard[Security.AccessAdministrators] || []
-            ).sort(Sharing._compareFn)
-          )
+          .concat(getIndividuals(restrictions).sort(Sharing._compareFn))
         this.setState({ items: items })
         this.add()
       })

@@ -14,8 +14,9 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import Text from '../../container/input-wrappers/text/text'
 import Enum from '../../container/input-wrappers/enum/enum'
-import { Access, Category, Item } from '../../container/sharing'
+import { Category, Item } from '../../container/sharing'
 import styled from '../../styles/styled-components/styled-components'
+import { Access } from '../../utils/security'
 
 const Root = styled.div`
   position: relative;

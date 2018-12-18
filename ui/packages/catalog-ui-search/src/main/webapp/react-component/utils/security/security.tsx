@@ -10,7 +10,14 @@
  *
  **/
 
-class Restrictions {
+export enum Access {
+  None = 'none',
+  Read = 'read',
+  Write = 'write',
+  Share = 'share',
+}
+
+export type Restrictions = {
   owner: string
   accessGroups: string[]
   accessGroupsRead: string[]
@@ -20,6 +27,12 @@ class Restrictions {
 }
 
 export class Security {
+  static readonly GroupsRead = 'security.access-groups-read'
+  static readonly GroupsWrite = 'security.access-groups'
+  static readonly IndividualsRead = 'security.access-individuals-read'
+  static readonly IndividualsWrite = 'security.access-individuals'
+  static readonly AccessAdministrators = 'security.access-administrators'
+
   // remove this ugly function when everything is typescript
   static extractRestrictions(obj: any): Restrictions {
     if (typeof obj.get !== 'function')
@@ -83,5 +96,23 @@ export class Security {
       res.owner === user.getEmail() ||
       res.accessAdministrators.indexOf(user.getEmail()) > -1
     )
+  }
+
+  static getRoleAccess(res: Restrictions, role: string) {
+    return res.accessGroups.indexOf(role) > -1
+      ? Access.Write
+      : res.accessGroupsRead.indexOf(role) > -1
+        ? Access.Read
+        : Access.None
+  }
+
+  static getIndividualAccess(res: Restrictions, username: string) {
+    return res.accessAdministrators.indexOf(username) > -1
+      ? Access.Share
+      : res.accessIndividuals.indexOf(username) > -1
+        ? Access.Write
+        : res.accessIndividualsRead.indexOf(username) > -1
+          ? Access.Read
+          : Access.None
   }
 }
