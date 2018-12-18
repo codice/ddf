@@ -11,10 +11,10 @@
  **/
 
 export enum Access {
-  None = 'none',
-  Read = 'read',
-  Write = 'write',
-  Share = 'share',
+  None = 0,
+  Read = 1,
+  Write = 2,
+  Share = 3,
 }
 
 export type Restrictions = {
@@ -38,62 +38,50 @@ export class Security {
     if (typeof obj.get !== 'function')
       return {
         owner: obj.owner,
-        accessGroups: obj.accessGroups || [],
-        accessGroupsRead: obj.accessGroupsRead || [],
-        accessIndividuals: obj.accessIndividuals || [],
-        accessIndividualsRead: obj.accessIndividualsRead || [],
-        accessAdministrators: obj.accessAdministrators || [],
+        accessGroups: obj.accessGroups || obj[this.GroupsWrite] || [],
+        accessGroupsRead: obj.accessGroupsRead || obj[this.GroupsRead] || [],
+        accessIndividuals:
+          obj.accessIndividuals || obj[this.IndividualsWrite] || [],
+        accessIndividualsRead:
+          obj.accessIndividualsRead || obj[this.IndividualsRead] || [],
+        accessAdministrators:
+          obj.accessAdministrators || obj[this.AccessAdministrators] || [],
       } as Restrictions
 
     return {
       owner: obj.get('metacard.owner') || obj.get('owner'),
-      accessGroups:
-        obj.get(Security.GroupsWrite) || obj.get('accessGroups') || [],
+      accessGroups: obj.get(this.GroupsWrite) || obj.get('accessGroups') || [],
       accessGroupsRead:
-        obj.get(Security.GroupsRead) || obj.get('accessGroupsRead') || [],
+        obj.get(this.GroupsRead) || obj.get('accessGroupsRead') || [],
       accessIndividuals:
-        obj.get(Security.IndividualsWrite) ||
-        obj.get('accessIndividuals') ||
-        [],
+        obj.get(this.IndividualsWrite) || obj.get('accessIndividuals') || [],
       accessIndividualsRead:
-        obj.get(Security.IndividualsRead) ||
-        obj.get('accessIndividualsRead') ||
-        [],
+        obj.get(this.IndividualsRead) || obj.get('accessIndividualsRead') || [],
       accessAdministrators:
-        obj.get(Security.AccessAdministrators) ||
+        obj.get(this.AccessAdministrators) ||
         obj.get('accessAdministrators') ||
         [],
     } as Restrictions
   }
 
-  static canRead(user: any, res: Restrictions): boolean {
+  private static canAccess(user: any, res: Restrictions, accessLevel: Access) {
     return (
       res.owner === undefined ||
       res.owner === user.getEmail() ||
-      res.accessIndividuals.indexOf(user.getEmail()) > -1 ||
-      res.accessIndividualsRead.indexOf(user.getEmail()) > -1 ||
-      res.accessGroups.some(group => user.getRoles().indexOf(group) > -1) ||
-      res.accessGroupsRead.some(group => user.getRoles().indexOf(group) > -1) ||
-      res.accessAdministrators.indexOf(user.getEmail()) > -1
+      this.getAccess(user, res) > accessLevel
     )
+  }
+
+  static canRead(user: any, res: Restrictions): boolean {
+    return this.canAccess(user, res, Access.Read)
   }
 
   static canWrite(user: any, res: Restrictions) {
-    return (
-      res.owner === undefined ||
-      res.owner === user.getEmail() ||
-      res.accessIndividuals.indexOf(user.getEmail()) > -1 ||
-      res.accessGroups.some(group => user.getRoles().indexOf(group) > -1) ||
-      res.accessAdministrators.indexOf(user.getEmail()) > -1
-    )
+    return this.canAccess(user, res, Access.Write)
   }
 
   static canShare(user: any, res: Restrictions) {
-    return (
-      res.owner === undefined ||
-      res.owner === user.getEmail() ||
-      res.accessAdministrators.indexOf(user.getEmail()) > -1
-    )
+    return this.canAccess(user, res, Access.Share)
   }
 
   static getRoleAccess(res: Restrictions, role: string) {
@@ -112,5 +100,22 @@ export class Security {
         : res.accessIndividualsRead.indexOf(username) > -1
           ? Access.Read
           : Access.None
+  }
+
+  static getAccess(user: any, res: Restrictions) {
+    return this.highestAccess(
+      user
+        .getRoles()
+        .map((role: string) => this.getRoleAccess(res, role))
+        .append(this.getIndividualAccess(res, user.getEmail()))
+    )
+  }
+
+  private static highestAccess(accesses: Access[]): Access {
+    let max = Access.None
+    accesses.forEach(a => {
+      if (a > max) max = a
+    })
+    return max
   }
 }

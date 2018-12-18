@@ -84,7 +84,7 @@ type Props = {
   save: () => void
   reset: () => void
   remove: (i: number) => void
-  handleChangeSelect: (i: number, value: string) => void
+  handleChangeSelect: (i: number, value: Access) => void
   handleChangeInput: (i: number, value: string) => void
 }
 
