@@ -126,9 +126,9 @@ export class Security {
     )
   }
 
-  getGroups(user: any): Entry[] {
+  getGroups(forceIncludeGroups: string[]): Entry[] {
     return _.union(
-      user.getRoles(),
+      forceIncludeGroups,
       this.res.accessGroups,
       this.res.accessGroupsRead
     )

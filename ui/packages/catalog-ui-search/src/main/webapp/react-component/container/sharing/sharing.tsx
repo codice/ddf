@@ -63,7 +63,7 @@ export class Sharing extends React.Component<Props, State> {
             visible: e.value !== res.owner, // hide owner
           } as Item
         })
-        const groups = security.getGroups(user).map((e: Entry) => {
+        const groups = security.getGroups(user.getRoles()).map((e: Entry) => {
           return {
             ...e,
             id: common.generateUUID(),
