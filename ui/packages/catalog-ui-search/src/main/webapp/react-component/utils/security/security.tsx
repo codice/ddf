@@ -48,21 +48,19 @@ export class Security {
     return {
       owner: obj.get('metacard.owner') || obj.get('owner'),
       accessGroups:
-        obj.get('security.access-groups') || obj.get('accessGroups') || [],
+        obj.get(Security.GroupsWrite) || obj.get('accessGroups') || [],
       accessGroupsRead:
-        obj.get('security.access-groups-read') ||
-        obj.get('accessGroupsRead') ||
-        [],
+        obj.get(Security.GroupsRead) || obj.get('accessGroupsRead') || [],
       accessIndividuals:
-        obj.get('security.access-individuals') ||
+        obj.get(Security.IndividualsWrite) ||
         obj.get('accessIndividuals') ||
         [],
       accessIndividualsRead:
-        obj.get('security.access-individuals-read') ||
+        obj.get(Security.IndividualsRead) ||
         obj.get('accessIndividualsRead') ||
         [],
       accessAdministrators:
-        obj.get('security.access-administrators') ||
+        obj.get(Security.AccessAdministrators) ||
         obj.get('accessAdministrators') ||
         [],
     } as Restrictions
