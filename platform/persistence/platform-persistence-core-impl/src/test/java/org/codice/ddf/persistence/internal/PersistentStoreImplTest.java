@@ -72,7 +72,7 @@ public class PersistentStoreImplTest {
     PersistentItem props = new PersistentItem();
     props.addProperty("property", "value");
     persistentStore.add("testcore", props);
-    verify(solrClient).add(captor.capture());
+    verify(solrClient).add(captor.capture(), any(Integer.class));
     List docs = captor.getValue();
     assertThat(docs.size(), equalTo(1));
   }
