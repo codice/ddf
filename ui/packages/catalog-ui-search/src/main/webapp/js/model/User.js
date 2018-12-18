@@ -12,7 +12,10 @@
 /*global define, window*/
 /*jslint bitwise: true */
 
-import { Security } from '../../react-component/utils/security/security'
+import {
+  Restrictions,
+  Security,
+} from '../../react-component/utils/security/security'
 
 const _ = require('underscore')
 const _get = require('lodash.get')
@@ -423,13 +426,13 @@ User.Response = Backbone.AssociatedModel.extend({
     }
   },
   canRead: function(metacard) {
-    return Security.canRead(this, Security.extractRestrictions(metacard))
+    return new Security(Restrictions.from(metacard)).canRead(this)
   },
   canWrite: function(metacard) {
-    return Security.canWrite(this, Security.extractRestrictions(metacard))
+    return new Security(Restrictions.from(metacard)).canWrite(this)
   },
   canShare: function(metacard) {
-    return Security.canShare(this, Security.extractRestrictions(metacard))
+    return new Security(Restrictions.from(metacard)).canShare(this)
   },
 })
 

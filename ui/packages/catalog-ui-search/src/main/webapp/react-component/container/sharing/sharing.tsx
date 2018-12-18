@@ -41,21 +41,21 @@ export type Item = {
   access: Access
 }
 
-const getGroups = function(res: Restrictions): Item[] {
+const getGroups = function(res: Restrictions, security: Security): Item[] {
   return _.union(user.getRoles(), res.accessGroups, res.accessGroupsRead).map(
     (role: string) => {
       return {
         id: common.generateUUID(),
         category: Category.Role,
         visible: user.getRoles().indexOf(role) > -1, // only display the roles the current user has
-        access: Security.getRoleAccess(res, role),
+        access: security.getRoleAccess(role),
         value: role,
       } as Item
     }
   )
 }
 
-const getIndividuals = function(res: Restrictions): Item[] {
+const getIndividuals = function(res: Restrictions, security: Security): Item[] {
   return _.union(
     res.accessIndividuals,
     res.accessIndividualsRead,
@@ -65,7 +65,7 @@ const getIndividuals = function(res: Restrictions): Item[] {
       id: common.generateUUID(),
       category: Category.User,
       visible: username !== res.owner, // hide owner
-      access: Security.getIndividualAccess(res, username),
+      access: security.getIndividualAccess(username),
       value: username,
     } as Item
   })
@@ -89,10 +89,11 @@ export class Sharing extends React.Component<Props, State> {
       .then(response => response.json())
       .then(data => {
         const metacard = data.metacards[0]
-        const restrictions = Security.extractRestrictions(metacard)
-        const items = getGroups(restrictions)
+        const res = Restrictions.from(metacard)
+        const security = new Security(res)
+        const items = getGroups(res, security)
           .sort(Sharing._compareFn)
-          .concat(getIndividuals(restrictions).sort(Sharing._compareFn))
+          .concat(getIndividuals(res, security).sort(Sharing._compareFn))
         this.setState({ items: items })
         this.add()
       })
@@ -112,31 +113,31 @@ export class Sharing extends React.Component<Props, State> {
           ids: [this.props.id],
           attributes: [
             {
-              attribute: Security.IndividualsWrite,
+              attribute: Restrictions.IndividualsWrite,
               values: users
                 .filter(e => e.access === Access.Write)
                 .map(e => e.value),
             },
             {
-              attribute: Security.IndividualsRead,
+              attribute: Restrictions.IndividualsRead,
               values: users
                 .filter(e => e.access === Access.Read)
                 .map(e => e.value),
             },
             {
-              attribute: Security.GroupsWrite,
+              attribute: Restrictions.GroupsWrite,
               values: roles
                 .filter(e => e.access === Access.Write)
                 .map(e => e.value),
             },
             {
-              attribute: Security.GroupsRead,
+              attribute: Restrictions.GroupsRead,
               values: roles
                 .filter(e => e.access === Access.Read)
                 .map(e => e.value),
             },
             {
-              attribute: Security.AccessAdministrators,
+              attribute: Restrictions.AccessAdministrators,
               values: users
                 .filter(e => e.access === Access.Share)
                 .map(e => e.value),

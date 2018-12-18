@@ -17,16 +17,14 @@ export enum Access {
   Share = 3,
 }
 
-export type Restrictions = {
+export class Restrictions {
   owner: string
   accessGroups: string[]
   accessGroupsRead: string[]
   accessIndividuals: string[]
   accessIndividualsRead: string[]
   accessAdministrators: string[]
-}
 
-export class Security {
   static readonly GroupsRead = 'security.access-groups-read'
   static readonly GroupsWrite = 'security.access-groups'
   static readonly IndividualsRead = 'security.access-individuals-read'
@@ -34,7 +32,7 @@ export class Security {
   static readonly AccessAdministrators = 'security.access-administrators'
 
   // remove this ugly function when everything is typescript
-  static extractRestrictions(obj: any): Restrictions {
+  static from(obj: any): Restrictions {
     if (typeof obj.get !== 'function')
       return {
         owner: obj.owner,
@@ -63,52 +61,60 @@ export class Security {
         [],
     } as Restrictions
   }
+}
 
-  private static canAccess(user: any, res: Restrictions, accessLevel: Access) {
+export class Security {
+  private readonly res: Restrictions
+
+  constructor(res: Restrictions) {
+    this.res = res
+  }
+
+  private canAccess(user: any, accessLevel: Access) {
     return (
-      res.owner === undefined ||
-      res.owner === user.getEmail() ||
-      this.getAccess(user, res) > accessLevel
+      this.res.owner === undefined ||
+      this.res.owner === user.getEmail() ||
+      this.getAccess(user) > accessLevel
     )
   }
 
-  static canRead(user: any, res: Restrictions): boolean {
-    return this.canAccess(user, res, Access.Read)
+  canRead(user: any): boolean {
+    return this.canAccess(user, Access.Read)
   }
 
-  static canWrite(user: any, res: Restrictions) {
-    return this.canAccess(user, res, Access.Write)
+  canWrite(user: any) {
+    return this.canAccess(user, Access.Write)
   }
 
-  static canShare(user: any, res: Restrictions) {
-    return this.canAccess(user, res, Access.Share)
+  canShare(user: any) {
+    return this.canAccess(user, Access.Share)
   }
 
-  static getRoleAccess(res: Restrictions, role: string) {
-    return res.accessGroups.indexOf(role) > -1
+  getRoleAccess(role: string) {
+    return this.res.accessGroups.indexOf(role) > -1
       ? Access.Write
-      : res.accessGroupsRead.indexOf(role) > -1
+      : this.res.accessGroupsRead.indexOf(role) > -1
         ? Access.Read
         : Access.None
   }
 
-  static getIndividualAccess(res: Restrictions, username: string) {
-    return res.accessAdministrators.indexOf(username) > -1
+  getIndividualAccess(username: string) {
+    return this.res.accessAdministrators.indexOf(username) > -1
       ? Access.Share
-      : res.accessIndividuals.indexOf(username) > -1
+      : this.res.accessIndividuals.indexOf(username) > -1
         ? Access.Write
-        : res.accessIndividualsRead.indexOf(username) > -1
+        : this.res.accessIndividualsRead.indexOf(username) > -1
           ? Access.Read
           : Access.None
   }
 
-  static getAccess(user: any, res: Restrictions): Access {
+  getAccess(user: any): Access {
     return Math.max(
       Access.None,
       ...user
         .getRoles()
-        .map((role: string) => this.getRoleAccess(res, role))
-        .append(this.getIndividualAccess(res, user.getEmail()))
+        .map((role: string) => this.getRoleAccess(role))
+        .append(this.getIndividualAccess(user.getEmail()))
     )
   }
 }
