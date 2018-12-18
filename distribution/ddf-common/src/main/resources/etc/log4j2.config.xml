@@ -81,16 +81,6 @@
             </Failovers>
         </Failover>
 
-        <RollingFile name="solr" append="true"
-                     fileName="${sys:karaf.data}/log/solr.log"
-                     filePattern="${sys:karaf.data}/log/solr.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="${log4j2.pattern}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
-
         <RollingFile name="artemis" append="true"
                      fileName="${sys:karaf.data}/log/artemis.log"
                      filePattern="${sys:karaf.data}/log/artemis.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
@@ -128,7 +118,6 @@
         </Logger>
 
         <Logger name="org.apache.solr" level="info" additivity="false">
-            <AppenderRef ref="solr"/>
             <AppenderRef ref="syslog"/>
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
@@ -140,7 +129,6 @@
         </Logger>
 
         <Logger name="org.apache.lucene" level="info" additivity="false">
-            <AppenderRef ref="solr"/>
             <AppenderRef ref="syslog"/>
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
