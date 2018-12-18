@@ -57,6 +57,10 @@ class CsrfFilterSpec extends Specification {
     static final String JAVA_CLIENT_USER_AGENT = "Google-HTTP-Java-Client/1.22.0 (gzip)"
     static final String JAVA_USER_AGENT = "Java/1.8.0_131"
 
+    static final String CSRF_TRUSTED_AUTHORITIES = "notlocalhost:5000"
+    static final String CSRF_ENABLED = "true"
+    static final String CSRF_REFFERER = "https://notlocalhost:5000"
+
     def setupSpec() {
         System.properties['org.codice.ddf.system.hostname'] = DDF_HOST
         System.properties['org.codice.ddf.system.httpPort'] = DDF_HTTP_PORT
@@ -65,6 +69,8 @@ class CsrfFilterSpec extends Specification {
         System.properties['org.codice.ddf.external.hostname'] = PROXY_HOST
         System.properties['org.codice.ddf.external.httpPort'] = PROXY_HTTP_PORT
         System.properties['org.codice.ddf.external.httpsPort'] = PROXY_HTTPS_PORT
+        System.properties['csrf.trustedAuthorities'] = CSRF_TRUSTED_AUTHORITIES
+        System.properties['csrf.enabled'] = CSRF_ENABLED
     }
 
     @Unroll
@@ -102,53 +108,53 @@ class CsrfFilterSpec extends Specification {
         [requestContext, originHeader, refererHeader, hasCsrfHeader, method] << [
                 // Non-protected contexts
                 ["/", "/subdirectory"],
-                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
-                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
+                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT, CSRF_REFFERER],
+                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT, CSRF_REFFERER],
                 [true, false],
                 [HttpMethod.GET.asString()]
         ].combinations() + [
                 // Websockets - same origin OR same referer, with/without CSRF header
                 ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
                 [true, false],
                 [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
                 [null, ""],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
                 [true, false],
                 [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/search/catalog/ws", "/search/catalog/ws/subdirectory", "/search/catalog/internal/catalog/", "/search/catalog/internal/catalog/sources"],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
                 [null, ""],
                 [true, false],
                 [HttpMethod.GET.asString()]
         ].combinations() + [
                 //  Protected Contexts - same origin OR referer, with CSRF header
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
                 [true],
                 [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
                 [null, ""],
                 [true],
                 [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [null, ""],
-                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, CSRF_REFFERER],
                 [true],
                 [HttpMethod.GET.asString()]
         ].combinations()
     }
 
     @Unroll
-    def "CSRF Browser Protection Fobidden: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader, httpVerb: #method"(
+    def "CSRF Browser Protection Forbidden: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader, httpVerb: #method"(
             String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
@@ -185,8 +191,8 @@ class CsrfFilterSpec extends Specification {
         [requestContext, originHeader, refererHeader, hasCsrfHeader, method] << [
                 // Protected Contexts - no CSRF Header
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
-                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
-                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
+                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT, CSRF_REFFERER],
+                [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT, CSRF_REFFERER],
                 [false],
                 [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
         ].combinations() + [
