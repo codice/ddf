@@ -17,6 +17,7 @@ import ddf.security.encryption.EncryptionService;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.keyczar.Crypter;
 import org.keyczar.KeyczarTool;
 import org.slf4j.Logger;
@@ -97,15 +98,12 @@ public class EncryptionServiceImpl implements EncryptionService {
   // @formatter:on
   @Override
   public String decryptValue(String wrappedEncryptedValue) {
+    if (StringUtils.isEmpty(wrappedEncryptedValue)) {
+      return wrappedEncryptedValue;
+    }
+
     String encryptedValue = unwrapEncryptedValue(wrappedEncryptedValue);
-    if (wrappedEncryptedValue == null) {
-      LOGGER.debug("A null password was provided.");
-      return null;
-    }
-    if (wrappedEncryptedValue.isEmpty()) {
-      LOGGER.debug("A blank password was provided in the configuration.");
-      return "";
-    }
+
     // If the password is not in the form ENC(my-encrypted-password),
     // we assume the password is not encrypted.
     if (wrappedEncryptedValue.equals(encryptedValue)) {
@@ -117,8 +115,8 @@ public class EncryptionServiceImpl implements EncryptionService {
 
   @Override
   public String encryptValue(String unwrappedPlaintext) {
-    if (unwrappedPlaintext == null || unwrappedPlaintext.equals("")) {
-      return null;
+    if (StringUtils.isEmpty(unwrappedPlaintext)) {
+      return unwrappedPlaintext;
     }
 
     return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));
