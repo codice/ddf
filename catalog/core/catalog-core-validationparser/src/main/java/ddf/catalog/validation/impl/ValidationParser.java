@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -146,7 +147,8 @@ public class ValidationParser implements ArtifactInstaller {
         FrameworkUtil::getBundle);
   }
 
-  public ValidationParser(
+  @VisibleForTesting
+  ValidationParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,

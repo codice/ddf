@@ -13,6 +13,7 @@
  */
 package ddf.catalog.federation.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
@@ -91,16 +92,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
         queryExecutorService, preQuery, postQuery, request -> new QueryResponseImpl(request, null));
   }
 
-  /**
-   * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
-   *
-   * @param queryExecutorService the {@link ExecutorService} for queries
-   * @param preQuery the plugins to execute before the federated query
-   * @param postQuery the plugins to execute after the federated query
-   * @param queryResponseFactory a {@link Function} that returns a {@link QueryResponseImpl}, given
-   *     a {@link QueryRequest}
-   */
-  public SortedFederationStrategy(
+  @VisibleForTesting
+  SortedFederationStrategy(
       ExecutorService queryExecutorService,
       List<PreFederatedQueryPlugin> preQuery,
       List<PostFederatedQueryPlugin> postQuery,

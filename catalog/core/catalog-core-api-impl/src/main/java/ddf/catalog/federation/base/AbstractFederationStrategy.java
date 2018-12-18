@@ -49,7 +49,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
   private static final String CLASS_NAME = AbstractFederationStrategy.class.getName();
 
   private static final int DEFAULT_MAX_START_INDEX = 50000;
-  private final Function<QueryRequest, QueryResponseImpl> queryResponseFactory;
+  private final Function<QueryRequest, QueryResponseImpl> queryResponseConverter;
 
   /**
    * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -76,12 +76,12 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
    */
   public AbstractFederationStrategy(
       ExecutorService queryExecutorService,
-      Function<QueryRequest, QueryResponseImpl> queryResponseFactory) {
+      Function<QueryRequest, QueryResponseImpl> queryResponseConverter) {
     this(
         queryExecutorService,
         new ArrayList<PreFederatedQueryPlugin>(),
         new ArrayList<PostFederatedQueryPlugin>(),
-        queryResponseFactory);
+        queryResponseConverter);
   }
 
   /**
@@ -93,12 +93,12 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
       ExecutorService queryExecutorService,
       List<PreFederatedQueryPlugin> preQuery,
       List<PostFederatedQueryPlugin> postQuery,
-      Function<QueryRequest, QueryResponseImpl> queryResponseFactory) {
+      Function<QueryRequest, QueryResponseImpl> queryResponseConverter) {
     this.queryExecutorService = queryExecutorService;
     this.preQuery = preQuery;
     this.postQuery = postQuery;
     this.maxStartIndex = DEFAULT_MAX_START_INDEX;
-    this.queryResponseFactory = queryResponseFactory;
+    this.queryResponseConverter = queryResponseConverter;
   }
 
   /**
@@ -138,7 +138,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
       offset = this.maxStartIndex;
     }
 
-    final QueryResponseImpl queryResponseQueue = queryResponseFactory.apply(queryRequest);
+    final QueryResponseImpl queryResponseQueue = queryResponseConverter.apply(queryRequest);
 
     Map<Source, Future<SourceResponse>> futures = new HashMap<Source, Future<SourceResponse>>();
 
@@ -187,7 +187,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
     // transfer them into a different Queue. That is what the
     // OffsetResultHandler does.
     if (offset > 1 && sources.size() > 1) {
-      offsetResults = queryResponseFactory.apply(queryRequest);
+      offsetResults = queryResponseConverter.apply(queryRequest);
       queryExecutorService.submit(
           new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
     }

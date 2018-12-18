@@ -13,6 +13,7 @@
  */
 package ddf.security.pep.interceptor;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -57,7 +58,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
     this(SecurityAssertionStore::getSecurityAssertion);
   }
 
-  public PEPAuthorizingInterceptor(Function<Message, SecurityAssertion> assertionRetriever) {
+  @VisibleForTesting
+  PEPAuthorizingInterceptor(Function<Message, SecurityAssertion> assertionRetriever) {
     super(Phase.PRE_INVOKE);
     addAfter(org.apache.cxf.ws.policy.PolicyVerificationInInterceptor.class.getName());
     this.assertionRetriever = assertionRetriever;

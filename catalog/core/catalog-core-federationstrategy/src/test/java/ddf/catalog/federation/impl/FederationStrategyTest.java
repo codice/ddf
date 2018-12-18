@@ -413,22 +413,16 @@ public class FederationStrategyTest {
             mockSortedResult8);
     QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
 
-    final boolean[] responseFactoryCalledOnce = {false};
-    Function<QueryRequest, QueryResponseImpl> returnResultsThenOffset =
-        request -> {
-          if (!responseFactoryCalledOnce[0]) {
-            responseFactoryCalledOnce[0] = true;
-            return mockOriginalResults;
-          } else {
-            return offsetResultQueue;
-          }
-        };
+    Function<QueryRequest, QueryResponseImpl> mockResponseFunction = mock(Function.class);
+    when(mockResponseFunction.apply(any(QueryRequest.class)))
+        .thenReturn(mockOriginalResults)
+        .thenReturn(offsetResultQueue);
     SortedFederationStrategy strategy =
         new SortedFederationStrategy(
             executor,
             new ArrayList<PreFederatedQueryPlugin>(),
             new ArrayList<PostFederatedQueryPlugin>(),
-            returnResultsThenOffset);
+            mockResponseFunction);
 
     // Run Test
     QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
