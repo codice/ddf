@@ -16,6 +16,8 @@
 var Marionette = require('marionette')
 var template = require('./list-interactions.hbs')
 var CustomElements = require('../../js/CustomElements.js')
+var announcement = require('../../component/announcement')
+import fetch from '../../react-component/utils/fetch'
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -73,8 +75,40 @@ module.exports = Marionette.ItemView.extend({
     this.model.collection.add(newList)
   },
   triggerAction(event) {
-    const url = event.currentTarget.getAttribute('data-url')
-    window.open(url)
+    var url = event.currentTarget.getAttribute('data-url')
+
+    // Temporary change to enable development on dev server.
+    url = url.split('8993')[1]
+    fetch(url, { Accept: 'application/json' })
+      .then(res => {
+        if (!res.ok) {
+          throw Error(res.statusText)
+        }
+
+        if (res.headers.get('content-disposition') != null) {
+          this.downloadAsFile(res)
+        } else {
+          return res.json()
+        }
+      })
+      .then(json => {
+        if (json !== undefined) {
+          console.log('Json: ', json)
+          announcement.announce({
+            title: 'Success',
+            message: json.message,
+            type: 'success',
+          })
+        }
+      })
+      .catch(err => {
+        console.log('Error: ', err.message)
+        announcement.announce({
+          title: 'Error',
+          message: err.message,
+          type: 'error',
+        })
+      })
   },
   handleResult() {
     this.$el.toggleClass(
@@ -84,5 +118,11 @@ module.exports = Marionette.ItemView.extend({
   },
   triggerClick() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  downloadAsFile(res) {
+    var blob = res.blob().then(b => {
+      var url = window.URL.createObjectURL(b)
+      window.location.assign(url)
+    })
   },
 })
