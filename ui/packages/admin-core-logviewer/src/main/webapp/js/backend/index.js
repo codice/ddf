@@ -18,9 +18,8 @@ require('isomorphic-fetch')
 
 // retrieves logs from the endpoint
 export const getLogs = done => {
-  const endpoint = `${
-    location.pathname.includes('logviewer') ? '.' : ''
-  }./jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents`
+  const endpoint =
+    './jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents'
 
   window
     .fetch(endpoint, {
