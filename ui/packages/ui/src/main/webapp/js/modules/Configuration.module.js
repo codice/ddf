@@ -14,7 +14,8 @@
  **/
 /*global define*/
 define(['js/application', 'require'], function(Application, require) {
-  Application.App.module('Configurations', function(ServiceModule, App) {
+  return Application.App.module('Configurations', function(ServiceModule, App) {
+    this.startWithParent = false
     require([
       'js/controllers/ModuleDetail.controller',
     ], function(ModuleDetailController) {
