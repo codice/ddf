@@ -130,7 +130,7 @@ module.exports = Marionette.LayoutView.extend({
             (this.model.get('querySettings') &&
               this.model.get('querySettings').federation) ||
             'enterprise',
-          sorts: sorts,
+          sorts,
           'detail-level':
             (this.model.get('querySettings') &&
               this.model.get('querySettings')['detail-level']) ||
@@ -140,29 +140,7 @@ module.exports = Marionette.LayoutView.extend({
           Router.attributes.path === 'forms(/)' &&
           this.model.get('createdBy') !== 'system'
         ) {
-          if (!user.canWrite(this.model)) {
-            announcement.announce(
-              {
-                title: 'Error',
-                message:
-                  'You have read-only permission on search form ' +
-                  this.model.get('title') +
-                  '.',
-                type: 'error',
-              },
-              3000
-            )
-            break
-          }
-
-          this.model.set({
-            ...sharedAttributes,
-            id: this.model.get('id'),
-            accessGroups: this.model.get('accessGroups'),
-            accessIndividuals: this.model.get('accessIndividuals'),
-            accessAdministrators: this.model.get('accessAdministrators'),
-          })
-          this.routeToSearchFormEditor(this.model.get('id'))
+          this.openEditor(sharedAttributes)
         } else {
           this.options.queryModel.set({
             type: 'custom',
@@ -172,7 +150,6 @@ module.exports = Marionette.LayoutView.extend({
             this.options.queryModel.trigger('change:type')
           }
           user.getQuerySettings().set('type', 'custom')
-          break
         }
     }
 
@@ -188,10 +165,31 @@ module.exports = Marionette.LayoutView.extend({
   triggerCloseDropdown: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-
-  routeToSearchFormEditor(newSearchFormId) {
+  openEditor: function(sharedAttributes) {
+    if (user.canWrite(this.model)) {
+      this.model.set({
+        ...sharedAttributes,
+        id: this.model.get('id'),
+        accessGroups: this.model.get('accessGroups'),
+        accessIndividuals: this.model.get('accessIndividuals'),
+        accessAdministrators: this.model.get('accessAdministrators'),
+      })
+      this.routeToSearchFormEditor(this.model.get('id'))
+    } else {
+      announcement.announce(
+        {
+          title: 'Error',
+          message: `You have read-only permission on search form ${this.model.get(
+            'title'
+          )}.`,
+          type: 'error',
+        },
+        3000
+      )
+    }
+  },
+  routeToSearchFormEditor: function(newSearchFormId) {
     const fragment = `forms/${newSearchFormId}`
-
     wreqr.vent.trigger('router:navigate', {
       fragment,
       options: {
