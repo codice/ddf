@@ -63,14 +63,11 @@ module.exports = Backbone.AssociatedModel.extend({
       bootstrapPromise.then(() => {
         $.each(sharedTemplates, (index, value) => {
           if (user.getEmail() !== value.owner && user.canRead(value)) {
-            let utcSeconds = value.created / 1000
-            let d = new Date(0)
-            d.setUTCSeconds(utcSeconds)
             this.addSearchForm(
               new SearchForm({
-                createdOn: Common.getMomentDate(d),
+                createdOn: value.created,
                 id: value.id,
-                name: value.title,
+                title: value.title,
                 description: value.description,
                 type: 'custom',
                 filterTemplate: value.filterTemplate,
