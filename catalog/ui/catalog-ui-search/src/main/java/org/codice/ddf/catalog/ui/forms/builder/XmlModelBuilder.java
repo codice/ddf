@@ -31,15 +31,18 @@ import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0.ComparisonOpsType;
+import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
 import net.opengis.filter.v_2_0.LogicOpsType;
+import net.opengis.filter.v_2_0.MeasureType;
 import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
+import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
@@ -64,6 +67,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("ILIKE", Mapper::like)
           .put("LIKE", Mapper::likeMatchCase) // For now, will never be selected
           .put("INTERSECTS", Mapper::intersects)
+          .put("DWITHIN", Mapper::dwithin)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
           .build();
@@ -218,6 +222,13 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     return this;
   }
 
+  public XmlModelBuilder setDistance(Double distance) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
+    supplierInProgress = new DistanceBufferSupplier(supplierInProgress, distance);
+    return this;
+  }
+
   @Override
   public XmlModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
     verifyResultNotYetRetrieved();
@@ -324,6 +335,36 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
   }
 
+  private static class DistanceBufferSupplier extends TerminalNodeSupplier {
+    private static final String UOM_METERS = "m";
+    private Double distance = null;
+
+    DistanceBufferSupplier(final TerminalNodeSupplier original, Double distance) {
+      super(original.reducer);
+      if (original.propertyNode != null) {
+        this.setProperty(original.propertyNode);
+      }
+      if (original.valueNode != null) {
+        this.setValue(original.valueNode);
+      }
+      this.distance = distance;
+    }
+
+    @Override
+    public JAXBElement<?> get() {
+      JAXBElement<?> reduced = super.get();
+      notNull(distance, "The Distance element cannot be created without a distance value");
+      if (!DistanceBufferType.class.equals(reduced.getDeclaredType())
+          || !(reduced.getValue() instanceof DistanceBufferType)) {
+        throw new FilterProcessingException(
+            "Incorrect use of DistanceBufferSupplier for given type " + reduced.toString());
+      }
+      DistanceBufferType value = (DistanceBufferType) reduced.getValue();
+      value.setDistance(new MeasureType().withUom(UOM_METERS).withValue(distance));
+      return reduced;
+    }
+  }
+
   private static class Mapper {
 
     @SuppressWarnings("unchecked")
@@ -403,6 +444,11 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static JAXBElement<BinarySpatialOpType> intersects(List<JAXBElement<?>> children) {
       return FACTORY.createIntersects(binarySpatialType(children));
+    }
+
+    private static JAXBElement<DistanceBufferType> dwithin(List<JAXBElement<?>> children) {
+      return FACTORY.createDWithin(
+          new DistanceBufferType().withExpressionOrAny(new ArrayList<>(children)));
     }
 
     private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {

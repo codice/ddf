@@ -59,6 +59,12 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   }
 
   @Override
+  public void visitDistanceType(VisitableElement<Double> visitable) {
+    traceName(visitable);
+    traceValue(visitable.getValue());
+  }
+
+  @Override
   public void visitFunctionType(VisitableElement<Map<String, Object>> visitable) {
     traceName(visitable);
   }
@@ -90,8 +96,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitDistanceBufferType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    throw new UnsupportedOperationException("DistanceBufferType currently is not supported");
-    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
+    visitObjects(visitable);
   }
 
   @Override

@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +55,14 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
 
   private static final String FAKE_VALUE_OPERATOR = "VALUE";
 
+  private static final String FAKE_DISTANCE_OPERATOR = "DISTANCE";
+
   private static final Map<String, BiConsumer<FilterVisitor2, VisitableElement>> VISIT_METHODS =
       ImmutableMap.<String, BiConsumer<FilterVisitor2, VisitableElement>>builder()
           // Fake operators to give a flat structure an XML-like "embedded" structure
           .put(FAKE_PROPERTY_OPERATOR, FilterVisitor2::visitString)
           .put(FAKE_VALUE_OPERATOR, FilterVisitor2::visitLiteralType)
+          .put(FAKE_DISTANCE_OPERATOR, FilterVisitor2::visitDistanceType)
           // Logical operator mapping
           .put("AND", FilterVisitor2::visitBinaryLogicType)
           .put("OR", FilterVisitor2::visitBinaryLogicType)
@@ -107,7 +110,12 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
     }
 
     if (node.isLeaf()) {
-      this.value = wrap(node.getProperty(), node.getValue());
+      Double distance = node.getDistance();
+      if (distance != null) {
+        this.value = wrap(node.getProperty(), node.getValue(), distance);
+      } else {
+        this.value = wrap(node.getProperty(), node.getValue());
+      }
     } else {
       this.value = wrap(node.getChildren());
     }
@@ -133,14 +141,21 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   }
 
   private static List<VisitableElement<?>> wrap(String property, String value) {
-    return Arrays.asList(
+    return ImmutableList.of(
         new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
+        new VisitableJsonElementImpl(FAKE_VALUE_OPERATOR, Collections.singletonList(value)));
+  }
+
+  private static List<VisitableElement<?>> wrap(String property, String value, Double distance) {
+    return ImmutableList.of(
+        new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
+        new VisitableJsonElementImpl(FAKE_DISTANCE_OPERATOR, distance),
         new VisitableJsonElementImpl(FAKE_VALUE_OPERATOR, Collections.singletonList(value)));
   }
 
   private static List<VisitableElement<?>> wrap(
       String property, Map<String, Object> templateProperties) {
-    return Arrays.asList(
+    return ImmutableList.of(
         new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
         new VisitableJsonElementImpl(
             FAKE_VALUE_OPERATOR, templateProperties, FilterVisitor2::visitFunctionType));

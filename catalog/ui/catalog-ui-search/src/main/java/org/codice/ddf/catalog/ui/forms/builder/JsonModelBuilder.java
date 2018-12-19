@@ -63,7 +63,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   private static final Map<String, String> BINARY_TEMPORAL_MAPPING =
       ImmutableMap.<String, String>builder().put("Before", "BEFORE").put("After", "AFTER").build();
 
-  private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
+  private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS", "DWITHIN");
 
   private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
 
@@ -216,6 +216,14 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
     nodeInProgress.setValue(value);
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder setDistance(Double distance) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
+    nodeInProgress.setDistance(distance);
     return this;
   }
 

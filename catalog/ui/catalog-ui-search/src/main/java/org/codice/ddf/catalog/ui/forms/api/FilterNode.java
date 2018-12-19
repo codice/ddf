@@ -85,6 +85,17 @@ public interface FilterNode {
   String getValue();
 
   /**
+   * If this node is a terminal node, fetch the distance value associated with this node.
+   *
+   * @return the distance, or null if the distance has not been set.
+   * @throws IllegalStateException if this node is not a terminal node.
+   */
+  @Nullable
+  Double getDistance();
+
+  void setDistance(Double distance);
+
+  /**
    * Set this node's property name.
    *
    * @param property the property name to use.

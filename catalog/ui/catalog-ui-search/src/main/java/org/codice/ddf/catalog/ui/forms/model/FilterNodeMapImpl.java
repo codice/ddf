@@ -30,6 +30,8 @@ public class FilterNodeMapImpl implements FilterNode {
 
   private static final String VALUE = "value";
 
+  private static final String DISTANCE = "distance";
+
   private static final String TEMPLATE_PROPERTIES = "templateProperties";
 
   private final String type;
@@ -101,6 +103,24 @@ public class FilterNodeMapImpl implements FilterNode {
   }
 
   @Override
+  public Double getDistance() {
+    if (!isLeaf()) {
+      throw new IllegalStateException("No distance value exists for a logical operator");
+    }
+
+    Object distance = json.get(DISTANCE);
+    if (distance == null) {
+      return null;
+    }
+
+    if (distance instanceof Number) {
+      return ((Number) distance).doubleValue();
+    }
+
+    throw new IllegalStateException("The distance value could not be converted into a double");
+  }
+
+  @Override
   public void setProperty(String property) {
     notNull(property);
     json.put(PROPERTY, property);
@@ -110,6 +130,11 @@ public class FilterNodeMapImpl implements FilterNode {
   public void setValue(String value) {
     notNull(value);
     json.put(VALUE, value);
+  }
+
+  @Override
+  public void setDistance(Double distance) {
+    json.put(DISTANCE, distance);
   }
 
   private static boolean isValidLogical(Map<String, Object> json) {

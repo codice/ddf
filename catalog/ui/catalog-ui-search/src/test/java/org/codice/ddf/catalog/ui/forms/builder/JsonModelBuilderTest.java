@@ -48,7 +48,7 @@ public class JsonModelBuilderTest {
             .endTerminalType()
             .getResult();
 
-    assertLeafNode(node, JSON_EQUAL, "name", "value");
+    assertLeafNode(node, JSON_EQUAL, "name", "value", null);
   }
 
   @Test
@@ -64,6 +64,20 @@ public class JsonModelBuilderTest {
             .getResult();
 
     assertTemplatedNode(node, JSON_EQUAL, "name", "5", "id");
+  }
+
+  @Test
+  public void testBinarySpatialTypeDWithin() {
+    FilterNode node =
+        builder
+            .beginBinarySpatialType("DWITHIN")
+            .setProperty("name")
+            .setValue("value")
+            .setDistance(10.5)
+            .endTerminalType()
+            .getResult();
+
+    assertLeafNode(node, "DWITHIN", "name", "value", 10.5);
   }
 
   @Test

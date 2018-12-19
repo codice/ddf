@@ -52,39 +52,46 @@ public class TransformVisitorJsonTest {
   @Test
   public void testVisitPropertyIsEqualTo() throws Exception {
     getRootXmlFilterNode("comparison-binary-ops", "PropertyIsEqualTo.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "=", DEPTH_PROP, DEPTH_VAL);
+    assertLeafNode(visitor.getResult(), "=", DEPTH_PROP, DEPTH_VAL, null);
   }
 
   @Test
   public void testVisitPropertyIsNotEqualTo() throws Exception {
     getRootXmlFilterNode("comparison-binary-ops", "PropertyIsNotEqualTo.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "!=", DEPTH_PROP, DEPTH_VAL);
+    assertLeafNode(visitor.getResult(), "!=", DEPTH_PROP, DEPTH_VAL, null);
   }
 
   @Test
   public void testVisitPropertyIsLessThan() throws Exception {
     getRootXmlFilterNode("comparison-binary-ops", "PropertyIsLessThan.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "<", DEPTH_PROP, DEPTH_VAL);
+    assertLeafNode(visitor.getResult(), "<", DEPTH_PROP, DEPTH_VAL, null);
   }
 
   @Test
   public void testVisitPropertyIsLessThanOrEqualTo() throws Exception {
     getRootXmlFilterNode("comparison-binary-ops", "PropertyIsLessThanOrEqualTo.xml")
         .accept(visitor);
-    assertLeafNode(visitor.getResult(), "<=", DEPTH_PROP, DEPTH_VAL);
+    assertLeafNode(visitor.getResult(), "<=", DEPTH_PROP, DEPTH_VAL, null);
   }
 
   @Test
   public void testVisitPropertyIsGreaterThan() throws Exception {
     getRootXmlFilterNode("comparison-binary-ops", "PropertyIsGreaterThan.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), ">", DEPTH_PROP, DEPTH_VAL);
+    assertLeafNode(visitor.getResult(), ">", DEPTH_PROP, DEPTH_VAL, null);
   }
 
   @Test
   public void testVisitPropertyIsGreaterThanOrEqualTo() throws Exception {
     getRootXmlFilterNode("comparison-binary-ops", "PropertyIsGreaterThanOrEqualTo.xml")
         .accept(visitor);
-    assertLeafNode(visitor.getResult(), ">=", DEPTH_PROP, DEPTH_VAL);
+    assertLeafNode(visitor.getResult(), ">=", DEPTH_PROP, DEPTH_VAL, null);
+  }
+
+  @Test
+  public void testVisitDWithin() throws Exception {
+    VisitableElement xmlElem = getRootXmlFilterNode("spatial-distance-ops", "DWithin.xml");
+    xmlElem.accept(visitor);
+    assertLeafNode(visitor.getResult(), "DWITHIN", "location", "POINT(10, 10)", 150.50);
   }
 
   @Test
@@ -97,7 +104,7 @@ public class TransformVisitorJsonTest {
   public void testVariety2() throws Exception {
     getRootXmlFilterNode("hybrid", "hybrid-example-2.xml").accept(visitor);
     assertParentNode(visitor.getResult(), "AND", 6);
-    assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob");
+    assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob", null);
   }
 
   private static VisitableElement getRootXmlFilterNode(String... resourceRoute) throws Exception {

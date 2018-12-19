@@ -32,6 +32,8 @@ public class FilterNodeImpl implements FilterNode {
 
   private String value;
 
+  private Double distance;
+
   private Map<String, Object> templateProperties;
 
   public FilterNodeImpl(final String operator, final List<FilterNode> children) {
@@ -42,6 +44,7 @@ public class FilterNodeImpl implements FilterNode {
 
     this.property = null;
     this.value = null;
+    this.distance = null;
     this.templateProperties = null;
   }
 
@@ -52,18 +55,7 @@ public class FilterNodeImpl implements FilterNode {
 
     this.property = null;
     this.value = null;
-    this.templateProperties = null;
-  }
-
-  public FilterNodeImpl(String operator, String property, String value) {
-    notNull(operator);
-    this.operator = operator;
-    this.children = null;
-
-    notNull(property);
-    notNull(value);
-    this.property = property;
-    this.value = value;
+    this.distance = null;
     this.templateProperties = null;
   }
 
@@ -79,6 +71,7 @@ public class FilterNodeImpl implements FilterNode {
     notNull(templateProperties);
     this.property = node.getProperty();
     this.value = node.getValue();
+    this.distance = node.getDistance();
     this.templateProperties = templateProperties;
   }
 
@@ -124,6 +117,15 @@ public class FilterNodeImpl implements FilterNode {
   }
 
   @Override
+  @Nullable
+  public Double getDistance() {
+    if (!isLeaf()) {
+      throw new IllegalStateException("No distance value exists for a logical operator");
+    }
+    return distance;
+  }
+
+  @Override
   public void setProperty(String property) {
     notNull(property);
     this.property = property;
@@ -133,6 +135,11 @@ public class FilterNodeImpl implements FilterNode {
   public void setValue(String value) {
     notNull(value);
     this.value = value;
+  }
+
+  @Override
+  public void setDistance(Double distance) {
+    this.distance = distance;
   }
 
   @Override

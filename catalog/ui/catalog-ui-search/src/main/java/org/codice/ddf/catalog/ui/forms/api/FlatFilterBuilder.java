@@ -57,5 +57,7 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder setValue(String value);
 
+  FlatFilterBuilder setDistance(Double distance);
+
   FlatFilterBuilder setTemplatedValues(Map<String, Object> templateProps);
 }

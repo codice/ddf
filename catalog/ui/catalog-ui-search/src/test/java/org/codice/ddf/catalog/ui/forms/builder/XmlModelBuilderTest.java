@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -61,7 +60,7 @@ public class XmlModelBuilderTest {
             .endTerminalType()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
 
     forNode(filter).verifyTerminalNode("/Filter/PropertyIsEqualTo", "name", "value");
   }
@@ -78,10 +77,28 @@ public class XmlModelBuilderTest {
             .endTerminalType()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
 
     forNode(filter)
         .verifyTerminalTemplatedNode("/Filter/PropertyIsEqualTo", "name", "5", "id", true, false);
+  }
+
+  @Test
+  public void testBinarySpatialTypeDWithin() throws Exception {
+    JAXBElement filter =
+        builder
+            .beginBinarySpatialType("DWITHIN")
+            .setProperty("name")
+            .setValue("value")
+            .setDistance(10.5)
+            .endTerminalType()
+            .getResult();
+
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
+
+    forNode(filter)
+        .verifyTerminalNode("/Filter/DWithin", "name", "value")
+        .verifyTerminalNode("/Filter/DWithin", 10.5);
   }
 
   @Test
@@ -96,7 +113,7 @@ public class XmlModelBuilderTest {
             .endBinaryLogicType()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
 
     forNode(filter).verifyTerminalNode("/Filter/And/PropertyIsEqualTo", "name", "value");
   }
@@ -127,7 +144,7 @@ public class XmlModelBuilderTest {
             .endBinaryLogicType()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
 
     forNode(filter)
         .verifyTerminalNode("/Filter/And/PropertyIsEqualTo", "name", "Bob")
@@ -176,6 +193,15 @@ public class XmlModelBuilderTest {
       try (InputStream inputStream = new ByteArrayInputStream(rawXml.getBytes())) {
         this.document = builder.parse(inputStream);
       }
+    }
+
+    private XPathAssertionSupport verifyTerminalNode(String xpathToNode, Double distance)
+        throws XPathExpressionException {
+      Number actualDistance =
+          (Number)
+              xPath.compile(xpathToNode + "/Distance").evaluate(document, XPathConstants.NUMBER);
+      assertThat(actualDistance, is(distance));
+      return this;
     }
 
     private XPathAssertionSupport verifyTerminalNode(

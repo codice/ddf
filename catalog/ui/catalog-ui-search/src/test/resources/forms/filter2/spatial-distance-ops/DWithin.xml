@@ -1,16 +1,11 @@
 <fes:Filter xmlns:fes="http://www.opengis.net/fes/2.0"
-            xmlns:gml="http://www.opengis.net/gml/3.2"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.opengis.net/fes/2.0
-            http://schemas.opengis.net/filter/2.0/filterAll.xsd
-            http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd">
+            http://schemas.opengis.net/filter/2.0/filterAll.xsd">
     <fes:DWithin>
         <fes:ValueReference>location</fes:ValueReference>
-        <gml:Envelope srsName="urn:ogc:def:crs:EPSG::4326">
-            <gml:lowerCorner>13.0983 31.5899</gml:lowerCorner>
-            <gml:upperCorner>35.5472 42.8143</gml:upperCorner>
-        </gml:Envelope>
+        <fes:Literal>POINT(10, 10)</fes:Literal>
         <!--  Intrigue always normalizes to METERS when working with a DWithin  -->
-        <fes:Distance uom="km">100</fes:Distance>
+        <fes:Distance uom="m">150.50</fes:Distance>
     </fes:DWithin>
 </fes:Filter>

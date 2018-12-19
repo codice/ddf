@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
+import org.apache.commons.collections4.CollectionUtils;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
@@ -68,13 +69,43 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   public void visitLiteralType(VisitableElement<List<Serializable>> visitable) {
     super.visitLiteralType(visitable);
     List<Serializable> values = visitable.getValue();
-    if (values == null || values.isEmpty()) {
+    if (CollectionUtils.isEmpty(values)) {
       LOGGER.debug("No values found on literal type");
       return;
     }
 
     // Assumption: we only support one literal value
     builder.setValue(values.get(0).toString());
+  }
+
+  @Override
+  public void visitDistanceType(VisitableElement<Double> visitable) {
+    super.visitDistanceType(visitable);
+    Double value = visitable.getValue();
+    if (value == null) {
+      LOGGER.debug("No values found on distance type");
+      return;
+    }
+
+    builder.setDistance(value);
+  }
+
+  @Override
+  public void visitDistanceBufferType(VisitableElement<List<Object>> visitable) {
+    traceName(visitable);
+    List<Object> values = visitable.getValue();
+    if (CollectionUtils.isEmpty(values)) {
+      LOGGER.debug("No values found on distance buffer type");
+      return;
+    }
+
+    builder.beginBinarySpatialType("DWITHIN");
+    visitable
+        .getValue()
+        .stream()
+        .map(VisitableElement.class::cast)
+        .forEachOrdered(v -> v.accept(this));
+    builder.endTerminalType();
   }
 
   @Override

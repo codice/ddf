@@ -15,7 +15,9 @@ package org.codice.ddf.catalog.ui.forms;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,6 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.xml.bind.JAXBElement;
+import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.LiteralType;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
@@ -50,12 +53,17 @@ public class FilterNodeAssertionSupport {
   }
 
   public static void assertLeafNode(
-      FilterNode node, String expectedType, String expectedProperty, String expectedValue) {
+      FilterNode node,
+      String expectedType,
+      String expectedProperty,
+      String expectedValue,
+      Double expectedDistance) {
     assertThat(node.getOperator(), is(expectedType));
     assertThat(node.isLeaf(), is(true));
 
     assertThat(node.getProperty(), is(expectedProperty));
     assertThat(node.getValue(), is(expectedValue));
+    assertThat(node.getDistance(), is(expectedDistance));
     assertThat(node.isTemplated(), is(false));
   }
 
@@ -201,6 +209,14 @@ public class FilterNodeAssertionSupport {
       return new JAXBPropertyValueAssertion(
           (p, v) -> assertExpressionOrAny(expressionOrAnyMapper.apply(elementValue), p, v));
     }
+
+    public JAXBPropertyValueDistanceAssertion verifyDistanceBuffer() {
+      assertThat(elementValue, instanceOf(DistanceBufferType.class));
+      DistanceBufferType t = (DistanceBufferType) elementValue;
+      return new JAXBPropertyValueDistanceAssertion(
+          (p, v) -> assertExpressionOrAny(t.getExpressionOrAny(), p, v),
+          (d) -> assertThat(d, is(equalTo(t.getDistance().getValue()))));
+    }
   }
 
   public static class JAXBPropertyValueAssertion {
@@ -219,6 +235,21 @@ public class FilterNodeAssertionSupport {
      */
     public void withData(String property, Serializable value) {
       assertion.accept(property, value);
+    }
+  }
+
+  public static class JAXBPropertyValueDistanceAssertion extends JAXBPropertyValueAssertion {
+    private final Consumer<Double> distanceAssertion;
+
+    private JAXBPropertyValueDistanceAssertion(
+        BiConsumer<String, Serializable> assertion, Consumer<Double> distanceAssertion) {
+      super(assertion);
+      this.distanceAssertion = distanceAssertion;
+    }
+
+    public JAXBPropertyValueDistanceAssertion withDistance(Double distance) {
+      distanceAssertion.accept(distance);
+      return this;
     }
   }
 
