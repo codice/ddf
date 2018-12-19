@@ -50,7 +50,7 @@
             description="Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the catalog taxonomy tables are injected into all metacards by default and can be overridden."/>
         <AD name="Body Expansion Field" id="bodyExpansion" required="false"
             type="String"
-            default="body.view"
+            default="body.storage.value"
             description="The expansion specific to the body of the Confluence result. This should be kept separate from the Confluence Expansion Fields."/>
         <AD name="Confluence Expansion Fields" id="expandedSections" required="false"
             type="String" cardinality="100"
@@ -96,7 +96,7 @@
             description="Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the catalog taxonomy tables are injected into all metacards by default and can be overridden."/>
         <AD name="Body Expansion Field" id="bodyExpansion" required="false"
             type="String"
-            default="body.view"
+            default="body.storage.value"
             description="The expansion specific to the body of the Confluence result. This should be kept separate from the Confluence Expansion Fields."/>
         <AD name="Confluence Expansion Fields" id="expandedSections" required="false"
             type="String" cardinality="100"

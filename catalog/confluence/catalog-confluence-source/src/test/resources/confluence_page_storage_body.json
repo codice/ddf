@@ -1,0 +1,248 @@
+{
+  "results": [
+    {
+      "id": "1179681",
+      "type": "page",
+      "status": "current",
+      "title": "Formatting Source Code",
+      "baseUrl": "https://codice.atlassian.net/wiki",
+      "space": {
+        "id": 1277953,
+        "key": "DDF",
+        "name": "DDF",
+        "type": "global",
+        "_links": {
+          "webui": "/spaces/DDF",
+          "self": "https://codice.atlassian.net/wiki/rest/api/space/DDF"
+        },
+        "_expandable": {
+          "metadata": "",
+          "operations": "",
+          "icon": "",
+          "description": "",
+          "homepage": "/rest/api/content/1179800"
+        }
+      },
+      "body": {
+        "storage": {
+          "value": "<div class=\"panel conf-macro output-block\" style=\"border-style: solid;border-width: 1px;\" data-hasbody=\"true\" data-macro-name=\"panel\"><div class=\"panelHeader\" style=\"border-bottom-width: 1px;border-bottom-style: solid;\"><b>On This Page</b></div><div class=\"panelContent\">\n<p> </p><div class=\"toc-macro client-side-toc-macro  conf-macro output-block\" data-csslistindent=\"3\" data-headerelements=\"H1,H2,H3,H4,H5,H6,H7\" data-hasbody=\"false\" data-macro-name=\"toc\"> </div><p> </p>\n</div></div><p> </p><p>A code formatter for the Eclipse IDE that can be used across all DDF projects will allow developers to format code similarly and minimize merge issues in the future.</p><p>DDF uses an updated version of the Apache ServiceMix Code Formatter (<a href=\"http://servicemix.apache.org/developers/building.html\" class=\"external-link\" rel=\"nofollow\">http://servicemix.apache.org/developers/building.html</a>) for code formatting. </p><h1 id=\"FormattingSourceCode-LoadtheCodeFormatterIntotheEclipseIDE\">Load the Code Formatter Into the Eclipse IDE</h1><p><em><strong>DOWNLOAD THIS FILE</strong></em>: <a href=\"https://raw.githubusercontent.com/codice/ddf-support/master/support-checkstyle/src/main/resources/ddf-eclipse-code-formatter.xml\" class=\"external-link\" rel=\"nofollow\">ddf-eclipse-code-formatter.xml</a> (NOTE: <strong>Right-Click</strong> the link and <span style=\"line-height: 1.4285715;\">Select </span><strong style=\"line-height: 1.4285715;\">Save Link As </strong>if the browser opens the file in another window).</p><ol><li><p>In Eclipse, select <strong>Window → Preferences</strong>. The Preferences window opens.</p></li><li><p>Select <strong>Java → Code Style → Formatter</strong>.</p></li><li><p>Select the <strong>Edit...</strong> button and load the attached <a href=\"https://raw.githubusercontent.com/codice/ddf-support/master/support-checkstyle/src/main/resources/ddf-eclipse-code-formatter.xml\" class=\"external-link\" rel=\"nofollow\">ddf-eclipse-code-formatter.xml</a>.</p></li><li><p>Select the <strong>OK</strong> button.</p><p><span class=\"confluence-embedded-file-wrapper\"><img class=\"confluence-embedded-image\" src=\"/wiki/download/attachments/1179681/eclipse-import-formatter.png?version=1&amp;modificationDate=1434506565659&amp;cacheVersion=1&amp;api=v2\" data-image-src=\"/wiki/download/attachments/1179681/eclipse-import-formatter.png?version=1&amp;modificationDate=1434506565659&amp;cacheVersion=1&amp;api=v2\" data-unresolved-comment-count=\"0\" data-linked-resource-id=\"1182958\" data-linked-resource-version=\"1\" data-linked-resource-type=\"attachment\" data-linked-resource-default-alias=\"eclipse-import-formatter.png\" data-base-url=\"https://codice.atlassian.net/wiki\" data-linked-resource-content-type=\"image/png\" data-linked-resource-container-id=\"1179681\" data-linked-resource-container-version=\"19\"></span></p></li></ol><h1 id=\"FormattingSourceCode-LoadtheCodeFormatterIntoIntelliJIDEA\">Load the Code Formatter Into IntelliJ IDEA</h1><p><em><strong>DOWNLOAD THIS FILE</strong></em>: <a href=\"https://raw.githubusercontent.com/codice/ddf-support/master/support-checkstyle/src/main/resources/ddf-intellij-code-formatter.jar\" class=\"external-link\" rel=\"nofollow\">ddf-intellij-code-formatter.jar</a> (NOTE: <strong>Right-Click</strong> the link and <span>Select </span><strong>Save Link As </strong>if the browser opens the file in another window).</p><p>Previously, in IntelliJ, we would just import the Eclipse settings. However, now there is a IntelliJ settings jar that will import the code styles.</p><ol><li><span style=\"line-height: 1.4285715;\">Open</span><strong style=\"line-height: 1.4285715;\"> IntelliJ</strong><span style=\"line-height: 1.4285715;\"> IDEA.</span></li><li>Select<strong> File → Import Settings</strong>. The file selection window opens.</li><li>Choose <a href=\"https://raw.githubusercontent.com/codice/ddf-support/master/support-checkstyle/src/main/resources/ddf-intellij-code-formatter.jar\" class=\"external-link\" rel=\"nofollow\">ddf-intellij-code-formatter.jar</a>.</li><li>Select OK. NOTE: this will restart IntelliJ.<br/><span class=\"confluence-embedded-file-wrapper\"><img class=\"confluence-embedded-image\" src=\"/wiki/download/attachments/1179681/intellij-import-formatter.png?version=1&amp;modificationDate=1434506911271&amp;cacheVersion=1&amp;api=v2\" data-image-src=\"/wiki/download/attachments/1179681/intellij-import-formatter.png?version=1&amp;modificationDate=1434506911271&amp;cacheVersion=1&amp;api=v2\" data-unresolved-comment-count=\"0\" data-linked-resource-id=\"1182960\" data-linked-resource-version=\"1\" data-linked-resource-type=\"attachment\" data-linked-resource-default-alias=\"intellij-import-formatter.png\" data-base-url=\"https://codice.atlassian.net/wiki\" data-linked-resource-content-type=\"image/png\" data-linked-resource-container-id=\"1179681\" data-linked-resource-container-version=\"19\"></span></li></ol><h1 id=\"FormattingSourceCode-FormatYourSourceCodeUsingEclipse\">Format Your Source Code Using Eclipse </h1><p>A developer may write code and format it before saving.</p><ol><li>Before the file is saved, highlight all of the source code in the IDE editor window.</li><li>Right-click on the highlighted code.</li><li>Select <strong>Source → Format. </strong>The code formatter is applied to the source code and the file can be saved. </li></ol><h1 id=\"FormattingSourceCode-SetUpSaveActionsinEclipse\">Set Up Save Actions in Eclipse</h1><p>A developer can also set up Save Actions to format the source code automatically.</p><ol><li>Open Eclipse.</li><li><p>Select <strong>Window → Preferences</strong> (<strong>Eclipse → Preferences</strong> on Mac). The Preferences window opens.</p></li><li><p>Select <strong>Java → Editor → Save Actions</strong>.</p></li><li><p>Select <strong>Perform the selected actions on save</strong>.</p></li><li>Select <strong>Format source code</strong>.</li><li>Select <strong>Format all lines </strong>or <strong>Format edited lines</strong>, as necessary. </li><li>Optionally, select <strong>Organize imports</strong> (recommended).</li><li>Select the <strong>Apply </strong>button.</li><li>Select the <strong>OK </strong>button.<br/><br/><span class=\"confluence-embedded-file-wrapper\"><img class=\"confluence-embedded-image\" src=\"/wiki/download/attachments/1179681/eclipse-save-action.png?version=1&amp;modificationDate=1434507346259&amp;cacheVersion=1&amp;api=v2\" data-image-src=\"/wiki/download/attachments/1179681/eclipse-save-action.png?version=1&amp;modificationDate=1434507346259&amp;cacheVersion=1&amp;api=v2\" data-unresolved-comment-count=\"0\" data-linked-resource-id=\"1182959\" data-linked-resource-version=\"1\" data-linked-resource-type=\"attachment\" data-linked-resource-default-alias=\"eclipse-save-action.png\" data-base-url=\"https://codice.atlassian.net/wiki\" data-linked-resource-content-type=\"image/png\" data-linked-resource-container-id=\"1179681\" data-linked-resource-container-version=\"19\"></span></li></ol><h1 id=\"FormattingSourceCode-FormatSourceCodeUsingIntelliJ\">Format Source Code Using IntelliJ</h1><p>In the toolbar, select <strong>Code → Reformat Code </strong>or use the keyboard shortcut Ctrl-Alt-L.</p><p> </p>",
+          "representation": "view",
+          "_expandable": {
+            "webresource": "",
+            "content": "/rest/api/content/1179681"
+          }
+        },
+        "_expandable": {
+          "editor": "",
+          "export_view": "",
+          "styled_view": "",
+          "storage": "",
+          "anonymous_export_view": ""
+        }
+      },
+      "metadata": {
+        "labels": {
+          "results": [
+            {
+              "prefix": "global",
+              "name": "test-label",
+              "id": "524290"
+            }
+          ],
+          "start": 0,
+          "limit": 200,
+          "size": 1,
+          "_links": {
+            "self": "https://codice.atlassian.net/wiki/rest/api/content/491658/label"
+          }
+        },
+        "_expandable": {
+          "currentuser": "",
+          "properties": "",
+          "frontend": ""
+        }
+      },
+      "history": {
+        "lastUpdated": {
+          "by": {
+            "type": "known",
+            "username": "first.last",
+            "userKey": "ff8080814e7",
+            "profilePicture": {
+              "path": "/wiki/images/icons/profilepics/default.png",
+              "width": 48,
+              "height": 48,
+              "isDefault": true
+            },
+            "displayName": "First Last",
+            "_links": {
+              "self": "https://codice.atlassian.net/wiki/rest/experimental/user?key=ff8080814e7"
+            },
+            "_expandable": {
+              "details": ""
+            }
+          },
+          "when": "2015-06-16T19:21:39.141-07:00",
+          "friendlyWhen": "Jun 16, 2015",
+          "message": "",
+          "number": 19,
+          "minorEdit": false,
+          "_links": {
+            "self": "https://codice.atlassian.net/wiki/rest/api/content/1179681/version/19"
+          },
+          "_expandable": {
+            "content": "/rest/api/content/1179681"
+          }
+        },
+        "latest": true,
+        "createdBy": {
+          "type": "known",
+          "username": "another",
+          "userKey": "ff8080814e7",
+          "profilePicture": {
+            "path": "/wiki/images/icons/profilepics/default.png",
+            "width": 48,
+            "height": 48,
+            "isDefault": true
+          },
+          "displayName": "Another User",
+          "_links": {
+            "self": "https://codice.atlassian.net/wiki/rest/experimental/user?key=ff8080814e8"
+          },
+          "_expandable": {
+            "details": ""
+          }
+        },
+        "createdDate": "2013-09-18T14:50:42.616-07:00",
+        "contributors": {
+          "publishers": {
+            "users": [
+              {
+                "type": "known",
+                "username": "first.last",
+                "userKey": "ff8080814e7",
+                "profilePicture": {
+                  "path": "/wiki/images/icons/profilepics/default.png",
+                  "width": 48,
+                  "height": 48,
+                  "isDefault": true
+                },
+                "displayName": "First Last",
+                "_links": {
+                  "self": "https://codice.atlassian.net/wiki/rest/experimental/user?key=ff8080814e7"
+                },
+                "_expandable": {
+                  "details": ""
+                }
+              },
+              {
+                "type": "anonymous",
+                "displayName": "Anonymous",
+                "_expandable": {
+                  "details": ""
+                }
+              }
+            ],
+            "userKeys": [
+              "ff8080814e7",
+              "ff8080814e8"
+            ]
+          }
+        },
+        "_links": {
+          "self": "https://codice.atlassian.net/wiki/rest/api/content/1179681/history"
+        },
+        "_expandable": {
+          "previousVersion": "",
+          "nextVersion": ""
+        }
+      },
+      "extensions": {
+        "position": "none"
+      },
+      "restrictions": {
+        "read": {
+          "operation": "read",
+          "restrictions": {
+            "user": {
+              "results": [
+                {
+                  "type": "known",
+                  "username": "first.last",
+                  "userKey": "ff8080814e7",
+                  "profilePicture": {
+                    "path": "/wiki/images/icons/profilepics/default.png",
+                    "width": 48,
+                    "height": 48,
+                    "isDefault": true
+                  },
+                  "displayName": "First Last",
+                  "_links": {
+                    "self": "https://codice.atlassian.net/wiki/rest/experimental/user?key=ff8080814e7"
+                  },
+                  "_expandable": {
+                    "details": ""
+                  }
+                }
+              ],
+              "start": 0,
+              "limit": 200,
+              "size": 0
+            },
+            "group": {
+              "results": [
+                {
+                  "type": "group",
+                  "name": "ddf-developers",
+                  "_links": {
+                    "self": "https://codice.atlassian.net/wiki/rest/experimental/group/ddf-developers"
+                  }
+                }
+              ],
+              "start": 0,
+              "limit": 200,
+              "size": 0
+            }
+          },
+          "_links": {
+            "self": "https://codice.atlassian.net/wiki/rest/api/content/1179681/restriction/byOperation/read"
+          },
+          "_expandable": {
+            "content": "/rest/api/content/1179681"
+          }
+        },
+        "_links": {
+          "self": "https://codice.atlassian.net/wiki/rest/api/content/1179681/restriction/byOperation"
+        },
+        "_expandable": {
+          "update": ""
+        }
+      },
+      "_links": {
+        "webui": "/display/DDF/Formatting+Source+Code",
+        "tinyui": "/x/IQAS",
+        "self": "https://codice.atlassian.net/wiki/rest/api/content/1179681",
+        "base": "https://codice.atlassian.net/wiki"
+      },
+      "_expandable": {
+        "childTypes": "",
+        "container": "/rest/api/space/DDF",
+        "metadata": "",
+        "operations": "",
+        "children": "/rest/api/content/1179681/child",
+        "ancestors": "",
+        "body": "",
+        "version": "",
+        "descendants": "/rest/api/content/1179681/descendant"
+      }
+    }
+  ],
+  "start": 0,
+  "limit": 1,
+  "size": 1,
+  "_links": {
+    "self": "https://codice.atlassian.net/wiki/rest/api/content/search?expand=space,history.contributors.publishers.users,history.lastUpdated,restrictions.read.restrictions.group,restrictions.read.restrictions.user&cql=%28+text+~+eclipse+%29+and+space=DDF",
+    "base": "https://codice.atlassian.net/wiki",
+    "context": "/wiki"
+  }
+}

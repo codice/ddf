@@ -91,10 +91,15 @@ public class ConfluenceInputTransformer implements InputTransformer {
   public Metacard transform(InputStream input, String id) throws CatalogTransformerException {
 
     Map<String, Object> json = getJsonObject(input);
-    return transformConfluenceResult(json, null, id);
+    return transformConfluenceResult(json, null, id, null);
   }
 
   public List<Metacard> transformConfluenceResponse(InputStream input)
+      throws CatalogTransformerException {
+    return transformConfluenceResponse(input, null);
+  }
+
+  public List<Metacard> transformConfluenceResponse(InputStream input, String bodyExpansion)
       throws CatalogTransformerException {
 
     Map<String, Object> json = getJsonObject(input);
@@ -107,7 +112,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
         .forEach(
             e -> {
               try {
-                metacards.add(transformConfluenceResult(e, baseUrl, null));
+                metacards.add(transformConfluenceResult(e, baseUrl, null, bodyExpansion));
               } catch (CatalogTransformerException ex) {
                 LOGGER.error("Exception transforming confluence result.", ex);
               }
@@ -115,7 +120,8 @@ public class ConfluenceInputTransformer implements InputTransformer {
     return metacards;
   }
 
-  private Metacard transformConfluenceResult(Object json, String baseUrl, String id)
+  private Metacard transformConfluenceResult(
+      Object json, String baseUrl, String id, String bodyExpansion)
       throws CatalogTransformerException {
     MetacardType type =
         new MetacardTypeImpl(metacardType.getName(), metacardType.getAttributeDescriptors());
@@ -125,7 +131,8 @@ public class ConfluenceInputTransformer implements InputTransformer {
     MetacardImpl metacard = new MetacardImpl(type);
     parseBasicInfo(metacard, json, id);
 
-    parseBody(metacard, json, metacard.getAttribute(Topic.CATEGORY).getValue().toString());
+    parseBody(
+        metacard, json, bodyExpansion, metacard.getAttribute(Topic.CATEGORY).getValue().toString());
 
     parseLabels(metacard, json);
 
@@ -223,8 +230,15 @@ public class ConfluenceInputTransformer implements InputTransformer {
     }
   }
 
-  private void parseBody(MetacardImpl metacard, Object json, String confluenceType) {
-    Object body = getJsonElement(json, "body", "view", "value");
+  private void parseBody(
+      MetacardImpl metacard, Object json, String bodyExpansion, String confluenceType) {
+    String[] expansion;
+    if (bodyExpansion != null) {
+      expansion = bodyExpansion.split("\\.");
+    } else {
+      expansion = new String[] {"body", "view", "value"};
+    }
+    Object body = getJsonElement(json, expansion);
     if (body != null) {
       String cleanedText = body.toString().replaceAll("<.*?>", " ");
       String description = cleanedText;

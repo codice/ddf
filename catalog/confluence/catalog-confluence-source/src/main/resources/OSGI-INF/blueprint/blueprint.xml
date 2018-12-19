@@ -87,7 +87,7 @@
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>
-            <property name="bodyExpansion" value="body.view"/>
+            <property name="bodyExpansion" value="body.storage.value"/>
             <property name="expandedSections">
                 <list>
                     <value>metadata.labels</value>
@@ -121,7 +121,7 @@
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>
-            <property name="bodyExpansion" value="body.view"/>
+            <property name="bodyExpansion" value="body.storage.value"/>
             <property name="expandedSections">
                 <list>
                     <value>metadata.labels</value>
