@@ -16,15 +16,14 @@ package ddf.security.pep.interceptor;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.service.impl.SecurityAssertionStore;
 import javax.xml.namespace.QName;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.interceptor.security.AccessDeniedException;
@@ -35,37 +34,28 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 
-@PrepareForTest({SecurityAssertionStore.class, SecurityLogger.class})
 public class PepInterceptorInvalidSubjectTest {
 
-  @Rule public PowerMockRule rule = new PowerMockRule();
-
   @Rule
-  // CHECKSTYLE.OFF: VisibilityModifier - Needs to be public for PowerMockito
+  // CHECKSTYLE.OFF: VisibilityModifier - Needs to be public for Mockito
   public ExpectedException expectedExForInvalidSubject = ExpectedException.none();
   // CHECKSTYLE.ON: VisibilityModifier
 
   @Test
   public void testMessageInvalidSecurityAssertionToken() throws SecurityServiceException {
-    PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
+    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
+    PEPAuthorizingInterceptor interceptor =
+        spy(new PEPAuthorizingInterceptor(m -> mockSecurityAssertion));
 
     SecurityManager mockSecurityManager = mock(SecurityManager.class);
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithInvalidSecurityAssertion = mock(Message.class);
-    SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
     SecurityToken mockSecurityToken = mock(SecurityToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
-    PowerMockito.mockStatic(SecurityAssertionStore.class);
-    PowerMockito.mockStatic(SecurityLogger.class);
-    when(SecurityAssertionStore.getSecurityAssertion(messageWithInvalidSecurityAssertion))
-        .thenReturn(mockSecurityAssertion);
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
@@ -88,7 +78,5 @@ public class PepInterceptorInvalidSubjectTest {
     expectedExForInvalidSubject.expectMessage("Unauthorized");
     // This should throw
     interceptor.handleMessage(messageWithInvalidSecurityAssertion);
-
-    PowerMockito.verifyStatic();
   }
 }

@@ -26,7 +26,6 @@
     <properties>
         <jasypt.version>1.9.2</jasypt.version>
         <opensaml.version>3.3.0</opensaml.version>
-        <powermock.agent>${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar</powermock.agent>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -164,24 +163,6 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.classic.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4-rule-agent</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>

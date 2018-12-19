@@ -40,7 +40,7 @@ public class AttributeMapLoader {
    * @param attributeMapFile File of the listed attributes
    * @return Map containing the fully populated attributes or empty map if file does not exist.
    */
-  public static Map<String, String> buildClaimsMapFile(String attributeMapFile) {
+  public Map<String, String> buildClaimsMapFile(String attributeMapFile) {
     Map<String, String> map =
         PropertiesLoader.toMap(PropertiesLoader.loadProperties(attributeMapFile));
 
@@ -58,7 +58,7 @@ public class AttributeMapLoader {
    * @return the user name if the principal has one, null if no name is specified or if principal is
    *     null.
    */
-  public static String getUser(Principal principal) {
+  public String getUser(Principal principal) {
     String user = null;
     if (principal instanceof KerberosPrincipal) {
       KerberosPrincipal kp = (KerberosPrincipal) principal;
@@ -102,8 +102,7 @@ public class AttributeMapLoader {
    * @param defaultBaseDN the default DN to fall back to
    * @return the base DN
    */
-  public static String getBaseDN(
-      Principal principal, String defaultBaseDN, boolean overrideCertDn) {
+  public String getBaseDN(Principal principal, String defaultBaseDN, boolean overrideCertDn) {
     String baseDN = null;
     if (principal instanceof X500Principal && !overrideCertDn) {
       Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType().equals(BCStyle.CN);
@@ -117,7 +116,7 @@ public class AttributeMapLoader {
     return baseDN;
   }
 
-  public static String getCredentials(Principal principal) {
+  public String getCredentials(Principal principal) {
     String credential = null;
     if (principal instanceof X500Principal) {
       X500Principal x500p = (X500Principal) principal;
@@ -129,7 +128,7 @@ public class AttributeMapLoader {
     return credential;
   }
 
-  private static String logLdapClaimsMap(Map<String, String> map) {
+  private String logLdapClaimsMap(Map<String, String> map) {
     StringBuilder builder = new StringBuilder();
     builder.append("LDAP claims map:\n");
     for (Map.Entry<String, String> claim : map.entrySet()) {

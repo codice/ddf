@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.plugin.security.audit;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -70,10 +71,7 @@ public class SecurityAuditPlugin implements AccessPlugin {
               updateMetacard.getAttribute(descriptorName))) {
             String originalValue = getNonNullAttributeValues(existingMetacard, descriptorName);
             String updateValue = getNonNullAttributeValues(updateMetacard, descriptorName);
-            SecurityLogger.audit(
-                String.format(
-                    "Attribute %s on metacard %s with value(s) %s was updated to value(s) %s",
-                    descriptorName, updateMetacard.getId(), originalValue, updateValue));
+            auditMetacardUpdate(descriptorName, updateMetacard.getId(), originalValue, updateValue);
           }
         }
       }
@@ -168,5 +166,14 @@ public class SecurityAuditPlugin implements AccessPlugin {
     return props == null
         || props.get(Constants.LOCAL_DESTINATION_KEY) == null
         || (boolean) props.get(Constants.LOCAL_DESTINATION_KEY);
+  }
+
+  @VisibleForTesting
+  void auditMetacardUpdate(
+      String descriptorName, String metacardId, String originalValue, String updateValue) {
+    SecurityLogger.audit(
+        String.format(
+            "Attribute %s on metacard %s with value(s) %s was updated to value(s) %s",
+            descriptorName, metacardId, originalValue, updateValue));
   }
 }

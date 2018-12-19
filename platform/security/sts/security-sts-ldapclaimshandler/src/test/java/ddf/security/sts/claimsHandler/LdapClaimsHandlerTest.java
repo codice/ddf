@@ -23,7 +23,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
@@ -37,7 +39,7 @@ import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.ConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.LinkedAttribute;
 import org.forgerock.opendj.ldap.requests.BindRequest;
@@ -47,13 +49,7 @@ import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LDAPConnectionFactory.class, AttributeMapLoader.class, BindMethodChooser.class})
 public class LdapClaimsHandlerTest {
 
   public static final String BINDING_TYPE = "Simple";
@@ -76,8 +72,6 @@ public class LdapClaimsHandlerTest {
       String.format("%s=%s,%s", ATTRIBUTE_NAME, DUMMY_VALUE, USER_BASE_DN);
 
   LdapClaimsHandler claimsHandler;
-
-  LDAPConnectionFactory mockConnectionFactory;
 
   BindResult mockBindResult;
 
@@ -102,23 +96,18 @@ public class LdapClaimsHandlerTest {
     attribute.add(USER_DN);
     mockEntryReader = mock(ConnectionEntryReader.class);
     mockBindRequest = mock(BindRequest.class);
-    PowerMockito.mockStatic(BindMethodChooser.class);
-    when(BindMethodChooser.selectBindMethod(
-            eq(BINDING_TYPE), eq(BIND_USER_DN), eq(BIND_USER_CREDENTIALS), eq(REALM), eq(KCD)))
-        .thenReturn(mockBindRequest);
     Map<String, String> map = new HashMap<>();
     map.put(NAME_IDENTIFIER_CLAIM_URI, ATTRIBUTE_NAME);
-    PowerMockito.mockStatic(AttributeMapLoader.class);
-    when(AttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
-    when(AttributeMapLoader.getUser(any(Principal.class)))
+    AttributeMapLoader mockAttributeMapLoader = mock(AttributeMapLoader.class);
+    when(mockAttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
+    when(mockAttributeMapLoader.getUser(any(Principal.class)))
         .then(i -> i.getArgumentAt(0, Principal.class).getName());
-    when(AttributeMapLoader.getBaseDN(any(Principal.class), anyString(), eq(false)))
+    when(mockAttributeMapLoader.getBaseDN(any(Principal.class), anyString(), eq(false)))
         .then(i -> i.getArgumentAt(1, String.class));
-    claimsHandler = new LdapClaimsHandler();
+    claimsHandler = spy(new LdapClaimsHandler(mockAttributeMapLoader));
+    doReturn(mockBindRequest).when(claimsHandler).selectBindMethod();
     mockBindResult = mock(BindResult.class);
     mockConnection = mock(Connection.class);
-    mockConnectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
-    when(mockConnectionFactory.getConnection()).thenReturn(mockConnection);
     when(mockConnection.bind(anyString(), any(char[].class))).thenReturn(mockBindResult);
     when(mockConnection.bind(any(BindRequest.class))).thenReturn(mockBindResult);
     when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject()))
@@ -129,6 +118,8 @@ public class LdapClaimsHandlerTest {
     when(mockEntryReader.isEntry()).thenReturn(false, true);
     when(mockEntryReader.readEntry()).thenReturn(mockEntry);
     when(mockEntry.getAttribute(anyString())).thenReturn(attribute);
+    ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
+    when(mockConnectionFactory.getConnection()).thenReturn(mockConnection);
     claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
     claimsHandler.setPropertyFileLocation("thisstringisnotempty");
     claimsHandler.setBindMethod(BINDING_TYPE);

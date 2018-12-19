@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security;
+package org.codice.ddf.security.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -22,17 +22,16 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.lang.reflect.InvocationTargetException;
@@ -40,28 +39,17 @@ import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.codice.ddf.security.common.Security;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 
-@PrepareForTest({FrameworkUtil.class, SecurityUtils.class, SecurityLogger.class})
 public class SecurityTest {
-
-  @Rule public PowerMockRule rule = new PowerMockRule();
 
   private Security security;
 
@@ -76,9 +64,6 @@ public class SecurityTest {
     System.setProperty("karaf.local.roles", "admin,local");
 
     initMocks(this);
-    mockStatic(SecurityUtils.class);
-    mockStatic(FrameworkUtil.class);
-    mockStatic(SecurityLogger.class);
 
     when(shiroSubject.execute(callable)).thenReturn("Success!");
 
@@ -89,7 +74,7 @@ public class SecurityTest {
     System.setProperty("ddf.home", "/ddf/home");
     System.setProperty("org.codice.ddf.system.hostname", "localhost");
 
-    security = Security.getInstance();
+    security = spy(Security.getInstance());
   }
 
   @Test
@@ -182,7 +167,7 @@ public class SecurityTest {
 
   @Test
   public void testRunWithSubjectOrElevateWhenUserSubjectExists() throws Exception {
-    when(SecurityUtils.getSubject()).thenReturn(shiroSubject);
+    doReturn(shiroSubject).when(security).getShiroSubject();
 
     String result = security.runWithSubjectOrElevate(callable);
 
@@ -192,7 +177,7 @@ public class SecurityTest {
 
   @Test
   public void testRunWithSubjectOrElevateWhenSystemSubjectHasAdminRole() throws Exception {
-    when(SecurityUtils.getSubject()).thenThrow(new UnavailableSecurityManagerException(""));
+    doReturn(null).when(security).getShiroSubject();
     when(systemSubject.execute(callable)).thenReturn("Success!");
     configureMocksForBundleContext("server");
 
@@ -200,29 +185,27 @@ public class SecurityTest {
         security.runAsAdminWithException(() -> security.runWithSubjectOrElevate(callable));
 
     assertThat(result, is("Success!"));
-    verifyStatic();
-    SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
+    verify(security).auditSystemSubjectElevation();
     verifyZeroInteractions(shiroSubject);
   }
 
   @Test(expected = SecurityServiceException.class)
   public void testRunWithSubjectOrElevateWhenSystemSubjectDoesNotHaveAdminRole() throws Exception {
-    when(SecurityUtils.getSubject()).thenThrow(new IllegalStateException());
+    doReturn(null).when(security).getShiroSubject();
     when(systemSubject.execute(callable)).thenReturn("Success!");
     configureMocksForBundleContext("server");
 
     try {
       security.runWithSubjectOrElevate(callable);
     } catch (SecurityServiceException e) {
-      verifyStatic();
-      SecurityLogger.audit("Current user doesn't have sufficient privileges to run this command");
+      verify(security).auditInsufficientPermissions();
       throw e;
     }
   }
 
   @Test
   public void testRunWithSubjectOrElevateWhenSystemSubjectIsNotAvailable() throws Exception {
-    when(SecurityUtils.getSubject()).thenThrow(new IllegalStateException());
+    doReturn(null).when(security).getShiroSubject();
     configureMocksForBundleContext("bad-alias");
 
     boolean securityExceptionThrown =
@@ -238,15 +221,14 @@ public class SecurityTest {
             });
 
     assertThat(securityExceptionThrown, is(true));
-    verifyStatic();
-    SecurityLogger.audit("Current user doesn't have sufficient privileges to run this command");
+    verify(security).auditInsufficientPermissions();
     verifyZeroInteractions(shiroSubject);
   }
 
   @Test
   public void testRunWithSubjectOrElevateWhenUserSubjectExistsAndCallableThrowsException()
       throws Exception {
-    when(SecurityUtils.getSubject()).thenReturn(shiroSubject);
+    doReturn(shiroSubject).when(security).getShiroSubject();
     when(shiroSubject.execute(callable))
         .thenThrow(new ExecutionException(new UnsupportedOperationException()));
 
@@ -263,7 +245,7 @@ public class SecurityTest {
   @Test
   public void testRunWithSubjectOrElevateWhenSystemSubjectIsUsedAndCallableThrowsException()
       throws Exception {
-    when(SecurityUtils.getSubject()).thenThrow(new IllegalStateException());
+    doReturn(null).when(security).getShiroSubject();
     when(systemSubject.execute(callable))
         .thenThrow(new ExecutionException(new UnsupportedOperationException()));
     configureMocksForBundleContext("server");
@@ -290,11 +272,8 @@ public class SecurityTest {
   }
 
   private void configureMockForSecurityManager(SecurityManager sm) {
-    mockStatic(FrameworkUtil.class);
-    Bundle bundle = mock(Bundle.class);
-    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
     BundleContext bc = mock(BundleContext.class);
-    when(bundle.getBundleContext()).thenReturn(bc);
+    doReturn(bc).when(security).getBundleContext();
     ServiceReference ref = mock(ServiceReference.class);
     when(bc.getServiceReference(any(Class.class))).thenReturn(ref);
     when(bc.getService(ref)).thenReturn(sm);
@@ -302,10 +281,8 @@ public class SecurityTest {
 
   private void configureMocksForBundleContext(String systemHostname) throws Exception {
     System.setProperty("org.codice.ddf.system.hostname", systemHostname);
-    Bundle bundle = mock(Bundle.class);
-    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
     BundleContext bundleContext = mock(BundleContext.class);
-    when(bundle.getBundleContext()).thenReturn(bundleContext);
+    doReturn(bundleContext).when(security).getBundleContext();
     ServiceReference adminRef = mock(ServiceReference.class);
     ConfigurationAdmin configAdmin = mock(ConfigurationAdmin.class);
     Configuration config = mock(Configuration.class);

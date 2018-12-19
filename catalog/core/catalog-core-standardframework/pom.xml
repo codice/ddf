@@ -25,11 +25,6 @@
     <name>DDF :: Catalog :: Core :: Standard Framework</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <!-- For maven-surefire-plugin -->
-        <surefire.argline.append>-javaagent:${powermock.agent}</surefire.argline.append>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
@@ -340,27 +335,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-injectattribute</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>mockito-core</artifactId>
-                    <groupId>org.mockito</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4-rule-agent</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

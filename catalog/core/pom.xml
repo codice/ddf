@@ -23,11 +23,6 @@
     <artifactId>core</artifactId>
     <packaging>pom</packaging>
     <name>DDF Catalog Core</name>
-    <properties>
-        <powermock.agent>
-            ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
-        </powermock.agent>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -71,23 +66,6 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4-rule-agent</artifactId>
-                <version>${powermock.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

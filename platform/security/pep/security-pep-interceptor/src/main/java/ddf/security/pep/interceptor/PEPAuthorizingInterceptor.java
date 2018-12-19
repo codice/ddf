@@ -13,6 +13,7 @@
  */
 package ddf.security.pep.interceptor;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -22,6 +23,7 @@ import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
+import java.util.function.Function;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 import org.apache.commons.lang.StringUtils;
@@ -48,11 +50,19 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  private final Function<Message, SecurityAssertion> assertionRetriever;
+
   private SecurityManager securityManager;
 
   public PEPAuthorizingInterceptor() {
+    this(SecurityAssertionStore::getSecurityAssertion);
+  }
+
+  @VisibleForTesting
+  PEPAuthorizingInterceptor(Function<Message, SecurityAssertion> assertionRetriever) {
     super(Phase.PRE_INVOKE);
     addAfter(org.apache.cxf.ws.policy.PolicyVerificationInInterceptor.class.getName());
+    this.assertionRetriever = assertionRetriever;
   }
 
   /**
@@ -76,7 +86,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
     if (message != null) {
       // grab the SAML assertion associated with this Message from the
       // token store
-      SecurityAssertion assertion = SecurityAssertionStore.getSecurityAssertion(message);
+      SecurityAssertion assertion = assertionRetriever.apply(message);
       boolean isPermitted = false;
 
       if ((assertion != null) && (assertion.getSecurityToken() != null)) {

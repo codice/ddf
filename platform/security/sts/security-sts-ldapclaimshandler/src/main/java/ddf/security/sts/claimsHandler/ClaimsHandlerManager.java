@@ -306,7 +306,7 @@ public class ClaimsHandlerManager {
       String bindMethod,
       String realm,
       String kdcAddress) {
-    RoleClaimsHandler roleHandler = new RoleClaimsHandler();
+    RoleClaimsHandler roleHandler = new RoleClaimsHandler(new AttributeMapLoader());
     roleHandler.setLdapConnectionFactory(connection);
     roleHandler.setPropertyFileLocation(propertyFileLoc);
     roleHandler.setUserBaseDn(userBaseDn);
@@ -344,7 +344,7 @@ public class ClaimsHandlerManager {
       String bindMethod,
       String realm,
       String kdcAddress) {
-    LdapClaimsHandler ldapHandler = new LdapClaimsHandler();
+    LdapClaimsHandler ldapHandler = new LdapClaimsHandler(new AttributeMapLoader());
     ldapHandler.setLdapConnectionFactory(connection);
     ldapHandler.setPropertyFileLocation(propertyFileLoc);
     ldapHandler.setUserBaseDN(userBaseDn);

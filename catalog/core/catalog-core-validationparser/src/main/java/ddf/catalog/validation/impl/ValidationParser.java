@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -75,6 +76,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -132,13 +134,29 @@ public class ValidationParser implements ArtifactInstaller {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
+  private final Function<Class, Bundle> bundleLookup;
+
   public ValidationParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+    this(
+        attributeRegistry,
+        attributeValidatorRegistry,
+        defaultAttributeValueRegistry,
+        FrameworkUtil::getBundle);
+  }
+
+  @VisibleForTesting
+  ValidationParser(
+      AttributeRegistry attributeRegistry,
+      AttributeValidatorRegistry attributeValidatorRegistry,
+      DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      Function<Class, Bundle> bundleLookup) {
     this.attributeRegistry = attributeRegistry;
     this.attributeValidatorRegistry = attributeValidatorRegistry;
     this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    this.bundleLookup = bundleLookup;
   }
 
   @Override
@@ -624,7 +642,7 @@ public class ValidationParser implements ArtifactInstaller {
   }
 
   private BundleContext getBundleContext() {
-    return Optional.ofNullable(FrameworkUtil.getBundle(getClass()))
+    return Optional.ofNullable(bundleLookup.apply(getClass()))
         .map(Bundle::getBundleContext)
         .orElseThrow(
             () ->

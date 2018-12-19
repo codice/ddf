@@ -20,9 +20,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,13 +60,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 
-@PrepareForTest(ReliableResourceDownloader.class)
 public class ReliableResourceDownloaderTest {
   private static final String DOWNLOAD_ID = "123";
 
@@ -86,10 +83,8 @@ public class ReliableResourceDownloaderTest {
 
   private Metacard mockMetacard;
 
-  @Rule public PowerMockRule rule = new PowerMockRule();
-
   @BeforeClass
-  public static void oneTimeSetup() throws IOException {
+  public static void oneTimeSetup() {
     String workingDir = System.getProperty("user.dir");
     productCacheDirectory = workingDir + "/target/tests/product-cache";
     productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
@@ -239,23 +234,29 @@ public class ReliableResourceDownloaderTest {
     ReliableResourceCallable mockCallable = mock(ReliableResourceCallable.class);
     when(mockCallable.getReliableResourceStatus()).thenReturn(resourceStatus);
 
-    PowerMockito.whenNew(ReliableResourceCallable.class)
-        .withAnyArguments()
-        .thenReturn(null, mockCallable);
-    PowerMockito.whenNew(ResourceRetrievalMonitor.class)
-        .withAnyArguments()
-        .thenThrow(new CancellationException());
-
     int retries = 5;
     downloaderConfig.setMaxRetryAttempts(retries);
 
     ReliableResourceDownloader downloader =
-        new ReliableResourceDownloader(
-            downloaderConfig,
-            new AtomicBoolean(),
-            DOWNLOAD_ID,
-            mockResponse,
-            mockResourceRetriever);
+        spy(
+            new ReliableResourceDownloader(
+                downloaderConfig,
+                new AtomicBoolean(),
+                DOWNLOAD_ID,
+                mockResponse,
+                mockResourceRetriever));
+
+    doReturn(null)
+        .doReturn(mockCallable)
+        .when(downloader)
+        .constructReliableResourceCallable(
+            any(InputStream.class),
+            any(CountingOutputStream.class),
+            any(FileOutputStream.class),
+            anyInt(),
+            any(Object.class));
+    doThrow(new CancellationException()).when(downloader).constructResourceRetrievalMonitor();
+
     downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
     downloader.run();
 

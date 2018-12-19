@@ -27,12 +27,6 @@
   <name>DDF :: Admin :: Core :: Migration :: Commands</name>
   <packaging>bundle</packaging>
 
-  <properties>
-    <powermock.agent>
-      ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
-    </powermock.agent>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
