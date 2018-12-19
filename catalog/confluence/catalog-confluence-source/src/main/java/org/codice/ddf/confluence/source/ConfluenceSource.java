@@ -272,7 +272,7 @@ public class ConfluenceSource extends MaskableImpl
 
       List<Result> results =
           transformer
-              .transformConfluenceResponse(stream)
+              .transformConfluenceResponse(stream, bodyExpansion)
               .stream()
               .map(this::getUpdatedResult)
               .collect(Collectors.toList());
