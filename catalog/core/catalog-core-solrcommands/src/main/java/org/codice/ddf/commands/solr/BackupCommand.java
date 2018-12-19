@@ -144,7 +144,7 @@ public class BackupCommand extends SolrCommands {
     String url =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
-    String backupUrl = url + "/" + coreName;
+    String backupUrl = String.format("%s/%s/%s", url, coreName, "replication");
 
     URIBuilder uriBuilder = new URIBuilder(backupUrl);
     uriBuilder.addParameter("command", "backup");
