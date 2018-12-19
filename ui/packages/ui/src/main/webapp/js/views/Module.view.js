@@ -86,13 +86,7 @@ define([
             tagName: 'div',
             className: 'tab-pane',
             initialize: function() {
-              if (
-                this.model.get('iframeLocation') &&
-                this.model.get('iframeLocation') !== ''
-              ) {
-                // todo fix this
-                this.listenTo(this.model, 'change:active', this.render)
-              }
+              this.listenTo(this.model, 'change:active', this.onRender)
             },
             attachIframeResizer: function() {
               setTimeout(

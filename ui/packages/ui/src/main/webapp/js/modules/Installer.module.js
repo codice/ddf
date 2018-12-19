@@ -21,7 +21,7 @@ define([
   InstallerModel,
   InstallerMainController
 ) {
-  Application.App.module('Installation', function(
+  return Application.App.module('Installation', function(
     AppModule,
     App,
     Backbone,
@@ -29,6 +29,7 @@ define([
     $,
     _
   ) {
+    this.startWithParent = false
     var installerModel = new InstallerModel.Model()
 
     // Define a view to show
