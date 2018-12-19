@@ -110,6 +110,32 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'text')
         break
       case 'custom':
+        let sorts =
+          this.model.get('querySettings') &&
+          this.model.get('querySettings').sorts
+        if (sorts) {
+          sorts = sorts.map(sort => ({
+            attribute: sort.split(',')[0],
+            direction: sort.split(',')[1],
+          }))
+        }
+        const sharedAttributes = {
+          title: this.model.get('title'),
+          filterTree: this.model.get('filterTemplate'),
+          src:
+            (this.model.get('querySettings') &&
+              this.model.get('querySettings').src) ||
+            '',
+          federation:
+            (this.model.get('querySettings') &&
+              this.model.get('querySettings').federation) ||
+            'enterprise',
+          sorts: sorts,
+          'detail-level':
+            (this.model.get('querySettings') &&
+              this.model.get('querySettings')['detail-level']) ||
+            'allFields',
+        }
         if (
           Router.attributes.path === 'forms(/)' &&
           this.model.get('createdBy') !== 'system'
@@ -130,8 +156,7 @@ module.exports = Marionette.LayoutView.extend({
           }
 
           this.model.set({
-            title: this.model.get('title'),
-            filterTree: this.model.get('filterTemplate'),
+            ...sharedAttributes,
             id: this.model.get('id'),
             accessGroups: this.model.get('accessGroups'),
             accessIndividuals: this.model.get('accessIndividuals'),
@@ -139,32 +164,9 @@ module.exports = Marionette.LayoutView.extend({
           })
           this.routeToSearchFormEditor(this.model.get('id'))
         } else {
-          let sorts =
-            this.model.get('querySettings') &&
-            this.model.get('querySettings').sorts
-          if (sorts) {
-            sorts = sorts.map(sort => ({
-              attribute: sort.split(',')[0],
-              direction: sort.split(',')[1],
-            }))
-          }
           this.options.queryModel.set({
             type: 'custom',
-            title: this.model.get('title'),
-            filterTree: this.model.get('filterTemplate'),
-            src:
-              (this.model.get('querySettings') &&
-                this.model.get('querySettings').src) ||
-              '',
-            federation:
-              (this.model.get('querySettings') &&
-                this.model.get('querySettings').federation) ||
-              'enterprise',
-            sorts: sorts,
-            'detail-level':
-              (this.model.get('querySettings') &&
-                this.model.get('querySettings')['detail-level']) ||
-              'allFields',
+            ...sharedAttributes,
           })
           if (oldType === 'custom') {
             this.options.queryModel.trigger('change:type')
