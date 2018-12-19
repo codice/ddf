@@ -32,8 +32,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.codice.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.ConfigurationFileProxy;
-import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.SolrCloudClientFactory;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
@@ -80,9 +78,8 @@ public class SolrProviderTest {
     ConfigurationStore store = ConfigurationStore.getInstance();
     store.setForceAutoCommit(true);
     String solrDataPath = Paths.get("target/surefire/solr").toString();
-    System.getProperty("solr.data.dir", solrDataPath);
+    System.setProperty("solr.data.dir", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
-    ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(store);
 
     miniSolrCloud =
         new MiniSolrCloudCluster(

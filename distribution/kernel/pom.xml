@@ -429,6 +429,11 @@
             <version>${acdebugger.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>${saxon.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>kernel</artifactId>
             <version>${project.version}</version>

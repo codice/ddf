@@ -23,62 +23,20 @@
     <name>DDF :: Platform :: Solr :: XPath</name>
     <description>Solr query parser to support XPath queries using a LuxDB.</description>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>lux</artifactId>
+            <version>${lux.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>${lux.saxon.version}</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <artifactSet>
-                        <includes>
-                            <include>org.codice:lux</include>
-                            <include>net.sf.saxon:Saxon-HE</include>
-                            <include>org.codehaus.woodstox:stax2-api</include>
-                            <include>com.fasterxml.woodstox:woodstox-core</include>
-                        </includes>
-                    </artifactSet>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>check-artifact-size</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>4.7_MB</maxArtifactSize>
-                                </ArtifactSizeEnforcerRule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -119,16 +77,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>org.codice</groupId>
-            <artifactId>lux</artifactId>
-            <version>${lux.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-            <version>9.5.1-3</version>
-        </dependency>
-    </dependencies>
 </project>
