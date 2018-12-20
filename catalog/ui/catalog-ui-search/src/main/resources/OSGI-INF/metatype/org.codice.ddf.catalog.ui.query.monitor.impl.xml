@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Workspace Service" id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl">
+    <OCD name="Catalog UI Search Workspace Service" id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl">
         <AD id="maxSubscriptions"
             name="Maximum Subscriptions"
             description="Specifies the maximum number of workspace subscriptions that may be queried for email notifications."
