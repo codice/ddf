@@ -14,6 +14,7 @@
 package ddf.catalog.migrate.migration.workspace.query.separation;
 
 import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_QUERIES;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -40,11 +42,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -63,18 +67,10 @@ public class WorkspaceQueryMigrationTest {
   private WorkspaceQueryMigration workspaceQueryMigration;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     workspaceQueryMigration =
         new WorkspaceQueryMigration(catalogFramework, filterBuilder, xmlInputTransformer);
-  }
 
-  @Test
-  public void testDataMigration() throws Exception {
-    Result result = mock(Result.class);
-    Metacard workspace = getWorkspaceMetacard("workspaceId");
-    doReturn(workspace).when(result).getMetacard();
-
-    doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
     doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 
     doReturn(new MetacardImpl()).when(xmlInputTransformer).transform(any(InputStream.class));
@@ -86,6 +82,15 @@ public class WorkspaceQueryMigrationTest {
     doReturn(ImmutableList.of(query1, query2)).when(createResponse).getCreatedMetacards();
 
     doReturn(createResponse).when(catalogFramework).create(any(CreateRequest.class));
+  }
+
+  @Test
+  public void testDataMigration() throws Exception {
+    Result result = mock(Result.class);
+    Metacard workspace = getWorkspaceMetacard("workspaceId");
+    doReturn(workspace).when(result).getMetacard();
+
+    doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
 
     workspaceQueryMigration.migrateWorkspaces();
 
@@ -95,6 +100,53 @@ public class WorkspaceQueryMigrationTest {
     assertThat(
         workspace.getAttribute(WORKSPACE_QUERIES).getValues(),
         is(ImmutableList.of("queryId1", "queryId2")));
+  }
+
+  @Test
+  public void testMigrateUpdateRequest() throws Exception {
+    Result result = mock(Result.class);
+    Metacard workspace = getWorkspaceMetacard("workspaceId");
+    doReturn(workspace).when(result).getMetacard();
+
+    doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
+
+    ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor =
+        ArgumentCaptor.forClass(UpdateRequest.class);
+
+    workspaceQueryMigration.migrateWorkspaces();
+
+    verify(catalogFramework, times(1)).update(updateRequestArgumentCaptor.capture());
+
+    UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
+    Metacard updateMetacard = actualUpdateRequest.getUpdates().get(0).getValue();
+
+    assertThat(actualUpdateRequest.getUpdates().get(0).getKey(), is("workspaceId"));
+    assertThat(
+        updateMetacard.getAttribute(WORKSPACE_QUERIES).getValues(),
+        is(ImmutableList.of("queryId1", "queryId2")));
+  }
+
+  @Test
+  public void testMigrateCreateRequest() throws Exception {
+    Result result = mock(Result.class);
+    Metacard workspace = getWorkspaceMetacard("workspaceId");
+    doReturn(workspace).when(result).getMetacard();
+
+    doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
+
+    ArgumentCaptor<CreateRequest> createRequestArgumentCaptor =
+        ArgumentCaptor.forClass(CreateRequest.class);
+
+    workspaceQueryMigration.migrateWorkspaces();
+
+    verify(catalogFramework, times(1)).create(createRequestArgumentCaptor.capture());
+
+    CreateRequest actualCreateRequest = createRequestArgumentCaptor.getValue();
+    List<Metacard> createMetacards = actualCreateRequest.getMetacards();
+
+    assertThat(createMetacards, hasSize(2));
+    assertThat(createMetacards.get(0).getTags(), is(ImmutableSet.of("query")));
+    assertThat(createMetacards.get(1).getTags(), is(ImmutableSet.of("query")));
   }
 
   private Metacard getQueryMetacard(String id) {
