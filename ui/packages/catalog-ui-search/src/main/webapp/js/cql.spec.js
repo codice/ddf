@@ -15,11 +15,11 @@ describe('tokenize', () => {
 
     filters.forEach(e => {
       switch (e.property) {
-        case '"metacard.modified"':
-        case '"metacard.created"':
-        case '"modified"':
-        case '"created"':
-        case '"effective"':
+        case 'metacard.modified':
+        case 'metacard.created':
+        case 'modified':
+        case 'created':
+        case 'effective':
           expect(e.value, 'Unexpected filter value.').to.equal(
             'RELATIVE(P0DT0H5M)'
           )
@@ -114,7 +114,7 @@ describe('tokenize', () => {
       }
       const result = cql.write(filter)
       expect(result).equals(
-        "anyText ILIKE 'this % is \\% a \\_ test _ \\* \\?'"
+        '"anyText" ILIKE \'this % is \\% a \\_ test _ \\* \\?\''
       )
     })
 
@@ -130,7 +130,7 @@ describe('tokenize', () => {
         value: '**%%__??\\*\\*\\?\\?',
       }
       const result = cql.write(filter)
-      expect(result).equals("anyText ILIKE '%%\\%\\%\\_\\___\\*\\*\\?\\?'")
+      expect(result).equals('"anyText" ILIKE \'%%\\%\\%\\_\\___\\*\\*\\?\\?\'')
     })
 
     it('parses single quote property name', () => {

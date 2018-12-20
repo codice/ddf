@@ -68,7 +68,7 @@ describe('CQL Utils', () => {
         property: 'anyGeo',
         value: 'POLYGON((1 2,3 4,5 6,1 2))',
       })
-      expect(cql).to.equal('(INTERSECTS(anyGeo, POLYGON((1 2,3 4,5 6,1 2))))')
+      expect(cql).to.equal('(INTERSECTS("anyGeo", POLYGON((1 2,3 4,5 6,1 2))))')
     })
 
     it('transform compound AND filter to CQL', () => {
@@ -88,7 +88,7 @@ describe('CQL Utils', () => {
         ],
       })
       expect(cql).to.equal(
-        '((INTERSECTS(anyGeo, LINESTRING((1 2,3 4)))) AND (INTERSECTS(anyGeo, POLYGON((5 6,7 8,9 10,5 6)))))'
+        '((INTERSECTS("anyGeo", LINESTRING((1 2,3 4)))) AND (INTERSECTS("anyGeo", POLYGON((5 6,7 8,9 10,5 6)))))'
       )
     })
 
@@ -329,7 +329,7 @@ describe('CQL Utils', () => {
         mockMetacardDefinitions
       )
       expect(filter.type).equals('some type')
-      expect(filter.property).equals('"anyText"')
+      expect(filter.property).equals('anyText')
       expect(filter.value).equals('some value')
     })
 
