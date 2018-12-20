@@ -24,6 +24,8 @@ var DrawLine = require('../../../../js/widgets/openlayers.line.js')
 
 var properties = require('../../../../js/properties.js')
 var Openlayers = require('openlayers')
+const Turf = require('@turf/turf')
+const DistanceUtils = require('../../../../js/DistanceUtils.js')
 var Geocoder = require('../../../../js/view/openlayers.geocoder.js')
 var LayerCollectionController = require('../../../../js/controllers/ol.layerCollection.controller.js')
 var user = require('../../../singletons/user-instance.js')
@@ -31,7 +33,9 @@ var User = require('../../../../js/model/User.js')
 var wreqr = require('../../../../js/wreqr.js')
 var mtgeo = require('mt-geo')
 
-var defaultColor = '#3c6dd5'
+const DEFAULT_COLOR = '#3c6dd5'
+
+const DEFAULT_BUFFER = 1
 
 var OpenLayerCollectionController = LayerCollectionController.extend({
   initialize: function() {
@@ -437,7 +441,7 @@ module.exports = function OpenlayersMap(
         }),
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: options.color || defaultColor,
+            color: options.color || DEFAULT_COLOR,
             width: 4,
           }),
         }),
@@ -562,7 +566,7 @@ module.exports = function OpenlayersMap(
             }),
             new Openlayers.style.Style({
               stroke: new Openlayers.style.Stroke({
-                color: options.color || defaultColor,
+                color: options.color || DEFAULT_COLOR,
                 width: 4,
               }),
             }),
@@ -610,10 +614,23 @@ module.exports = function OpenlayersMap(
     showMultiLineShape: function(locationModel) {
       let lineObject = locationModel
         .get('multiline')
-        .map(line => line.map(coords => convertPointCoordinate(coords)))
+        .map(line => line.map(coords => unconvertPointCoordinate(coords)))
+
+      const bufferedWidth =
+        DistanceUtils.getDistanceInMeters(
+          locationModel.get('lineWidth'),
+          locationModel.get('lineUnits')
+        ) || DEFAULT_BUFFER
+      const multiLine = Turf.multiLineString(lineObject)
+      const buffered = Turf.buffer(multiLine, bufferedWidth, 'meters')
+      const convertedCoordinates = buffered.geometry.coordinates.map(poly =>
+        poly.map(coordinateSet =>
+          coordinateSet.map(coord => convertPointCoordinate(coord))
+        )
+      )
 
       let feature = new Openlayers.Feature({
-        geometry: new Openlayers.geom.MultiLineString(lineObject),
+        geometry: new Openlayers.geom.MultiPolygon(convertedCoordinates),
       })
 
       feature.setId(locationModel.cid)
@@ -621,7 +638,7 @@ module.exports = function OpenlayersMap(
       const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: locationModel.get('color') || defaultColor,
+            color: locationModel.get('color') || DEFAULT_COLOR,
             width: 4,
           }),
         }),
@@ -632,16 +649,32 @@ module.exports = function OpenlayersMap(
       return this.createVectorLayer(locationModel, feature)
     },
     showMultiPolygonShape: function(locationModel) {
-      let lineObject = locationModel
+      const multiPolyObject = locationModel
         .get('multipolygon')
         .map(poly =>
           poly.map(coordinateSet =>
-            coordinateSet.map(pair => convertPointCoordinate(pair))
+            coordinateSet.map(pair => unconvertPointCoordinate(pair))
           )
         )
 
-      let feature = new Openlayers.Feature({
-        geometry: new Openlayers.geom.MultiPolygon(lineObject),
+      const bufferWidth =
+        DistanceUtils.getDistanceInMeters(
+          locationModel.get('polygonBufferWidth'),
+          locationModel.get('polygonBufferUnits')
+        ) || DEFAULT_BUFFER
+
+      const multiPolygon = Turf.multiPolygon(multiPolyObject)
+
+      const buffered = Turf.buffer(multiPolygon, bufferWidth, 'meters')
+
+      const convertedCoordinates = buffered.geometry.coordinates.map(poly =>
+        poly.map(coordinateSet =>
+          coordinateSet.map(coord => convertPointCoordinate(coord))
+        )
+      )
+
+      const feature = new Openlayers.Feature({
+        geometry: new Openlayers.geom.MultiPolygon(convertedCoordinates)
       })
 
       feature.setId(locationModel.cid)
@@ -649,7 +682,7 @@ module.exports = function OpenlayersMap(
       const styles = [
         new Openlayers.style.Style({
           stroke: new Openlayers.style.Stroke({
-            color: locationModel.get('color') || defaultColor,
+            color: locationModel.get('color') || DEFAULT_COLOR,
             width: 4,
           }),
         }),
