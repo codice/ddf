@@ -31,4 +31,22 @@ module.exports = Backbone.Model.extend({
       querySettings: {},
     }
   },
+  transformToQueryStructure() {
+    const querySettings = this.get('querySettings')
+    return {
+      title: this.get('title'),
+      filterTree: this.get('filterTemplate'),
+      src: (querySettings && querySettings.src) || '',
+      federation: (querySettings && querySettings.federation) || 'enterprise',
+      sorts:
+        querySettings && querySettings.sorts
+          ? querySettings.sorts.map(sort => ({
+              attribute: sort.split(',')[0],
+              direction: sort.split(',')[1],
+            }))
+          : [],
+      'detail-level':
+        (querySettings && querySettings['detail-level']) || 'allFields',
+    }
+  },
 })

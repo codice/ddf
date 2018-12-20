@@ -103,6 +103,7 @@ module.exports = Marionette.LayoutView.extend({
     } else {
       collection = SearchFormsCollection.getCollection()
       this.model = collection.get(id)
+      this.model.set(this.model.transformToQueryStructure())
       if (!this.model) {
         collection = SearchFormsSharingCollection.getCollection()
         this.model = collection.get(id)

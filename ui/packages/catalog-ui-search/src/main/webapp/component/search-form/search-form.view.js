@@ -110,32 +110,7 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'text')
         break
       case 'custom':
-        let sorts =
-          this.model.get('querySettings') &&
-          this.model.get('querySettings').sorts
-        if (sorts) {
-          sorts = sorts.map(sort => ({
-            attribute: sort.split(',')[0],
-            direction: sort.split(',')[1],
-          }))
-        }
-        const sharedAttributes = {
-          title: this.model.get('title'),
-          filterTree: this.model.get('filterTemplate'),
-          src:
-            (this.model.get('querySettings') &&
-              this.model.get('querySettings').src) ||
-            '',
-          federation:
-            (this.model.get('querySettings') &&
-              this.model.get('querySettings').federation) ||
-            'enterprise',
-          sorts,
-          'detail-level':
-            (this.model.get('querySettings') &&
-              this.model.get('querySettings')['detail-level']) ||
-            'allFields',
-        }
+        const sharedAttributes = this.model.transformToQueryStructure()
         if (
           Router.attributes.path === 'forms(/)' &&
           this.model.get('createdBy') !== 'system'
@@ -152,7 +127,6 @@ module.exports = Marionette.LayoutView.extend({
           user.getQuerySettings().set('type', 'custom')
         }
     }
-
     user.savePreferences()
     this.triggerCloseDropdown()
   },
