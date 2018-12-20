@@ -180,6 +180,13 @@
             default="false"
             required="false"/>
 
+        <AD id="relevancePrecision"
+            name="Relevance Score Precision"
+            description="Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345)."
+            type="Integer"
+            default="5"
+            required="false"/>
+
         <AD id="logoEnabled"
             name="Show Logo in Title Bar"
             description="Toggles the visibility of the logo in the menu bar."
@@ -299,13 +306,6 @@
             description="Specifies a custom UI branding name in the UI."
             type="String"
             default="Intrigue"/>
-
-        <AD id="relevancePrecision"
-            name="Relevance Score Precision"
-            description="Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345)."
-            type="Integer"
-            default="5"
-            required="false"/>
 
         <AD name="Upload Editor: Attribute Configuration" id="attributeEnumMap" required="false" type="String" cardinality="100"
             default=""

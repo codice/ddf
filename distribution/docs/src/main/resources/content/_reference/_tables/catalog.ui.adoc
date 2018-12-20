@@ -202,6 +202,13 @@ Example:
 |false
 |false
 
+|Relevance Score Precision
+|relevancePrecision
+|Integer
+|Set the number of digits to display in for each relevance score. The default is `5` (i.e. 12.345).
+|5
+|false
+
 |Show Logo in Title Bar
 |logoEnabled
 |Boolean
@@ -370,13 +377,6 @@ thumbnail
 |Specifies a custom UI branding name in the UI.
 |Intrigue
 |true
-
-|Relevance Score Precision
-|relevancePrecision
-|Integer
-|Set the number of digits to display in for each relevance score. The default is `5` (i.e. 12.345).
-|5
-|false
 
 |Upload Editor: Attribute Configuration
 |attributeEnumMap
