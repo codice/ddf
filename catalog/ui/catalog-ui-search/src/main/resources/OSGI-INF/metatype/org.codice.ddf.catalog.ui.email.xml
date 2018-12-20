@@ -15,9 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Catalog UI Search Email Notifier"
-         name="Catalog UI Search Email Notifier"
-         id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
+    <OCD name="Catalog UI Search Email Notifier" id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
         <AD description="Set the subject line template."
             name="Subject" id="subjectTemplate" type="String"
             default="Workspace '%[attribute=title]' notification"/>

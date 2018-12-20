@@ -20,10 +20,10 @@
 |hiddenAttributes
 |String
 |List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^sorts$, +
-^cql$, +
-^polling$, +
-^cached$
+a|* `^sorts$`
+* `^cql$`
+* `^polling$`
+* `^cached$`
 |false
 
 |===

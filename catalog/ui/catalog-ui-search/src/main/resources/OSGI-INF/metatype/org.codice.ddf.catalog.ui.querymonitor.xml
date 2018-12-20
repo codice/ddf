@@ -15,8 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Catalog UI Search Workspace Query Monitor"
-         name="Catalog UI Search Workspace Query Monitor"
+    <OCD name="Catalog UI Search Workspace Query Monitor"
          id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">
         <AD description="Set the number of minutes to wait for query to complete."
             name="Query Timeout" id="queryTimeoutMinutes" type="Long"

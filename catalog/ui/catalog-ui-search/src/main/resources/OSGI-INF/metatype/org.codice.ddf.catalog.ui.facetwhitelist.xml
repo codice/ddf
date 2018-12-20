@@ -15,15 +15,12 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search Attribute Suggestion Whitelist"
-         id="org.codice.ddf.catalog.ui.facetwhitelist">
-
+    <OCD name="Catalog UI Search Attribute Suggestion Whitelist" id="org.codice.ddf.catalog.ui.facetwhitelist">
         <AD id="facetAttributeWhitelist"
             name="Attribute Suggestion Whitelist"
             description="The list of attributes you want to be able to make suggestions for. CAUTION: these attributes are not run through security"
             type="String"
             cardinality="1000"/>
-
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.facetwhitelist">

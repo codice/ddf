@@ -19,7 +19,12 @@
 |Theme
 |theme
 |String
-|Specifies the default theme. `Custom` consists of the colors below.
+a|Specifies the default theme:
+
+* `Dark`
+* `Light`
+* `Sea`
+* `Custom`, which consists of the colors below
 |Dark
 |true
 
@@ -103,7 +108,11 @@
 |Theme Spacing Mode
 |spacingMode
 |String
-|Specifies the default theme spacing mode.
+a|Specifies the default theme spacing mode:
+
+* `Comfortable`
+* `Cozy`
+* `Compact`
 |Comfortable
 |true
 

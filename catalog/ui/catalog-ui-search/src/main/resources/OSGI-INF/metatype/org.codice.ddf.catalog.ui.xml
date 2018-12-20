@@ -22,21 +22,20 @@
             default="250"/>
 
         <AD id="exportResultLimit"
-          name="Export Result Limit"
-          description="Specifies the max number of results that can be exported."
-          type="Integer"
-          default="1000"/>
+            name="Export Result Limit"
+            description="Specifies the max number of results that can be exported."
+            type="Integer"
+            default="1000"/>
 
         <AD id="imageryProviders"
             name="Imagery Providers"
-            description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}.'
+            description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), and GE (GoogleEarth). Example: {"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}.'
             type="String"
-            default=""
             required="false"/>
 
         <AD id="terrainProvider"
             name="Terrain Provider"
-            description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type": "CT", "url": "http://example.com"}.'
+            description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), and VRW (VRTheWorld). Example: {"type": "CT", "url": "http://example.com"}.'
             type="String"
             default='{ "type": "CT"\, "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }'
             required="false"/>
@@ -52,7 +51,6 @@
             description='Templates for users to quickly create lists that already specify an icon and a filter. Example: {"id":"Pizza Deliveries", "list.icon": "tasks", "list.cql": "(\"anyText\" ILIKE &apos;pizza&apos;)"} '
             type="String"
             cardinality="10000"
-            default=''
             required="false"/>
 
         <AD id="projection"
@@ -66,7 +64,6 @@
             name="Bing Maps Key"
             description="Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers."
             type="String"
-            default=""
             required="false"/>
 
         <AD id="timeout"
@@ -232,7 +229,7 @@
             description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
-            default="^checksum$,^checksum-algorithm$,^id$,^resource-download-url$,^resource-uri$,^resource\\.derived-uri$,^resource\\.derived-download-url$,^modified$,^metacard-tags$,^metadata$,^metacard-type$,^source-id$,^point-of-contact$, ^metacard\\.,^version\\.,^validation\\."
+            default="^checksum$,^checksum-algorithm$,^id$,^resource-download-url$,^resource-uri$,^resource.derived-uri$,^resource.derived-download-url$,^modified$,^metacard-tags$,^metadata$,^metacard-type$,^source-id$,^point-of-contact$,^metacard.,^version.,^validation."
             required="false"/>
 
         <AD id="summaryShow"
@@ -249,7 +246,6 @@
             type="String"
             cardinality="10000"
             required="false"/>
-
 
         <AD id="scheduleFrequencyList"
             name="Query Schedule Frequencies"
@@ -296,9 +292,8 @@
 
         <AD id="mapHome"
             name="Map Home"
-            description='Specifies the default home view for the map by bounding box. The format is: "West, South, East, North" where North, East, South, and West are coordinates in degrees. An example is: "-124, 60, -100, 40".'
+            description='Specifies the default home view for the map by bounding box. The format is "West, South, East, North", where North, East, South, and West are coordinates in degrees. An example is: "-124, 60, -100, 40".'
             type="String"
-            default=""
             required="false"/>
 
         <AD id="uiName"
@@ -307,16 +302,19 @@
             type="String"
             default="Intrigue"/>
 
-        <AD name="Upload Editor: Attribute Configuration" id="attributeEnumMap" required="false" type="String" cardinality="100"
-            default=""
-            description="List of attributes to show in the upload editor. By default, an attribute
-                         may be assigned any text value. Entries of the form 'attribute=value_1,...,value_n'
-                         will restrict input to the listed values.">
-        </AD>
+        <AD id="attributeEnumMap"
+            name="Upload Editor: Attribute Configuration"
+            description="List of attributes to show in the upload editor. By default, an attribute may be assigned any text value. Entries of the form 'attribute=value_1,...,value_n' will restrict input to the listed values."
+            type="String"
+            cardinality="100"
+            required="false"/>
 
-        <AD name="Upload Editor: Required Attributes" id="requiredAttributes" required="false" type="String" cardinality="100"
-            default=""
-            description="List of attributes a user must specify before uploading">
+        <AD id="requiredAttributes"
+            name="Upload Editor: Required Attributes"
+            description="List of attributes which must be set before an upload is permitted. If an attribute is listed as required but not shown in the editor, it will be ignored."
+            type="String"
+            cardinality="100"
+            required="false">
         </AD>
     </OCD>
 
