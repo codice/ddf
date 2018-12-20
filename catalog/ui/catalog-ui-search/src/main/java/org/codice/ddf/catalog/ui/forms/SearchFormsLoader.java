@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
-import static java.util.AbstractMap.SimpleEntry;
-import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
-import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 
 import com.google.gson.Gson;
@@ -32,24 +29,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
@@ -67,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class SearchFormsLoader implements Supplier<List<Metacard>> {
+public class SearchFormsLoader {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsLoader.class);
 
   private static final Security SECURITY = Security.getInstance();
@@ -75,11 +65,15 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final File DEFAULT_FORMS_DIRECTORY =
       new File(new AbsolutePathResolver("etc/forms").getPath());
 
-  private static final String EXCEPTION_OCCURRED_PARSING = "Exception occurred parsing config file";
+  private static final String DEFAULT_FORMS_FILE = "forms.json";
 
-  private static final String FORMS_FILE_NAME = "forms.json";
+  private static final String DEFAULT_RESULTS_FILE = "results.json";
 
-  private static final String RESULTS_FILE_NAME = "results.json";
+  private final File formsDirectory;
+
+  private final String formsFileName;
+
+  private final String resultsFileName;
 
   private static final Gson GSON =
       new GsonBuilder()
@@ -87,78 +81,49 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
           .create();
 
-  private final File configDirectory;
+  private CatalogFramework catalogFramework;
 
-  public SearchFormsLoader() {
-    this(DEFAULT_FORMS_DIRECTORY);
-  }
+  private EndpointUtil endpointUtil;
 
-  public SearchFormsLoader(File configDirectory) {
-    this.configDirectory = configDirectory;
-  }
-
-  public static Supplier<List<Metacard>> config() {
-    return new SearchFormsLoader();
-  }
-
-  public static boolean enabled() {
-    return new SearchFormsLoader().configDirectory.exists();
+  public SearchFormsLoader(
+      CatalogFramework catalogFramework,
+      EndpointUtil endpointUtil,
+      @Nullable String formsDirectory,
+      @Nullable String formsFileName,
+      @Nullable String resultsFileName) {
+    this.catalogFramework = catalogFramework;
+    this.endpointUtil = endpointUtil;
+    this.formsFileName = (formsFileName == null) ? DEFAULT_FORMS_FILE : formsFileName;
+    this.resultsFileName = (resultsFileName == null) ? DEFAULT_RESULTS_FILE : resultsFileName;
+    this.formsDirectory =
+        (formsDirectory == null)
+            ? DEFAULT_FORMS_DIRECTORY
+            : new File(new AbsolutePathResolver(formsDirectory).getPath());
+    LOGGER.debug(
+        "Initializing forms loader with directory [{}], forms file name [{}], and results file name [{}]",
+        formsDirectory,
+        formsFileName,
+        resultsFileName);
   }
 
   /**
    * Setup the catalog with system templates.
    *
-   * <p>Caution should be exercised when executing code as system. Results from querying as system
-   * are never returned to the client or cached. This means there is no risk of data leak.
-   *
-   * @param catalogFramework the catalog framework, for creating system templates.
-   * @param endpointUtil for querying the catalog.
    * @param systemTemplates system templates loaded from config.
    */
-  public static void bootstrap(
-      CatalogFramework catalogFramework,
-      EndpointUtil endpointUtil,
-      List<Metacard> systemTemplates) {
+  public void bootstrap(List<Metacard> systemTemplates) {
     Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
-    if (systemSubject == null) {
-      throw new SecurityException("Could not get systemSubject to initialize system templates");
-    }
-
-    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-    Failsafe.with(
-            new RetryPolicy()
-                .retryOn(Collections.singletonList(RuntimeException.class))
-                .withMaxRetries(5)
-                .withBackoff(2, 60, TimeUnit.SECONDS))
-        .with(executor)
-        .onComplete(
-            (result, error) -> {
-              if (result != null) {
-                LOGGER.info("Successfully loaded System Search Forms {}", result);
-              } else if (error != null) {
-
-                LOGGER.error("Failed to load System Search Forms", error);
-              }
-              executor.shutdown();
-            })
-        .run(
-            () ->
-                systemSubject.execute(
-                    () ->
-                        SearchFormsLoader.createSystemMetacards(
-                            endpointUtil, systemTemplates, catalogFramework)));
+    systemSubject.execute(() -> this.createSystemMetacards(systemTemplates));
   }
 
-  @Override
-  public List<Metacard> get() {
-    if (!configDirectory.exists()) {
-      LOGGER.warn("Could not locate forms directory [{}]", configDirectory.getAbsolutePath());
+  public List<Metacard> retrieveSystemTemplateMetacards() {
+    if (!formsDirectory.exists()) {
+      LOGGER.warn("Could not locate forms directory [{}]", formsDirectory.getAbsolutePath());
       return Collections.emptyList();
     }
 
-    File formsFile = configDirectory.toPath().resolve(FORMS_FILE_NAME).toFile();
-    File resultsFile = configDirectory.toPath().resolve(RESULTS_FILE_NAME).toFile();
+    File formsFile = formsDirectory.toPath().resolve(formsFileName).toFile();
+    File resultsFile = formsDirectory.toPath().resolve(resultsFileName).toFile();
 
     return Stream.concat(
             loadFile(formsFile, this::formMapper), loadFile(resultsFile, this::resultsMapper))
@@ -207,16 +172,17 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   /** Parse the JSON map for initializing system form templates. */
   @Nullable
   private Metacard formMapper(Map map) {
-    String title = safeGet(map, Core.TITLE, String.class);
-    String description = safeGet(map, Core.DESCRIPTION, String.class);
-    String filterTemplateFile = safeGet(map, "filterTemplateFile", String.class);
-    Map<String, Object> querySettings = safeGetMap(map, "querySettings", Object.class);
+    String title = SearchFormsUtil.safeGet(map, Core.TITLE, String.class);
+    String description = SearchFormsUtil.safeGet(map, Core.DESCRIPTION, String.class);
+    String filterTemplateFile = SearchFormsUtil.safeGet(map, "filterTemplateFile", String.class);
+    Map<String, Object> querySettings =
+        SearchFormsUtil.safeGetMap(map, "querySettings", Object.class);
 
-    if (anyNull(title, description, filterTemplateFile)) {
+    if (SearchFormsUtil.anyNull(title, description, filterTemplateFile)) {
       return null;
     }
 
-    File xmlFile = configDirectory.toPath().resolve(filterTemplateFile).toFile();
+    File xmlFile = formsDirectory.toPath().resolve(filterTemplateFile).toFile();
     if (!xmlFile.exists()) {
       LOGGER.warn("Filter XML file does not exist: {}", filterTemplateFile);
       return null;
@@ -248,11 +214,11 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   /** Parse the JSON map for initializing system result templates. */
   @Nullable
   private Metacard resultsMapper(Map map) {
-    String title = safeGet(map, Core.TITLE, String.class);
-    String description = safeGet(map, Core.DESCRIPTION, String.class);
-    List<String> descriptors = safeGetList(map, "descriptors", String.class);
+    String title = SearchFormsUtil.safeGet(map, Core.TITLE, String.class);
+    String description = SearchFormsUtil.safeGet(map, Core.DESCRIPTION, String.class);
+    List<String> descriptors = SearchFormsUtil.safeGetList(map, "descriptors", String.class);
 
-    if (anyNull(title, description, descriptors)) {
+    if (SearchFormsUtil.anyNull(title, description, descriptors)) {
       return null;
     }
 
@@ -265,7 +231,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   }
 
   @Nullable
-  private static String getFileContent(File file) {
+  private String getFileContent(File file) {
     try (InputStream is = new FileInputStream(file)) {
       return IOUtils.toString(is, "UTF-8");
     } catch (IOException e) {
@@ -275,80 +241,17 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return null;
   }
 
-  private static <T> Map<String, T> safeGetMap(Map map, String key, Class<T> valueType) {
-    Map<?, ?> unchecked = safeGet(map, key, Map.class);
-    if (unchecked == null) {
-      return null;
-    }
-    try {
-      return unchecked
-          .entrySet()
-          .stream()
-          .map(e -> new SimpleEntry<>(String.class.cast(e.getKey()), e.getValue()))
-          .map(e -> new SimpleEntry<>(e.getKey(), valueType.cast(e.getValue())))
-          .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
-    } catch (ClassCastException e) {
-      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
-      LOGGER.warn(
-          "Form configuration field {} was malformed, expected a querySettings Map containing type {}",
-          key,
-          valueType.getName());
-    }
-    return null;
-  }
-
-  @Nullable
-  private static <T> List<T> safeGetList(Map map, String key, Class<T> type) {
-    List<?> unchecked = safeGet(map, key, List.class);
-    if (unchecked == null) {
-      return null;
-    }
-    try {
-      return (List<T>) unchecked.stream().map(type::cast).collect(Collectors.toList());
-    } catch (ClassCastException e) {
-      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
-      LOGGER.warn(
-          "Form configuration field {} was malformed, expected a List containing type {}",
-          key,
-          type.getName());
-    }
-    return null;
-  }
-
-  @Nullable
-  private static <T> T safeGet(Map map, String key, Class<T> type) {
-    Object value = map.get(key);
-    if (value == null) {
-      LOGGER.debug("Unexpected null entry: {}", key);
-      return null;
-    }
-    try {
-      return type.cast(value);
-    } catch (ClassCastException e) {
-      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
-      LOGGER.warn(
-          "Form configuration field {} was malformed, expected a {} but got {}",
-          key,
-          type.getName(),
-          value.getClass().getName());
-    }
-    return null;
-  }
-
-  private static boolean anyNull(Object... args) {
-    return args == null || Arrays.stream(args).anyMatch(Objects::isNull);
-  }
-
-  private static Set<String> titlesTransform(Map<String, Result> resultMap) {
+  private Set<String> titlesTransform(Map<String, Result> resultMap) {
     return resultMap
         .values()
         .stream()
         .map(Result::getMetacard)
         .map(Metacard::getTitle)
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 
-  private static Consumer<? super Object> loggingConsumerFactory(File file) {
+  private Consumer<? super Object> loggingConsumerFactory(File file) {
     return obj -> {
       if (!Map.class.isInstance(obj)) {
         LOGGER.warn(
@@ -359,22 +262,19 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     };
   }
 
-  private static void createSystemMetacards(
-      EndpointUtil util, List<Metacard> systemTemplates, CatalogFramework catalogFramework) {
-    Set<String> queryTitles = titlesTransform(util.getMetacardsByTag(QUERY_TEMPLATE_TAG));
-    Set<String> resultTitles = titlesTransform(util.getMetacardsByTag(ATTRIBUTE_GROUP_TAG));
-    Set<String> existentSystemTemplates = titlesTransform(util.getMetacardsByTag(SYSTEM_TEMPLATE));
+  /**
+   * Creates system-template metacards from the transformed forms directory data. Ensures that no
+   * duplicate system forms can be stored.
+   *
+   * @param systemTemplates List of metacards loaded from the specified forms directory to store
+   *     into the catalog
+   */
+  private void createSystemMetacards(List<Metacard> systemTemplates) {
+    Set<String> existentSystemTemplates =
+        titlesTransform(endpointUtil.getMetacardsByTag(SYSTEM_TEMPLATE));
     List<Metacard> dedupedTemplateMetacards =
-        Stream.concat(
-                systemTemplates
-                    .stream()
-                    .filter(QueryTemplateMetacard::isQueryTemplateMetacard)
-                    .filter(metacard -> !queryTitles.contains(metacard.getTitle()))
-                    .filter(metacard -> !existentSystemTemplates.contains(metacard.getTitle())),
-                systemTemplates
-                    .stream()
-                    .filter(AttributeGroupMetacard::isAttributeGroupMetacard)
-                    .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
+        systemTemplates
+            .stream()
             .filter(metacard -> !existentSystemTemplates.contains(metacard.getTitle()))
             .collect(Collectors.toList());
 

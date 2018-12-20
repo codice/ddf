@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -85,8 +84,6 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final FilterBuilder filterBuilder;
 
-  private final boolean readOnly;
-
   private static final String RESP_MSG = "message";
 
   private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
@@ -106,20 +103,6 @@ public class SearchFormsApplication implements SparkApplication {
     this.transformer = transformer;
     this.util = util;
     this.filterBuilder = filterBuilder;
-    this.readOnly = !SearchFormsLoader.enabled();
-  }
-
-  /**
-   * Called via blueprint on initialization. Reads configuration in {@code etc/forms} and
-   * initializes Solr with query templates and attribute groups using the {@link
-   * ddf.catalog.data.types.Core#TITLE} field as a unique key.
-   */
-  public void setup() {
-    List<Metacard> systemTemplates = SearchFormsLoader.config().get();
-    if (systemTemplates.isEmpty()) {
-      return;
-    }
-    SearchFormsLoader.bootstrap(catalogFramework, util, systemTemplates);
   }
 
   /**
@@ -155,12 +138,6 @@ public class SearchFormsApplication implements SparkApplication {
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),
         GSON::toJson);
-
-    // If no forms directory was created, disable intrusive catalog operations
-    // Bailing out of this method early means the below routes will not be setup
-    if (readOnly) {
-      return;
-    }
 
     post(
         "/forms/query",

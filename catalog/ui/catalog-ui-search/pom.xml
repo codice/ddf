@@ -367,6 +367,11 @@
             <artifactId>resource-bundle-locator</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -455,6 +460,7 @@
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.internal
                         </Export-Package>
+                        <Karaf-Commands>org.codice.ddf.catalog.ui.forms.commands.*</Karaf-Commands>
                     </instructions>
                 </configuration>
             </plugin>

@@ -13,56 +13,82 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
-import static java.lang.String.format;
-import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import java.io.File;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.List;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
+import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SearchFormsLoaderTest {
+  private @Mock CatalogFramework catalogFramework;
+
+  private @Mock EndpointUtil endpointUtil;
+
   private static final URL LOADER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/loader");
 
+  private static final String ROOT = LOADER_RESOURCES_DIR.getPath();
+
   @Test
-  public void testEmptyConfigurationDirectory() throws Exception {
-    List<Metacard> metacards = new SearchFormsLoader(getConfigDirectory()).get();
+  public void testEmptyConfigurationDirectory() {
+    List<Metacard> metacards =
+        new SearchFormsLoader(catalogFramework, endpointUtil, null, null, null)
+            .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 0, 0, 0);
   }
 
   @Test
-  public void testValidConfiguration() throws Exception {
-    List<Metacard> metacards = new SearchFormsLoader(getConfigDirectory("valid")).get();
+  public void testValidConfigurationWithFallbackValues() {
+    List<Metacard> metacards =
+        new SearchFormsLoader(catalogFramework, endpointUtil, ROOT + "/valid", null, null)
+            .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 3, 2, 1);
   }
 
   @Test
-  public void testMissingXmlLinks() throws Exception {
-    List<Metacard> metacards = new SearchFormsLoader(getConfigDirectory("missing")).get();
+  public void testValidConfigurationWithExplicitValues() {
+    List<Metacard> metacards =
+        new SearchFormsLoader(
+                catalogFramework, endpointUtil, ROOT + "/valid", "forms.json", "results.json")
+            .retrieveSystemTemplateMetacards();
+    expectedCounts(metacards, 3, 2, 1);
+  }
+
+  @Test
+  public void testMissingXmlLinksExplicitValues() {
+    List<Metacard> metacards =
+        new SearchFormsLoader(
+                catalogFramework, endpointUtil, ROOT + "/missing", "forms.json", "results.json")
+            .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 1, 0, 1);
   }
 
   @Test
-  public void testInvalidStructure() throws Exception {
-    List<Metacard> metacards = new SearchFormsLoader(getConfigDirectory("invalid-structure")).get();
+  public void testInvalidStructureFallbackValues() {
+    List<Metacard> metacards =
+        new SearchFormsLoader(
+                catalogFramework, endpointUtil, ROOT + "/invalid-structure", null, null)
+            .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 1, 0, 1);
   }
 
   @Test
-  public void testInvalidEntries() throws Exception {
-    List<Metacard> metacards = new SearchFormsLoader(getConfigDirectory("invalid-entries")).get();
-    expectedCounts(metacards, 2, 1, 1);
+  public void testInvalidEntriesFallbackValues() {
+    List<Metacard> metacards =
+        new SearchFormsLoader(catalogFramework, endpointUtil, ROOT + "/invalid-entries", null, null)
+            .retrieveSystemTemplateMetacards();
+    expectedCounts(metacards, 4, 1, 3);
   }
 
   private static void expectedCounts(
@@ -77,27 +103,5 @@ public class SearchFormsLoaderTest {
         "Expected number of generated result template metacards to be " + resultTemplates,
         metacards.stream().filter(AttributeGroupMetacard::isAttributeGroupMetacard).count(),
         is((long) resultTemplates));
-  }
-
-  private static File getConfigDirectory() throws Exception {
-    File dir = Paths.get(LOADER_RESOURCES_DIR.toURI()).toFile();
-    if (!dir.exists()) {
-      fail(
-          format(
-              "Invalid setup parameter 'target', the directory [%s] does not exist",
-              dir.getAbsolutePath()));
-    }
-    return dir;
-  }
-
-  private static File getConfigDirectory(String target) throws Exception {
-    File dir = Paths.get(LOADER_RESOURCES_DIR.toURI()).resolve(target).toFile();
-    if (!dir.exists()) {
-      fail(
-          format(
-              "Invalid setup parameter 'target', the directory [%s] does not exist",
-              dir.getAbsolutePath()));
-    }
-    return dir;
   }
 }

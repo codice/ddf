@@ -238,6 +238,29 @@ public class EndpointUtil {
                 EndpointUtil::firstInWinsMerge));
   }
 
+  public List<Metacard> getMetacardListByTag(String tagStr) {
+    Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tagStr);
+
+    return resultIterable(
+            catalogFramework,
+            new QueryRequestImpl(
+                new QueryImpl(
+                    filter,
+                    1,
+                    pageSize,
+                    new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
+                    false,
+                    TimeUnit.SECONDS.toMillis(10)),
+                false,
+                null,
+                null))
+        .stream()
+        .filter(Objects::nonNull)
+        .map(Result::getMetacard)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+  }
+
   public Map<String, Result> getMetacardsWithTagByLikeAttributes(
       Map<String, Collection<String>> attributeMap, String tagStr) {
     return getMetacardsWithTagByLikeAttributes(
