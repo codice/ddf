@@ -351,10 +351,10 @@ define([
                     return status.hits ? hits + status.hits : hits;
                 }, 0);
 
-                if (hits === 0) {
+                if (results === 0) {
                     return '0 results';
                 } else if (results > hits) {
-                    return hits + ' results';
+                    return results + ' results';
                 }
 
                 var clientState = resultsCollection.state || this.get('result').get('results').state;

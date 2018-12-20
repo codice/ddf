@@ -215,21 +215,22 @@ module.exports = Backbone.AssociatedModel.extend({
         this.addQueuedResults(resp.results);
 
         if (this.get('queuedResults').fullCollection.length !== 0) {
-          // merges the remaining queued results not from the cache
-          this.mergeQueue(true)
+            // merges the remaining queued results not from the cache
+            this.mergeQueue(true, false);
         }
 
         return {
             queuedResults: [],
             results: [],
-            status: resp.status
+            status: resp.status,
+            merged: this.get('merged') === false ? false : resp.results.length === 0
         };
     },
     // we have to do a reset because adding is so slow that it will cause a partial merge to initiate
     addQueuedResults(results) {
       const existingQueue = this.get('queuedResults').fullCollection.models;
       this.get('queuedResults').fullCollection.reset(
-        existingQueue.concat(results)
+          existingQueue.concat(results)
       );
     },
     allowAutoMerge: function () {
@@ -239,10 +240,9 @@ module.exports = Backbone.AssociatedModel.extend({
             return (Date.now() - this.lastMerge) < properties.getAutoMergeTime();
         }
     },
-    mergeQueue: function (userTriggered) {
+    mergeQueue: function (userTriggered, includeQueuedCache = true) {
         if (userTriggered === true || this.allowAutoMerge()) {
             this.lastMerge = Date.now();
-            this.set('merged', true);
 
             var resultsIncludingDuplicates = this.get('results').fullCollection.map(function (m) {
                     return m.pick('id', 'src');
@@ -253,7 +253,11 @@ module.exports = Backbone.AssociatedModel.extend({
             var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(resultsIncludingDuplicates);
 
             var interimCollection = new QueryResultCollection(this.get('results').fullCollection.models);
-            interimCollection.add(this.get('queuedResults').fullCollection.models, {
+            const queuedResults = this.get('queuedResults').fullCollection.models;
+            const resultsToAdd = includeQueuedCache
+                ? queuedResults
+                : queuedResults.filter(result => result.get('src') !== 'cache');
+            interimCollection.add(resultsToAdd, {
                 merge: true
             });
             interimCollection.fullCollection.comparator = this.get('results').fullCollection.comparator;
@@ -265,6 +269,7 @@ module.exports = Backbone.AssociatedModel.extend({
                 this.createIndexOfSourceToResultCount(metacardIdToSourcesIndex, this.get('results').fullCollection)
             );
 
+            this.set('merged', true);
             this.get('queuedResults').fullCollection.reset();
             this.updateStatus();
         }
