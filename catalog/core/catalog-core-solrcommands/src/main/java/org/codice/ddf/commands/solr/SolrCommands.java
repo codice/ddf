@@ -216,7 +216,7 @@ public abstract class SolrCommands implements Action {
     } catch (Exception e) {
       String message = e.getMessage() != null ? e.getMessage() : "Unable to get status.";
       printErrorMessage(String.format("Status failed. %s", message));
-      LOGGER.debug("Unable to get status.", e);
+      LOGGER.debug("Unable to get status for request id: {}", requestId, e);
     }
   }
 

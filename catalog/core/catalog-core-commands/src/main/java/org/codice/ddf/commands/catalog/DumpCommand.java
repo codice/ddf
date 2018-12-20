@@ -246,8 +246,11 @@ public class DumpCommand extends CqlCommands {
             rejectedExecutionHandler);
 
     QueryRequest queryRequest = new QueryRequestImpl(query, props);
-    LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
-    ResultIterable.resultIterable(catalog::query, new QueryRequestImpl(query, props))
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
+    }
+
+    ResultIterable.resultIterable(catalog::query, queryRequest)
         .stream()
         .forEach(
             result ->
