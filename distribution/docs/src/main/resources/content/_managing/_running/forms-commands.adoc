@@ -1,0 +1,63 @@
+:title: Creating And Managing System Search Forms Through Karaf
+:type: dataManagement
+:status: published
+:summary: External methods of creating and managing system search forms.
+:parent: Ingesting Data
+:order: 03
+
+== {title}
+
+System search provide a way to execute queries with pre-defined templates and search criteria. System search forms are loaded
+via the system and are read-only. This command allows an administrator to ingest, modify or remove system search forms within the system.
+
+.Loading Forms With Defaults
+----
+forms:load
+----
+
+.Loading Forms With Overrides
+----
+forms:load --formsDirectory "/etc/forms" --forms "forms.json" --results "results.json"
+----
+
+Where: +
+*-formsDirectory* Specifies the directory in which the forms JSON and XML will reside
+
+*-results* Specifies the file name of the `results.json` file
+
+*-forms* Specifies the file name of the `forms.json` file
+
+It's important to note that `forms:load` will fallback to the system default location for forms, results and the forms directory. The defaults are as follows:
+```
+formsDirectory: "/etc/forms"
+forms: "forms.json"
+results: "results.json"
+```
+
+Example search forms and result form data can be found in `${home_directory}/etc/forms/readme.md`.
+
+Managing Forms
+
+In addition to ingesting new system forms into the system, we provide the capability to manage the forms, view the forms and remove them.
+
+.Viewing All Forms
+----
+forms:manage --list
+----
+
+.Removing Single Form
+----
+forms:manage --remove-single "METACARD_ID"
+----
+
+.Removing All Forms
+----
+forms:manage --remove-all
+----
+
+Where: +
+*-list* Displays the titles and IDs of all system forms in the system
+
+*-remove-single* Takes in a metacard ID as an argument and removes it
+
+*-remove-all* Removes all system forms from the system

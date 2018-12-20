@@ -85,24 +85,24 @@
         <argument ref="uuidGenerator"/>
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui"
+                update-strategy="container-managed"/>
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.theme"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.theme"
+                update-strategy="container-managed"/>
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.attribute.aliases"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.attribute.aliases"
+                update-strategy="container-managed"/>
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.attribute.hidden"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.attribute.hidden"
+                update-strategy="container-managed"/>
 
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.attribute.descriptions"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.attribute.descriptions"
+                update-strategy="container-managed"/>
 
         <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
@@ -202,8 +202,8 @@
 
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.whitelist"
-            update-strategy="container-managed"/>
+                persistent-id="org.codice.ddf.catalog.ui.whitelist"
+                update-strategy="container-managed"/>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
@@ -217,9 +217,12 @@
         </argument>
         <argument ref="configurationApplication"/>
         <property name="whiteListedMetacardTypes">
-            <array />
+            <array/>
         </property>
     </bean>
+
+    <!--Exposing endpoint util as a service to allow for system templates to be managed through the means of a Karaf command (reference injection)-->
+    <service ref="endpointUtil" interface="org.codice.ddf.catalog.ui.util.EndpointUtil"/>
 
     <bean id="noteUtil" class="org.codice.ddf.catalog.ui.metacard.notes.NoteUtil">
         <argument ref="filterBuilder"/>
@@ -227,10 +230,10 @@
     </bean>
 
     <bean id="queryIdsParser"
-      class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QueryIdsParser"/>
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QueryIdsParser"/>
 
     <service ref="queryIdsParser"
-      interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
 
     <bean id="querySortsParser"
           class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QuerySortsParser"/>
@@ -361,7 +364,8 @@
         <argument ref="userCreatableMetacardType"/>
     </bean>
 
-    <bean id="queryMetacardsHandler" class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.AssociatedQueryMetacardsHandler">
+    <bean id="queryMetacardsHandler"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.AssociatedQueryMetacardsHandler">
         <argument ref="catalogFramework"/>
     </bean>
 
@@ -388,7 +392,7 @@
     </bean>
 
     <reference id="coordinateSystemTranslator" interface="org.codice.usng4j.CoordinateSystemTranslator"
-               filter="(isNad83Datum=true)" />
+               filter="(isNad83Datum=true)"/>
 
     <bean id="latLonProcessor"
           class="org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor"/>
@@ -471,9 +475,9 @@
 
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui"
-            update-strategy="component-managed"
-            update-method="refresh"/>
+                persistent-id="org.codice.ddf.catalog.ui"
+                update-strategy="component-managed"
+                update-method="refresh"/>
 
         <property name="configurationApplication" ref="configurationApplication"/>
         <property name="smtpClient" ref="smtpClient"/>
@@ -507,8 +511,7 @@
         <argument ref="filterWriter"/>
     </bean>
 
-    <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication"
-          init-method="setup">
+    <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication">
         <argument ref="filterBuilder"/>
         <argument ref="catalogFramework"/>
         <argument ref="templateTransformer"/>
@@ -599,7 +602,8 @@
         <argument ref="persistentStore"/>
     </bean>
 
-    <service ref="workspacePersistentStore" interface="org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore">
+    <service ref="workspacePersistentStore"
+             interface="org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore">
         <service-properties>
             <entry key="id" value="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl"/>
         </service-properties>
