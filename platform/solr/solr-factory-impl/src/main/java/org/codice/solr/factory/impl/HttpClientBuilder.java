@@ -94,7 +94,7 @@ public class HttpClientBuilder implements Supplier<org.apache.http.impl.client.H
         (PrivilegedAction<Boolean>) () -> Boolean.valueOf(System.getProperty("solr.useBasicAuth")));
   }
 
-  public boolean useTls() {
+  private boolean useTls() {
     return StringUtils.startsWithIgnoreCase(
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
@@ -141,8 +141,6 @@ public class HttpClientBuilder implements Supplier<org.apache.http.impl.client.H
               return null;
             });
 
-    // IDE thinks this variable does not need to be initialized. However, because of the try/catch
-    // block, there is a situation where it could end up uninitialized.
     SSLContext sslContext = null;
 
     try {
@@ -156,6 +154,8 @@ public class HttpClientBuilder implements Supplier<org.apache.http.impl.client.H
               .loadTrustMaterial(trustStore[0])
               .useTLS()
               .build();
+      sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
+      sslContext.getDefaultSSLParameters().setWantClientAuth(true);
     } catch (UnrecoverableKeyException
         | NoSuchAlgorithmException
         | KeyStoreException
@@ -163,9 +163,6 @@ public class HttpClientBuilder implements Supplier<org.apache.http.impl.client.H
       throw new IllegalArgumentException(
           "Unable to use javax.net.ssl.keyStorePassword to load key material to create SSL context for Solr client.");
     }
-
-    sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
-    sslContext.getDefaultSSLParameters().setWantClientAuth(true);
 
     return sslContext;
   }

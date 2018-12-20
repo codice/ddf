@@ -195,19 +195,19 @@ public class BackupCommand extends SolrCommands {
   }
 
   private void processResponse(@Nullable HttpResponse response) {
-    if (response != null) {
-      StatusLine statusLine = response.getStatusLine();
-      if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-        printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
-      } else {
-        printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
-        printErrorMessage(
-            String.format(
-                "Backup request failed: %d - %s %n",
-                statusLine.getStatusCode(), statusLine.getReasonPhrase()));
-      }
-    } else {
+    if (response == null) {
       printErrorMessage(String.format("Could not communicate with Solr. %n"));
+      return;
+    }
+    StatusLine statusLine = response.getStatusLine();
+    if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+      printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
+    } else {
+      printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
+      printErrorMessage(
+          String.format(
+              "Backup request failed: %d - %s %n",
+              statusLine.getStatusCode(), statusLine.getReasonPhrase()));
     }
   }
 
