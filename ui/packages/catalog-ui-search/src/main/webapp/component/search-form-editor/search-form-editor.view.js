@@ -172,49 +172,17 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   saveTemplateToBackend: function(collection, id) {
-    let loadingView = new LoadingView()
-    let _this = this
-    let _user = user
-    $.ajax({
-      url: './internal/forms/query',
-      data: JSON.stringify(this.getQueryAsQueryTemplate(collection, id)),
-      method: 'PUT',
-      contentType: 'application/json',
-      customErrorHandling: true,
-    })
-      .done((data, textStatus, jqxhr) => {
-        _this.model.set({
-          type: 'custom',
-        })
-        const preferences = _user.getQuerySettings()
-        if (preferences.get('template')) {
-          preferences.set('type', 'custom')
-        } else {
-          preferences.set('type', 'text')
-        }
-        _user.savePreferences()
-        announcement.announce(
-          {
-            title: 'Success',
-            message: 'Search form successfully saved',
-            type: 'success',
-          },
-          1500
-        )
-      })
-      .fail((jqxhr, textStatus, errorThrown) => {
-        announcement.announce(
-          {
-            title: 'Search form failed to be saved',
-            message: jqxhr.responseJSON.message,
-            type: 'error',
-          },
-          2500
-        )
-      })
-      .always(() => {
-        loadingView.remove()
-      })
+    const json = this.getQueryAsQueryTemplate(collection, id)
+    const options = {
+      success: () => {
+        this.successMessage()
+      },
+      error: () => {
+        this.errorMessage()
+      },
+    }
+    this.model.set(json)
+    json.id ? this.model.save({}, options) : collection.create(json, options)
   },
   navigateToForms: function() {
     const fragment = `forms`
@@ -223,6 +191,20 @@ module.exports = Marionette.LayoutView.extend({
       options: {
         trigger: true,
       },
+    })
+  },
+  successMessage: function() {
+    announcement.announce({
+      title: 'Success',
+      message: 'Search form successfully saved',
+      type: 'success',
+    })
+  },
+  errorMessage: function() {
+    announcement.announce({
+      title: 'Error',
+      message: 'Search form failed to save',
+      type: 'error',
     })
   },
 })

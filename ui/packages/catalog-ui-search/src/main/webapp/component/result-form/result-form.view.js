@@ -24,7 +24,7 @@ const metacardDefinitions = require('../singletons/metacard-definitions.js')
 const Loading = require('../loading-companion/loading-companion.view.js')
 const _ = require('underscore')
 const announcement = require('../announcement/index.jsx')
-const ResultFormCollection = require('./result-form.js')
+const ResultFormsCollection = require('../result-form/result-form-collection-instance.js')
 const Common = require('../../js/Common.js')
 const ResultForm = require('../search-form/search-form.js')
 
@@ -54,11 +54,6 @@ module.exports = Marionette.LayoutView.extend({
     this.edit()
   },
   setupAttributeSpecific: function() {
-    let currentValue =
-      this.model.get('descriptors') !== {} ||
-      this.model.get('descriptors') !== []
-        ? this.model.get('descriptors')
-        : []
     let excludedList = metacardDefinitions.getMetacardStartingTypes()
     this.basicAttributeSpecific.show(
       new PropertyView({
@@ -81,18 +76,17 @@ module.exports = Marionette.LayoutView.extend({
               }
             }),
           values: this.model.get('descriptors'),
-          value: [currentValue],
+          value: [this.model.get('descriptors')],
           id: 'Attributes',
         }),
       })
     )
   },
   setupTitleInput: function() {
-    let currentValue = this.model.get('name') ? this.model.get('name') : ''
     this.basicTitle.show(
       new PropertyView({
         model: new Property({
-          value: [currentValue],
+          value: [this.model.get('title')],
           id: 'Title',
           placeholder: 'Result Form Title',
         }),
@@ -100,13 +94,10 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupDescription: function() {
-    let currentValue = this.model.get('description')
-      ? this.model.get('description')
-      : ''
     this.basicDescription.show(
       new PropertyView({
         model: new Property({
-          value: [currentValue],
+          value: [this.model.get('description')],
           id: 'Description',
           placeholder: 'Result Form Description',
         }),
@@ -180,55 +171,33 @@ module.exports = Marionette.LayoutView.extend({
     $validationElement.attr('title', message)
   },
   updateResults: function() {
-    let resultEndpoint = `/search/catalog/internal/forms/result`
-    var _this = this
-    $.ajax({
-      url: resultEndpoint,
-      contentType: 'application/json; charset=utf-8',
-      dataType: 'json',
-      type: 'PUT',
-      data: JSON.stringify(_this.model.toJSON()),
-      context: this,
-      success: function(data) {
-        ResultFormCollection.getResultCollection().filteredList = _.filter(
-          ResultFormCollection.getResultCollection().filteredList,
-          function(template) {
-            return template.id !== _this.model.get('id')
-          }
-        )
-        ResultFormCollection.getResultCollection().filteredList.push({
-          id: _this.model.get('id'),
-          label: _this.model.get('title'),
-          value: _this.model.get('title'),
-          type: 'result',
-          owner: _this.model.get('owner'),
-          descriptors: _this.model.get('descriptors'),
-          description: _this.model.get('description'),
-          accessGroups: _this.model.get('accessGroups'),
-          accessIndividuals: _this.model.get('accessIndividual'),
-          accessAdministrators: _this.model.get('accessAdministrators'),
-        })
-        ResultFormCollection.getResultCollection().toggleUpdate()
-        _this.cleanup()
+    var collection = ResultFormsCollection.getCollection()
+    const options = {
+      success: () => {
+        this.successMessage()
       },
-      error: _this.cleanup(),
-    })
-      .done((data, textStatus, jqxhr) => {
-        this.message('Success', 'Result form successfully saved', 'success')
-      })
-      .fail((jqxhr, textStatus, errorThrown) => {
-        this.message(
-          'Result form failed to be saved',
-          jqxhr.responseJSON.message,
-          'error'
-        )
-      })
+      error: () => {
+        this.errorMessage()
+      },
+    }
+    this.model.set('type', 'result')
+    this.model.id
+      ? this.model.save({}, options)
+      : collection.create(this.model, options)
+    this.cleanup()
   },
-  message: function(title, message, type) {
+  successMessage: function() {
     announcement.announce({
-      title: title,
-      message: message,
-      type: type,
+      title: 'Success',
+      message: 'Result form successfully saved',
+      type: 'success',
+    })
+  },
+  errorMessage: function() {
+    announcement.announce({
+      title: 'Error',
+      message: 'Result form failed to save',
+      type: 'error',
     })
   },
   cleanup: function() {

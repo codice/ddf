@@ -9,26 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-var Backbone = require('backbone')
-const user = require('../singletons/user-instance.js')
 
-module.exports = Backbone.Model.extend({
-  defaults() {
-    return {
-      title: '',
-      description: '',
-      createdBy: user.getEmail(),
-      owner: user.getEmail(),
-      createdOn: Date.now(),
-      type: 'custom',
-      id: undefined,
-      filterTemplate: { property: 'anyText', value: '', type: 'ILIKE' },
-      descriptors: [],
-      accessIndividuals: [],
-      accessGroups: [],
-      accessAdministrators: [],
-      querySettings: {},
-    }
-  },
-})
+const ResultFormsCollection = require('./result-form.collection.js')
+module.exports = new ResultFormsCollection()

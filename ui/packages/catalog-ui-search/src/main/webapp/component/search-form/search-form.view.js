@@ -22,6 +22,7 @@ const SearchFormInteractionsDropdownView = require('../dropdown/search-form-inte
 const wreqr = require('../../exports/wreqr.js')
 const Router = require('../router/router.js')
 const announcement = require('../announcement')
+const Common = require('../../js/Common.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -35,6 +36,9 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     click: 'changeView',
   },
+  modelEvents: {
+    change: 'render',
+  },
   regions: {
     searchFormActions: '.choice-actions',
   },
@@ -46,6 +50,10 @@ module.exports = Marionette.LayoutView.extend({
       'change:template',
       this.handleDefault
     )
+  },
+  serializeData: function() {
+    const { createdOn, ...json } = this.model.toJSON()
+    return { createdOn: Common.getMomentDate(createdOn), ...json }
   },
   onRender: function() {
     if (
@@ -78,7 +86,7 @@ module.exports = Marionette.LayoutView.extend({
         this.options.queryModel.set({
           type: 'new-form',
           associatedFormModel: this.model,
-          title: this.model.get('name'),
+          title: this.model.get('title'),
           filterTree: this.model.get('filterTemplate'),
         })
         if (oldType === 'new-form') {
@@ -112,7 +120,7 @@ module.exports = Marionette.LayoutView.extend({
                 title: 'Error',
                 message:
                   'You have read-only permission on search form ' +
-                  this.model.get('name') +
+                  this.model.get('title') +
                   '.',
                 type: 'error',
               },
@@ -122,7 +130,7 @@ module.exports = Marionette.LayoutView.extend({
           }
 
           this.model.set({
-            title: this.model.get('name'),
+            title: this.model.get('title'),
             filterTree: this.model.get('filterTemplate'),
             id: this.model.get('id'),
             accessGroups: this.model.get('accessGroups'),
@@ -142,7 +150,7 @@ module.exports = Marionette.LayoutView.extend({
           }
           this.options.queryModel.set({
             type: 'custom',
-            title: this.model.get('name'),
+            title: this.model.get('title'),
             filterTree: this.model.get('filterTemplate'),
             src:
               (this.model.get('querySettings') &&

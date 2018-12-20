@@ -30,7 +30,7 @@
 {{/is}}
 {{#is type 'custom'}}
     <div>
-        <h3 class="search-form-title" data-help="{{name}}">{{name}}</h3>
+        <h3 class="search-form-title" data-help="{{title}}">{{title}}</h3>
         <div class="default-icon"><div class="fa fa-star"></div></div>
         <span class="search-form-contents">
             {{createdOn}}
@@ -52,7 +52,7 @@
 {{/is}}
 {{#is type 'result'}}
     <div>
-        <h3 class="search-form-title" data-help="{{name}}">{{name}}</h3>
+        <h3 class="search-form-title" data-help="{{title}}">{{title}}</h3>
             <span class="search-form-contents">
                     {{createdOn}}
             </span>
@@ -60,8 +60,8 @@
             <span class="fa fa-cloud"></span>
             {{createdBy}}
         </span>
-        <span class="choice-actions is-button" title="Shows a list of actions to take on the search forms" 
-        data-help="Shows a list of actions to take on the search forms.">
+        <span class="choice-actions is-button" title="Shows a list of actions to take on the result forms"
+        data-help="Shows a list of actions to take on the result forms.">
         </span>
     </div>
 {{/is}}

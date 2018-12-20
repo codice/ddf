@@ -63,18 +63,15 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.isDestroyed) {
       systemTemplates.forEach(value => {
         if (this.checkIfSystem(value)) {
-          var utcSeconds = value.created / 1000
-          var d = new Date(0)
-          d.setUTCSeconds(utcSeconds)
           this.addSearchForm(
             new SearchForm({
               item_class: 'test',
-              createdOn: Common.getMomentDate(d),
+              createdOn: value.created,
               id: value.id,
-              name: value.title,
+              title: value.title,
               description: value.description,
               type: 'custom',
-              filterTemplate: JSON.stringify(value.filterTemplate),
+              filterTemplate: value.filterTemplate,
               accessIndividuals: value.accessIndividuals,
               accessAdministrators: value.accessAdministrators,
               accessGroups: value.accessGroups,
