@@ -12,7 +12,8 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import Enum from '../../container/enum'
+const Enum = () => <div/>
+//import Enum from '../../container/enum'
 
 type Props = {
   selected: string
@@ -28,7 +29,7 @@ const Root = styled<
   padding: ${props => props.theme.minimumSpacing}
     ${props => props.theme.minimumSpacing};
 `
-const ExampleCoordinates = styled.div`
+const ExampleCoordinatesRoot = styled.div`
   display: block;
   width: 100%;
   white-space: nowrap;
@@ -65,10 +66,25 @@ const Label = styled.label`
   }
 `
 
+export const ExampleCoordinates = (props: Props) => {
+  const {example} = props
+  return (
+    <ExampleCoordinatesRoot>
+      <div className="example-label">
+        <Label>Example Coordinates</Label>
+      </div>
+      <div className="example-value">
+        <span>{example}</span>
+      </div>
+    </ExampleCoordinatesRoot>
+  )
+}
+
 const render = (props: Props) => {
-  const { selected, example, update } = props
+  const { selected, update } = props
   return (
     <Root {...props}>
+    //@ts-ignore
       <Enum
         options={[
           { label: 'Degrees, Minutes, Seconds', value: 'degrees' },
@@ -81,14 +97,7 @@ const render = (props: Props) => {
         onChange={update}
       />
 
-      <ExampleCoordinates>
-        <div className="example-label">
-          <Label>Example Coordinates</Label>
-        </div>
-        <div className="example-value">
-          <span>{example}</span>
-        </div>
-      </ExampleCoordinates>
+      <ExampleCoordinates {...props} />
     </Root>
   )
 }
