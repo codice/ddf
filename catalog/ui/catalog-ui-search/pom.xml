@@ -367,6 +367,12 @@
             <artifactId>catalog-core-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.thirdparty</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

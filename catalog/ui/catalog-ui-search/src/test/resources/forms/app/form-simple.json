@@ -1,0 +1,9 @@
+{
+  "filterTemplate": {
+    "type": "=",
+    "property": "language",
+    "value": "${value}"
+  },
+  "title": "MY_TITLE",
+  "description": "MY_DESCRIPTION"
+}
