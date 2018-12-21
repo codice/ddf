@@ -250,8 +250,9 @@ function buildAst(tokens) {
     var tok = tokens.shift()
     switch (tok.type) {
       case 'PROPERTY':
-        //Remove single quotes if they exist in property name
+        // Remove single and double quotes if they exist in property name
         tok.text = tok.text.replace(/^'|'$/g, '')
+        tok.text = tok.text.replace(/^"|"$/g, '')
       case 'GEOMETRY':
       case 'VALUE':
       case 'TIME':
@@ -491,6 +492,17 @@ function buildAst(tokens) {
   return result
 }
 
+function wrap(property) {
+  var wrapped = property
+  if (!wrapped.startsWith('"')) {
+    wrapped = '"' + wrapped
+  }
+  if (!wrapped.endsWith('"')) {
+    wrapped = wrapped + '"'
+  }
+  return wrapped
+}
+
 function write(filter) {
   switch (classes[filter.type]) {
     case spatialClass:
@@ -502,7 +514,7 @@ function write(filter) {
             ymax = filter.value[3]
           return (
             'BBOX(' +
-            filter.property +
+            wrap(filter.property) +
             ',' +
             xmin +
             ',' +
@@ -516,7 +528,7 @@ function write(filter) {
         case 'DWITHIN':
           return (
             'DWITHIN(' +
-            filter.property +
+            wrap(filter.property) +
             ', ' +
             write(filter.value) +
             ', ' +
@@ -524,14 +536,24 @@ function write(filter) {
             ', meters)'
           )
         case 'WITHIN':
-          return 'WITHIN(' + filter.property + ', ' + write(filter.value) + ')'
+          return (
+            'WITHIN(' + wrap(filter.property) + ', ' + write(filter.value) + ')'
+          )
         case 'INTERSECTS':
           return (
-            'INTERSECTS(' + filter.property + ', ' + write(filter.value) + ')'
+            'INTERSECTS(' +
+            wrap(filter.property) +
+            ', ' +
+            write(filter.value) +
+            ')'
           )
         case 'CONTAINS':
           return (
-            'CONTAINS(' + filter.property + ', ' + write(filter.value) + ')'
+            'CONTAINS(' +
+            wrap(filter.property) +
+            ', ' +
+            write(filter.value) +
+            ')'
           )
         case 'GEOMETRY':
           return filter.value
@@ -561,7 +583,7 @@ function write(filter) {
     case comparisonClass:
       if (filter.type === 'BETWEEN') {
         return (
-          filter.property +
+          wrap(filter.property) +
           ' BETWEEN ' +
           write(filter.lowerBoundary) +
           ' AND ' +
@@ -571,7 +593,7 @@ function write(filter) {
         var property =
           typeof filter.property === 'object'
             ? write(filter.property)
-            : filter.property
+            : wrap(filter.property)
         return filter.value !== null
           ? property + ' ' + filter.type + ' ' + write(filter.value)
           : property + ' ' + filter.type
@@ -582,7 +604,7 @@ function write(filter) {
         case 'BEFORE':
         case 'AFTER':
           return (
-            filter.property +
+            wrap(filter.property) +
             ' ' +
             filter.type +
             ' ' +
@@ -590,7 +612,7 @@ function write(filter) {
           )
         case 'DURING':
           return (
-            filter.property +
+            wrap(filter.property) +
             ' ' +
             filter.type +
             ' ' +

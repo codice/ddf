@@ -227,7 +227,7 @@ function generateFilter(type, property, value, metacardDefinitions) {
     default:
       const filter = {
         type,
-        property: '"' + property + '"',
+        property,
         value,
       }
 
