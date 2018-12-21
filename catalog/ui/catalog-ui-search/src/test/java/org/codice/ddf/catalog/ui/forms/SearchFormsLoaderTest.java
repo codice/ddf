@@ -16,14 +16,21 @@ package org.codice.ddf.catalog.ui.forms;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
+import javax.xml.bind.JAXBException;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
+import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -35,15 +42,25 @@ public class SearchFormsLoaderTest {
 
   private @Mock EndpointUtil endpointUtil;
 
+  private @Mock AttributeRegistry registry;
+
   private static final URL LOADER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/loader");
 
   private static final String ROOT = LOADER_RESOURCES_DIR.getPath();
 
+  private TemplateTransformer transformer;
+
+  @Before
+  public void setUp() throws JAXBException {
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    transformer = new TemplateTransformer(new FilterWriter(false), registry);
+  }
+
   @Test
   public void testEmptyConfigurationDirectory() {
     List<Metacard> metacards =
-        new SearchFormsLoader(catalogFramework, endpointUtil, null, null, null)
+        new SearchFormsLoader(catalogFramework, transformer, endpointUtil)
             .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 0, 0, 0);
   }
@@ -51,7 +68,8 @@ public class SearchFormsLoaderTest {
   @Test
   public void testValidConfigurationWithFallbackValues() {
     List<Metacard> metacards =
-        new SearchFormsLoader(catalogFramework, endpointUtil, ROOT + "/valid", null, null)
+        new SearchFormsLoader(
+                catalogFramework, transformer, endpointUtil, ROOT + "/valid", null, null)
             .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 3, 2, 1);
   }
@@ -60,7 +78,12 @@ public class SearchFormsLoaderTest {
   public void testValidConfigurationWithExplicitValues() {
     List<Metacard> metacards =
         new SearchFormsLoader(
-                catalogFramework, endpointUtil, ROOT + "/valid", "forms.json", "results.json")
+                catalogFramework,
+                transformer,
+                endpointUtil,
+                ROOT + "/valid",
+                "forms.json",
+                "results.json")
             .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 3, 2, 1);
   }
@@ -69,7 +92,12 @@ public class SearchFormsLoaderTest {
   public void testMissingXmlLinksExplicitValues() {
     List<Metacard> metacards =
         new SearchFormsLoader(
-                catalogFramework, endpointUtil, ROOT + "/missing", "forms.json", "results.json")
+                catalogFramework,
+                transformer,
+                endpointUtil,
+                ROOT + "/missing",
+                "forms.json",
+                "results.json")
             .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 1, 0, 1);
   }
@@ -78,7 +106,12 @@ public class SearchFormsLoaderTest {
   public void testInvalidStructureFallbackValues() {
     List<Metacard> metacards =
         new SearchFormsLoader(
-                catalogFramework, endpointUtil, ROOT + "/invalid-structure", null, null)
+                catalogFramework,
+                transformer,
+                endpointUtil,
+                ROOT + "/invalid-structure",
+                null,
+                null)
             .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 1, 0, 1);
   }
@@ -86,7 +119,8 @@ public class SearchFormsLoaderTest {
   @Test
   public void testInvalidEntriesFallbackValues() {
     List<Metacard> metacards =
-        new SearchFormsLoader(catalogFramework, endpointUtil, ROOT + "/invalid-entries", null, null)
+        new SearchFormsLoader(
+                catalogFramework, transformer, endpointUtil, ROOT + "/invalid-entries", null, null)
             .retrieveSystemTemplateMetacards();
     expectedCounts(metacards, 4, 1, 3);
   }

@@ -16,8 +16,13 @@ package org.codice.ddf.catalog.ui.forms.builder;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
+import ddf.catalog.data.AttributeRegistry;
+import java.util.Optional;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +40,9 @@ public class JsonModelBuilderTest {
 
   @Before
   public void setup() {
-    builder = new JsonModelBuilder();
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    builder = new JsonModelBuilder(registry);
   }
 
   @Test
@@ -97,19 +104,19 @@ public class JsonModelBuilderTest {
 
   @Test
   public void testBinaryLogicTypeAllOperators() {
-    new JsonModelBuilder().beginBinaryLogicType(AND);
-    new JsonModelBuilder().beginBinaryLogicType(OR);
+    new JsonModelBuilder(null).beginBinaryLogicType(AND);
+    new JsonModelBuilder(null).beginBinaryLogicType(OR);
     // No IllegalArgumentException indicates a passing test
   }
 
   @Test
   public void testBinaryComparisonTypeAllOperators() {
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsEqualTo");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsGreaterThan");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsGreaterThanOrEqualTo");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsLessThan");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsLessThanOrEqualTo");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsNotEqualTo");
+    new JsonModelBuilder(null).beginBinaryComparisonType("PropertyIsEqualTo");
+    new JsonModelBuilder(null).beginBinaryComparisonType("PropertyIsGreaterThan");
+    new JsonModelBuilder(null).beginBinaryComparisonType("PropertyIsGreaterThanOrEqualTo");
+    new JsonModelBuilder(null).beginBinaryComparisonType("PropertyIsLessThan");
+    new JsonModelBuilder(null).beginBinaryComparisonType("PropertyIsLessThanOrEqualTo");
+    new JsonModelBuilder(null).beginBinaryComparisonType("PropertyIsNotEqualTo");
     // No IllegalArgumentException indicates a passing test
   }
 }

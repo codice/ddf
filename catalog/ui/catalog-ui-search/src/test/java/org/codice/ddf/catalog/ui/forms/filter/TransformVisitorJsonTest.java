@@ -18,13 +18,18 @@ import static junit.framework.TestCase.fail;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.AttributeRegistry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
@@ -46,7 +51,9 @@ public class TransformVisitorJsonTest {
 
   @Before
   public void setup() {
-    visitor = new TransformVisitor<>(new JsonModelBuilder());
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    visitor = new TransformVisitor<>(new JsonModelBuilder(registry));
   }
 
   @Test

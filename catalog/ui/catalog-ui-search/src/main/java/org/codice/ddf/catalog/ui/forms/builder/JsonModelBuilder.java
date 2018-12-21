@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.forms.builder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import ddf.catalog.data.AttributeRegistry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -69,14 +70,17 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
 
   private final Deque<List<FilterNode>> depth;
 
+  private final AttributeValueNormalizer normalizer;
+
   private FilterNode rootNode = null;
 
   private FilterNode nodeInProgress = null;
 
   private boolean complete = false;
 
-  public JsonModelBuilder() {
-    depth = new ArrayDeque<>();
+  public JsonModelBuilder(AttributeRegistry registry) {
+    this.depth = new ArrayDeque<>();
+    this.normalizer = new AttributeValueNormalizer(registry);
   }
 
   /**
@@ -215,7 +219,8 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   public JsonModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setValue(value);
+    String normalizedValue = normalizer.normalizeForJson(nodeInProgress.getProperty(), value);
+    nodeInProgress.setValue(normalizedValue);
     return this;
   }
 

@@ -506,9 +506,12 @@
 
     <bean id="templateTransformer"
           class="org.codice.ddf.catalog.ui.forms.TemplateTransformer">
-        <argument ref="filterBuilder"/>
-        <argument ref="catalogFramework"/>
         <argument ref="filterWriter"/>
+        <argument ref="attributeRegistry"/>
+    </bean>
+
+    <bean id="loader" class="org.codice.ddf.catalog.ui.forms.SearchFormsLoader">
+        <argument ref="templateTransformer"/>
     </bean>
 
     <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication">
@@ -516,6 +519,7 @@
         <argument ref="catalogFramework"/>
         <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
+        <argument ref="loader"/>
     </bean>
 
     <reference id="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>

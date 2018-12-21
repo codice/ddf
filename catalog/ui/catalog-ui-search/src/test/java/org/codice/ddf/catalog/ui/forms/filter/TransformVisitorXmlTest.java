@@ -17,9 +17,13 @@ import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.forElement;
 import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ddf.catalog.data.AttributeRegistry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -27,6 +31,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
@@ -63,7 +68,9 @@ public class TransformVisitorXmlTest {
 
   @Before
   public void setup() {
-    visitor = new TransformVisitor<>(new XmlModelBuilder());
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    visitor = new TransformVisitor<>(new XmlModelBuilder(registry));
   }
 
   @Test

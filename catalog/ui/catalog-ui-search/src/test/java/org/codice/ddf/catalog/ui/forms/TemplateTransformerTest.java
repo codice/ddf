@@ -21,20 +21,20 @@ public class TemplateTransformerTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testTransformerErrorsWithoutTitle() {
-    TemplateTransformer transformer = new TemplateTransformer(null, null, null);
+    TemplateTransformer transformer = new TemplateTransformer(null, null);
     transformer.toQueryTemplateMetacard(ImmutableMap.of("filterTemplate", new HashMap<>()));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testTransformerErrorsWithEmptyTitle() {
-    TemplateTransformer transformer = new TemplateTransformer(null, null, null);
+    TemplateTransformer transformer = new TemplateTransformer(null, null);
     transformer.toQueryTemplateMetacard(
         ImmutableMap.of("filterTemplate", new HashMap<>(), "title", ""));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testTransformerErrorsWithBlankTitle() {
-    TemplateTransformer transformer = new TemplateTransformer(null, null, null);
+    TemplateTransformer transformer = new TemplateTransformer(null, null);
     transformer.toQueryTemplateMetacard(
         ImmutableMap.of("filterTemplate", new HashMap<>(), "title", "  "));
   }
