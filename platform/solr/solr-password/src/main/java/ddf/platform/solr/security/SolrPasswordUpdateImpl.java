@@ -68,17 +68,19 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
    * the default password is still in use. This object is intended to be a singleton, a blueprint
    * bean. That is why is can use itself as the lock
    */
-  public synchronized void updateSolrPassword() {
+  public synchronized void run() {
     try {
-      run();
+      execute();
     } finally {
       cleanup();
     }
   }
 
   @VisibleForTesting
-  void run() {
-    if (configuredToAttemptAutoPasswordChange() && isUsingDefaultPassword()) {
+  void execute() {
+    if (isConfiguredForBasicAuth()
+        && configuredToAttemptAutoPasswordChange()
+        && isUsingDefaultPassword()) {
       initialize();
       generatePassword();
       setPasswordInSolr();
@@ -234,5 +236,10 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   @VisibleForTesting
   boolean isPasswordSavedSuccessfully() {
     return passwordSavedSuccessfully;
+  }
+
+  private Boolean isConfiguredForBasicAuth() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<Boolean>) () -> Boolean.valueOf(System.getProperty("solr.useBasicAuth")));
   }
 }
