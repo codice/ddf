@@ -32,7 +32,6 @@ var DropdownModel = require('../../dropdown/dropdown.js')
 var MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
 var MapModel = require('./map.model')
 var MapInfoView = require('../../map-info/map-info.view.js')
-var MapSettingsDropdown = require('../../dropdown/map-settings/dropdown.map-settings.view.js')
 var properties = require('../../../js/properties.js')
 var Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
@@ -315,9 +314,7 @@ module.exports = Marionette.LayoutView.extend({
   addSettings: function() {
     const MapSettingsView = Marionette.ItemView.extend({
       template() {
-        return (
-          <MapSettings />
-        )
+        return <MapSettings />
       },
     })
     this.$el
