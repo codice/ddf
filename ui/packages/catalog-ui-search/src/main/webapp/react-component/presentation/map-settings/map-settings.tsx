@@ -13,7 +13,6 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import Enum from '../../container/enum'
-//const CustomElements = require('../../../js/CustomElements.js')
 
 type Props = {
   selected: string
