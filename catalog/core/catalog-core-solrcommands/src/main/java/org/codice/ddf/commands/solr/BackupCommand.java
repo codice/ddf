@@ -144,7 +144,7 @@ public class BackupCommand extends SolrCommands {
     String url =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
-    String backupUrl = String.format("%s/%s/%s", url, coreName, "replication");
+    String backupUrl = String.format("%s/%s/replication", url, coreName);
 
     URIBuilder uriBuilder = new URIBuilder(backupUrl);
     uriBuilder.addParameter("command", "backup");
@@ -171,7 +171,7 @@ public class BackupCommand extends SolrCommands {
       LOGGER.debug("Sending request to {}", backupUri);
       httpResponse = client.execute(get);
     } catch (IOException e) {
-      LOGGER.debug("Error during request. Returning null response.");
+      LOGGER.debug("Error during request. Returning null response.", e);
     }
 
     return httpResponse;
