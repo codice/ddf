@@ -10,20 +10,66 @@
  *
  **/
 import * as React from 'react'
+import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import Enum from '../../container/enum'
 //const CustomElements = require('../../../js/CustomElements.js')
 
 type Props = {
+  selected: string
+  example: string
   update: (selected: string) => void
-  example: string 
 }
 
+const Root = styled<
+  { selected: string; example: string; update: (selected: string) => void },
+  'div'
+>('div')`
+  overflow: auto;
+  padding: ${props => props.theme.minimumSpacing}
+    ${props => props.theme.minimumSpacing};
+`
+const ExampleCoordinates = styled.div`
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: ${props => props.theme.minimumSpacing};
+  position: relative;
+
+  &.example-label,
+  &.example-value {
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+  }
+
+  &.example-label {
+    text-align: right;
+  }
+`
+
+const Label = styled.label`
+  .example-label & {
+    vertical-align: middle;
+    cursor: auto;
+    font-weight: bolder;
+    max-width: calc(100% - ${props => props.theme.minimumButtonSize});
+    margin: 0px;
+    line-height: 1.4;
+    padding: ${props => props.theme.minimumSpacing} 0px;
+    min-height: ${props => props.theme.minimumButtonSize};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: normal;
+    white-space: normal;
+  }
+`
+
 const render = (props: Props) => {
-  const { update, example } = props
-  debugger
+  const { selected, example, update } = props
   return (
-    <div>
+    <Root {...props}>
       <Enum
         options={[
           { label: 'Degrees, Minutes, Seconds', value: 'degrees' },
@@ -31,15 +77,20 @@ const render = (props: Props) => {
           { label: 'MGRS', value: 'mgrs' },
           { label: 'UTM/UPS', value: 'utm' },
         ]}
-        value="degrees"
+        value={selected}
         label="Coordinate Format"
-        onChange={ update }
+        onChange={update}
       />
 
-      <div className="property-coordinate-example">
-        {example}
-      </div>
-    </div>
+      <ExampleCoordinates>
+        <div className="example-label">
+          <Label>Example Coordinates</Label>
+        </div>
+        <div className="example-value">
+          <span>{example}</span>
+        </div>
+      </ExampleCoordinates>
+    </Root>
   )
 }
 

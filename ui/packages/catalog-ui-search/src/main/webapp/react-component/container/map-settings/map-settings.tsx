@@ -38,42 +38,45 @@ const getExample = (formatValue: string) => {
 }
 
 const save = (newFormat: string) => {
-    Common.queueExecution(() => {
-      var preferences = user.get('user').get('preferences')
-      preferences.set({
-        coordinateFormat: newFormat,
-      })
-      preferences.savePreferences()
+  Common.queueExecution(() => {
+    var preferences = user.get('user').get('preferences')
+    preferences.set({
+      coordinateFormat: newFormat,
     })
+    preferences.savePreferences()
+  })
 }
-
-
 
 type State = {
-    selected: string
+  selected: string
 }
 
-class MapSettings extends React.Component< {}, State> {
-  
-
-    constructor(){
-        super({})
-        this.state = {selected: user.get('user').get('preferences').get('coordinateFormat')}
+class MapSettings extends React.Component<{}, State> {
+  constructor() {
+    super({})
+    this.state = {
+      selected: user
+        .get('user')
+        .get('preferences')
+        .get('coordinateFormat'),
     }
+  }
 
-    update(newFormat : string) {
-        save(newFormat)
-        this.setState({selected: newFormat})
-    }
+  update(newFormat: string) {
+    save(newFormat)
+    this.setState({ selected: newFormat })
+  }
 
   render() {
-    const {selected} = this.state
-    return  (
-      < MapSettingsPresentation
-        update = {(newFormat) => this.update(newFormat)}
-        example = {getExample(selected)}
-      />
-    )
+    const { selected } = this.state
+
+    const mapSettingsProps = {
+      selected,
+      example: getExample(selected),
+      update: (newFormat: string) => this.update(newFormat),
+    }
+
+    return <MapSettingsPresentation {...mapSettingsProps} />
   }
 }
 
