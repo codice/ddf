@@ -58,13 +58,15 @@ public class WorkspaceQueryMigration implements DataMigratable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceQueryMigration.class);
 
+  private static final String QUERY_TAG = "query";
+
   private final CatalogFramework catalogFramework;
 
   private final FilterBuilder filterBuilder;
 
   private final InputTransformer xmlInputTransformer;
 
-  private static final Security SECURITY = Security.getInstance();
+  private Security security;
 
   public WorkspaceQueryMigration(
       CatalogFramework catalogFramework,
@@ -73,11 +75,12 @@ public class WorkspaceQueryMigration implements DataMigratable {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.xmlInputTransformer = xmlInputTransformer;
+    this.security = Security.getInstance();
   }
 
   @Override
   public void migrate() {
-    Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    Subject systemSubject = security.runAsAdmin(security::getSystemSubject);
 
     if (systemSubject == null) {
       LOGGER.debug("An error occurred while attempting to run this migration as admin");
@@ -87,8 +90,7 @@ public class WorkspaceQueryMigration implements DataMigratable {
     systemSubject.execute(this::migrateWorkspaces);
   }
 
-  @VisibleForTesting
-  void migrateWorkspaces() {
+  private void migrateWorkspaces() {
     LOGGER.trace("Beginning workspace query data migration");
 
     Filter workspaceFilter =
@@ -187,7 +189,7 @@ public class WorkspaceQueryMigration implements DataMigratable {
   private Metacard xmlToMetacard(InputStream inputStream) {
     try {
       Metacard metacard = xmlInputTransformer.transform(inputStream);
-      metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "query"));
+      metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, QUERY_TAG));
 
       LOGGER.trace("Successfully parsed query metacard with id [{}]", metacard.getId());
 
@@ -203,5 +205,10 @@ public class WorkspaceQueryMigration implements DataMigratable {
         LOGGER.debug("An error occurred while closing the input stream", e);
       }
     }
+  }
+
+  @VisibleForTesting
+  void setSecurity(Security security) {
+    this.security = security;
   }
 }

@@ -63,6 +63,13 @@
       <artifactId>ddf-security-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <!-- Upgrade mockito to version 2.1.0 for this module to get final mock capability -->
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -101,17 +108,17 @@
                       <limit implementation="org.codice.jacoco.LenientLimit">
                         <counter>INSTRUCTION</counter>
                         <value>COVEREDRATIO</value>
-                        <minimum>0.81</minimum>
+                        <minimum>0.87</minimum>
                       </limit>
                       <limit implementation="org.codice.jacoco.LenientLimit">
                         <counter>BRANCH</counter>
                         <value>COVEREDRATIO</value>
-                        <minimum>0.25</minimum>
+                        <minimum>0.50</minimum>
                       </limit>
                       <limit implementation="org.codice.jacoco.LenientLimit">
                         <counter>COMPLEXITY</counter>
                         <value>COVEREDRATIO</value>
-                        <minimum>0.76</minimum>
+                        <minimum>0.85</minimum>
                       </limit>
                     </limits>
                 </rule>
