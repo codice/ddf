@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.commands.solr;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -24,6 +26,10 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.ext.Nullable;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.solr.client.solrj.SolrClient;
@@ -76,6 +82,8 @@ public abstract class SolrCommands implements Action {
   private static final Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
   private static final Color INFO_COLOR = Ansi.Color.CYAN;
+
+  protected org.codice.solr.factory.impl.HttpClientBuilder httpBuilder;
 
   public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
     LOGGER.debug("setConfigurationAdmin: {}", configurationAdmin);
@@ -245,5 +253,22 @@ public abstract class SolrCommands implements Action {
       return existingCollections.contains(collection);
     }
     return false;
+  }
+
+  @VisibleForTesting
+  @Nullable
+  HttpResponse sendGetRequest(URI backupUri) {
+    HttpResponse httpResponse = null;
+    HttpGet get = new HttpGet(backupUri);
+    HttpClient client = httpBuilder.get().build();
+
+    try {
+      LOGGER.debug("Sending request to {}", backupUri);
+      httpResponse = client.execute(get);
+    } catch (IOException e) {
+      LOGGER.debug("Error during request. Returning null response.");
+    }
+
+    return httpResponse;
   }
 }

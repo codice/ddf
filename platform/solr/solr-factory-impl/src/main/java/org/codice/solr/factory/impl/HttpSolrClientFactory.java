@@ -60,10 +60,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private final org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder;
   private final SolrPasswordUpdate solrPasswordUpdate;
 
-  private String getDefaultHttpsAddress() {
-    return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
-  }
-
   public HttpSolrClientFactory(
       org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder,
       SolrPasswordUpdate solrPasswordUpdate) {
@@ -71,7 +67,27 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     this.solrPasswordUpdate = solrPasswordUpdate;
   }
 
-  private static void createSolrCore(
+  /**
+   * Gets the default Solr server secure HTTP address.
+   *
+   * @return Solr server secure HTTP address
+   */
+  public static String getDefaultHttpsAddress() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL));
+  }
+
+  /**
+   * Gets the Solr Data directory
+   *
+   * @return
+   */
+  public static String getSolrDataDir() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
+  }
+
+  public static void createSolrCore(
       String url, String coreName, String configFileName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
 

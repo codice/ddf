@@ -14,22 +14,26 @@
 package org.codice.ddf.commands.solr;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.ext.Nullable;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
+import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.HttpSolrClientFactory;
 
@@ -40,6 +44,9 @@ import org.codice.solr.factory.impl.HttpSolrClientFactory;
   description = "Restores a selected Solr core/collection from backup."
 )
 public class RestoreCommand extends SolrCommands {
+  private static final String STATUS = "status";
+
+  @Reference EncryptionService encryptionService;
 
   @Option(
     name = "-d",
@@ -120,6 +127,7 @@ public class RestoreCommand extends SolrCommands {
     try {
       createSolrCore();
 
+      httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
       URIBuilder uriBuilder = new URIBuilder(restoreUrl);
       uriBuilder.addParameter("command", "restore");
 
@@ -130,9 +138,7 @@ public class RestoreCommand extends SolrCommands {
       URI restoreUri = uriBuilder.build();
       LOGGER.debug("Sending request to {}", restoreUri);
 
-      HttpWrapper httpClient = getHttpClient();
-
-      processResponse(httpClient.execute(restoreUri));
+      printResponse(sendGetRequest(restoreUri));
     } catch (IOException | SolrServerException e) {
       LOGGER.info("Unable to perform single node Solr restore, core: {}", coreName, e);
     }
@@ -154,16 +160,19 @@ public class RestoreCommand extends SolrCommands {
     }
   }
 
-  private void processResponse(ResponseWrapper responseWrapper) {
-    if (responseWrapper.getStatusCode() == HttpStatus.SC_OK) {
-      printSuccessMessage(String.format("%nRestore of [%s] complete.%n", coreName));
-    } else {
-      printErrorMessage(String.format("Error restoring Solr core: [%s]", coreName));
-      printErrorMessage(
-          String.format(
-              "Restore command failed due to: %d - %s",
-              responseWrapper.getStatusCode(), responseWrapper.getStatusPhrase()));
-      printErrorMessage(String.format("Request: %s", getReplicationUrl(coreName)));
+  private void printResponse(@Nullable HttpResponse response) {
+    if (response != null) {
+      StatusLine statusLine = response.getStatusLine();
+      if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+        printSuccessMessage(String.format("%nRestore of [%s] complete.%n", coreName));
+      } else {
+        printErrorMessage(String.format("Error restoring Solr core: [%s]", coreName));
+        printErrorMessage(
+            String.format(
+                "Restore command failed due to: %d - %s",
+                statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+        printErrorMessage(String.format("Request: %s", getReplicationUrl(coreName)));
+      }
     }
   }
 
@@ -172,17 +181,32 @@ public class RestoreCommand extends SolrCommands {
       throws IOException, SolrServerException {
     if (canRestore(client, collection)) {
       CollectionAdminRequest.Restore restore =
-          CollectionAdminRequest.restoreCollection(collection, backupName)
+          CollectionAdminRequest.AsyncCollectionAdminRequest.restoreCollection(
+                  collection, backupName)
               .setLocation(backupLocation);
 
-      CollectionAdminResponse response = restore.process(client, collection);
-      LOGGER.debug("Restore status: {}", response.getStatus());
-      boolean success = response.getStatus() == 0;
-      if (!success) {
-        printErrorMessage("Restore failed. ");
-        printResponseErrorMessages(response);
+      String syncReqId = restore.processAsync(client);
+
+      while (true) {
+        CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
+            CollectionAdminRequest.requestStatus(syncReqId).process(client);
+        RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
+        if (requestStatus == RequestStatusState.COMPLETED) {
+          LOGGER.debug("Restore status: {}", requestStatus);
+          return true;
+        } else if (requestStatus == RequestStatusState.FAILED
+            || requestStatus == RequestStatusState.NOT_FOUND) {
+          LOGGER.debug("Restore status: {}", requestStatus);
+          printErrorMessage("Restore failed. ");
+          printResponseErrorMessages(requestStatusResponse);
+          return false;
+        }
+        try {
+          TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
       }
-      return success;
     } else {
       LOGGER.warn("Unable to restore collection {}", collection);
       return false;
@@ -256,18 +280,14 @@ public class RestoreCommand extends SolrCommands {
   }
 
   private void createSolrCore() throws IOException, SolrServerException {
+    httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
     String url = HttpSolrClientFactory.getDefaultHttpsAddress();
-    final HttpClientBuilder builder =
-        HttpClients.custom()
-            .setDefaultCookieStore(new BasicCookieStore())
-            .setMaxConnTotal(128)
-            .setMaxConnPerRoute(32);
-
     final String solrDataDir = HttpSolrClientFactory.getSolrDataDir();
     if (solrDataDir != null) {
       ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
     }
-    HttpSolrClientFactory.createSolrCore(url, coreName, null, builder.build());
+
+    HttpSolrClientFactory.createSolrCore(url, coreName, null, httpBuilder.get().build());
   }
 
   private void verifyStatusInput() {

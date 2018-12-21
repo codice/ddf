@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.commands.solr;
 
+import static org.codice.ddf.commands.solr.SolrCommands.SOLR_CLIENT_PROP;
+import static org.codice.ddf.commands.solr.SolrCommands.ZOOKEEPER_HOSTS_PROP;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,30 +27,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.JettyConfig;
-import org.apache.solr.client.solrj.request.CollectionAdminRequest;
-import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.cloud.MiniSolrCloudCluster;
-import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -58,23 +48,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCommandTest extends SolrCommandTest {
 
-  private static final String DEFAULT_CORE_NAME = "catalog";
-
   private static final String INVALID_COLLECTION_NAME = "myInvalidCollection";
-
-  private static final String DEFAULT_CONFIGSET = "collection_configset_1";
 
   private static final Pattern ASCII_COLOR_CODES_REGEX = Pattern.compile("\u001B\\[[;\\d]*m");
 
   private static final long TIMEOUT_IN_MINUTES = 1;
-
-  private static final Path SYSTEM_PROPERTIES_PATH =
-      Paths.get(DEFAULT_DDF_HOME, "etc", "custom.system.properties");
 
   private static final String SEE_COMMAND_USAGE_MESSAGE =
       "Invalid Argument(s). Please see command usage for details.";
@@ -85,6 +69,8 @@ public class BackupCommandTest extends SolrCommandTest {
 
   @Rule public ExpectedException expectedException = ExpectedException.none();
 
+  @Mock SolrClient mockSolrClient;
+
   @BeforeClass
   public static void beforeClass() throws Exception {
     setDdfHome();
@@ -93,26 +79,33 @@ public class BackupCommandTest extends SolrCommandTest {
     addDocument("1");
   }
 
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (miniSolrCloud != null) {
+      miniSolrCloud.getSolrClient().close();
+      miniSolrCloud.shutdown();
+    }
+  }
+
   @Before
-  public void before() throws Exception {
+  public void setUp() throws Exception {
     cipherSuites = System.getProperty("https.cipherSuites");
     System.setProperty(
         "https.cipherSuites",
         "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
     protocols = System.getProperty("https.protocols");
     System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
+    System.setProperty("solr.http.url", "https://localhost:8994/solr");
     consoleOutput = new ConsoleOutput();
     consoleOutput.interceptSystemOut();
-
-    mockHttpWrapper = mock(HttpWrapper.class);
   }
 
   @After
-  public void after() {
+  public void tearDown() {
     consoleOutput.resetSystemOut();
 
-    System.clearProperty(SolrCommands.SOLR_CLIENT_PROP);
-    System.clearProperty(SolrCommands.ZOOKEEPER_HOSTS_PROP);
+    System.clearProperty(SOLR_CLIENT_PROP);
+    System.clearProperty(ZOOKEEPER_HOSTS_PROP);
 
     if (cipherSuites != null) {
       System.setProperty("https.cipherSuites", cipherSuites);
@@ -126,26 +119,16 @@ public class BackupCommandTest extends SolrCommandTest {
     }
   }
 
-  @AfterClass
-  public static void afterClass() throws Exception {
-    if (miniSolrCloud != null) {
-      miniSolrCloud.getSolrClient().close();
-      miniSolrCloud.shutdown();
-    }
-  }
-
   @Test
   public void testNoArgBackup() throws Exception {
 
-    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_OK, "");
           }
         };
+
     backupCommand.execute();
 
     assertThat(
@@ -157,13 +140,10 @@ public class BackupCommandTest extends SolrCommandTest {
   public void testBackupSpecificCore() throws Exception {
     final String coreName = "core";
 
-    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_OK, "");
           }
         };
 
@@ -179,14 +159,10 @@ public class BackupCommandTest extends SolrCommandTest {
   public void testBackupInvalidCore() throws Exception {
     final String coreName = "badCoreName";
 
-    when(mockHttpWrapper.execute(any(URI.class)))
-        .thenReturn(mockResponse(HttpStatus.SC_NOT_FOUND, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_NOT_FOUND, "");
           }
         };
 
@@ -195,7 +171,7 @@ public class BackupCommandTest extends SolrCommandTest {
 
     assertThat(
         consoleOutput.getOutput(),
-        containsString(String.format("Backup command failed due to: %d", HttpStatus.SC_NOT_FOUND)));
+        containsString(String.format("Backup request failed: %d", HttpStatus.SC_NOT_FOUND)));
   }
 
   @Test
@@ -205,24 +181,14 @@ public class BackupCommandTest extends SolrCommandTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
-    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_OK, "");
           }
         };
     backupCommand.asyncBackup = true;
 
-    backupCommand.execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testSystemPropertiesNotSet() throws Exception {
-
-    BackupCommand backupCommand = new BackupCommand();
     backupCommand.execute();
   }
 
@@ -478,11 +444,8 @@ public class BackupCommandTest extends SolrCommandTest {
   public void testGetCloudSolrClientNoZkHosts() throws Exception {
 
     // Setup exception expectations
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(
-        String.format(
-            "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-            SolrCommands.ZOOKEEPER_HOSTS_PROP, SYSTEM_PROPERTIES_PATH));
+    expectedException.expect(RuntimeException.class);
+    expectedException.expectMessage("Couldn't initialize a HttpClusterStateProvider");
 
     // Set the solr client type system property so that the
     // BackupCommand knows that it needs to backup solr cloud.
@@ -744,70 +707,6 @@ public class BackupCommandTest extends SolrCommandTest {
     return mockOptimizationResponse;
   }
 
-  private ResponseWrapper mockResponse(int statusCode, String responseBody) {
-    return new ResponseWrapper(prepareResponse(statusCode, responseBody));
-  }
-
-  private HttpResponse prepareResponse(int statusCode, String responseBody) {
-    HttpResponse httpResponse =
-        new BasicHttpResponse(
-            new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), statusCode, ""));
-    httpResponse.setStatusCode(statusCode);
-    try {
-      httpResponse.setEntity(new StringEntity(responseBody));
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalArgumentException(e);
-    }
-
-    return httpResponse;
-  }
-
-  private static void createDefaultMiniSolrCloudCluster() throws Exception {
-    createMiniSolrCloudCluster();
-    uploadDefaultConfigset();
-    createDefaultCollection();
-  }
-
-  private static void createMiniSolrCloudCluster() throws Exception {
-    miniSolrCloud =
-        new MiniSolrCloudCluster(
-            1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
-    miniSolrCloud.getSolrClient().connect();
-  }
-
-  private static void uploadDefaultConfigset() throws Exception {
-    miniSolrCloud.uploadConfigSet(
-        new File(BackupCommandTest.class.getClassLoader().getResource("configset").getPath())
-            .toPath(),
-        DEFAULT_CONFIGSET);
-  }
-
-  private static void createDefaultCollection() throws Exception {
-    CollectionAdminRequest.Create create =
-        CollectionAdminRequest.createCollection(DEFAULT_CORE_NAME, DEFAULT_CONFIGSET, 1, 1);
-    CollectionAdminResponse response = create.process(miniSolrCloud.getSolrClient());
-    if (response.getStatus() != 0 || response.getErrorMessages() != null) {
-      fail("Could not create collection. Response: " + response.toString());
-    }
-
-    List<String> collections =
-        CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
-    assertThat(collections.size(), is(1));
-    miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
-  }
-
-  private static void addDocument(String uniqueId) throws Exception {
-    SolrInputDocument doc = new SolrInputDocument();
-    doc.setField("id", uniqueId);
-    miniSolrCloud.getSolrClient().add(doc);
-    miniSolrCloud.getSolrClient().commit();
-  }
-
-  private BackupCommand getSynchronousBackupCommand(
-      String backupLocation, String collection, SolrClient solrClient) {
-    return getBackupCommand(backupLocation, collection, false, false, null, solrClient);
-  }
-
   private BackupCommand getAsnychronousBackupCommand(
       String backupLocation, String collection, SolrClient solrClient) {
     return getBackupCommand(backupLocation, collection, true, false, null, solrClient);
@@ -815,47 +714,6 @@ public class BackupCommandTest extends SolrCommandTest {
 
   private BackupCommand getStatusBackupCommand(String requestId, SolrClient solrClient) {
     return getBackupCommand(null, null, false, true, requestId, solrClient);
-  }
-
-  private BackupCommand getBackupCommand(
-      String backupLocation,
-      String collection,
-      boolean asyncBackup,
-      boolean asyncBackupStatus,
-      String requestId,
-      SolrClient solrClient) {
-    BackupCommand backupCommand =
-        new BackupCommand() {
-          @Override
-          protected SolrClient getCloudSolrClient() {
-            return solrClient;
-          }
-
-          // We get the solr client from the MiniSolrCloudCluster, so we don't
-          // want to shut it down after each test as there is no way to restart it.
-          // We don't create a MiniSolrCloudCluster for each test to reduce the
-          // time it takes to run the tests.
-          @Override
-          protected void shutdown(SolrClient client) {
-            // do nothing
-          }
-        };
-    if (backupLocation != null) {
-      backupCommand.backupLocation = getBackupLocation();
-    }
-    if (collection != null) {
-      backupCommand.coreName = collection;
-    }
-    if (asyncBackup) {
-      backupCommand.asyncBackup = true;
-    }
-    if (asyncBackupStatus) {
-      backupCommand.asyncBackupStatus = true;
-    }
-    if (requestId != null) {
-      backupCommand.asyncBackupReqId = requestId;
-    }
-    return backupCommand;
   }
 
   // Replace ASCII color codes in console output and get the request Id

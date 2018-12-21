@@ -128,7 +128,7 @@ public class BackupCommand extends SolrCommands {
     }
 
     URI backupUri = uriBuilder.build();
-    processResponse(sendGetRequest(backupUri));
+    printResponse(sendGetRequest(backupUri));
   }
 
   private void performSolrCloudBackup() throws IOException {
@@ -148,7 +148,7 @@ public class BackupCommand extends SolrCommands {
     }
   }
 
-  private void processResponse(@Nullable HttpResponse response) {
+  private void printResponse(@Nullable HttpResponse response) {
     if (response != null) {
       StatusLine statusLine = response.getStatusLine();
       if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
