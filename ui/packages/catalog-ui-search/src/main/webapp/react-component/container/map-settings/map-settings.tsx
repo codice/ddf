@@ -10,7 +10,9 @@
  *
  **/
 import * as React from 'react'
+import styled from '../../styles/styled-components'
 import MapSettingsPresentation from '../../presentation/map-settings'
+import Dropdown from '../../presentation/dropdown'
 import { hot } from 'react-hot-loader'
 const Common = require('../../../js/Common.js')
 const user = require('../../../component/singletons/user-instance.js')
@@ -47,6 +49,9 @@ const save = (newFormat: string) => {
   })
 }
 
+const Span = styled.span`
+  padding-right: 5px;
+`
 type State = {
   selected: string
 }
@@ -76,7 +81,14 @@ class MapSettings extends React.Component<{}, State> {
       update: (newFormat: string) => this.update(newFormat),
     }
 
-    return <MapSettingsPresentation {...mapSettingsProps} />
+    const mapSettings = <MapSettingsPresentation {...mapSettingsProps} />
+
+    return (
+      <Dropdown content={mapSettings}>
+        <Span className="interaction-text">Settings</Span>
+        <span className="interaction-icon fa fa-cog" />
+      </Dropdown>
+    )
   }
 }
 
