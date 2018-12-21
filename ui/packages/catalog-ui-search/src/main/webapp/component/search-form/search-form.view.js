@@ -110,70 +110,23 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'text')
         break
       case 'custom':
+        const sharedAttributes = this.model.transformToQueryStructure()
         if (
           Router.attributes.path === 'forms(/)' &&
           this.model.get('createdBy') !== 'system'
         ) {
-          if (!user.canWrite(this.model)) {
-            announcement.announce(
-              {
-                title: 'Error',
-                message:
-                  'You have read-only permission on search form ' +
-                  this.model.get('title') +
-                  '.',
-                type: 'error',
-              },
-              3000
-            )
-            break
-          }
-
-          this.model.set({
-            title: this.model.get('title'),
-            filterTree: this.model.get('filterTemplate'),
-            id: this.model.get('id'),
-            accessGroups: this.model.get('accessGroups'),
-            accessIndividuals: this.model.get('accessIndividuals'),
-            accessAdministrators: this.model.get('accessAdministrators'),
-          })
-          this.routeToSearchFormEditor(this.model.get('id'))
+          this.openEditor(sharedAttributes)
         } else {
-          let sorts =
-            this.model.get('querySettings') &&
-            this.model.get('querySettings').sorts
-          if (sorts) {
-            sorts = sorts.map(sort => ({
-              attribute: sort.split(',')[0],
-              direction: sort.split(',')[1],
-            }))
-          }
           this.options.queryModel.set({
             type: 'custom',
-            title: this.model.get('title'),
-            filterTree: this.model.get('filterTemplate'),
-            src:
-              (this.model.get('querySettings') &&
-                this.model.get('querySettings').src) ||
-              '',
-            federation:
-              (this.model.get('querySettings') &&
-                this.model.get('querySettings').federation) ||
-              'enterprise',
-            sorts: sorts,
-            'detail-level':
-              (this.model.get('querySettings') &&
-                this.model.get('querySettings')['detail-level']) ||
-              'allFields',
+            ...sharedAttributes,
           })
           if (oldType === 'custom') {
             this.options.queryModel.trigger('change:type')
           }
           user.getQuerySettings().set('type', 'custom')
-          break
         }
     }
-
     user.savePreferences()
     this.triggerCloseDropdown()
   },
@@ -186,10 +139,31 @@ module.exports = Marionette.LayoutView.extend({
   triggerCloseDropdown: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-
-  routeToSearchFormEditor(newSearchFormId) {
+  openEditor: function(sharedAttributes) {
+    if (user.canWrite(this.model)) {
+      this.model.set({
+        ...sharedAttributes,
+        id: this.model.get('id'),
+        accessGroups: this.model.get('accessGroups'),
+        accessIndividuals: this.model.get('accessIndividuals'),
+        accessAdministrators: this.model.get('accessAdministrators'),
+      })
+      this.routeToSearchFormEditor(this.model.get('id'))
+    } else {
+      announcement.announce(
+        {
+          title: 'Error',
+          message: `You have read-only permission on search form ${this.model.get(
+            'title'
+          )}.`,
+          type: 'error',
+        },
+        3000
+      )
+    }
+  },
+  routeToSearchFormEditor: function(newSearchFormId) {
     const fragment = `forms/${newSearchFormId}`
-
     wreqr.vent.trigger('router:navigate', {
       fragment,
       options: {
