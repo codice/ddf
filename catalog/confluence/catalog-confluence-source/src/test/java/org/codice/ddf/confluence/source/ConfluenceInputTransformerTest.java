@@ -102,6 +102,17 @@ public class ConfluenceInputTransformerTest {
   }
 
   @Test
+  public void testFullResponseTransformWithAlternateBodyPath() throws Exception {
+    String fileContent = getFileContent("confluence_page_storage_body.json");
+    InputStream stream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
+    validatePageMetacard(
+        transformer.transformConfluenceResponse(stream, "body.storage.value").get(0),
+        null,
+        "https://codice.atlassian.net/wiki",
+        false);
+  }
+
+  @Test
   public void testAttachmentTransform() throws Exception {
     String fileContent = getFileContent("confluence_attachment.json");
     InputStream stream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
