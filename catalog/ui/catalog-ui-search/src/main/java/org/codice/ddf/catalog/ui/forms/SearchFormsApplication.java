@@ -95,14 +95,14 @@ public class SearchFormsApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   public SearchFormsApplication(
-      FilterBuilder filterBuilder,
       CatalogFramework catalogFramework,
+      FilterBuilder filterBuilder,
       TemplateTransformer transformer,
       EndpointUtil util) {
     this.catalogFramework = catalogFramework;
+    this.filterBuilder = filterBuilder;
     this.transformer = transformer;
     this.util = util;
-    this.filterBuilder = filterBuilder;
   }
 
   /**

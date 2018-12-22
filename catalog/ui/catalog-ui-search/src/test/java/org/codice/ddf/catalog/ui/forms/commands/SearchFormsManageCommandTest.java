@@ -78,9 +78,7 @@ public class SearchFormsManageCommandTest {
     when(endpointUtil.getMetacardListByTag(SYSTEM_TEMPLATE))
         .thenReturn(ImmutableList.of(mockMetacard1, mockMetacard2));
 
-    cmd = new SearchFormsManageCommand();
-    cmd.setEndpointUtil(endpointUtil);
-    cmd.setCatalogFramework(catalogFramework);
+    cmd = new SearchFormsManageCommand(catalogFramework, endpointUtil);
   }
 
   @After
