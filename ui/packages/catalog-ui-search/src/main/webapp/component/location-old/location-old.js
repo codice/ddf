@@ -16,6 +16,7 @@ const usngs = require('usng.js')
 const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
 const dmsUtils = require('../location-new/utils/dms-utils.js')
+const DistanceUtils = require('../../js/DistanceUtils.js')
 
 var converter = new usngs.Converter()
 var minimumDifference = 0.0001
@@ -381,6 +382,10 @@ module.exports = Backbone.AssociatedModel.extend({
         }
       )
 
+      result.north = DistanceUtils.coordinateRound(result.north)
+      result.east = DistanceUtils.coordinateRound(result.east)
+      result.south = DistanceUtils.coordinateRound(result.south)
+      result.west = DistanceUtils.coordinateRound(result.west)
       this.set(result)
     } else if (this.get('locationType') === 'dms') {
       this.setBboxDmsFromMap()

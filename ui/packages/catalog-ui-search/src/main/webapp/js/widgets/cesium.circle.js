@@ -74,10 +74,10 @@ DrawCircle.CircleView = Marionette.View.extend({
       radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart))
 
     var modelProp = {
-      lat: ((mn.latitude * 180) / Math.PI).toFixed(14),
-      lon: ((mn.longitude * 180) / Math.PI).toFixed(14),
+      lat: DistanceUtils.coordinateRound((mn.latitude * 180) / Math.PI),
+      lon: DistanceUtils.coordinateRound((mn.longitude * 180) / Math.PI),
       radius: DistanceUtils.getDistanceFromMeters(
-        radius,
+        DistanceUtils.coordinateRound(radius),
         this.model.get('radiusUnits')
       ),
     }

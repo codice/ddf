@@ -169,7 +169,7 @@ Draw.BboxView = Marionette.View.extend({
 
     modelProps = _.pick(e, 'north', 'east', 'west', 'south')
     _.each(modelProps, function(val, key) {
-      modelProps[key] = ((val * 180) / Math.PI).toFixed(14)
+      modelProps[key] = (val * 180) / Math.PI
     })
     this.model.set(modelProps)
 
