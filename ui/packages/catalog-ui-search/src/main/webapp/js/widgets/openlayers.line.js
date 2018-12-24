@@ -28,7 +28,10 @@ function translateFromOpenlayersCoordinates(coords) {
   var coordinates = []
   _.each(coords, function(point) {
     point = ol.proj.transform(
-      [point[0], point[1]],
+      [
+        DistanceUtils.coordinateRound(point[0]),
+        DistanceUtils.coordinateRound(point[1]),
+      ],
       properties.projection,
       'EPSG:4326'
     )

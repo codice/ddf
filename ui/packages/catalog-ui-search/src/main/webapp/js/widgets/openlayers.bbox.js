@@ -21,6 +21,7 @@ const maptype = require('../maptype.js')
 const NotificationView = require('./notification.view')
 const DrawingController = require('./drawing.controller')
 const olUtils = require('../OpenLayersGeometryUtils')
+const DistanceUtils = require('../DistanceUtils.js')
 
 var Draw = {}
 
@@ -55,10 +56,10 @@ Draw.BboxView = Marionette.View.extend({
       'EPSG:4326'
     )
     this.model.set({
-      north: northWest[1],
-      south: southEast[1],
-      west: northWest[0],
-      east: southEast[0],
+      north: DistanceUtils.coordinateRound(northWest[1]),
+      south: DistanceUtils.coordinateRound(southEast[1]),
+      west: DistanceUtils.coordinateRound(northWest[0]),
+      east: DistanceUtils.coordinateRound(southEast[0]),
     })
   },
 

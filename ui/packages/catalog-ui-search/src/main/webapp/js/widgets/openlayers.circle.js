@@ -64,11 +64,12 @@ Draw.CircleView = Marionette.View.extend({
   },
   setModelFromGeometry: function(geometry) {
     var center = translateFromOpenlayersCoordinate(geometry.getCenter())
-    var rad = geometry.getRadius() *
-          this.map
-            .getView()
-            .getProjection()
-            .getMetersPerUnit()
+    var rad =
+      geometry.getRadius() *
+      this.map
+        .getView()
+        .getProjection()
+        .getMetersPerUnit()
 
     this.model.set({
       lat: DistanceUtils.coordinateRound(center[1]),

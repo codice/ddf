@@ -29,7 +29,10 @@ const translateFromOpenlayersCoordinates = coords => {
     .map(value =>
       value.map(point => {
         const mappedPoint = ol.proj.transform(
-          [DistanceUtils.coordinateRound(point[0]), DistanceUtils.coordinateRound(point[1])],
+          [
+            DistanceUtils.coordinateRound(point[0]),
+            DistanceUtils.coordinateRound(point[1]),
+          ],
           properties.projection,
           'EPSG:4326'
         )
