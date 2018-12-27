@@ -674,7 +674,7 @@ module.exports = function OpenlayersMap(
       )
 
       const feature = new Openlayers.Feature({
-        geometry: new Openlayers.geom.MultiPolygon(convertedCoordinates)
+        geometry: new Openlayers.geom.MultiPolygon(convertedCoordinates),
       })
 
       feature.setId(locationModel.cid)
