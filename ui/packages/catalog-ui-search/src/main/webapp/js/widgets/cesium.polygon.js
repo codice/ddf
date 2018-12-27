@@ -75,7 +75,7 @@ class PolygonRenderView extends GeometryRenderView {
         ) {
           polygonPoints.push(polygonPoints[0])
         }
-        polygonPoints.map(point => {
+        polygonPoints.forEach(point => {
           point[0] = DistanceUtils.coordinateRound(point[0])
           point[1] = DistanceUtils.coordinateRound(point[1])
         })

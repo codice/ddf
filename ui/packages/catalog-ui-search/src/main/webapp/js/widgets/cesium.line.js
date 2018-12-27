@@ -55,7 +55,7 @@ class LineRenderView extends GeometryRenderView {
       return
     }
 
-    linePoints.map(point => {
+    linePoints.forEach(point => {
       point[0] = DistanceUtils.coordinateRound(point[0])
       point[1] = DistanceUtils.coordinateRound(point[1])
     })
