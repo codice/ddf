@@ -74,9 +74,8 @@ Draw.CircleView = Marionette.View.extend({
     this.model.set({
       lat: DistanceUtils.coordinateRound(center[1]),
       lon: DistanceUtils.coordinateRound(center[0]),
-      radius: DistanceUtils.getDistanceFromMeters(
-        DistanceUtils.coordinateRound(rad),
-        this.model.get('radiusUnits')
+      radius: DistanceUtils.coordinateRound(
+        DistanceUtils.getDistanceFromMeters(rad, this.model.get('radiusUnits'))
       ),
     })
   },
