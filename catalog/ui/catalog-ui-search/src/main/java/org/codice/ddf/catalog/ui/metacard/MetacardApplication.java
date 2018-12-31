@@ -571,6 +571,17 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           Map<String, Object> incoming =
               GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
+
+          List<Metacard> queries =
+              ((List<Map<String, Object>>)
+                      incoming.getOrDefault(
+                          WorkspaceConstants.WORKSPACE_QUERIES, Collections.emptyList()))
+                  .stream()
+                  .map(transformer::transform)
+                  .collect(Collectors.toList());
+
+          queryMetacardsHandler.create(Collections.emptyList(), queries);
+
           Metacard saved = saveMetacard(transformer.transform(incoming));
           Map<String, Object> response = transformer.transform(saved);
 

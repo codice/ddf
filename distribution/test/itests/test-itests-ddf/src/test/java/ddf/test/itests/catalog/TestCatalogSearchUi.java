@@ -335,6 +335,23 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     assertThat(body.get("src"), is(sources));
   }
 
+  @Test
+  public void testCreateWorkspaceWithQueries() {
+    String queryId = "98a7c244e0c8461a87b5e0b253d6505c";
+
+    Map<String, Object> query = ImmutableMap.of("id", queryId);
+    Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, ImmutableList.of(query));
+
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
+
+    Map body = parse(res);
+    String id = (String) body.get("id");
+    assertThat(id, is(queryId));
+    assertThat(body.get(WORKSPACE_QUERIES), is(ImmutableList.of(query)));
+  }
+
   @SuppressWarnings("squid:S1607" /* Feature is off by default */)
   @Ignore
   @Test
