@@ -99,21 +99,31 @@ export class Security {
   }
 
   private getGroupAccess(group: string) {
-    return this.res.accessGroups.indexOf(group) > -1
-      ? Access.Write
-      : this.res.accessGroupsRead.indexOf(group) > -1
-        ? Access.Read
-        : Access.None
+    if (this.res.accessGroups.indexOf(group) > -1) {
+      return Access.Write
+    }
+
+    if (this.res.accessGroupsRead.indexOf(group) > -1) {
+      return Access.Read
+    }
+
+    return Access.None
   }
 
   private getIndividualAccess(email: string) {
-    return this.res.accessAdministrators.indexOf(email) > -1
-      ? Access.Share
-      : this.res.accessIndividuals.indexOf(email) > -1
-        ? Access.Write
-        : this.res.accessIndividualsRead.indexOf(email) > -1
-          ? Access.Read
-          : Access.None
+    if (this.res.accessAdministrators.indexOf(email) > -1) {
+      return Access.Share
+    }
+
+    if (this.res.accessIndividuals.indexOf(email) > -1) {
+      return Access.Write
+    }
+
+    if (this.res.accessIndividualsRead.indexOf(email) > -1) {
+      return Access.Read
+    }
+
+    return Access.None
   }
 
   private getAccess(user: any): Access {
