@@ -13,7 +13,7 @@
  **/
 -->
 <project
-        xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns="http://maven.apache.org/POM/4.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
@@ -409,6 +409,46 @@
         <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>secure-boot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-clientapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.error</groupId>
+            <artifactId>platform-error-page-injector</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migratable-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.api</groupId>
+            <artifactId>platform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.migration</groupId>
+            <artifactId>security-migratable</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-casclaimshandler</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -27,7 +27,7 @@ exports.load = function (key) {
 exports.find = function (dir, filter) {
   return readdirp({
     root: dir,
-    fileFilter: ['pom.xml', 'features.xml'],
+    fileFilter: ['pom.xml', 'features.xml', 'feature.xml'],
     directoryFilter: ['!target', '!node_modules']
       .concat(filter || [])
   })

@@ -124,7 +124,7 @@ module.exports = function (load, options) {
 
   var findDeps = function () {
     var findPom = function (path) {
-      if (path.match('features.xml')) {
+      if (path.match('features.xml') || path.match('feature.xml')) {
         return p.join(findMavenRoot(path), 'pom.xml')
       }
       return path
@@ -137,7 +137,7 @@ module.exports = function (load, options) {
 
       if (path.match('pom.xml')) {
         deps = processPom($)
-      } else if (path.match('features.xml')) {
+      } else if (path.match('features.xml') || path.match('feature.xml')) {
         deps = processFeature($)
       }
 
