@@ -89,6 +89,10 @@ public class CachingFederationStrategyTest {
 
   private static final String MOCK_RESPONSE_TITLE = "mock response";
 
+  private static final double SAMPLE_DISTANCE = 50d;
+
+  private static final double SAMPLE_RELEVANCE = 100d;
+
   private ExecutorService cacheExecutor, queryExecutor;
 
   @Mock private Query mockQuery;
@@ -173,7 +177,9 @@ public class CachingFederationStrategyTest {
     metacard = new MetacardImpl();
     metacard.setId("mock metacard");
 
-    Result mockResult = new ResultImpl(metacard);
+    ResultImpl mockResult = new ResultImpl(metacard);
+    mockResult.setDistanceInMeters(SAMPLE_DISTANCE);
+    mockResult.setRelevanceScore(SAMPLE_RELEVANCE);
 
     List<Result> results = Arrays.asList(mockResult);
     when(mockResponse.getResults()).thenReturn(results);
@@ -204,6 +210,8 @@ public class CachingFederationStrategyTest {
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getResults().size(), is(sourceList.size()));
+    assertThat(federateResponse.getResults().get(0).getDistanceInMeters(), is(SAMPLE_DISTANCE));
+    assertThat(federateResponse.getResults().get(0).getRelevanceScore(), is(SAMPLE_RELEVANCE));
   }
 
   @Test
