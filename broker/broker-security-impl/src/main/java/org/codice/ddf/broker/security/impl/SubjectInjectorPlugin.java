@@ -20,6 +20,8 @@ import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -122,6 +124,13 @@ public class SubjectInjectorPlugin implements BrokerMessageInterceptor {
   Subject cacheAndReturnSubject(ServerSession session) throws SecurityServiceException {
     UPAuthenticationToken usernamePasswordToken =
         new UPAuthenticationToken(session.getUsername(), session.getPassword());
-    return securityManager.getSubject(usernamePasswordToken);
+    return AccessController.doPrivileged(
+        (ThrowingFunction) () -> securityManager.getSubject(usernamePasswordToken));
+  }
+
+  interface ThrowingFunction {
+
+    @Override
+    PrivilegedAction<Subject> apply() throws SecurityServiceException;
   }
 }
