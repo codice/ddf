@@ -111,7 +111,9 @@ module.exports = Marionette.ItemView.extend({
           if (!template) {
             user.getQuerySettings().set('type', 'text')
             user.savePreferences()
-            this.options.queryModel.resetToDefaults()
+            if (this.options.queryModel) {
+              this.options.queryModel.resetToDefaults()
+            }
           } else if (id === template.id) {
             this.handleClearDefault()
             this.options.queryModel.resetToDefaults()
