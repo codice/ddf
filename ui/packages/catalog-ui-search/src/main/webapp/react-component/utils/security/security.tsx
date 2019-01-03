@@ -43,7 +43,7 @@ export class Restrictions {
   static from(obj: any): Restrictions {
     if (typeof obj.get !== 'function')
       return {
-        owner: obj.owner,
+        owner: obj.owner || obj['metacard.owner'],
         accessGroups: obj.accessGroups || obj[this.GroupsWrite] || [],
         accessGroupsRead: obj.accessGroupsRead || obj[this.GroupsRead] || [],
         accessIndividuals:
@@ -55,7 +55,7 @@ export class Restrictions {
       } as Restrictions
 
     return {
-      owner: obj.get('metacard.owner') || obj.get('owner'),
+      owner: obj.get('owner') || obj.get('metacard.owner'),
       accessGroups: obj.get(this.GroupsWrite) || obj.get('accessGroups') || [],
       accessGroupsRead:
         obj.get(this.GroupsRead) || obj.get('accessGroupsRead') || [],
