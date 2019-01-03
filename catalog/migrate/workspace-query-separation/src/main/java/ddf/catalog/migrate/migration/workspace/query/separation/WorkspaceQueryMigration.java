@@ -16,7 +16,6 @@ package ddf.catalog.migrate.migration.workspace.query.separation;
 import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_QUERIES;
 import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_TAG;
 
-import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -71,11 +70,12 @@ public class WorkspaceQueryMigration implements DataMigratable {
   public WorkspaceQueryMigration(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
-      InputTransformer xmlInputTransformer) {
+      InputTransformer xmlInputTransformer,
+      Security security) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.xmlInputTransformer = xmlInputTransformer;
-    this.security = Security.getInstance();
+    this.security = security;
   }
 
   @Override
@@ -205,10 +205,5 @@ public class WorkspaceQueryMigration implements DataMigratable {
         LOGGER.debug("An error occurred while closing the input stream", e);
       }
     }
-  }
-
-  @VisibleForTesting
-  void setSecurity(Security security) {
-    this.security = security;
   }
 }

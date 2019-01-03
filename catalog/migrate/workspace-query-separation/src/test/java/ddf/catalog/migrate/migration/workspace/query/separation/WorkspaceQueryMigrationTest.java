@@ -86,8 +86,7 @@ public class WorkspaceQueryMigrationTest {
   @Before
   public void setup() throws Exception {
     workspaceQueryMigration =
-        new WorkspaceQueryMigration(catalogFramework, filterBuilder, xmlInputTransformer);
-    workspaceQueryMigration.setSecurity(security);
+        new WorkspaceQueryMigration(catalogFramework, filterBuilder, xmlInputTransformer, security);
 
     when(security.runAsAdmin(any(PrivilegedAction.class))).thenReturn(subject);
 
@@ -105,9 +104,6 @@ public class WorkspaceQueryMigrationTest {
     doReturn(workspace).when(result).getMetacard();
 
     doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
-
-    workspace = getWorkspaceMetacard(WORKSPACE_ID);
-    doReturn(workspace).when(result).getMetacard();
 
     doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 

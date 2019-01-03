@@ -20,10 +20,16 @@
 
   <reference id="xmlInputTransformer" interface="ddf.catalog.transform.InputTransformer" filter="(id=xml)"/>
 
+  <bean id="security"
+    class="org.codice.ddf.security.common.Security"
+    factory-method="getInstance">
+  </bean>
+
   <bean id="workspaceQueryMigration" class="ddf.catalog.migrate.migration.workspace.query.separation.WorkspaceQueryMigration">
     <argument ref="catalogFramework"/>
     <argument ref="filterBuilder"/>
     <argument ref="xmlInputTransformer"/>
+    <argument ref="security"/>
   </bean>
 
   <service ref="workspaceQueryMigration" interface="ddf.catalog.migrate.migration.api.DataMigratable">
