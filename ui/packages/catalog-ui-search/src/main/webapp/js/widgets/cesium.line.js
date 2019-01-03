@@ -63,7 +63,9 @@ class LineRenderView extends GeometryRenderView {
     let bufferedLine = turfLine
     this.cameraMagnitude = this.map.camera.getMagnitude()
     if (lineWidth > 100 || this.cameraMagnitude < CAMERA_MAGNITUDE_THRESHOLD) {
-      bufferedLine = Turf.buffer(turfLine, Math.max(lineWidth, 1), 'meters')
+      bufferedLine = Turf.buffer(turfLine, Math.max(lineWidth, 1), {
+        units: 'meters',
+      })
     }
 
     // first destroy old one

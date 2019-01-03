@@ -155,7 +155,7 @@ Draw.PolygonView = Marionette.View.extend({
       const polygon = Turf.polygon([
         translateFromOpenlayersCoordinates(coordinates[0]),
       ])
-      const buffered = Turf.buffer(polygon, bufferWidth, 'meters')
+      const buffered = Turf.buffer(polygon, bufferWidth, { units: 'meters' })
       geometryRepresentation =
         (buffered && new ol.geom.Polygon(buffered.geometry.coordinates)) ||
         coordinates
@@ -164,8 +164,8 @@ Draw.PolygonView = Marionette.View.extend({
         const polySegment = Turf.multiLineString([
           translateFromOpenlayersCoordinates(set),
         ])
-        return Turf.buffer(polySegment, bufferWidth, 'meters').geometry
-          .coordinates
+        return Turf.buffer(polySegment, bufferWidth, { units: 'meters' })
+          .geometry.coordinates
       })
 
       geometryRepresentation =

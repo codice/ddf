@@ -120,7 +120,7 @@ Draw.LineView = Marionette.View.extend({
     var turfLine = Turf.lineString(
       translateFromOpenlayersCoordinates(rectangle.getCoordinates())
     )
-    var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters')
+    var bufferedLine = Turf.buffer(turfLine, lineWidth, { units: 'meters' })
     var geometryRepresentation = new ol.geom.MultiLineString(
       translateToOpenlayersCoordinates(bufferedLine.geometry.coordinates)
     )

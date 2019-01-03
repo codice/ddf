@@ -622,7 +622,9 @@ module.exports = function OpenlayersMap(
           locationModel.get('lineUnits')
         ) || DEFAULT_BUFFER
       const multiLine = Turf.multiLineString(lineObject)
-      const buffered = Turf.buffer(multiLine, bufferedWidth, 'meters')
+      const buffered = Turf.buffer(multiLine, bufferedWidth, {
+        units: 'meters',
+      })
       const convertedCoordinates = buffered.geometry.coordinates.map(poly =>
         poly.map(coordinateSet =>
           coordinateSet.map(coord => convertPointCoordinate(coord))
@@ -665,7 +667,9 @@ module.exports = function OpenlayersMap(
 
       const multiPolygon = Turf.multiPolygon(multiPolyObject)
 
-      const buffered = Turf.buffer(multiPolygon, bufferWidth, 'meters')
+      const buffered = Turf.buffer(multiPolygon, bufferWidth, {
+        units: 'meters',
+      })
 
       const convertedCoordinates = buffered.geometry.coordinates.map(poly =>
         poly.map(coordinateSet =>

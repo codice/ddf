@@ -24,11 +24,9 @@ const createBufferedPolygonPoints = (polygonPoints, model) => {
       model.get('polygonBufferUnits')
     ) || 1
 
-  return Turf.buffer(
-    Turf.lineString(polygonPoints),
-    Math.max(width, 1),
-    'meters'
-  )
+  return Turf.buffer(Turf.lineString(polygonPoints), Math.max(width, 1), {
+    units: 'meters',
+  })
 }
 
 class PolygonRenderView extends GeometryRenderView {

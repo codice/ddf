@@ -50,7 +50,7 @@
   "dependencies": {
     "@turf/circle": "3.3.3",
     "@turf/meta": "3.13.0",
-    "@turf/turf": "3.4.1",
+    "@turf/turf": "^5.1.6",
     "@types/react-intl": "2.3.12",
     "backbone": "1.1.2",
     "backbone-associations": "0.6.2",
