@@ -63,6 +63,9 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   // Property of a special config that tracks all the individual configurations from a factory
   static final String SERVICE_FACTORY_PIDLIST = "factory.pidList";
 
+  // Property that keeps track of the revision of the configuration
+  static final String PROPERTY_REVISION = ":org.apache.felix.configadmin.revision:";
+
   private static final Set<String> SPECIAL_PROPERTIES =
       new HashSet<>(
           Arrays.asList(
@@ -70,7 +73,8 @@ public class ConfigurationContextImpl implements ConfigurationContext {
               SERVICE_FACTORYPID,
               FELIX_FILENAME,
               FELIX_NEW_CONFIG,
-              SERVICE_FACTORY_PIDLIST));
+              SERVICE_FACTORY_PIDLIST,
+              PROPERTY_REVISION));
 
   private final String servicePid;
 
@@ -100,6 +104,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
     // No guarantee these are in the props dictionary so do not assign from the removal
     propsCopy.remove(SERVICE_PID);
     propsCopy.remove(SERVICE_FACTORYPID);
+    propsCopy.remove(PROPERTY_REVISION);
 
     this.servicePid = pid;
     this.factoryPid = parseFactoryPid(pid);

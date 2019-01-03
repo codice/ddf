@@ -138,5 +138,10 @@
             <artifactId>zip-splitter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-jsp</artifactId>
+            <version>${pax.web.version}</version>
+        </dependency>
     </dependencies>
 </project>

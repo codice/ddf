@@ -52,6 +52,7 @@
     </feature>
 
     <feature name="simple-search-ui" version="${project.version}">
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
     </feature>
 

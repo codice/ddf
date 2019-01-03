@@ -16,6 +16,7 @@ package org.codice.felix.cm.file;
 import static java.lang.String.format;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_NEW_CONFIG;
+import static org.codice.felix.cm.file.ConfigurationContextImpl.PROPERTY_REVISION;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.SERVICE_FACTORY_PIDLIST;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -238,6 +239,7 @@ public class ConfigurationContextImplTest {
     testProps.put(FELIX_FILENAME, temporaryFile.toURI());
     testProps.put(FELIX_NEW_CONFIG, true);
     testProps.put(SERVICE_FACTORY_PIDLIST, new ArrayList<>());
+    testProps.put(PROPERTY_REVISION, TEST_PID);
 
     context = new ConfigurationContextImpl(TEST_PID, testProps);
 

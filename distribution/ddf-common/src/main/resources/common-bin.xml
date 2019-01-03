@@ -23,9 +23,6 @@
             <excludes>
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
-                <!-- These boot jar exclusions are needed until Karaf 4.2.2+ (https://issues.apache.org/jira/browse/KARAF-5912) -->
-                <exclude>lib/boot/jaxb*</exclude>
-                <exclude>lib/boot/activation*</exclude>
                 <!-- Don't copy over config files that are customized -->
                 <exclude>etc/custom.properties</exclude>
                 <exclude>etc/jetty.xml</exclude>
