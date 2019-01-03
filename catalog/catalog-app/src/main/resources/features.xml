@@ -612,6 +612,9 @@
       description="Provides a framework for data migration and karaf commands.">
         <bundle>mvn:ddf.catalog.migrate/migration-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.migrate/migration-command/${project.version}</bundle>
+    </feature>
+
+    <feature name="workspace-query-separation" version="${project.version}">
         <bundle>mvn:ddf.catalog.migrate/workspace-query-separation/${project.version}</bundle>
     </feature>
 
