@@ -14,15 +14,10 @@ import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 
 type Props = {
-  selected: string
   example: string
-  update: (selected: string) => void
 }
 
-const Root = styled<
-  { selected: string; example: string; update: (selected: string) => void },
-  'div'
->('div')`
+const Root = styled.div`
   display: block;
   width: 100%;
   white-space: nowrap;
@@ -62,7 +57,7 @@ const Label = styled.label`
 const render = (props: Props) => {
   const { example } = props
   return (
-    <Root {...props}>
+    <Root>
       <div className="example-label">
         <Label>Example Coordinates</Label>
       </div>

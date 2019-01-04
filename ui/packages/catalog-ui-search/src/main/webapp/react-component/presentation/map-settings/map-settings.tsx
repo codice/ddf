@@ -21,10 +21,7 @@ type Props = {
   update: (selected: string) => void
 }
 
-const Root = styled<
-  { selected: string; example: string; update: (selected: string) => void },
-  'div'
->('div')`
+const Root = styled.div`
   overflow: auto;
   padding: ${props => props.theme.minimumSpacing}
     ${props => props.theme.minimumSpacing};
@@ -33,7 +30,7 @@ const Root = styled<
 const render = (props: Props) => {
   const { selected, update } = props
   return (
-    <Root {...props}>
+    <Root>
       <Enum
         options={[
           { label: 'Degrees, Minutes, Seconds', value: 'degrees' },
