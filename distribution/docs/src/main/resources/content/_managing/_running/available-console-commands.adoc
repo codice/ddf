@@ -27,13 +27,16 @@ For example, type `catalog`, then press *TAB*.
 |The Catalog Shell Commands are meant to be used with any `CatalogProvider` implementations.
 They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.
 
-|<<{managing-prefix}subscription_command_descriptions, subscription>>
-|The ${branding} PubSub shell commands provide functions to list the registered subscriptions in ${branding} and to delete subscriptions.
+|<<{managing-prefix}migrate_command_descriptions, migrate>>
+|The Migrate Shell Commands provide functions to perform data migrations.
 
 |<<{managing-prefix}platform_command_descriptions, platform>>
 |The ${branding} Platform Shell Commands provide generic platform management functions
 
 |<<{managing-prefix}store_command_descriptions, store>>
 |The Persistence Shell Commands are meant to be used with any `PersistentStore` implementations. They provide the ability to query and delete entries from the persistence store.
+
+|<<{managing-prefix}subscription_command_descriptions, subscription>>
+|The ${branding} PubSub shell commands provide functions to list the registered subscriptions in ${branding} and to delete subscriptions.
 
 |===

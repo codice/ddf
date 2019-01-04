@@ -597,3 +597,13 @@ grant codeBase "file:/catalog-ui-search" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}IntrigueBundle", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}IntrigueBundle${/}-", "read";
 }
+
+grant
+  codeBase "file:/migration-command/workspace-query-separation" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
+}

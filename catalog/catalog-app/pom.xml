@@ -670,5 +670,20 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.migrate</groupId>
+            <artifactId>migration-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.migrate</groupId>
+            <artifactId>migration-command</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.migrate</groupId>
+            <artifactId>workspace-query-separation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
