@@ -556,7 +556,7 @@ module.exports = Backbone.AssociatedModel.extend({
       result = converter.USNGtoLL(usng, true)
     } catch (err) {}
 
-    if (isNaN(result.lat) || isNaN(result.lon)) {
+    if (!isNaN(result.lat) && !isNaN(result.lon)) {
       this.set(result)
 
       var utmUps = this.LLtoUtmUps(result.lat, result.lon)
