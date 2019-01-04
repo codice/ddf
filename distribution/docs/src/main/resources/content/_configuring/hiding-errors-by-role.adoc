@@ -19,5 +19,9 @@ If the *Metacard Validation Filter Plugin* is configured to *Filter errors* and/
 .. The default attribute for viewing invalid metacards is `invalid-state`
 ... `invalid-state=<USER ROLE>`.
 ... Replace `<USER ROLE>` with the roles that should be allowed to view invalid metacards.
+[NOTE]
+To prevent other ${branding} systems from querying invalid data in the local catalog, it is
+recommended to create and set user roles that are unique to the local system (ie. a user role
+that includes a UUID).
 . Select *Filter errors* to filter errors. Users without the `invalid-state` attribute will not see metacards with errors.
 . Select *Filter warnings* to filter warnings. Users without the `invalid-state` attribute will not see metacards with warnings.
