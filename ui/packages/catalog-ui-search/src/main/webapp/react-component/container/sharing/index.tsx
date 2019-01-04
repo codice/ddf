@@ -9,4 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { Sharing, Item, Category, Access } from './sharing'
+export { Sharing, Item, Category } from './sharing'

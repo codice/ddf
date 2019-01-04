@@ -14,7 +14,69 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import Text from '../../container/input-wrappers/text/text'
 import Enum from '../../container/input-wrappers/enum/enum'
-import { Access, Category, Item } from '../../container/sharing'
+import { Category, Item } from '../../container/sharing'
+import styled from '../../styles/styled-components/styled-components'
+import { Access } from '../../utils/security'
+
+const Root = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`
+
+const Items = styled.div`
+  top: 0;
+  overflow: auto;
+  position: absolute;
+  width: 100%;
+  bottom: 130px;
+`
+
+const Item = styled.div`
+  margin: 0px 50px;
+`
+
+const IconAndName = styled.div`
+  display: inline-block;
+  width: 50%;
+`
+
+const ReadOnlyLabel = styled.span`
+  margin-left: 12px;
+`
+
+const EditableLabelText = styled(Text)`
+  display: inline-block;
+  padding: 5px;
+  width: 80%;
+`
+
+const AccessEnum = styled(Enum)`
+  display: inline-block;
+  width: calc(50% - 70px);
+`
+
+const Buttons = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: calc(100% - 40px);
+`
+
+const DeleteButton = styled.button`
+  display: inline-block;
+  width: 50px;
+  vertical-align: middle;
+`
+
+const FullWidthButton = styled.button`
+  width: 100%;
+  margin-bottom: 10px;
+`
+
+const HalfWidthButton = styled.button`
+  width: 50%;
+`
 
 type Props = {
   items: Item[]
@@ -22,7 +84,7 @@ type Props = {
   save: () => void
   reset: () => void
   remove: (i: number) => void
-  handleChangeSelect: (i: number, value: string) => void
+  handleChangeSelect: (i: number, value: Access) => void
   handleChangeInput: (i: number, value: string) => void
 }
 
@@ -36,126 +98,91 @@ const render = (props: Props) => {
     handleChangeSelect,
     handleChangeInput,
   } = props
-  const userDropdown = [
-    { label: 'No Access', value: Access.None },
-    { label: 'Read Only', value: Access.Read },
-    { label: 'Read and Write', value: Access.Write },
-    { label: 'Read, Write, and Share', value: Access.Share },
-  ]
   const roleDropdown = [
     { label: 'No Access', value: Access.None },
     { label: 'Read Only', value: Access.Read },
     { label: 'Read and Write', value: Access.Write },
   ]
+  const userDropdown = roleDropdown.slice()
+  userDropdown.push({ label: 'Read, Write, and Share', value: Access.Share })
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-      }}
-    >
-      <div
-        style={{
-          top: '0',
-          overflow: 'auto',
-          position: 'absolute',
-          width: '100%',
-          bottom: '130px',
-        }}
-      >
+    <Root>
+      <Items>
         {items.map((item, i) => {
           return (
-            <div key={item.id} style={{ margin: '0 50px' }}>
-              <div style={{ display: 'inline-block', width: '50%' }}>
-                <span
-                  className={
-                    item.category === Category.User
-                      ? 'fa fa-user'
-                      : 'fa fa-users'
-                  }
-                />
-                {item.category === Category.User ? (
-                  <Text
-                    style={{
-                      display: 'inline-block',
-                      padding: '5px',
-                      width: '80%',
-                    }}
-                    value={item.value}
-                    placeholder="user@example.com"
-                    showLabel={false}
-                    onChange={value => handleChangeInput(i, value)}
+            item.visible && (
+              <Item key={item.id}>
+                <IconAndName>
+                  <span
+                    className={
+                      item.category === Category.User
+                        ? 'fa fa-user'
+                        : 'fa fa-users'
+                    }
                   />
-                ) : (
-                  <span style={{ marginLeft: '12px' }}> {item.value} </span>
+                  {item.category === Category.User ? (
+                    <EditableLabelText
+                      value={item.value}
+                      placeholder="user@example.com"
+                      showLabel={false}
+                      onChange={value => handleChangeInput(i, value)}
+                    />
+                  ) : (
+                    <ReadOnlyLabel> {item.value} </ReadOnlyLabel>
+                  )}
+                </IconAndName>
+                <AccessEnum
+                  options={
+                    item.category === Category.User
+                      ? userDropdown
+                      : roleDropdown
+                  }
+                  value={item.access}
+                  showLabel={false}
+                  onChange={value => handleChangeSelect(i, value)}
+                />
+                {item.category === Category.User && (
+                  <DeleteButton
+                    onClick={() => {
+                      remove(i)
+                    }}
+                    className="is-negative"
+                  >
+                    <span className="fa fa-minus" />
+                  </DeleteButton>
                 )}
-              </div>
-              <Enum
-                style={{ display: 'inline-block', width: 'calc(50% - 70px)' }}
-                options={
-                  item.category === Category.User ? userDropdown : roleDropdown
-                }
-                value={item.access}
-                showLabel={false}
-                onChange={value => handleChangeSelect(i, value)}
-              />
-              {item.category === Category.User && (
-                <button
-                  style={{
-                    display: 'inline-block',
-                    width: '50px',
-                    verticalAlign: 'middle',
-                  }}
-                  onClick={() => {
-                    remove(i)
-                  }}
-                  className="is-negative"
-                >
-                  <span className="fa fa-minus" />
-                </button>
-              )}
-            </div>
+              </Item>
+            )
           )
         })}
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '20px',
-          width: 'calc(100% - 40px)',
-        }}
-      >
-        <button
-          style={{ width: '100%', marginBottom: '10px' }}
+      </Items>
+      <Buttons>
+        <FullWidthButton
           onClick={() => {
             add()
           }}
           className="is-positive"
         >
           <span className="fa fa-plus" /> Add User
-        </button>
-        <button
+        </FullWidthButton>
+        <HalfWidthButton
           className="is-negative reset"
-          style={{ width: '50%' }}
           onClick={() => {
             reset()
           }}
         >
           <i className="fa fa-undo" aria-hidden="true" /> Reset
-        </button>
-        <button
+        </HalfWidthButton>
+        <HalfWidthButton
           className="is-positive save"
-          style={{ width: '50%' }}
           onClick={() => {
             save()
           }}
         >
           <i className="fa fa-floppy-o" aria-hidden="true" /> Apply
-        </button>
-      </div>
-    </div>
+        </HalfWidthButton>
+      </Buttons>
+    </Root>
   )
 }
 
