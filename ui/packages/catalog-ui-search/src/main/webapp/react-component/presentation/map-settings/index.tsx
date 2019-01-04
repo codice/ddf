@@ -9,4 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default, ExampleCoordinates} from './map-settings'
+export { default } from './map-settings'

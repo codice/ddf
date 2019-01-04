@@ -12,8 +12,6 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import Enum from '../../container/enum'
-import ExampleCoordinates from './ExampleCoordinates'
 
 type Props = {
   selected: string
@@ -25,28 +23,52 @@ const Root = styled<
   { selected: string; example: string; update: (selected: string) => void },
   'div'
 >('div')`
-  overflow: auto;
-  padding: ${props => props.theme.minimumSpacing}
-    ${props => props.theme.minimumSpacing};
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: ${props => props.theme.minimumSpacing};
+  position: relative;
+
+  &.example-label,
+  &.example-value {
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+  }
+
+  &.example-label {
+    text-align: right;
+  }
+`
+
+const Label = styled.label`
+  .example-label & {
+    vertical-align: middle;
+    cursor: auto;
+    font-weight: bolder;
+    max-width: calc(100% - ${props => props.theme.minimumButtonSize});
+    margin: 0px;
+    line-height: 1.4;
+    padding: ${props => props.theme.minimumSpacing} 0px;
+    min-height: ${props => props.theme.minimumButtonSize};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: normal;
+    white-space: normal;
+  }
 `
 
 const render = (props: Props) => {
-  const { selected, update } = props
+  const { example } = props
   return (
     <Root {...props}>
-      <Enum
-        options={[
-          { label: 'Degrees, Minutes, Seconds', value: 'degrees' },
-          { label: 'Decimal', value: 'decimal' },
-          { label: 'MGRS', value: 'mgrs' },
-          { label: 'UTM/UPS', value: 'utm' },
-        ]}
-        value={selected}
-        label="Coordinate Format"
-        onChange={update}
-      />
-
-      <ExampleCoordinates {...props} />
+      <div className="example-label">
+        <Label>Example Coordinates</Label>
+      </div>
+      <div className="example-value">
+        <span>{example}</span>
+      </div>
     </Root>
   )
 }
