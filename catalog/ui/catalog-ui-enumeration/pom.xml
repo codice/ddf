@@ -17,7 +17,7 @@
     <parent>
         <artifactId>ui</artifactId>
         <groupId>ddf.ui</groupId>
-        <version>2.13.5</version>
+        <version>2.13.6-SNAPSHOT</version>
     </parent>
     <packaging>bundle</packaging>
 

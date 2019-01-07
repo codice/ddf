@@ -18,7 +18,7 @@
     <parent>
         <groupId>ddf.lib</groupId>
         <artifactId>lib</artifactId>
-        <version>2.13.5</version>
+        <version>2.13.6-SNAPSHOT</version>
     </parent>
 
     <name>DDF :: Spock Shaded Jar</name>
