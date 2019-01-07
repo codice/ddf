@@ -45,7 +45,9 @@ const polygonStringToCoordinates = polygonString => {
 }
 
 const createBufferedPolygon = (coordinates, distance) =>
-  Turf.buffer(Turf.lineString(coordinates), Math.max(distance, 1), 'meters')
+  Turf.buffer(Turf.lineString(coordinates), Math.max(distance, 1), {
+    units: 'meters',
+  })
 
 function checkTokenWithWildcard(token, filter) {
   var filterRegex = new RegExp(filter.split('*').join('.*'))
@@ -228,7 +230,7 @@ function matchesLINESTRING(value, filter) {
     })
   })
   var turfLine = Turf.lineString(line)
-  var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters')
+  var bufferedLine = Turf.buffer(turfLine, lineWidth, { units: 'meters' })
   var polygonToCheck = new Terraformer.Polygon({
     type: 'Polygon',
     coordinates: bufferedLine.geometry.coordinates,
