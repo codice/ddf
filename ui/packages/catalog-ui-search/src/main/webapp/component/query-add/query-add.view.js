@@ -26,7 +26,6 @@ const store = require('../../js/store.js')
 const QueryConfirmationView = require('../confirmation/query/confirmation.query.view.js')
 const LoadingView = require('../loading/loading.view.js')
 const wreqr = require('../../js/wreqr.js')
-const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
 const announcement = require('../announcement/index.jsx')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
@@ -138,42 +137,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   focus: function() {
-    this.autoLoadDefaultIfSet()
     this.queryContent.currentView.focus()
-  },
-  autoLoadDefaultIfSet: function() {
-    let userDefaultTemplate = user.getQuerySettings().get('template')
-    if (userDefaultTemplate) {
-      let sorts =
-        userDefaultTemplate['querySettings'] &&
-        userDefaultTemplate['querySettings'].sorts
-      if (sorts) {
-        sorts = sorts.map(sort => ({
-          attribute: sort.split(',')[0],
-          direction: sort.split(',')[1],
-        }))
-      }
-      this.model.set({
-        type: 'custom',
-        title: userDefaultTemplate['name'],
-        filterTree: userDefaultTemplate['filterTemplate'],
-        src:
-          (userDefaultTemplate['querySettings'] &&
-            userDefaultTemplate['querySettings'].src) ||
-          '',
-        federation:
-          (userDefaultTemplate['querySettings'] &&
-            userDefaultTemplate['querySettings'].federation) ||
-          'enterprise',
-        sorts: sorts,
-        'detail-level':
-          (userDefaultTemplate['querySettings'] &&
-            userDefaultTemplate['querySettings']['detail-level']) ||
-          'allFields',
-      })
-
-      this.showCustom()
-    }
   },
   edit: function() {
     this.$el.addClass('is-editing')
