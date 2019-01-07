@@ -91,6 +91,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   private static final String DEFAULT_AUTHENTICATION = "simple";
 
+  private static final String LOGIN_ERROR_MESSAGE =
+      "Username [%s] could not log in successfully using LDAP authentication due to an exception: \n\t";
+
   private String realm;
 
   private String kdcAddress;
@@ -314,6 +317,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             if (entryReader.isEntry()) {
               entry = entryReader.readEntry();
               Attribute attr = entry.getAttribute(roleNameAttribute);
+              if (attr == null) {
+                throw new LoginException(
+                    "No attributes returned for [" + roleNameAttribute + " : " + roleBaseDN + "]");
+              }
               for (ByteString role : attr) {
                 principals.add(new RolePrincipal(role.toString()));
               }
@@ -324,8 +331,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             }
           }
         } catch (Exception e) {
-          LOGGER.debug("Exception while getting roles for user.", e);
-          throw new LoginException("Can't get user " + user + " roles: " + e.getMessage());
+          LOGGER.debug("Exception while getting roles for [" + user + "].", e);
+          throw new LoginException("Can't get roles for [" + user + "]: " + e.getMessage());
         }
       } else {
         LOGGER.trace("LDAP Connection was null could not authenticate user.");
@@ -408,10 +415,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   @Override
   public boolean login() throws LoginException {
     boolean isLoggedIn;
-    String message =
-        "Username ["
-            + user
-            + "] could not log in successfuly using LDAP authentication due to an exception";
     try {
       isLoggedIn = doLogin();
       if (!isLoggedIn) {
@@ -420,9 +423,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       return isLoggedIn;
     } catch (InvalidCharactersException e) {
       SecurityLogger.audit(e.getMessage());
-      throw new LoginException(message);
+      throw new LoginException(String.format(LOGIN_ERROR_MESSAGE, user) + e.getMessage());
     } catch (LoginException e) {
-      throw new LoginException(message);
+      throw new LoginException(String.format(LOGIN_ERROR_MESSAGE, user) + e.getMessage());
     }
   }
 
