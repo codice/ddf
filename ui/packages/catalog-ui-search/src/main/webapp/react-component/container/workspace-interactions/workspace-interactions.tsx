@@ -14,11 +14,13 @@ import WorkspaceInteractionsPresentation from '../../presentation/workspace-inte
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { Sharing } from '../sharing'
+import { Security, Restrictions } from '../../utils/security'
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
 const wreqr = require('../../../js/wreqr.js')
 const LoadingView = require('../../../component/loading/loading.view.js')
+const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
 
 type Props = {
   workspace: any
@@ -110,12 +112,10 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     })
     store.get('workspaces').duplicateWorkspace(this.props.workspace)
   }
-  deleteWorkspace = () => {
+  deleteWorkspace = (workspace: any) => {
     var loadingview = new LoadingView()
-    store
-      .getWorkspaceById(this.props.workspace.id)
-      .off(null, null, 'handleTrash')
-    store.getWorkspaceById(this.props.workspace.id).once(
+    store.getWorkspaceById(workspace.id).off(null, null, 'handleTrash')
+    store.getWorkspaceById(workspace.id).once(
       'sync',
       function() {
         wreqr.vent.trigger('router:navigate', {
@@ -128,16 +128,40 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       },
       'handleTrash'
     )
-    store.getWorkspaceById(this.props.workspace.id).once(
+    store.getWorkspaceById(workspace.id).once(
       'error',
       function() {
         loadingview.remove()
       },
       'handleTrash'
     )
-    store.getWorkspaceById(this.props.workspace.id).destroy({
+    store.getWorkspaceById(workspace.id).destroy({
       wait: true,
     })
+  }
+  deletionPrompt = () => {
+    const workspace = store.getWorkspaceById(this.props.workspace.id)
+    const security = new Security(Restrictions.from(workspace))
+
+    if (security.isShared()) {
+      var self = this
+      this.props.listenTo(
+        ConfirmationView.generateConfirmation({
+          prompt:
+            'Are you sure you want to delete this workspace? It has been shared with other users.',
+          no: 'Cancel',
+          yes: 'Continue',
+        }),
+        'change:choice',
+        function(confirmation: any) {
+          if (confirmation.get('choice')) {
+            self.deleteWorkspace(self.props.workspace)
+          }
+        }.bind(this)
+      )
+    } else {
+      this.deleteWorkspace(this.props.workspace)
+    }
   }
   saveWorkspace = () => {
     this.props.workspace.save()
@@ -160,7 +184,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         viewSharing={this.viewSharing}
         viewDetails={this.viewDetails}
         duplicateWorkspace={this.duplicateWorkspace}
-        deleteWorkspace={this.deleteWorkspace}
+        deletionPrompt={this.deletionPrompt}
       />
     )
   }
