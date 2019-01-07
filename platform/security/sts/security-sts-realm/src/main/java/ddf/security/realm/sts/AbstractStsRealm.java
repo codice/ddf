@@ -213,6 +213,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
           stsClient.setTokenType(getAssertionType());
           stsClient.setKeyType(getKeyType());
           stsClient.setKeySize(Integer.parseInt(getKeySize()));
+          stsClient.setAllowRenewing(true);
+          stsClient.setAllowRenewingAfterExpiry(true);
           token = stsClient.requestSecurityToken();
           LOGGER.debug("Finished requesting security token.");
         }
@@ -254,6 +256,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 stsClient.setKeyType(getKeyType());
                 stsClient.setKeySize(Integer.parseInt(getKeySize()));
                 stsClient.setAllowRenewing(true);
+                stsClient.setAllowRenewingAfterExpiry(true);
                 SecurityToken token = stsClient.renewSecurityToken(securityToken);
                 cache.put(securityToken.getToken(), token);
                 LOGGER.debug("Finished renewing security token.");

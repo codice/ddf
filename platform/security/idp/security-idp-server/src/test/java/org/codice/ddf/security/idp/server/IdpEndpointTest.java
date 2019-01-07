@@ -554,7 +554,27 @@ public class IdpEndpointTest {
   }
 
   @Test
-  public void testShowGetLoginWithCookieAssertionAfterTimeBounds()
+  public void testShowGetLoginWithInvalidCookie()
+      throws CertificateEncodingException, WSSecurityException {
+    String samlRequest = authNRequestGet;
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    Cookie cookie = mock(Cookie.class);
+
+    when(request.isSecure()).thenReturn(true);
+    when(request.getRequestURL()).thenReturn(requestURL);
+    when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
+    when(request.getCookies()).thenReturn(new Cookie[] {cookie});
+    when(cookie.getName()).thenReturn(IdpEndpoint.COOKIE);
+    when(cookie.getValue()).thenReturn("2");
+
+    Response response =
+        idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
+
+    assertThat(response.getEntity().toString(), containsString("<title>Login</title>"));
+  }
+
+  @Test
+  public void testRenewAssertionWithCookieAfterTimeBounds()
       throws CertificateEncodingException, WSSecurityException, SAXException, IOException,
           ParserConfigurationException {
     String samlRequest = authNRequestGet;
@@ -590,8 +610,7 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    assertThat(response.getEntity().toString(), containsString("<title>Login</title>"));
-    assertNull(idpEndpoint.cookieCache.getSamlAssertion("2"));
+    assertThat(response.getEntity().toString(), containsString("<title>Form Submit</title>"));
   }
 
   @Test
