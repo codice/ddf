@@ -42,7 +42,7 @@ public class BackupCommand extends SolrCommands {
   private static final String DEFAULT_CORE_NAME = "catalog";
   private static final String SEE_COMMAND_USAGE_MESSAGE =
       "Invalid Argument(s). Please see command usage for details.";
-  @Reference EncryptionService encryptionService;
+  @Reference private EncryptionService encryptionService;
 
   @Option(
     name = "-d",

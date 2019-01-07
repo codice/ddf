@@ -44,9 +44,7 @@ import org.codice.solr.factory.impl.HttpSolrClientFactory;
   description = "Restores a selected Solr core/collection from backup."
 )
 public class RestoreCommand extends SolrCommands {
-  private static final String STATUS = "status";
-
-  @Reference EncryptionService encryptionService;
+  @Reference private EncryptionService encryptionService;
 
   @Option(
     name = "-d",
@@ -179,37 +177,36 @@ public class RestoreCommand extends SolrCommands {
   private boolean restore(
       SolrClient client, String collection, String backupLocation, String backupName)
       throws IOException, SolrServerException {
-    if (canRestore(client, collection)) {
-      CollectionAdminRequest.Restore restore =
-          CollectionAdminRequest.AsyncCollectionAdminRequest.restoreCollection(
-                  collection, backupName)
-              .setLocation(backupLocation);
-
-      String syncReqId = restore.processAsync(client);
-
-      while (true) {
-        CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
-            CollectionAdminRequest.requestStatus(syncReqId).process(client);
-        RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
-        if (requestStatus == RequestStatusState.COMPLETED) {
-          LOGGER.debug("Restore status: {}", requestStatus);
-          return true;
-        } else if (requestStatus == RequestStatusState.FAILED
-            || requestStatus == RequestStatusState.NOT_FOUND) {
-          LOGGER.debug("Restore status: {}", requestStatus);
-          printErrorMessage("Restore failed. ");
-          printResponseErrorMessages(requestStatusResponse);
-          return false;
-        }
-        try {
-          TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-    } else {
+    if (!canRestore(client, collection)) {
       LOGGER.warn("Unable to restore collection {}", collection);
       return false;
+    }
+
+    CollectionAdminRequest.Restore restore =
+        CollectionAdminRequest.AsyncCollectionAdminRequest.restoreCollection(collection, backupName)
+            .setLocation(backupLocation);
+
+    String syncReqId = restore.processAsync(client);
+
+    while (true) {
+      CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
+          CollectionAdminRequest.requestStatus(syncReqId).process(client);
+      RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
+      if (requestStatus == RequestStatusState.COMPLETED) {
+        LOGGER.debug("Restore status: {}", requestStatus);
+        return true;
+      } else if (requestStatus == RequestStatusState.FAILED
+          || requestStatus == RequestStatusState.NOT_FOUND) {
+        LOGGER.debug("Restore status: {}", requestStatus);
+        printErrorMessage("Restore failed. ");
+        printResponseErrorMessages(requestStatusResponse);
+        return false;
+      }
+      try {
+        TimeUnit.SECONDS.sleep(1);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 
