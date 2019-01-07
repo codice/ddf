@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -37,6 +39,7 @@ import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.serviceflag.ServiceFlag;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,11 +74,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private final AttributeRegistry attributeRegistry;
 
+  private final Executor configurationExecutor;
+
   private String monitoredDirectory = null;
 
   private String processingMechanism = DELETE;
 
-  @Nullable private RouteBuilder routeBuilder;
+  @Nullable private volatile RouteBuilder routeBuilder;
 
   private List<String> badFiles;
 
@@ -98,8 +103,9 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    *     attribute overrides for in-place monitoring
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
-   * @param inputTransformerWaiter used to block creation of services from the MSF in blueprint. the
-   *     MSF will not start creating CDM services until the {@link InputTransformerWaiter} is
+   * @param configurationExecutor the executor used to run configuration and updates.
+   * @param inputTransformerServiceFlag used to block creation of services from the MSF in
+   *     blueprint. the MSF will not start creating CDM services until the {@link ServiceFlag} is
    *     injected.
    */
   public ContentDirectoryMonitor(
@@ -107,11 +113,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      InputTransformerWaiter inputTransformerWaiter) {
+      Executor configurationExecutor,
+      ServiceFlag inputTransformerServiceFlag) {
     this.camelContext = camelContext;
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
+    this.configurationExecutor = configurationExecutor;
     setBlacklist();
   }
 
@@ -173,7 +181,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       return null;
     }
 
-    attemptAddRoutes();
+    CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
     return null;
   }
 
@@ -190,6 +198,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       return;
     }
 
+    CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
+  }
+
+  private void removeRoutes() {
     for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
         String routeId = routeDef.getId();

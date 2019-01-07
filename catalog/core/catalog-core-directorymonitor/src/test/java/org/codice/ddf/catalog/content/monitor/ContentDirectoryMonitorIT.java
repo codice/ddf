@@ -344,7 +344,9 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("com.google.code.gson", "gson"),
         new BundleInfo("com.hazelcast", "hazelcast"),
         new BundleInfo("org.apache.httpcomponents", "httpcore-osgi"),
-        new BundleInfo("org.apache.httpcomponents", "httpclient-osgi"));
+        new BundleInfo("org.apache.httpcomponents", "httpclient-osgi"),
+        new BundleInfo("net.jodah", "failsafe"),
+        new BundleInfo("ddf.platform.osgi", "platform-osgi-serviceflag"));
   }
 
   private CatalogFramework mockCatalogFramework() throws Exception {

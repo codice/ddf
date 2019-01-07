@@ -21,19 +21,23 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <reference-list id="inputTransformers" interface="ddf.catalog.transform.InputTransformer"
-                    member-type="service-reference" filter="(id=*)"/>
-
     <reference id="camelContext" interface="org.apache.camel.CamelContext"
                filter="(camel.context.name=catalogCamelContext)"/>
 
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
-    <bean id="inputTransformerIds" class="org.codice.ddf.catalog.content.monitor.InputTransformerIds"/>
+    <reference id="inputTransformerServiceFlag" interface="org.codice.ddf.platform.serviceflag.ServiceFlag"
+               filter="(id=inputTransformerServiceFlag)"/>
 
-    <bean id="transformerWaiter" class="org.codice.ddf.catalog.content.monitor.InputTransformerWaiter">
-        <argument ref="inputTransformerIds"/>
-        <argument ref="inputTransformers"/>
+    <bean id="configurationExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor">
+        <argument ref="cdmThreadFactory"/>
+    </bean>
+
+    <bean id="cdmThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="cdmThread"/>
     </bean>
 
     <cm:managed-service-factory
@@ -46,8 +50,8 @@
             <argument ref="attributeRegistry"/>
             <argument value="20"/>
             <argument value="5"/>
-            <!-- The transformerWaiter argument is only used to prevent instantiation of CDM services until configured InputTransformers are ready -->
-            <argument ref="transformerWaiter"/>
+            <argument ref="configurationExecutor"/>
+            <argument ref="inputTransformerServiceFlag"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>

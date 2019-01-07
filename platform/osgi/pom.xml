@@ -29,6 +29,7 @@
         <module>platform-osgi-configadmin</module>
         <module>platform-osgi-condpermadmin</module>
         <module>platform-osgi-internal-api</module>
+        <module>platform-osgi-serviceflag</module>
     </modules>
 
 </project>

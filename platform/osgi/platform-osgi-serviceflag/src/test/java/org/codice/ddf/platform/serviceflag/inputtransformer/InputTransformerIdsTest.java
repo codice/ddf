@@ -11,12 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.content.monitor;
+package org.codice.ddf.platform.serviceflag.inputtransformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -26,10 +27,14 @@ import org.junit.Test;
 public class InputTransformerIdsTest {
 
   private Path testValidTransformerPath =
-      Paths.get(getClass().getClassLoader().getResource("valid-transformers").getPath());
+      Paths.get(
+          new File(getClass().getClassLoader().getResource("valid-transformers").getFile())
+              .getAbsolutePath());
 
   private Path testInvalidTransformerPath =
-      Paths.get(getClass().getClassLoader().getResource("invalid-transformers").getPath());
+      Paths.get(
+          new File(getClass().getClassLoader().getResource("invalid-transformers").getFile())
+              .getAbsolutePath());
 
   @Test
   public void testNoInputTransformerFiles() {

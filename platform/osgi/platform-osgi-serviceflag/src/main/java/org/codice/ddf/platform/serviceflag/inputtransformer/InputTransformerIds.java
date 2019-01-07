@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.content.monitor;
+package org.codice.ddf.platform.serviceflag.inputtransformer;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -33,6 +34,8 @@ import org.slf4j.LoggerFactory;
 public class InputTransformerIds {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(InputTransformerIds.class);
+
+  private static final Type STRING_TYPE = new TypeToken<List<String>>() {}.getType();
 
   private Path transformerFolder;
 
@@ -63,8 +66,7 @@ public class InputTransformerIds {
       }
 
       try (FileReader reader = new FileReader(transformerFile)) {
-        List<String> filesTransformerIds =
-            gson.fromJson(reader, new TypeToken<List<String>>() {}.getType());
+        List<String> filesTransformerIds = gson.fromJson(reader, STRING_TYPE);
 
         if (filesTransformerIds != null) {
           allTransformerIds.addAll(filesTransformerIds);
@@ -73,7 +75,8 @@ public class InputTransformerIds {
         LOGGER.debug(
             "Error reading InputTransformer ids from file {}. The ids returned may not be the full set described in {}.",
             transformerFile,
-            transformerFolder);
+            transformerFolder,
+            e);
       } catch (JsonSyntaxException e) {
         LOGGER.error(
             "Malformed JSON file {}. Fix or remove the file before continuing. See debug logs for more info.",

@@ -646,5 +646,10 @@
             <artifactId>catalog-core-attachment-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.osgi</groupId>
+            <artifactId>platform-osgi-serviceflag</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

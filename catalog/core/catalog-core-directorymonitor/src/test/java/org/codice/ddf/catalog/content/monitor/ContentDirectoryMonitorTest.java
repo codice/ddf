@@ -24,8 +24,6 @@ import ddf.catalog.Constants;
 import ddf.catalog.data.AttributeRegistry;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,7 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.io.FileUtils;
-import org.codice.junit.rules.ClearInterruptions;
+import org.codice.ddf.platform.serviceflag.ServiceFlag;
 import org.codice.junit.rules.RestoreSystemProperties;
 import org.junit.After;
 import org.junit.Before;
@@ -61,12 +59,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         "test1=someParameter1", "test1=someParameter0", "test2=(some,parameter,with,commas)"
       };
 
-  private final Path testValidTransformerPath =
-      Paths.get(getClass().getClassLoader().getResource("valid-transformers").getPath());
-
-  private final InputTransformerIds inputTransformerIds =
-      new InputTransformerIds(testValidTransformerPath);
-
   private static final int MAX_SECONDS_FOR_FILE_COPY = 5;
 
   private static final int MAX_CHECKS_FOR_FILE_COPY = 10;
@@ -83,8 +75,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
   @Rule
   public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
-
-  @Rule public final ClearInterruptions clearInterruptions = new ClearInterruptions();
 
   @Before
   public void setup() throws Exception {
@@ -402,7 +392,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext, mock(AttributeRegistry.class), 1, 1, mock(InputTransformerWaiter.class));
+            camelContext,
+            mock(AttributeRegistry.class),
+            1,
+            1,
+            Runnable::run,
+            mock(ServiceFlag.class));
 
     monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
