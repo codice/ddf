@@ -149,28 +149,16 @@ Draw.PolygonView = Marionette.View.extend({
         this.model.get('polygonBufferWidth'),
         this.model.get('polygonBufferUnits')
       ) || 1
-
-    let geometryRepresentation
-    if (coordinates[0][0].length > 3) {
-      const polygon = Turf.polygon([
-        translateFromOpenlayersCoordinates(coordinates[0]),
+    const segments = coordinates.map(set => {
+      const polySegment = Turf.multiLineString([
+        translateFromOpenlayersCoordinates(set),
       ])
-      const buffered = Turf.buffer(polygon, bufferWidth, { units: 'meters' })
-      geometryRepresentation =
-        (buffered && new ol.geom.Polygon(buffered.geometry.coordinates)) ||
-        coordinates
-    } else {
-      const segments = coordinates.map(set => {
-        const polySegment = Turf.multiLineString([
-          translateFromOpenlayersCoordinates(set),
-        ])
-        return Turf.buffer(polySegment, bufferWidth, { units: 'meters' })
-          .geometry.coordinates
-      })
+      return Turf.buffer(polySegment, bufferWidth, { units: 'meters' }).geometry
+        .coordinates
+    })
 
-      geometryRepresentation =
-        (segments && new ol.geom.MultiPolygon(segments)) || coordinates
-    }
+    const geometryRepresentation =
+      (segments && new ol.geom.MultiPolygon(segments)) || coordinates
 
     this.billboard = new ol.Feature({
       geometry: geometryRepresentation,

@@ -665,20 +665,17 @@ module.exports = function OpenlayersMap(
           locationModel.get('polygonBufferUnits')
         ) || DEFAULT_BUFFER
 
-      const multiPolygon = Turf.multiPolygon(multiPolyObject)
-
-      const buffered = Turf.buffer(multiPolygon, bufferWidth, {
-        units: 'meters',
+      const segments = multiPolyObject.map(set => {
+        const polySegment = Turf.multiLineString(set)
+        return Turf.buffer(polySegment, bufferWidth, { units: 'meters' })
+          .geometry.coordinates
       })
 
-      const convertedCoordinates = buffered.geometry.coordinates.map(poly =>
-        poly.map(coordinateSet =>
-          coordinateSet.map(coord => convertPointCoordinate(coord))
-        )
-      )
+      const geometryRepresentation =
+        (segments && new Openlayers.geom.MultiPolygon(segments)) || coordinates
 
       const feature = new Openlayers.Feature({
-        geometry: new Openlayers.geom.MultiPolygon(convertedCoordinates),
+        geometry: geometryRepresentation,
       })
 
       feature.setId(locationModel.cid)
