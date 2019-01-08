@@ -24,7 +24,8 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import java.util.Optional;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class AttributeValueNormalizerTest {
 
   private static final String VALID_MS_SINCE_EPOCH_DATE_STRING_WITH_OFFSET = "1196673330000";
 
-  private static final AttributeDescriptor DATE_DESCRIPTOR = dateDescriptor();
+  private static final AttributeDescriptor DATE_DESCRIPTOR = createDateDescriptor();
 
   private AttributeValueNormalizer normalizer;
 
@@ -173,11 +174,7 @@ public class AttributeValueNormalizerTest {
     normalizer.normalizeForXml(PROPERTY_NAME, NON_DATE_INPUT);
   }
 
-  private static AttributeDescriptor dateDescriptor() {
-    AttributeDescriptor descriptor = mock(AttributeDescriptor.class);
-    AttributeType type = mock(AttributeType.class);
-    when(descriptor.getType()).thenReturn(type);
-    when(type.getAttributeFormat()).thenReturn(AttributeType.AttributeFormat.DATE);
-    return descriptor;
+  private static AttributeDescriptor createDateDescriptor() {
+    return new AttributeDescriptorImpl("created", true, true, true, false, BasicTypes.DATE_TYPE);
   }
 }

@@ -182,7 +182,7 @@ public class SearchFormsManageCommand extends SubjectCommands implements Action 
 
   private static <T> T get(Class<T> type) {
     BundleContext context =
-        FrameworkUtil.getBundle(SearchFormsLoaderCommand.class).getBundleContext();
+        FrameworkUtil.getBundle(SearchFormsManageCommand.class).getBundleContext();
     return context.getService(context.getServiceReference(type));
   }
 }

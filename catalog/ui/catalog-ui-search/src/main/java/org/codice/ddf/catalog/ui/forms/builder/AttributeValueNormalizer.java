@@ -60,7 +60,7 @@ class AttributeValueNormalizer {
    *
    * @param property the name of the attribute for this value.
    * @param value the value of the attribute to normalize.
-   * @return the normalized attribute value, or the original of normalization was not possible.
+   * @return the normalized attribute value, or the original if normalization was not possible.
    */
   public String normalizeForJson(String property, String value) {
     if (eitherStringIsNull(property, value)) {
@@ -84,7 +84,7 @@ class AttributeValueNormalizer {
    *
    * @param property the name of the attribute for this value.
    * @param value the value of the attribute to normalize.
-   * @return the normalized attribute value, or the original of normalization was not possible.
+   * @return the normalized attribute value, or the original if normalization was not possible.
    * @throws FilterProcessingException if the provided data is not valid.
    */
   public String normalizeForXml(String property, String value) {
