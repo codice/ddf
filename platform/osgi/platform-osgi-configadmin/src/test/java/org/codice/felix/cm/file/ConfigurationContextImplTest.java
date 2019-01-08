@@ -50,6 +50,8 @@ public class ConfigurationContextImplTest {
   private static final String TEST_MSF_PID =
       format("%s.%s", TEST_PID, UUID.randomUUID().toString());
 
+  private static final String TEST_REVISION = "5";
+
   private static final String MALFORMED_URL = "htp:/www.google.com";
 
   private static final String URL_BUT_NOT_URI = "http:// ";
@@ -239,7 +241,7 @@ public class ConfigurationContextImplTest {
     testProps.put(FELIX_FILENAME, temporaryFile.toURI());
     testProps.put(FELIX_NEW_CONFIG, true);
     testProps.put(SERVICE_FACTORY_PIDLIST, new ArrayList<>());
-    testProps.put(PROPERTY_REVISION, TEST_PID);
+    testProps.put(PROPERTY_REVISION, TEST_REVISION);
 
     context = new ConfigurationContextImpl(TEST_PID, testProps);
 
