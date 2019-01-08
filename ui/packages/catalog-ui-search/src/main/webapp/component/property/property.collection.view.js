@@ -263,7 +263,11 @@ module.exports = Marionette.CollectionView.extend(
       )
       return PropertyCollectionView
     },
-    generateFilteredPropertyCollectionView: function(propertyNames, metacards) {
+    generateFilteredPropertyCollectionView: function(
+      propertyNames,
+      metacards,
+      options
+    ) {
       var propertyArray = []
       propertyNames.forEach(function(property) {
         if (metacardDefinitions.metacardTypes.hasOwnProperty(property)) {
@@ -280,6 +284,7 @@ module.exports = Marionette.CollectionView.extend(
               metacardDefinitions.metacardTypes[property].multivalued,
             required: properties.requiredAttributes.includes(property),
             initializeToDefault: true,
+            ...options,
           })
         }
       })
