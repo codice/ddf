@@ -35,6 +35,9 @@ module.exports = Marionette.LayoutView.extend({
         this.editorProperties.show(PropertyCollectionView.generateFilteredPropertyCollectionView(
             properties.editorAttributes,
             [],
+            {
+                showValidationIssues: false
+            },
         ));
         this.editorProperties.currentView.$el.addClass("is-list");
         this.editorProperties.currentView.turnOnEditing();

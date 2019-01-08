@@ -235,7 +235,7 @@ define([
             PropertyCollectionView.listenTo(user.get('user').get('preferences'), 'change:inspector-detailsOrder', PropertyCollectionView.updateSort);
             return PropertyCollectionView;
         },
-        generateFilteredPropertyCollectionView: function(propertyNames, metacards) {
+        generateFilteredPropertyCollectionView: function(propertyNames, metacards, options) {
             var propertyArray = [];
             propertyNames.forEach(function(property) {
                 if (metacardDefinitions.metacardTypes.hasOwnProperty(property)) {
@@ -250,7 +250,8 @@ define([
                         values: {},
                         multivalued: metacardDefinitions.metacardTypes[property].multivalued,
                         required: properties.requiredAttributes.includes(property),
-                        initializeToDefault: true
+                        initializeToDefault: true,
+                        ...options
                     });
                 }
             });
