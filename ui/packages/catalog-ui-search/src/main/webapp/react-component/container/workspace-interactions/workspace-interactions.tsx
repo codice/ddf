@@ -150,7 +150,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
           prompt:
             'Are you sure you want to delete this workspace? It has been shared with other users.',
           no: 'Cancel',
-          yes: 'Continue',
+          yes: 'Delete',
         }),
         'change:choice',
         function(confirmation: any) {
