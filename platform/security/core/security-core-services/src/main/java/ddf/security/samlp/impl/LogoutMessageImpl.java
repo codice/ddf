@@ -23,7 +23,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.ws.rs.core.UriBuilder;
@@ -135,8 +134,7 @@ public class LogoutMessageImpl implements LogoutMessage {
   @Override
   public LogoutRequest buildLogoutRequest(
       String nameIdString, String issuerOrEntityId, List<String> sessionIndexes) {
-    return buildLogoutRequest(
-        nameIdString, issuerOrEntityId, getUuidGenerator().generateUuid(), sessionIndexes);
+    return buildLogoutRequest(nameIdString, issuerOrEntityId, generateId(), sessionIndexes);
   }
 
   public LogoutRequest buildLogoutRequest(
@@ -183,7 +181,7 @@ public class LogoutMessageImpl implements LogoutMessage {
         SamlProtocol.createIssuer(issuerOrEntityId),
         SamlProtocol.createStatus(statusCodeValue),
         inResponseTo,
-        "_" + UUID.randomUUID().toString());
+        generateId());
   }
 
   @Override
@@ -201,10 +199,7 @@ public class LogoutMessageImpl implements LogoutMessage {
     status.getStatusCode().setStatusCode(statusCode);
 
     return SamlProtocol.createLogoutResponse(
-        SamlProtocol.createIssuer(issuerOrEntityId),
-        status,
-        inResponseTo,
-        "_" + UUID.randomUUID().toString());
+        SamlProtocol.createIssuer(issuerOrEntityId), status, inResponseTo, generateId());
   }
 
   @Override
@@ -287,5 +282,9 @@ public class LogoutMessageImpl implements LogoutMessage {
 
   public UuidGenerator getUuidGenerator() {
     return uuidGenerator;
+  }
+
+  private String generateId() {
+    return "_" + getUuidGenerator().generateUuid();
   }
 }
