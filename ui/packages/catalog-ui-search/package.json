@@ -58,7 +58,7 @@
     "backbone.marionette": "2.4.7",
     "backbone.modelbinder": "1.1.0",
     "backbone.paginator": "2.0.5",
-    "bootstrap": "3.3.7",
+    "bootstrap": "3.4.0",
     "cesium": "1.44",
     "clipboard": "1.7.1",
     "codice-icons": "*",
