@@ -19,6 +19,8 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,11 +42,8 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +68,8 @@ public abstract class SolrCommands implements Action {
   protected static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
 
   private static final String SOLR_URL_PROP = "solr.http.url";
+
+  private static final String SOLR_DATA_DIR = "solr.data.dir";
 
   protected static final Path SYSTEM_PROPERTIES_PATH =
       Paths.get(System.getProperty("ddf.etc"), "custom.system.properties");
@@ -163,34 +164,13 @@ public abstract class SolrCommands implements Action {
   }
 
   protected String getBackupUrl() {
-    if (configurationAdmin != null) {
-      try {
-        Configuration solrConfig =
-            configurationAdmin.getConfiguration(
-                "(service.pid=ddf.catalog.solr.external.SolrHttpCatalogProvider)");
-        if (solrConfig != null
-            && solrConfig.getProperties() != null
-            && solrConfig.getProperties().get("url") != null) {
-          String backupUrl = (String) solrConfig.getProperties().get("url");
-          LOGGER.debug("Using url property from configuration admin: {}", backupUrl);
-          return backupUrl;
-        }
-      } catch (IOException e) {
-        LOGGER.debug("Unable to get Solr url from bundle config.", e);
-      }
-    }
-    LOGGER.debug("No Solr config found, checking System settings");
-    if (System.getProperty("hostContext") != null) {
-      String backupUrl =
-          SystemBaseUrl.INTERNAL.constructUrl(
-              SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
-      LOGGER.debug("Using system configured URL instead: {}", backupUrl);
-      return backupUrl;
-    }
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_URL_PROP));
+  }
 
-    String backupUrl = HttpSolrClientFactory.getDefaultHttpsAddress();
-    LOGGER.debug("No Solr url configured, defaulting to: {}", backupUrl);
-    return backupUrl;
+  protected static String getSolrDataDir() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
   }
 
   protected String getReplicationUrl(String coreName) {

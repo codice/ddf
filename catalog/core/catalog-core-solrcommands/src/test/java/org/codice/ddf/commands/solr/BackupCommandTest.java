@@ -307,10 +307,7 @@ public class BackupCommandTest extends SolrCommandTest {
         containsString(
             String.format(
                 "Optimizing of collection [%s] is in progress.", INVALID_COLLECTION_NAME)));
-    assertThat(
-        consoleOutput.getOutput(),
-        containsString(
-            String.format("Backup failed. Collection not found: %s", INVALID_COLLECTION_NAME)));
+    assertThat(consoleOutput.getOutput(), containsString("Backup failed."));
   }
 
   @Test
@@ -598,10 +595,7 @@ public class BackupCommandTest extends SolrCommandTest {
         consoleOutput.getOutput(),
         containsString(
             String.format("Optimizing of collection [%s] is in progress.", DEFAULT_CORE_NAME)));
-    assertThat(
-        consoleOutput.getOutput(),
-        containsString(
-            String.format("Backup failed. Unable to optimize collection [%s]", DEFAULT_CORE_NAME)));
+    assertThat(consoleOutput.getOutput(), containsString("Backup failed."));
   }
 
   /**

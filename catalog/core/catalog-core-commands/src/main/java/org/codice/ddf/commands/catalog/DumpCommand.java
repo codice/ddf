@@ -252,21 +252,24 @@ public class DumpCommand extends CqlCommands {
 
     ResultIterable.resultIterable(catalog::query, queryRequest)
         .stream()
-        .forEach(
-            result ->
-                handleResult(
-                    new SourceResponseImpl(queryRequest, Collections.singletonList(result)),
-                    executorService,
-                    dumpDir,
-                    resultCount));
+        .map(Collections::singletonList)
+        .map(result -> new SourceResponseImpl(queryRequest, result))
+        .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
 
     executorService.shutdown();
 
-    while (!executorService.isTerminated()) {
-      try {
-        TimeUnit.MILLISECONDS.sleep(100);
-      } catch (InterruptedException e) {
-        // ignore
+    boolean interrupted = false;
+    try {
+      while (!executorService.isTerminated()) {
+        try {
+          TimeUnit.MILLISECONDS.sleep(100);
+        } catch (InterruptedException e) {
+          interrupted = true;
+        }
+      }
+    } finally {
+      if (interrupted) {
+        Thread.currentThread().interrupt();
       }
     }
 
@@ -284,6 +287,7 @@ public class DumpCommand extends CqlCommands {
       ExecutorService executorService,
       File dumpDir,
       AtomicLong resultCount) {
+    final List<Result> results = response.getResults();
     if (StringUtils.isNotBlank(zipFileName)) {
       try {
         Optional<QueryResponseTransformer> zipCompressionTransformer = getZipCompression();
@@ -293,7 +297,7 @@ public class DumpCommand extends CqlCommands {
           if (binaryContent != null) {
             IOUtils.closeQuietly(binaryContent.getInputStream());
           }
-          Long resultSize = (long) response.getResults().size();
+          Long resultSize = (long) results.size();
           printStatus(resultCount.addAndGet(resultSize));
         }
       } catch (InvalidSyntaxException e) {
@@ -302,27 +306,20 @@ public class DumpCommand extends CqlCommands {
         LOGGER.info("zipCompression transform failed");
       }
     } else if (multithreaded > 1) {
-      final List<Result> results = new ArrayList<>(response.getResults());
-      executorService.submit(
-          () -> {
-            for (final Result result : results) {
-              Metacard metacard = result.getMetacard();
-              try {
-                exportMetacard(dumpDir, metacard, resultCount);
-              } catch (IOException e) {
-                LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
-              }
-            }
-          });
+      executorService.submit(() -> processResults(results, dumpDir, resultCount));
     } else {
-      for (final Result result : response.getResults()) {
-        Metacard metacard = result.getMetacard();
-        try {
-          exportMetacard(dumpDir, metacard, resultCount);
-        } catch (IOException e) {
-          LOGGER.debug(
-              "Unable to export metacard: {} [{}]", metacard.getId(), metacard.getTitle(), e);
-        }
+      processResults(results, dumpDir, resultCount);
+    }
+  }
+
+  private void processResults(List<Result> results, File dumpDir, AtomicLong resultCount) {
+    for (final Result result : results) {
+      Metacard metacard = result.getMetacard();
+      try {
+        exportMetacard(dumpDir, metacard, resultCount);
+      } catch (IOException e) {
+        LOGGER.debug(
+            "Unable to export metacard: {} [{}]", metacard.getId(), metacard.getTitle(), e);
       }
     }
   }

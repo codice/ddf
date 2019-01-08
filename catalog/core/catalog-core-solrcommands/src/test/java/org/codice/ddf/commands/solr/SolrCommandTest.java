@@ -154,7 +154,7 @@ public abstract class SolrCommandTest {
     System.setProperty("solr.cloud.replicationFactor", "1");
     System.setProperty("solr.cloud.maxShardPerNode", "1");
     System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
-    System.setProperty("solr.cloud.zookeeper", miniSolrCloud.getZkServer().getZkHost());
+    System.setProperty(SolrCommands.ZOOKEEPER_HOSTS_PROP, miniSolrCloud.getZkServer().getZkHost());
     // Set soft commit and hard commit times high, so they will not impact the tests.
     System.setProperty("solr.autoSoftCommit.maxTime", String.valueOf(100));
     System.setProperty("solr.autoCommit.maxTime", String.valueOf(100));

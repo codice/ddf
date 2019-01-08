@@ -51,7 +51,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
   public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
-  private static final String SOLR_CONTEXT = "/solr";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
   private static final String SOLR_HTTP_URL = "solr.http.url";
 
@@ -65,26 +64,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
       SolrPasswordUpdate solrPasswordUpdate) {
     this.httpClientBuilder = httpClientBuilder;
     this.solrPasswordUpdate = solrPasswordUpdate;
-  }
-
-  /**
-   * Gets the default Solr server secure HTTP address.
-   *
-   * @return Solr server secure HTTP address
-   */
-  public static String getDefaultHttpsAddress() {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL));
-  }
-
-  /**
-   * Gets the Solr Data directory
-   *
-   * @return
-   */
-  public static String getSolrDataDir() {
-    return AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
   }
 
   public static void createSolrCore(
@@ -184,5 +163,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
       return closer.returning(new PingAwareSolrClientProxy(retryClient, noRetryClient));
     }
+  }
+
+  private static String getDefaultHttpsAddress() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL));
   }
 }

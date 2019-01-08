@@ -16,6 +16,7 @@ package org.codice.ddf.commands.solr;
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
@@ -103,7 +104,7 @@ public class RestoreCommand extends SolrCommands {
   @Option(
     name = "-f",
     aliases = {"--force"},
-    description = "Forces the restore. Will delete the collection if it already exists"
+    description = "Forces the restore. Will delete the collection if it already exists."
   )
   @VisibleForTesting
   protected boolean force = false;
@@ -176,7 +177,7 @@ public class RestoreCommand extends SolrCommands {
 
   private boolean restore(
       SolrClient client, String collection, String backupLocation, String backupName)
-      throws IOException, SolrServerException {
+      throws IOException, InterruptedException, SolrServerException {
     if (!canRestore(client, collection)) {
       LOGGER.warn("Unable to restore collection {}", collection);
       return false;
@@ -188,26 +189,27 @@ public class RestoreCommand extends SolrCommands {
 
     String syncReqId = restore.processAsync(client);
 
+    boolean restoreComplete = false;
+
     while (true) {
       CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
           CollectionAdminRequest.requestStatus(syncReqId).process(client);
       RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
       if (requestStatus == RequestStatusState.COMPLETED) {
         LOGGER.debug("Restore status: {}", requestStatus);
-        return true;
+        restoreComplete = true;
+        break;
       } else if (requestStatus == RequestStatusState.FAILED
           || requestStatus == RequestStatusState.NOT_FOUND) {
         LOGGER.debug("Restore status: {}", requestStatus);
         printErrorMessage("Restore failed. ");
         printResponseErrorMessages(requestStatusResponse);
-        return false;
+        break;
       }
-      try {
-        TimeUnit.SECONDS.sleep(1);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
+      TimeUnit.SECONDS.sleep(1);
     }
+
+    return restoreComplete;
   }
 
   private String restoreAsync(
@@ -246,9 +248,12 @@ public class RestoreCommand extends SolrCommands {
           printInfoMessage("Restore complete.");
         }
       }
+    } catch (InterruptedException | InterruptedIOException ie) {
+      printErrorMessage("Restore was interrupted");
+      LOGGER.debug("Solr cloud restore was interrupted", ie);
+      Thread.currentThread().interrupt();
     } catch (Exception e) {
-      String message = e.getMessage() != null ? e.getMessage() : "";
-      printErrorMessage(String.format("Restore failed. %s", message));
+      printErrorMessage("Restore failed.");
       LOGGER.debug("Restore failed for core: {}.", coreName, e);
     }
   }
@@ -278,12 +283,9 @@ public class RestoreCommand extends SolrCommands {
 
   private void createSolrCore() throws IOException, SolrServerException {
     httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
-    String url = HttpSolrClientFactory.getDefaultHttpsAddress();
-    final String solrDataDir = HttpSolrClientFactory.getSolrDataDir();
-    if (solrDataDir != null) {
-      ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
-    }
-
+    String url = getBackupUrl();
+    final String solrDataDir = getSolrDataDir();
+    ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
     HttpSolrClientFactory.createSolrCore(url, coreName, null, httpBuilder.get().build());
   }
 

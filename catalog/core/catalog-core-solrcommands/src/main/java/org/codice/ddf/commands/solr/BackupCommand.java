@@ -153,15 +153,21 @@ public class BackupCommand extends SolrCommands {
       StatusLine statusLine = response.getStatusLine();
       if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
         printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
+        LOGGER.trace("Backup of {} complete.", coreName);
       } else {
         printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
         printErrorMessage(
             String.format(
                 "Backup request failed: %d - %s %n",
                 statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+        LOGGER.debug(
+            "Backup request failed: {} - {}",
+            statusLine.getStatusCode(),
+            statusLine.getReasonPhrase());
       }
     } else {
-      printErrorMessage(String.format("Could not communicate with Solr. %n"));
+      printErrorMessage("Could not communicate with Solr. %n");
+      LOGGER.debug("Could not communicate with Solr, response was null");
     }
   }
 
@@ -173,7 +179,7 @@ public class BackupCommand extends SolrCommands {
     CollectionAdminResponse response = backup.process(client, collection);
     LOGGER.debug("Backup status: {}", response.getStatus());
     if (response.getStatus() != 0) {
-      printErrorMessage("Backup failed. ");
+      printErrorMessage("Backup failed.");
       printResponseErrorMessages(response);
     }
     return response.isSuccess();
@@ -257,20 +263,27 @@ public class BackupCommand extends SolrCommands {
         String.format(
             "Backing up collection [%s] to shared location [%s] using backup name [%s].",
             coreName, backupLocation, backupName));
+    LOGGER.trace(
+        "Backing up collection {} to shared location {} using backup name {}.",
+        coreName,
+        backupLocation,
+        backupName);
     try {
       optimizeCollection(client, coreName);
       if (asyncBackup) {
         String requestId = backupAsync(client, coreName, backupLocation, backupName);
         printInfoMessage("Solr Cloud backup request Id: " + requestId);
+        LOGGER.trace("Solr Cloud backup request Id: {}", requestId);
       } else {
         boolean isSuccess = backup(client, coreName, backupLocation, backupName);
         if (isSuccess) {
           printInfoMessage("Backup complete.");
+          LOGGER.trace("Backup complete.");
         }
       }
     } catch (Exception e) {
-      String message = e.getMessage() != null ? e.getMessage() : "";
-      printErrorMessage(String.format("Backup failed. %s", message));
+      printErrorMessage("Backup failed.");
+      LOGGER.debug("Backup failed.", e);
     }
   }
 }
