@@ -104,8 +104,9 @@ export class Security {
       this.res.accessGroupsRead.length == 0 &&
       this.res.accessIndividuals.length == 0 &&
       this.res.accessIndividualsRead.length == 0 &&
-      JSON.stringify(this.res.accessAdministrators) ===
-        JSON.stringify([this.res.owner])
+      (this.res.accessAdministrators.length == 0 ||
+        (this.res.accessAdministrators.length == 1 &&
+          this.res.accessAdministrators[0] === this.res.owner))
     )
   }
 

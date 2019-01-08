@@ -112,10 +112,12 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     })
     store.get('workspaces').duplicateWorkspace(this.props.workspace)
   }
-  deleteWorkspace = (workspace: any) => {
+  deleteWorkspace = () => {
     var loadingview = new LoadingView()
-    store.getWorkspaceById(workspace.id).off(null, null, 'handleTrash')
-    store.getWorkspaceById(workspace.id).once(
+    store
+      .getWorkspaceById(this.props.workspace.id)
+      .off(null, null, 'handleTrash')
+    store.getWorkspaceById(this.props.workspace.id).once(
       'sync',
       function() {
         wreqr.vent.trigger('router:navigate', {
@@ -128,14 +130,14 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       },
       'handleTrash'
     )
-    store.getWorkspaceById(workspace.id).once(
+    store.getWorkspaceById(this.props.workspace.id).once(
       'error',
       function() {
         loadingview.remove()
       },
       'handleTrash'
     )
-    store.getWorkspaceById(workspace.id).destroy({
+    store.getWorkspaceById(this.props.workspace.id).destroy({
       wait: true,
     })
   }
@@ -155,12 +157,12 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         'change:choice',
         function(confirmation: any) {
           if (confirmation.get('choice')) {
-            self.deleteWorkspace(self.props.workspace)
+            self.deleteWorkspace()
           }
         }.bind(this)
       )
     } else {
-      this.deleteWorkspace(this.props.workspace)
+      this.deleteWorkspace()
     }
   }
   saveWorkspace = () => {
