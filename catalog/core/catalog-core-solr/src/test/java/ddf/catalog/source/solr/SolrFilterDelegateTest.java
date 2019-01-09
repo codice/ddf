@@ -495,6 +495,19 @@ public class SolrFilterDelegateTest {
     assertThat(solrQuery.getQuery(), is(expectedQuery));
   }
 
+  @Test
+  public void testPropertyIsDivisibleBy() {
+    stub(mockResolver.getAnonymousField(Core.RESOURCE_SIZE))
+        .toReturn(Collections.singletonList("resource-size_lng"));
+
+    long divisibleBy = 2L;
+    String expectedQuery = "_val_:\"{!frange l=0 u=0}mod(field(resource-size_lng,min),2)\"";
+
+    SolrQuery isLikeQuery = toTest.propertyIsDivisibleBy(Core.RESOURCE_SIZE, divisibleBy);
+
+    assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+  }
+
   private Date getCannedTime() {
     return getCannedTime(1995, Calendar.NOVEMBER, 24, 23);
   }
