@@ -37,7 +37,7 @@ public interface Source extends Describable {
    * periodically.
    *
    * @return true - if the site is available (up), false - if the site is unavailable (down)
-   * @see ddf.catalog.util.SourcePoller
+   * @see ddf.catalog.util.impl.SourcePoller
    */
   public boolean isAvailable();
 

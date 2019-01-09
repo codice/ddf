@@ -21,7 +21,7 @@
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
     </type-converters>
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
@@ -31,7 +31,8 @@
 
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+               filter="(id=uuidGenerator)"/>
 
     <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
 
@@ -71,34 +72,114 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
-        <cm:managed-properties persistent-id="ddf.catalog.util.impl.SourcePoller"
-                               update-strategy="container-managed"/>
-        <argument ref="sourcePollerRunner"/>
-    </bean>
-
-    <!-- Poller instance which is a listener and source polling mechanism -->
-    <bean id="sourcePollerRunner" class="ddf.catalog.util.impl.SourcePollerRunner">
-    </bean>
-
     <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
-    <!-- export the bean on the service registry -->
-    <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework">
-        <registration-listener ref="sourcePoller"
-                               registration-method="start" unregistration-method="cancel"/>
-    </service>
+    <bean id="sourceRegistry" class="ddf.catalog.util.impl.SourceRegistry">
+        <property name="connectedSources" ref="connectedSources"/>
+        <property name="federatedSources" ref="federatedSources"/>
+        <property name="catalogProviders" ref="catalog"/>
+        <property name="catalogStores" ref="catalogStore"/>
+    </bean>
 
+    <bean id="statusSourcePoller"
+          class="ddf.catalog.util.impl.StatusSourcePoller" destroy-method="destroy">
+        <argument>
+            <bean class="java.util.concurrent.Executors" factory-method="newCachedThreadPool">
+                <argument>
+                    <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                        <argument value="statusSourcePollerPollThread"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
+        <argument>
+            <bean class="java.util.concurrent.Executors" factory-method="newCachedThreadPool">
+                <argument>
+                    <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                        <argument value="statusSourcePollerWatcherThread"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
+    </bean>
+    <bean id="statusSourcePollerRunner" class="ddf.catalog.util.impl.StatusSourcePollerRunner"
+          init-method="init" destroy-method="destroy">
+        <argument ref="statusSourcePoller"/>
+        <argument value="1"/><!--initialPollIntervalMinutes-->
+        <argument>
+            <bean class="java.util.concurrent.Executors"
+                  factory-method="newSingleThreadScheduledExecutor">
+                <argument>
+                    <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                        <argument value="statusSourcePollerRunnerThread"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
+        <argument ref="sourceRegistry"/>
+        <cm:managed-properties
+                persistent-id="ddf.catalog.util.impl.StatusSourcePollerRunner"
+                update-strategy="container-managed"/>
+    </bean>
+
+    <bean id="contentTypesSourcePoller"
+          class="ddf.catalog.util.impl.ContentTypesSourcePoller"
+          destroy-method="destroy">
+        <argument>
+            <bean class="java.util.concurrent.Executors" factory-method="newCachedThreadPool">
+                <argument>
+                    <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                        <argument value="contentTypesSourcePollerPollThread"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
+        <argument>
+            <bean class="java.util.concurrent.Executors" factory-method="newCachedThreadPool">
+                <argument>
+                    <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                        <argument value="contentTypesSourcePollerWatcherThread"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
+    </bean>
+    <bean id="contentTypesSourcePollerRunner"
+          class="ddf.catalog.util.impl.ContentTypesSourcePollerRunner" init-method="init"
+          destroy-method="destroy">
+        <argument ref="contentTypesSourcePoller"/>
+        <argument value="60"/><!--initialPollIntervalMinutes-->
+        <argument>
+            <bean class="java.util.concurrent.Executors"
+                  factory-method="newSingleThreadScheduledExecutor">
+                <argument>
+                    <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                        <argument value="contentTypesSourcePollerRunnerThread"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
+        <argument ref="sourceRegistry"/>
+    </bean>
+
+    <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
 
     <cm:managed-service-factory id="ddf.catalog.impl.action.SourceActionProviderImpl"
-                                factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl" interface="ddf.action.ActionProvider">
+                                factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl"
+                                interface="ddf.action.ActionProvider">
         <service-properties>
             <entry key="id" value="catalog.data.source.simple"/>
         </service-properties>
         <cm:managed-component class="ddf.catalog.impl.action.SourceActionProviderImpl">
             <argument value="catalog.data.source.simple"/>
             <cm:managed-properties persistent-id=""
-                                   update-strategy="container-managed" />
+                                   update-strategy="container-managed"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 

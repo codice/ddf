@@ -14,28 +14,24 @@
 package ddf.catalog.source;
 
 /**
- * The Interface {@link SourceMonitor} is used as a callback object to set the availability for the
- * {@link ddf.catalog.util.SourcePollerRunner}
+ * The Interface {@link SourceMonitor} is used as a callback object when the availability of a
+ * {@link Source} changes
  */
 public interface SourceMonitor {
 
   /**
-   * Sets the availability of the monitored source to {@link SourceStatus.AVAILABLE}. This method is
-   * used to identify to the caller that the {@link Source} is now available. A {@link Source} would
-   * call this method when that {@link Source} becomes available.
+   * This method is used to identify to the caller that the {@link Source} is now available. A
+   * {@link Source} would call this method when that {@link Source} becomes available.
    *
    * @see Source#isAvailable(SourceMonitor)
-   * @see ddf.catalog.util.SourcePollerRunner
    */
   public void setAvailable();
 
   /**
-   * Sets the availability of the monitored source to {@link SourceStatus.UNAVAILABLE}. This method
-   * is used to identify to the caller that the {@link Source} is now unavailable. A {@link Source}
-   * would call this method when that {@link Source} has become unavailable.
+   * This method is used to identify to the caller that the {@link Source} is now unavailable. A
+   * {@link Source} would call this method when that {@link Source} has become unavailable.
    *
    * @see Source#isAvailable(SourceMonitor)
-   * @see ddf.catalog.util.SourcePollerRunner
    */
   public void setUnavailable();
 }

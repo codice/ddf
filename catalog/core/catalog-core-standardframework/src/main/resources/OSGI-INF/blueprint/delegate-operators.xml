@@ -70,6 +70,8 @@
     <bean id="cfSourceOps" class="ddf.catalog.impl.operations.SourceOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="sourceActionRegistry"/>
+        <argument ref="statusSourcePoller"/>
+        <argument ref="contentTypesSourcePoller"/>
     </bean>
 
     <bean id="cfQueryOps" class="ddf.catalog.impl.operations.QueryOperations">

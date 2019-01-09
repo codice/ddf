@@ -30,17 +30,20 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.Describable;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
+import ddf.catalog.util.impl.SourcePoller;
+import ddf.catalog.util.impl.SourceStatus;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.Validate;
-import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +60,13 @@ public class SourceOperations extends DescribableImpl {
   //
   // Injected properties
   //
-  private FrameworkProperties frameworkProperties;
+  private final FrameworkProperties frameworkProperties;
+
+  private final ActionRegistry sourceActionRegistry;
+
+  private final SourcePoller<SourceStatus> sourceStatusCache;
+
+  private final SourcePoller<Set<ContentType>> contentTypesCache;
 
   //
   // Bound objects
@@ -66,15 +75,21 @@ public class SourceOperations extends DescribableImpl {
 
   private StorageProvider storage;
 
-  private ActionRegistry sourceActionRegistry;
-
+  /** @throws IllegalArgumentException if any of the parameters are {@code null} */
   public SourceOperations(
-      FrameworkProperties frameworkProperties, ActionRegistry sourceActionRegistry) {
+      FrameworkProperties frameworkProperties,
+      ActionRegistry sourceActionRegistry,
+      SourcePoller<SourceStatus> sourceStatusCache,
+      SourcePoller<Set<ContentType>> contentTypesCache) {
     Validate.notNull(frameworkProperties, "frameworkProperties must be non-null");
     Validate.notNull(sourceActionRegistry, "sourceActionRegistry must be non-null");
+    Validate.notNull(sourceStatusCache, "sourceStatusSourcePoller must be non-null");
+    Validate.notNull(contentTypesCache, "contentTypesSourcePoller must be non-null");
 
     this.frameworkProperties = frameworkProperties;
     this.sourceActionRegistry = sourceActionRegistry;
+    this.sourceStatusCache = sourceStatusCache;
+    this.contentTypesCache = contentTypesCache;
   }
 
   /**
@@ -172,7 +187,6 @@ public class SourceOperations extends DescribableImpl {
   //
   public Set<String> getSourceIds(boolean fanoutEnabled) {
     Set<String> ids = new TreeSet<>();
-
     ids.add(getId());
     if (!fanoutEnabled) {
       frameworkProperties
@@ -252,7 +266,7 @@ public class SourceOperations extends DescribableImpl {
             getFederatedSourceDescriptors(discoveredSources, addCatalogProviderDescriptor);
 
       } else {
-        // only add the local catalogProviderdescriptor
+        // only add the local catalogProviderDescriptor
         addCatalogSourceDescriptor(sourceDescriptors);
       }
 
@@ -282,27 +296,14 @@ public class SourceOperations extends DescribableImpl {
       LOGGER.debug("source is null, therefore not available");
       return false;
     }
-    try {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Checking if source \"{}\" is available...", source.getId());
-      }
 
-      // source is considered available unless we have checked and seen otherwise
-      boolean available = true;
-      Source cachedSource = frameworkProperties.getSourcePoller().getCachedSource(source);
-      if (cachedSource != null) {
-        available = cachedSource.isAvailable();
-      }
-
-      if (!available) {
-        LOGGER.info("source \"{}\" is not available", source.getId());
-      }
-      return available;
-    } catch (ServiceUnavailableException e) {
-      LOGGER.info("Caught ServiceUnavaiableException", e);
-      return false;
-    } catch (Exception e) {
-      LOGGER.info("Caught Exception", e);
+    // source is considered unavailable unless we have checked and seen otherwise
+    final Optional<SourceStatus> sourceStatusOptional =
+        sourceStatusCache.getCachedValueForSource(source);
+    if (sourceStatusOptional.isPresent()) {
+      return sourceStatusOptional.get() == SourceStatus.AVAILABLE;
+    } else {
+      LOGGER.debug("Unknown source status for source id={}", source.getId());
       return false;
     }
   }
@@ -345,41 +346,37 @@ public class SourceOperations extends DescribableImpl {
       }
 
       // Fanout will only add one source descriptor with all the contents
-      Set<Source> availableSources =
-          frameworkProperties
-              .getFederatedSources()
-              .stream()
-              .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
-              .filter(source -> source != null && source.isAvailable())
-              .collect(Collectors.toSet());
+      // Using a List here instead of a Set because we should not rely on how Sources are compared
+      final List<Source> availableSources =
+          Stream.concat(
+                  frameworkProperties.getFederatedSources().stream(),
+                  Stream.of(catalog).filter(Objects::nonNull))
+              .filter(this::isSourceAvailable)
+              .collect(Collectors.toList());
 
-      Set<ContentType> contentTypes =
-          availableSources
-              .stream()
-              .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
-              .filter(source -> source.getContentTypes() != null)
-              .map(Source::getContentTypes)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toSet());
-
-      Source localSource = null;
-
-      if (catalog != null) {
-        localSource = frameworkProperties.getSourcePoller().getCachedSource(catalog);
-        if (localSource != null && localSource.isAvailable()) {
-          availableSources.add(localSource);
-          contentTypes.addAll(localSource.getContentTypes());
-        }
+      final Set<ContentType> contentTypes = new HashSet<>();
+      for (Source availableSource : availableSources) {
+        final Set<ContentType> contentTypesForSource =
+            contentTypesCache
+                .getCachedValueForSource(availableSource)
+                .orElseGet(
+                    () -> {
+                      LOGGER.debug(
+                          "Expected known cached ContentTypes in for source id={} because the source was last known to be available",
+                          availableSource.getId());
+                      return Collections.emptySet();
+                    });
+        contentTypes.addAll(contentTypesForSource);
       }
 
-      List<Action> actions = getSourceActions(localSource);
+      List<Action> actions = getSourceActions(catalog);
 
       // only reveal this sourceDescriptor, not the federated sources
       sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes, actions);
       if (this.getVersion() != null) {
         sourceDescriptor.setVersion(this.getVersion());
       }
-      sourceDescriptor.setAvailable(availableSources.size() > 0);
+      sourceDescriptor.setAvailable(!availableSources.isEmpty());
       sourceDescriptors.add(sourceDescriptor);
 
       response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
@@ -411,18 +408,21 @@ public class SourceOperations extends DescribableImpl {
           String sourceId = source.getId();
           LOGGER.debug("adding sourceId: {}", sourceId);
 
-          Source cachedSource = null;
-          // check the poller for cached information
-          if (frameworkProperties.getSourcePoller() != null
-              && frameworkProperties.getSourcePoller().getCachedSource(source) != null) {
-            cachedSource = frameworkProperties.getSourcePoller().getCachedSource(source);
+          final Set<ContentType> cachedContentTypes;
+          final Optional<Set<ContentType>> contentTypesOptional =
+              contentTypesCache.getCachedValueForSource(source);
+          if (contentTypesOptional.isPresent()) {
+            cachedContentTypes = contentTypesOptional.get();
+          } else {
+            LOGGER.debug("Unknown ContentTypes for source id={}", sourceId);
+            cachedContentTypes = Collections.emptySet();
           }
 
           sourceDescriptor =
               new SourceDescriptorImpl(
-                  sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
+                  sourceId, cachedContentTypes, sourceActionRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
-          sourceDescriptor.setAvailable((cachedSource != null) && cachedSource.isAvailable());
+          sourceDescriptor.setAvailable(isSourceAvailable(source));
 
           sourceDescriptors.add(sourceDescriptor);
         }
@@ -459,25 +459,26 @@ public class SourceOperations extends DescribableImpl {
     // But when a local catalog provider is configured, include its content types in the
     // local site info.
     if (descriptors != null) {
-      Source cachedSource = null;
       if (catalog != null) {
-        // check the poller for cached information
-        if (frameworkProperties.getSourcePoller() != null
-            && frameworkProperties.getSourcePoller().getCachedSource(catalog) != null) {
-          cachedSource = frameworkProperties.getSourcePoller().getCachedSource(catalog);
+
+        final Set<ContentType> cachedContentTypes;
+        final Optional<Set<ContentType>> contentTypesOptional =
+            contentTypesCache.getCachedValueForSource(catalog);
+        if (contentTypesOptional.isPresent()) {
+          cachedContentTypes = contentTypesOptional.get();
+        } else {
+          LOGGER.debug("Unknown ContentTypes for the local catalog");
+          cachedContentTypes = Collections.emptySet();
         }
-        if (cachedSource != null) {
-          SourceDescriptorImpl descriptor =
-              new SourceDescriptorImpl(
-                  this.getId(),
-                  cachedSource.getContentTypes(),
-                  sourceActionRegistry.list(cachedSource));
-          if (this.getVersion() != null) {
-            descriptor.setVersion(this.getVersion());
-          }
-          descriptor.setAvailable(cachedSource.isAvailable());
-          descriptors.add(descriptor);
+
+        SourceDescriptorImpl descriptor =
+            new SourceDescriptorImpl(
+                this.getId(), cachedContentTypes, sourceActionRegistry.list(catalog));
+        if (this.getVersion() != null) {
+          descriptor.setVersion(this.getVersion());
         }
+        descriptor.setAvailable(isSourceAvailable(catalog));
+        descriptors.add(descriptor);
       }
     }
   }

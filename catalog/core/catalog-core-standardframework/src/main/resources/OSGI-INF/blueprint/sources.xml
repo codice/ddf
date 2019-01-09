@@ -19,15 +19,10 @@
                     availability="optional">
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourceListener"/>
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
     </reference-list>
 
     <reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource"
-                    availability="optional">
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
-    </reference-list>
+                    availability="optional"/>
 
     <reference-list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"
                     availability="optional">
@@ -39,8 +34,6 @@
                     availability="optional">  <!-- DDF-1618: Made CatalogProvider optional -->
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourceListener"/>
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="catalogProviderSortedList"/>
         <reference-listener bind-method="bind"
@@ -56,10 +49,7 @@
     </reference-list>
 
     <reference-list id="catalogStores" interface="ddf.catalog.source.CatalogStore"
-                    availability="optional">
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="sourcePollerRunner"/>
-    </reference-list>
+                    availability="optional"/>
 
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
     <bean id="resourceReaderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>

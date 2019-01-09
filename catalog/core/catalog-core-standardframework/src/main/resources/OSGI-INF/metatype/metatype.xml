@@ -48,10 +48,12 @@
             description="Enables versioning of both metacards and content."/>
     </OCD>
 
-    <OCD name="Source Poller" id="ddf.catalog.util.impl.SourcePoller">
-        <AD name="Interval" id="interval" type="Integer"
+    <OCD name="Status Source Poller Runner"
+         id="ddf.catalog.util.impl.StatusSourcePollerRunner">
+        <AD name="Poll Interval (minutes)" id="pollIntervalMinutes" type="Integer"
             default="1"
-            description="The interval (in minutes) at which to execute successive source polling. Must be a positive, nonzero integer."/>
+            min="1"
+            description="The interval (in minutes) at which to recheck the availability of all sources. Must be at least 1 minute. WARNING: Increasing this value increases the maximum delay for the Source Poller to be updated for when a source availability changes and when sources are created/modified/deleted. See the Documentation for more details."/>
     </OCD>
 
     <OCD name="Source Actions" id="ddf.catalog.impl.action.SourceActionProviderImpl">
@@ -65,23 +67,20 @@
         <Object ocdref="ddf.catalog.impl.action.SourceActionProviderImpl"/>
     </Designate>
 
-    <Designate
-        pid="ddf.catalog.CatalogFrameworkImpl">
-        <Object
-            ocdref="ddf.catalog.CatalogFrameworkImpl"/>
+    <Designate pid="ddf.catalog.CatalogFrameworkImpl">
+        <Object ocdref="ddf.catalog.CatalogFrameworkImpl"/>
     </Designate>
 
     <Designate pid="ddf.catalog.history.Historian">
         <Object ocdref="ddf.catalog.history.Historian"/>
     </Designate>
 
-    <Designate pid="ddf.catalog.util.impl.SourcePoller">
-        <Object ocdref="ddf.catalog.util.impl.SourcePoller"/>
+    <Designate pid="ddf.catalog.util.impl.StatusSourcePollerRunner">
+        <Object ocdref="ddf.catalog.util.impl.StatusSourcePollerRunner"/>
     </Designate>
 
     <Designate pid="ddf.catalog.impl.operations.QueryOperations">
         <Object ocdref="ddf.catalog.impl.operations.QueryOperations"/>
     </Designate>
-
 
 </metatype:MetaData>
