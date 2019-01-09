@@ -33,11 +33,9 @@ define([
     configUrl:
       '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui',
     idAttribute: 'name',
-    defaults: function() {
-      return {
-        currentUrl: undefined,
-        isLoopbackUrl: undefined,
-      }
+    defaults: {
+      currentUrl: undefined,
+      isLoopbackUrl: undefined,
     },
     initialize: function() {
       this.set('currentConfiguration', undefined)
@@ -47,7 +45,19 @@ define([
         'change:currentConfiguration',
         this.updateCurrentBinding
       )
+      this.listenTo(this, 'remove', this.onRemove)
       this.updateCurrentBinding()
+    },
+    onRemove: function() {
+      this.stopListening()
+      this.stopPolling()
+    },
+    stopPolling: function() {
+      var statusModel = this.get('statusModel')
+      if (statusModel) {
+        statusModel.stopListening()
+        poller.get(statusModel).destroy()
+      }
     },
     addDisabledConfiguration: function(configuration) {
       if (
@@ -65,29 +75,29 @@ define([
         this.get('disabledConfigurations').remove(configuration)
       } else if (configuration === this.get('currentConfiguration')) {
         this.stopListening(configuration)
+        this.stopPolling()
         this.set('currentConfiguration', undefined)
       }
     },
     setCurrentConfiguration: function(configuration) {
       var sync = 'sync'
       var statusUpdate = 'status:update-'
-      this.set({
-        currentConfiguration: configuration,
-      })
       this.set({ currentConfiguration: configuration })
 
       var pid = configuration.id
-      var statusModel = new Status.Model(pid)
-      statusModel.on(sync, function() {
-        wreqr.vent.trigger(statusUpdate + pid, statusModel)
-      })
 
-      var options = {
-        delay: 30000,
+      var statusModel = this.get('statusModel')
+      if (statusModel) {
+        statusModel.set({ id: pid })
+      } else {
+        statusModel = new Status.Model({ id: pid })
+        statusModel.on(sync, function() {
+          wreqr.vent.trigger(statusUpdate + pid, statusModel)
+        })
+        this.set('statusModel', statusModel)
       }
 
-      var statusPoller = poller.get(statusModel, options)
-      statusPoller.start()
+      poller.get(statusModel, { delay: 30000 }).start()
     },
     hasConfiguration: function(configuration) {
       var id = configuration.get('id')
@@ -302,8 +312,13 @@ define([
       source.trigger('change')
     },
     removeSource: function(source) {
-      this.stopListening(source)
       this.remove(source)
+    },
+    removeAllSources: function() {
+      var source
+      while ((source = this.first())) {
+        this.removeSource(source)
+      }
     },
     comparator: function(model) {
       var str = model.get('name') || ''
@@ -325,7 +340,7 @@ define([
     parseServiceModel: function() {
       var resModel = this
       var collection = resModel.get('collection')
-      collection.reset()
+      collection.removeAllSources()
       if (this.model.get('value')) {
         this.model.get('value').each(function(service) {
           if (!_.isEmpty(service.get('configurations'))) {
