@@ -35,7 +35,7 @@ The Standard Catalog Framework is bundled as the `catalog-core-standardframewor
 
 These are the configurable properties on the Standard Catalog Framework.
 
-See <<{application-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Framework configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Framework configurations>> for all possible configurations.
 
 
 .Standard Catalog Framework Exported Services

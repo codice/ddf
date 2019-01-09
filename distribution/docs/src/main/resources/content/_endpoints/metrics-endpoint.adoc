@@ -17,7 +17,7 @@ This indicates that this endpoint is intended for internal use by the ${branding
 This endpoint is subject to change in future versions.
 ====
 
-The Metrics Endpoint is used by the <<{application-prefix}metrics_collection_application,Metrics Collection Application>> to report on system metrics.
+The Metrics Endpoint is used by the <<{reference-prefix}metrics_collection_application,Metrics Collection Application>> to report on system metrics.
 
 ===== Installing the Metrics Endpoint
 

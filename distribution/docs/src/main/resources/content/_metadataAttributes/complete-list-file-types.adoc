@@ -1,5 +1,5 @@
 :title: All File Formats Supported
-:type: subAppendix
+:type: subMetadataReference
 :status: published
 :parent: File Format-specific Attributes
 :order: 99

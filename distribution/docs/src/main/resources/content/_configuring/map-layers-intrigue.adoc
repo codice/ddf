@@ -39,6 +39,6 @@ To remove all map layers, select *RESET*.
 
 .Map Layer Advanced Configuration
 Select *Advanced Configuration* to edit the JSON-formatted configuration directly.
-See <<{application-prefix}org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for examples of map layer configurations.
+See <<{reference-prefix}org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for examples of map layer configurations.
 
 External links to the specific API documentation of the map layer is also available from the *Advanced Configuration* menu.

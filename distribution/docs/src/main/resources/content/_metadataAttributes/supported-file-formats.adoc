@@ -1,5 +1,5 @@
 :title: Common Metadata Attributes
-:type: appendix
+:type: metadataReference
 :status: published
 :parent: Metadata Attributes
 :summary: Support for a variety of file types and data types.

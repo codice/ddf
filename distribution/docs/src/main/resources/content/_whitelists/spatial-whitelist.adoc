@@ -1,7 +1,6 @@
 :title: ${ddf-spatial} Whitelist
-:type: appendix
-:parent: Application Whitelists
-:children: none
+:type: reference
+:parent: ${ddf-spatial}
 :status: published
 :order: 06
 :summary: ${ddf-spatial} whitelist.

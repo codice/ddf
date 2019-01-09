@@ -31,5 +31,5 @@ This transformer is installed by default with a standard installation in the ${d
 
 The properties below describe how to configure the Tika input transformer.
 
-See <<{application-prefix}ddf.catalog.transformer.input.tika.TikaInputTransformer,Tika Input Transformer configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.transformer.input.tika.TikaInputTransformer,Tika Input Transformer configurations>> for all possible configurations.
 

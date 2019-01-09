@@ -56,7 +56,7 @@ See https://logging.apache.org/log4j/2.x/manual/appenders.html[Log4j Appenders] 
 
 The storage provider must be in a location that is shared between the two ${branding} nodes and must be highly available.
 If hardening the Highly Available Cluster, this shared storage provider must be trusted/secured.
-One way to accomplish this is to use the default <<{application-prefix}org.codice.ddf.catalog.content.impl.FileSystemStorageProvider,Content File System Storage Provider>> and configure it to point to a highly available shared directory.
+One way to accomplish this is to use the default <<{reference-prefix}org.codice.ddf.catalog.content.impl.FileSystemStorageProvider,Content File System Storage Provider>> and configure it to point to a highly available shared directory.
 
 === High Availability Certificates
 

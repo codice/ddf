@@ -32,4 +32,4 @@ To configure the PDF Input Transformer:
 
 These configurations are available for the PDF Input Transformer:
 
-See <<{application-prefix}ddf.catalog.transformer.input.pdf.PdfInputTransformer,PDF Input Transformer configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.transformer.input.pdf.PdfInputTransformer,PDF Input Transformer configurations>> for all possible configurations.

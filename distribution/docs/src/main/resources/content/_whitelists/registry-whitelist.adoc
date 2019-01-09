@@ -1,7 +1,6 @@
 :title: ${ddf-registry} Whitelist
-:type: appendix
+:type: reference
 :parent: Application Whitelists
-:children: none
 :status: published
 :order: 03
 :summary: ${ddf-registry} whitelist.

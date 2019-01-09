@@ -67,7 +67,7 @@ Configure the CDM from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select *Catalog Content Directory Monitor*.
 
-See <<{application-prefix}org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
 
 === Using the Content Directory Monitor
 

@@ -14,7 +14,7 @@ These building blocks include subsets of:
 * http://cxf.apache.org/CXF[CXF] {external-link}
 * http://camel.apache.org/[Camel] {external-link}
 
-A <<_command_scheduler,Command Scheduler>> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.
+A <<{managing-prefix}command_scheduler,Command Scheduler>> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.
 
 ===  ${ddf-platform} Application Prerequisites
 

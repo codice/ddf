@@ -27,7 +27,7 @@ The KML Icons should be placed in a single level directory and must be an image 
 The Description will be displayed as a pop-up from the root network link on Google Earth.
 This may contain the general purpose of the network and URLs to external resources.￼￼￼
 
-See <<{application-prefix}org.codice.ddf.spatial.kml.endpoint.KmlEndpoint,KML Endpoint configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.spatial.kml.endpoint.KmlEndpoint,KML Endpoint configurations>> for all possible configurations.
 
 ===== Using the KML Endpoint
 

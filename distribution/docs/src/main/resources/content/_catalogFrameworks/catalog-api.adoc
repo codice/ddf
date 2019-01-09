@@ -170,7 +170,7 @@ To configure product caching:
 . Select *Configuration*.
 . Select *Resource Download Settings*.
 
-See <<{application-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings configurations>> for all possible configurations.
 
 .Product Retrieval Request
 [ditaa,product_retrieval_request,png]

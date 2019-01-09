@@ -32,7 +32,7 @@ Configure an Existing CSW Federated Source through the ${admin-console}:
 . Select the *Sources* tab.
 . Select the name of the source to edit.
 
-See <<{application-prefix}Csw_Federation_Profile_Source,CSW Federation Profile Source configurations>> for all possible configurations.
+See <<{reference-prefix}Csw_Federation_Profile_Source,CSW Federation Profile Source configurations>> for all possible configurations.
 
 .Usage Limitations of the CSW Federation Profile Source
 * Nearest neighbor spatial searches are not supported.
