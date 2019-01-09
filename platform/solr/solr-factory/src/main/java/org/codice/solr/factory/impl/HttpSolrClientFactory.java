@@ -101,10 +101,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
           } else {
             solrDir =
                 Paths.get(
-                    AccessController.doPrivileged(
-                        (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
-                    "data",
-                    "solr")
+                        AccessController.doPrivileged(
+                            (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
+                        "data",
+                        "solr")
                     .toString();
           }
 
