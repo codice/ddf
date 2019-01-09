@@ -60,7 +60,7 @@ class QueryOperationsSpec extends Specification {
     private OperationsSecuritySupport opsSecurity
     private OperationsMetacardSupport opsMetacard
     private QueryOperations queryOperations
-    private FilterAdapter filterAdapter;
+    private FilterAdapter filterAdapter
 
     def setup() {
         frameworkProperties = new FrameworkProperties()
@@ -183,7 +183,7 @@ class QueryOperationsSpec extends Specification {
         then:
         sources.needToAddConnectedSources
         sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find{it.getId() == 'fed1'}] as Set
+        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find { it.getId() == 'fed1' }] as Set
         sources.exceptions.size() == frameworkProperties.federatedSources.size() - 1
     }
 
@@ -235,7 +235,7 @@ class QueryOperationsSpec extends Specification {
         then:
         sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
         sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find{it.getId() == 'fed1'}] as Set
+        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find { it.getId() == 'fed1' }] as Set
         sources.exceptions.isEmpty()
     }
 

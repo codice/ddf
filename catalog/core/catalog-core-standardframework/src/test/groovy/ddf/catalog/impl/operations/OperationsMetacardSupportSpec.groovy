@@ -14,7 +14,12 @@
 package ddf.catalog.impl.operations
 
 import ddf.catalog.content.data.ContentItem
-import ddf.catalog.data.*
+import ddf.catalog.data.Attribute
+import ddf.catalog.data.AttributeDescriptor
+import ddf.catalog.data.AttributeInjector
+import ddf.catalog.data.DefaultAttributeValueRegistry
+import ddf.catalog.data.Metacard
+import ddf.catalog.data.MetacardType
 import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.source.IngestException
 import ddf.catalog.transform.InputTransformer

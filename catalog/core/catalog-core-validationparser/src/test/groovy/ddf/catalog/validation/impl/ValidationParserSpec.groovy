@@ -5,7 +5,11 @@ import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
-import ddf.catalog.data.impl.*
+import ddf.catalog.data.impl.AttributeDescriptorImpl
+import ddf.catalog.data.impl.AttributeRegistryImpl
+import ddf.catalog.data.impl.BasicTypes
+import ddf.catalog.data.impl.MetacardImpl
+import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator

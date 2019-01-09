@@ -13,7 +13,7 @@
  */
 package ddf.catalog.impl.operations
 
-import ddf.catalog.operation.Operation;
+import ddf.catalog.operation.Operation
 import ddf.security.SecurityConstants
 import ddf.security.Subject
 import org.apache.shiro.util.ThreadContext
@@ -40,7 +40,7 @@ class OperationsSecuritySupportSpec extends Specification {
     def 'test building with policies'() {
         setup:
         HashMap<String, Set<String>> policyMap = [a1: ['a', 'b', 'c'] as Set, a2: ['1', '2'] as Set,
-                                              b1: ['b1'] as Set, b2: ['b2', 'b3', 'b4'] as Set] as HashMap
+                                                  b1: ['b1'] as Set, b2: ['b2', 'b3', 'b4'] as Set] as HashMap
         def policy1 = Mock(Map.Entry)
         policy1.getKey() >> { 'a1' }
         policy1.getValue() >> { ['c', 'd', 'e'] as Set }
@@ -68,7 +68,7 @@ class OperationsSecuritySupportSpec extends Specification {
         setup:
         Subject subject
         Subject mockSubject = Mock(Subject)
-        Operation operation = Mock(Operation);
+        Operation operation = Mock(Operation)
         operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> mockSubject
 
 
@@ -82,7 +82,7 @@ class OperationsSecuritySupportSpec extends Specification {
     def 'test get subject on operation without a subject'() {
         Subject subject
         Subject mockSubject = Mock(Subject)
-        Operation operation = Mock(Operation);
+        Operation operation = Mock(Operation)
         operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> null
         ThreadContext.bind(mockSubject)
 
@@ -97,7 +97,7 @@ class OperationsSecuritySupportSpec extends Specification {
     def 'test get subject with no subject'() {
         setup:
         Subject subject
-        Operation operation = Mock(Operation);
+        Operation operation = Mock(Operation)
         operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> null
 
         when:

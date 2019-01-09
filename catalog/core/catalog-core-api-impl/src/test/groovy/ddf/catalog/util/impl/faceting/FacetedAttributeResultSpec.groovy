@@ -21,9 +21,9 @@ class FacetedAttributeResultSpec extends Specification {
     static testSameLenValues = ["keyboards", "cutting boards", "school boards", "skateboards"]
     static testShorterValues = ["apples", "oranges"]
     static testLongerValues = ["barbecued", "boiled", "broiled", "sauted", "kabob'd", "creole",
-                            "gumbo", "pan fried", "deep fried", "stir-fried", "pineapple",
-                            "lemon", "coconut", "pepper", "soup", "stew", "salad", "and potatoes",
-                            "burger", "sandwich"]
+                               "gumbo", "pan fried", "deep fried", "stir-fried", "pineapple",
+                               "lemon", "coconut", "pepper", "soup", "stew", "salad", "and potatoes",
+                               "burger", "sandwich"]
 
     static testCounts = [54L, 123L, 99L, 6032L]
 

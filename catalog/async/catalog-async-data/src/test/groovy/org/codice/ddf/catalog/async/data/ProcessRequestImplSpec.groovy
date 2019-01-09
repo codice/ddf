@@ -19,7 +19,7 @@ import spock.lang.Specification
 
 class ProcessRequestImplSpec extends Specification {
 
-    def 'test ProcessRequestImpl(ProcessItems, Map<String, Serializable>) success' () {
+    def 'test ProcessRequestImpl(ProcessItems, Map<String, Serializable>) success'() {
         setup:
         def processItems = [Mock(ProcessItem)]
         def properties = ["key": "value"]

@@ -17,7 +17,6 @@ import ddf.catalog.data.Metacard
 import ddf.catalog.data.MetacardCreationException
 import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeToTransformerMapper
-
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder

@@ -21,7 +21,6 @@ import ddf.catalog.plugin.PluginExecutionException
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
 import ddf.security.Subject
-import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource

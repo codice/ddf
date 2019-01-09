@@ -16,7 +16,14 @@ package org.codice.ddf.catalog.async.processingplugin
 import ddf.catalog.CatalogFramework
 import ddf.catalog.data.Attribute
 import ddf.catalog.data.Metacard
-import ddf.catalog.operation.*
+import ddf.catalog.operation.CreateRequest
+import ddf.catalog.operation.CreateResponse
+import ddf.catalog.operation.DeleteRequest
+import ddf.catalog.operation.DeleteResponse
+import ddf.catalog.operation.ResourceRequest
+import ddf.catalog.operation.Update
+import ddf.catalog.operation.UpdateRequest
+import ddf.catalog.operation.UpdateResponse
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.ResourceNotSupportedException
@@ -28,11 +35,10 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem
 import org.codice.ddf.catalog.async.data.impl.LazyProcessResourceImpl
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework
-import org.codice.ddf.catalog.async.processingplugin.ProcessingPostIngestPlugin
 import spock.lang.Specification
 
-import java.util.function.Supplier
 import java.util.concurrent.Callable
+import java.util.function.Supplier
 
 class ProcessingPostIngestPluginSpec extends Specification {
 
@@ -116,7 +122,7 @@ class ProcessingPostIngestPluginSpec extends Specification {
         String expectedQualifier = "frag"
         long expectedSize = 3914
 
-        metacard.getAttribute("resource-uri") >> mockAttribute("resource-uri","content:ac39ae14d22d4bbba39148973a70be39#frag")
+        metacard.getAttribute("resource-uri") >> mockAttribute("resource-uri", "content:ac39ae14d22d4bbba39148973a70be39#frag")
         metacard.getAttribute("resource-size") >> mockAttribute("name", Long.toString(expectedSize))
 
         def responseProperties = propertiesWithSubject()
@@ -159,7 +165,7 @@ class ProcessingPostIngestPluginSpec extends Specification {
         URI expectedUri = new URI("content:ac39ae14d22d4bbba39148973a70be39")
         long expectedSize = -1
 
-        metacard.getAttribute("resource-uri") >> mockAttribute("resource-uri","content:ac39ae14d22d4bbba39148973a70be39")
+        metacard.getAttribute("resource-uri") >> mockAttribute("resource-uri", "content:ac39ae14d22d4bbba39148973a70be39")
         metacard.getAttribute("resource-size") >> mockAttribute("name", "3914 MB")
 
         def responseProperties = propertiesWithSubject()
@@ -526,7 +532,7 @@ class ProcessingPostIngestPluginSpec extends Specification {
         String sourceId = "sourceId"
         Metacard metacard = mockMetacard("metacardId", sourceId)
         CatalogFramework cf = Mock(CatalogFramework) {
-            getResource(_ as ResourceRequest, sourceId) >> { throw exception}
+            getResource(_ as ResourceRequest, sourceId) >> { throw exception }
         }
 
         processingPostIngestPlugin = new ProcessingPostIngestPlugin(cf, processingFramework)
@@ -601,7 +607,7 @@ class ProcessingPostIngestPluginSpec extends Specification {
 
     def mockSubject() {
         return Mock(Subject) {
-            execute(_ as Callable) >> {Callable callable -> callable.call()}
+            execute(_ as Callable) >> { Callable callable -> callable.call() }
         }
     }
 }

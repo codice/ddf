@@ -29,9 +29,6 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
-import java.util.stream.Collector
-import java.util.stream.Collectors
-
 class SourceOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 
@@ -355,7 +352,7 @@ class SourceOperationsSpec extends Specification {
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == [ fedSources.collect { it.id }.first() ] as Set
+        response.sourceInfo*.sourceId as Set == [fedSources.collect { it.id }.first()] as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
         Set<ContentType> fedContentTypes = fedSources.first().contentTypes.flatten() as Set<ContentType>
@@ -400,7 +397,7 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.isEnterprise() >> { false }
-        request.getSourceIds() >> { fedSources.collect { it.id } + SOURCE_ID as Set}
+        request.getSourceIds() >> { fedSources.collect { it.id } + SOURCE_ID as Set }
 
         when:
         def response = sourceOperations.getSourceInfo(request, false)
@@ -438,7 +435,8 @@ class SourceOperationsSpec extends Specification {
         !available
     }
 
-    @Ignore // Currently still fails under some circumstances
+    @Ignore
+    // Currently still fails under some circumstances
     def 'test source not available'() {
         setup:
         def source = Mock(Source)
@@ -461,7 +459,8 @@ class SourceOperationsSpec extends Specification {
         !available
     }
 
-    @Ignore // Currently still fails under some circumstances
+    @Ignore
+    // Currently still fails under some circumstances
     def 'test source is available'() {
         setup:
         def source = Mock(Source)

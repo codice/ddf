@@ -27,11 +27,11 @@ class AdminPollerServiceBeanSpec extends Specification {
         apsb.getServiceFactoryFilterProperties() == filter
 
         where:
-        includes                | excludes          | filter
-        null                    | null              | "(|(service.factoryPid=*))"
-        []                      | []                | "(|(service.factoryPid=*))"
-        ["foo", "bar"]          | []                | "(|(service.factoryPid=foo)(service.factoryPid=bar))"
-        []                      | ["foo"]           | "(&(|(service.factoryPid=*))(&(!(service.factoryPid=foo))))"
-        ["fus", "roh", "dah"]   | ["foo", "bar"]    | "(&(|(service.factoryPid=fus)(service.factoryPid=roh)(service.factoryPid=dah))(&(!(service.factoryPid=foo))(!(service.factoryPid=bar))))"
+        includes              | excludes       | filter
+        null                  | null           | "(|(service.factoryPid=*))"
+        []                    | []             | "(|(service.factoryPid=*))"
+        ["foo", "bar"]        | []             | "(|(service.factoryPid=foo)(service.factoryPid=bar))"
+        []                    | ["foo"]        | "(&(|(service.factoryPid=*))(&(!(service.factoryPid=foo))))"
+        ["fus", "roh", "dah"] | ["foo", "bar"] | "(&(|(service.factoryPid=fus)(service.factoryPid=roh)(service.factoryPid=dah))(&(!(service.factoryPid=foo))(!(service.factoryPid=bar))))"
     }
 }
