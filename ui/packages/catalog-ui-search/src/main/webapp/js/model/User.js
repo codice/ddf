@@ -211,39 +211,32 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.get('alerts').add(alertDetails)
     this.savePreferences()
   },
-  savePreferences: _.debounce(
-    function() {
-      const currentPrefs = this.toJSON()
-      if (_.isEqual(currentPrefs, this.lastSaved)) {
-        return
-      }
-      if (this.parents[0].isGuestUser()) {
-        window.localStorage.setItem('preferences', JSON.stringify(currentPrefs))
-      } else {
-        this.save(currentPrefs, {
-          drop: true,
-          withoutSet: true,
-          customErrorHandling: true,
-          success: function() {
-            this.lastSaved = currentPrefs
-          }.bind(this),
-          error: function() {
-            announcement.announce({
-              title: 'Issue Authorizing Request',
-              message:
-                'You appear to have been logged out.  Please sign in again.',
-              type: 'error',
-            })
-          }.bind(this),
-        })
-      }
-    },
-    1000,
-    {
-      leading: true,
-      trailing: true,
+  savePreferences: function() {
+    const currentPrefs = this.toJSON()
+    if (_.isEqual(currentPrefs, this.lastSaved)) {
+      return
     }
-  ),
+    if (this.parents[0].isGuestUser()) {
+      window.localStorage.setItem('preferences', JSON.stringify(currentPrefs))
+    } else {
+      this.save(currentPrefs, {
+        drop: true,
+        withoutSet: true,
+        customErrorHandling: true,
+        success: function() {
+          this.lastSaved = currentPrefs
+        }.bind(this),
+        error: function() {
+          announcement.announce({
+            title: 'Issue Authorizing Request',
+            message:
+              'You appear to have been logged out.  Please sign in again.',
+            type: 'error',
+          })
+        }.bind(this),
+      })
+    }
+  },
   resetBlacklist: function() {
     this.set('resultBlacklist', [])
   },
