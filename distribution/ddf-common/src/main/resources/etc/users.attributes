@@ -1,8 +1,10 @@
 {
     "admin" : {
-        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local"
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role": ["admin","manager","viewer","system-admin","systembundles"]
     },
     "localhost" : {
-        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local"
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role": ["admin","manager","viewer","system-user","system-admin","system-history","data-manager","systembundles"]
     }
 }
