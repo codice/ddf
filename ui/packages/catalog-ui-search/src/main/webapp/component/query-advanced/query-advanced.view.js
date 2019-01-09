@@ -51,41 +51,42 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleTemplateChange: function() {
     let userDefaultTemplate = user.getQuerySettings().get('template')
-    if (userDefaultTemplate) {
-      let sorts =
-        userDefaultTemplate['querySettings'] &&
-        userDefaultTemplate['querySettings'].sorts
-      if (sorts) {
-        sorts = sorts.map(sort => ({
-          attribute: sort.split(',')[0],
-          direction: sort.split(',')[1],
-        }))
-      }
-      this.model.set({
-        type: 'custom',
-        title: userDefaultTemplate['title'],
-        filterTree: userDefaultTemplate['filterTemplate'],
-        src:
-          (userDefaultTemplate['querySettings'] &&
-            userDefaultTemplate['querySettings'].src) ||
-          '',
-        federation:
-          (userDefaultTemplate['querySettings'] &&
-            userDefaultTemplate['querySettings'].federation) ||
-          'enterprise',
-        sorts: sorts,
-        'detail-level':
-          (userDefaultTemplate['querySettings'] &&
-            userDefaultTemplate['querySettings']['detail-level']) ||
-          'allFields',
-      })
-      if (
-        this.options.isForm === true &&
-        this.model.get('filterTree') !== undefined &&
-        this.queryAdvanced.currentView !== undefined
-      ) {
-        this.queryAdvanced.currentView.deserialize(this.model.get('filterTree'))
-      }
+    if (!userDefaultTemplate) {
+      return
+    }
+    let sorts =
+      userDefaultTemplate['querySettings'] &&
+      userDefaultTemplate['querySettings'].sorts
+    if (sorts) {
+      sorts = sorts.map(sort => ({
+        attribute: sort.split(',')[0],
+        direction: sort.split(',')[1],
+      }))
+    }
+    this.model.set({
+      type: 'custom',
+      title: userDefaultTemplate['title'],
+      filterTree: userDefaultTemplate['filterTemplate'],
+      src:
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings'].src) ||
+        '',
+      federation:
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings'].federation) ||
+        'enterprise',
+      sorts: sorts,
+      'detail-level':
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings']['detail-level']) ||
+        'allFields',
+    })
+    if (
+      this.options.isForm === true &&
+      this.model.get('filterTree') !== undefined &&
+      this.queryAdvanced.currentView !== undefined
+    ) {
+      this.queryAdvanced.currentView.deserialize(this.model.get('filterTree'))
     }
   },
   onBeforeShow: function() {
