@@ -60,7 +60,7 @@ class QueryOperationsSpec extends Specification {
     private OperationsSecuritySupport opsSecurity
     private OperationsMetacardSupport opsMetacard
     private QueryOperations queryOperations
-    private FilterAdapter filterAdapter;
+    private FilterAdapter filterAdapter
 
     def setup() {
         frameworkProperties = new FrameworkProperties()
