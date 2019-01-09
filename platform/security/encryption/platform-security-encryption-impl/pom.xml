@@ -36,6 +36,11 @@
             <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.keyczar</groupId>
             <artifactId>keyczar</artifactId>
             <version>${keyczar.version}</version>

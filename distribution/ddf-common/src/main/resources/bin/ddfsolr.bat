@@ -30,15 +30,6 @@ IF "!solr.http.protocol!"=="https" (
     CALL SET SOLR_SSL_TRUST_STORE_PASSWORD=!javax.net.ssl.trustStorePassword!
     CALL %GET_PROPERTY% javax.net.ssl.trustStoreType jks
     CALL SET SOLR_SSL_TRUST_STORE_TYPE=!javax.net.ssl.trustStoreType!
-
-    REM Require two-way TLS. Change this value to false to disable client authentication.
-    CALL SET SOLR_SSL_NEED_CLIENT_AUTH=true
-
-    REM Not used. From Solr 7.4 docs:
-    REM    Enable either SOLR_SSL_NEED_CLIENT_AUTH or SOLR_SSL_WANT_CLIENT_AUTH but not both at
-    REM    the same time. They are mutually exclusive and Jetty will select one of them which
-    REM    may not be what you expect.
-    CALL SET SOLR_SSL_WANT_CLIENT_AUTH=false
 )
 
 IF "%COMMAND%"=="" ECHO Missing command. Use start, restart, stop.

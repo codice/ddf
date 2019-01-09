@@ -81,7 +81,6 @@ public class EncryptionServiceImpl implements EncryptionService {
     }
   }
 
-  // @formatter:off
   /**
    * {@inheritDoc}
    *
@@ -95,7 +94,6 @@ public class EncryptionServiceImpl implements EncryptionService {
    *
    * }</pre>
    */
-  // @formatter:on
   @Override
   public String decryptValue(String wrappedEncryptedValue) {
     if (StringUtils.isEmpty(wrappedEncryptedValue)) {
