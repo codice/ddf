@@ -86,33 +86,23 @@ export class Sharing extends React.Component<Props, State> {
     const attributes = [
       {
         attribute: Restrictions.IndividualsWrite,
-        values: users
-          .filter(e => e.access === Access.Write)
-          .map(e => e.value),
+        values: users.filter(e => e.access === Access.Write).map(e => e.value),
       },
       {
         attribute: Restrictions.IndividualsRead,
-        values: users
-          .filter(e => e.access === Access.Read)
-          .map(e => e.value),
+        values: users.filter(e => e.access === Access.Read).map(e => e.value),
       },
       {
         attribute: Restrictions.GroupsWrite,
-        values: groups
-          .filter(e => e.access === Access.Write)
-          .map(e => e.value),
+        values: groups.filter(e => e.access === Access.Write).map(e => e.value),
       },
       {
         attribute: Restrictions.GroupsRead,
-        values: groups
-          .filter(e => e.access === Access.Read)
-          .map(e => e.value),
+        values: groups.filter(e => e.access === Access.Read).map(e => e.value),
       },
       {
         attribute: Restrictions.AccessAdministrators,
-        values: users
-          .filter(e => e.access === Access.Share)
-          .map(e => e.value),
+        values: users.filter(e => e.access === Access.Share).map(e => e.value),
       },
     ]
 
@@ -122,7 +112,7 @@ export class Sharing extends React.Component<Props, State> {
       body: JSON.stringify([
         {
           ids: [this.props.id],
-          attributes: attributes
+          attributes: attributes,
         },
       ]),
     })

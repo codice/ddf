@@ -145,8 +145,10 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     const workspace = store.getWorkspaceById(this.props.workspace.id)
     const security = new Security(Restrictions.from(workspace))
 
-    if (security.isShared()) {
-      var self = this
+    if (!security.isShared()) {
+      this.deleteWorkspace()
+    } else {
+      const self = this
       this.props.listenTo(
         ConfirmationView.generateConfirmation({
           prompt:
@@ -161,8 +163,6 @@ class WorkspaceInteractions extends React.Component<Props, State> {
           }
         }.bind(this)
       )
-    } else {
-      this.deleteWorkspace()
     }
   }
   saveWorkspace = () => {
