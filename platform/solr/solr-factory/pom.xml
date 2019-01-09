@@ -82,6 +82,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
             <artifactId>platform-solr-server-standalone</artifactId>
             <version>${project.version}</version>
             <type>xml</type>

@@ -14,30 +14,16 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.io.FileInputStream;
+import ddf.platform.solr.security.SolrPasswordUpdate;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.AccessController;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpHead;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -62,198 +48,28 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
-  private static final String HTTPS_PROTOCOLS = "https.protocols";
-  private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
+
+  public static final String DEFAULT_SCHEMA_XML = "schema.xml";
+  public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
+
   private static final String SOLR_CONTEXT = "/solr";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
   private static final String SOLR_HTTP_URL = "solr.http.url";
-  private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
-  private static final String TRUST_STORE = "javax.net.ssl.trustStore";
-  private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
-  private static final String KEY_STORE = "javax.net.ssl.keyStore";
-  public static final List<String> DEFAULT_PROTOCOLS;
-  public static final List<String> DEFAULT_CIPHER_SUITES;
-
-  static {
-    DEFAULT_PROTOCOLS =
-        AccessController.doPrivileged(
-            (PrivilegedAction<List<String>>)
-                () ->
-                    Collections.unmodifiableList(
-                        Arrays.asList(
-                            StringUtils.split(System.getProperty(HTTPS_PROTOCOLS, ""), ","))));
-    DEFAULT_CIPHER_SUITES =
-        AccessController.doPrivileged(
-            (PrivilegedAction<List<String>>)
-                () ->
-                    Collections.unmodifiableList(
-                        Arrays.asList(
-                            StringUtils.split(System.getProperty(HTTPS_CIPHER_SUITES, ""), ","))));
-  }
-
-  public static final String DEFAULT_SCHEMA_XML = "schema.xml";
-
-  public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
 
-  @Override
-  public org.codice.solr.client.solrj.SolrClient newClient(String core) {
-    String solrUrl =
-        StringUtils.defaultIfBlank(
-            AccessController.doPrivileged(
-                (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
-            getDefaultHttpsAddress());
-    final String coreUrl = solrUrl + "/" + core;
-    final String solrDataDir =
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
+  private final org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder;
+  private final SolrPasswordUpdate solrPasswordUpdate;
 
-    if (solrDataDir != null) {
-      ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
-    }
-    LOGGER.debug("Solr({}): Creating an HTTP Solr client using url [{}]", core, coreUrl);
-    return new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
-  }
-
-  @VisibleForTesting
-  SolrClient createSolrHttpClient(String url, String coreName, String coreUrl)
-      throws IOException, SolrServerException {
-    final HttpClientBuilder builder =
-        HttpClients.custom()
-            .setDefaultCookieStore(new BasicCookieStore())
-            .setMaxConnTotal(128)
-            .setMaxConnPerRoute(32);
-
-    if (StringUtils.startsWithIgnoreCase(url, "https")) {
-      builder.setSSLSocketFactory(
-          new SSLConnectionSocketFactory(
-              getSslContext(),
-              getProtocols(),
-              getCipherSuites(),
-              SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER));
-    }
-    createSolrCore(url, coreName, null, builder.build());
-    try (final Closer closer = new Closer()) {
-      final HttpSolrClient noRetryClient =
-          closer.with(new HttpSolrClient.Builder(coreUrl).withHttpClient(builder.build()).build());
-      final HttpSolrClient retryClient =
-          closer.with(
-              new HttpSolrClient.Builder(coreUrl)
-                  .withHttpClient(
-                      builder.setRetryHandler(new SolrHttpRequestRetryHandler(coreName)).build())
-                  .build());
-
-      return closer.returning(new PingAwareSolrClientProxy(retryClient, noRetryClient));
-    }
-  }
-
-  /**
-   * Gets the default Solr server secure HTTP address.
-   *
-   * @return Solr server secure HTTP address
-   */
-  public static String getDefaultHttpsAddress() {
+  private String getDefaultHttpsAddress() {
     return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
   }
 
-  private static String[] getProtocols() {
-    if (AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS))
-        != null) {
-      return StringUtils.split(
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS)),
-          ",");
-    } else {
-      return DEFAULT_PROTOCOLS.toArray(new String[DEFAULT_PROTOCOLS.size()]);
-    }
-  }
-
-  private static String[] getCipherSuites() {
-    if (AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES))
-        != null) {
-      return StringUtils.split(
-          AccessController.doPrivileged(
-              (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES)),
-          ",");
-    } else {
-      return DEFAULT_CIPHER_SUITES.toArray(new String[DEFAULT_CIPHER_SUITES.size()]);
-    }
-  }
-
-  private static SSLContext getSslContext() {
-    final Boolean check =
-        AccessController.doPrivileged(
-            (PrivilegedAction<Boolean>)
-                () ->
-                    (System.getProperty(KEY_STORE) == null
-                        || System.getProperty(KEY_STORE_PASS) == null
-                        || System.getProperty(TRUST_STORE) == null
-                        || System.getProperty(TRUST_STORE_PASS) == null));
-
-    if (check) {
-      throw new IllegalArgumentException("KeyStore and TrustStore system properties must be set.");
-    }
-
-    final KeyStore[] trustStore = new KeyStore[1];
-    final KeyStore[] keyStore = new KeyStore[1];
-
-    AccessController.doPrivileged(
-        (PrivilegedAction<Object>)
-            () -> {
-              trustStore[0] =
-                  getKeyStore(
-                      System.getProperty(TRUST_STORE), System.getProperty(TRUST_STORE_PASS));
-              keyStore[0] =
-                  getKeyStore(System.getProperty(KEY_STORE), System.getProperty(KEY_STORE_PASS));
-              return null;
-            });
-
-    SSLContext sslContext = null;
-
-    try {
-      sslContext =
-          SSLContexts.custom()
-              .loadKeyMaterial(
-                  keyStore[0],
-                  AccessController.doPrivileged(
-                          (PrivilegedAction<String>) () -> System.getProperty(KEY_STORE_PASS))
-                      .toCharArray())
-              .loadTrustMaterial(trustStore[0])
-              .useTLS()
-              .build();
-    } catch (UnrecoverableKeyException
-        | NoSuchAlgorithmException
-        | KeyStoreException
-        | KeyManagementException e) {
-      throw new IllegalArgumentException(
-          "Unable to use javax.net.ssl.keyStorePassword to load key material to create SSL context for Solr client.");
-    }
-
-    sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
-    sslContext.getDefaultSSLParameters().setWantClientAuth(true);
-
-    return sslContext;
-  }
-
-  private static KeyStore getKeyStore(String location, String password) {
-    LOGGER.debug("Loading keystore from {}", location);
-    KeyStore keyStore = null;
-
-    try (FileInputStream storeStream = new FileInputStream(location)) {
-      keyStore =
-          KeyStore.getInstance(
-              AccessController.doPrivileged(
-                  (PrivilegedAction<String>)
-                      () -> System.getProperty("javax.net.ssl.keyStoreType")));
-      keyStore.load(storeStream, password.toCharArray());
-    } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
-      LOGGER.warn("Unable to load keystore at {}", location, e);
-    }
-
-    return keyStore;
+  public HttpSolrClientFactory(
+      org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder,
+      SolrPasswordUpdate solrPasswordUpdate) {
+    this.httpClientBuilder = httpClientBuilder;
+    this.solrPasswordUpdate = solrPasswordUpdate;
   }
 
   private static void createSolrCore(
@@ -285,10 +101,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
           } else {
             solrDir =
                 Paths.get(
-                        AccessController.doPrivileged(
-                            (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
-                        "data",
-                        "solr")
+                    AccessController.doPrivileged(
+                        (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
+                    "data",
+                    "solr")
                     .toString();
           }
 
@@ -313,5 +129,45 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
       throws IOException, SolrServerException {
     CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
     return response.getCoreStatus(coreName).get("instanceDir") != null;
+  }
+
+  @Override
+  public org.codice.solr.client.solrj.SolrClient newClient(String core) {
+    String solrUrl =
+        StringUtils.defaultIfBlank(
+            AccessController.doPrivileged(
+                (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
+            getDefaultHttpsAddress());
+    final String coreUrl = solrUrl + "/" + core;
+    final String solrDataDir =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
+
+    if (solrDataDir != null) {
+      ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
+    }
+    LOGGER.debug("Solr({}): Creating an HTTP Solr client using url [{}]", core, coreUrl);
+    return new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
+  }
+
+  @VisibleForTesting
+  SolrClient createSolrHttpClient(String url, String coreName, String coreUrl)
+      throws IOException, SolrServerException {
+
+    solrPasswordUpdate.run();
+    final HttpClientBuilder builder = httpClientBuilder.get();
+    createSolrCore(url, coreName, null, builder.build());
+    try (final Closer closer = new Closer()) {
+      final HttpSolrClient noRetryClient =
+          closer.with(new HttpSolrClient.Builder(coreUrl).withHttpClient(builder.build()).build());
+      final HttpSolrClient retryClient =
+          closer.with(
+              new HttpSolrClient.Builder(coreUrl)
+                  .withHttpClient(
+                      builder.setRetryHandler(new SolrHttpRequestRetryHandler(coreName)).build())
+                  .build());
+
+      return closer.returning(new PingAwareSolrClientProxy(retryClient, noRetryClient));
+    }
   }
 }

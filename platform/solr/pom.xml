@@ -50,5 +50,6 @@
         <module>platform-solr-server-standalone</module>
         <module>solr-factory</module>
         <module>solr-appender</module>
+        <module>solr-password</module>
     </modules>
 </project>
