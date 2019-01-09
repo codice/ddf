@@ -33,7 +33,7 @@ Edit the configuration file `${home_directory}/etc/org.ops4j.pax.logging.cfg]`
 
 The name and location of the log file can be changed with the following setting:
 
-`log4j.appender.out.file=<KARAF.DATA>/log/${branding-lowercase}.log`
+`log4j.appender.out.file=${home_directory}/data/log/${branding-lowercase}.log`
 
 ===== Controlling log level
 

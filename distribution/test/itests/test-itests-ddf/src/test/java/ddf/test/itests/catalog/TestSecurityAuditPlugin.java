@@ -104,7 +104,7 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
 
   @Test
   public void testBundleStartAndStop() throws Exception {
-    String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
+    String logFilePath = System.getProperty("karaf.log") + "/security.log";
     File securityLog = new File(logFilePath);
 
     getServiceManager().stopBundle("catalog-plugin-security-audit");

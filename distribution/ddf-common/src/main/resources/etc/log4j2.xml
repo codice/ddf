@@ -34,8 +34,8 @@
         </Console>
 
         <RollingFile name="out" append="true"
-                     fileName="${sys:karaf.data}/log/${sys:org.codice.ddf.system.branding}.log"
-                     filePattern="${sys:karaf.data}/log/${sys:org.codice.ddf.system.branding}.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="${sys:karaf.log}/${sys:org.codice.ddf.system.branding}.log"
+                     filePattern="${sys:karaf.log}/${sys:org.codice.ddf.system.branding}.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
@@ -44,8 +44,8 @@
         </RollingFile>
 
         <RollingFile name="ingestError" append="true"
-                     fileName="${sys:karaf.data}/log/ingest_error.log"
-                     filePattern="${sys:karaf.data}/log/ingest_error.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="${sys:karaf.log}/ingest_error.log"
+                     filePattern="${sys:karaf.log}/ingest_error.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
@@ -54,8 +54,8 @@
         </RollingFile>
 
         <RollingFile name="securityMain" append="true" ignoreExceptions="false"
-                     fileName="${sys:karaf.data}/log/security.log"
-                     filePattern="${sys:karaf.data}/log/security.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="${sys:karaf.log}/security.log"
+                     filePattern="${sys:karaf.log}/security.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="[%-5p] %d{ISO8601} | %-16.16t | %-15.20c{1} |  %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
@@ -65,8 +65,8 @@
 
         <!-- It is recommended to change the default directory of this log file -->
         <RollingFile name="securityBackup" append="true" ignoreExceptions="false"
-                     fileName="${sys:karaf.data}/log/securityBackup.log"
-                     filePattern="${sys:karaf.data}/log/securityBackup.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="${sys:karaf.log}/securityBackup.log"
+                     filePattern="${sys:karaf.log}/securityBackup.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="[%-5p] %d{ISO8601} | %-16.16t | %-15.20c{1} |  %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>
@@ -82,8 +82,8 @@
         </Failover>
 
         <RollingFile name="artemis" append="true"
-                     fileName="${sys:karaf.data}/log/artemis.log"
-                     filePattern="${sys:karaf.data}/log/artemis.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     fileName="${sys:karaf.log}/artemis.log"
+                     filePattern="${sys:karaf.log}/artemis.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="${log4j2.pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="20 MB"/>

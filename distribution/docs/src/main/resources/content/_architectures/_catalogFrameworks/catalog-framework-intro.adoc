@@ -108,7 +108,7 @@ Similarly, for deletion of catalog entries, the delete requests call the `delete
 ===== Error Handling
 
 Any ingest attempts that fail inside the Catalog Framework (whether the failure comes from the Catalog Framework itself, pre-ingest plugin failures, or issues with the Catalog Provider) will be logged to a separate log file for ease of error handling.
-The file is located at `data/log/ingest_error.log` and will log the Metacards that fail, their ID and Title name, and the stack trace associated with their failure.
+The file is located at `${home_directory}/data/log/ingest_error.log` and will log the Metacards that fail, their ID and Title name, and the stack trace associated with their failure.
 By default, successful ingest attempts are not logged.
 However, that functionality can be achieved by setting the log level of the `ingestLogger` to DEBUG (note that enabling DEBUG can cause a non-trivial performance hit).
 
