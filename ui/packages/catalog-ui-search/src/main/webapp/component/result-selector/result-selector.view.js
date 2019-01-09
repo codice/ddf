@@ -29,7 +29,7 @@ const cql = require('../../js/cql.js')
 const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-sort.view.js')
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
-const _debounce = require('lodash/debounce')
+const _throttle = require('lodash/throttle')
 require('../../behaviors/selection.behavior.js')
 
 function mixinBlackListCQL(originalCQL) {
@@ -82,7 +82,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     resultSort: '.menu-resultSort',
   },
   initialize: function(options) {
-    this.onBeforeShow = _debounce(this.onBeforeShow, 200, {
+    this.onBeforeShow = _throttle(this.onBeforeShow, 200, {
       leading: true,
       trailing: true,
     })

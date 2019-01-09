@@ -106,7 +106,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(
       this.get('queuedResults'),
       'add change remove reset',
-      _.throttle(this.updateMerged, 200, {
+      _.throttle(this.updateMerged, 2500, {
         leading: false,
       })
     )
