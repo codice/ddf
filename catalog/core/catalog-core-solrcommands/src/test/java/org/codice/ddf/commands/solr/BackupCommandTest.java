@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -100,24 +102,14 @@ public class BackupCommandTest {
   private static final int SUCCESS_STATUS_CODE = 0;
 
   private static final int FAILURE_STATUS_CODE = 500;
-
-  HttpWrapper mockHttpWrapper;
-
-  ConsoleOutput consoleOutput;
-
-  private static MiniSolrCloudCluster miniSolrCloud;
-
-  private static String cipherSuites;
-
-  private static String protocols;
-
-  @Mock SolrClient mockSolrClient;
-
   @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
-
   @Rule @ClassRule public static TemporaryFolder backupLocation = new TemporaryFolder();
-
+  private static MiniSolrCloudCluster miniSolrCloud;
+  private static String cipherSuites;
+  private static String protocols;
   @Rule public ExpectedException expectedException = ExpectedException.none();
+  ConsoleOutput consoleOutput;
+  @Mock SolrClient mockSolrClient;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
@@ -125,6 +117,67 @@ public class BackupCommandTest {
     setDdfEtc();
     createDefaultMiniSolrCloudCluster();
     addDocument("1");
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (miniSolrCloud != null) {
+      miniSolrCloud.getSolrClient().close();
+      miniSolrCloud.shutdown();
+    }
+  }
+
+  private static void createDefaultMiniSolrCloudCluster() throws Exception {
+    createMiniSolrCloudCluster();
+    uploadDefaultConfigset();
+    createDefaultCollection();
+  }
+
+  private static void createMiniSolrCloudCluster() throws Exception {
+    miniSolrCloud =
+        new MiniSolrCloudCluster(
+            1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
+    miniSolrCloud.getSolrClient().connect();
+  }
+
+  private static void uploadDefaultConfigset() throws Exception {
+    miniSolrCloud.uploadConfigSet(
+        new File(BackupCommandTest.class.getClassLoader().getResource("configset").getPath())
+            .toPath(),
+        DEFAULT_CONFIGSET);
+  }
+
+  private static void createDefaultCollection() throws Exception {
+    CollectionAdminRequest.Create create =
+        CollectionAdminRequest.createCollection(DEFAULT_CORE_NAME, DEFAULT_CONFIGSET, 1, 1);
+    CollectionAdminResponse response = create.process(miniSolrCloud.getSolrClient());
+    if (response.getStatus() != 0 || response.getErrorMessages() != null) {
+      fail("Could not create collection. Response: " + response.toString());
+    }
+
+    List<String> collections =
+        CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
+    assertThat(collections.size(), is(1));
+    miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
+  }
+
+  private static void addDocument(String uniqueId) throws Exception {
+    SolrInputDocument doc = new SolrInputDocument();
+    doc.setField("id", uniqueId);
+    miniSolrCloud.getSolrClient().add(doc);
+    miniSolrCloud.getSolrClient().commit();
+  }
+
+  private static Path getBaseDirPath() {
+    return baseDir.getRoot().toPath();
+  }
+
+  private static void setDdfHome() {
+    System.setProperty(DDF_HOME_PROP, DEFAULT_DDF_HOME);
+  }
+
+  private static void setDdfEtc() {
+    System.setProperty(DDF_ETC_PROP, Paths.get(DEFAULT_DDF_HOME, "etc").toString());
   }
 
   @Before
@@ -135,10 +188,9 @@ public class BackupCommandTest {
         "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
     protocols = System.getProperty("https.protocols");
     System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
+    System.setProperty("solr.http.url", "https://localhost:8994/solr");
     consoleOutput = new ConsoleOutput();
     consoleOutput.interceptSystemOut();
-
-    mockHttpWrapper = mock(HttpWrapper.class);
   }
 
   @After
@@ -160,26 +212,16 @@ public class BackupCommandTest {
     }
   }
 
-  @AfterClass
-  public static void afterClass() throws Exception {
-    if (miniSolrCloud != null) {
-      miniSolrCloud.getSolrClient().close();
-      miniSolrCloud.shutdown();
-    }
-  }
-
   @Test
   public void testNoArgBackup() throws Exception {
 
-    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_OK, "");
           }
         };
+
     backupCommand.execute();
 
     assertThat(
@@ -191,13 +233,10 @@ public class BackupCommandTest {
   public void testBackupSpecificCore() throws Exception {
     final String coreName = "core";
 
-    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_OK, "");
           }
         };
 
@@ -213,14 +252,10 @@ public class BackupCommandTest {
   public void testBackupInvalidCore() throws Exception {
     final String coreName = "badCoreName";
 
-    when(mockHttpWrapper.execute(any(URI.class)))
-        .thenReturn(mockResponse(HttpStatus.SC_NOT_FOUND, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_NOT_FOUND, "");
           }
         };
 
@@ -229,7 +264,7 @@ public class BackupCommandTest {
 
     assertThat(
         consoleOutput.getOutput(),
-        containsString(String.format("Backup command failed due to: %d", HttpStatus.SC_NOT_FOUND)));
+        containsString(String.format("Backup request failed: %d", HttpStatus.SC_NOT_FOUND)));
   }
 
   @Test
@@ -239,24 +274,14 @@ public class BackupCommandTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
-    when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK, ""));
-
     BackupCommand backupCommand =
         new BackupCommand() {
-          @Override
-          protected HttpWrapper getHttpClient() {
-            return mockHttpWrapper;
+          HttpResponse sendGetRequest(URI backupUri) {
+            return mockResponse(HttpStatus.SC_OK, "");
           }
         };
     backupCommand.asyncBackup = true;
 
-    backupCommand.execute();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testSystemPropertiesNotSet() throws Exception {
-
-    BackupCommand backupCommand = new BackupCommand();
     backupCommand.execute();
   }
 
@@ -857,8 +882,13 @@ public class BackupCommandTest {
     return mockOptimizationResponse;
   }
 
-  private ResponseWrapper mockResponse(int statusCode, String responseBody) {
-    return new ResponseWrapper(prepareResponse(statusCode, responseBody));
+  private HttpResponse mockResponse(int statusCode, String responseBody) {
+    StatusLine mockStatusLine = mock(StatusLine.class);
+    doReturn(statusCode).when(mockStatusLine).getStatusCode();
+    doReturn(responseBody).when(mockStatusLine).getReasonPhrase();
+    HttpResponse mockResponse = mock(HttpResponse.class);
+    doReturn(mockStatusLine).when(mockResponse).getStatusLine();
+    return mockResponse;
   }
 
   private HttpResponse prepareResponse(int statusCode, String responseBody) {
@@ -873,47 +903,6 @@ public class BackupCommandTest {
     }
 
     return httpResponse;
-  }
-
-  private static void createDefaultMiniSolrCloudCluster() throws Exception {
-    createMiniSolrCloudCluster();
-    uploadDefaultConfigset();
-    createDefaultCollection();
-  }
-
-  private static void createMiniSolrCloudCluster() throws Exception {
-    miniSolrCloud =
-        new MiniSolrCloudCluster(
-            1, getBaseDirPath(), JettyConfig.builder().setContext("/solr").build());
-    miniSolrCloud.getSolrClient().connect();
-  }
-
-  private static void uploadDefaultConfigset() throws Exception {
-    miniSolrCloud.uploadConfigSet(
-        new File(BackupCommandTest.class.getClassLoader().getResource("configset").getPath())
-            .toPath(),
-        DEFAULT_CONFIGSET);
-  }
-
-  private static void createDefaultCollection() throws Exception {
-    CollectionAdminRequest.Create create =
-        CollectionAdminRequest.createCollection(DEFAULT_CORE_NAME, DEFAULT_CONFIGSET, 1, 1);
-    CollectionAdminResponse response = create.process(miniSolrCloud.getSolrClient());
-    if (response.getStatus() != 0 || response.getErrorMessages() != null) {
-      fail("Could not create collection. Response: " + response.toString());
-    }
-
-    List<String> collections =
-        CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
-    assertThat(collections.size(), is(1));
-    miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
-  }
-
-  private static void addDocument(String uniqueId) throws Exception {
-    SolrInputDocument doc = new SolrInputDocument();
-    doc.setField("id", uniqueId);
-    miniSolrCloud.getSolrClient().add(doc);
-    miniSolrCloud.getSolrClient().commit();
   }
 
   private BackupCommand getSynchronousBackupCommand(
@@ -1013,10 +1002,6 @@ public class BackupCommandTest {
     return status;
   }
 
-  private static Path getBaseDirPath() {
-    return baseDir.getRoot().toPath();
-  }
-
   private String getBackupLocation() {
     return backupLocation.getRoot().getPath().toString();
   }
@@ -1024,14 +1009,6 @@ public class BackupCommandTest {
   private void setupSystemProperties(String solrClientType) {
     setupSolrClientType(solrClientType);
     setupZkHost();
-  }
-
-  private static void setDdfHome() {
-    System.setProperty(DDF_HOME_PROP, DEFAULT_DDF_HOME);
-  }
-
-  private static void setDdfEtc() {
-    System.setProperty(DDF_ETC_PROP, Paths.get(DEFAULT_DDF_HOME, "etc").toString());
   }
 
   private void setupSolrClientType(String solrClientType) {
