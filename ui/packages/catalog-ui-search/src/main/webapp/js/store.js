@@ -158,4 +158,10 @@ module.exports = new (Backbone.Model.extend({
   getCurrentQuery: function() {
     return this.get('content').getCurrentQuery()
   },
+  setCurrentWorkspaceRestrictions: function(workspaceId, restrictions) {
+    const metacard = this.getWorkspaceById(workspaceId)
+    restrictions.forEach(function (restriction) {
+      metacard.attributes[restriction.attribute] = restriction.values
+    });
+  }
 }))()

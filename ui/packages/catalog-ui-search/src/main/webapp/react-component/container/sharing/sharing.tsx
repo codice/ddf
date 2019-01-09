@@ -17,6 +17,7 @@ import { Restrictions, Access, Security, Entry } from '../../utils/security'
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
 const announcement = require('component/announcement')
+const store = require('../../../js/store.js')
 
 type Props = {
   id: number
@@ -82,44 +83,46 @@ export class Sharing extends React.Component<Props, State> {
       e => e.value !== '' && e.category === Category.User
     )
 
+    const attributes = [
+      {
+        attribute: Restrictions.IndividualsWrite,
+        values: users
+          .filter(e => e.access === Access.Write)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.IndividualsRead,
+        values: users
+          .filter(e => e.access === Access.Read)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.GroupsWrite,
+        values: groups
+          .filter(e => e.access === Access.Write)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.GroupsRead,
+        values: groups
+          .filter(e => e.access === Access.Read)
+          .map(e => e.value),
+      },
+      {
+        attribute: Restrictions.AccessAdministrators,
+        values: users
+          .filter(e => e.access === Access.Share)
+          .map(e => e.value),
+      },
+    ]
+
     fetch(`/search/catalog/internal/metacards`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify([
         {
           ids: [this.props.id],
-          attributes: [
-            {
-              attribute: Restrictions.IndividualsWrite,
-              values: users
-                .filter(e => e.access === Access.Write)
-                .map(e => e.value),
-            },
-            {
-              attribute: Restrictions.IndividualsRead,
-              values: users
-                .filter(e => e.access === Access.Read)
-                .map(e => e.value),
-            },
-            {
-              attribute: Restrictions.GroupsWrite,
-              values: groups
-                .filter(e => e.access === Access.Write)
-                .map(e => e.value),
-            },
-            {
-              attribute: Restrictions.GroupsRead,
-              values: groups
-                .filter(e => e.access === Access.Read)
-                .map(e => e.value),
-            },
-            {
-              attribute: Restrictions.AccessAdministrators,
-              values: users
-                .filter(e => e.access === Access.Share)
-                .map(e => e.value),
-            },
-          ],
+          attributes: attributes
         },
       ]),
     })
@@ -127,6 +130,9 @@ export class Sharing extends React.Component<Props, State> {
         if (res.status !== 200) {
           throw new Error()
         }
+
+        store.setCurrentWorkspaceRestrictions(this.props.id, attributes)
+
         return res.json()
       })
       .then(() => {
