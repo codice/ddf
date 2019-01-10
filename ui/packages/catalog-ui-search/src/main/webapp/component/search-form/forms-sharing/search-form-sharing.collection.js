@@ -62,7 +62,11 @@ module.exports = Backbone.AssociatedModel.extend({
       }
       bootstrapPromise.then(() => {
         $.each(sharedTemplates, (index, value) => {
-          if (user.getEmail() !== value.owner && user.canRead(value)) {
+          if (
+            user.getEmail() !== value.owner &&
+            user.canRead(value) &&
+            value.creator !== 'system'
+          ) {
             this.addSearchForm(
               new SearchForm({
                 createdOn: value.created,
