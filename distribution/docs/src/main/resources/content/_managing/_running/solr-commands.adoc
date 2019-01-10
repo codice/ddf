@@ -1,0 +1,29 @@
+:title: Solr Commands
+:type: subMaintaining
+:status: published
+:parent: Available Console Commands
+:summary: Solr commands available.
+:order: 00
+
+== {title}
+
+.[[_solr_command_descriptions]]Solr Command Descriptions
+[cols="1m,9a" options="header"]
+|===
+
+|Command
+|Description
+
+|solr:backup
+|Creates a backup of the selected Solr core/collection. This uses the Solr interface for creating
+the backup. In Solr Cloud deployments the selected backup directory must exist and be shared on all
+Solr nodes.
+
+|solr:restore
+|Restores a Solr backup to the selected core/collection. This uses the Solr interfaces for restoring
+the backup. In Solr Cloud deployments the directory containing the files to restore must exist and be
+ shared on all Solr nodes.
+
+
+|===
+

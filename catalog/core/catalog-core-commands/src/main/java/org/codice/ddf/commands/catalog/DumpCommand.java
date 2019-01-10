@@ -19,6 +19,9 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -46,7 +49,6 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -60,6 +62,8 @@ import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -215,9 +219,12 @@ public class DumpCommand extends CqlCommands {
       zipArgs.put(FILE_PATH, dirPath + zipFileName);
     }
 
+    SortBy sort = new SortByImpl(Core.ID, SortOrder.ASCENDING);
+
     QueryImpl query = new QueryImpl(getFilter());
-    query.setRequestsTotalResultsCount(false);
+    query.setRequestsTotalResultsCount(true);
     query.setPageSize(pageSize);
+    query.setSortBy(sort);
 
     Map<String, Serializable> props = new HashMap<>();
     // Avoid caching all results while dumping with native query mode
@@ -225,8 +232,6 @@ public class DumpCommand extends CqlCommands {
 
     final AtomicLong resultCount = new AtomicLong(0);
     long start = System.currentTimeMillis();
-
-    SourceResponse response = catalog.query(new QueryRequestImpl(query, props));
 
     BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
     RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
@@ -240,66 +245,31 @@ public class DumpCommand extends CqlCommands {
             StandardThreadFactoryBuilder.newThreadFactory("dumpCommandThread"),
             rejectedExecutionHandler);
 
-    while (!response.getResults().isEmpty()) {
-      response =
-          new SourceResponseImpl(
-              new QueryRequestImpl(query, props),
-              ResultIterable.resultIterable(
-                      catalog::query, new QueryRequestImpl(query, props), pageSize)
-                  .stream()
-                  .collect(Collectors.toList()));
-
-      if (StringUtils.isNotBlank(zipFileName)) {
-        try {
-          Optional<QueryResponseTransformer> zipCompressionTransformer = getZipCompression();
-          if (zipCompressionTransformer.isPresent()) {
-            BinaryContent binaryContent =
-                zipCompressionTransformer.get().transform(response, zipArgs);
-            if (binaryContent != null) {
-              IOUtils.closeQuietly(binaryContent.getInputStream());
-            }
-            Long resultSize = (long) response.getResults().size();
-            printStatus(resultCount.addAndGet(resultSize));
-          }
-        } catch (InvalidSyntaxException e) {
-          LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
-        } catch (CatalogTransformerException e) {
-          LOGGER.info("zipCompression transform failed");
-        }
-      } else if (multithreaded > 1) {
-        final List<Result> results = new ArrayList<>(response.getResults());
-        executorService.submit(
-            () -> {
-              for (final Result result : results) {
-                Metacard metacard = result.getMetacard();
-                try {
-                  exportMetacard(dumpDir, metacard, resultCount);
-                } catch (IOException e) {
-                  LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
-                }
-              }
-            });
-      } else {
-        for (final Result result : response.getResults()) {
-          Metacard metacard = result.getMetacard();
-          exportMetacard(dumpDir, metacard, resultCount);
-        }
-      }
-
-      if (response.getResults().size() < pageSize || pageSize == -1) {
-        break;
-      }
-
-      query.setStartIndex(query.getStartIndex() + pageSize);
+    QueryRequest queryRequest = new QueryRequestImpl(query, props);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
     }
+
+    ResultIterable.resultIterable(catalog::query, queryRequest)
+        .stream()
+        .map(Collections::singletonList)
+        .map(result -> new SourceResponseImpl(queryRequest, result))
+        .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
 
     executorService.shutdown();
 
-    while (!executorService.isTerminated()) {
-      try {
-        TimeUnit.MILLISECONDS.sleep(100);
-      } catch (InterruptedException e) {
-        // ignore
+    boolean interrupted = false;
+    try {
+      while (!executorService.isTerminated()) {
+        try {
+          TimeUnit.MILLISECONDS.sleep(100);
+        } catch (InterruptedException e) {
+          interrupted = true;
+        }
+      }
+    } finally {
+      if (interrupted) {
+        Thread.currentThread().interrupt();
       }
     }
 
@@ -310,6 +280,48 @@ public class DumpCommand extends CqlCommands {
     console.println();
     SecurityLogger.audit("Exported {} files to {}", resultCount.get(), dirPath);
     return null;
+  }
+
+  private void handleResult(
+      SourceResponse response,
+      ExecutorService executorService,
+      File dumpDir,
+      AtomicLong resultCount) {
+    final List<Result> results = response.getResults();
+    if (StringUtils.isNotBlank(zipFileName)) {
+      try {
+        Optional<QueryResponseTransformer> zipCompressionTransformer = getZipCompression();
+        if (zipCompressionTransformer.isPresent()) {
+          BinaryContent binaryContent =
+              zipCompressionTransformer.get().transform(response, zipArgs);
+          if (binaryContent != null) {
+            IOUtils.closeQuietly(binaryContent.getInputStream());
+          }
+          Long resultSize = (long) results.size();
+          printStatus(resultCount.addAndGet(resultSize));
+        }
+      } catch (InvalidSyntaxException e) {
+        LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
+      } catch (CatalogTransformerException e) {
+        LOGGER.info("zipCompression transform failed");
+      }
+    } else if (multithreaded > 1) {
+      executorService.submit(() -> processResults(results, dumpDir, resultCount));
+    } else {
+      processResults(results, dumpDir, resultCount);
+    }
+  }
+
+  private void processResults(List<Result> results, File dumpDir, AtomicLong resultCount) {
+    for (final Result result : results) {
+      Metacard metacard = result.getMetacard();
+      try {
+        exportMetacard(dumpDir, metacard, resultCount);
+      } catch (IOException e) {
+        LOGGER.debug(
+            "Unable to export metacard: {} [{}]", metacard.getId(), metacard.getTitle(), e);
+      }
+    }
   }
 
   private void exportMetacard(File dumpLocation, Metacard metacard, AtomicLong resultCount)
@@ -333,6 +345,7 @@ public class DumpCommand extends CqlCommands {
               try (FileOutputStream fos =
                   new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
                 fos.write(binaryContent.getByteArray());
+                fos.flush();
               }
               resultCount.incrementAndGet();
               break;

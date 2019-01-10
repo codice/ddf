@@ -29,7 +29,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
   public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
-  private static final String SOLR_CONTEXT = "/solr";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
   private static final String SOLR_HTTP_URL = "solr.http.url";
 
@@ -61,10 +59,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private final org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder;
   private final SolrPasswordUpdate solrPasswordUpdate;
 
-  private String getDefaultHttpsAddress() {
-    return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
-  }
-
   public HttpSolrClientFactory(
       org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder,
       SolrPasswordUpdate solrPasswordUpdate) {
@@ -72,14 +66,14 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     this.solrPasswordUpdate = solrPasswordUpdate;
   }
 
-  private static void createSolrCore(
+  public static void createSolrCore(
       String url, String coreName, String configFileName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
 
-    try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
+    try (CloseableHttpClient closeableHttpClient = httpClient;
         HttpSolrClient client =
             (httpClient != null
-                ? new HttpSolrClient.Builder(url).withHttpClient(httpClient).build()
+                ? new HttpSolrClient.Builder(url).withHttpClient(closeableHttpClient).build()
                 : new HttpSolrClient.Builder(url).build())) {
 
       HttpResponse ping = client.getHttpClient().execute(new HttpHead(url));
@@ -169,5 +163,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
       return closer.returning(new PingAwareSolrClientProxy(retryClient, noRetryClient));
     }
+  }
+
+  private static String getDefaultHttpsAddress() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL));
   }
 }
