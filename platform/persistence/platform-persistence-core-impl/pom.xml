@@ -171,6 +171,7 @@
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
+                            ddf.platform.solr.security,
                             ddf.security.encryption,
                             javax.crypto,
                             javax.crypto.spec,

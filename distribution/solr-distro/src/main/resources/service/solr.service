@@ -14,6 +14,7 @@ GuessMainPID=no
 RemainAfterExit=yes
 
 # UPDATE THESE PROPERTIES
+Environment=JAVA_HOME=<JAVA_HOME>
 ExecStart=<DDF_HOME>/bin/ddfsolr start
 ExecStop=<DDF_HOME>/bin/ddfsolr stop
 User=<USER>
