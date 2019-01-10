@@ -212,13 +212,20 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.savePreferences()
   },
   savePreferences: function() {
+    const currentPrefs = this.toJSON()
+    if (_.isEqual(currentPrefs, this.lastSaved)) {
+      return
+    }
     if (this.parents[0].isGuestUser()) {
-      window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()))
+      window.localStorage.setItem('preferences', JSON.stringify(currentPrefs))
     } else {
-      this.save(this.toJSON(), {
+      this.save(currentPrefs, {
         drop: true,
         withoutSet: true,
         customErrorHandling: true,
+        success: function() {
+          this.lastSaved = currentPrefs
+        }.bind(this),
         error: function() {
           announcement.announce({
             title: 'Issue Authorizing Request',
