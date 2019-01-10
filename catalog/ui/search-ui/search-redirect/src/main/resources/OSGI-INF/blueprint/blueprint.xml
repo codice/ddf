@@ -14,20 +14,21 @@
 -->
 
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <service interface="javax.servlet.Servlet" depends-on="redirectConfiguration">
+    <ext:property-placeholder/>
+
+    <service ref="redirectServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="alias" value="/search"/>
             <entry key="async-supported" value="true"/>
         </service-properties>
-        <bean class="org.codice.ddf.ui.searchui.filter.RedirectServlet" init-method="init">
-            <property name="redirectConfiguration" ref="redirectConfiguration"/>
-        </bean>
     </service>
 
-    <bean id="redirectConfiguration"
-          class="org.codice.ddf.ui.searchui.filter.RedirectConfiguration">
+    <bean id="redirectServlet" class="org.codice.ddf.ui.searchui.filter.RedirectServlet"
+          init-method="init">
+        <argument value="${org.codice.ddf.external.context}/search/catalog/"/>
         <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.filter.RedirectServlet"
                                update-strategy="container-managed"/>
     </bean>

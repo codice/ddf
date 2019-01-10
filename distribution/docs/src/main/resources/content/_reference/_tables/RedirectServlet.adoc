@@ -20,7 +20,7 @@
 |defaultUri
 |String
 |Specifies the redirect URI to use when accessing the /search URI.
-|/search/catalog
+|`${org.codice.ddf.external.context}/search/catalog/`
 |true
 
 |===

@@ -13,21 +13,22 @@
  */
 package org.codice.ddf.ui.searchui.filter;
 
+import static org.apache.commons.lang3.Validate.notBlank;
+
 import java.io.IOException;
 import java.net.URI;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Servlet for forcing a redirect from the default /search location to the actual web app location.
  *
- * <p>This exists because in some instances we may want to redirect to the simple search ui, rather
- * than the Cesium based search ui or even to a load balancer.
+ * <p>This exists because in some instances we may want to redirect to the Simple Search UI, rather
+ * than Intrigue, or even to a load balancer.
  */
 public class RedirectServlet extends HttpServlet {
 
@@ -36,32 +37,40 @@ public class RedirectServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
   @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
-  private transient RedirectConfiguration redirectConfiguration;
+  private transient String defaultUriString;
+
+  /**
+   * @throws NullPointerException if {@code defaultUriString} is {@code null}
+   * @throws IllegalArgumentException if {@code defaultUriString} is blank or violates RFC 2396
+   */
+  public RedirectServlet(final String defaultDefaultUriString) {
+    setDefaultUri(defaultDefaultUriString);
+  }
 
   @Override
-  public void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
-      throws ServletException, IOException {
-    if (StringUtils.isNotBlank(redirectConfiguration.getDefaultUri())) {
-      URI uri = URI.create(redirectConfiguration.getDefaultUri());
-      if (uri.isAbsolute()) {
-        LOGGER.debug(
-            "Redirecting /search to an absolute URI: {}", redirectConfiguration.getDefaultUri());
-      } else {
-        LOGGER.debug(
-            "Redirecting /search to a relative URI: {}", redirectConfiguration.getDefaultUri());
-      }
-      servletResponse.sendRedirect(redirectConfiguration.getDefaultUri());
+  public void service(
+      final HttpServletRequest servletRequest, final HttpServletResponse servletResponse)
+      throws IOException {
+    servletResponse.sendRedirect(defaultUriString);
+  }
+
+  /**
+   * @throws NullPointerException if {@code defaultUriStringWithUnresolvedProperties} is {@code
+   *     null}
+   * @throws IllegalArgumentException if {@code defaultUriStringWithUnresolvedProperties} is blank
+   *     or violates RFC 2396
+   */
+  public void setDefaultUri(final String defaultUriStringWithUnresolvedProperties) {
+    final String defaultUriString =
+        PropertyResolver.resolveProperties(defaultUriStringWithUnresolvedProperties);
+
+    final URI defaultUri = URI.create(notBlank(defaultUriString));
+    if (defaultUri.isAbsolute()) {
+      LOGGER.debug("/search will be redirected to an absolute URI: {}", defaultUri);
     } else {
-      LOGGER.warn("Search page redirection has not been configured.");
-      servletResponse.sendError(404);
+      LOGGER.debug("/search will be redirected to a relative URI: {}", defaultUri);
     }
-  }
 
-  public RedirectConfiguration getRedirectConfiguration() {
-    return redirectConfiguration;
-  }
-
-  public void setRedirectConfiguration(RedirectConfiguration redirectConfiguration) {
-    this.redirectConfiguration = redirectConfiguration;
+    this.defaultUriString = defaultUriString;
   }
 }
