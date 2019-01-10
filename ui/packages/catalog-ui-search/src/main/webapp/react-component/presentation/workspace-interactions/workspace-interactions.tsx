@@ -25,7 +25,7 @@ type Props = {
   duplicateWorkspace: () => void
   subscribeToWorkspace: () => void
   unsubscribeFromWorkspace: () => void
-  deleteWorkspace: () => void
+  deletionPrompt: () => void
   isSubscribed: boolean
   isLocal: boolean
   isDeletable: boolean
@@ -48,7 +48,7 @@ const render = (props: Props) => {
     duplicateWorkspace,
     subscribeToWorkspace,
     unsubscribeFromWorkspace,
-    deleteWorkspace,
+    deletionPrompt,
     isSubscribed,
     isLocal,
     isDeletable,
@@ -164,7 +164,7 @@ const render = (props: Props) => {
           help="Deletes the workspace.
         Anyone who has access to this workspace will subsequently lose access."
           onClick={(_e, context) => {
-            deleteWorkspace()
+            deletionPrompt()
             context.closeAndRefocus()
           }}
           icon="fa fa-trash-o"
