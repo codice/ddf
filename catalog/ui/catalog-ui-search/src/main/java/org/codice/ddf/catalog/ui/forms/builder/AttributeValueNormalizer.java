@@ -47,6 +47,9 @@ class AttributeValueNormalizer {
   private static final Pattern EXPECTED_ATTRIBUTE_NAME_PATTERN =
       Pattern.compile("(ext\\.)?(\\p{Alpha}+\\.)?\\p{Alpha}+(-\\p{Alpha}+)*");
 
+  private static final Pattern EXPECTED_RELATIVE_FUNCTION_PATTERN =
+      Pattern.compile("RELATIVE\\(\\p{Alnum}+\\)");
+
   private final AttributeRegistry registry;
 
   AttributeValueNormalizer(AttributeRegistry registry) {
@@ -104,6 +107,10 @@ class AttributeValueNormalizer {
     Instant iso = instantFromIso(value);
     if (iso != null) {
       return Objects.toString(iso.toEpochMilli());
+    }
+    // Edge case for relative date function
+    if (EXPECTED_RELATIVE_FUNCTION_PATTERN.matcher(value).matches()) {
+      return value;
     }
     throw new FilterProcessingException("Unexpected date format on search form: " + value);
   }

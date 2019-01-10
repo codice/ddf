@@ -47,6 +47,10 @@ public class AttributeValueNormalizerTest {
 
   private static final String VALID_MS_SINCE_EPOCH_DATE_STRING_WITH_OFFSET = "1196673330000";
 
+  private static final String VALID_RELATIVE_FUNCTION = "RELATIVE(P1D)";
+
+  private static final String INVALID_RELATIVE_FUNCTION = "RELATIVE()";
+
   private static final AttributeDescriptor DATE_DESCRIPTOR = createDateDescriptor();
 
   private AttributeValueNormalizer normalizer;
@@ -172,6 +176,36 @@ public class AttributeValueNormalizerTest {
   public void testUnexpectedDateValueToXml() {
     when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
     normalizer.normalizeForXml(PROPERTY_NAME, NON_DATE_INPUT);
+  }
+
+  @Test
+  public void testRelativeFunctionToJson() {
+    when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
+    assertThat(
+        normalizer.normalizeForJson(PROPERTY_NAME, VALID_RELATIVE_FUNCTION),
+        is(equalTo(VALID_RELATIVE_FUNCTION)));
+  }
+
+  @Test
+  public void testInvalidRelativeFunctionToJson() {
+    when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
+    assertThat(
+        normalizer.normalizeForJson(PROPERTY_NAME, INVALID_RELATIVE_FUNCTION),
+        is(equalTo(INVALID_RELATIVE_FUNCTION)));
+  }
+
+  @Test
+  public void testRelativeFunctionToXml() {
+    when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
+    assertThat(
+        normalizer.normalizeForXml(PROPERTY_NAME, VALID_RELATIVE_FUNCTION),
+        is(equalTo(VALID_RELATIVE_FUNCTION)));
+  }
+
+  @Test(expected = FilterProcessingException.class)
+  public void testInvalidRelativeFunctionToXml() {
+    when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
+    normalizer.normalizeForXml(PROPERTY_NAME, INVALID_RELATIVE_FUNCTION);
   }
 
   private static AttributeDescriptor createDateDescriptor() {
