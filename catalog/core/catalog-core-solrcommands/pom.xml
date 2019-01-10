@@ -199,6 +199,7 @@
                             !org.eclipse.jetty.server.bio,
                             !org.eclipse.jetty.server.ssl,
                             !org.eclipse.jetty.*,
+                            ddf.security.encryption,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,
