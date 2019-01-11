@@ -30,7 +30,7 @@ interface State {
 const getStateFromWorkspace = (workspace: any) => {
   return {
     title: workspace.get('title'),
-    date: moment(workspace.get('metacard.modified')).fromNow(),
+    date: moment(workspace.get('metacard.modified'), 'MMM DD, YYYY hh:mm:ss A').fromNow(),
     owner: workspace.get('metacard.owner') || 'Guest',
     unsaved: !workspace.isSaved(),
     localStorage: workspace.get('localStorage'),
