@@ -282,6 +282,9 @@ public class SearchFormsLoader {
       try {
         catalogFramework.create(new CreateRequestImpl(dedupedTemplateMetacards));
       } catch (SourceUnavailableException | IngestException e) {
+        // The wrapped exception stacktrace isn't shown when the forms are loaded from the
+        // console so we also log it here
+        LOGGER.debug("Could not create System Template metacards", e);
         throw new RuntimeException("Could not load System Templates", e);
       }
     }
