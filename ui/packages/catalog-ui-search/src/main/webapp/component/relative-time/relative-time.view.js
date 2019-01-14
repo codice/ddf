@@ -75,21 +75,17 @@ module.exports = Marionette.LayoutView.extend({
     return `RELATIVE(${duration})`
   },
   parseValue(value) {
-    if (
-      value === null ||
-      value === undefined ||
-      value.indexOf('RELATIVE') !== 0
-    ) {
+    if (!value)
       return
-    }
-    const duration = value
-      .substring(9, value.length - 1)
-      .match(/(Z?\d+\.*\d*)./)[0]
-    let unit = duration.substring(duration.length - 1, duration.length)
-    let last = parseFloat(duration.match(/\d+\.*\d*/))
 
+    const match = value.match(/RELATIVE\(Z?(.*)(\d+\.*\d*)(.)\)/)
+    if(!match)
+      return
+
+    let [, prefix, last, unit] = match
+    last = parseFloat(last)
     unit = unit.toLowerCase()
-    if (duration.indexOf('T') === -1 && unit === 'm') {
+    if (prefix === 'P' && unit === 'm') {
       //must capitalize months
       unit = unit.toUpperCase()
     }
