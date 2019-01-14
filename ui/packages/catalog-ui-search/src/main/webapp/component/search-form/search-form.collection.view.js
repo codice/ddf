@@ -26,7 +26,6 @@ module.exports = Marionette.CollectionView.extend({
     return {
       queryModel: this.options.queryModel,
       collectionWrapperModel: this.options.collectionWrapperModel,
-      hideInteractionMenu: this.options.hideInteractionMenu,
     }
   },
   filter: function(child) {
