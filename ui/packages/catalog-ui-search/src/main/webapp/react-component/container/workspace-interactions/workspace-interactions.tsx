@@ -15,6 +15,7 @@ import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { Sharing } from '../sharing'
 import { Security, Restrictions } from '../../utils/security'
+import fetch from '../../utils/fetch'
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
@@ -142,28 +143,32 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     })
   }
   deletionPrompt = () => {
-    const workspace = store.getWorkspaceById(this.props.workspace.id)
-    const security = new Security(Restrictions.from(workspace))
+    fetch(`/search/catalog/internal/metacard/${this.props.workspace.id}`)
+      .then(response => response.json())
+      .then(data => {
+        const metacard = data.metacards[0]
+        const security = new Security(Restrictions.from(metacard))
 
-    if (!security.isShared()) {
-      this.deleteWorkspace()
-    } else {
-      const self = this
-      this.props.listenTo(
-        ConfirmationView.generateConfirmation({
-          prompt:
-            'Are you sure you want to delete this workspace? It has been shared with other users.',
-          no: 'Cancel',
-          yes: 'Delete',
-        }),
-        'change:choice',
-        function(confirmation: any) {
-          if (confirmation.get('choice')) {
-            self.deleteWorkspace()
-          }
-        }.bind(this)
-      )
-    }
+        if (!security.isShared()) {
+          this.deleteWorkspace()
+        } else {
+          const self = this
+          this.props.listenTo(
+            ConfirmationView.generateConfirmation({
+              prompt:
+                'Are you sure you want to delete this workspace? It has been shared with other users.',
+              no: 'Cancel',
+              yes: 'Delete',
+            }),
+            'change:choice',
+            function(confirmation: any) {
+              if (confirmation.get('choice')) {
+                self.deleteWorkspace()
+              }
+            }.bind(this)
+          )
+        }
+      })
   }
   saveWorkspace = () => {
     this.props.workspace.save()
