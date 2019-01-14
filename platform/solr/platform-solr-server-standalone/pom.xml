@@ -216,7 +216,9 @@
                             org.xml.sax,
                             org.w3c.dom,
                             org.xml.sax.ext,
-                            org.xml.sax.helpers
+                            org.xml.sax.helpers,
+                            org.codice.ddf.platform.filter,
+                            org.codice.ddf.platform.filter.delegate
                         </Import-Package>
                     </instructions>
                 </configuration>
