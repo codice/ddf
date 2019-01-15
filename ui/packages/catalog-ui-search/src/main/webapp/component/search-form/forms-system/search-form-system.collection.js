@@ -56,6 +56,11 @@ module.exports = Backbone.AssociatedModel.extend({
       collectionType: Backbone.Collection.extend({
         model: SearchForm,
         initialize: function() {},
+        comparator: function(a, b) {
+          const titleA = a.get('title') || ''
+          const titleB = a.get('title') || ''
+          return titleA.toUpperCase().localeCompare(titleB.toUpperCase())
+        }
       }),
     },
   ],

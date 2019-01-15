@@ -19,12 +19,15 @@ const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-form-selector.hbs')
 const SearchForms = require('../../search-form-selector/search-form-selector.view.js')
+const SearchFormsList = require('../../search-form-list/search-form-list.view')
 const store = require('../../../js/store.js')
+const SearchFormSystemInstance = require('../../search-form/forms-system/search-form-system-collection-instance')
 
 module.exports = DropdownView.extend({
   template: template,
   className: 'is-search-form-selector',
-  componentToShow: SearchForms,
+  componentToShow: SearchFormsList,
+  //componentToShow: SearchFormsList,
   initialize: function() {
     DropdownView.prototype.initialize.call(this)
     this.handleSchedule()
@@ -39,7 +42,8 @@ module.exports = DropdownView.extend({
   },
   initializeComponentModel: function() {
     //override if you need more functionality
-    this.modelForComponent = this.options.modelForComponent
+    // this.modelForComponent = this.options.modelForComponent
+    this.modelForComponent = SearchFormSystemInstance.getCollection().sort()
   },
   listenToComponent: function() {
     //override if you need more functionality
