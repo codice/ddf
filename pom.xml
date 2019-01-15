@@ -192,7 +192,7 @@
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <javax-mail.version>1.5.6</javax-mail.version>
-        <jackson2-version>2.9.6</jackson2-version>
+        <jackson2-version>2.9.8</jackson2-version>
         <common-compress.version>1.18</common-compress.version>
         <owasp-html-sanitizer.version>20171016.1</owasp-html-sanitizer.version>
         <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
