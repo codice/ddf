@@ -22,6 +22,7 @@ const lightboxInstance = require('../../../component/lightbox/lightbox.view.inst
 const wreqr = require('../../../js/wreqr.js')
 const LoadingView = require('../../../component/loading/loading.view.js')
 const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
+const announcement = require('component/announcement')
 
 type Props = {
   workspace: any
@@ -144,7 +145,13 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   }
   deletionPrompt = () => {
     fetch(`/search/catalog/internal/metacard/${this.props.workspace.id}`)
-      .then(response => response.json())
+      .then(response => {
+        if (response.status === 200) {
+          return response.json()
+        }
+
+        throw new Error()
+      })
       .then(data => {
         const metacard = data.metacards[0]
         const security = new Security(Restrictions.from(metacard))
@@ -168,6 +175,16 @@ class WorkspaceInteractions extends React.Component<Props, State> {
             }.bind(this)
           )
         }
+      })
+      .catch(function() {
+        announcement.announce(
+          {
+            title: 'Error',
+            message: 'Deletion failed',
+            type: 'error',
+          },
+          1500
+        )
       })
   }
   saveWorkspace = () => {
