@@ -91,7 +91,6 @@ module.exports = Marionette.ItemView.extend({
       })
       .then(json => {
         if (json !== undefined) {
-          console.log('Json: ', json)
           announcement.announce({
             title: 'Success',
             message: json.message,
@@ -100,7 +99,6 @@ module.exports = Marionette.ItemView.extend({
         }
       })
       .catch(err => {
-        console.log('Error: ', err.message)
         announcement.announce({
           title: 'Error',
           message: err.message,
