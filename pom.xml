@@ -258,13 +258,6 @@
         <ddf-solr>Solr Catalog</ddf-solr>
         <ddf-spatial>Spatial</ddf-spatial>
         <ddf-ui>Search UI</ddf-ui>
-        <deprecated>
-            [IMPORTANT]
-            ====
-            This Feature has been *DEPRECATED* and will be removed in a future version.
-            ====
-        </deprecated>
-
         <asciidoctor.maven.plugin.version>1.5.6</asciidoctor.maven.plugin.version>
         <asciidoctorj.version>1.5.6</asciidoctorj.version>
         <asciidoctorj.diagram.version>1.5.4.1</asciidoctorj.diagram.version>

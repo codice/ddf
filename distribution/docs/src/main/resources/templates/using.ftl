@@ -1,16 +1,18 @@
-= ${branding-expanded} Architecture
+= ${branding} User's Guide
 include::${project.build.directory}/doc-contents/content/config.adoc[]
-:title: ${branding-expanded} Architecture
-:architecture-prefix: _
-:developing-prefix: documentation.adoc#_
+:title: Using ${branding-expanded}
+:architecture-prefix: architecture.adoc#_
+:developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_
 :introduction-prefix: introduction.adoc#_
 :managing-prefix: managing.adoc#_
-:metadata-prefix: documentation.adoc#_
+:metadata-prefix: metadata.adoc#_
 :quickstart-prefix: quickstart.adoc#_
 :reference-prefix: reference.adoc#_
-:using-prefix: using.adoc#_
+:using-prefix: _
 
-<#include "build/developing.ftl">
+== {title}
+
+<#include "build/using.ftl">
 
 include::${project.build.directory}/doc-contents/content/scripts.html[]
