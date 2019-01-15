@@ -13,10 +13,10 @@
  *
  **/
 /*global define*/
-var Marionette = require('marionette')
-var template = require('./list-interactions.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var announcement = require('../../component/announcement')
+const Marionette = require('marionette')
+const template = require('./list-interactions.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const announcement = require('../../component/announcement')
 import fetch from '../../react-component/utils/fetch'
 
 module.exports = Marionette.ItemView.extend({
@@ -75,10 +75,8 @@ module.exports = Marionette.ItemView.extend({
     this.model.collection.add(newList)
   },
   triggerAction(event) {
-    var url = event.currentTarget.getAttribute('data-url')
+    let url = event.currentTarget.getAttribute('data-url')
 
-    // Temporary change to enable development on dev server.
-    url = url.split('8993')[1]
     fetch(url, { Accept: 'application/json' })
       .then(res => {
         if (!res.ok) {
@@ -120,8 +118,8 @@ module.exports = Marionette.ItemView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   downloadAsFile(res) {
-    var blob = res.blob().then(b => {
-      var url = window.URL.createObjectURL(b)
+    const blob = res.blob().then(b => {
+      const url = window.URL.createObjectURL(b)
       window.location.assign(url)
     })
   },
