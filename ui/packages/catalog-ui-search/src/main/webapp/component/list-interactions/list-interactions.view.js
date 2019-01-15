@@ -74,37 +74,36 @@ module.exports = Marionette.ItemView.extend({
     const newList = new this.model.constructor(copyAttributes)
     this.model.collection.add(newList)
   },
-  triggerAction(event) {
+  async triggerAction(event) {
     let url = event.currentTarget.getAttribute('data-url')
 
-    fetch(url, { Accept: 'application/json' })
-      .then(res => {
-        if (!res.ok) {
-          throw Error(res.statusText)
-        }
+    let res = await fetch(url, { Accept: 'application/json' })
 
-        if (res.headers.get('content-disposition') != null) {
-          this.downloadAsFile(res)
-        } else {
-          return res.json()
-        }
-      })
-      .then(json => {
-        if (json !== undefined) {
-          announcement.announce({
-            title: 'Success',
-            message: json.message,
-            type: 'success',
-          })
-        }
-      })
-      .catch(err => {
+    try {
+      if (!res.ok) {
+        throw Error(res.statusText)
+      }
+
+      if (res.headers.get('content-disposition') != null) {
+        this.downloadAsFile(res)
+      } else {
+        res = await res.json()
+      }
+
+      if (res !== undefined) {
         announcement.announce({
-          title: 'Error',
-          message: err.message,
-          type: 'error',
+          title: 'Success',
+          message: json.message,
+          type: 'success',
         })
+      }
+    } catch (err) {
+      announcement.announce({
+        title: 'Error',
+        message: err.message,
+        type: 'error',
       })
+    }
   },
   handleResult() {
     this.$el.toggleClass(
