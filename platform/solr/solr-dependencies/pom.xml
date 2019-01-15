@@ -155,6 +155,10 @@
             <artifactId>hppc</artifactId>
             <version>0.8.1</version>
         </dependency>
+        <!--
+          DDF is no longer using the same version of jackson that the official Solr project uses
+          because of OWASP.
+        -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
