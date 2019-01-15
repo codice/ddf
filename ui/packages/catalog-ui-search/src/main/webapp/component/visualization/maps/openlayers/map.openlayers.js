@@ -86,7 +86,15 @@ function unconvertPointCoordinate(point) {
 }
 
 function offMap([longitude, latitude]) {
-  return longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90
+  const normalizedLongitude =
+    longitude -
+    Math.sign(longitude) * (360 * Math.floor((Math.abs(longitude) + 180) / 360))
+  return (
+    normalizedLongitude < -180 ||
+    normalizedLongitude > 180 ||
+    latitude < -90 ||
+    latitude > 90
+  )
 }
 
 module.exports = function OpenlayersMap(
@@ -264,12 +272,22 @@ module.exports = function OpenlayersMap(
     },
     getBoundingBox: function() {
       const extent = map.getView().calculateExtent(map.getSize())
-
+      let longitudeEast =
+        extent[2] -
+        Math.sign(extent[2]) *
+          (360 * Math.floor((Math.abs(extent[2]) + 180) / 360))
+      const longitudeWest =
+        extent[0] -
+        Math.sign(extent[0]) *
+          (360 * Math.floor((Math.abs(extent[0]) + 180) / 360))
+      if (longitudeEast < longitudeWest) {
+        longitudeEast += 360
+      }
       return {
         north: this.limit(extent[3], -90, 90),
-        east: this.limit(extent[2], -180, 180),
+        east: longitudeEast,
         south: this.limit(extent[1], -90, 90),
-        west: this.limit(extent[0], -180, 180),
+        west: this.limit(longitudeWest, -180, 180),
       }
     },
     overlayImage: function(model) {
