@@ -547,13 +547,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private SourceResponse cloneResponse(SourceResponse sourceResponse) {
       List<Result> clonedResults =
-          sourceResponse
-              .getResults()
-              .stream()
-              .map(Result::getMetacard)
-              .map(m -> new MetacardImpl(m, m.getMetacardType()))
-              .map(ResultImpl::new)
-              .collect(Collectors.toList());
+          sourceResponse.getResults().stream().map(this::cloneResult).collect(Collectors.toList());
 
       return new QueryResponseImpl(
           sourceResponse.getRequest(),
@@ -561,6 +555,17 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
           true,
           sourceResponse.getHits(),
           sourceResponse.getProperties());
+    }
+
+    private Result cloneResult(Result result) {
+      Metacard metacard = result.getMetacard();
+      Metacard clonedMetacard = new MetacardImpl(metacard, metacard.getMetacardType());
+      ResultImpl clonedResult = new ResultImpl(clonedMetacard);
+
+      clonedResult.setDistanceInMeters(result.getDistanceInMeters());
+      clonedResult.setRelevanceScore(result.getRelevanceScore());
+
+      return clonedResult;
     }
   }
 
