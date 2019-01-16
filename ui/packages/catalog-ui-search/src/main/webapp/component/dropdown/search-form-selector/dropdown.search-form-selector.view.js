@@ -21,17 +21,16 @@ const template = require('./dropdown.search-form-selector.hbs')
 const SearchForms = require('../../search-form-selector/search-form-selector.view.js')
 const SearchFormsList = require('../../search-form-list/search-form-list.view')
 const store = require('../../../js/store.js')
-const SearchFormSystemInstance = require('../../search-form/forms-system/search-form-system-collection-instance')
+const SystemSearchForms = require('../../search-form/forms-system/search-form-system-collection-instance')
+const MySearchForms = require('../../search-form/search-form-collection-instance')
+const Backbone = require('backbone')
 
 module.exports = DropdownView.extend({
   template: template,
   className: 'is-search-form-selector',
   componentToShow: SearchFormsList,
-  //componentToShow: SearchFormsList,
   initialize: function() {
     DropdownView.prototype.initialize.call(this)
-    this.handleSchedule()
-    this.listenTo(this.options.modelForComponent, 'change', this.handleSchedule)
     this.listenTo(this.model, 'change:isOpen', this.handleClose)
   },
   handleClose: function() {
@@ -43,15 +42,16 @@ module.exports = DropdownView.extend({
   initializeComponentModel: function() {
     //override if you need more functionality
     // this.modelForComponent = this.options.modelForComponent
-    this.modelForComponent = SearchFormSystemInstance.getCollection().sort()
+    const systemForms = SystemSearchForms.getCollection()
+    const myForms = MySearchForms.getCollection()
+    systemForms.add(myForms.models)
+    debugger
+    this.modelForComponent = new Backbone.Model({
+      currentQuery: this.options.modelForComponent,
+      searchForms: systemForms.sort(),
+    })
   },
   listenToComponent: function() {
     //override if you need more functionality
-  },
-  handleSchedule: function() {
-    this.$el.toggleClass(
-      'is-polling',
-      this.options.modelForComponent.get('polling')
-    )
   },
 })

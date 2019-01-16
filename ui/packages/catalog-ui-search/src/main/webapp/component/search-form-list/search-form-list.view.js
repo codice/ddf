@@ -14,22 +14,62 @@
  **/
 /*global require*/
 
-const template = require('./search-form-list.hbs')
-const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
+const Marionette = require('marionette')
+const Router = require('../router/router.js')
+const template = require('./search-form-list.hbs')
+const user = require('../singletons/user-instance')
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('search-form-list'),
+  className: 'composed-menu',
   template: template,
   events: {
-    'click > div': 'triggerSearch',
+    'click > div': 'openSearchForm',
   },
-  // serializeData: function() {
-  //   debugger
-  //   return this.model.sort((a, b) => a.title.localeCompare(b.title)).toJSON()
-  // },
-  triggerSearch: function(e) {
-    debugger
-    console.log("searching with template")
+  serializeData: function() {
+    return this.model.get('searchForms').toJSON()
+  },
+  openSearchForm: function(e) {
+    const searchForms = this.model.get('searchForms')
+    const selectedModel = searchForms.get(e.target.getAttribute('data-id'))
+    this.changeView(selectedModel, this.model.get('currentQuery'))
+  },
+  changeView: function(selectedModel, queryModel) {
+    let oldType = queryModel.get('type')
+    switch (selectedModel.get('type')) {
+      case 'basic':
+      debugger
+        queryModel.set('type', 'basic')
+        if (oldType === 'new-form' || oldType === 'custom') {
+          queryModel.set('title', 'Search Name')
+        }
+        user.getQuerySettings().set('type', 'basic')
+        break
+      case 'text':
+        debugger
+        queryModel.set('type', 'text')
+        if (oldType === 'new-form' || oldType === 'custom') {
+          queryModel.set('title', 'Search Name')
+        }
+        user.getQuerySettings().set('type', 'text')
+        break
+      case 'custom':
+        debugger
+        const sharedAttributes = selectedModel.transformToQueryStructure()
+        queryModel.set({
+          type: 'custom',
+          ...sharedAttributes,
+        })
+        if (oldType === 'custom') {
+          queryModel.trigger('change:type')
+        }
+        user.getQuerySettings().set('type', 'custom')
+    }
+    user.savePreferences()
+    this.triggerCloseDropdown()
+  },
+  triggerCloseDropdown: function() {
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
 })
