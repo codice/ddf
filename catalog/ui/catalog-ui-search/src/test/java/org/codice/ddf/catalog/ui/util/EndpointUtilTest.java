@@ -457,7 +457,7 @@ public class EndpointUtilTest {
   }
 
   @Test
-  public void testGsonUsesIsoDateTimeFormat() {
+  public void testGetJsonUsesIsoDateTimeFormat() {
     Date date = new Date(DATE_EPOCH);
     Map<String, Object> map = new HashMap<>();
     map.put("date", date);
