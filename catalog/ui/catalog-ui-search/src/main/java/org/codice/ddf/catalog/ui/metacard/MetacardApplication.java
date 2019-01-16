@@ -342,7 +342,7 @@ public class MetacardApplication implements SparkApplication {
           String body = util.safeGetBody(req);
           List<MetacardChanges> metacardChanges = GSON.fromJson(body, METACARD_CHANGES_LIST_TYPE);
 
-          UpdateResponse updateResponse = patchMetacards(metacardChanges);
+          UpdateResponse updateResponse = patchMetacards(metacardChanges, getSubjectIdentifier());
           if (updateResponse.getProcessingErrors() != null
               && !updateResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
@@ -1167,9 +1167,9 @@ public class MetacardApplication implements SparkApplication {
             () -> new RuntimeException("Could not find attribute descriptor for: " + attribute));
   }
 
-  protected UpdateResponse patchMetacards(List<MetacardChanges> metacardChanges)
-      throws SourceUnavailableException, IngestException, FederationException,
-          UnsupportedQueryException {
+  protected UpdateResponse patchMetacards(
+      List<MetacardChanges> metacardChanges, String subjectIdentifer)
+      throws SourceUnavailableException, IngestException {
     Set<String> changedIds =
         metacardChanges.stream().flatMap(mc -> mc.getIds().stream()).collect(Collectors.toSet());
 
@@ -1179,14 +1179,22 @@ public class MetacardApplication implements SparkApplication {
       for (AttributeChange attributeChange : changeset.getAttributes()) {
         for (String id : changeset.getIds()) {
           List<String> values = attributeChange.getValues();
-          Metacard result = results.get(id).getMetacard();
+          Result result = results.get(id);
+          if (result == null) {
+            LOGGER.debug(
+                "Metacard {} either does not exist or user {} does not have permission to see it",
+                id,
+                subjectIdentifer);
+            throw new NotFoundException("Result was not found");
+          }
+          Metacard resultMetacard = result.getMetacard();
 
           Function<Serializable, Serializable> mapFunc = Function.identity();
-          if (isChangeTypeDate(attributeChange, result)) {
+          if (isChangeTypeDate(attributeChange, resultMetacard)) {
             mapFunc = mapFunc.andThen(util::parseDate);
           }
 
-          result.setAttribute(
+          resultMetacard.setAttribute(
               new AttributeImpl(
                   attributeChange.getAttribute(),
                   values
@@ -1202,11 +1210,7 @@ public class MetacardApplication implements SparkApplication {
         results.values().stream().map(Result::getMetacard).collect(Collectors.toList());
     return catalogFramework.update(
         new UpdateRequestImpl(
-            changedMetacards
-                .stream()
-                .map(Metacard::getId)
-                .collect(Collectors.toList())
-                .toArray(new String[0]),
+            changedMetacards.stream().map(Metacard::getId).toArray(String[]::new),
             changedMetacards));
   }
 
