@@ -22,10 +22,6 @@
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>org.codice:lux</include>
-                <include>net.sf.saxon:Saxon-HE</include>
-                <include>org.codehaus.woodstox:stax2-api</include>
-                <include>com.fasterxml.woodstox:woodstox-core</include>
                 <include>ddf.platform.solr:solr-xpath</include>
             </includes>
             <outputDirectory>/plugins</outputDirectory>
@@ -47,7 +43,7 @@
     </dependencySets>
     <fileSets>
         <fileSet>
-            <!-- The order of the <fileSet> elements is important. The assumbly plugin will not
+            <!-- The order of the <fileSet> elements is important. The assembly plugin will not
             replace an existing file. Therefore, files that override behavior in the Apache Solr
             distribution must be come before the Apache Solr files themselves. -->
 
