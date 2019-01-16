@@ -45,53 +45,51 @@ var Controller = CommonLayerController.extend({
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
 
     this.collection.forEach(function(model) {
-      var type = imageryProviderTypes[model.get('type')]
-      var initObj = _.omit(
-        model.attributes,
-        'type',
-        'label',
-        'index',
-        'modelCid'
-      )
-
-      if (model.get('type') === 'WMT') {
-        /* If matrixSet is present (OpenLayers WMTS keyword) set tileMatrixSetID (Cesium WMTS keyword) */
-        if (initObj.matrixSet) {
-          initObj.tileMatrixSetID = initObj.matrixSet
-        }
-        /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
-        if (properties.projection === 'EPSG:4326') {
-          initObj.tilingScheme = new Cesium.GeographicTilingScheme()
-        }
+      if (model.get('show')) {
+        this.initLayer(model)
       }
-
-      var provider = new type(initObj)
-
-      /*
-                  Optionally add this provider as a TrustedServer. This sets withCredentials = true
-                  on the XmlHttpRequests for CORS.
-                 */
-      if (model.get('withCredentials')) {
-        const url = require('url')
-        var parsedUrl = url.parse(provider.url)
-        var port = parsedUrl.port
-        if (!port) {
-          port =
-            parsedUrl.protocol === 'https:'
-              ? DEFAULT_HTTPS_PORT
-              : DEFAULT_HTTP_PORT
-        }
-        Cesium.TrustedServers.add(parsedUrl.hostname, port)
-      }
-
-      var layer = this.map.imageryLayers.addImageryProvider(provider, 0) // the collection is sorted by order, so later things should go at bottom of stack
-      this.layerForCid[model.id] = layer
-      layer.alpha = model.get('alpha')
-      layer.show = model.shouldShowLayer()
     }, this)
 
     this.isMapCreated = true
     return this.map
+  },
+  initLayer: function(model) {
+    var type = imageryProviderTypes[model.get('type')]
+    var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid')
+
+    if (model.get('type') === 'WMT') {
+      /* If matrixSet is present (OpenLayers WMTS keyword) set tileMatrixSetID (Cesium WMTS keyword) */
+      if (initObj.matrixSet) {
+        initObj.tileMatrixSetID = initObj.matrixSet
+      }
+      /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
+      if (properties.projection === 'EPSG:4326') {
+        initObj.tilingScheme = new Cesium.GeographicTilingScheme()
+      }
+    }
+
+    var provider = new type(initObj)
+
+    /*
+      Optionally add this provider as a TrustedServer. This sets withCredentials = true
+      on the XmlHttpRequests for CORS.
+    */
+    if (model.get('withCredentials')) {
+      const url = require('url')
+      var parsedUrl = url.parse(provider.url)
+      var port = parsedUrl.port
+      if (!port) {
+        port =
+          parsedUrl.protocol === 'https:'
+            ? DEFAULT_HTTPS_PORT
+            : DEFAULT_HTTP_PORT
+      }
+      Cesium.TrustedServers.add(parsedUrl.hostname, port)
+    }
+    var layer = this.map.imageryLayers.addImageryProvider(provider, 0) // the collection is sorted by order, so later things should go at bottom of stack
+    this.layerForCid[model.id] = layer
+    layer.alpha = model.get('alpha')
+    layer.show = model.shouldShowLayer()
   },
   onDestroy: function() {
     if (this.isMapCreated) {
@@ -104,16 +102,19 @@ var Controller = CommonLayerController.extend({
     layer.alpha = model.get('alpha')
   },
   setShow: function(model) {
+    if (!this.layerForCid[model.id]) {
+      this.initLayer(model)
+    }
     var layer = this.layerForCid[model.id]
     layer.show = model.shouldShowLayer()
   },
   /*
-            removing/re-adding the layers causes visible "re-render" of entire map;
-            raising/lowering is smoother.
-            raising means to move to a higher index.  higher indexes are displayed on top of lower indexes.
-            so we have to reverse the order property here to make it display correctly.  
-            in other words, order 1 means highest index.
-        */
+    removing/re-adding the layers causes visible "re-render" of entire map;
+    raising/lowering is smoother.
+    raising means to move to a higher index.  higher indexes are displayed on top of lower indexes.
+    so we have to reverse the order property here to make it display correctly.  
+    in other words, order 1 means highest index.
+  */
   reIndexLayers: function() {
     this.collection.forEach(function(model, index) {
       var layer = this.layerForCid[model.id]
