@@ -763,7 +763,11 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
   private Dictionary<String, Object> copyConfigProperties(
       Dictionary<String, Object> properties, String factoryPid) {
     Dictionary<String, Object> copiedProperties = new Hashtable<>();
-    Stream.of(getObjectClassDefinition(factoryPid))
+    ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
+    if (objectClassDefinition == null) {
+      return copiedProperties;
+    }
+    Stream.of(objectClassDefinition)
         .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
         .flatMap(Arrays::stream)
         .map(AttributeDefinition::getID)
