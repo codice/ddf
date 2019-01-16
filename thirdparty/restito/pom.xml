@@ -54,7 +54,7 @@
                         </Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Embed-Dependency>*</Embed-Dependency>
+                        <Embed-Dependency>*;scope=!test</Embed-Dependency>
                         <Export-Package>
                             org.glassfish.grizzly.http.*,
                             com.xebialabs.restito.builder.ensure,
@@ -68,7 +68,7 @@
                             com.xebialabs.restito.support.junit,
                             com.xebialabs.restito.support.log
                         </Export-Package>
-                        <!-- This is not a good practice DO NOT use *;reslution:=optional in any
+                        <!-- This is not a good practice DO NOT use *;resolution:=optional in any
                         code that will touch production that being said this is a bundle that
                         is only used in test-->
                         <Import-Package>

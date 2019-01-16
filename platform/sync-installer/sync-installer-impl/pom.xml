@@ -71,13 +71,6 @@
             <artifactId>org.apache.karaf.log.core</artifactId>
             <version>${karaf.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>spock-shaded</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

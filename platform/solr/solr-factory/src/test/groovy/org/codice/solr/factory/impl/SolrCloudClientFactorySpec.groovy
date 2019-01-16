@@ -28,8 +28,8 @@ import org.apache.solr.common.cloud.SolrZkClient
 import org.apache.solr.common.cloud.ZkStateReader
 import org.apache.solr.common.util.NamedList
 import org.apache.zookeeper.KeeperException
-import org.codice.spock.extension.ClearInterruptions
-import org.codice.spock.extension.Supplemental
+import org.codice.spock.ClearInterruptions
+import org.codice.spock.Supplemental
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -373,7 +373,7 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-    def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
     then: "verify the Solr cloud client is created"
       1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient

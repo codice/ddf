@@ -13,7 +13,7 @@
  */
 package org.codice.solr.client.solrj
 
-import org.codice.spock.extension.Supplemental
+import org.codice.spock.Supplemental
 import spock.lang.Specification
 import spock.lang.Unroll
 

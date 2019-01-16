@@ -93,14 +93,6 @@
             <artifactId>opensaml-xmlsec-impl</artifactId>
             <version>${opensaml.version}</version>
         </dependency>
-
-        <!--Spock dependencies-->
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>spock-shaded</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>

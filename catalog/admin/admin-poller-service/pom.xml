@@ -58,11 +58,6 @@
             <artifactId>action-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>spock-shaded</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-impl</artifactId>
             <version>${project.version}</version>

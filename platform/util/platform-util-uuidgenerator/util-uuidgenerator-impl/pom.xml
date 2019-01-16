@@ -43,7 +43,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package />
                     </instructions>
                 </configuration>
