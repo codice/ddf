@@ -13,26 +13,9 @@
  */
 package org.codice.ddf.admin.core.impl;
 
-import static org.osgi.framework.Constants.SERVICE_PID;
-import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
-
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -61,6 +44,25 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.osgi.framework.Constants.SERVICE_PID;
+import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.ConfigurationAdmin {
 
@@ -716,12 +718,14 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
     // Copy configuration from the original configuration and change its factory PID to end with
     // "disabled"
+    Dictionary<String, Object> disabledProperties =
+        copyConfigProperties(properties, originalFactoryPid);
     String disabledServiceFactoryPid = originalFactoryPid + ConfigurationStatus.DISABLED_EXTENSION;
-    properties.put(
+    disabledProperties.put(
         org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, disabledServiceFactoryPid);
     Configuration disabledConfig =
         configurationAdmin.createFactoryConfiguration(disabledServiceFactoryPid, null);
-    disabledConfig.update(properties);
+    disabledConfig.update(disabledProperties);
 
     // remove original configuration
     originalConfig.delete();
@@ -743,15 +747,30 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
     String enabledFactoryPid =
         StringUtils.removeEnd(disabledFactoryPid, ConfigurationStatus.DISABLED_EXTENSION);
-    properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
+    Dictionary<String, Object> enabledProperties =
+        copyConfigProperties(properties, enabledFactoryPid);
+    enabledProperties.put(
+        org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
     Configuration enabledConfiguration =
         configurationAdmin.createFactoryConfiguration(enabledFactoryPid, null);
-    enabledConfiguration.update(properties);
+    enabledConfiguration.update(enabledProperties);
 
     disabledConfig.delete();
 
     return new ConfigurationStatusImpl(
         enabledFactoryPid, enabledConfiguration.getPid(), disabledFactoryPid, servicePid);
+  }
+
+  private Dictionary<String, Object> copyConfigProperties(
+      Dictionary<String, Object> properties, String factoryPid) {
+    Dictionary<String, Object> copiedProperties = new Hashtable<>();
+    Stream.of(getObjectClassDefinition(factoryPid))
+        .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
+        .flatMap(Arrays::stream)
+        .map(AttributeDefinition::getID)
+        .filter(id -> properties.get(id) != null)
+        .forEach(id -> copiedProperties.put(id, properties.get(id)));
+    return copiedProperties;
   }
 
   /**
