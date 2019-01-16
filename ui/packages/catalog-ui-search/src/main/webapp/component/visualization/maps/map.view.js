@@ -267,8 +267,8 @@ module.exports = Marionette.LayoutView.extend({
     const userPreferences = user.get('user').get('preferences')
     userPreferences.once('sync', () =>
       announcement.announce({
-        title: 'New Home Set',
-        message: 'Home location has been set!',
+        title: 'Success!',
+        message: 'New map home location set.',
         type: 'success',
       })
     )
