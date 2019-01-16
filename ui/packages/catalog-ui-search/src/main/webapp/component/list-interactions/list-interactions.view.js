@@ -79,7 +79,6 @@ module.exports = Marionette.ItemView.extend({
   },
   async triggerAction(event) {
     const url = event.currentTarget.getAttribute('data-url')
-
     try {
       let res = await fetch(url, { Accept: 'application/json' })
       if (!res.ok) {
@@ -87,12 +86,13 @@ module.exports = Marionette.ItemView.extend({
       }
 
       if (res.headers.get('content-disposition') != null) {
-        const data = await res.blob()
+        const data = await res.text()
         const contentType = res.headers.get('content-type')
-        const name = getFilenameFromContentDisposition(
+        let name = getFilenameFromContentDisposition(
           res.headers.get('content-disposition')
         )
-        saveFile(name, contentType, data)
+
+        return saveFile(name, contentType, data)
       } else {
         res = await res.json()
       }

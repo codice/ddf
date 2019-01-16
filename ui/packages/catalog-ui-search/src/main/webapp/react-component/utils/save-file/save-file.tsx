@@ -25,7 +25,7 @@ export default function saveFile(name: string, type: string, data: any) {
 }
 
 // return filename portion of content-disposition
-export function getFilenameFromContentDisposition(contentDisposition: any) {
+export function getFilenameFromContentDisposition(contentDisposition: string) {
   if (contentDisposition == null) {
     return null
   }

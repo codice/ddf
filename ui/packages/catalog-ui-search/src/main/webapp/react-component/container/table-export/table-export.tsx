@@ -205,18 +205,19 @@ export default hot(module)(
       contentDisposition?: string
     ) {
       if (status === 200) {
-        var filename = getFilenameFromContentDisposition(contentDisposition)
-        if (filename === null) {
-          filename = 'export' + Date.now()
+        if (contentDisposition) {
+          let filename = getFilenameFromContentDisposition(contentDisposition)
+          if (filename === null) {
+            filename = 'export' + Date.now()
+          }
+          saveFile(filename, 'data:' + contentType, data)
+        } else {
+          announcement.announce({
+            title: 'Error',
+            message: 'Could not export results.',
+            type: 'error',
+          })
         }
-        saveFile(filename, 'data:' + contentType, data)
-      } else {
-        announcement.announce({
-          title: 'Error!',
-          message: 'Could not export results.',
-          type: 'error',
-        })
-        console.error('Export failed with http status ' + status)
       }
     }
     render() {
