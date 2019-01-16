@@ -455,4 +455,13 @@ public class EndpointUtilTest {
     Instant dateConverted = endpointUtil.parseDate("  ");
     assertThat(dateConverted, nullValue());
   }
+
+  @Test
+  public void testGsonUsesIsoDateTimeFormat() {
+    Date date = new Date(DATE_EPOCH);
+    Map<String, Object> map = new HashMap<>();
+    map.put("date", date);
+    String json = endpointUtil.getJson(map);
+    assertThat(json, is("{\"date\":\"2018-09-05T08:03:17.000-0600\"}"));
+  }
 }
