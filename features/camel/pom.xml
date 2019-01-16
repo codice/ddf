@@ -54,6 +54,13 @@
             <version>${project.version}</version>
             <type>zip</type>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <!--If not excluded, causes ITCxfFeatures test to fail because Saxon HE cannot be loaded-->
+                    <artifactId>solr-distro</artifactId>
+                    <groupId>ddf</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>

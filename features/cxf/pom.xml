@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>features</artifactId>
@@ -20,7 +22,6 @@
         <version>2.13.6-SNAPSHOT</version>
     </parent>
     <name>DDF :: Features :: CXF</name>
-
     <artifactId>cxf</artifactId>
     <packaging>feature</packaging>
     <dependencies>
@@ -36,6 +37,13 @@
             <version>${project.version}</version>
             <type>zip</type>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <!--If not excluded, causes ITCxfFeatures test to fail because Saxon HE cannot be loaded-->
+                    <artifactId>solr-distro</artifactId>
+                    <groupId>ddf</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
