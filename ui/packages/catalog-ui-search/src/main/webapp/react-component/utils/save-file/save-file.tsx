@@ -14,12 +14,25 @@ const $ = require('jquery')
 export default function saveFile(name: string, type: string, data: any) {
   if (data != null && navigator.msSaveBlob)
     return navigator.msSaveBlob(new Blob([data], { type: type }), name)
-  var a = $("<a style='display: none;'/>")
-  var url = window.URL.createObjectURL(new Blob([data], { type: type }))
+  let a = $("<a style='display: none;'/>")
+  let url = window.URL.createObjectURL(new Blob([data], { type: type }))
   a.attr('href', url)
   a.attr('download', name)
   $('body').append(a)
   a[0].click()
   window.URL.revokeObjectURL(url)
   a.remove()
+}
+
+// return filename portion of content-disposition
+export function getFilenameFromContentDisposition(contentDisposition: any) {
+  if (contentDisposition == null) {
+    return null
+  }
+
+  let parts = contentDisposition.split('=', 2)
+  if (parts.length !== 2) {
+    return null
+  }
+  return parts[1]
 }

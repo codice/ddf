@@ -13,26 +13,15 @@ import * as React from 'react'
 import TableExportComponent from '../../presentation/table-export'
 import { retrieveExportOptions, exportDataAs } from '../../utils/export'
 import LoadingCompanion from '../loading-companion'
-import saveFile from '../../utils/save-file'
+import saveFile, {
+  getFilenameFromContentDisposition,
+} from '../../utils/save-file'
 import { hot } from 'react-hot-loader'
 const _ = require('underscore')
 const user = require('../../../component/singletons/user-instance.js')
 const properties = require('../../../js/properties.js')
 const announcement = require('../../../component/announcement/index.jsx')
 const Sources = require('../../../component/singletons/sources-instance.js')
-
-function getFilenameFromContentDisposition(header: any) {
-  if (header == null) {
-    return null
-  }
-
-  var parts = header.split('=', 2)
-  if (parts.length !== 2) {
-    return null
-  }
-  //return filename portion
-  return parts[1]
-}
 
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {

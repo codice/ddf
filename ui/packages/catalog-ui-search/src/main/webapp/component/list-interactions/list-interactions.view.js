@@ -18,6 +18,9 @@ const template = require('./list-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const announcement = require('../../component/announcement')
 import fetch from '../../react-component/utils/fetch'
+import saveFile, {
+  getFilenameFromContentDisposition,
+} from '../../react-component/utils/save-file'
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -75,17 +78,21 @@ module.exports = Marionette.ItemView.extend({
     this.model.collection.add(newList)
   },
   async triggerAction(event) {
-    let url = event.currentTarget.getAttribute('data-url')
-
-    let res = await fetch(url, { Accept: 'application/json' })
+    const url = event.currentTarget.getAttribute('data-url')
 
     try {
+      let res = await fetch(url, { Accept: 'application/json' })
       if (!res.ok) {
         throw Error(res.statusText)
       }
 
       if (res.headers.get('content-disposition') != null) {
-        this.downloadAsFile(res)
+        const data = await res.blob()
+        const contentType = res.headers.get('content-type')
+        const name = getFilenameFromContentDisposition(
+          res.headers.get('content-disposition')
+        )
+        saveFile(name, contentType, data)
       } else {
         res = await res.json()
       }
@@ -93,7 +100,7 @@ module.exports = Marionette.ItemView.extend({
       if (res !== undefined) {
         announcement.announce({
           title: 'Success',
-          message: json.message,
+          message: res.message,
           type: 'success',
         })
       }
@@ -113,11 +120,5 @@ module.exports = Marionette.ItemView.extend({
   },
   triggerClick() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-  },
-  downloadAsFile(res) {
-    const blob = res.blob().then(b => {
-      const url = window.URL.createObjectURL(b)
-      window.location.assign(url)
-    })
   },
 })
