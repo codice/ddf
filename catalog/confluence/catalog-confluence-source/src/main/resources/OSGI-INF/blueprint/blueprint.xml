@@ -118,6 +118,7 @@
             <argument ref="confluenceTransformer"/>
             <argument ref="resourceReader"/>
             <argument ref="attributeRegistry"/>
+            <argument ref="clientFactoryFactory"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>
