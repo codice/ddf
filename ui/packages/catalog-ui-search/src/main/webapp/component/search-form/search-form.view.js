@@ -13,8 +13,8 @@
  *
  **/
 /*global require*/
+const React = require('react')
 const Marionette = require('marionette')
-const template = require('./search-form.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance')
 const DropdownModel = require('../dropdown/dropdown')
@@ -25,7 +25,64 @@ const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template(props) {
+    {
+      if (props.type === 'new-form') {
+        return (
+          <div>
+            <div className="fa fa-plus-circle new-form-circle" />
+            <h3>New Search Form</h3>
+          </div>
+        )
+      } else if (props.type === 'custom') {
+        return (
+          <div>
+            <h3 className="search-form-title" data-help={props.title}>
+              {props.title}
+            </h3>
+            <div className="default-icon">
+              <div className="fa fa-star" />
+            </div>
+            <span className="search-form-contents">{props.createdOn}</span>
+            <span className="search-form-contents">
+              <span className="fa fa-cloud" />
+              {props.createdBy}
+            </span>
+            <span
+              className="choice-actions is-button"
+              title="Shows a list of actions to take on the search forms"
+              data-help="Shows a list of actions to take on the search forms."
+            />
+          </div>
+        )
+      } else if (props.type === 'new-result') {
+        return (
+          <div>
+            <div className="fa fa-plus-circle new-form-circle" />
+            <h3>New Result Form</h3>
+          </div>
+        )
+      } else if (props.type == 'result') {
+        return (
+          <div>
+            <h3 className="search-form-title" data-help={props.title}>
+              {props.title}
+            </h3>
+            <span className="search-form-contents">{props.createdOn}</span>
+            <span className="search-form-contents">
+              <span className="fa fa-cloud" />
+              {props.createdBy}
+            </span>
+            <span
+              className="choice-actions is-button"
+              title="Shows a list of actions to take on the result forms"
+              data-help="Shows a list of actions to take on the result forms."
+            />
+          </div>
+        )
+      }
+    }
+  },
   tagName: CustomElements.register('search-form'),
   className() {
     return this.model.get('createdBy') === 'system' &&
