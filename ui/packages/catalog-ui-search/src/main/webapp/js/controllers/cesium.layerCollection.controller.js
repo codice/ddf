@@ -86,7 +86,11 @@ var Controller = CommonLayerController.extend({
       }
       Cesium.TrustedServers.add(parsedUrl.hostname, port)
     }
-    var layer = this.map.imageryLayers.addImageryProvider(provider, 0) // the collection is sorted by order, so later things should go at bottom of stack
+    const layerIndex = this.getLayerIndex(model)
+    const layer = this.map.imageryLayers.addImageryProvider(
+      provider,
+      layerIndex
+    )
     this.layerForCid[model.id] = layer
     layer.alpha = model.get('alpha')
     layer.show = model.shouldShowLayer()
@@ -117,20 +121,30 @@ var Controller = CommonLayerController.extend({
   */
   reIndexLayers: function() {
     this.collection.forEach(function(model, index) {
-      var layer = this.layerForCid[model.id]
-      var previousOrder = this.map.imageryLayers.indexOf(layer) + 1
-      var currentOrder = this.collection.length - model.get('order') // order is backwards on cesium (higher indexes are displayed above lower)
-      var method = currentOrder > previousOrder ? 'raise' : 'lower' // raise means move to higher index :(
-      var count = Math.abs(currentOrder - previousOrder)
-      // console.log(method + " " + model.get('name') + " " + count);  // useful for debugging!
-      _.times(
-        count,
-        function() {
-          this.map.imageryLayers[method](layer)
-        },
-        this
-      )
+      if (this.layerForCid[model.id]) {
+        const layer = this.layerForCid[model.id]
+        const previousOrder = this.map.imageryLayers.indexOf(layer)
+        const currentOrder = this.getLayerIndex(model)
+        const method = currentOrder > previousOrder ? 'raise' : 'lower' // raise means move to higher index :(
+        const count = Math.abs(currentOrder - previousOrder)
+        // console.log(method + " " + model.get('name') + " " + count);  // useful for debugging!
+        _.times(
+          count,
+          function() {
+            this.map.imageryLayers[method](layer)
+          },
+          this
+        )
+      }
     }, this)
+  },
+  getLayerIndex: function(model) {
+    const modelId = model.get('id')
+    const start =
+      this.collection.models.findIndex(model => model.get('id') === modelId) + 1
+    return this.collection.models
+      .slice(start)
+      .filter(model => this.layerForCid[model.id]).length
   },
 })
 
