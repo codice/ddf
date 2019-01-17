@@ -1,3 +1,4 @@
+/* loosely based on ISO 8601 time intervals */
 const serialize = time => {
   if (!time || time.unit === undefined || time.last === undefined) {
     return
