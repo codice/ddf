@@ -48,9 +48,10 @@
         '../../webjars/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
       perfectscrollbar:
         '../../webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
-      fileupload: '../../webjars/jquery-file-upload/9.5.7/js/jquery.fileupload',
+      fileupload:
+        '../../webjars/blueimp-file-upload/9.28.0/js/jquery.fileupload',
       fileuploadiframe:
-        '../../webjars/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
+        '../../webjars/blueimp-file-upload/9.28.0/js/jquery.iframe-transport',
 
       // handlebars
       handlebars: '../../webjars/handlebars/2.0.0/handlebars.min',
