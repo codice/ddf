@@ -173,63 +173,96 @@ At the bottom of each search is a list of options for the search.
 * *Delete*: Remove this search.
 * *Duplicate*: Create a copy of this search as a starting point.
 * *Search Archived*: Execute this search, but specifically for archived results.
-* *
-Search Historical*: Execute this search, but specifically for historical results.
+* *Search Historical*: Execute this search, but specifically for historical results.
 
 ===== Editing a Search
 
 An existing search can be updated by selecting the search in the *Search* tab of a workspace and by clicking the Edit (image:edit-icon.png[edit icon]) icon.
 
-* *Basic*: Define a <<_text_search_details,Text>>, <<_spatial_search_details,Spatial>>, <<_temporal_search_details,Temporal>>, or <<_type_search_details,Type>> Search.
-
-[[_text_search_details]]Text Search Details:: Searches across all textual data of the targeted data source.
-Text search capabilities include:
+[no-bullet]
+* *Text*: Perform a minimal textual search that is treated identically to a Basic search with only <<_text_search_details,Text>> specified.
+* *Basic*: Define a <<_text_search_details,Text>>, <<_temporal_search_details,Temporal>>, <<_spatial_search_details,Spatial>>, or <<_type_search_details,Type>> Search.
+[no-bullet]
+** [[_text_search_details]]*Text Search Details*
 +
-Search for an exact word, such as `Text = apple` : Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.
+[no-bullet]
+*** Searches across all textual data of the targeted data source. Text search capabilities include:
+[no-bullet]
+**** Search for an exact word, such as `Text = apple`: Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.
+**** Search for the existence of items containing multiple words, such as `Text = apple orange`: Returns items containing both "apple" and "orange" words. Words can occur anywhere in an item's metadata.
+**** Search using wildcards, such as `Text = foo*`: Returns items containing words like "food", "fool", etc.
+**** Text searches are by default case insensitive, but case sensitive searches are an option.
 +
-Search for the existence of items containing multiple words, such as `Text = apple orange` : Returns items containing both "apple" and "orange" words. Words can occur anywhere in an item's metadata.
-+
-Search using wildcards, such as `Text = foo*` : Returns items containing words like "food", "fool", etc..
-+
-Wildcards should only be used for single word searches, not for phrases.
+[no-bullet]
+*** Wildcards should only be used for single word searches, not for phrases.
 +
 [WARNING]
-When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for `Text = ca*` instead of `Text = -ca*` when searching for words like "cat", "-cat", etc..  and search for `Text = *og` instead of `Text = *og.` when searching for words like "dog", "dog.", etc..
+When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for `Text = ca*` instead of `Text = -ca*` when searching for words like "cat", "-cat", etc.  and search for `Text = *og` instead of `Text = *og.` when searching for words like "dog", "dog.", etc..
 +
-Text searches are by default case insensitive, but case sensitive searches are an option.
-
-[[_temporal_search_details]]Temporal Search Details:: Search based on absolute time of the created, modified, or effective date.
+Text searches are by default case insensitive, but case sensitive searches are possible by toggling the `Matchcase` option.
 +
-*Any*: Search without any time restrictions (default).
+** [[_temporal_search_details]]*Temporal Search Details*
 +
-*After*: Search records after a specified time.
+[no-bullet]
+*** Search based on absolute time of the created, modified, or effective date.
+[no-bullet]
+**** *Any*: Search without any time restrictions (default).
+**** *After*: Search records after a specified time.
+**** *Before*: Search records before a specified time.
+**** *Between*: Set a beginning and end time to search between.
+**** *Relative*: Search records relative to the current time.
 +
-*Before*: Search records before a specified time.
+** [[_spatial_search_details]]*Spatial Search Details*
+[no-bullet]
+*** Search by latitude/longitude, USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
 +
-*Between*: Set a beginning and end time to search between.
+** [[_type_search_details]]*Type Search Details*
+[no-bullet]
+*** Search for specific content types.
 +
-*Relative*: Search records relative to the current time.
-
-[[_spatial_search_details]]Spatial Search Details:: Search by latitude/longitude, USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
-
-[[_type_search_details]]Type Search Details:: Search for specific content types.
-
-* *Advanced*: Advanced query builder to create more specific searches.
+* *Advanced*: Advanced query builder can be used to create more specific searches than can be done through the other methods.
+[no-bullet]
+** [[_advanced_query_builder_details]]*Advanced Query Builder Details*
+[no-bullet]
+*** *Operator*: If 'AND' is used, all the filters in the branch have to be true for this branch to be true. If 'OR' is used, only one of the filters in this branch has to be true for this branch to be true.
+*** *Property*: Property to compare against.
+*** *Comparison*: How to compare the value for this property against the provided value. Depending on the type of property selected, various comparison values will be available. See <<_advanced_query_builder_comparators,Types of Comparators>>.
+*** *Search Terms*: The value for the property to use during comparison.
+*** *Sorting*: Sort results by relevance, distance, created time, modified time or effective time.
+*** *Sources*: Perform an enterprise search (the local ${ddf-catalog} and all federated sources) or search specific sources.
 +
-[[_advanced_query_builder_details]]Advanced Query Builder Details:: *Operator*: If 'AND' is used, all the filters in the branch have to be true for this branch to be true. If 'OR' is used, only one of the filters in this branch has to be true for this branch to be true.
+** [[_advanced_query_builder_comparators]]*Advanced Query Builder Comparators*
+[no-bullet]
+*** *Textual*
+[no-bullet]
+**** *CONTAINS*: Equivalent to <<_text_search_details,Basic Text Search>> with Matchcase set to No.
+**** *MATCHCASE*: Equivalent to <<_text_search_details,Basic Text Search>> with Matchcase set to Yes.
+**** *=*: Matches if an attribute is precisely equal to that search term.
+**** *NEAR*: Performs a fuzzy proximity-based textual search. A NEAR query of `"car street" within 3` will match a sample text of `the blue car drove down the street with the red building` because performing three word deletions in that phrase (`drove`, `down`, `the`) causes `car` and `street` to become adjacent.
 +
-*Property*: Property to compare against.
+More generally, a NEAR query of `"A B" within N` matches a text document if you can perform at most N insertions/deletions to your document and end up with `A` followed by `B`.
 +
-*Comparison*: How to compare the value for this property against the provided value.
+It is worth noting that `"street car" within 3` will not match the above sample text because it is not possible to match the phrase `"street car"` after only three insertions/deletions. `"street car" within 5` will match, though, as you can perform three word deletions to get `"car street"`, one deletion of one of the two words, and one insertion on the other side.
 +
-*Search Terms*: The value for the property to use during comparison.
+If multiple terms are used in the phrase, then the `within` amount specifies the total number of edits that can be made to attempt to make the full phrase match. `"car down street" within 2` will match the above text because it takes two word deletions (`drove`, `the`) to turn the phrase `car drove down the street` into `car down street`.
 +
-*Sorting*: Sort results by relevance, distance, created time, modified time or effective time.
+*** *Temporal*
+[no-bullet]
+**** *BEFORE*: Search records before a specified time.
+**** *AFTER*: Search records after a specified time.
+**** *RELATIVE* Search records relative to the current time.
 +
-*Sources*: Perform an enterprise search (the local ${ddf-catalog} and all federated sources) or search specific sources.
-* *Settings*: Set preferences for *Sorting* and *Federation*.
-* *Notifications*: Define the frequency at which to run this search and receive notifications for new results.
-* *Status*: View details of recent instances of this search.
+*** *Spatial*
+[no-bullet]
+**** *INTERSECTS*: Gives a component with the same functionality as <<_spatial_search_details,Basic Spatial Search>>.
++
+*** *Numeric*
+[no-bullet]
+**** *>*: Search records with field entries greater than the specified value.
+**** *>=*: Search records with field entries greater than or equal to the specified value.
+**** *=*: Search records with field entries equal to the specified value.
+**** *\<=*: Search records with field entries less than or equal to the specified value.
+**** *<*: Search records with field entries less than the specified value.
 
 ====== Editing Search Settings
 
