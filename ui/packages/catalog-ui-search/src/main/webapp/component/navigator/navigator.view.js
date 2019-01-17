@@ -44,7 +44,7 @@ module.exports = plugin(
             className="navigation-choice is-neutral choice-product is-button"
             data-fragment="workspaces"
           >
-            <span className="is-bold">{props.properties.branding}</span>
+            <span className="is-bold">{props.properties.branding} </span>
             <span className="">{props.properties.product}</span>
           </button>
           <div className="is-divider" />
@@ -142,6 +142,14 @@ module.exports = plugin(
               <span className="fa fa-user-md" />
               <span>Developer</span>
             </button>
+            <div className="is-divider" />
+            <button
+              className="navigation-choice is-neutral choice-home is-button"
+              data-fragment="_home"
+            >
+              <span className="fa fa-home" />
+              <span>{props.properties.branding} Home</span>
+            </button>
           </div>
         </React.Fragment>
       )
@@ -187,8 +195,13 @@ module.exports = plugin(
       this.$el.toggleClass('has-unavailable', hasDown)
     },
     handleChoice(e) {
-      visitFragment($(e.currentTarget).attr('data-fragment'))
-      this.closeSlideout()
+      const fragment = $(e.currentTarget).attr('data-fragment')
+      if (fragment === '_home') {
+        window.location = '/'
+      } else {
+        visitFragment(fragment)
+        this.closeSlideout()
+      }
     },
     closeSlideout: function() {
       this.$el.trigger('closeSlideout.' + CustomElements.getNamespace())
