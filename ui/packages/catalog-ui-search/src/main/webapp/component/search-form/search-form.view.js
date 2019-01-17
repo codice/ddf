@@ -56,6 +56,34 @@ class NewSearchForm extends React.Component {
   }
 }
 
+class CustomSearchForm extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <div>
+        <FormTitle data-help={this.props.title}>
+          {this.props.title}
+        </FormTitle>
+        <div className="default-icon">
+          <div className="fa fa-star" />
+        </div>
+        <FormContents>{this.props.createdOn}</FormContents>
+        <FormContents>
+          <span className="fa fa-cloud" />
+          {this.props.createdBy}
+        </FormContents>
+        <span
+          className="choice-actions is-button"
+          title="Shows a list of actions to take on the search forms"
+          data-help="Shows a list of actions to take on the search forms."
+        />
+      </div>
+    )
+  }
+}
+
 module.exports = Marionette.LayoutView.extend({
   template(props) {
     {
@@ -65,24 +93,7 @@ module.exports = Marionette.LayoutView.extend({
         )
       } else if (props.type === 'custom') {
         return (
-          <div>
-            <FormTitle data-help={props.title}>
-              {props.title}
-            </FormTitle>
-            <div className="default-icon">
-              <div className="fa fa-star" />
-            </div>
-            <FormContents>{props.createdOn}</FormContents>
-            <FormContents>
-              <span className="fa fa-cloud" />
-              {props.createdBy}
-            </FormContents>
-            <span
-              className="choice-actions is-button"
-              title="Shows a list of actions to take on the search forms"
-              data-help="Shows a list of actions to take on the search forms."
-            />
-          </div>
+          <CustomSearchForm {...props} onClick={this.changeView}/>
         )
       } else if (props.type === 'new-result') {
         return (
