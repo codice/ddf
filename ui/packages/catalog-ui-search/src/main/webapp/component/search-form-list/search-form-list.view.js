@@ -19,57 +19,40 @@ const Marionette = require('marionette')
 const React = require('react')
 const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
+const SearchForm = require('../search-form/search-form')
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('search-form-list'),
   className: 'composed-menu',
   template(props) {
-    return <React.Fragment>
-      {props.map(form => <div key={form.id} data-id={form.id}>{form.title}</div>)} 
+    return (
+      <React.Fragment>
+        {props.map(form => (
+          <div
+            key={form.id}
+            onClick={() =>
+              this.changeView(new SearchForm(form), this.model.get('currentQuery'))
+            }
+          >
+            {form.title}
+          </div>
+        ))}
       </React.Fragment>
-  },
-  events: {
-    'click > div': 'openSearchForm',
+    )
   },
   serializeData: function() {
     return this.model.get('searchForms').toJSON()
   },
-  openSearchForm: function(e) {
-    const searchForms = this.model.get('searchForms')
-    const selectedModel = searchForms.get(e.target.getAttribute('data-id'))
-    this.changeView(selectedModel, this.model.get('currentQuery'))
-  },
-  changeView: function(selectedModel, queryModel) {
-    let oldType = queryModel.get('type')
-    switch (selectedModel.get('type')) {
-      case 'basic':
-        debugger
-        queryModel.set('type', 'basic')
-        if (oldType === 'new-form' || oldType === 'custom') {
-          queryModel.set('title', 'Search Name')
-        }
-        user.getQuerySettings().set('type', 'basic')
-        break
-      case 'text':
-        debugger
-        queryModel.set('type', 'text')
-        if (oldType === 'new-form' || oldType === 'custom') {
-          queryModel.set('title', 'Search Name')
-        }
-        user.getQuerySettings().set('type', 'text')
-        break
-      case 'custom':
-        debugger
-        const sharedAttributes = selectedModel.transformToQueryStructure()
-        queryModel.set({
-          type: 'custom',
-          ...sharedAttributes,
-        })
-        if (oldType === 'custom') {
-          queryModel.trigger('change:type')
-        }
-        user.getQuerySettings().set('type', 'custom')
+  changeView: function(selectedForm, currentQuery) {
+    const sharedAttributes = selectedForm.transformToQueryStructure()
+    currentQuery.set({
+      type: 'custom',
+      ...sharedAttributes,
+    })
+    if (currentQuery.get('type') === 'custom') {
+      currentQuery.trigger('change:type')
     }
+    user.getQuerySettings().set('type', 'custom')
     user.savePreferences()
     this.triggerCloseDropdown()
   },
