@@ -33,7 +33,6 @@ module.exports = TabsView.extend({
     this.tabsContent.show(
       new activeTab({
         model: this.options.queryModel || new Query.Model(),
-        hideNewForm: this.options.hideNewForm,
       })
     )
   },

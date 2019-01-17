@@ -31,7 +31,6 @@ module.exports = Marionette.LayoutView.extend({
     this.tabsContent.show(
       new SearchFormsView({
         queryModel: this.model,
-        hideNewForm: true,
       })
     )
   },

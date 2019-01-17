@@ -30,9 +30,6 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   filter: function(child) {
-    if (this.options.hideNewForm) {
-      return child.get('type') !== 'new-form'
-    }
     return child.get('createdBy') === user.getEmail()
   },
 })
