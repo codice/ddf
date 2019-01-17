@@ -26,6 +26,8 @@ const QueryConfirmationView = require('../confirmation/query/confirmation.query.
 const LoadingView = require('../loading/loading.view.js')
 const QueryAnnotationsView = require('../query-annotations/query-annotations.view.js')
 const properties = require('../../js/properties.js')
+const React = require('react')
+import ResultsExport from '../../react-component/container/results-export'
 
 const NOT_CLONEABLE_ATTRIBUTES = ['id', 'result', 'hasBeenSaved']
 
@@ -39,6 +41,7 @@ module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('query-interactions'),
   className: 'composed-menu',
   modelEvents: {},
+  selectionInterface: store,
   events: {
     'click .interaction-run': 'handleRun',
     'click .interaction-refresh-result-count': 'handleRefreshResultCount',
@@ -49,6 +52,7 @@ module.exports = Marionette.ItemView.extend({
     'click .interaction-historic': 'handleHistoric',
     'click .interaction-feedback': 'handleFeedback',
     'click .interaction-annotations': 'handleAnnotations',
+    'click .interaction-export': 'handleExport',
     click: 'handleClick',
   },
   ui: {},
@@ -69,12 +73,25 @@ module.exports = Marionette.ItemView.extend({
       'is-versioning-enabled',
       !properties.isVersioningEnabled
     )
+    this.listenTo(
+      this.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.handleExportSelected
+    )
   },
   onRender: function() {
     this.handleLocal()
+    this.handleExportSelected()
   },
   handleLocal: function() {
     this.$el.toggleClass('is-local', this.model.isLocal())
+  },
+  handleExportSelected: function() {
+    const disabled = this.selectionInterface.getSelectedResults().length < 1
+    this.$el
+      .find('.interaction-export')
+      .first()
+      .toggleClass('is-disabled', disabled)
   },
   startListeningToSearch: function() {
     this.listenToOnce(this.model, 'change:result', this.startListeningForResult)
@@ -156,6 +173,24 @@ module.exports = Marionette.ItemView.extend({
         model: this.model,
       })
     )
+  },
+  handleExport: function() {
+    const Content = () => {
+      const selectedResults = store
+        .getSelectedResults()
+        .toJSON()
+        .map(result => {
+          return {
+            id: result['metacard']['id'],
+            source: result['metacard']['properties']['source-id'],
+          }
+        })
+      return <ResultsExport selectedResults={selectedResults} />
+    }
+
+    lightboxInstance.model.updateTitle('Export Results')
+    lightboxInstance.model.open()
+    lightboxInstance.showContent(<Content />)
   },
   handleResult: function() {
     this.$el.toggleClass('has-results', this.model.get('result') !== undefined)

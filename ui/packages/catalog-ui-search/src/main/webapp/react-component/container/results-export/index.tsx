@@ -9,9 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export {
-  getExportOptions,
-  exportResult,
-  exportResultSet,
-  Transformer,
-} from './export'
+export { default } from './results-export'
