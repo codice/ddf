@@ -21,8 +21,7 @@ const template = require('./dropdown.search-form-selector.hbs')
 const SearchForms = require('../../search-form-selector/search-form-selector.view.js')
 const SearchFormsList = require('../../search-form-list/search-form-list.view')
 const store = require('../../../js/store.js')
-const SystemSearchForms = require('../../search-form/forms-system/search-form-system-collection-instance')
-const MySearchForms = require('../../search-form/search-form-collection-instance')
+const SearchFormCollection = require('../../search-form/search-form-all-collection-instance')
 const Backbone = require('backbone')
 
 module.exports = DropdownView.extend({
@@ -41,14 +40,9 @@ module.exports = DropdownView.extend({
   },
   initializeComponentModel: function() {
     //override if you need more functionality
-    // this.modelForComponent = this.options.modelForComponent
-    const systemForms = SystemSearchForms.getCollection()
-    const myForms = MySearchForms.getCollection()
-    systemForms.add(myForms.models)
-    debugger
     this.modelForComponent = new Backbone.Model({
       currentQuery: this.options.modelForComponent,
-      searchForms: systemForms.sort(),
+      searchForms: SearchFormCollection.getCollection().sort(),
     })
   },
   listenToComponent: function() {

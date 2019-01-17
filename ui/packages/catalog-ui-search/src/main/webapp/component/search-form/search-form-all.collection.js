@@ -13,13 +13,31 @@
  *
  **/
 /*global require*/
+const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
-const SearchForm = require('../search-form')
-const Common = require('../../../js/Common.js')
+const SearchForm = require('./search-form')
+const Common = require('../../js/Common.js')
+const user = require('../singletons/user-instance.js')
 
-let systemTemplates = []
+const fixFilter = function(filter) {
+  if (filter.filters) {
+    filter.filters.forEach(fixFilter)
+  } else {
+    filter.defaultValue = filter.defaultValue || ''
+    filter.value = filter.value || filter.defaultValue
+  }
+}
+
+const fixTemplates = function(templates) {
+  templates.forEach(template => {
+    return fixFilter(template.filterTemplate)
+  })
+}
+
+let cachedTemplates = []
 let promiseIsResolved = false
+
 const templatePromiseSupplier = () =>
   $.ajax({
     type: 'GET',
@@ -27,7 +45,8 @@ const templatePromiseSupplier = () =>
     url: './internal/forms/query',
     contentType: 'application/json',
     success: function(data) {
-      systemTemplates = data
+      fixTemplates(data)
+      cachedTemplates = data
       promiseIsResolved = true
     },
   })
@@ -37,40 +56,41 @@ let bootstrapPromise = templatePromiseSupplier()
 module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
-    systemSearchForms: [],
+    searchForms: [],
   },
   initialize: function() {
     if (promiseIsResolved === true) {
-      this.addSystemForms()
+      this.addAllForms()
       promiseIsResolved = false
+      bootstrapPromise = new templatePromiseSupplier()
     }
     bootstrapPromise.then(() => {
-      this.addSystemForms()
+      this.addAllForms()
       this.doneLoading()
     })
   },
   relations: [
     {
       type: Backbone.Many,
-      key: 'systemSearchForms',
+      key: 'searchForms',
       collectionType: Backbone.Collection.extend({
         model: SearchForm,
+        url: './internal/forms/query',
         initialize: function() {},
         comparator: function(a, b) {
           const titleA = a.get('title') || ''
           const titleB = a.get('title') || ''
           return titleA.toUpperCase().localeCompare(titleB.toUpperCase())
-        }
+        },
       }),
     },
   ],
-  addSystemForms: function() {
+  addAllForms: function() {
     if (!this.isDestroyed) {
-      systemTemplates.forEach(value => {
-        if (this.checkIfSystem(value)) {
+      cachedTemplates.forEach(
+        function(value, index) {
           this.addSearchForm(
             new SearchForm({
-              item_class: 'test',
               createdOn: value.created,
               id: value.id,
               title: value.title,
@@ -78,30 +98,34 @@ module.exports = Backbone.AssociatedModel.extend({
               type: 'custom',
               filterTemplate: value.filterTemplate,
               accessIndividuals: value.accessIndividuals,
+              accessIndividualsRead: value.accessIndividualsRead,
               accessAdministrators: value.accessAdministrators,
               accessGroups: value.accessGroups,
-              createdBy: 'system',
-              owner: 'system',
+              accessGroupsRead: value.accessGroupsRead,
+              createdBy: value.creator,
+              owner: value.owner,
               querySettings: value.querySettings,
             })
           )
-        }
-      })
+        }.bind(this)
+      )
     }
   },
   getCollection: function() {
-    return this.get('systemSearchForms')
+    return this.get('searchForms')
   },
   addSearchForm: function(searchForm) {
-    this.get('systemSearchForms').add(searchForm)
+    this.get('searchForms').add(searchForm, { merge: true })
   },
   getDoneLoading: function() {
     return this.get('doneLoading')
   },
-  checkIfSystem: function(template) {
-    return template.creator === 'system'
-  },
   doneLoading: function() {
     this.set('doneLoading', true)
+  },
+  deleteCachedTemplateById: function(id) {
+    cachedTemplates = _.filter(cachedTemplates, function(template) {
+      return template.id !== id
+    })
   },
 })

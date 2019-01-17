@@ -39,7 +39,7 @@ module.exports = Marionette.ItemView.extend({
     let oldType = queryModel.get('type')
     switch (selectedModel.get('type')) {
       case 'basic':
-      debugger
+        debugger
         queryModel.set('type', 'basic')
         if (oldType === 'new-form' || oldType === 'custom') {
           queryModel.set('title', 'Search Name')

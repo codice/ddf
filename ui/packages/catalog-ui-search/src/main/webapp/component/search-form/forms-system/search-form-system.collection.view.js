@@ -15,15 +15,17 @@
 /* global require */
 const Marionette = require('marionette')
 const SearchFormView = require('../search-form.view')
-const SearchFormSystemCollection = require('./search-form-system-collection-instance')
+const SearchFormsCollection = require('../search-form-all-collection-instance')
 
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,
   className: 'is-list is-inline',
   initialize: function(options) {
-    this.collection = SearchFormSystemCollection.getCollection()
-    this.searchFormSystemCollection = SearchFormSystemCollection
+    this.collection = SearchFormsCollection.getCollection()
     this.options = options
+  },
+  filter: function(child) {
+    return child.get('createdBy') === 'system'
   },
   childViewOptions: function() {
     return {

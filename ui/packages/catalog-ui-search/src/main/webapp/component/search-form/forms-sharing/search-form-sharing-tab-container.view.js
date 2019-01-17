@@ -16,7 +16,7 @@
 const Marionette = require('marionette')
 const template = require('../search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form-sharing.collection.view')
-const SearchFormsSharingCollection = require('./search-form-sharing-collection-instance')
+const SearchFormCollection = require('../search-form-all-collection-instance')
 const CustomElements = require('../../../js/CustomElements.js')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 
@@ -27,9 +27,9 @@ module.exports = Marionette.LayoutView.extend({
     collectionView: '.collection',
   },
   initialize: function() {
-    this.searchFormSharingCollection = SearchFormsSharingCollection
+    this.searchFormCollection = SearchFormCollection
     this.listenTo(
-      this.searchFormSharingCollection,
+      this.searchFormCollection,
       'change:doneLoading',
       this.handleLoadingSpinner
     )
@@ -37,7 +37,7 @@ module.exports = Marionette.LayoutView.extend({
   onRender: function() {
     this.collectionView.show(
       new SearchFormCollectionView({
-        collection: this.searchFormSharingCollection.getCollection(),
+        collection: this.searchFormCollection.getCollection(),
         model: this.model,
       })
     )
@@ -45,7 +45,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner: function() {
-    if (this.searchFormSharingCollection.getDoneLoading()) {
+    if (this.searchFormCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }
   },

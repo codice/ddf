@@ -16,12 +16,20 @@
 const Marionette = require('marionette')
 const SearchFormView = require('../search-form.view')
 const CustomElements = require('../../../js/CustomElements')
+const user = require('../../singletons/user-instance')
 
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,
   tagName: CustomElements.register('my-shared-search-forms'),
   className: 'is-list is-inline has-list-highlighting',
   initialize: function(options) {},
+  filter: function(child) {
+    return (
+      child.get('createdBy') !== user.getEmail() &&
+      user.canRead(child) &&
+      child.get('createdBy') !== 'system'
+    )
+  },
   childViewOptions: function() {
     return {
       queryModel: this.options.model,

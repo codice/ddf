@@ -17,7 +17,7 @@ import React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 const Marionette = require('marionette')
 const SystemSearchFormCollectionView = require('./search-form-system.collection.view')
-const SearchFormSystemCollection = require('./search-form-system-collection-instance')
+const SearchFormCollection = require('../search-form-all-collection-instance')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 const Router = require('../../router/router.js')
 
@@ -40,9 +40,9 @@ module.exports = Marionette.LayoutView.extend({
     collection: '.collection',
   },
   initialize: function() {
-    this.searchFormSystemCollection = SearchFormSystemCollection
+    this.searchFormCollection = SearchFormCollection
     this.listenTo(
-      this.searchFormSystemCollection,
+      this.searchFormCollection,
       'change:doneLoading',
       this.handleLoadingSpinner
     )
@@ -67,7 +67,7 @@ module.exports = Marionette.LayoutView.extend({
   onRender: function() {
     this.collection.show(
       new SystemSearchFormCollectionView({
-        collection: this.searchFormSystemCollection.getCollection(),
+        collection: this.searchFormCollection.getCollection(),
         model: this.model,
         hideInteractionMenu: this.options.hideInteractionMenu,
       })
@@ -76,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner: function() {
-    if (this.searchFormSystemCollection.getDoneLoading()) {
+    if (this.searchFormCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }
   },

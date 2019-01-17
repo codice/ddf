@@ -10,5 +10,5 @@
  *
  **/
 
-const SearchFormsSystemCollection = require('./search-form-system.collection')
-module.exports = new SearchFormsSystemCollection()
+const AllSearchFormsCollection = require('./search-form-all.collection')
+module.exports = new AllSearchFormsCollection()
