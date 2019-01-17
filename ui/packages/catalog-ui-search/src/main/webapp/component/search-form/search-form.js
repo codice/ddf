@@ -31,7 +31,6 @@ module.exports = Backbone.Model.extend({
       querySettings: {},
     }
   },
-  urlRoot: './internal/forms/query',
   transformToQueryStructure() {
     const querySettings = this.get('querySettings')
     return {

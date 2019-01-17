@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 const $ = require('jquery')
 const template = require('component/search-form/search-form.collection.hbs')
 const ResultFormCollectionView = require('./result-form.collection.view')
-const ResultForm = require('./result-form')
+const ResultFormCollection = require('./result-form-collection-instance.js')
 const CustomElements = require('../../js/CustomElements.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
@@ -28,7 +28,7 @@ module.exports = Marionette.LayoutView.extend({
     collectionView: '.collection',
   },
   initialize: function() {
-    this.resultFormCollection = ResultForm.getResultCollection()
+    this.resultFormCollection = ResultFormCollection
     this.listenTo(
       this.resultFormCollection,
       'change:doneLoading',
@@ -36,7 +36,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
-    this.resultFormCollection.addResultForms()
+    ResultFormCollection.initialize()
     this.collectionView.show(
       new ResultFormCollectionView({
         collection: this.resultFormCollection.getCollection(),

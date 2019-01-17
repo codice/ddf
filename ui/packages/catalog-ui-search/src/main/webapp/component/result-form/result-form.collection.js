@@ -25,6 +25,7 @@ let promiseIsResolved = false
 const resultTemplatePromise = () =>
   $.ajax({
     type: 'GET',
+    context: this,
     url: './internal/forms/result',
     contentType: 'application/json',
     success: function(data) {
@@ -39,16 +40,23 @@ module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
     added: false,
-    resultForms: [],
-  },
-  initialize: function() {
-    this.addResultForm(
+    resultForms: [
       new ResultForm({
         title: 'Create New Data View',
         type: 'new-result',
-      })
-    )
-    this.addResultForms()
+      }),
+    ],
+  },
+  initialize: function() {
+    if (promiseIsResolved === true) {
+      this.addResultForms()
+      promiseIsResolved = false
+      bootstrapPromise = new resultTemplatePromise()
+    }
+    bootstrapPromise.then(() => {
+      this.addResultForms()
+      this.doneLoading()
+    })
   },
   relations: [
     {
@@ -62,55 +70,43 @@ module.exports = Backbone.AssociatedModel.extend({
     },
   ],
   addResultForms: function() {
-    this.set('doneLoading', false)
     if (!this.isDestroyed) {
-      if (promiseIsResolved === true) {
-        promiseIsResolved = false
-        bootstrapPromise = new resultTemplatePromise()
-      }
-      bootstrapPromise.then(() => {
-        this.filteredList = _.map(resultTemplates, function(resultForm) {
-          return {
-            label: resultForm.title,
-            value: resultForm.title,
-            id: resultForm.id,
-            descriptors: resultForm.descriptors,
-            description: resultForm.description,
-            owner: resultForm.owner,
-            created: resultForm.created,
-            creator: resultForm.creator,
-            createdBy: resultForm.creator,
-            accessGroups: resultForm.accessGroups,
-            accessIndividuals: resultForm.accessIndividuals,
-            accessAdministrators: resultForm.accessAdministrators,
-          }
-        })
-        this.resetResultForm()
-        this.addResultForm(
-          new ResultForm({
-            title: 'Create New Data View',
-            type: 'new-result',
-          })
-        )
-        this.filteredList.forEach(element => {
+      this.filteredList = _.map(resultTemplates, function(resultForm) {
+        return {
+          label: resultForm.title,
+          value: resultForm.title,
+          id: resultForm.id,
+          descriptors: resultForm.descriptors,
+          description: resultForm.description,
+          owner: resultForm.owner,
+          created: resultForm.created,
+          creator: resultForm.creator,
+          createdBy: resultForm.creator,
+          accessGroups: resultForm.accessGroups,
+          accessIndividuals: resultForm.accessIndividuals,
+          accessAdministrators: resultForm.accessAdministrators,
+        }
+      })
+
+      resultTemplates.forEach(
+        function(value, index) {
           this.addResultForm(
             new ResultForm({
-              createdOn: element.created,
-              id: element.id,
-              title: element.label,
+              title: value.title,
               type: 'result',
-              descriptors: element.descriptors,
-              owner: element.owner,
-              accessIndividuals: element.accessIndividuals,
-              accessAdministrators: element.accessAdministrators,
-              accessGroups: element.accessGroups,
-              createdBy: element.createdBy,
-              description: element.description,
+              id: value.id,
+              descriptors: value.descriptors,
+              description: value.description,
+              owner: value.owner,
+              createdOn: value.created,
+              createdBy: value.creator,
+              accessGroups: value.accessGroups,
+              accessIndividuals: value.accessIndividuals,
+              accessAdministrators: value.accessAdministrators,
             })
           )
-        })
-        this.doneLoading()
-      })
+        }.bind(this)
+      )
     }
   },
   addResultForm: function(newForm) {
