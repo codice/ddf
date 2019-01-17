@@ -87,7 +87,7 @@ this string:
 +
 ```
  "credentials": {
-      "admin": "31u3dZLhFmlhsyYzlLxtUDoKR2j8oRnLwWcAH7Lbor4= F9eRJs+ZMI95YSQnBP/lGrLH8h60lKKizjMgC69J+WM="}
+      "admin": "EjjOS/zyQ1KQQdSXFb/rFm7w6MItU5pmdthM35ZiJaA= ZZI7d4jf/8hz5oZz7ljBE6+uv1wqncj+VudX3arbib4="}
 ```
 The quoted string following the username `admin` is the salted hash for the password `admin`.
 +
