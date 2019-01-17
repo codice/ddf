@@ -1,3 +1,4 @@
+// TODO Rename file to search-form-collection-instancejs
 /**
  * Copyright (c) Codice Foundation
  *

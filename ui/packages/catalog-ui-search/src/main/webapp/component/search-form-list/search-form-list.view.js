@@ -31,7 +31,10 @@ module.exports = Marionette.ItemView.extend({
           <div
             key={form.id}
             onClick={() =>
-              this.changeView(new SearchForm(form), this.model.get('currentQuery'))
+              this.changeView(
+                new SearchForm(form),
+                this.model.get('currentQuery')
+              )
             }
           >
             {form.title}
