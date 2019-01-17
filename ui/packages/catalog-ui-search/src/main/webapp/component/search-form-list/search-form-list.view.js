@@ -16,14 +16,18 @@
 
 const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')
+const React = require('react')
 const Router = require('../router/router.js')
-const template = require('./search-form-list.hbs')
 const user = require('../singletons/user-instance')
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('search-form-list'),
   className: 'composed-menu',
-  template: template,
+  template(props) {
+    return <React.Fragment>
+      {props.map(form => <div key={form.id} data-id={form.id}>{form.title}</div>)} 
+      </React.Fragment>
+  },
   events: {
     'click > div': 'openSearchForm',
   },
