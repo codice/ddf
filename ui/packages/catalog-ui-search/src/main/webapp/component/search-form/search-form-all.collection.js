@@ -56,7 +56,7 @@ let bootstrapPromise = templatePromiseSupplier()
 module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
-    searchForms: [],
+    searchForms: [new SearchForm({type: 'new-form'})],
   },
   initialize: function() {
     if (promiseIsResolved === true) {

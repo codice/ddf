@@ -23,31 +23,60 @@ const wreqr = require('../../exports/wreqr.js')
 const Router = require('../router/router.js')
 const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
+import styled from '../../react-component/styles/styled-components'
+
+// TODO use vars from theme
+const FormTitle = styled.h3`
+  padding-bottom: 0.625rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  width: 100%;
+`
+
+const FormContents = styled.span`
+  display: block;
+`
+
+// TODO 3 * 1.4rem = 4.2rem, should this be dynamically calculated?
+const NewFormCircle = styled.div`
+  font-size: 4.2rem;
+  padding-top: 0.625rem;
+`
+
+class NewSearchForm extends React.Component {
+  render() {
+    return (
+      <div>
+        <NewFormCircle className="fa fa-plus-circle" />
+        <h3>New Search Form</h3>
+      </div>
+    )
+  }
+}
 
 module.exports = Marionette.LayoutView.extend({
   template(props) {
     {
       if (props.type === 'new-form') {
         return (
-          <div>
-            <div className="fa fa-plus-circle new-form-circle" />
-            <h3>New Search Form</h3>
-          </div>
+          <NewSearchForm onClick={this.changeView}/>
         )
       } else if (props.type === 'custom') {
         return (
           <div>
-            <h3 className="search-form-title" data-help={props.title}>
+            <FormTitle data-help={props.title}>
               {props.title}
-            </h3>
+            </FormTitle>
             <div className="default-icon">
               <div className="fa fa-star" />
             </div>
-            <span className="search-form-contents">{props.createdOn}</span>
-            <span className="search-form-contents">
+            <FormContents>{props.createdOn}</FormContents>
+            <FormContents>
               <span className="fa fa-cloud" />
               {props.createdBy}
-            </span>
+            </FormContents>
             <span
               className="choice-actions is-button"
               title="Shows a list of actions to take on the search forms"
@@ -58,7 +87,7 @@ module.exports = Marionette.LayoutView.extend({
       } else if (props.type === 'new-result') {
         return (
           <div>
-            <div className="fa fa-plus-circle new-form-circle" />
+            <NewFormCircle className="fa fa-plus-circle" />
             <h3>New Result Form</h3>
           </div>
         )
@@ -68,11 +97,11 @@ module.exports = Marionette.LayoutView.extend({
             <h3 className="search-form-title" data-help={props.title}>
               {props.title}
             </h3>
-            <span className="search-form-contents">{props.createdOn}</span>
-            <span className="search-form-contents">
+            <FormContents>{props.createdOn}</FormContents>
+            <FormContents>
               <span className="fa fa-cloud" />
               {props.createdBy}
-            </span>
+            </FormContents>
             <span
               className="choice-actions is-button"
               title="Shows a list of actions to take on the result forms"
