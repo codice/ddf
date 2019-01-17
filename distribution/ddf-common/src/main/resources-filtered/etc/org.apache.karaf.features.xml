@@ -41,7 +41,7 @@
                 and felix.scr tries to use R7 logging even though the current version of pax-logging
                 does not support it. This override can be removed when pax-logging supports R7.-->
         <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.14"
-                replacement="mvn:org.apache.felix/org.apache.felix.scr/2.0.14"
+                replacement="mvn:org.apache.felix/org.apache.felix.scr/${felix.scr.version}"
                 mode="maven"/>
     </bundleReplacements>
 
