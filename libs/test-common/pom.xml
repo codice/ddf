@@ -105,6 +105,12 @@
             <version>${xmlunit.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>pax-exam-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
             <version>${pax.exam.version}</version>

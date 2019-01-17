@@ -21,11 +21,13 @@
     </appender>
 
     <root level="WARN">
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="org.ops4j.pax.exam" level="INFO"/>
-    <logger name="ddf" level="INFO"/>
-    <logger name="org.codice.ddf" level="INFO"/>
+    <logger name="org.ops4j.pax.exam" level="INFO" />
+    <logger name="ddf" level="INFO" />
+    <logger name="org.codice.ddf" level="INFO" />
+    <logger name="org.codice.junit" level="INFO" />
+    <logger name="org.codice.pax.exam" level="INFO" />
 
 </configuration>

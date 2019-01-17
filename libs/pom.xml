@@ -37,6 +37,7 @@
         <module>mpeg-transport-stream</module>
         <module>geospatial</module>
         <module>alerts</module>
+        <module>pax-exam-extensions</module>
         <module>test-common</module>
     </modules>
 </project>
