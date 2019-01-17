@@ -117,7 +117,6 @@ module.exports = Backbone.AssociatedModel.extend({
     lineWidth: 1,
     lineUnits: 'meters',
     polygon: undefined,
-    multipolygon: undefined,
     polygonBufferWidth: 0,
     polygonBufferUnits: 'meters',
     hasKeyword: false,
