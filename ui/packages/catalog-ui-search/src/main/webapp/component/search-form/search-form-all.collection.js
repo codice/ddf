@@ -56,7 +56,7 @@ let bootstrapPromise = templatePromiseSupplier()
 module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
-    searchForms: [new SearchForm({type: 'new-form'})],
+    searchForms: [],
   },
   initialize: function() {
     if (promiseIsResolved === true) {
@@ -76,7 +76,10 @@ module.exports = Backbone.AssociatedModel.extend({
       collectionType: Backbone.Collection.extend({
         model: SearchForm,
         url: './internal/forms/query',
-        initialize: function() {},
+        initialize: function() {
+          // debugger
+          this.listenTo(this, 'change', () => {console.log('sorting!')})
+        },
         comparator: function(a, b) {
           const titleA = a.get('title') || ''
           const titleB = a.get('title') || ''

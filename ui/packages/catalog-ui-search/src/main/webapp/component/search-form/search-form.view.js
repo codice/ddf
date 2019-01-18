@@ -25,9 +25,8 @@ const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
 import styled from '../../react-component/styles/styled-components'
 
-// TODO use vars from theme
 const FormTitle = styled.h3`
-  padding-bottom: 0.625rem;
+  padding-bottom: ${props => props.theme.minimumSpacing};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -39,10 +38,9 @@ const FormContents = styled.span`
   display: block;
 `
 
-// TODO 3 * 1.4rem = 4.2rem, should this be dynamically calculated?
 const NewFormCircle = styled.div`
-  font-size: 4.2rem;
-  padding-top: 0.625rem;
+  font-size: calc(3 * ${props => props.theme.largeFontSize});
+  padding-top: ${props => props.theme.minimumSpacing};
 `
 
 class NewSearchForm extends React.Component {
