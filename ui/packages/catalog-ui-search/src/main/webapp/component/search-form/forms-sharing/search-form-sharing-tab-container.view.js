@@ -15,10 +15,11 @@
 /*global require*/
 const Marionette = require('marionette')
 const template = require('../search-form.collection.hbs')
-const SearchFormCollectionView = require('./search-form-sharing.collection.view')
+const SearchFormCollectionView = require('../search-form.collection.view')
 const SearchFormCollection = require('../search-form-all-collection-instance')
 const CustomElements = require('../../../js/CustomElements.js')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+const user = require('../../singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -39,6 +40,13 @@ module.exports = Marionette.LayoutView.extend({
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
         model: this.model,
+        filter: function(child) {
+          return (
+            child.get('createdBy') !== user.getEmail() &&
+            user.canRead(child) &&
+            child.get('createdBy') !== 'system'
+          )
+        }
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)

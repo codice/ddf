@@ -16,7 +16,7 @@
 import React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 const Marionette = require('marionette')
-const SystemSearchFormCollectionView = require('./search-form-system.collection.view')
+const SearchFormCollectionView = require('../search-form.collection.view')
 const SearchFormCollection = require('../search-form-all-collection-instance')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 const Router = require('../../router/router.js')
@@ -66,10 +66,11 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender: function() {
     this.collection.show(
-      new SystemSearchFormCollectionView({
+      new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
         model: this.model,
         hideInteractionMenu: this.options.hideInteractionMenu,
+        filter: function(child) { return child.get('createdBy') === 'system' }
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)

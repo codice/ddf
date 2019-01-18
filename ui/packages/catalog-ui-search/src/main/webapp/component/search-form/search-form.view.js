@@ -38,87 +38,71 @@ const FormContents = styled.span`
   display: block;
 `
 
-const NewFormCircle = styled.div`
-  font-size: calc(3 * ${props => props.theme.largeFontSize});
-  padding-top: ${props => props.theme.minimumSpacing};
+const DefaultIcon = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
 `
 
-class NewSearchForm extends React.Component {
-  render() {
-    return (
-      <div>
-        <NewFormCircle className="fa fa-plus-circle" />
-        <h3>New Search Form</h3>
-      </div>
-    )
-  }
-}
-
-class CustomSearchForm extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-  render() {
-    return (
-      <div>
-        <FormTitle data-help={this.props.title}>
-          {this.props.title}
-        </FormTitle>
-        <div className="default-icon">
-          <div className="fa fa-star" />
-        </div>
-        <FormContents>{this.props.createdOn}</FormContents>
-        <FormContents>
-          <span className="fa fa-cloud" />
-          {this.props.createdBy}
-        </FormContents>
-        <span
-          className="choice-actions is-button"
-          title="Shows a list of actions to take on the search forms"
-          data-help="Shows a list of actions to take on the search forms."
-        />
-      </div>
-    )
-  }
+const CustomSearchForm = (props) => {
+  const { title, createdOn, createdBy, isDefault } = props
+  return (
+    <div style={{ position: 'relative', height: '100%' }}>
+      <FormTitle data-help={title}>
+        {title}
+      </FormTitle>
+      {isDefault
+        ? <DefaultIcon className="fa fa-star" />
+        : null}
+      <FormContents>{createdOn}</FormContents>
+      <FormContents>
+        <span className="fa fa-cloud" />
+        {createdBy}
+      </FormContents>
+      <span
+        className="choice-actions is-button"
+        title="Shows a list of actions to take on the search forms"
+        data-help="Shows a list of actions to take on the search forms."
+      />
+    </div>
+  )
 }
 
 module.exports = Marionette.LayoutView.extend({
   template(props) {
-    {
-      if (props.type === 'new-form') {
-        return (
-          <NewSearchForm onClick={this.changeView}/>
-        )
-      } else if (props.type === 'custom') {
-        return (
-          <CustomSearchForm {...props} onClick={this.changeView}/>
-        )
-      } else if (props.type === 'new-result') {
-        return (
-          <div>
-            <NewFormCircle className="fa fa-plus-circle" />
-            <h3>New Result Form</h3>
-          </div>
-        )
-      } else if (props.type == 'result') {
-        return (
-          <div>
-            <h3 className="search-form-title" data-help={props.title}>
-              {props.title}
-            </h3>
-            <FormContents>{props.createdOn}</FormContents>
-            <FormContents>
-              <span className="fa fa-cloud" />
-              {props.createdBy}
-            </FormContents>
-            <span
-              className="choice-actions is-button"
-              title="Shows a list of actions to take on the result forms"
-              data-help="Shows a list of actions to take on the result forms."
-            />
-          </div>
-        )
-      }
+    const isDefault = user.getQuerySettings().isTemplate(this.model)
+    if (props.type === 'custom') {
+      return (
+        <CustomSearchForm
+          {...props}
+          isDefault={isDefault}
+          onClick={this.changeView}/>
+      )
+    } else if (props.type === 'new-result') {
+      return (
+        <div>
+          <NewFormCircle className="fa fa-plus-circle" />
+          <h3>New Result Form</h3>
+        </div>
+      )
+    } else if (props.type == 'result') {
+      return (
+        <div>
+          <h3 className="search-form-title" data-help={props.title}>
+            {props.title}
+          </h3>
+          <FormContents>{props.createdOn}</FormContents>
+          <FormContents>
+            <span className="fa fa-cloud" />
+            {props.createdBy}
+          </FormContents>
+          <span
+            className="choice-actions is-button"
+            title="Shows a list of actions to take on the result forms"
+            data-help="Shows a list of actions to take on the result forms."
+          />
+        </div>
+      )
     }
   },
   tagName: CustomElements.register('search-form'),
@@ -143,7 +127,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(
       user.getQuerySettings(),
       'change:template',
-      this.handleDefault
+      this.render
     )
   },
   serializeData: function() {
@@ -225,7 +209,7 @@ module.exports = Marionette.LayoutView.extend({
   handleDefault: function() {
     this.$el.toggleClass(
       'is-default',
-      user.getQuerySettings().isTemplate(this.model)
+      
     )
   },
   triggerCloseDropdown: function() {
