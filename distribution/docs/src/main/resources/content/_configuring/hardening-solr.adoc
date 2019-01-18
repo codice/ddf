@@ -36,7 +36,7 @@ If this property is `true`, ${branding} attempts to change the default password 
 generated secure password if it detects the default password is in use.
 The new password is encrypted and then stored in the system properties.
 
-The Solr distrubition included with ${branding} comes already configured with a user. To see the
+The Solr distribition included with ${branding} comes already configured with a user. To see the
 username or default password, either inspect the file
 `${home_directory}/etc/custom.system.properties` or refer to the properties
 <<{managing-prefix}managed_solr_properties,here>>.
