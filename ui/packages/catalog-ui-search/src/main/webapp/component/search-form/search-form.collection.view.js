@@ -58,14 +58,17 @@ module.exports = Marionette.ItemView.extend({
   template() {
     return (
       <React.Fragment>
-        <NewSearchForm onClick={() => {
-          this.options.queryModel.set({
-            type: 'new-form',
-            associatedFormModel: this.model,
-          })
-          user.getQuerySettings().set('type', 'new-form')
-          this.routeToSearchFormEditor('create')
-        }}/>
+        { this.options.showNewForm ? 
+          <NewSearchForm onClick={() => {
+            this.options.queryModel.set({
+              type: 'new-form',
+              associatedFormModel: this.model,
+            })
+            user.getQuerySettings().set('type', 'new-form')
+            this.routeToSearchFormEditor('create')
+          }}/>
+          : null
+        }
         {this.model.filter((child) => this.doFilter(child)
         ).map((model) => {
           return (

@@ -70,7 +70,7 @@ module.exports = Marionette.LayoutView.extend({
         collection: this.searchFormCollection.getCollection(),
         model: this.model,
         hideInteractionMenu: this.options.hideInteractionMenu,
-        filter: function(child) { return child.get('createdBy') === 'system' }
+        filter: function(child) { return child.get('createdBy') === 'system' },
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)
