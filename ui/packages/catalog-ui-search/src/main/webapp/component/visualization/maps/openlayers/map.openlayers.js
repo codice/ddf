@@ -11,6 +11,8 @@
  **/
 /* global require, window */
 
+import wrapNum from '../../../../react-component/utils/wrap-num/wrap-num.tsx'
+
 var $ = require('jquery')
 var _ = require('underscore')
 var Map = require('../map')
@@ -86,15 +88,7 @@ function unconvertPointCoordinate(point) {
 }
 
 function offMap([longitude, latitude]) {
-  const normalizedLongitude =
-    longitude -
-    Math.sign(longitude) * (360 * Math.floor((Math.abs(longitude) + 180) / 360))
-  return (
-    normalizedLongitude < -180 ||
-    normalizedLongitude > 180 ||
-    latitude < -90 ||
-    latitude > 90
-  )
+  return latitude < -90 || latitude > 90
 }
 
 module.exports = function OpenlayersMap(
@@ -272,14 +266,8 @@ module.exports = function OpenlayersMap(
     },
     getBoundingBox: function() {
       const extent = map.getView().calculateExtent(map.getSize())
-      let longitudeEast =
-        extent[2] -
-        Math.sign(extent[2]) *
-          (360 * Math.floor((Math.abs(extent[2]) + 180) / 360))
-      const longitudeWest =
-        extent[0] -
-        Math.sign(extent[0]) *
-          (360 * Math.floor((Math.abs(extent[0]) + 180) / 360))
+      let longitudeEast = wrapNum(extent[2], -180, 180)
+      const longitudeWest = wrapNum(extent[0], -180, 180)
       if (longitudeEast < longitudeWest) {
         longitudeEast += 360
       }
@@ -287,7 +275,7 @@ module.exports = function OpenlayersMap(
         north: this.limit(extent[3], -90, 90),
         east: longitudeEast,
         south: this.limit(extent[1], -90, 90),
-        west: this.limit(longitudeWest, -180, 180),
+        west: longitudeWest,
       }
     },
     overlayImage: function(model) {

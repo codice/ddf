@@ -13,10 +13,11 @@
  *
  **/
 /*global require*/
+import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
+
 const Backbone = require('backbone')
 const MetacardModel = require('../../../js/model/Metacard.js')
 const mtgeo = require('mt-geo')
-const Common = require('../../../js/Common.js')
 const usngs = require('usng.js')
 const converter = new usngs.Converter()
 const usngPrecision = 6
@@ -54,7 +55,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set({
       mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
       mouseLon: Number(
-        Common.wrapMapCoordinates(coordinates.lon, [-180, 180]).toFixed(6)
+        wrapNum(coordinates.lon, -180, 180).toFixed(6)
       ),
     })
   },
