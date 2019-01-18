@@ -54,8 +54,14 @@ var Controller = CommonLayerController.extend({
     return this.map
   },
   initLayer: function(model) {
-    var type = imageryProviderTypes[model.get('type')]
-    var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid')
+    const type = imageryProviderTypes[model.get('type')]
+    const initObj = _.omit(
+      model.attributes,
+      'type',
+      'label',
+      'index',
+      'modelCid'
+    )
 
     if (model.get('type') === 'WMT') {
       /* If matrixSet is present (OpenLayers WMTS keyword) set tileMatrixSetID (Cesium WMTS keyword) */
@@ -68,7 +74,7 @@ var Controller = CommonLayerController.extend({
       }
     }
 
-    var provider = new type(initObj)
+    const provider = new type(initObj)
 
     /*
       Optionally add this provider as a TrustedServer. This sets withCredentials = true
@@ -76,8 +82,8 @@ var Controller = CommonLayerController.extend({
     */
     if (model.get('withCredentials')) {
       const url = require('url')
-      var parsedUrl = url.parse(provider.url)
-      var port = parsedUrl.port
+      const parsedUrl = url.parse(provider.url)
+      let port = parsedUrl.port
       if (!port) {
         port =
           parsedUrl.protocol === 'https:'
@@ -102,14 +108,14 @@ var Controller = CommonLayerController.extend({
     }
   },
   setAlpha: function(model) {
-    var layer = this.layerForCid[model.id]
+    const layer = this.layerForCid[model.id]
     layer.alpha = model.get('alpha')
   },
   setShow: function(model) {
     if (!this.layerForCid[model.id]) {
       this.initLayer(model)
     }
-    var layer = this.layerForCid[model.id]
+    const layer = this.layerForCid[model.id]
     layer.show = model.shouldShowLayer()
   },
   /*
