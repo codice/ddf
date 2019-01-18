@@ -18,12 +18,11 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
-import org.apache.commons.io.monitor.FileAlterationObserver;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   private DurableFileAlterationListener listener;
 
-  private FileAlterationObserver observer;
+  private AsyncFileAlterationObserver observer;
 
   DurableFileSystemFileConsumer(
       GenericFileEndpoint<File> endpoint,
@@ -40,7 +39,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     if (observer != null) {
       observer.addListener(listener);
       observer.checkAndNotify();
-      observer.removeListener(listener);
+      observer.removeListener();
       fileSystemPersistenceProvider.store(sha1, observer);
       return true;
     } else {
@@ -55,9 +54,11 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     }
     if (observer == null && fileName != null) {
       if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
-        observer = (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
+        observer =
+            (AsyncFileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
+        observer.clearCache();
       } else {
-        observer = new FileAlterationObserver(new File(fileName));
+        observer = new AsyncFileAlterationObserver(new File(fileName));
       }
     }
   }
@@ -65,9 +66,6 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   @Override
   public void shutdown() throws Exception {
     super.shutdown();
-    if (observer != null) {
-      observer.destroy();
-    }
     listener.destroy();
   }
 }
