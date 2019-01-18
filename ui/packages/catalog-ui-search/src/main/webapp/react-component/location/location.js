@@ -74,11 +74,26 @@ const LocationInput = props => {
   )
 }
 
+const ddValidators = {
+  lat: value => value <= 90 && value >= -90,
+  lon: value => value <= 180 && value >= -180,
+  north: value => value <= 90 && value >= -90,
+  west: value => value <= 180 && value >= -180,
+  south: value => value <= 90 && value >= -90,
+  east: value => value <= 180 && value >= -180,
+}
+
 module.exports = ({ state, setState, options }) => (
   <LocationInput
     {...state}
     onDraw={options.onDraw}
     setState={setState}
-    cursor={key => value => setState(key, value)}
+    cursor={key => value => {
+      const validateCoords = ddValidators[key]
+      if (typeof validateCoords === 'function' && !validateCoords(value)) {
+        return
+      }
+      setState(key, value)
+    }}
   />
 )

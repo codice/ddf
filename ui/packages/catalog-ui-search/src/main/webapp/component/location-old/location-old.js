@@ -46,18 +46,20 @@ function convertToValid(key, model) {
       parseFloat(key.mapSouth || model.get('mapSouth')) + minimumDifference
   }
   if (key.mapNorth !== undefined) {
-    key.mapNorth = Math.max(-90 + minimumDifference, key.mapNorth)
+    key.mapNorth = Math.max(-90, key.mapNorth)
     key.mapNorth = Math.min(90, key.mapNorth)
   }
   if (key.mapSouth !== undefined) {
     key.mapSouth = Math.max(-90, key.mapSouth)
-    key.mapSouth = Math.min(90 - minimumDifference, key.mapSouth)
+    key.mapSouth = Math.min(90, key.mapSouth)
   }
   if (key.mapWest !== undefined) {
-    key.mapWest = Common.wrapMapCoordinates(key.mapWest, [-180, 180])
+    key.mapWest = Math.max(-180, key.mapWest)
+    key.mapWest = Math.min(180, key.mapWest)
   }
   if (key.mapEast !== undefined) {
-    key.mapEast = Common.wrapMapCoordinates(key.mapEast, [-180, 180])
+    key.mapEast = Math.max(-180, key.mapEast)
+    key.mapEast = Math.min(180, key.mapEast)
   }
   if (key.lat !== undefined) {
     key.lat = Math.max(-90, key.lat)
