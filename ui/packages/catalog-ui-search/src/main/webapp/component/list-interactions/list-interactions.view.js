@@ -88,7 +88,7 @@ module.exports = Marionette.ItemView.extend({
       if (res.headers.get('content-disposition') != null) {
         const data = await res.text()
         const contentType = res.headers.get('content-type')
-        let name = getFilenameFromContentDisposition(
+        const name = getFilenameFromContentDisposition(
           res.headers.get('content-disposition')
         )
 
