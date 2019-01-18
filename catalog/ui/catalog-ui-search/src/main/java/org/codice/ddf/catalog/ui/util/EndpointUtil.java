@@ -136,6 +136,7 @@ public class EndpointUtil {
           .disableHtmlEscaping()
           .serializeNulls()
           .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .setDateFormat(ISO_8601_DATE_FORMAT)
           .create();
 
   private final Random random = new Random();

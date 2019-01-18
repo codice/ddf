@@ -54,6 +54,7 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -454,5 +455,16 @@ public class EndpointUtilTest {
   public void testParseDateWhiteSpaceString() {
     Instant dateConverted = endpointUtil.parseDate("  ");
     assertThat(dateConverted, nullValue());
+  }
+
+  @Test
+  public void testGetJsonUsesIsoDateTimeFormat() {
+    Date date = new Date(DATE_EPOCH);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    String dateIso = sdf.format(date);
+    Map<String, Object> map = new HashMap<>();
+    map.put("date", date);
+    String json = endpointUtil.getJson(map);
+    assertThat(json, is("{\"date\":\"" + dateIso + "\"}"));
   }
 }
