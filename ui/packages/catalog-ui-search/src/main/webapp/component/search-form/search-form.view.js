@@ -92,7 +92,6 @@ module.exports = Marionette.LayoutView.extend({
         if (oldType === 'new-form') {
           this.options.queryModel.trigger('change:type')
         }
-        user.getQuerySettings().set('type', 'new-form')
         this.routeToSearchFormEditor('create')
         break
       case 'basic':
