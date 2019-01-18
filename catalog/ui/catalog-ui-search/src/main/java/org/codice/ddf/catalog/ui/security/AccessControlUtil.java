@@ -13,30 +13,26 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class AccessControlUtil {
+
+  // Should not be instantiated
+  private AccessControlUtil() {}
+
   /**
    * Takes a {@link Metacard} and attribute name and returns a set of the corresponding values if
    * they exist
@@ -44,7 +40,7 @@ public class AccessControlUtil {
   public static final BiFunction<Metacard, String, Set<String>> ATTRIBUTE_TO_SET =
       (metacard, attr) -> new HashSet<>(getValuesOrEmpty(metacard, attr));
 
-  private static BiFunction<Metacard, String, Boolean> metacardDescriptorsContain =
+  private static final BiFunction<Metacard, String, Boolean> METACARD_DESCRIPTORS_CONTAIN =
       (metacard, attr) -> metacard.getAttribute(attr) != null;
 
   /**
@@ -52,43 +48,75 @@ public class AccessControlUtil {
    * control.
    */
   public static final Predicate<Metacard> CONTAINS_ACL_ATTRIBUTES =
-      (metacard) ->
-          metacardDescriptorsContain.apply(metacard, Security.ACCESS_ADMINISTRATORS)
-              || metacardDescriptorsContain.apply(metacard, Security.ACCESS_GROUPS)
-              || metacardDescriptorsContain.apply(metacard, Security.ACCESS_INDIVIDUALS);
+      metacard ->
+          METACARD_DESCRIPTORS_CONTAIN.apply(metacard, Security.ACCESS_ADMINISTRATORS)
+              || METACARD_DESCRIPTORS_CONTAIN.apply(metacard, Security.ACCESS_GROUPS)
+              || METACARD_DESCRIPTORS_CONTAIN.apply(metacard, Security.ACCESS_INDIVIDUALS);
 
   /**
-   * Does a diff between the old set of {@link Metacard} access-administrators with the set to see
-   * if anyone was added or removed.
+   * Does a diff between the old set of {@link Metacard} owners with the new set to see if anyone
+   * was added or removed.
+   */
+  public static final BiFunction<Metacard, Metacard, Boolean> OWNER_HAS_CHANGED =
+      (oldMetacard, newMetacard) ->
+          attributeHasChanged(oldMetacard, newMetacard, Core.METACARD_OWNER);
+
+  /**
+   * Does a diff between the old set of {@link Metacard} access-administrators with the new set to
+   * see if anyone was added or removed.
    */
   public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_ADMIN_HAS_CHANGED =
       (oldMetacard, newMetacard) ->
-          !Sets.symmetricDifference(
-                  ATTRIBUTE_TO_SET.apply(oldMetacard, Security.ACCESS_ADMINISTRATORS),
-                  ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_ADMINISTRATORS))
-              .isEmpty();
+          attributeHasChanged(oldMetacard, newMetacard, Security.ACCESS_ADMINISTRATORS);
 
   /**
-   * Does a diff between the old set of {@link Metacard} access-individuals with the set to see if
-   * anyone was added or removed.
+   * Does a diff between the old set of {@link Metacard} access-individuals with the new set to see
+   * if anyone was added or removed.
    */
   public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_INDIVIDUALS_HAS_CHANGED =
       (oldMetacard, newMetacard) ->
-          !Sets.symmetricDifference(
-                  ATTRIBUTE_TO_SET.apply(oldMetacard, Security.ACCESS_INDIVIDUALS),
-                  ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_INDIVIDUALS))
-              .isEmpty();
+          attributeHasChanged(oldMetacard, newMetacard, Security.ACCESS_INDIVIDUALS);
 
   /**
-   * Does a diff between the old set of {@link Metacard} access-groups with the set to see if a role
-   * was added or removed.
+   * Does a diff between the old set of {@link Metacard} access-individuals_read with the new set to
+   * see if anyone was added or removed.
+   */
+  public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_INDIVIDUALS_READ_HAS_CHANGED =
+      (oldMetacard, newMetacard) ->
+          attributeHasChanged(oldMetacard, newMetacard, Security.ACCESS_INDIVIDUALS_READ);
+
+  /**
+   * Does a diff between the old set of {@link Metacard} access-groups with the new set to see if a
+   * role was added or removed.
    */
   public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_GROUPS_HAS_CHANGED =
       (oldMetacard, newMetacard) ->
-          !Sets.symmetricDifference(
-                  ATTRIBUTE_TO_SET.apply(oldMetacard, Security.ACCESS_GROUPS),
-                  ATTRIBUTE_TO_SET.apply(newMetacard, Security.ACCESS_GROUPS))
-              .isEmpty();
+          attributeHasChanged(oldMetacard, newMetacard, Security.ACCESS_GROUPS);
+
+  /**
+   * Does a diff between the old set of {@link Metacard} access-groups_read with the new set to see
+   * if a role was added or removed.
+   */
+  public static final BiFunction<Metacard, Metacard, Boolean> ACCESS_GROUPS_READ_HAS_CHANGED =
+      (oldMetacard, newMetacard) ->
+          attributeHasChanged(oldMetacard, newMetacard, Security.ACCESS_GROUPS_READ);
+
+  /**
+   * Does a diff between the old set of values on the specified {@link Metacard} {@link Attribute}
+   * with the new set to see if a value was added, removed, or otherwise altered.
+   *
+   * @param oldMetacard the old version of the metacard that contains the attribute to check.
+   * @param newMetacard the new version of the metacard that contains the attribute to check.
+   * @param attribute the name of the attribute to check.
+   * @return true if the given attribute changed across versions of the metacard, false otherwise.
+   */
+  private static boolean attributeHasChanged(
+      Metacard oldMetacard, Metacard newMetacard, String attribute) {
+    return !Sets.symmetricDifference(
+            ATTRIBUTE_TO_SET.apply(oldMetacard, attribute),
+            ATTRIBUTE_TO_SET.apply(newMetacard, attribute))
+        .isEmpty();
+  }
 
   /**
    * Pulls off a list of values associated with a particular attribute on a {@link Metacard}
@@ -151,13 +179,6 @@ public class AccessControlUtil {
     return metacard;
   }
 
-  public static Metacard setAccessAdministrator(Metacard metacard, String subjectIdentity) {
-    metacard.setAttribute(
-        new AttributeImpl(
-            Security.ACCESS_ADMINISTRATORS, Arrays.asList((Serializable) subjectIdentity)));
-    return metacard;
-  }
-
   /** Retrieves owner value associated with a particular {@link Metacard} */
   public static String getOwner(Metacard metacard) {
     List<String> values = getValuesOrEmpty(metacard, Core.METACARD_OWNER);
@@ -174,25 +195,6 @@ public class AccessControlUtil {
       return ImmutableSet.of(values.get(0));
     }
     return Collections.emptySet();
-  }
-
-  /** Creates a metacard from a map of desired attributes - used for testing */
-  @VisibleForTesting
-  public static Metacard metacardFromAttributes(Map<String, Serializable> attributes) {
-    Metacard metacard =
-        new MetacardImpl(
-            new MetacardTypeImpl(
-                "type",
-                ImmutableSet.<AttributeDescriptor>builder()
-                    .addAll(new SecurityAttributes().getAttributeDescriptors())
-                    .build()));
-    attributes
-        .entrySet()
-        .stream()
-        .forEach(
-            entry -> metacard.setAttribute(new AttributeImpl(entry.getKey(), entry.getValue())));
-
-    return metacard;
   }
 
   /** Given a variable number of arguments, checks if any are null */

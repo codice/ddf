@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static org.codice.ddf.catalog.ui.security.AclTestSupport.metacardFromAttributes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
@@ -58,7 +59,7 @@ public class AccessControlPolicyPluginTest {
   @Test
   public void testAdminOnCreateWithAccessControl() throws Exception {
     Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 MOCK_ID,
@@ -90,7 +91,7 @@ public class AccessControlPolicyPluginTest {
   @Test
   public void testPolicyMapForReadPerms() throws Exception {
     Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 MOCK_ID,

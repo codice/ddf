@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static org.codice.ddf.catalog.ui.security.AclTestSupport.metacardFromAttributes;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -22,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
-import ddf.catalog.data.types.Security;
 import org.junit.Test;
 
 public class AccessControlUtilTest {
@@ -30,7 +30,7 @@ public class AccessControlUtilTest {
   @Test
   public void getAccessIndividuals() {
     Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 "123",
@@ -46,7 +46,7 @@ public class AccessControlUtilTest {
   @Test
   public void getAccessGroups() {
     Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 "123",
@@ -61,7 +61,7 @@ public class AccessControlUtilTest {
   @Test
   public void getAccessAdministrators() {
     Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 "123",
@@ -77,9 +77,8 @@ public class AccessControlUtilTest {
   @Test
   public void setOwner() {
     String id = "0";
-
     Metacard before =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 id,
@@ -96,7 +95,7 @@ public class AccessControlUtilTest {
   @Test
   public void getOwner() {
     Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
+        metacardFromAttributes(
             ImmutableMap.of(
                 Core.ID,
                 "123",
@@ -105,25 +104,6 @@ public class AccessControlUtilTest {
                 SecurityAttributes.ACCESS_ADMINISTRATORS,
                 "owner"));
     assertThat(metacard.getAttribute(Core.METACARD_OWNER).getValue(), is("owner"));
-  }
-
-  @Test
-  public void metacardFromAttributes() {
-    Metacard metacard =
-        AccessControlUtil.metacardFromAttributes(
-            ImmutableMap.of(
-                Core.ID,
-                "123",
-                Core.METACARD_OWNER,
-                "owner",
-                SecurityAttributes.ACCESS_ADMINISTRATORS,
-                "owner"));
-
-    assertThat(metacard.getAttribute(Core.ID).getValue(), is("123"));
-    assertThat(metacard.getAttribute(Core.METACARD_OWNER).getValue(), is("owner"));
-    assertThat(
-        metacard.getAttribute(Security.ACCESS_ADMINISTRATORS).getValues(),
-        is(ImmutableList.of("owner")));
   }
 
   @Test
