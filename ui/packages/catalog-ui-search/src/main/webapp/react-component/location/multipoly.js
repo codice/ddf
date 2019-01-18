@@ -3,7 +3,7 @@ const BaseLine = require('./base.line')
 
 const options = {
   label: 'MultiPolygon',
-  geometryKey: 'multipolygon',
+  geometryKey: 'polygon',
   unitKey: 'polygonBufferUnits',
   widthKey: 'polygonBufferWidth',
 }

@@ -633,7 +633,7 @@ module.exports = function OpenlayersMap(
     },
     showMultiPolygonShape: function(locationModel) {
       let lineObject = locationModel
-        .get('multipolygon')
+        .get('polygon')
         .map(poly =>
           poly.map(coordinateSet =>
             coordinateSet.map(pair => convertPointCoordinate(pair))
