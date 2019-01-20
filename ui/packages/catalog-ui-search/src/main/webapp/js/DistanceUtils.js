@@ -23,6 +23,9 @@ var METERS_YARDS = 0.9144
 var METERS_MILES = 1609.344
 var METERS_NAUTICAL_MILES = 1852
 
+/* 6 Digits of precision used because it gives precision up to 
+0.11 meters, which was deemed precise enough for any use case 
+of application */
 var DECIMAL_PRECISION = 6
 
 module.exports = {

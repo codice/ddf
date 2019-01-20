@@ -18,6 +18,7 @@ const _ = require('underscore')
 const wreqr = require('../wreqr.js')
 const maptype = require('../maptype.js')
 const NotificationView = require('./notification.view')
+const DistanceUtils = require('../DistanceUtils.js')
 const DrawingController = require('./drawing.controller')
 
 var Draw = {}
@@ -169,7 +170,7 @@ Draw.BboxView = Marionette.View.extend({
 
     modelProps = _.pick(e, 'north', 'east', 'west', 'south')
     _.each(modelProps, function(val, key) {
-      modelProps[key] = (val * 180) / Math.PI
+      modelProps[key] = DistanceUtils.coordinateRound((val * 180) / Math.PI)
     })
     this.model.set(modelProps)
 

@@ -45,7 +45,7 @@ class LineRenderView extends GeometryRenderView {
 
   drawGeometry = model => {
     const json = model.toJSON()
-    var linePoints = json.line
+    let linePoints = json.line
     const lineWidth =
       DistanceUtils.getDistanceInMeters(
         json.lineWidth,
