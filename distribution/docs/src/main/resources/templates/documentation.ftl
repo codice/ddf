@@ -37,18 +37,6 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/integrating.ftl">
 
-== Endpoints
-
-<#include "build/endpoints.ftl">
-
-== Eventing
-
-<#include "build/eventing.ftl">
-
-== Security Services
-
-<#include "build/security-services.ftl">
-
 :sectnums!:
 == Developing
 :sectnums:
