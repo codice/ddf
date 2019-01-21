@@ -164,11 +164,11 @@
                             <artifactId>iframe-resizer</artifactId>
                             <version>${iframe-resizer.version}</version>
                         </artifactItem>
-                        <dependency>
+                        <artifactItem>
                             <groupId>org.webjars.bower</groupId>
                             <artifactId>blueimp-file-upload</artifactId>
                             <version>9.28.0</version>
-                        </dependency>
+                        </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
                             <artifactId>jquery-ui</artifactId>
