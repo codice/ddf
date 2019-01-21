@@ -70,13 +70,13 @@ module.exports = Marionette.ItemView.extend({
           : null
         }
         {this.model.filter((child) => this.doFilter(child)
-        ).map((model) => {
+        ).map((child) => {
           return (
-            <Item className='is-button'>
+            <Item className='is-button' key={child.get('id')}>
               <MarionetteRegionContainer
                 view={SearchFormView}
                 viewOptions={{
-                  model,
+                  model: child,
                   queryModel: this.options.queryModel,
                   collectionWrapperModel: this.options.collectionWrapperModel
                 }}
