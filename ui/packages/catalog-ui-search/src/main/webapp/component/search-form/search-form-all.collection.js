@@ -76,14 +76,11 @@ module.exports = Backbone.AssociatedModel.extend({
       collectionType: Backbone.Collection.extend({
         model: SearchForm,
         url: './internal/forms/query',
-        initialize: function() {
-          // debugger
-          this.listenTo(this, 'change', () => {console.log('sorting!')})
-        },
+        initialize: function() {},
         comparator: function(a, b) {
           const titleA = a.get('title') || ''
-          const titleB = a.get('title') || ''
-          return titleA.toUpperCase().localeCompare(titleB.toUpperCase())
+          const titleB = b.get('title') || ''
+          return titleA.toLowerCase().localeCompare(titleB.toLowerCase())
         },
       }),
     },
@@ -113,6 +110,7 @@ module.exports = Backbone.AssociatedModel.extend({
         }.bind(this)
       )
     }
+    this.get('searchForms').sort()
   },
   getCollection: function() {
     return this.get('searchForms')

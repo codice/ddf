@@ -42,7 +42,7 @@ module.exports = DropdownView.extend({
     //override if you need more functionality
     this.modelForComponent = new Backbone.Model({
       currentQuery: this.options.modelForComponent,
-      searchForms: SearchFormCollection.getCollection().sort(),
+      searchForms: SearchFormCollection.getCollection(),
     })
   },
   listenToComponent: function() {
