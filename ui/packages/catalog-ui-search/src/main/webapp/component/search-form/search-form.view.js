@@ -38,6 +38,11 @@ const FormContents = styled.span`
   display: block;
 `
 
+const NewFormCircle = styled.div`
+  font-size: calc(3 * ${props => props.theme.largeFontSize});
+  padding-top: ${props => props.theme.minimumSpacing};
+`
+
 const DefaultIcon = styled.div`
   position: absolute;
   right: 0;
@@ -82,12 +87,12 @@ module.exports = Marionette.LayoutView.extend({
       return (
         <div>
           <NewFormCircle className="fa fa-plus-circle" />
-          <h3>New Result Form</h3>
+          <h3 style={{ lineHeight: '2em' }}>New Result Form</h3>
         </div>
       )
     } else if (props.type == 'result') {
       return (
-        <div>
+        <div style={{ position: 'relative', height: '100%'}}>
           <h3 className="search-form-title" data-help={props.title}>
             {props.title}
           </h3>
