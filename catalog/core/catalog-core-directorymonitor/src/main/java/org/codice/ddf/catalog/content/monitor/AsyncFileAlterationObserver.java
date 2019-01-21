@@ -176,16 +176,16 @@ public class AsyncFileAlterationObserver implements Serializable {
    * @param entry The file entry
    */
   private void doDelete(AsyncFileEntry entry) {
+    if (!addToProcessors(entry)) {
+      return;
+    }
+    if (entry.getFromParent() == null) {
+      //  If we don't exist in the parent another thread beat us here.
+      removeFromProcessors(entry);
+      return;
+    }
 
     if (!entry.getFile().isDirectory() && !entry.isDirectory()) {
-      if (!addToProcessors(entry)) {
-        return;
-      }
-      //  If we don't exist in the parent another thread beat us here.
-      if (entry.getFromParent() == null) {
-        removeFromProcessors(entry);
-        return;
-      }
       LOGGER.trace("Sending Delete Request for {}...", entry.getName());
       listener.onFileDelete(
           entry.getFile(), new CompletionSynchronization(entry, this::commitDelete));
@@ -193,6 +193,8 @@ public class AsyncFileAlterationObserver implements Serializable {
     //  Once there are no more children we can delete directories.
     else if (entry.getChildren().isEmpty()) {
       commitDelete(entry, true);
+    } else {
+      removeFromProcessors(entry);
     }
   }
 
@@ -308,7 +310,7 @@ public class AsyncFileAlterationObserver implements Serializable {
   private void removeFromProcessors(AsyncFileEntry entry) {
     synchronized (processing) {
       if (!processing.remove(entry)) {
-        LOGGER.info("Could not remove Entry: {} from list of processing items.", entry);
+        LOGGER.debug("Could not remove Entry: {} from list of processing items.", entry);
       }
     }
   }
