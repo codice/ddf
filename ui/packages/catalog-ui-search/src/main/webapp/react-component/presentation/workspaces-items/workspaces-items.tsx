@@ -110,9 +110,14 @@ const WorkspacesItems = (props: Props) => {
             </Icon>
             <div>New Workspace</div>
           </ModifiedButton>
-          {props.workspaces.filter(workspace => workspace.id).map(workspace => {
+          {props.workspaces.map(workspace => {
             return (
-              <WorkspaceItemRoot key={workspace.id}>
+              <WorkspaceItemRoot
+                key={
+                  workspace.id ||
+                  Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+                }
+              >
                 <WorkspaceItemContainer workspace={workspace} />
               </WorkspaceItemRoot>
             )
