@@ -264,11 +264,10 @@ public class AsyncFileAlterationObserver implements Serializable {
     final File root = rootFile.getFile();
     if (root.exists()) {
       checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()));
-    } else if (rootFile.exists()) {
-      checkAndNotify(rootFile, rootFile.getChildren(), FileUtils.EMPTY_FILE_ARRAY);
     } else {
-      // Didn't exist and still doesn't
-    } //  rootFile.refresh()
+      //  The file doesn't exist.
+      //  We assume this can't happen so this must be a network disconnect.
+    }
 
     /* fire onStop() */
     listener.onStop(this);
