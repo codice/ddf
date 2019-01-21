@@ -123,8 +123,8 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   /**
    * commit:
    *
-   * <p>Tells the AsyncFileEntry that it's successfully been processed and to] put it back into a
-   * non-committed state.
+   * <p>Tells the AsyncFileEntry that it's successfully been processed and to take a new
+   * meta-snapshot
    */
   public void commit() {
     refresh();
