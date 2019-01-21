@@ -281,10 +281,9 @@
             type="Integer"
             default="1048576"/>
 
-        <!--TODO: set default target config-->
         <AD id="maximumNumListItems"
             name="Maximum Number of List Items"
-            description="The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect product upload size, just the maximum size allowed for calls from Intrigue."
+            description="The maximum number of items that can be added to a list."
             type="Integer"
             default="3"/>
 
