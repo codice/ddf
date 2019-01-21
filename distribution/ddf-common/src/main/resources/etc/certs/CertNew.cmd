@@ -34,4 +34,4 @@ set KEYTYPE=JKS
 CALL java -Djavax.net.ssl.keyStore=%KEYFILE% -Djavax.net.ssl.keyStorePassword=%PASSWORD% -Djavax.net.ssl.keyStoreType=%KEYTYPE% -jar %JARFILE% %*
 
 echo Finished generating certificate for %*
-@echo on
+@echo on
