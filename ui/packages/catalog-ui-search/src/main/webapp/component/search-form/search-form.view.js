@@ -62,7 +62,7 @@ const CustomSearchForm = (props) => {
       <FormContents>{createdOn}</FormContents>
       <FormContents>
         <span className="fa fa-cloud" />
-        {createdBy}
+        {' ' + createdBy}
       </FormContents>
       <span
         className="choice-actions is-button"
@@ -99,7 +99,7 @@ module.exports = Marionette.LayoutView.extend({
           <FormContents>{props.createdOn}</FormContents>
           <FormContents>
             <span className="fa fa-cloud" />
-            {props.createdBy}
+            {' ' + props.createdBy}
           </FormContents>
           <span
             className="choice-actions is-button"
