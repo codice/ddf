@@ -899,6 +899,7 @@ public class AsyncFileAlterationObserverTest {
 
     runThreads(observer::checkAndNotify, threads);
 
+    //  Implementation detail these should operate as a No-OP since the file will be "committed" with these changes.
     Stream.of(grandchildFiles).forEach(f -> assertThat(f.setLastModified(0), is(true)));
 
     fileDelete(grandchildFiles[1]);
@@ -920,7 +921,7 @@ public class AsyncFileAlterationObserverTest {
     Thread.sleep(delay + delayBuf);
 
     verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(grandchildFiles.length * 2 - 5))
+    verify(fileListener, times(grandchildFiles.length))
         .onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(5)).onFileDelete(any(File.class), any(Synchronization.class));
   }

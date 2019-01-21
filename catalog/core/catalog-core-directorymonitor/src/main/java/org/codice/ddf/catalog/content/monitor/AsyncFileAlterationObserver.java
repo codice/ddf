@@ -161,7 +161,7 @@ public class AsyncFileAlterationObserver implements Serializable {
         if (!addToProcessors(entry)) {
           return;
         }
-        if (entry.isCommitted()) {
+        if (!entry.hasChanged()) {
           //  Another thread just committed this. No work is needed.
           removeFromProcessors(entry);
           return;
@@ -200,14 +200,8 @@ public class AsyncFileAlterationObserver implements Serializable {
       if (!addToProcessors(entry)) {
         return;
       }
-      //  Once a delete has been committed it resets the state to have never be committed.
-      //  Thus if this is NOT initially committed, another thread beat us here.
-      if (!entry.isInitCommit()) {
-        //  However, it might be the case that a create failed. If that's the case we should remove
-        // ourselves from
-        //  the parent just in case.
-        entry.getParent().ifPresent(e -> e.removeChild(entry));
-
+      //  If we don't exist in the parent another thread beat us here.
+      if (getFromParent(entry) == null) {
         removeFromProcessors(entry);
         return;
       }
@@ -217,8 +211,7 @@ public class AsyncFileAlterationObserver implements Serializable {
     }
     //  Once there are no more children we can delete directories.
     else if (entry.getChildren().isEmpty()) {
-      entry.destroy();
-      entry.getParent().ifPresent(e -> e.removeChild(entry));
+      commitDelete(entry, true);
     }
   }
 
@@ -255,14 +248,8 @@ public class AsyncFileAlterationObserver implements Serializable {
         c++;
       }
       if (c < files.length && entry.compareToFile(files[c]) == 0) {
-        //  Has the file been committed before? We may have matched it
-        //  but if it doesn't exist downstream then a create would be appropriate
-        if (entry.isInitCommit()) {
-          doMatch(entry);
-          checkAndNotify(entry, entry.getChildren(), listFiles(files[c]));
-        } else {
-          doCreate(entry);
-        }
+        doMatch(entry);
+        checkAndNotify(entry, entry.getChildren(), listFiles(files[c]));
         c++;
       } else {
         //  Do Delete

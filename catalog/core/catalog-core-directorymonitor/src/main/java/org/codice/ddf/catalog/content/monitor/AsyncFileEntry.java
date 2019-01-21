@@ -28,19 +28,12 @@ import javax.validation.constraints.NotNull;
  * <p>The core of this file is based upon {@link org.apache.commons.io.monitor.FileEntry}, modified
  * update only on successful async operations.
  *
- * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots when
- * hasChanged is called. If a change occurs, then the {@link AsyncFileEntry} will enter a
- * non-commited state. A AsyncFileEntry in a non-committed state will always return true on a
- * hasChanged call because it has not been committed. In addition, the AsyncFileEntry's metadata
- * snapshot will NOT update while in a non-committed state to avoid files "showing" they've been
- * updated when the changes haven't gone through yet. Once the changes are committed and finalized
- * then it's up to the user to tell the AsyncFileEntry that the changes were successful by
- * calling commit().
+ * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots taken when
+ * commit() is called. hasChanged will compare the current value of the file to the last time it's been committed,
+ * or the snapshot.
  *
- * @apiNote Once hasChanged() returns true it's up to the user to put the {@link AsyncFileEntry}
- *     back into a finalized state by calling commit().
- * @apiNote isInitCommit() will tell if the file has ever been committed. Useful for sending
- *     additional create operations even if it appears from a child.
+ * @apiNote once hasChanged returns true, the user must commit the file once it's finished processing to
+ * create a new meta-snapshot.
  */
 public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> {
 
@@ -49,10 +42,6 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   private long lastModified;
   private boolean directory;
   private long length;
-
-  private boolean committed = false;
-
-  private boolean initCommit = false;
 
   private final Set<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
 
@@ -74,39 +63,22 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
     name = contentFile.getName();
     exists = contentFile.exists();
     lastModified = exists ? contentFile.lastModified() : 0;
-    directory = exists && contentFile.isDirectory();
-    length = exists && !directory ? contentFile.length() : 0;
+    directory = contentFile.exists() && contentFile.isDirectory();
+    length = getLength();
   }
 
   public synchronized boolean hasChanged() {
 
-    //  If the file is not committed it "hasChanged" and we don't want to update the snapshot (case
-    // it changes again)
-    if (!committed) {
-      return true;
-    }
-
-    // cache original values
-    final boolean origExists = exists;
-    final long origLastModified = lastModified;
-    final boolean origDirectory = directory;
-    final long origLength = length;
-
-    // refresh the values
-    refresh();
+    final boolean snapExist = contentFile.exists();
+    final long snapLastModified = snapExist ? contentFile.lastModified() : 0;
+    final boolean snapOrigDirectory = snapExist && contentFile.isDirectory();
+    final long snapLength = getLength();
 
     //  Checks to see if the file has been changed
-    boolean changed =
-        exists != origExists
-            || lastModified != origLastModified
-            || directory != origDirectory
-            || length != origLength;
-
-    if (changed) {
-      committed = false;
-    }
-
-    return changed;
+    return exists != snapExist
+            || lastModified != snapLastModified
+            || directory != snapOrigDirectory
+            || length != snapLength;
   }
 
   public String getName() {
@@ -154,27 +126,11 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
    * non-committed state.
    */
   public void commit() {
-    committed = true;
-    initCommit = true;
-  }
-
-  public boolean isCommitted() {
-    return committed;
-  }
-
-  /**
-   * isInitCommit:
-   *
-   * <p>Checks to see if the file has ever been committed
-   *
-   * @return true if commit() has been called.
-   */
-  public boolean isInitCommit() {
-    return initCommit;
+    refresh();
   }
 
   public long getLength() {
-    return contentFile.length();
+    return contentFile.exists() && !contentFile.isDirectory() ? contentFile.length() : 0;
   }
 
   public boolean exists() {
@@ -237,6 +193,5 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
 
   public void destroy() {
     exists = false;
-    initCommit = false;
   }
 }
