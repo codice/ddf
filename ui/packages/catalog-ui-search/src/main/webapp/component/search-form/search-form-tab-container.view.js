@@ -36,14 +36,13 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onRender: function() {
-    SearchFormCollection.initialize()
     this.collectionView.show(
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
         collectionWrapperModel: this.searchFormCollection,
         queryModel: this.model,
         filter: function(child)  { return child.get('createdBy') === user.getEmail() },
-        showNewForm: true
+        showNewForm: true,
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)
