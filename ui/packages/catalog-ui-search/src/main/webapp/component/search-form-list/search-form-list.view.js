@@ -20,20 +20,36 @@ const React = require('react')
 const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
+import styled from '../../react-component/styles/styled-components'
+
+const ListItem = styled.div`
+  cursor: pointer;
+  display: block;
+  line-height: ${props => props.theme.minimumButtonSize};
+  padding: 0px ${props => props.theme.largeSpacing};
+`
 
 const NoSearchForms = () => {
-  return <div>No search forms are available</div>
+  return <ListItem>No search forms are available</ListItem>
+}
+
+const SearchFormItem = ({ id, title, onClick }) => {
+  return (
+    <ListItem onClick={onClick}>
+      {title}
+    </ListItem>
+  )
 }
 
 module.exports = Marionette.ItemView.extend({
-  tagName: CustomElements.register('search-form-list'),
   className: 'composed-menu',
   template(props) {
     return (
       <React.Fragment>
         {props.length === 0 ? <NoSearchForms /> : null}
         {props.map(form => (
-          <div
+          <SearchFormItem
+            title={form.title}
             key={form.id}
             onClick={() =>
               this.changeView(
@@ -41,9 +57,7 @@ module.exports = Marionette.ItemView.extend({
                 this.model.get('currentQuery')
               )
             }
-          >
-            {form.title}
-          </div>
+          />
         ))}
       </React.Fragment>
     )
