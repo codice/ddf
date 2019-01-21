@@ -24,7 +24,7 @@ The Registry Store is installed by default with the ${ddf-registry} application.
 .Configuring Registry Store
 To configure the Registry store:
 
-. Navigate to the ${admin-console}.
+. Navigate to the *${admin-console}*.
 . Select *${ddf-registry}*.
 . Select the *Remote Registries* Tab and click the *Add* button.
 .. ALTERNATIVELY: Select the *Configuration* Tab and select *Registry Store*.
