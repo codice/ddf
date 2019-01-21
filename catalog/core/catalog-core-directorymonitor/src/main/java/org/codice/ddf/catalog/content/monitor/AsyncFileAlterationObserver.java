@@ -97,26 +97,19 @@ public class AsyncFileAlterationObserver implements Serializable {
   /**
    * Fire directory/file created events to the registered listeners.
    *
-   * @param initEntry The file entry
+   * @param entry The file entry
    */
-  private void doCreate(AsyncFileEntry initEntry) {
+  private void doCreate(AsyncFileEntry entry) {
 
-    if (!addToProcessors(initEntry)) {
+    if (!addToProcessors(entry)) {
       return;
     }
 
-    AsyncFileEntry temp = getFromParent(initEntry);
-    //  Add only if we aren't already added to the parent
-    if (temp == null) {
-      initEntry.getParent().ifPresent(e -> e.addChild(initEntry));
-    }
+    AsyncFileEntry temp = getFromParent(entry);
 
-    //  Get the real entry, either from the parent or what we were passed.
-    final AsyncFileEntry entry = (temp != null) ? temp : initEntry;
-
-    if (entry.isInitCommit()) {
+    if (temp != null) {
       //  Someone already committed us. so we're done.
-      removeFromProcessors(initEntry);
+      removeFromProcessors(entry);
       return;
     }
 
@@ -129,12 +122,13 @@ public class AsyncFileAlterationObserver implements Serializable {
     } else {
       // Directories are always committed and added to the parent IF they
       // don't already exist
-      entry.commit();
 
       File[] children = listFiles(entry.getFile());
       for (File child : children) {
         doCreate(new AsyncFileEntry(entry, child));
       }
+
+      commitCreate(entry, true);
     }
   }
 
@@ -149,6 +143,7 @@ public class AsyncFileAlterationObserver implements Serializable {
     LOGGER.debug("commitCreate({},{}): Starting...", entry.getName(), success);
     if (success) {
       entry.commit();
+      entry.getParent().ifPresent(e -> e.addChild(entry));
     }
     removeFromProcessors(entry);
   }
