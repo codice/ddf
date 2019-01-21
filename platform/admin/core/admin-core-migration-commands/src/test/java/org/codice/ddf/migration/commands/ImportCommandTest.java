@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.migration.commands;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import java.util.Collections;
 import java.util.Set;
 import org.hamcrest.Matchers;
@@ -59,5 +64,38 @@ public class ImportCommandTest extends AbstractMigrationCommandSupport {
         .doImport(Mockito.eq(exportedPath), mandatoryMigratables.capture(), Mockito.notNull());
     verifyPostedEvent("import");
     Assert.assertThat(mandatoryMigratables.getValue(), Matchers.contains("ddf.profile"));
+  }
+
+  @Test
+  public void testConfirmWarning() throws Exception {
+    when(session.readLine(anyString(), isNull(Character.class))).thenReturn("yes");
+
+    initCommand(new ImportCommand(service, security, eventAdmin, session, false, false));
+    command.executeWithSubject();
+
+    Mockito.verify(service)
+        .doImport(
+            Mockito.eq(exportedPath), Mockito.same(Collections.emptySet()), Mockito.notNull());
+    verifyPostedEvent("import");
+  }
+
+  @Test
+  public void testCancelAfterWarning() throws Exception {
+    when(session.readLine(anyString(), isNull(Character.class))).thenReturn("no");
+
+    initCommand(new ImportCommand(service, security, eventAdmin, session, false, false));
+    command.executeWithSubject();
+
+    verifyZeroInteractions(service);
+  }
+
+  @Test
+  public void testInvalidInputWarning() throws Exception {
+    when(session.readLine(anyString(), isNull(Character.class))).thenReturn("not yes or no");
+
+    initCommand(new ImportCommand(service, security, eventAdmin, session, false, false));
+    command.executeWithSubject();
+
+    verifyZeroInteractions(service);
   }
 }
