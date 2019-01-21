@@ -59,7 +59,7 @@ module.exports = Marionette.ItemView.extend({
     return (
       <React.Fragment>
         { this.options.showNewForm ? 
-          <NewSearchForm onClick={ this.handleNewForm }/>
+          <NewSearchForm onClick={ this.handleNewForm.bind(this) }/>
           : null
         }
         {this.model.filter((child) => this.doFilter(child)

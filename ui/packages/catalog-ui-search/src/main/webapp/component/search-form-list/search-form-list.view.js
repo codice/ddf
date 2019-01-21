@@ -21,12 +21,20 @@ const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
 
+const NoSearchForms = () => {
+  return <div>No search forms are available</div>
+}
+
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('search-form-list'),
   className: 'composed-menu',
   template(props) {
     return (
       <React.Fragment>
+        { props.length === 0
+          ? <NoSearchForms/>
+          : null
+        }
         {props.map(form => (
           <div
             key={form.id}
