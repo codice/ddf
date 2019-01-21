@@ -59,7 +59,7 @@ module.exports = Marionette.ItemView.extend({
   initialize: function(options) {
     this.model = this.options.collection
     this.filter = this.options.filter
-    this.listenTo(this.model, 'add', this.render)
+    this.listenTo(this.model, 'add remove', this.render)
   },
   template() {
     return (

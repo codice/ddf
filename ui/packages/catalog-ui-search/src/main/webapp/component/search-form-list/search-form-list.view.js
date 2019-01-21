@@ -33,7 +33,7 @@ const NoSearchForms = () => {
   return <ListItem>No search forms are available</ListItem>
 }
 
-const SearchFormItem = ({ id, title, onClick }) => {
+const SearchFormItem = ({ title, onClick }) => {
   return (
     <ListItem onClick={onClick}>
       {title}
