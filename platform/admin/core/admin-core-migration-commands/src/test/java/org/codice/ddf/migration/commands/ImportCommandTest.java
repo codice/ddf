@@ -26,7 +26,7 @@ public class ImportCommandTest extends AbstractMigrationCommandSupport {
 
   @Before
   public void setup() throws Exception {
-    initCommand(new ImportCommand(service, security, eventAdmin, session, false));
+    initCommand(new ImportCommand(service, security, eventAdmin, session, false, true));
   }
 
   @Test
@@ -49,7 +49,7 @@ public class ImportCommandTest extends AbstractMigrationCommandSupport {
 
   @Test
   public void testExecuteWithSubjectAndProfileEnabled() throws Exception {
-    initCommand(new ImportCommand(service, security, eventAdmin, session, true));
+    initCommand(new ImportCommand(service, security, eventAdmin, session, true, true));
 
     command.executeWithSubject();
 
