@@ -90,6 +90,7 @@
                 </list>
             </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <entry key="displayName" value="CSW Record XML"/>
         </service-properties>
     </service>
 
@@ -111,6 +112,7 @@
             <entry key="id" value="gmd:MD_Metadata"/>
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
+            <entry key="displayName" value="GMD Metadata"/>
         </service-properties>
     </service>
 
@@ -196,6 +198,8 @@
                 </list>
             </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <entry key="export-resultset" value="true"/>
+            <entry key="displayName" value="CSW Record XML"/>
         </service-properties>
     </service>
 

@@ -23,6 +23,7 @@
         <service-properties>
             <entry key="id" value="preview"/>
             <entry key="mime-type" value="text/html"/>
+            <entry key="displayName" value="Preview"/>
         </service-properties>
     </service>
 

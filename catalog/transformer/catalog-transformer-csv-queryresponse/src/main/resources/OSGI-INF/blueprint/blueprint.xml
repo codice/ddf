@@ -28,6 +28,7 @@
                     <value>text/csv</value>
                 </list>
             </entry>
+            <entry key="displayName" value="CSV"/>
         </service-properties>
     </service>
 

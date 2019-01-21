@@ -68,7 +68,8 @@ public class CqlQueryResponse {
       long elapsedTime,
       boolean normalize,
       FilterAdapter filterAdapter,
-      ActionRegistry actionRegistry) {
+      ActionRegistry actionRegistry,
+      List<Map<String, String>> transformers) {
     this.id = id;
 
     this.queryResponse = queryResponse;
@@ -132,6 +133,7 @@ public class CqlQueryResponse {
                         normalize,
                         filterAdapter,
                         actionRegistry))
+            .map(cqlResult -> new CqlResult(cqlResult, transformers))
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));

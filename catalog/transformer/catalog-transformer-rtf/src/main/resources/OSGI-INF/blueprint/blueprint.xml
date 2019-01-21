@@ -25,6 +25,7 @@
             <entry key="id" value="rtf"/>
             <entry key="shortname" value="rtf"/>
             <entry key="mime-type" value="application/rtf"/>
+            <entry key="displayName" value="RTF"/>
         </service-properties>
     </service>
 
@@ -34,6 +35,7 @@
             <entry key="shortname" value="rtf"/>
             <entry key="mime-type" value="application/rtf"/>
             <entry key="export-resultset" value="true"/>
+            <entry key="displayName" value="RTF"/>
         </service-properties>
     </service>
 

@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import static org.codice.ddf.catalog.ui.transformer.TransformerDescriptors.getTransformerDescriptor;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.Action;
@@ -98,6 +100,24 @@ public class CqlResult {
 
   private boolean isResourceLocal;
 
+  public CqlResult(CqlResult result, List<Map<String, String>> transformers) {
+    this.hasThumbnail = result.getHasThumbnail();
+    this.isResourceLocal = result.getIsResourceLocal();
+    this.distance = result.getDistance();
+    this.relevance = result.getRelevance();
+    this.metacard = result.getMetacard();
+    this.actions =
+        result
+            .getActions()
+            .stream()
+            .map(
+                cqlAction ->
+                    new CqlAction(
+                        cqlAction,
+                        getDisplayName(transformers, cqlAction.getId(), cqlAction.getTitle())))
+            .collect(Collectors.toList());
+  }
+
   public CqlResult(
       Result result,
       Set<SearchTerm> searchTerms,
@@ -126,8 +146,23 @@ public class CqlResult {
       countMatches(searchTerms, mc);
     }
 
-    actions = actionRegistry.list(result.getMetacard()).stream().collect(Collectors.toList());
+    actions =
+        actionRegistry
+            .list(result.getMetacard())
+            .stream()
+            .map(cqlAction -> new CqlAction(cqlAction, cqlAction.getId()))
+            .collect(Collectors.toList());
     metacard = metacardToMap(result);
+  }
+
+  private String getDisplayName(List<Map<String, String>> transformers, String id, String title) {
+    Map<String, String> transformerDescriptor = getTransformerDescriptor(transformers, id);
+
+    if (transformerDescriptor != null) {
+      return transformerDescriptor.get("displayName");
+    }
+
+    return title.replaceFirst("^Export( as)?\\s+\\b", "");
   }
 
   private void countMatches(Set<SearchTerm> searchTerms, Metacard mc) {

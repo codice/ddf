@@ -31,6 +31,7 @@
             <!-- shortname only exists for backwards compatibility -->
             <entry key="shortname" value="thumbnail"/>
 			<entry key="mime-type" value="image/jpeg"/>
+			<entry key="displayName" value="Thumbnail"/>
 		</service-properties>
 	</service>
 
