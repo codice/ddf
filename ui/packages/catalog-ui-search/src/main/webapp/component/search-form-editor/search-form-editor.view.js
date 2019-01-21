@@ -100,7 +100,11 @@ module.exports = Marionette.LayoutView.extend({
       this.model = new QueryModel.Model()
     } else {
       this.model = collection.get(id)
-      this.model.set(this.model.transformToQueryStructure())
+      if (this.model) {
+        this.model.set(this.model.transformToQueryStructure())
+      } else {
+        return
+      }
     }
     this.map.show(
       new MapView({
