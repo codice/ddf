@@ -76,25 +76,6 @@ public class AsyncFileAlterationObserver implements Serializable {
   }
 
   /**
-   * getFromParent:
-   *
-   * gets the {@link AsyncFileEntry} from the parent if it exists.
-   *
-   * @param entry the {@link AsyncFileEntry} to check
-   *
-   * @return the entry from the parent or null.
-   */
-  private AsyncFileEntry getFromParent(AsyncFileEntry entry) {
-    if (entry.getParent().isPresent()) {
-      if (entry.getParent().get().hasChild(entry)) {
-        List<AsyncFileEntry> children = entry.getParent().get().getChildren();
-        return children.get(children.indexOf(entry));
-      }
-    }
-    return null;
-  }
-
-  /**
    * Fire directory/file created events to the registered listeners.
    *
    * @param entry The file entry
@@ -105,7 +86,7 @@ public class AsyncFileAlterationObserver implements Serializable {
       return;
     }
 
-    AsyncFileEntry temp = getFromParent(entry);
+    AsyncFileEntry temp = entry.getFromParent();
 
     if (temp != null) {
       //  Someone already committed us. so we're done.
@@ -201,7 +182,7 @@ public class AsyncFileAlterationObserver implements Serializable {
         return;
       }
       //  If we don't exist in the parent another thread beat us here.
-      if (getFromParent(entry) == null) {
+      if (entry.getFromParent() == null) {
         removeFromProcessors(entry);
         return;
       }

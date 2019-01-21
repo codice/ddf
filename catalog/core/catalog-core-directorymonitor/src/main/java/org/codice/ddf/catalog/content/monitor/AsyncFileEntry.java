@@ -194,4 +194,21 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   public void destroy() {
     exists = false;
   }
+
+  /**
+   * getFromParent:
+   *
+   * gets the {@link AsyncFileEntry} from the parent if it exists.
+   *
+   * @return the entry from the parent or null.
+   */
+  public AsyncFileEntry getFromParent() {
+    if (getParent().isPresent()) {
+      if (getParent().get().hasChild(this)) {
+        List<AsyncFileEntry> children = getParent().get().getChildren();
+        return children.get(children.indexOf(this));
+      }
+    }
+    return null;
+  }
 }
