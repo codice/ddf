@@ -46,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
             user.canRead(child) &&
             child.get('createdBy') !== 'system'
           )
-        }
+        },
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)

@@ -31,10 +31,7 @@ module.exports = Marionette.ItemView.extend({
   template(props) {
     return (
       <React.Fragment>
-        { props.length === 0
-          ? <NoSearchForms/>
-          : null
-        }
+        {props.length === 0 ? <NoSearchForms /> : null}
         {props.map(form => (
           <div
             key={form.id}

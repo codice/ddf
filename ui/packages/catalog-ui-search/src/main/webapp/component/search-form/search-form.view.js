@@ -49,16 +49,12 @@ const DefaultIcon = styled.div`
   top: 0;
 `
 
-const CustomSearchForm = (props) => {
+const CustomSearchForm = props => {
   const { title, createdOn, createdBy, isDefault } = props
   return (
     <div style={{ position: 'relative', height: '100%' }}>
-      <FormTitle data-help={title}>
-        {title}
-      </FormTitle>
-      {isDefault
-        ? <DefaultIcon className="fa fa-star" />
-        : null}
+      <FormTitle data-help={title}>{title}</FormTitle>
+      {isDefault ? <DefaultIcon className="fa fa-star" /> : null}
       <FormContents>{createdOn}</FormContents>
       <FormContents>
         <span className="fa fa-cloud" />
@@ -81,7 +77,8 @@ module.exports = Marionette.LayoutView.extend({
         <CustomSearchForm
           {...props}
           isDefault={isDefault}
-          onClick={this.changeView}/>
+          onClick={this.changeView}
+        />
       )
     } else if (props.type === 'new-result') {
       return (
@@ -92,7 +89,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     } else if (props.type == 'result') {
       return (
-        <div style={{ position: 'relative', height: '100%'}}>
+        <div style={{ position: 'relative', height: '100%' }}>
           <h3 className="search-form-title" data-help={props.title}>
             {props.title}
           </h3>
@@ -129,11 +126,7 @@ module.exports = Marionette.LayoutView.extend({
   initialize: function() {
     this.listenTo(this.model, 'change:type', this.changeView)
     this.handleDefault()
-    this.listenTo(
-      user.getQuerySettings(),
-      'change:template',
-      this.render
-    )
+    this.listenTo(user.getQuerySettings(), 'change:template', this.render)
   },
   serializeData: function() {
     const { createdOn, ...json } = this.model.toJSON()
@@ -212,10 +205,7 @@ module.exports = Marionette.LayoutView.extend({
     this.triggerCloseDropdown()
   },
   handleDefault: function() {
-    this.$el.toggleClass(
-      'is-default',
-      
-    )
+    this.$el.toggleClass('is-default')
   },
   triggerCloseDropdown: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())

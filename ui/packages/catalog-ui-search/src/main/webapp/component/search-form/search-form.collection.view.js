@@ -20,7 +20,9 @@ const CustomElements = require('../../js/CustomElements')
 const user = require('../singletons/user-instance')
 const wreqr = require('../../exports/wreqr.js')
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-import styled, { ThemeProvider } from '../../react-component/styles/styled-components'
+import styled, {
+  ThemeProvider,
+} from '../../react-component/styles/styled-components'
 
 const Item = styled.div`
   display: inline-block;
@@ -40,7 +42,11 @@ const NewFormCircle = styled.div`
 
 const NewSearchForm = ({ onClick }) => {
   return (
-    <Item className='is-button' style={{ textAlign: 'center' }} onClick={onClick}>
+    <Item
+      className="is-button"
+      style={{ textAlign: 'center' }}
+      onClick={onClick}
+    >
       <NewFormCircle className="fa fa-plus-circle" />
       <h3 style={{ lineHeight: '2em' }}>New Search Form</h3>
     </Item>
@@ -58,23 +64,21 @@ module.exports = Marionette.ItemView.extend({
   template() {
     return (
       <React.Fragment>
-        { this.options.showNewForm ? 
-          <NewSearchForm onClick={ this.handleNewForm.bind(this) }/>
-          : null
-        }
-        {this.model.filter((child) => this.doFilter(child)
-        ).map((child) => {
+        {this.options.showNewForm ? (
+          <NewSearchForm onClick={this.handleNewForm.bind(this)} />
+        ) : null}
+        {this.model.filter(child => this.doFilter(child)).map(child => {
           return (
-            <Item className='is-button' key={child.get('id')}>
+            <Item className="is-button" key={child.get('id')}>
               <MarionetteRegionContainer
                 view={SearchFormView}
                 viewOptions={{
                   model: child,
                   queryModel: this.options.queryModel,
-                  collectionWrapperModel: this.options.collectionWrapperModel
+                  collectionWrapperModel: this.options.collectionWrapperModel,
                 }}
               />
-             </Item>
+            </Item>
           )
         })}
       </React.Fragment>
@@ -91,7 +95,7 @@ module.exports = Marionette.ItemView.extend({
   doFilter(child) {
     if (typeof this.options.filter !== 'function') {
       // Show all children if no filter is provided
-      return true;
+      return true
     }
     return this.options.filter(child)
   },

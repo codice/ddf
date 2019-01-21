@@ -40,18 +40,18 @@ module.exports = Marionette.ItemView.extend({
   template() {
     return (
       <React.Fragment>
-        { this.model.map((child) => {
+        {this.model.map(child => {
           return (
-            <Item className='is-button' key={child.cid}>
+            <Item className="is-button" key={child.cid}>
               <MarionetteRegionContainer
                 view={ResultFormView}
                 viewOptions={{
                   model: child,
                   queryModel: this.options.queryModel,
-                  collectionWrapperModel: this.options.collectionWrapperModel
+                  collectionWrapperModel: this.options.collectionWrapperModel,
                 }}
               />
-             </Item>
+            </Item>
           )
         })}
       </React.Fragment>
