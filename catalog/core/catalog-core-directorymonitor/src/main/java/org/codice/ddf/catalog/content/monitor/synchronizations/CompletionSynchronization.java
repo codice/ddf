@@ -31,7 +31,7 @@ public class CompletionSynchronization implements Synchronization {
   private BiConsumer<AsyncFileEntry, Boolean> cb;
 
   public CompletionSynchronization(
-          AsyncFileEntry entry, BiConsumer<AsyncFileEntry, Boolean> removeFromProcessors) {
+      AsyncFileEntry entry, BiConsumer<AsyncFileEntry, Boolean> removeFromProcessors) {
     contentFile = entry;
     cb = removeFromProcessors;
   }

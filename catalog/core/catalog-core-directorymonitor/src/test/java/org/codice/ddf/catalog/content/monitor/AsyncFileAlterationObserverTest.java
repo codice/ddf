@@ -899,7 +899,8 @@ public class AsyncFileAlterationObserverTest {
 
     runThreads(observer::checkAndNotify, threads);
 
-    //  Implementation detail these should operate as a No-OP since the file will be "committed" with these changes.
+    //  Implementation detail these should operate as a No-OP since the file will be "committed"
+    // with these changes.
     Stream.of(grandchildFiles).forEach(f -> assertThat(f.setLastModified(0), is(true)));
 
     fileDelete(grandchildFiles[1]);

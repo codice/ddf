@@ -221,7 +221,7 @@ public class AsyncFileAlterationObserver implements Serializable {
    * @param files The list of current files (in sorted order)
    */
   private void checkAndNotify(
-          final AsyncFileEntry parent, final List<AsyncFileEntry> previous, final File[] files) {
+      final AsyncFileEntry parent, final List<AsyncFileEntry> previous, final File[] files) {
     int c = 0;
     for (final AsyncFileEntry entry : previous) {
       while (c < files.length && entry.compareToFile(files[c]) > 0) {

@@ -28,12 +28,12 @@ import javax.validation.constraints.NotNull;
  * <p>The core of this file is based upon {@link org.apache.commons.io.monitor.FileEntry}, modified
  * update only on successful async operations.
  *
- * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots taken when
- * commit() is called. hasChanged will compare the current value of the file to the last time it's been committed,
- * or the snapshot.
+ * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots taken
+ * when commit() is called. hasChanged will compare the current value of the file to the last time
+ * it's been committed, or the snapshot.
  *
- * @apiNote once hasChanged returns true, the user must commit the file once it's finished processing to
- * create a new meta-snapshot.
+ * @apiNote once hasChanged returns true, the user must commit the file once it's finished
+ *     processing to create a new meta-snapshot.
  */
 public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> {
 
@@ -76,9 +76,9 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
 
     //  Checks to see if the file has been changed
     return exists != snapExist
-            || lastModified != snapLastModified
-            || directory != snapOrigDirectory
-            || length != snapLength;
+        || lastModified != snapLastModified
+        || directory != snapOrigDirectory
+        || length != snapLength;
   }
 
   public String getName() {
@@ -102,9 +102,10 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
    *
    * <p>Checking the network by checking the directory under the file. This works under two
    * assumptions:
+   *
    * <ol>
-   *     <li>The root directory will NOT be deleted</li>
-   *     <li>There will NOT be a semlink to another NFS</li>
+   *   <li>The root directory will NOT be deleted
+   *   <li>There will NOT be a semlink to another NFS
    * </ol>
    */
   public boolean checkNetwork() {
@@ -198,7 +199,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   /**
    * getFromParent:
    *
-   * gets the {@link AsyncFileEntry} from the parent if it exists.
+   * <p>gets the {@link AsyncFileEntry} from the parent if it exists.
    *
    * @return the entry from the parent or null.
    */
