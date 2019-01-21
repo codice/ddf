@@ -25,6 +25,8 @@ var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 var filter = require('../../js/filter.js')
 var cql = require('../../js/cql.js')
 var _ = require('lodash')
+var properties = require('../../js/properties.js')
+var announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-add'),
@@ -51,15 +53,25 @@ module.exports = Marionette.LayoutView.extend({
   },
   addToList: function(e) {
     var listId = $(e.currentTarget).data('id')
-    store
+    const list = store
       .getCurrentWorkspace()
       .get('lists')
       .get(listId)
-      .addBookmarks(
+    const max = properties.maximumNumListItems;
+    const atMax = list.get('list.bookmarks').length >= max
+    if(atMax){
+      announcement.announce({
+        title: 'Error',
+        message: 'Maximum number of items in a list is ' + max,
+        type: 'error',
+      })
+    }else{
+      list.addBookmarks(
         this.model.map(function(result) {
           return result.get('metacard').id
         })
       )
+    }
   },
   onRender: function() {
     this.setupCreateList()

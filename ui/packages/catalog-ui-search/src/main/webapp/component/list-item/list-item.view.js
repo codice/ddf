@@ -26,6 +26,8 @@ var QueryFeedView = require('../query-feed/query-feed.view.js')
 var ListInteractionsView = require('../list-interactions/list-interactions.view.js')
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 var ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js')
+var properties = require('../../js/properties.js')
+var announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-item'),
@@ -140,20 +142,30 @@ module.exports = Marionette.LayoutView.extend({
     e.stopPropagation()
   },
   triggerAdd(e) {
-    lightboxInstance.model.updateTitle('Add List Items')
-    lightboxInstance.model.open()
-    lightboxInstance.showContent(
-      new ListAddTabsView({
-        extraHeaders: {
-          'List-ID': this.model.attributes.id,
-          'List-Type': this.model.get('list.icon'),
-        },
-        url: './internal/list/import',
-        handleUploadSuccess: file => this.handleUploadSuccess(file),
-        handleNewMetacard: id => this.handleNewMetacard(id),
-        close: () => lightboxInstance.close(),
+    const max = properties.maximumNumListItems;
+    const atMax = this.model.get('list.bookmarks').length >= max
+    if(atMax){
+      announcement.announce({
+        title: 'Error',
+        message: 'Maximum number of items in a list is ' + max,
+        type: 'error',
       })
-    )
+    } else {
+      lightboxInstance.model.updateTitle('Add List Items')
+      lightboxInstance.model.open()
+      lightboxInstance.showContent(
+        new ListAddTabsView({
+          extraHeaders: {
+            'List-ID': this.model.attributes.id,
+            'List-Type': this.model.get('list.icon'),
+          },
+          url: './internal/list/import',
+          handleUploadSuccess: file => this.handleUploadSuccess(file),
+          handleNewMetacard: id => this.handleNewMetacard(id),
+          close: () => lightboxInstance.close(),
+        })
+      )
+    }
     e.stopPropagation()
   },
   handleNewMetacard(id) {

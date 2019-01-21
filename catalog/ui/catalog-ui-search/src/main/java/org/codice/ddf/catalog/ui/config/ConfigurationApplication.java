@@ -169,6 +169,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private int maximumUploadSize = 1_048_576;
 
+  private int maximumNumListItems = 3;
+
   private List<String> readOnly =
       ImmutableList.of(
           "checksum",
@@ -409,6 +411,14 @@ public class ConfigurationApplication implements SparkApplication {
     return maximumUploadSize;
   }
 
+  public int getMaximumNumListItems() {
+    return maximumNumListItems;
+  }
+
+  public void setMaximumNumListItems(int maximumNumListItems) {
+    this.maximumNumListItems = maximumNumListItems;
+  }
+
   public void setAttributeAliases(List<String> attributeAliases) {
     this.attributeAliases = parseAttributeAndValuePairs(attributeAliases);
   }
@@ -562,6 +572,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("basicSearchMatchType", basicSearchMatchType);
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
     config.put("i18n", i18n);
+    config.put("maximumNumListItems", maximumNumListItems);
     return config;
   }
 

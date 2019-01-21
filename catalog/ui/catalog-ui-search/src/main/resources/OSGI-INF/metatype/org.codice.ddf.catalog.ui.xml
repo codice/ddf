@@ -281,6 +281,13 @@
             type="Integer"
             default="1048576"/>
 
+        <!--TODO: set default target config-->
+        <AD id="maximumNumListItems"
+            name="Maximum Number of List Items"
+            description="The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect product upload size, just the maximum size allowed for calls from Intrigue."
+            type="Integer"
+            default="3"/>
+
         <AD id="mapHome"
             name="Map Home"
             description='Specifies the default home view for the map by bounding box. The format is: "West, South, East, North" where North, East, South, and West are coordinates in degrees. An example is: "-124, 60, -100, 40".'
