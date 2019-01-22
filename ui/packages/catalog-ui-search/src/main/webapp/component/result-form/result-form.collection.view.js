@@ -34,13 +34,12 @@ const Item = styled.div`
 
 module.exports = Marionette.ItemView.extend({
   initialize(options) {
-    this.model = this.options.collection
-    this.listenTo(this.model, 'add', this.render)
+    this.listenTo(this.options.collection, 'add remove', this.render)
   },
   template() {
     return (
       <React.Fragment>
-        {this.model.map(child => {
+        {this.options.collection.map(child => {
           return (
             <Item className="is-button" key={child.cid}>
               <MarionetteRegionContainer
