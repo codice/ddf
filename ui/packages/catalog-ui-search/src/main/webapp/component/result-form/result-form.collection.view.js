@@ -13,10 +13,10 @@
  *
  **/
 /* global require */
-const React = require('react')
 const Marionette = require('marionette')
 const ResultFormView = require('./result-forms.view.js')
 const CustomElements = require('../../js/CustomElements.js')
+import * as React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 

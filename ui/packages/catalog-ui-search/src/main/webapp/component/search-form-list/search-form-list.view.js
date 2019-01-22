@@ -16,10 +16,10 @@
 
 const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')
-const React = require('react')
 const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
+import * as React from 'react'
 import styled from '../../react-component/styles/styled-components'
 
 const ListItem = styled.div`

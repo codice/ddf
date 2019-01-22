@@ -13,12 +13,12 @@
  *
  **/
 /*global require*/
-const React = require('react')
 const Marionette = require('marionette')
 const SearchFormView = require('./search-form.view')
 const CustomElements = require('../../js/CustomElements')
 const user = require('../singletons/user-instance')
 const wreqr = require('../../exports/wreqr.js')
+import * as React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled, {
   ThemeProvider,

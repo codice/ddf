@@ -13,7 +13,6 @@
  *
  **/
 /*global require*/
-const React = require('react')
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance')
@@ -23,6 +22,7 @@ const wreqr = require('../../exports/wreqr.js')
 const Router = require('../router/router.js')
 const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
+import * as React from 'react'
 import styled from '../../react-component/styles/styled-components'
 
 const FormTitle = styled.h3`
