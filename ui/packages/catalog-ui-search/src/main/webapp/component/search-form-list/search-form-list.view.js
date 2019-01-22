@@ -35,25 +35,55 @@ const SearchFormItem = ({ title, onClick }) => {
   return <ListItem onClick={onClick}>{title}</ListItem>
 }
 
-module.exports = Marionette.ItemView.extend({
-  className: 'composed-menu',
-  template(props) {
+const FilterPadding = styled.div`
+  padding-left: ${props => props.theme.minimumSpacing};
+  padding-right: ${props => props.theme.minimumSpacing};
+`
+class SearchForms extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      filter: '',
+    }
+  }
+  render() {
+    const { filter } = this.state
+    const { forms, onClick } = this.props
+
     return (
       <React.Fragment>
-        {props.length === 0 ? <NoSearchForms /> : null}
-        {props.map(form => (
-          <SearchFormItem
-            title={form.title}
-            key={form.id}
-            onClick={() =>
-              this.changeView(
-                new SearchForm(form),
-                this.model.get('currentQuery')
-              )
-            }
+        <FilterPadding>
+          <input
+            style={{ width: '100%' }}
+            value={filter}
+            onChange={e => this.setState({ filter: e.target.value })}
           />
-        ))}
+        </FilterPadding>
+        {forms.length === 0 ? <NoSearchForms /> : null}
+        {forms
+          .filter(form => form.title.toLowerCase().match(filter.toLowerCase()))
+          .map(form => (
+            <SearchFormItem
+              title={form.title}
+              key={form.id}
+              onClick={() => onClick(form)}
+            />
+          ))}
       </React.Fragment>
+    )
+  }
+}
+
+module.exports = Marionette.ItemView.extend({
+  className: 'composed-menu',
+  template(forms) {
+    return (
+      <SearchForms
+        forms={forms}
+        onClick={form =>
+          this.changeView(new SearchForm(form), this.model.get('currentQuery'))
+        }
+      />
     )
   },
   serializeData: function() {
