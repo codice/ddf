@@ -17,8 +17,8 @@ import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import com.google.common.collect.Lists;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -66,11 +66,11 @@ public class LatestCommand extends CatalogCommands {
     console.printf(formatString, "", "", "", "");
     printHeaderMessage(String.format(formatString, NUMBER, ID, DATE, TITLE));
 
-    Filter filter = filterBuilder.attribute(Metacard.MODIFIED).before().date(new Date());
+    Filter filter = filterBuilder.attribute(Core.METACARD_MODIFIED).before().date(new Date());
 
     QueryImpl query = new QueryImpl(filter);
     query.setPageSize(numberOfItems);
-    query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING.name()));
+    query.setSortBy(new SortByImpl(Core.METACARD_MODIFIED, SortOrder.DESCENDING.name()));
 
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
@@ -88,9 +88,10 @@ public class LatestCommand extends CatalogCommands {
       String postedDate = "";
       String title = "";
 
-      if (result.getMetacard().getModifiedDate() != null) {
+      if (result.getMetacard().getAttribute(Core.METACARD_MODIFIED) != null) {
         postedDate =
-            new DateTime(result.getMetacard().getModifiedDate()).toString(DATETIME_FORMATTER);
+            new DateTime(result.getMetacard().getAttribute(Core.METACARD_MODIFIED).getValue())
+                .toString(DATETIME_FORMATTER);
       }
 
       if (isNotBlank(result.getMetacard().getTitle())) {
