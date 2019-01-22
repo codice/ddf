@@ -57,12 +57,12 @@ module.exports = Marionette.LayoutView.extend({
       .getCurrentWorkspace()
       .get('lists')
       .get(listId)
-    const max = properties.maximumNumListItems;
+    const max = properties.listItemLimit;
     const atMax = list.get('list.bookmarks').length >= max
     if(atMax){
       announcement.announce({
         title: 'Error',
-        message: 'Maximum number of items in a list is ' + max,
+        message: 'List Item Limit Reached (' + max + ' items)',
         type: 'error',
       })
     }else{
