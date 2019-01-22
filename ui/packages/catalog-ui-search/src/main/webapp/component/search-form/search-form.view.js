@@ -134,7 +134,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   initialize: function() {
     this.listenTo(this.model, 'change:type', this.changeView)
-    this.handleDefault()
     this.listenTo(user.getQuerySettings(), 'change:template', this.render)
   },
   serializeData: function() {
@@ -143,9 +142,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender: function() {
     if (
-      this.model.get('type') === 'basic' ||
-      this.model.get('type') === 'text' ||
-      this.model.get('type') === 'new-form' ||
       this.model.get('type') === 'new-result'
     ) {
       this.$el.addClass('is-static')
@@ -212,9 +208,6 @@ module.exports = Marionette.LayoutView.extend({
     }
     user.savePreferences()
     this.triggerCloseDropdown()
-  },
-  handleDefault: function() {
-    this.$el.toggleClass('is-default')
   },
   triggerCloseDropdown: function() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
