@@ -2,39 +2,12 @@
   text-align: left;
   vertical-align: top;
 
-  .search-form-title {
-    padding-bottom: @minimumSpacing;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-    width: 100%;
-  }
-
-  .search-form-contents {
-    display: block;
-  }
-
-  .search-form-label {
-    .is-bold();
-  }
-
   .choice-actions {
     position: absolute;
     right: 0;
     bottom: 0;
     width: @minimumButtonSize;
     text-align: center;
-  }
-
-  .new-form-circle {
-    font-size: 3 * @largeFontSize;
-    padding-top: @mediumSpacing;
-  }
-
-  .default-icon {
-    float: right;
-    display: none;
   }
 }
 
@@ -45,12 +18,3 @@
 @{customElementNamespace}search-form-loading {
   padding: 2 * @minimumSpacing;
 }
-
-// @{customElementNamespace}search-form.is-default {
-//   .default-icon {
-//     display: block;
-//   }
-//   .search-form-title {
-//     max-width: ~'calc(100% - @{minimumFontSize})';
-//   }
-// }

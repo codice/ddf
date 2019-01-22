@@ -99,9 +99,7 @@ module.exports = Marionette.LayoutView.extend({
     } else if (props.type == 'result') {
       return (
         <RelativeWrapper>
-          <h3 className="search-form-title" data-help={props.title}>
-            {props.title}
-          </h3>
+          <FormTitle data-help={props.title}>{props.title}</FormTitle>
           <FormContents>{props.createdOn}</FormContents>
           <FormContents>
             <span className="fa fa-cloud" />
