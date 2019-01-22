@@ -57,6 +57,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.resource.download.DownloadException;
@@ -296,14 +297,13 @@ public class ResourceOperations extends DescribableImpl {
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     ResourceResponse resourceResponse = null;
     ResourceRequest resourceReq = resourceRequest;
-    String resourceSourceName = resourceSiteName;
     ResourceRetriever retriever = null;
 
     if (fanoutEnabled) {
       isEnterprise = true;
     }
 
-    if (resourceSourceName == null && !isEnterprise) {
+    if (resourceSiteName == null && !isEnterprise) {
       throw new ResourceNotFoundException(
           "resourceSiteName cannot be null when obtaining resource.");
     }
@@ -316,12 +316,11 @@ public class ResourceOperations extends DescribableImpl {
       resourceReq = processPreResourcePlugins(resourceReq);
 
       Map<String, Serializable> requestProperties = resourceReq.getProperties();
-      LOGGER.debug("Attempting to get resource from siteName: {}", resourceSourceName);
+      LOGGER.debug("Attempting to get resource from siteName: {}", resourceSiteName);
       // At this point we pull out the properties and use them.
       Serializable sourceIdProperty = requestProperties.get(ResourceRequest.SOURCE_ID);
-      if (sourceIdProperty != null) {
-        resourceSourceName = sourceIdProperty.toString();
-      }
+      final String namedSource =
+          (sourceIdProperty != null) ? sourceIdProperty.toString() : resourceSiteName;
 
       Serializable enterpriseProperty = requestProperties.get(ResourceRequest.IS_ENTERPRISE);
       if (enterpriseProperty != null && Boolean.parseBoolean(enterpriseProperty.toString())) {
@@ -335,7 +334,7 @@ public class ResourceOperations extends DescribableImpl {
       ResourceInfo resourceInfo =
           getResourceInfo(
               resourceReq,
-              resourceSourceName,
+              namedSource,
               isEnterprise,
               resolvedSourceIdHolder,
               requestProperties,
@@ -345,33 +344,36 @@ public class ResourceOperations extends DescribableImpl {
             "Resource could not be found for the given attribute value: "
                 + resourceReq.getAttributeValue());
       }
-      URI responseURI = resourceInfo.getResourceUri();
-      Metacard metacard = resourceInfo.getMetacard();
+      final URI responseURI = resourceInfo.getResourceUri();
+      final Metacard metacard = resourceInfo.getMetacard();
 
-      String resolvedSourceId = resolvedSourceIdHolder.toString();
+      final String resolvedSourceId = resolvedSourceIdHolder.toString();
       LOGGER.debug("resolvedSourceId = {}", resolvedSourceId);
       LOGGER.debug("ID = {}", getId());
 
-      if (isEnterprise) {
-        // since resolvedSourceId specifies what source the product
-        // metacard resides on, we can just
-        // change resourceSiteName to be that value, and then the
-        // following if-else statements will
-        // handle retrieving the product on the correct source
-        resourceSourceName = resolvedSourceId;
-      }
+      // since resolvedSourceId specifies what source the product
+      // metacard resides on, we can just
+      // change resourceSiteName to be that value, and then the
+      // following if-else statements will
+      // handle retrieving the product on the correct source
+      final String resourceSourceName = (isEnterprise) ? resolvedSourceId : namedSource;
 
       // retrieve product from specified federated site if not in cache
       if (!resourceSourceName.equals(getId())) {
         LOGGER.debug("Searching federatedSource {} for resource.", resourceSourceName);
         LOGGER.debug("metacard for product found on source: {}", resolvedSourceId);
 
-        FederatedSource source = frameworkProperties.getFederatedSources().get(resourceSourceName);
+        final Optional<FederatedSource> source =
+            frameworkProperties
+                .getFederatedSources()
+                .stream()
+                .filter(e -> e.getId().equals(resourceSourceName))
+                .findFirst();
 
-        if (source != null) {
-          LOGGER.debug("Adding federated site to federated query: {}", source.getId());
-          LOGGER.debug("Retrieving product from remote source {}", source.getId());
-          retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
+        if (source.isPresent()) {
+          LOGGER.debug("Adding federated site to federated query: {}", source.get().getId());
+          LOGGER.debug("Retrieving product from remote source {}", source.get().getId());
+          retriever = new RemoteResourceRetriever(source.get(), responseURI, requestProperties);
         } else {
           LOGGER.debug("Could not find federatedSource: {}", resourceSourceName);
         }
@@ -730,12 +732,17 @@ public class ResourceOperations extends DescribableImpl {
       throws ResourceNotFoundException {
     LOGGER.trace("ENTERING: getOptionsFromFederatedSource");
 
-    FederatedSource source = frameworkProperties.getFederatedSources().get(sourceId);
+    final Optional<FederatedSource> source =
+        frameworkProperties
+            .getFederatedSources()
+            .stream()
+            .filter(e -> e.getId().equals(sourceId))
+            .findFirst();
 
-    if (source != null) {
+    if (source.isPresent()) {
       LOGGER.trace("EXITING: getOptionsFromFederatedSource");
 
-      return source.getOptions(metacard);
+      return source.get().getOptions(metacard);
     } else {
       String message = "Unable to find source corresponding to given site name: " + sourceId;
       LOGGER.trace("EXITING: getOptionsFromFederatedSource");

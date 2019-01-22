@@ -760,7 +760,7 @@ public class QueryOperations extends DescribableImpl {
 
         // add all the federated sources
         Set<String> notPermittedSources = new HashSet<>();
-        for (FederatedSource source : frameworkProperties.getFederatedSources().values()) {
+        for (FederatedSource source : frameworkProperties.getFederatedSources()) {
           boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
           if (!canAccessSource) {
             notPermittedSources.add(source.getId());
@@ -795,26 +795,28 @@ public class QueryOperations extends DescribableImpl {
           Set<String> notPermittedSources = new HashSet<>();
           for (String id : sourceIds) {
             LOGGER.debug("Looking up source ID = {}", id);
-            boolean sourceFound = false;
-            if (frameworkProperties.getFederatedSources().containsKey(id)) {
-              sourceFound = true;
-              boolean canAccessSource =
-                  queryOps.canAccessSource(
-                      frameworkProperties.getFederatedSources().get(id), queryRequest);
-              if (!canAccessSource) {
-                notPermittedSources.add(frameworkProperties.getFederatedSources().get(id).getId());
-              }
-              if (frameworkProperties.getFederatedSources().get(id).isAvailable()
-                  && canAccessSource) {
-                sourcesToQuery.add(frameworkProperties.getFederatedSources().get(id));
-              } else {
-                exceptions.add(
-                    queryOps.createUnavailableProcessingDetails(
-                        frameworkProperties.getFederatedSources().get(id)));
-              }
-            }
 
-            if (!sourceFound) {
+            final Optional<FederatedSource> fedSource =
+                frameworkProperties
+                    .getFederatedSources()
+                    .stream()
+                    .filter(e -> e.getId().equals(id))
+                    .findFirst();
+
+            fedSource.ifPresent(
+                source -> {
+                  boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
+                  if (!canAccessSource) {
+                    notPermittedSources.add(source.getId());
+                  }
+                  if (source.isAvailable() && canAccessSource) {
+                    sourcesToQuery.add(source);
+                  } else {
+                    exceptions.add(queryOps.createUnavailableProcessingDetails(source));
+                  }
+                });
+
+            if (!fedSource.isPresent()) {
               exceptions.add(
                   new ProcessingDetailsImpl(
                       id, new SourceUnavailableException("Source id is not found")));

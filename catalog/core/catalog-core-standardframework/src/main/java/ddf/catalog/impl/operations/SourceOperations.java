@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.platform.services.common.Describable;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,7 +174,12 @@ public class SourceOperations extends DescribableImpl {
     Set<String> ids = new TreeSet<>();
     ids.add(getId());
     if (!fanoutEnabled) {
-      ids.addAll(frameworkProperties.getFederatedSources().keySet());
+      ids.addAll(
+          frameworkProperties
+              .getFederatedSources()
+              .stream()
+              .map(Describable::getId)
+              .collect(Collectors.toSet()));
     }
     return ids;
   }
@@ -201,22 +207,29 @@ public class SourceOperations extends DescribableImpl {
       if (sourceInfoRequest.isEnterprise()) {
 
         sourceDescriptors =
-            getFederatedSourceDescriptors(frameworkProperties.getFederatedSources().values(), true);
+            getFederatedSourceDescriptors(frameworkProperties.getFederatedSources(), true);
         // If Ids are specified check if they are known sources
       } else if (requestedSourceIds != null) {
         LOGGER.debug("getSourceRequest contains requested source ids");
         Set<FederatedSource> discoveredSources = new HashSet<>();
-        boolean containsId = false;
 
         for (String requestedSourceId : requestedSourceIds) {
           // Check if the requestedSourceId can be found in the known federatedSources
 
-          if (frameworkProperties.getFederatedSources().containsKey(requestedSourceId)) {
-            containsId = true;
-            LOGGER.debug("Found federated source: {}", requestedSourceId);
-            discoveredSources.add(frameworkProperties.getFederatedSources().get(requestedSourceId));
-          }
-          if (!containsId) {
+          final Optional<FederatedSource> source =
+              frameworkProperties
+                  .getFederatedSources()
+                  .stream()
+                  .filter(e -> e.getId().equals(requestedSourceId))
+                  .findFirst();
+
+          source.ifPresent(
+              e -> {
+                LOGGER.debug("Found federated source: {}", requestedSourceId);
+                discoveredSources.add(e);
+              });
+
+          if (!source.isPresent()) {
             LOGGER.debug("Unable to find source: {}", requestedSourceId);
 
             // Check for the local catalog provider, DDF sourceId represents this
@@ -227,7 +240,6 @@ public class SourceOperations extends DescribableImpl {
               addCatalogProviderDescriptor = true;
             }
           }
-          containsId = false;
         }
 
         sourceDescriptors =
@@ -330,7 +342,6 @@ public class SourceOperations extends DescribableImpl {
       Set<Source> availableSources =
           frameworkProperties
               .getFederatedSources()
-              .values()
               .stream()
               .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
               .filter(source -> source != null && source.isAvailable())

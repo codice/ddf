@@ -31,7 +31,7 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
-            catalogStoresMap = [cat1: Mock(CatalogStore), cat2: Mock(CatalogStore)]
+            catalogStores = [cat1: Mock(CatalogStore), cat2: Mock(CatalogStore)]
         }
 
         sourceOperations = Mock(SourceOperations)
@@ -151,7 +151,7 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         def response = opsCatalog.getCatalogStoresForRequest(request, exceptions)
 
         then:
-        response == [frameworkProperties.catalogStoresMap.get('cat1')]
+        response == [frameworkProperties.catalogStores.get('cat1')]
         exceptions.size() == 1
     }
 

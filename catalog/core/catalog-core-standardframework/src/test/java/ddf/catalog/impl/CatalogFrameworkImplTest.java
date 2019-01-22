@@ -2861,7 +2861,7 @@ public class CatalogFrameworkImplTest {
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
     frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
-    frameworkProperties.setCatalogStoresMap(stores);
+    frameworkProperties.setCatalogStores(stores);
     frameworkProperties.setSourcePoller(mockPoller);
     frameworkProperties.setPreIngest(new ArrayList<>());
     frameworkProperties.setPostIngest(postIngestPlugins);
