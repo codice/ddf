@@ -23,7 +23,7 @@ No pre/post plugins are executed and no message validation is performed if the `
 |catalog:describe
 |Provides a basic description of the Catalog implementation.
 
-|catlog:dump
+|catalog:dump
 |Exports metacards from the local Catalog. Does not remove them. See <<{managing-prefix}date_filtering_options,date filtering options>> below.
 
 |catalog:envlist
