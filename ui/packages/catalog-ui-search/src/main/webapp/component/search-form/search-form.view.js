@@ -43,16 +43,25 @@ const NewFormCircle = styled.div`
   padding-top: ${props => props.theme.minimumSpacing};
 `
 
+const NewFormText = styled.h3`
+  line-height: 2em;
+`
+
 const DefaultIcon = styled.div`
   position: absolute;
   right: 0;
   top: 0;
 `
 
+const RelativeWrapper = styled.div`
+  position: relative;
+  height: 100%;
+`
+
 const CustomSearchForm = props => {
   const { title, createdOn, createdBy, isDefault } = props
   return (
-    <div style={{ position: 'relative', height: '100%' }}>
+    <RelativeWrapper>
       <FormTitle data-help={title}>{title}</FormTitle>
       {isDefault ? <DefaultIcon className="fa fa-star" /> : null}
       <FormContents>{createdOn}</FormContents>
@@ -65,7 +74,7 @@ const CustomSearchForm = props => {
         title="Shows a list of actions to take on the search forms"
         data-help="Shows a list of actions to take on the search forms."
       />
-    </div>
+    </RelativeWrapper>
   )
 }
 
@@ -84,12 +93,12 @@ module.exports = Marionette.LayoutView.extend({
       return (
         <div>
           <NewFormCircle className="fa fa-plus-circle" />
-          <h3 style={{ lineHeight: '2em' }}>New Result Form</h3>
+          <NewFormText>New Result Form</NewFormText>
         </div>
       )
     } else if (props.type == 'result') {
       return (
-        <div style={{ position: 'relative', height: '100%' }}>
+        <RelativeWrapper>
           <h3 className="search-form-title" data-help={props.title}>
             {props.title}
           </h3>
@@ -103,7 +112,7 @@ module.exports = Marionette.LayoutView.extend({
             title="Shows a list of actions to take on the result forms"
             data-help="Shows a list of actions to take on the result forms."
           />
-        </div>
+        </RelativeWrapper>
       )
     }
   },

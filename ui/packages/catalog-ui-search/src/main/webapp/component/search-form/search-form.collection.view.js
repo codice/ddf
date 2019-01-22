@@ -40,6 +40,10 @@ const NewFormCircle = styled.div`
   padding-top: ${props => props.theme.minimumSpacing};
 `
 
+const NewFormText = styled.h3`
+  line-height: 2em;
+`
+
 const NewSearchForm = ({ onClick }) => {
   return (
     <Item
@@ -48,7 +52,7 @@ const NewSearchForm = ({ onClick }) => {
       onClick={onClick}
     >
       <NewFormCircle className="fa fa-plus-circle" />
-      <h3 style={{ lineHeight: '2em' }}>New Search Form</h3>
+      <NewFormText>New Search Form</NewFormText>
     </Item>
   )
 }
