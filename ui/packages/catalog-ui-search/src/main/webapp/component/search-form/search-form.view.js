@@ -58,6 +58,25 @@ const RelativeWrapper = styled.div`
   height: 100%;
 `
 
+const ThreeDotMenu = styled.span`
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: ${props => props.theme.minimumButtonSize};
+    text-align: center;
+`
+
+const Actions = props => {
+  const { title } = props
+  return (
+  <ThreeDotMenu
+    className='choice-actions is-button'
+    data-help={title}
+    title={title}
+    />
+  )
+}
+
 const CustomSearchForm = props => {
   const { title, createdOn, createdBy, isDefault } = props
   return (
@@ -69,11 +88,7 @@ const CustomSearchForm = props => {
         <span className="fa fa-cloud" />
         {' ' + createdBy}
       </FormContents>
-      <span
-        className="choice-actions is-button"
-        title="Shows a list of actions to take on the search forms"
-        data-help="Shows a list of actions to take on the search forms."
-      />
+      <Actions title='Shows a list of actions to take on the search forms'/>
     </RelativeWrapper>
   )
 }
@@ -105,11 +120,7 @@ module.exports = Marionette.LayoutView.extend({
             <span className="fa fa-cloud" />
             {' ' + props.createdBy}
           </FormContents>
-          <span
-            className="choice-actions is-button"
-            title="Shows a list of actions to take on the result forms"
-            data-help="Shows a list of actions to take on the result forms."
-          />
+          <Actions title='Shows a list of actions to take on the result forms'/>
         </RelativeWrapper>
       )
     }
