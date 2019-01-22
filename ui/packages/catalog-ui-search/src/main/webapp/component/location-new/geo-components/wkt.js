@@ -11,7 +11,9 @@ const WKT = props => {
     <div className="input-location">
       <TextField
         value={wkt}
-        onChange={setState(validateInput((draft, value) => (draft.wkt = value)))}
+        onChange={setState(
+          validateInput((draft, value) => (draft.wkt = value))
+        )}
       />
     </div>
   )
