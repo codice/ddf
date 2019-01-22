@@ -23,10 +23,13 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.ResourceResponse;
@@ -37,6 +40,8 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,6 +50,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +61,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ZipCompressionTest {
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -111,13 +123,22 @@ public class ZipCompressionTest {
 
   private CatalogFramework catalogFramework;
 
+  @Mock private BundleContext bundleContext;
+
+  @Mock private MetacardTransformer transformer;
+
   @Before
   public void setUp() throws Exception {
     JarSigner jarSigner = mock(JarSigner.class);
     doNothing()
         .when(jarSigner)
         .signJar(any(File.class), anyString(), anyString(), anyString(), anyString());
-    zipCompression = new ZipCompression(jarSigner);
+    List<ServiceReference> serviceReferences =
+        ImmutableList.of(
+            createMockServiceReference("html", "text/html"),
+            createMockServiceReference(null, "foobar"),
+            createMockServiceReference("barfoo", null));
+    zipCompression = new ZipCompression(jarSigner, serviceReferences, bundleContext);
     sourceResponse = createSourceResponseWithURISchemes(null, null);
     filePathArgument = new HashMap<>();
     filePathArgument.put(
@@ -136,23 +157,6 @@ public class ZipCompressionTest {
   @Test
   public void testGetCatalogFramework() {
     assertThat(catalogFramework, is(zipCompression.getCatalogFramework()));
-  }
-
-  @Test(expected = CatalogTransformerException.class)
-  public void testCompressionNullArguments() throws Exception {
-    zipCompression.transform(sourceResponse, null);
-  }
-
-  @Test(expected = CatalogTransformerException.class)
-  public void testCompressionEmptyArguments() throws Exception {
-    zipCompression.transform(sourceResponse, new HashMap<>());
-  }
-
-  @Test(expected = CatalogTransformerException.class)
-  public void testCompressionNoFilePathKeyArgument() throws Exception {
-    HashMap<String, Serializable> arguments = new HashMap<>();
-    arguments.put("bad", "argument");
-    zipCompression.transform(sourceResponse, arguments);
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -246,8 +250,72 @@ public class ZipCompressionTest {
     assertZipContents(binaryContent, METACARD_RESULT_LIST_WITH_CONTENT);
   }
 
+  @Test
+  public void testCompressionWithSpecifiedTransformer() throws Exception {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId("metacardId");
+    List<Result> results = Collections.singletonList(new ResultImpl(metacard));
+    SourceResponse sourceResponse = new SourceResponseImpl(null, results);
+
+    Map<String, Serializable> arguments =
+        new ImmutableMap.Builder<String, Serializable>()
+            .putAll(filePathArgument)
+            .put("transformerId", "html")
+            .build();
+
+    when(bundleContext.getService(any(ServiceReference.class))).thenReturn(transformer);
+
+    InputStream inputStream = ZipCompressionTest.class.getResourceAsStream("/export.html");
+    when(transformer.transform(any(Metacard.class), any(Map.class)))
+        .thenReturn(new BinaryContentImpl(inputStream));
+
+    BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
+
+    assertZipContents(binaryContent, Collections.singletonList("metacards/metacardId.html"));
+  }
+
+  @Test
+  public void testCompressionWithSpecifiedFormatMimeTypeNotFound() throws Exception {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId("metacardId");
+    List<Result> results = Collections.singletonList(new ResultImpl(metacard));
+    SourceResponse sourceResponse = new SourceResponseImpl(null, results);
+
+    Map<String, Serializable> arguments =
+        new ImmutableMap.Builder<String, Serializable>()
+            .putAll(filePathArgument)
+            .put("transformerId", "barfoo")
+            .build();
+
+    when(bundleContext.getService(any(ServiceReference.class))).thenReturn(transformer);
+
+    InputStream inputStream = ZipCompressionTest.class.getResourceAsStream("/export.html");
+    when(transformer.transform(any(Metacard.class), any(Map.class)))
+        .thenReturn(new BinaryContentImpl(inputStream));
+
+    BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
+
+    assertZipContents(binaryContent, Collections.singletonList("metacards/metacardId"));
+  }
+
+  @Test(expected = CatalogTransformerException.class)
+  public void testCompressionWithSpecifiedTransformerNotFound() throws Exception {
+    MetacardImpl metacard = new MetacardImpl();
+    List<Result> results = Collections.singletonList(new ResultImpl(metacard));
+    SourceResponse sourceResponse = new SourceResponseImpl(null, results);
+
+    Map<String, Serializable> arguments =
+        new ImmutableMap.Builder<String, Serializable>()
+            .putAll(filePathArgument)
+            .put("transformerId", "foobar")
+            .build();
+
+    zipCompression.transform(sourceResponse, arguments);
+  }
+
   private void assertZipContents(BinaryContent binaryContent, List<String> ids) throws IOException {
-    ZipInputStream zipInputStream = (ZipInputStream) binaryContent.getInputStream();
+    ZipInputStream zipInputStream =
+        new ZipInputStream(new ByteArrayInputStream(binaryContent.getByteArray()));
     List<String> entryNames = new ArrayList<>();
 
     ZipEntry zipEntry = zipInputStream.getNextEntry();
@@ -284,5 +352,15 @@ public class ZipCompressionTest {
     }
 
     return new SourceResponseImpl(null, resultList);
+  }
+
+  private ServiceReference<MetacardTransformer> createMockServiceReference(
+      String id, String mimeType) {
+    ServiceReference<MetacardTransformer> serviceRef = mock(ServiceReference.class);
+
+    when(serviceRef.getProperty("id")).thenReturn(id);
+    when(serviceRef.getProperty("mime-type")).thenReturn(mimeType);
+
+    return serviceRef;
   }
 }
