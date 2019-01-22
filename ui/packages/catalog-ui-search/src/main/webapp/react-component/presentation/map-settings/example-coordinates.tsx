@@ -12,9 +12,11 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
+const mtgeo = require('mt-geo')
 
 type Props = {
-  example: string
+  selected: string
+  examples?: { [index: string]: string }
 }
 
 const Root = styled.div`
@@ -53,9 +55,21 @@ const Label = styled.label`
     white-space: normal;
   }
 `
+const exampleLat = '14.94',
+  exampleLon = '-11.875'
+const defaultExamples = {
+  degrees: `${mtgeo.toLat(exampleLat)} ${mtgeo.toLon(exampleLon)}`,
+  decimal: `${exampleLat} ${exampleLon}`,
+  mgrs: '4Q FL 23009 12331',
+  utm: '14 1925mE 1513mN',
+}
 
 const render = (props: Props) => {
-  const { example } = props
+  const { selected, examples = defaultExamples } = props
+  const example = examples[selected]
+  if (typeof example === 'undefined') {
+    console.warn(`Unrecognized coordinate format value [${selected}]`)
+  }
   return (
     <Root>
       <div className="example-label">
@@ -69,3 +83,4 @@ const render = (props: Props) => {
 }
 
 export default hot(module)(render)
+export const testComponent = render

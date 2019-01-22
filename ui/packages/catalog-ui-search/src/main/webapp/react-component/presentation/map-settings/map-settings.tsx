@@ -13,11 +13,10 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import Enum from '../../container/enum'
-import ExampleCoordinates from './ExampleCoordinates'
+import ExampleCoordinates from './example-coordinates'
 
 type Props = {
   selected: string
-  example: string
   update: (selected: string) => void
 }
 
