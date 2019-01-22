@@ -14,6 +14,7 @@ import styled from '../../styles/styled-components'
 import { keyframes } from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import { Button, buttonTypeEnum } from '../button'
+import plugin from 'plugins/navigation-right'
 
 const HelpView = require('../../../component/help/help.view.js')
 const UserSettings = require('../../../component/user-settings/user-settings.view.js')
@@ -150,52 +151,66 @@ const toggleUser = () => {
   SlideoutRightViewInstance.open()
 }
 
+const Help = () => (
+  <Button
+    className="navigation-item"
+    icon="fa fa-question"
+    buttonType={buttonTypeEnum.neutral}
+    title="Shows helpful hints in the current context"
+    onClick={toggleHelp}
+    fadeUntilHover={true}
+  />
+)
+
+const Settings = () => (
+  <Button
+    className="navigation-item"
+    icon="fa fa-cog"
+    buttonType={buttonTypeEnum.neutral}
+    title="Shows settings for the application"
+    onClick={toggleUserSettings}
+    fadeUntilHover={true}
+  />
+)
+
+const Notifications = () => (
+  <Button
+    className="navigation-item item-alerts"
+    buttonType={buttonTypeEnum.neutral}
+    title="Shows notifications"
+    onClick={toggleAlerts}
+    fadeUntilHover={true}
+  >
+    <span className="fa fa-bell" />
+    <span className="alerts-badge fa fa-exclamation" />
+  </Button>
+)
+
+const User = () => (
+  <Button
+    className="navigation-item item-user"
+    buttonType={buttonTypeEnum.neutral}
+    onClick={toggleUser}
+    fadeUntilHover={true}
+  >
+    <div className="user-unique" title={`Logged in as ${user.getUserName()}`}>
+      <span className="">{user.getUserName()}</span>
+      <span className="fa fa-user" />
+    </div>
+    <div className="user-guest" title="Logged in as guest.">
+      <span className="">Sign In</span>
+    </div>
+  </Button>
+)
+
+const buttons = plugin([Help, Settings, Notifications, User])
+
 export default function NavigationRight(props: Props) {
   return (
     <Root {...props}>
-      <Button
-        className="navigation-item"
-        icon="fa fa-question"
-        buttonType={buttonTypeEnum.neutral}
-        title="Shows helpful hints in the current context"
-        onClick={toggleHelp}
-        fadeUntilHover={true}
-      />
-      <Button
-        className="navigation-item"
-        icon="fa fa-cog"
-        buttonType={buttonTypeEnum.neutral}
-        title="Shows settings for the application"
-        onClick={toggleUserSettings}
-        fadeUntilHover={true}
-      />
-      <Button
-        className="navigation-item item-alerts"
-        buttonType={buttonTypeEnum.neutral}
-        title="Shows notifications"
-        onClick={toggleAlerts}
-        fadeUntilHover={true}
-      >
-        <span className="fa fa-bell" />
-        <span className="alerts-badge fa fa-exclamation" />
-      </Button>
-      <Button
-        className="navigation-item item-user"
-        buttonType={buttonTypeEnum.neutral}
-        onClick={toggleUser}
-        fadeUntilHover={true}
-      >
-        <div
-          className="user-unique"
-          title={`Logged in as ${user.getUserName()}`}
-        >
-          <span className="">{user.getUserName()}</span>
-          <span className="fa fa-user" />
-        </div>
-        <div className="user-guest" title="Logged in as guest.">
-          <span className="">Sign In</span>
-        </div>
-      </Button>
+      {buttons.map((Component: any, i: number) => (
+        <Component key={i} />
+      ))}
     </Root>
   )
 }
