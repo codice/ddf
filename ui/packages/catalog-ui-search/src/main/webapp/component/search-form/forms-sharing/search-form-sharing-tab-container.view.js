@@ -40,13 +40,10 @@ module.exports = Marionette.LayoutView.extend({
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
         model: this.model,
-        filter: function(child) {
-          return (
+        filter: (child) =>
             child.get('createdBy') !== user.getEmail() &&
             user.canRead(child) &&
-            child.get('createdBy') !== 'system'
-          )
-        },
+            child.get('createdBy') !== 'system',
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)

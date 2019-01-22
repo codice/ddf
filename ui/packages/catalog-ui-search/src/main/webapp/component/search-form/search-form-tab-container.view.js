@@ -41,9 +41,7 @@ module.exports = Marionette.LayoutView.extend({
         collection: this.searchFormCollection.getCollection(),
         collectionWrapperModel: this.searchFormCollection,
         queryModel: this.model,
-        filter: function(child) {
-          return child.get('createdBy') === user.getEmail()
-        },
+        filter: (child) => child.get('createdBy') === user.getEmail(),
         showNewForm: true,
       })
     )
