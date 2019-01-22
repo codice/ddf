@@ -19,7 +19,6 @@ const user = require('../singletons/user-instance')
 const DropdownModel = require('../dropdown/dropdown')
 const SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view')
 const wreqr = require('../../exports/wreqr.js')
-const Router = require('../router/router.js')
 const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
 import * as React from 'react'
@@ -126,12 +125,6 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   tagName: CustomElements.register('search-form'),
-  className() {
-    return this.model.get('createdBy') === 'system' &&
-      Router.attributes.path === 'forms(/)'
-      ? 'systemSearchForm'
-      : 'is-button'
-  },
   events: {
     click: 'changeView',
   },
@@ -141,15 +134,15 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     searchFormActions: '.choice-actions',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this.model, 'change:type', this.changeView)
     this.listenTo(user.getQuerySettings(), 'change:template', this.render)
   },
-  serializeData: function() {
+  serializeData() {
     const { createdOn, ...json } = this.model.toJSON()
     return { createdOn: Common.getMomentDate(createdOn), ...json }
   },
-  onRender: function() {
+  onRender() {
     if (this.model.get('type') === 'new-result') {
       this.$el.addClass('is-static')
     } else {
@@ -166,60 +159,15 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  changeView: function() {
-    let oldType = this.options.queryModel.get('type')
-    switch (this.model.get('type')) {
-      case 'new-form':
-        this.options.queryModel.set({
-          type: 'new-form',
-          associatedFormModel: this.model,
-          title: this.model.get('title'),
-          filterTree: this.model.get('filterTemplate'),
-        })
-        if (oldType === 'new-form') {
-          this.options.queryModel.trigger('change:type')
-        }
-        this.routeToSearchFormEditor('create')
-        break
-      case 'basic':
-        this.options.queryModel.set('type', 'basic')
-        if (oldType === 'new-form' || oldType === 'custom') {
-          this.options.queryModel.set('title', 'Search Name')
-        }
-        user.getQuerySettings().set('type', 'basic')
-        break
-      case 'text':
-        this.options.queryModel.set('type', 'text')
-        if (oldType === 'new-form' || oldType === 'custom') {
-          this.options.queryModel.set('title', 'Search Name')
-        }
-        user.getQuerySettings().set('type', 'text')
-        break
-      case 'custom':
-        const sharedAttributes = this.model.transformToQueryStructure()
-        if (
-          Router.attributes.path === 'forms(/)' &&
-          this.model.get('createdBy') !== 'system'
-        ) {
-          this.openEditor(sharedAttributes)
-        } else {
-          this.options.queryModel.set({
-            type: 'custom',
-            ...sharedAttributes,
-          })
-          if (oldType === 'custom') {
-            this.options.queryModel.trigger('change:type')
-          }
-          user.getQuerySettings().set('type', 'custom')
-        }
+  changeView() {
+    // Don't allow users to edit system forms
+    if (this.model.get('createdBy') === 'system') {
+      return
     }
-    user.savePreferences()
-    this.triggerCloseDropdown()
+    const sharedAttributes = this.model.transformToQueryStructure()
+    this.openEditor(sharedAttributes)
   },
-  triggerCloseDropdown: function() {
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-  },
-  openEditor: function(sharedAttributes) {
+  openEditor(sharedAttributes) {
     if (user.canWrite(this.model)) {
       this.model.set({
         ...sharedAttributes,
@@ -242,7 +190,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  routeToSearchFormEditor: function(newSearchFormId) {
+  routeToSearchFormEditor(newSearchFormId) {
     const fragment = `forms/${newSearchFormId}`
     wreqr.vent.trigger('router:navigate', {
       fragment,
