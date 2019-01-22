@@ -45,7 +45,7 @@ require.config({
       '../../webjars/jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
     multiselectfilter:
       '../../webjars/lib/multiselect/src/jquery.multiselect.filter',
-    fileupload: '../../webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
+    fileupload: '../../webjars/blueimp-file-upload/9.28.0/js/jquery.fileupload',
 
     // handlebars
     handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',

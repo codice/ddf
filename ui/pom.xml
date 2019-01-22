@@ -166,13 +166,8 @@
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
-                            <artifactId>jquery-file-upload</artifactId>
-                            <version>9.18.0</version>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
-                            <artifactId>jquery-file-upload</artifactId>
-                            <version>9.5.7</version>
+                            <artifactId>blueimp-file-upload</artifactId>
+                            <version>9.28.0</version>
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
