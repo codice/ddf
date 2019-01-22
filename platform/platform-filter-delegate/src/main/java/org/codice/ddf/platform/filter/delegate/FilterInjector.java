@@ -72,7 +72,8 @@ public class FilterInjector implements EventListenerHook {
       Bundle refBundle = event.getServiceReference().getBundle();
       BundleContext bundlectx = refBundle.getBundleContext();
       Object service = bundlectx.getService(event.getServiceReference());
-      if (service instanceof ServletContext) {
+      if (service instanceof ServletContext
+          && !refBundle.getSymbolicName().contains("platform-solr-server-standalone")) {
         injectFilter((ServletContext) service, refBundle);
       }
     }
