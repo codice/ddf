@@ -56,7 +56,7 @@ const NewSearchForm = ({ onClick }) => {
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('my-search-forms'),
   className: 'is-list is-inline has-list-highlighting',
-  initialize: function(options) {
+  initialize(options) {
     this.model = this.options.collection
     this.filter = this.options.filter
     this.listenTo(this.model, 'add remove', this.render)
@@ -99,7 +99,7 @@ module.exports = Marionette.ItemView.extend({
     }
     return this.options.filter(child)
   },
-  routeToSearchFormEditor: function(newSearchFormId) {
+  routeToSearchFormEditor(newSearchFormId) {
     const fragment = `forms/${newSearchFormId}`
     wreqr.vent.trigger('router:navigate', {
       fragment,
