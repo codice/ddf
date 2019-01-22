@@ -33,7 +33,6 @@
         <module>sample-soap-endpoint</module>
         <module>sample-rest-endpoint</module>
         <module>sample-metacard-filter</module>
-        <module>sample-cometd</module>
         <module>sample-metacard-validator</module>
         <module>sample-storageplugins</module>
         <module>sample-twitter-source</module>
