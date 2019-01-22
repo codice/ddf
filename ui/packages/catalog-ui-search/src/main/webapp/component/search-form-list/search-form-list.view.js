@@ -29,16 +29,10 @@ const ListItem = styled.div`
   padding: 0px ${props => props.theme.largeSpacing};
 `
 
-const NoSearchForms = () => {
-  return <ListItem>No search forms are available</ListItem>
-}
+const NoSearchForms = () => <ListItem>No search forms are available</ListItem>
 
 const SearchFormItem = ({ title, onClick }) => {
-  return (
-    <ListItem onClick={onClick}>
-      {title}
-    </ListItem>
-  )
+  return <ListItem onClick={onClick}>{title}</ListItem>
 }
 
 module.exports = Marionette.ItemView.extend({
