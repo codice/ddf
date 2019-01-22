@@ -28,7 +28,7 @@ module.exports = SearchFormViews.extend({
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView: function() {
-    if (this.model.get('type') !== 'new-result' && !user.canWrite(this.model)) {
+    if (!user.canWrite(this.model)) {
       announcement.announce(
         {
           title: 'Error',
@@ -47,10 +47,7 @@ module.exports = SearchFormViews.extend({
     lightboxInstance.model.open()
     lightboxInstance.showContent(
       new QueryResult({
-        model:
-          this.model.get('type') === 'new-result'
-            ? new SearchFormModel({ name: '' })
-            : this.model,
+        model: this.model,
       })
     )
   },

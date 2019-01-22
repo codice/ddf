@@ -40,12 +40,7 @@ module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
     added: false,
-    resultForms: [
-      new ResultForm({
-        title: 'Create New Data View',
-        type: 'new-result',
-      }),
-    ],
+    resultForms: [],
   },
   initialize: function() {
     if (promiseIsResolved === true) {
@@ -67,16 +62,6 @@ module.exports = Backbone.AssociatedModel.extend({
         url: './internal/forms/result',
         initialize: function() {},
         comparator: function(a, b) {
-          // Keep the new result form button at the front
-          const typeA = a.get('type')
-          const typeB = b.get('type')
-          if (typeA === 'new-result' && typeB !== 'new-result') {
-            return -1
-          }
-          if (typeA !== 'new-result' && typeB === 'new-result') {
-            return 1
-          }
-
           const titleA = a.get('title') || ''
           const titleB = b.get('title') || ''
           return titleA.toLowerCase().localeCompare(titleB.toLowerCase())

@@ -16,6 +16,10 @@
 const Marionette = require('marionette')
 const ResultFormView = require('./result-forms.view.js')
 const CustomElements = require('../../js/CustomElements.js')
+const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.js')
+const lightboxInstance = lightboxResultInstance.generateNewLightbox()
+const QueryResult = require('./result-form.view.js')
+const SearchFormModel = require('../search-form/search-form.js')
 import * as React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
@@ -32,6 +36,28 @@ const Item = styled.div`
   position: relative;
 `
 
+const NewFormCircle = styled.div`
+  font-size: calc(3 * ${props => props.theme.largeFontSize});
+  padding-top: ${props => props.theme.minimumSpacing};
+`
+
+const NewFormText = styled.h3`
+  line-height: 2em;
+`
+
+const NewResultForm = ({ onClick }) => {
+  return (
+    <Item
+      className="is-button"
+      style={{ textAlign: 'center' }}
+      onClick={onClick}
+    >
+      <NewFormCircle className="fa fa-plus-circle" />
+      <NewFormText>New Result Form</NewFormText>
+    </Item>
+  )
+}
+
 module.exports = Marionette.ItemView.extend({
   initialize(options) {
     this.listenTo(this.options.collection, 'add remove', this.render)
@@ -39,6 +65,7 @@ module.exports = Marionette.ItemView.extend({
   template() {
     return (
       <React.Fragment>
+        <NewResultForm onClick={() => this.handleNewResultForm()} />
         {this.options.collection.map(child => {
           return (
             <Item className="is-button" key={child.cid}>
@@ -54,6 +81,15 @@ module.exports = Marionette.ItemView.extend({
           )
         })}
       </React.Fragment>
+    )
+  },
+  handleNewResultForm() {
+    lightboxInstance.model.updateTitle('Create a new result form')
+    lightboxInstance.model.open()
+    lightboxInstance.showContent(
+      new QueryResult({
+        model: new SearchFormModel({ name: '' }),
+      })
     )
   },
   className: 'is-list is-inline has-list-highlighting',
