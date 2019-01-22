@@ -43,7 +43,7 @@ module.exports = Marionette.LayoutView.extend({
     'click > .interaction-type-basic': 'triggerTypeBasic',
     'click > .interaction-type-text': 'triggerTypeText',
   },
-  onRender: function() {
+  onRender() {
     this.listenTo(
       this.model,
       'change:type closeDropdown',
@@ -52,7 +52,7 @@ module.exports = Marionette.LayoutView.extend({
     this.generateSearchFormSelector()
     this.generateSearchSettings()
   },
-  generateSearchFormSelector: function() {
+  generateSearchFormSelector() {
     this.searchType.show(
       new SearchFormSelectorDropdownView({
         model: new DropdownModel(),
@@ -64,7 +64,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
-  generateSearchSettings: function() {
+  generateSearchSettings() {
     this.searchSettings.show(
       new SearchSettingsDropdownView({
         model: new DropdownModel(),
@@ -77,10 +77,10 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
-  triggerCloseDropdown: function() {
+  triggerCloseDropdown() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  triggerReset: function() {
+  triggerReset() {
     this.listenTo(
       ConfirmationView.generateConfirmation({
         prompt: 'Are you sure you want to reset the search?',
@@ -100,31 +100,19 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  triggerTypeAdvanced: function() {
-    let oldType = this.model.get('type')
-    if (oldType === 'custom' || oldType === 'new-form') {
-      this.model.set('title', 'Search Name')
-    }
+  triggerTypeAdvanced() {
     this.model.set('type', 'advanced')
     user.getQuerySettings().set('type', 'advanced')
     user.savePreferences()
     this.triggerCloseDropdown()
   },
-  triggerTypeBasic: function() {
-    let oldType = this.model.get('type')
-    if (oldType === 'custom' || oldType === 'new-form') {
-      this.model.set('title', 'Search Name')
-    }
+  triggerTypeBasic() {
     this.model.set('type', 'basic')
     user.getQuerySettings().set('type', 'basic')
     user.savePreferences()
     this.triggerCloseDropdown()
   },
-  triggerTypeText: function() {
-    let oldType = this.model.get('type')
-    if (oldType === 'custom' || oldType === 'new-form') {
-      this.model.set('title', 'Search Name')
-    }
+  triggerTypeText() {
     this.model.set('type', 'text')
     user.getQuerySettings().set('type', 'text')
     user.savePreferences()
