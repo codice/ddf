@@ -141,9 +141,7 @@ module.exports = Marionette.LayoutView.extend({
     return { createdOn: Common.getMomentDate(createdOn), ...json }
   },
   onRender: function() {
-    if (
-      this.model.get('type') === 'new-result'
-    ) {
+    if (this.model.get('type') === 'new-result') {
       this.$el.addClass('is-static')
     } else {
       this.searchFormActions.show(
