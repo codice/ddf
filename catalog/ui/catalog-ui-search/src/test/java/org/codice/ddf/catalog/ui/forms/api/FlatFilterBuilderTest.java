@@ -13,8 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.forms.api;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.ImmutableMap;
+import ddf.catalog.data.AttributeRegistry;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
 import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
@@ -44,12 +50,29 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(Parameterized.class)
 public class FlatFilterBuilderTest {
+  private static JsonModelBuilder json() {
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    return new JsonModelBuilder(registry);
+  }
+
+  private static XmlModelBuilder xml() {
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    return new XmlModelBuilder(registry);
+  }
+
   @Parameterized.Parameters(name = "FlatFilterBuilder impl {index}: {3}")
   public static Iterable<Object[]> data() {
     return Arrays.asList(
         new Object[][] {
-          {(Supplier<FlatFilterBuilder>) JsonModelBuilder::new, "And", "PropertyIsEqualTo", "JSON"},
-          {(Supplier<FlatFilterBuilder>) XmlModelBuilder::new, "AND", "=", "XML"}
+          {
+            (Supplier<FlatFilterBuilder>) FlatFilterBuilderTest::json,
+            "And",
+            "PropertyIsEqualTo",
+            "JSON"
+          },
+          {(Supplier<FlatFilterBuilder>) FlatFilterBuilderTest::xml, "AND", "=", "XML"}
         });
   }
 

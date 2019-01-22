@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.forms.commands;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
+import static org.fusesource.jansi.Ansi.Color.YELLOW;
 import static org.fusesource.jansi.Ansi.ansi;
 
 import com.google.common.collect.ImmutableList;
@@ -28,13 +29,14 @@ import ddf.catalog.source.SourceUnavailableException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.commands.catalog.SubjectCommands;
-import org.fusesource.jansi.Ansi;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +46,12 @@ import org.slf4j.LoggerFactory;
   name = "manage",
   description = "Provides the capability to view and delete system templates."
 )
-public class SearchFormsManageCommand extends SubjectCommands {
-
-  private static final Ansi.Color WARNING_COLOR = Ansi.Color.YELLOW;
-
-  private @Reference EndpointUtil endpointUtil;
-
-  private @Reference CatalogFramework catalogFramework;
-
+public class SearchFormsManageCommand extends SubjectCommands implements Action {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsManageCommand.class);
+
+  private final CatalogFramework catalogFramework;
+
+  private final EndpointUtil endpointUtil;
 
   @Option(
     name = "--list",
@@ -74,6 +73,15 @@ public class SearchFormsManageCommand extends SubjectCommands {
     description = "Removes all the system templates"
   )
   protected boolean massDeletion = false;
+
+  public SearchFormsManageCommand() {
+    this(get(CatalogFramework.class), get(EndpointUtil.class));
+  }
+
+  public SearchFormsManageCommand(CatalogFramework catalogFramework, EndpointUtil endpointUtil) {
+    this.catalogFramework = catalogFramework;
+    this.endpointUtil = endpointUtil;
+  }
 
   @Override
   protected Object executeWithSubject() {
@@ -108,7 +116,7 @@ public class SearchFormsManageCommand extends SubjectCommands {
 
     List<Metacard> allSystemTemplates = retrieveSystemMetacards();
     if (allSystemTemplates.isEmpty()) {
-      printColor(WARNING_COLOR, "No system forms exist.");
+      printColor(YELLOW, "No system forms exist.");
       return;
     }
 
@@ -121,7 +129,7 @@ public class SearchFormsManageCommand extends SubjectCommands {
       List<String> deletedMetacardIds = this.executeSystemTemplateRemoval(systemTemplateIds);
 
       if (deletedMetacardIds.isEmpty()) {
-        printColor(WARNING_COLOR, "No system forms were deleted");
+        printColor(YELLOW, "No system forms were deleted");
       } else {
         for (String id : deletedMetacardIds) {
           console.println(ansi().fgBrightYellow().a("Deleted: ").fgGreen().a(id).reset());
@@ -172,11 +180,9 @@ public class SearchFormsManageCommand extends SubjectCommands {
     return endpointUtil.getMetacardListByTag(SYSTEM_TEMPLATE);
   }
 
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalogFramework = catalogFramework;
-  }
-
-  public void setEndpointUtil(EndpointUtil endpointUtil) {
-    this.endpointUtil = endpointUtil;
+  private static <T> T get(Class<T> type) {
+    BundleContext context =
+        FrameworkUtil.getBundle(SearchFormsManageCommand.class).getBundleContext();
+    return context.getService(context.getServiceReference(type));
   }
 }

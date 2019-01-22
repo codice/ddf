@@ -95,14 +95,14 @@ public class SearchFormsApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   public SearchFormsApplication(
-      FilterBuilder filterBuilder,
       CatalogFramework catalogFramework,
+      FilterBuilder filterBuilder,
       TemplateTransformer transformer,
       EndpointUtil util) {
     this.catalogFramework = catalogFramework;
+    this.filterBuilder = filterBuilder;
     this.transformer = transformer;
     this.util = util;
-    this.filterBuilder = filterBuilder;
   }
 
   /**
@@ -119,7 +119,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .stream()
                 .map(Result::getMetacard)
                 .filter(Objects::nonNull)
-                .map(TemplateTransformer::toFormTemplate)
+                .map(transformer::toFormTemplate)
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),

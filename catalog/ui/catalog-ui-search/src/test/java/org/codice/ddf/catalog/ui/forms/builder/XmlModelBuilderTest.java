@@ -15,11 +15,16 @@ package org.codice.ddf.catalog.ui.forms.builder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
+import ddf.catalog.data.AttributeRegistry;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
@@ -47,7 +52,9 @@ public class XmlModelBuilderTest {
 
   @Before
   public void setup() {
-    builder = new XmlModelBuilder();
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    when(registry.lookup(any())).thenReturn(Optional.empty());
+    builder = new XmlModelBuilder(registry);
   }
 
   @Test
@@ -155,19 +162,19 @@ public class XmlModelBuilderTest {
 
   @Test
   public void testBinaryLogicTypeAllOperators() {
-    new XmlModelBuilder().beginBinaryLogicType(AND);
-    new XmlModelBuilder().beginBinaryLogicType(OR);
+    new XmlModelBuilder(null).beginBinaryLogicType(AND);
+    new XmlModelBuilder(null).beginBinaryLogicType(OR);
     // No IllegalArgumentException indicates a passing test
   }
 
   @Test
   public void testBinaryComparisonTypeAllOperators() {
-    new XmlModelBuilder().beginBinaryComparisonType("=");
-    new XmlModelBuilder().beginBinaryComparisonType(">");
-    new XmlModelBuilder().beginBinaryComparisonType(">=");
-    new XmlModelBuilder().beginBinaryComparisonType("<");
-    new XmlModelBuilder().beginBinaryComparisonType("<=");
-    new XmlModelBuilder().beginBinaryComparisonType("!=");
+    new XmlModelBuilder(null).beginBinaryComparisonType("=");
+    new XmlModelBuilder(null).beginBinaryComparisonType(">");
+    new XmlModelBuilder(null).beginBinaryComparisonType(">=");
+    new XmlModelBuilder(null).beginBinaryComparisonType("<");
+    new XmlModelBuilder(null).beginBinaryComparisonType("<=");
+    new XmlModelBuilder(null).beginBinaryComparisonType("!=");
     // No IllegalArgumentException indicates a passing test
   }
 

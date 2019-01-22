@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +29,6 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.Collections;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoader;
-import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -58,10 +56,9 @@ public class SearchFormsLoaderCommandTest {
   private @Mock Metacard mockMetacard2;
 
   private SearchFormsLoaderCommand cmd =
-      new SearchFormsLoaderCommand() {
+      new SearchFormsLoaderCommand(null, null, null) {
         @Override
-        public SearchFormsLoader generateLoader(
-            CatalogFramework cf, EndpointUtil util, String dir, String forms, String results) {
+        public SearchFormsLoader generateLoader() {
           return mockLoader;
         }
       };
@@ -95,7 +92,7 @@ public class SearchFormsLoaderCommandTest {
   }
 
   @Test
-  public void testLoadMetacardsFromDirectory() {
+  public void testLoadMetacardsFromDirectory() throws Exception {
     cmd.formsDir = ROOT + "/valid";
     cmd.formsFile = "forms.json";
     cmd.resultsFile = "results.json";
@@ -111,7 +108,7 @@ public class SearchFormsLoaderCommandTest {
   }
 
   @Test
-  public void testNoMetacardsRetrieved() {
+  public void testNoMetacardsRetrieved() throws Exception {
     when(mockLoader.retrieveSystemTemplateMetacards()).thenReturn(Collections.emptyList());
 
     cmd.executeWithSubject();

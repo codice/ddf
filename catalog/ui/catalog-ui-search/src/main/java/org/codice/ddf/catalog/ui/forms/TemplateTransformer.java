@@ -14,15 +14,14 @@
 package org.codice.ddf.catalog.ui.forms;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
-import ddf.catalog.filter.FilterBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -59,19 +58,15 @@ public class TemplateTransformer {
 
   private final FilterWriter writer;
 
-  private final CatalogFramework catalogFramework;
+  private final AttributeRegistry registry;
 
-  private final FilterBuilder filterBuilder;
-
-  public TemplateTransformer(
-      FilterBuilder filterBuilder, CatalogFramework catalogFramework, FilterWriter writer) {
-    this.filterBuilder = filterBuilder;
+  public TemplateTransformer(FilterWriter writer, AttributeRegistry registry) {
     this.writer = writer;
-    this.catalogFramework = catalogFramework;
+    this.registry = registry;
   }
 
-  public static boolean invalidFormTemplate(Metacard metacard) {
-    return TemplateTransformer.toFormTemplate(metacard) == null;
+  public boolean invalidFormTemplate(Metacard metacard) {
+    return toFormTemplate(metacard) == null;
   }
 
   /** Convert the JSON representation of a FormTemplate to a QueryTemplateMetacard. */
@@ -91,7 +86,7 @@ public class TemplateTransformer {
       String description = (String) formTemplate.get("description");
       String id = (String) formTemplate.get("id");
 
-      TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
+      TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder(registry));
       VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
       JAXBElement filter = visitor.getResult();
       if (!filter.getDeclaredType().equals(FilterType.class)) {
@@ -125,14 +120,14 @@ public class TemplateTransformer {
 
   /** Convert a query template metacard into the JSON representation of FormTemplate. */
   @Nullable
-  public static FormTemplate toFormTemplate(Metacard metacard) {
+  public FormTemplate toFormTemplate(Metacard metacard) {
     if (!QueryTemplateMetacard.isQueryTemplateMetacard(metacard)) {
       LOGGER.debug("Metacard {} was not a query template metacard", metacard.getId());
       return null;
     }
 
     QueryTemplateMetacard wrapped = new QueryTemplateMetacard(metacard);
-    TransformVisitor<FilterNode> visitor = new TransformVisitor<>(new JsonModelBuilder());
+    TransformVisitor<FilterNode> visitor = new TransformVisitor<>(new JsonModelBuilder(registry));
 
     String metacardOwner = retrieveOwnerIfPresent(metacard);
     Map<String, List<Serializable>> securityAttributes = retrieveSecurityIfPresent(metacard);
@@ -147,7 +142,8 @@ public class TemplateTransformer {
         return null;
       }
       JAXBElement<FilterType> root =
-          reader.unmarshalFilter(new ByteArrayInputStream(formsFilter.getBytes("UTF-8")));
+          reader.unmarshalFilter(
+              new ByteArrayInputStream(formsFilter.getBytes(StandardCharsets.UTF_8)));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return new FormTemplate(
           wrapped,
@@ -155,7 +151,7 @@ public class TemplateTransformer {
           securityAttributes,
           metacardOwner,
           wrapped.getQuerySettings());
-    } catch (JAXBException | UnsupportedEncodingException e) {
+    } catch (JAXBException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "
               + metacard.getId(),

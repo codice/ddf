@@ -62,6 +62,12 @@ public class SearchFormsLoader {
 
   private static final Security SECURITY = Security.getInstance();
 
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
+          .create();
+
   private static final File DEFAULT_FORMS_DIRECTORY =
       new File(new AbsolutePathResolver("etc/forms").getPath());
 
@@ -75,23 +81,28 @@ public class SearchFormsLoader {
 
   private final String resultsFileName;
 
-  private static final Gson GSON =
-      new GsonBuilder()
-          .disableHtmlEscaping()
-          .registerTypeAdapterFactory(LongDoubleTypeAdapter.FACTORY)
-          .create();
+  private final CatalogFramework catalogFramework;
 
-  private CatalogFramework catalogFramework;
+  private final TemplateTransformer transformer;
 
-  private EndpointUtil endpointUtil;
+  private final EndpointUtil endpointUtil;
 
   public SearchFormsLoader(
       CatalogFramework catalogFramework,
+      TemplateTransformer transformer,
+      EndpointUtil endpointUtil) {
+    this(catalogFramework, transformer, endpointUtil, null, null, null);
+  }
+
+  public SearchFormsLoader(
+      CatalogFramework catalogFramework,
+      TemplateTransformer transformer,
       EndpointUtil endpointUtil,
       @Nullable String formsDirectory,
       @Nullable String formsFileName,
       @Nullable String resultsFileName) {
     this.catalogFramework = catalogFramework;
+    this.transformer = transformer;
     this.endpointUtil = endpointUtil;
     this.formsFileName = (formsFileName == null) ? DEFAULT_FORMS_FILE : formsFileName;
     this.resultsFileName = (resultsFileName == null) ? DEFAULT_RESULTS_FILE : resultsFileName;
@@ -152,7 +163,7 @@ public class SearchFormsLoader {
     }
 
     Object configObject = GSON.fromJson(payload, Object.class);
-    if (!List.class.isInstance(configObject)) {
+    if (!(configObject instanceof List)) {
       LOGGER.warn(
           "Could not load forms configuration in {}, JSON should be a list of maps",
           file.getName());
@@ -203,7 +214,7 @@ public class SearchFormsLoader {
     }
 
     // Validation so the catalog is not contaminated on startup, which would impact every request
-    if (TemplateTransformer.invalidFormTemplate(metacard)) {
+    if (transformer.invalidFormTemplate(metacard)) {
       LOGGER.warn("System forms configuration for template '{}' had one or more problems", title);
       return null;
     }
@@ -253,7 +264,7 @@ public class SearchFormsLoader {
 
   private Consumer<? super Object> loggingConsumerFactory(File file) {
     return obj -> {
-      if (!Map.class.isInstance(obj)) {
+      if (!(obj instanceof Map)) {
         LOGGER.warn(
             "Unexpected configuration in {}, values should be maps not {}",
             file.getName(),

@@ -506,14 +506,13 @@
 
     <bean id="templateTransformer"
           class="org.codice.ddf.catalog.ui.forms.TemplateTransformer">
-        <argument ref="filterBuilder"/>
-        <argument ref="catalogFramework"/>
         <argument ref="filterWriter"/>
+        <argument ref="attributeRegistry"/>
     </bean>
 
     <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication">
-        <argument ref="filterBuilder"/>
         <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
         <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>

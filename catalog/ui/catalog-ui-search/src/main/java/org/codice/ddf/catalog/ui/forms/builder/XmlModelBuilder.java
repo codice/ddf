@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.builder;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.collect.ImmutableMap;
+import ddf.catalog.data.AttributeRegistry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,14 +47,6 @@ import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
-
-  /**
-   * Helper interface for cleanly representing operations that condense a list of XML elements to a
-   * single element. Use cases include the creation of logical op types in a filter structure, or
-   * the population of values for a terminal type.
-   */
-  @FunctionalInterface
-  private interface MultiNodeReducer extends Function<List<JAXBElement<?>>, JAXBElement> {}
 
   // Possibly use a ValueAdapter to circumvent difference in return type; i.e. Literal vs Object
   private static final Map<String, MultiNodeReducer> TERMINAL_OPS =
@@ -90,15 +83,18 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
    */
   private final Deque<List<JAXBElement<?>>> depth;
 
+  private final AttributeValueNormalizer normalizer;
+
   private JAXBElement rootNode;
 
   private TerminalNodeSupplier supplierInProgress;
 
   private boolean complete = false;
 
-  public XmlModelBuilder() {
+  public XmlModelBuilder(AttributeRegistry registry) {
     this.logicOpCache = new ArrayDeque<>();
     this.depth = new ArrayDeque<>();
+    this.normalizer = new AttributeValueNormalizer(registry);
   }
 
   @Override
@@ -217,8 +213,11 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   public XmlModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
+    String normalizedValue =
+        normalizer.normalizeForXml(supplierInProgress.propertyNode.getValue(), value);
     supplierInProgress.setValue(
-        FACTORY.createLiteral(new LiteralType().withContent(Collections.singletonList(value))));
+        FACTORY.createLiteral(
+            new LiteralType().withContent(Collections.singletonList(normalizedValue))));
     return this;
   }
 
@@ -304,12 +303,20 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
   }
 
+  /**
+   * Helper interface for cleanly representing operations that condense a list of XML elements to a
+   * single element. Use cases include the creation of logical op types in a filter structure, or
+   * the population of values for a terminal type.
+   */
+  @FunctionalInterface
+  private interface MultiNodeReducer extends Function<List<JAXBElement<?>>, JAXBElement> {}
+
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
     private final MultiNodeReducer reducer;
     private JAXBElement<String> propertyNode = null;
     private JAXBElement<?> valueNode;
 
-    TerminalNodeSupplier(final MultiNodeReducer reducer) {
+    private TerminalNodeSupplier(final MultiNodeReducer reducer) {
       notNull(reducer);
       this.reducer = reducer;
     }
