@@ -268,6 +268,7 @@ module.exports = function OpenlayersMap(
       const extent = map.getView().calculateExtent(map.getSize())
       let longitudeEast = wrapNum(extent[2], -180, 180)
       const longitudeWest = wrapNum(extent[0], -180, 180)
+      //add 360 degrees to longitudeEast to accommodate bounding boxes that span across the anti-meridian
       if (longitudeEast < longitudeWest) {
         longitudeEast += 360
       }
