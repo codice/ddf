@@ -82,7 +82,8 @@ module.exports = Marionette.ItemView.extend({
     try {
       let res = await fetch(url, { Accept: 'application/json' })
       if (!res.ok) {
-        throw Error(res.statusText)
+        const json = await res.json()
+        throw Error(json.message)
       }
 
       if (res.headers.get('content-disposition') != null) {
