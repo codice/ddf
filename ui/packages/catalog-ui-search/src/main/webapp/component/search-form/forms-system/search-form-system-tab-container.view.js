@@ -17,7 +17,7 @@ import React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 const Marionette = require('marionette')
 const SearchFormCollectionView = require('../search-form.collection.view')
-const SearchFormCollection = require('../search-form-all-collection-instance')
+const SearchFormCollection = require('../search-form-collection-instance')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
 const Router = require('../../router/router.js')
 

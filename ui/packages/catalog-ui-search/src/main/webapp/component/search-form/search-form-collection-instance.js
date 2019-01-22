@@ -1,4 +1,3 @@
-// TODO Rename file to search-form-collection-instancejs
 /**
  * Copyright (c) Codice Foundation
  *
@@ -11,5 +10,5 @@
  *
  **/
 
-const AllSearchFormsCollection = require('./search-form-all.collection')
-module.exports = new AllSearchFormsCollection()
+const SearchFormsCollection = require('./search-form.collection')
+module.exports = new SearchFormsCollection()

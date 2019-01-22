@@ -20,7 +20,7 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-form-selector.hbs')
 const SearchFormsList = require('../../search-form-list/search-form-list.view')
 const store = require('../../../js/store.js')
-const SearchFormCollection = require('../../search-form/search-form-all-collection-instance')
+const SearchFormCollection = require('../../search-form/search-form-collection-instance')
 const Backbone = require('backbone')
 
 module.exports = DropdownView.extend({

@@ -16,7 +16,7 @@ import { ChangeBackground } from '../../react-component/styles/mixins/change-bac
 const Marionette = require('marionette')
 const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
 const Router = require('../router/router.js')
-const SearchFormCollection = require('../search-form/search-form-all-collection-instance')
+const SearchFormCollection = require('../search-form/search-form-collection-instance')
 const SearchFormModel = require('../search-form/search-form.js')
 const SelectionInterface = require('../selection-interface/selection-interface.model.js')
 const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
