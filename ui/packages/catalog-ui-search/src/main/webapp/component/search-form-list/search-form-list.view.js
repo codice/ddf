@@ -57,6 +57,7 @@ class SearchForms extends React.Component {
             style={{ width: '100%' }}
             value={filter}
             onChange={e => this.setState({ filter: e.target.value })}
+            placeholder="Type to filter"
           />
         </FilterPadding>
         {forms.length === 0 ? <NoSearchForms /> : null}
