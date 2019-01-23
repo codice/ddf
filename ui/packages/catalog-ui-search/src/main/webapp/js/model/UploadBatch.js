@@ -20,21 +20,6 @@ var updatePreferences = _.throttle(function() {
   wreqr.vent.trigger('preferences:save')
 }, 1000)
 
-function calculatePercentageDone(files) {
-  if (files.length === 0) {
-    return 100
-  }
-  var totalBytes = files.reduce(function(total, file) {
-    total += file.upload.total
-    return total
-  }, 0)
-  var bytesSent = files.reduce(function(total, file) {
-    total += file.upload.bytesSent
-    return total
-  }, 0)
-  return 100 * (bytesSent / totalBytes)
-}
-
 module.exports = Backbone.AssociatedModel.extend({
   options: undefined,
   defaults: function() {
@@ -137,7 +122,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   handleTotalUploadProgress: function() {
     this.set({
-      percentage: calculatePercentageDone(this.options.dropzone.files),
+      percentage: this.calculatePercentageDone(),
     })
   },
   unlistenToDropzone() {
@@ -160,8 +145,9 @@ module.exports = Backbone.AssociatedModel.extend({
     }, 0)
     this.set({
       finished: true,
+      percentage: 100,
     })
-    wreqr.vent.trigger('preferences:save')
+    updatePreferences()
   },
   handleUploadUpdate: function() {
     this.set({
@@ -199,5 +185,24 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   getTimeComparator: function() {
     return this.get('sentAt')
+  },
+  calculatePercentageDone: function() {
+    const files = this.options.dropzone.files
+    if (files.length === 0) {
+      return 100
+    }
+    const totalBytes = files.reduce(function(total, file) {
+      total += file.upload.total
+      return total
+    }, 0)
+    const bytesSent = files.reduce(function(total, file) {
+      total += file.upload.bytesSent
+      return total
+    }, 0)
+    let progress = 100 * (bytesSent / totalBytes)
+    if (progress >= 100 && !this.get('finished')) {
+      progress = 99
+    }
+    return progress
   },
 })
