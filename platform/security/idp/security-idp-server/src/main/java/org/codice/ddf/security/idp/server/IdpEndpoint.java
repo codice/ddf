@@ -112,6 +112,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.util.Strings;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -1027,9 +1028,25 @@ public class IdpEndpoint implements Idp, SessionHandler {
         SecurityToken securityToken = new SecurityToken(assertionId, samlToken, null);
         SecurityAssertionImpl assertion = new SecurityAssertionImpl(securityToken);
 
-        if (forceAuthn || !assertion.isPresentlyValid()) {
+        if (forceAuthn) {
           cookieCache.removeSamlAssertion(key);
           return false;
+        } else if (!assertion.isPresentlyValid()) {
+          SAMLAuthenticationToken samlAuthenticationToken =
+              new SAMLAuthenticationToken(null, securityToken, "idp");
+          try {
+            Subject subject = securityManager.getSubject(samlAuthenticationToken);
+            for (Object principal : subject.getPrincipals().asList()) {
+              if (principal instanceof SecurityAssertion) {
+                SecurityToken newSecurityToken = ((SecurityAssertion) principal).getSecurityToken();
+                samlToken = newSecurityToken.getToken();
+                cookieCache.cacheSamlAssertion(key, samlToken);
+              }
+            }
+          } catch (SecurityServiceException | AuthenticationException e) {
+            cookieCache.removeSamlAssertion(key);
+            return false;
+          }
         }
         return true;
       }
