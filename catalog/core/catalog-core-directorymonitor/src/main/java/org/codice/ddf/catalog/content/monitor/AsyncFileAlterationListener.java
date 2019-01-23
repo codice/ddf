@@ -18,8 +18,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.spi.Synchronization;
 
 /**
- * AsyncFileAlterationListener Based on {@link
- * org.apache.commons.io.monitor.FileAlterationListener}. Used by the {@link
+ * Based on {@link org.apache.commons.io.monitor.FileAlterationListener}. Used by the {@link
  * AsyncFileAlterationObserver} to handle when a file has been changed.
  *
  * @implNote The {@link AsyncFileAlterationListener} must call {@link

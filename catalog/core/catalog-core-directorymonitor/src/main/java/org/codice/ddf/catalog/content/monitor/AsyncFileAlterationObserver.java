@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * AsyncFileAlterationObserver
- *
- * <p>Based on {@link org.apache.commons.io.monitor.FileAlterationObserver}, except modified to only
+ * Based on {@link org.apache.commons.io.monitor.FileAlterationObserver}, except modified to only
  * update the observer state on successful async request
  *
  * <p>This implementation only works with one AsyncFileAlterationListener.

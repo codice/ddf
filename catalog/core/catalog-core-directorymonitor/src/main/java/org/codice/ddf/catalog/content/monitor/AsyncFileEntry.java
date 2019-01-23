@@ -23,10 +23,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import javax.validation.constraints.NotNull;
 
 /**
- * AsyncFileEntry
- *
- * <p>The core of this file is based upon {@link org.apache.commons.io.monitor.FileEntry}, modified
- * to update only on successful async operations.
+ * The core of this file is based upon {@link org.apache.commons.io.monitor.FileEntry}, modified to
+ * update only on successful async operations.
  *
  * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots taken
  * when commit() is called. hasChanged will compare the current value of the file to the last time
