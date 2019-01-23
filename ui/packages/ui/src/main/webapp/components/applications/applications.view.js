@@ -14,6 +14,7 @@
  **/
 /*global define*/
 /** Main view page for add. **/
+import * as React from 'react'
 define([
   'require',
   'backbone',
@@ -40,6 +41,9 @@ define([
   var Model = {}
 
   var NewApplicationView = Marionette.Layout.extend({
+    template() {
+      return <React.Fragment />
+    },
     modelEvents: {
       change: 'modelChanged',
     },

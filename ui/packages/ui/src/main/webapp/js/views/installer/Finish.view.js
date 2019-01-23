@@ -14,10 +14,10 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(['backbone.marionette', 'templates/installer/finish.handlebars'], function(
-  Marionette,
-  finishTemplate
-) {
+define([
+  'backbone.marionette',
+  'templates/installer/finish.handlebars',
+], function(Marionette, finishTemplate) {
   var ConfigurationView = Marionette.ItemView.extend({
     template: finishTemplate,
     tagName: 'div',

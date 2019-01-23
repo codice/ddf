@@ -10,6 +10,7 @@
  *
  **/
 /*global require,define,setTimeout*/
+import * as React from 'react'
 import { iframeResizer } from 'iframe-resizer'
 define([
   'backbone.marionette',
@@ -83,6 +84,9 @@ define([
           className: 'tab-content full-height',
           collection: this.model.get('value'),
           itemView: Marionette.ItemView.extend({
+            template() {
+              return <React.Fragment />
+            },
             tagName: 'div',
             className: 'tab-pane',
             initialize: function() {

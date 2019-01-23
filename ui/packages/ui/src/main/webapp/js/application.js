@@ -12,6 +12,16 @@
 /*global define, encodeURI*/
 /* jslint browser:true */
 // #Main Application
+import Theme from '../components/container/theme'
+import { patchListenTo } from '@connexta/atlas/extensions/backbone'
+import {
+  addOnFirstRender,
+  switchRenderToReact,
+} from '@connexta/atlas/extensions/marionette'
+patchListenTo()
+addOnFirstRender()
+switchRenderToReact({ aggressive: false, Provider: Theme })
+
 define([
   'underscore',
   'backbone',
@@ -25,13 +35,6 @@ define([
   'js/controllers/Modal.controller',
   'js/controllers/SystemUsage.controller',
   'properties',
-  '../extensions/marionette.ItemView.render.js',
-  '../extensions/backbone.listenTo.js',
-  '../extensions/marionette.onFirstRender.js',
-  '../extensions/marionette.renderer.render.js',
-  '../extensions/marionette.ItemView.attachElContent.js',
-  '../extensions/marionette.View.isMarionetteComponent.js',
-  '../extensions/marionette.View.remove.js',
 ], function(
   _,
   Backbone,

@@ -13,11 +13,11 @@
  *
  **/
 /* global define */
-define(['backbone.marionette', './tab-item.view', 'js/CustomElements'], function(
-  Marionette,
-  TabItemView,
-  CustomElements
-) {
+define([
+  'backbone.marionette',
+  './tab-item.view',
+  'js/CustomElements',
+], function(Marionette, TabItemView, CustomElements) {
   return Marionette.CollectionView.extend({
     tagName: CustomElements.register('tab-item-collection'),
     itemView: TabItemView,
