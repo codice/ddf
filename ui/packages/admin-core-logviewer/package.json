@@ -22,7 +22,7 @@
     "url": "https://github.com/codice/ddf.git"
   },
   "dependencies": {
-    "@connexta/atlas": "0.0.22",
+    "@connexta/atlas": "0.0.32",
     "es6-promise": "3.2.1",
     "event-stream": "3.3.2",
     "isomorphic-fetch": "2.2.1",

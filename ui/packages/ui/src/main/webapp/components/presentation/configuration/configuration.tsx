@@ -38,6 +38,7 @@ const ConfigurationElement = styled.div`
     width: 10%;
   }
 `
+
 export type ConfigurationType = {
   id: string
   fpid: string
