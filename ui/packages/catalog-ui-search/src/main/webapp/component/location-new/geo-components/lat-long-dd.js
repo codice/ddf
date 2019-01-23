@@ -82,10 +82,10 @@ const Line = props => {
   const points = dd.line.list.map((entry, index) => (
     <Group key={index}>
       <DdLatitude
-        value={DistanceUtils.coorindateRound(dd.line.list[index].latitude)}
+        value={DistanceUtils.coordinateRound(dd.line.list[index].latitude)}
         onChange={setState(
           (draft, value) =>
-            (draft.dd.line.list[index].latitude = DistanceUtils.coorindateRound(
+            (draft.dd.line.list[index].latitude = DistanceUtils.coordinateRound(
               value
             ))
         )}
