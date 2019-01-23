@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -43,7 +44,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
 
   private final Set<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
 
-  private AsyncFileEntry parent;
+  @Nullable private AsyncFileEntry parent;
 
   private String name;
 
@@ -51,7 +52,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
     this(null, file);
   }
 
-  public AsyncFileEntry(AsyncFileEntry parent, File file) {
+  public AsyncFileEntry(@Nullable AsyncFileEntry parent, File file) {
     this.parent = parent;
     contentFile = file;
     refresh();
@@ -96,9 +97,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   }
 
   /**
-   * checkNetwork:
-   *
-   * <p>Checking the network by checking the directory under the file. This works under two
+   * Checking the network by checking the directory under the file. This works under two
    * assumptions:
    *
    * <ol>
@@ -119,27 +118,18 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   }
 
   /**
-   * commit:
-   *
-   * <p>Tells the AsyncFileEntry that it's successfully been processed and to take a new
-   * meta-snapshot
+   * Tells the AsyncFileEntry that it's successfully been processed and to take a new meta-snapshot
    */
   public void commit() {
     refresh();
   }
 
-  public long getLength() {
+  private long getLength() {
     return contentFile.exists() && !contentFile.isDirectory() ? contentFile.length() : 0;
   }
 
-  public boolean exists() {
-    return exists;
-  }
-
   /**
-   * getChildren:
-   *
-   * <p>Note: returns a new List to avoid sync access exceptions
+   * Note: returns a new List to avoid sync access exceptions
    *
    * @return A new sorted List
    */
@@ -155,7 +145,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
     children.remove(child);
   }
 
-  public boolean hasChild(AsyncFileEntry child) {
+  private boolean hasChild(AsyncFileEntry child) {
     return children.contains(child);
   }
 
@@ -165,8 +155,6 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   }
 
   /**
-   * equals:
-   *
    * @param o object to compare equality
    * @return true if the {@link File} being wrapped by a {@link AsyncFileEntry} equals another
    *     {@link File} False if the object is not a {@link AsyncFileEntry} or a {@link File}
@@ -195,16 +183,14 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   }
 
   /**
-   * getFromParent:
-   *
-   * <p>gets the {@link AsyncFileEntry} from the parent if it exists.
+   * gets the {@link AsyncFileEntry} from the parent if it exists.
    *
    * @return the entry from the parent or null.
    */
   public AsyncFileEntry getFromParent() {
-    if (getParent().isPresent()) {
-      if (getParent().get().hasChild(this)) {
-        List<AsyncFileEntry> children = getParent().get().getChildren();
+    if (parent != null) {
+      if (parent.hasChild(this)) {
+        List<AsyncFileEntry> children = parent.getChildren();
         return children.get(children.indexOf(this));
       }
     }

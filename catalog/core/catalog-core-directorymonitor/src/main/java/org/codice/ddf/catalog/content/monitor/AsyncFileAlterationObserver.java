@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.CompletionSynchronization;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class AsyncFileAlterationObserver implements Serializable {
 
   private final AsyncFileEntry rootFile;
-  private AsyncFileAlterationListener listener = null;
+  @Nullable private AsyncFileAlterationListener listener = null;
   private final transient Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
 
@@ -264,6 +265,9 @@ public class AsyncFileAlterationObserver implements Serializable {
     } else {
       //  The file doesn't exist.
       //  We assume this can't happen so this must be a network disconnect.
+      LOGGER.debug(
+          "The monitored file [{}] does not exist. No file processing will be done through the CDM",
+          rootFile.getName());
     }
 
     /* fire onStop() */
@@ -271,9 +275,7 @@ public class AsyncFileAlterationObserver implements Serializable {
   }
 
   /**
-   * listFiles:
-   *
-   * <p>Note: returns a new Array to avoid sync access exceptions
+   * Note: returns a new Array to avoid sync access exceptions
    *
    * @return A new sorted File Array
    */
@@ -289,9 +291,7 @@ public class AsyncFileAlterationObserver implements Serializable {
   }
 
   /**
-   * Processing:
-   *
-   * <p>A list of files that are currently being processed by the CDM
+   * A list of files that are currently being processed by the CDM
    *
    * <p>Holds all the synchronized tags within this file. Potentially should be another class?
    */

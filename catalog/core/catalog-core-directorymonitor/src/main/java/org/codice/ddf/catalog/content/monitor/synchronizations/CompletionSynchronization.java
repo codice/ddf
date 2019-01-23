@@ -26,9 +26,9 @@ public class CompletionSynchronization implements Synchronization {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CompletionSynchronization.class);
 
-  private AsyncFileEntry asyncFileEntry;
+  private final AsyncFileEntry asyncFileEntry;
 
-  private BiConsumer<AsyncFileEntry, Boolean> callback;
+  private final BiConsumer<AsyncFileEntry, Boolean> callback;
 
   public CompletionSynchronization(
       AsyncFileEntry entry, BiConsumer<AsyncFileEntry, Boolean> removeFromProcessors) {
@@ -47,7 +47,8 @@ public class CompletionSynchronization implements Synchronization {
         AccessController.doPrivileged((PrivilegedAction<Boolean>) asyncFileEntry::checkNetwork);
 
     if (!connected) {
-      LOGGER.warn("a network error occurred. The Content Directory Monitor may be out of sync!");
+      LOGGER.debug(
+          "a network error occurred, The file [{}] failed to process", asyncFileEntry.getName());
     }
 
     callback.accept(asyncFileEntry, false);

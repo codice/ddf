@@ -17,6 +17,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,15 +41,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.invocation.Invocation;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Stubber;
 
 @RunWith(JUnit4.class)
 public class AsyncFileAlterationObserverTest {
 
   private static String dummyData = "The duck may swim on the lake...";
+
   private static String changedData = "the duck.";
+
   private static int delayBuf = 125;
 
   private Consumer<Runnable> doTestWrapper = Runnable::run;
@@ -110,15 +111,15 @@ public class AsyncFileAlterationObserverTest {
 
     reset(fileListener);
     //  Mockito Stuff
-    Mockito.doAnswer(this::mockitoDoTest)
+    doAnswer(this::mockitoDoTest)
         .when(fileListener)
         .onFileCreate(any(File.class), any(Synchronization.class));
 
-    Mockito.doAnswer(this::mockitoDoTest)
+    doAnswer(this::mockitoDoTest)
         .when(fileListener)
         .onFileChange(any(File.class), any(Synchronization.class));
 
-    Mockito.doAnswer(this::mockitoDoTest)
+    doAnswer(this::mockitoDoTest)
         .when(fileListener)
         .onFileDelete(any(File.class), any(Synchronization.class));
 
@@ -126,7 +127,7 @@ public class AsyncFileAlterationObserverTest {
     failures = 0;
   }
 
-  private Stubber mockitoDoTest(InvocationOnMock e) {
+  private Object mockitoDoTest(InvocationOnMock e) {
     Object[] args = e.getArguments();
     doTestWrapper.accept(() -> doTest((Synchronization) args[1]));
     return null;
@@ -152,9 +153,9 @@ public class AsyncFileAlterationObserverTest {
   @Test
   public void testInitialEmptyFile() {
     observer.checkAndNotify();
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -164,8 +165,8 @@ public class AsyncFileAlterationObserverTest {
     observer.checkAndNotify();
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -182,8 +183,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(files.length + failures))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -197,9 +198,9 @@ public class AsyncFileAlterationObserverTest {
       observer.checkAndNotify();
     }
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -212,10 +213,10 @@ public class AsyncFileAlterationObserverTest {
     Stream.of(files).forEach(this::changeData);
     observer.checkAndNotify();
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -232,10 +233,10 @@ public class AsyncFileAlterationObserverTest {
       observer.checkAndNotify();
     }
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length + failures))
         .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -249,8 +250,8 @@ public class AsyncFileAlterationObserverTest {
 
     observer.checkAndNotify();
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -268,8 +269,8 @@ public class AsyncFileAlterationObserverTest {
       observer.checkAndNotify();
     }
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length + failures))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -283,8 +284,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -298,10 +299,10 @@ public class AsyncFileAlterationObserverTest {
 
     runThreads(observer::checkAndNotify, 10);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -315,8 +316,8 @@ public class AsyncFileAlterationObserverTest {
 
     runThreads(observer::checkAndNotify, 10);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -341,7 +342,7 @@ public class AsyncFileAlterationObserverTest {
     //  It will wait until the file has finished it's prior update to remove it.
 
     observer.checkAndNotify();
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
     Thread.sleep(delay + delayBuf);
 
     verify(fileListener, times(files.length))
@@ -351,7 +352,7 @@ public class AsyncFileAlterationObserverTest {
 
     observer.checkAndNotify();
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
@@ -373,7 +374,7 @@ public class AsyncFileAlterationObserverTest {
     //  It will wait until the file has finished it's prior update to remove it.
 
     observer.checkAndNotify();
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     Thread.sleep(delay + delayBuf);
 
@@ -386,7 +387,7 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -411,8 +412,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -437,10 +438,10 @@ public class AsyncFileAlterationObserverTest {
 
     Thread.sleep(delay + delayBuf);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -465,8 +466,8 @@ public class AsyncFileAlterationObserverTest {
 
     Thread.sleep(delay + delayBuf);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -480,8 +481,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(totalSize))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -517,8 +518,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(totalNoFiles))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -538,9 +539,9 @@ public class AsyncFileAlterationObserverTest {
 
     observer.checkAndNotify();
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(5)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     init();
 
@@ -585,9 +586,9 @@ public class AsyncFileAlterationObserverTest {
 
     Thread.sleep(delay + delayBuf);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(5)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     init();
 
@@ -638,7 +639,7 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(grandchildFiles.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(grandchildFiles.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -663,7 +664,7 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(grandchildFiles.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(grandchildFiles.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -711,15 +712,13 @@ public class AsyncFileAlterationObserverTest {
     //  These are combined because we don't know what it will fail on. Thus we can only
     //  count the combined total.
 
-    Collection<Invocation> temp = Mockito.mockingDetails(fileListener).getInvocations();
-
     ArgumentCaptor<File> propertyKeyCaptor = ArgumentCaptor.forClass(File.class);
     Mockito.verify(fileListener, atLeast(0)).onFileCreate(propertyKeyCaptor.capture(), any());
     Mockito.verify(fileListener, atLeast(0)).onFileDelete(propertyKeyCaptor.capture(), any());
 
     assertThat(propertyKeyCaptor.getAllValues().size(), is(grandchildFiles.length * 2 + failures));
 
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -731,8 +730,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(totalSize))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -753,8 +752,8 @@ public class AsyncFileAlterationObserverTest {
 
     runThreads(observer::checkAndNotify, 10);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(totalSize))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -774,8 +773,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(files.length + failures))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -798,8 +797,8 @@ public class AsyncFileAlterationObserverTest {
     //  Just in case there was a straggler who was unable to successfully finish
     runThreads(observer::checkAndNotify, 1);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length + failures))
         .onFileDelete(any(File.class), any(Synchronization.class));
   }
@@ -819,10 +818,10 @@ public class AsyncFileAlterationObserverTest {
 
     runThreads(observer::checkAndNotify, 10);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(totalSize))
         .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   //  This test is implementation specific but it feels like a good implementation to follow.
@@ -842,8 +841,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
     //  Does the observer clean up it's state?
     assertThat(observer.getRootFile().getChildren().isEmpty(), is(true));
   }
@@ -868,8 +867,8 @@ public class AsyncFileAlterationObserverTest {
 
     verify(fileListener, times(totalSize + failures))
         .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     init();
     addDelay(delay);
@@ -884,10 +883,10 @@ public class AsyncFileAlterationObserverTest {
     removeDelay();
     observer.checkAndNotify();
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length + failures))
         .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     init();
     addDelay(delay);
@@ -912,13 +911,13 @@ public class AsyncFileAlterationObserverTest {
 
     //  Implementation detail. Since the modify code is still processing,
     //  deletes SHOULD not happen.
-    verify(fileListener, times(0)).onFileDelete(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     runThreads(observer::checkAndNotify, threads);
 
     Thread.sleep(delay + delayBuf);
 
-    verify(fileListener, times(0)).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(grandchildFiles.length))
         .onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(5)).onFileDelete(any(File.class), any(Synchronization.class));
