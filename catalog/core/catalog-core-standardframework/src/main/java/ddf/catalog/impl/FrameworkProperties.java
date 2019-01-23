@@ -282,7 +282,7 @@ public class FrameworkProperties {
   }
 
   public Collection<CatalogStore> getCatalogStores() {
-    return catalogStores; //  This is gonna have to return a new object most likely.
+    return catalogStores;
   }
 
   public void setCatalogStores(Collection<CatalogStore> catalogStores) {

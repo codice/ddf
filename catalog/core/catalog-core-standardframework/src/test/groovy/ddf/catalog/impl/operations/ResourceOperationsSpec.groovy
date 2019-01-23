@@ -120,7 +120,7 @@ class ResourceOperationsSpec extends Specification {
             preResource = 3.collect { Mock(PreResourcePlugin) }
             postResource = 4.collect { Mock(PostResourcePlugin) }
             reliableResourceDownloadManager = downManager
-            federatedSources = ['resourcename': Mock(FederatedSource)]
+            federatedSources = [mockFederatedSource('resourcename')]
         }
 
         and:
@@ -171,7 +171,7 @@ class ResourceOperationsSpec extends Specification {
         policyPlugin.processPreResource(request) >> { throw new StopProcessingException('stop') }
         frameworkProperties.with {
             policyPlugins = [policyPlugin]
-            federatedSources = ['resourcename': Mock(FederatedSource)]
+            federatedSources = [mockFederatedSource('resourcename')]
         }
 
         when:
@@ -192,4 +192,11 @@ class ResourceOperationsSpec extends Specification {
         policyResponse.operationPolicy() >> [:]
         return policyResponse
     }
+
+    FederatedSource mockFederatedSource(def id) {
+        def federatedSource = Mock(FederatedSource)
+        federatedSource.getId() >> id
+        return federatedSource
+    }
+
 }

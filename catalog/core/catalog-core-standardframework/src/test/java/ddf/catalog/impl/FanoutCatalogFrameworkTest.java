@@ -83,7 +83,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
@@ -364,11 +363,8 @@ public class FanoutCatalogFrameworkTest {
     frameworkProperties.setSourcePoller(poller);
     frameworkProperties.setFederationStrategy(new MockFederationStrategy());
     frameworkProperties.setPostIngest(postIngestPlugins);
-    Map<String, FederatedSource> sourceMap = new HashMap<>();
-    for (FederatedSource federatedSource : fedSources) {
-      sourceMap.put(federatedSource.getId(), federatedSource);
-    }
-    frameworkProperties.setFederatedSources(sourceMap);
+    List<FederatedSource> sourceList = new ArrayList<>(fedSources);
+    frameworkProperties.setFederatedSources(sourceList);
 
     CatalogFrameworkImpl framework = createCatalogFramework(frameworkProperties);
 

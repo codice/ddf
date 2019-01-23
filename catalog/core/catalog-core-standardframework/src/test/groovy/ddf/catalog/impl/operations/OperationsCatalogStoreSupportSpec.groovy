@@ -20,18 +20,26 @@ import ddf.catalog.source.CatalogStore
 import spock.lang.Specification
 
 class OperationsCatalogStoreSupportSpec extends Specification {
-    private static final String SOURCE_ID = "test_source"
+
+    private static final String SOURCE_ID = 'test_source'
 
     private List<CatalogProvider> catalogProviders
     private FrameworkProperties frameworkProperties
     private SourceOperations sourceOperations
 
     def setup() {
+
+        def cat1 = Mock(CatalogStore)
+        def cat2 = Mock(CatalogStore)
+
+        cat1.getId() >> 'cat1'
+        cat2.getId() >> 'cat2'
+
         catalogProviders = (1..3).collect { mockCatalogProvider(it) }
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
-            catalogStores = [cat1: Mock(CatalogStore), cat2: Mock(CatalogStore)]
+            catalogStores = [cat1, cat2]
         }
 
         sourceOperations = Mock(SourceOperations)
@@ -151,7 +159,7 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         def response = opsCatalog.getCatalogStoresForRequest(request, exceptions)
 
         then:
-        response == [frameworkProperties.catalogStores.get('cat1')]
+        response == [frameworkProperties.catalogStores.find{it.getId() == 'cat1'}]
         exceptions.size() == 1
     }
 
@@ -161,3 +169,4 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         return catProv
     }
 }
+

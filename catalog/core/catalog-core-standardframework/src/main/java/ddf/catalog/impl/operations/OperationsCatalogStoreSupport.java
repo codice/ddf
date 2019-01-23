@@ -21,8 +21,8 @@ import ddf.catalog.source.CatalogStore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
@@ -52,18 +52,17 @@ public class OperationsCatalogStoreSupport {
 
     List<CatalogStore> results = new ArrayList<>(request.getStoreIds().size());
     for (String destination : request.getStoreIds()) {
-      //  Sream and Filter
-      final List<CatalogStore> collection =
+      final Optional<CatalogStore> source =
           frameworkProperties
               .getCatalogStores()
               .stream()
               .filter(e -> e.getId().equals(destination))
-              .collect(Collectors.toList());
-      if (!collection.isEmpty()) {
-        //  What should happen if it filters down to more than one? :thinking:
-        results.add(collection.get(0));
-      } else if (sourceOperations.getCatalog() == null
-          || !destination.equals(sourceOperations.getCatalog().getId())) {
+              .findFirst();
+      source.ifPresent(results::add);
+
+      if (!source.isPresent()
+          && (sourceOperations.getCatalog() == null
+              || !destination.equals(sourceOperations.getCatalog().getId()))) {
         exceptions.add(new ProcessingDetailsImpl(destination, null, "CatalogStore does not exist"));
       }
     }
