@@ -66,7 +66,7 @@ class HttpSolrClientFactorySpec extends Specification {
           }
         }
       }
-      def factory = Spy(HttpSolrClientFactory) {
+      def factory = Spy(HttpSolrClientFactory, constructorArgs: [null, null]) {
         // verify an actual Http Solr client will be created
         // must be done in 'given' because it will be called from a different thread and if
         // declared in 'then', it will be out of scope and not matched
@@ -127,7 +127,7 @@ class HttpSolrClientFactorySpec extends Specification {
           }
         }
       }
-      def factory = Spy(HttpSolrClientFactory) {
+      def factory = Spy(HttpSolrClientFactory, constructorArgs: [null, null]) {
         // verify an actual Http Solr client will be created
         // must be done in 'given' because it will be called from a different thread and if
         // declared in 'then', it will be out of scope and not matched
@@ -172,7 +172,7 @@ class HttpSolrClientFactorySpec extends Specification {
 
   def 'test new client with a null core'() {
     given:
-      def factory = new HttpSolrClientFactory();
+      def factory = new HttpSolrClientFactory(null, null);
 
     when:
       factory.newClient(null)

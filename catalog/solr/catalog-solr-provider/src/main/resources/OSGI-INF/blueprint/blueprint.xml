@@ -13,8 +13,21 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
 		   xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+	<reference id="solrPasswordUpdate" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>
 
-	<bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl"/>
+	<bean id="httpClientBuilder" class="org.codice.solr.factory.impl.HttpClientBuilder">
+		<argument ref="encryptionService"/>
+	</bean>
+
+	<bean id="httpSolrClientFactory" class="org.codice.solr.factory.impl.HttpSolrClientFactory">
+		<argument ref="httpClientBuilder"/>
+		<argument ref="solrPasswordUpdate"/>
+	</bean>
+
+	<bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+		<argument ref="httpSolrClientFactory"/>
+	</bean>
 
 	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 

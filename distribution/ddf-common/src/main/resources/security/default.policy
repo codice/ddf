@@ -154,6 +154,10 @@ grant codeBase "file:/catalog-transformer-csw-profile/persistence-core-impl/pers
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
+grant codeBase "file:/solr-password" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
+}
+
 grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";

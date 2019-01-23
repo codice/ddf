@@ -43,12 +43,22 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -95,6 +105,8 @@
                             ddf.catalog.source;version="[2.0,3)",
                             ddf.catalog.util;version="[2.0,3)",
                             ddf.measure;version="[2.0,3)",
+                            ddf.platform.solr.security,
+                            ddf.security.encryption,
                             javax.annotation,
                             javax.crypto,
                             javax.crypto.spec,

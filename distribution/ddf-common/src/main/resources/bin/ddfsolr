@@ -49,19 +49,9 @@ set_security_properties() {
       export SOLR_SSL_TRUST_STORE=$HOME_DIR/$($GET javax.net.ssl.trustStore)
       export SOLR_SSL_TRUST_STORE_PASSWORD=$($GET javax.net.ssl.trustStorePassword)
       export SOLR_SSL_TRUST_STORE_TYPE=$($GET javax.net.ssl.trustStoreType)
-
-      # Require two-way TLS. Change this value to false to disable client authentication.
-      export SOLR_SSL_NEED_CLIENT_AUTH=true
-
-      # Not used. From Solr 7.4 docs:
-      #    Enable either SOLR_SSL_NEED_CLIENT_AUTH or SOLR_SSL_WANT_CLIENT_AUTH but not both at
-      #    the same time. They are mutually exclusive and Jetty will select one of them which
-      #    may not be what you expect.
-      export SOLR_SSL_WANT_CLIENT_AUTH=false
 }
 
 start_solr() {
-    export SOLR_JAVA_MEM=-Xmx$($GET solr.mem)
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties
     fi

@@ -33,7 +33,21 @@
         <argument ref="federationStrategyThreadFactory"/>
     </bean>
 
-    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl"/>
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <reference id="solrPasswordUpdate" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>
+
+    <bean id="httpClientBuilder" class="org.codice.solr.factory.impl.HttpClientBuilder">
+        <argument ref="encryptionService"/>
+    </bean>
+
+    <bean id="httpSolrClientFactory" class="org.codice.solr.factory.impl.HttpSolrClientFactory">
+        <argument ref="httpClientBuilder"/>
+        <argument ref="solrPasswordUpdate"/>
+    </bean>
+
+    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
+        <argument ref="httpSolrClientFactory"/>
+    </bean>
 
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">

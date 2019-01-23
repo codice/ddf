@@ -11,11 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.solr;
+package ddf.platform.solr.security;
 
-import java.net.URI;
+public interface SolrPasswordUpdate extends Runnable {
 
-public interface HttpWrapper {
-
-  ResponseWrapper execute(URI uri);
+  void run();
 }

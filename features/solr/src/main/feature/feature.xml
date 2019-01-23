@@ -54,6 +54,13 @@
         </configfile>
     </feature>
 
+    <feature name="solr-password" version="${project.version}"
+        description="Automatically change Solr password if the default password is in use.">
+        <feature>security-core</feature>
+        <feature>security-encryption</feature>
+        <feature>util-uuidgenerator</feature>
+        <bundle>mvn:ddf.platform.solr/solr-password/${project.version}</bundle>
+    </feature>
 
     <feature name="solr-decanter-appender" version="${project.version}"
              description="A Decanter appender that writes to solr">
@@ -71,6 +78,7 @@
 
     <feature name="persistence-core" version="${project.version}"
              description="Internal Persistence Core Implementation">
+        <feature>solr-password</feature>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>

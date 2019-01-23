@@ -13,14 +13,24 @@
  */
 package org.codice.ddf.commands.solr;
 
+import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.ext.Nullable;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -29,9 +39,6 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
-import org.osgi.service.cm.Configuration;
 
 @Service
 @Command(
@@ -40,6 +47,13 @@ import org.osgi.service.cm.Configuration;
   description = "Makes a backup of the selected Solr core/collection."
 )
 public class BackupCommand extends SolrCommands {
+
+  private static final String SOLR_CLIENT_PROP = "solr.client";
+  private static final String CLOUD_SOLR_CLIENT_TYPE = "CloudSolrClient";
+  private static final String DEFAULT_CORE_NAME = "catalog";
+  private static final String SEE_COMMAND_USAGE_MESSAGE =
+      "Invalid Argument(s). Please see command usage for details.";
+  @Reference EncryptionService encryptionService;
 
   @Option(
     name = "-d",
@@ -107,14 +121,7 @@ public class BackupCommand extends SolrCommands {
   )
   int numberToKeep = 0;
 
-  private static final String SOLR_CLIENT_PROP = "solr.client";
-
-  private static final String CLOUD_SOLR_CLIENT_TYPE = "CloudSolrClient";
-
-  private static final String DEFAULT_CORE_NAME = "catalog";
-
-  private static final String SEE_COMMAND_USAGE_MESSAGE =
-      "Invalid Argument(s). Please see command usage for details.";
+  private org.codice.solr.factory.impl.HttpClientBuilder httpBuilder;
 
   @Override
   public Object execute() throws Exception {
@@ -132,7 +139,12 @@ public class BackupCommand extends SolrCommands {
   private void performSingleNodeSolrBackup() throws URISyntaxException {
     verifySingleNodeBackupInput();
 
-    String backupUrl = getBackupUrl(coreName);
+    httpBuilder = new org.codice.solr.factory.impl.HttpClientBuilder(encryptionService);
+
+    String url =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.http.url"));
+    String backupUrl = String.format("%s/%s/replication", url, coreName);
 
     URIBuilder uriBuilder = new URIBuilder(backupUrl);
     uriBuilder.addParameter("command", "backup");
@@ -145,11 +157,24 @@ public class BackupCommand extends SolrCommands {
     }
 
     URI backupUri = uriBuilder.build();
-    LOGGER.debug("Sending request to {}", backupUri);
+    processResponse(sendGetRequest(backupUri));
+  }
 
-    HttpWrapper httpClient = getHttpClient();
+  @VisibleForTesting
+  @Nullable
+  HttpResponse sendGetRequest(URI backupUri) {
+    HttpResponse httpResponse = null;
+    HttpGet get = new HttpGet(backupUri);
+    HttpClient client = httpBuilder.get().build();
 
-    processResponse(httpClient.execute(backupUri));
+    try {
+      LOGGER.debug("Sending request to {}", backupUri);
+      httpResponse = client.execute(get);
+    } catch (IOException e) {
+      LOGGER.debug("Error during request. Returning null response.", e);
+    }
+
+    return httpResponse;
   }
 
   private void performSolrCloudBackup() throws IOException {
@@ -169,52 +194,21 @@ public class BackupCommand extends SolrCommands {
     }
   }
 
-  private void processResponse(ResponseWrapper responseWrapper) {
-
-    if (responseWrapper.getStatusCode() == HttpStatus.SC_OK) {
+  private void processResponse(@Nullable HttpResponse response) {
+    if (response == null) {
+      printErrorMessage(String.format("Could not communicate with Solr. %n"));
+      return;
+    }
+    StatusLine statusLine = response.getStatusLine();
+    if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
       printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
     } else {
       printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
       printErrorMessage(
           String.format(
-              "Backup command failed due to: %d - %s %n Request: %s",
-              responseWrapper.getStatusCode(),
-              responseWrapper.getStatusPhrase(),
-              getBackupUrl(coreName)));
+              "Backup request failed: %d - %s %n",
+              statusLine.getStatusCode(), statusLine.getReasonPhrase()));
     }
-  }
-
-  private String getBackupUrl(String coreName) {
-    String backupUrl = HttpSolrClientFactory.getDefaultHttpsAddress();
-
-    if (configurationAdmin != null) {
-      try {
-        Configuration solrConfig =
-            configurationAdmin.getConfiguration(
-                "(service.pid=ddf.catalog.solr.external.SolrHttpCatalogProvider)");
-        if (solrConfig != null) {
-          if (solrConfig.getProperties() != null && solrConfig.getProperties().get("url") != null) {
-            LOGGER.debug("Found url property in config, setting backup url");
-            backupUrl = (String) solrConfig.getProperties().get("url");
-          } else {
-            LOGGER.debug("No Solr config found, checking System settings");
-            if (System.getProperty("hostContext") != null) {
-              backupUrl =
-                  SystemBaseUrl.INTERNAL.constructUrl(
-                      SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
-              LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
-            } else {
-              LOGGER.info(
-                  "No Solr url configured, defaulting to: {}",
-                  HttpSolrClientFactory.getDefaultHttpsAddress());
-            }
-          }
-        }
-      } catch (IOException e) {
-        LOGGER.debug("Unable to get Solr url from bundle config, will check system properties.");
-      }
-    }
-    return backupUrl + "/" + coreName + "/replication";
   }
 
   private boolean isSystemConfiguredWithSolrCloud() {

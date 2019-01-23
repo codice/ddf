@@ -27,16 +27,22 @@ import org.codice.solr.factory.SolrClientFactory;
  * solr.client} system property.
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
+
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
+  private final HttpSolrClientFactory httpSolrClientFactory;
 
   @SuppressWarnings("unused" /* used by blueprint */)
-  public SolrClientFactoryImpl() {
-    this((factory, core) -> factory.newClient(core));
+  public SolrClientFactoryImpl(HttpSolrClientFactory httpSolrClientFactory) {
+    this.newClientFunction = (factory, core) -> factory.newClient(core);
+    this.httpSolrClientFactory = httpSolrClientFactory;
   }
 
   @VisibleForTesting
-  SolrClientFactoryImpl(BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
+  SolrClientFactoryImpl(
+      HttpSolrClientFactory httpSolrClientFactory,
+      BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
     this.newClientFunction = newClientFunction;
+    this.httpSolrClientFactory = httpSolrClientFactory;
   }
 
   @Override
@@ -53,7 +59,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
     } else if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
-      factory = new HttpSolrClientFactory();
+      factory = httpSolrClientFactory;
     }
 
     return newClientFunction.apply(factory, core);

@@ -724,6 +724,11 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", "http://localhost:9994/solr"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.port", "9994"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.useBasicAuth", "true"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.username", "admin"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.password", "admin"),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH, "solr.attemptAutoPasswordChange", "false"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH,
             "solr.data.dir",

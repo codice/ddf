@@ -43,6 +43,11 @@
     </dependencySets>
     <fileSets>
         <fileSet>
+            <!-- The order of the <fileSet> elements is important. The assembly plugin will not
+            replace an existing file. Therefore, files that override behavior in the Apache Solr
+            distribution must be come before the Apache Solr files themselves. -->
+
+            <!-- Files with executable permissions -->
             <directory>src/main/resources
             </directory>
             <outputDirectory>/</outputDirectory>
@@ -59,6 +64,15 @@
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
+
+        <!-- The rest of the files. Executable permissions unecessary. -->
+        <fileSet>
+            <fileMode>0644</fileMode>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+
+        <!--The files from the Apache Solr distribution-->
         <fileSet>
             <directory>${project.build.directory}/solr-${solr.version}</directory>
             <outputDirectory>/</outputDirectory>
