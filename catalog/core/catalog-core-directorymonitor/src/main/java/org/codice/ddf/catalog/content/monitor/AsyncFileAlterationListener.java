@@ -29,13 +29,9 @@ import org.apache.camel.spi.Synchronization;
  */
 public interface AsyncFileAlterationListener {
 
-  void onStart(final AsyncFileAlterationObserver observer);
-
   void onFileCreate(final File file, final Synchronization callback);
 
   void onFileChange(final File file, final Synchronization callback);
 
   void onFileDelete(final File file, final Synchronization callback);
-
-  void onStop(final AsyncFileAlterationObserver observer);
 }

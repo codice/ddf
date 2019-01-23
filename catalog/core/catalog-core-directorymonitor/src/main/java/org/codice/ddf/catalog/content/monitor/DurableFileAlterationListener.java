@@ -154,10 +154,4 @@ public class DurableFileAlterationListener implements AsyncFileAlterationListene
 
     return (String) productToMetacardIdMap.loadFromPersistence(ref);
   }
-
-  @Override
-  public void onStart(AsyncFileAlterationObserver observer) {}
-
-  @Override
-  public void onStop(AsyncFileAlterationObserver observer) {}
 }

@@ -255,9 +255,6 @@ public class AsyncFileAlterationObserver implements Serializable {
       return;
     }
 
-    /* fire onStart() */
-    listener.onStart(this);
-
     /* fire directory/file events */
     final File root = rootFile.getFile();
     if (root.exists()) {
@@ -269,9 +266,6 @@ public class AsyncFileAlterationObserver implements Serializable {
           "The monitored file [{}] does not exist. No file processing will be done through the CDM",
           rootFile.getName());
     }
-
-    /* fire onStop() */
-    listener.onStop(this);
   }
 
   /**
