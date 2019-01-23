@@ -35,6 +35,77 @@ var imageryProviderTypes = {
   SI: Cesium.SingleTileImageryProvider,
 }
 
+const LayerOrdering = {
+  /* params: {prev: array of ids, 
+              cur: array of ids, 
+              layer: id of layer to add}
+    return: new ordering
+    assumption: layer is in cur, cur is a superset of prev, layer ordering has not changed
+  */
+  addLayer: function({
+    prev: previousLayerOrder,
+    cur: currentLayerOrder,
+    layer: layerId,
+  }) {
+    const previousLayers = new Set(previousLayerOrder)
+    return currentLayerOrder.filter(
+      id => id === layerId || previousLayers.has(id)
+    )
+  },
+
+  shiftLayers: function({ prev: previousLayerOrder, cur: currentLayerOrder }) {
+    const previousLayers = new Set(previousLayerOrder)
+    return currentLayerOrder.filter(id => previousLayers.has(id))
+  },
+
+  getShift: function({ prev: previousLayerOrder, cur: currentLayerOrder }) {
+    if (
+      _.intersection(previousLayerOrder, currentLayerOrder).length !==
+        previousLayerOrder.length ||
+      currentLayerOrder.length !== previousLayerOrder.length
+    ) {
+      console.warn(`getShift(): arrays must contain the same ids`)
+      return {}
+    }
+
+    if (_.isEqual(previousLayerOrder, currentLayerOrder)) {
+      return { layer: previousLayerOrder[0], method: 'lower', count: 0 }
+    }
+
+    const shiftLayerToIndex = ({ layerOrder, layer: layerId, index }) => {
+      const layerRemoved = layerOrder.filter(id => id !== layerId)
+      return [
+        ...layerRemoved.slice(0, index),
+        layerId,
+        ...layerRemoved.slice(index),
+      ]
+    }
+
+    const changedLayers = previousLayerOrder.filter(
+      (id, index) => currentLayerOrder[index] !== id
+    )
+
+    for (let i = 0; i < changedLayers.length; i++) {
+      const layer = changedLayers[i]
+      const previousOrder = previousLayerOrder.indexOf(layer)
+      const currentOrder = currentLayerOrder.indexOf(layer)
+      const shiftLayer = shiftLayerToIndex({
+        layerOrder: previousLayerOrder,
+        layer,
+        index: currentOrder,
+      })
+      if (_.isEqual(shiftLayer, currentLayerOrder)) {
+        return {
+          layer,
+          method: currentOrder > previousOrder ? 'raise' : 'lower', // raise means move to higher index :(
+          count: Math.abs(currentOrder - previousOrder),
+        }
+      }
+    }
+    return {}
+  },
+}
+
 var Controller = CommonLayerController.extend({
   initialize: function() {
     // there is no automatic chaining of initialize.
@@ -43,6 +114,7 @@ var Controller = CommonLayerController.extend({
   makeMap: function(options) {
     // must create cesium map after containing DOM is attached.
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
+    this.layerOrder = []
 
     this.collection.forEach(function(model) {
       if (model.get('show')) {
@@ -92,11 +164,19 @@ var Controller = CommonLayerController.extend({
       }
       Cesium.TrustedServers.add(parsedUrl.hostname, port)
     }
-    const layerIndex = this.getLayerIndex(model)
+
+    this.layerOrder = LayerOrdering.addLayer({
+      prev: this.layerOrder,
+      cur: this.collection.models.map(model => model.id).reverse(),
+      layer: model.id,
+    })
+
+    const layerIndex = this.layerOrder.indexOf(model.id)
     const layer = this.map.imageryLayers.addImageryProvider(
       provider,
       layerIndex
     )
+
     this.layerForCid[model.id] = layer
     layer.alpha = model.get('alpha')
     layer.show = model.shouldShowLayer()
@@ -126,34 +206,35 @@ var Controller = CommonLayerController.extend({
     in other words, order 1 means highest index.
   */
   reIndexLayers: function() {
-    this.collection.forEach(function(model, index) {
-      if (this.layerForCid[model.id]) {
-        const layer = this.layerForCid[model.id]
-        const previousOrder = this.map.imageryLayers.indexOf(layer)
-        const currentOrder = this.getLayerIndex(model)
-        const method = currentOrder > previousOrder ? 'raise' : 'lower' // raise means move to higher index :(
-        const count = Math.abs(currentOrder - previousOrder)
-        // console.log(method + " " + model.get('name') + " " + count);  // useful for debugging!
-        _.times(
-          count,
-          function() {
-            this.map.imageryLayers[method](layer)
-          },
-          this
-        )
-      }
-    }, this)
-  },
-  getLayerIndex: function(model) {
-    const modelId = model.get('id')
-    const start =
-      this.collection.models.findIndex(model => model.get('id') === modelId) + 1
-    return this.collection.models
-      .slice(start)
-      .filter(model => this.layerForCid[model.id]).length
+    const newLayerOrder = LayerOrdering.shiftLayers({
+      prev: this.layerOrder,
+      cur: this.collection.models.map(model => model.id).reverse(),
+    })
+    const { layer, method, count } = LayerOrdering.getShift({
+      prev: this.layerOrder,
+      cur: newLayerOrder,
+    })
+
+    if (typeof layer === 'undefined') {
+      return
+    }
+    const name = this.collection.models
+      .find(model => model.id === layer)
+      .get('name')
+    //console.log(method + ' ' + name + ' ' + count) // useful for debugging!
+
+    _.times(
+      count,
+      function() {
+        this.map.imageryLayers[method](this.layerForCid[layer])
+      },
+      this
+    )
+    this.layerOrder = newLayerOrder
   },
 })
 
 Controller.imageryProviderTypes = imageryProviderTypes
 
-module.exports = Controller
+export default Controller
+export const CesiumLayerOrdering = LayerOrdering
