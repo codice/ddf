@@ -56,7 +56,6 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
         observer =
             (AsyncFileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
-        observer.clearCache();
       } else {
         observer = new AsyncFileAlterationObserver(new File(fileName));
       }

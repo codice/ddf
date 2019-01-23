@@ -110,15 +110,15 @@ public class AsyncFileAlterationObserverTest {
 
     reset(fileListener);
     //  Mockito Stuff
-    Mockito.doAnswer(this::mockitoGarbage)
+    Mockito.doAnswer(this::mockitoDoTest)
         .when(fileListener)
         .onFileCreate(any(File.class), any(Synchronization.class));
 
-    Mockito.doAnswer(this::mockitoGarbage)
+    Mockito.doAnswer(this::mockitoDoTest)
         .when(fileListener)
         .onFileChange(any(File.class), any(Synchronization.class));
 
-    Mockito.doAnswer(this::mockitoGarbage)
+    Mockito.doAnswer(this::mockitoDoTest)
         .when(fileListener)
         .onFileDelete(any(File.class), any(Synchronization.class));
 
@@ -126,18 +126,18 @@ public class AsyncFileAlterationObserverTest {
     failures = 0;
   }
 
-  private Stubber mockitoGarbage(InvocationOnMock e) {
+  private Stubber mockitoDoTest(InvocationOnMock e) {
     Object[] args = e.getArguments();
     doTestWrapper.accept(() -> doTest((Synchronization) args[1]));
     return null;
   }
 
-  @Test(expected = Exception.class)
+  @Test(expected = IllegalStateException.class)
   public void testAddingTwoListeners() {
     observer.addListener(fileListener);
   }
 
-  @Test(expected = Exception.class)
+  @Test(expected = IllegalStateException.class)
   public void testNoListener() {
     observer.removeListener();
     observer.removeListener();

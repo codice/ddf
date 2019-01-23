@@ -37,15 +37,12 @@ import org.slf4j.LoggerFactory;
  * methods
  *
  * @see AsyncFileAlterationListener
- * @apiNote If this is loaded from a file after the system has been shut down, the user
- *     <strong>MUST</strong> call {@link #clearCache()} in order to clear the currently processing
- *     request.
  */
 public class AsyncFileAlterationObserver implements Serializable {
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
-  private final Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
+  private final transient Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
 
   public AsyncFileAlterationObserver(File fileToObserve) {
@@ -283,8 +280,10 @@ public class AsyncFileAlterationObserver implements Serializable {
   private File[] listFiles(File file) {
     if (file.isDirectory()) {
       File[] temp = file.listFiles();
-      Arrays.sort(temp);
-      return temp;
+      if (temp != null) {
+        Arrays.sort(temp);
+        return temp;
+      }
     }
     return FileUtils.EMPTY_FILE_ARRAY;
   }
@@ -296,15 +295,6 @@ public class AsyncFileAlterationObserver implements Serializable {
    *
    * <p>Holds all the synchronized tags within this file. Potentially should be another class?
    */
-
-  //  SHOULD be used when the File Observer is loaded from a file.
-  //  Since this happens at boot time, there will not be anything currently processing.
-  public void clearCache() {
-    synchronized (processing) {
-      processing.clear();
-    }
-  }
-
   private void removeFromProcessors(AsyncFileEntry entry) {
     synchronized (processing) {
       if (!processing.remove(entry)) {
@@ -315,9 +305,6 @@ public class AsyncFileAlterationObserver implements Serializable {
 
   private boolean addToProcessors(AsyncFileEntry entry) {
     synchronized (processing) {
-      if (processing.contains(entry)) {
-        return false;
-      }
       return processing.add(entry);
     }
   }
