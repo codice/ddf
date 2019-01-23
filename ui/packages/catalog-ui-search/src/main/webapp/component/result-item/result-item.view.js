@@ -185,6 +185,9 @@ const ResultItemView = Marionette.LayoutView.extend({
                 title="Follow external links"
                 data-help="Follow external links."
               />
+              <div className="result-validation">
+                {this.getButtonExtensions()}
+              </div>
               <button
                 className="result-add is-button is-neutral composed-button"
                 title="Add or remove the result from a list, or make a new list with this result."
@@ -207,6 +210,9 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
   },
   getExtensions: function() {
+    return null
+  },
+  getButtonExtensions: function() {
     return null
   },
   attributes: function() {
