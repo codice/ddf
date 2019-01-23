@@ -171,7 +171,7 @@ const BoundingBox = props => {
       />
       <DdLongitude
         label="West"
-        value={DistanceUtils.coorindateRound(dd.boundingbox.west)}
+        value={DistanceUtils.coordinateRound(dd.boundingbox.west)}
         onChange={setState(
           (draft, value) =>
             (draft.dd.boundingbox.west = DistanceUtils.coordinateRound(value))
@@ -179,7 +179,7 @@ const BoundingBox = props => {
       />
       <DdLongitude
         label="East"
-        value={DistanceUtils.coorindateRound(dd.boundingbox.east)}
+        value={DistanceUtils.coordinateRound(dd.boundingbox.east)}
         onChange={setState(
           (draft, value) =>
             (draft.dd.boundingbox.east = DistanceUtils.coordinateRound(value))
