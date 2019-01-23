@@ -14,6 +14,7 @@ const _ = require('underscore')
 const Backbone = require('backbone')
 const {
   validateWkt,
+  roundWktCoords,
   validateDd,
   validateDms,
   validateUsng,
