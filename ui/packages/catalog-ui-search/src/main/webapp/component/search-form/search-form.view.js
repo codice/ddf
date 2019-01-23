@@ -21,8 +21,45 @@ const SearchFormInteractionsDropdownView = require('../dropdown/search-form-inte
 const wreqr = require('../../exports/wreqr.js')
 const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
-import * as React from 'react'
+import React from 'react'
 import styled from '../../react-component/styles/styled-components'
+
+const Item = styled(({ className, ...props }) => {
+  return <div className={className + ' is-button'} {...props} />
+})`
+  display: inline-block;
+  padding: ${props => props.theme.mediumSpacing};
+  margin: ${props => props.theme.mediumSpacing};
+  width: calc(8 * ${props => props.theme.minimumButtonSize});
+  height: calc(4 * ${props => props.theme.minimumButtonSize});
+  text-align: left;
+  vertical-align: top;
+  position: relative;
+`
+
+const NewFormCircle = styled.div`
+  font-size: calc(3 * ${props => props.theme.largeFontSize});
+  padding-top: ${props => props.theme.minimumSpacing};
+`
+
+const NewFormText = styled.h3`
+  line-height: 2em;
+`
+
+const NewForm = ({ onClick, label }) => {
+  return (
+    <Item
+      className="is-button"
+      style={{ textAlign: 'center' }}
+      onClick={onClick}
+    >
+      <NewFormCircle className="fa fa-plus-circle" />
+      <NewFormText>{label}</NewFormText>
+    </Item>
+  )
+}
+
+export { Item, NewForm }
 
 const FormTitle = styled.h3`
   padding-bottom: ${props => props.theme.minimumSpacing};
@@ -35,15 +72,6 @@ const FormTitle = styled.h3`
 
 const FormContents = styled.span`
   display: block;
-`
-
-const NewFormCircle = styled.div`
-  font-size: calc(3 * ${props => props.theme.largeFontSize});
-  padding-top: ${props => props.theme.minimumSpacing};
-`
-
-const NewFormText = styled.h3`
-  line-height: 2em;
 `
 
 const DefaultIcon = styled.div`
@@ -92,7 +120,7 @@ const CustomSearchForm = props => {
   )
 }
 
-module.exports = Marionette.LayoutView.extend({
+export default Marionette.LayoutView.extend({
   template(props) {
     const isDefault = user.getQuerySettings().isTemplate(this.model)
     if (props.type === 'custom') {
@@ -102,13 +130,6 @@ module.exports = Marionette.LayoutView.extend({
           isDefault={isDefault}
           onClick={this.changeView}
         />
-      )
-    } else if (props.type === 'new-result') {
-      return (
-        <div>
-          <NewFormCircle className="fa fa-plus-circle" />
-          <NewFormText>New Result Form</NewFormText>
-        </div>
       )
     } else if (props.type == 'result') {
       return (

@@ -13,7 +13,7 @@
  *
  **/
 /* global setTimeout */
-const SearchFormViews = require('../search-form/search-form.view.js')
+import SearchFormViews from '../search-form/search-form.view.js'
 const properties = require('../../js/properties.js')
 const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.js')
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()

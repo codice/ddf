@@ -20,43 +20,9 @@ const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.
 const lightboxInstance = lightboxResultInstance.generateNewLightbox()
 const QueryResult = require('./result-form.view.js')
 const SearchFormModel = require('../search-form/search-form.js')
-import * as React from 'react'
+import React from 'react'
+import { Item, NewForm } from '../search-form/search-form.view'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-import styled from '../../react-component/styles/styled-components'
-
-// TODO Copied from search-form.collection.view... consolidate?
-const Item = styled.div`
-  display: inline-block;
-  padding: ${props => props.theme.mediumSpacing};
-  margin: ${props => props.theme.mediumSpacing};
-  width: calc(8 * ${props => props.theme.minimumButtonSize});
-  height: calc(4 * ${props => props.theme.minimumButtonSize});
-  text-align: left;
-  vertical-align: top;
-  position: relative;
-`
-
-const NewFormCircle = styled.div`
-  font-size: calc(3 * ${props => props.theme.largeFontSize});
-  padding-top: ${props => props.theme.minimumSpacing};
-`
-
-const NewFormText = styled.h3`
-  line-height: 2em;
-`
-
-const NewResultForm = ({ onClick }) => {
-  return (
-    <Item
-      className="is-button"
-      style={{ textAlign: 'center' }}
-      onClick={onClick}
-    >
-      <NewFormCircle className="fa fa-plus-circle" />
-      <NewFormText>New Result Form</NewFormText>
-    </Item>
-  )
-}
 
 module.exports = Marionette.ItemView.extend({
   initialize(options) {
@@ -65,10 +31,13 @@ module.exports = Marionette.ItemView.extend({
   template() {
     return (
       <React.Fragment>
-        <NewResultForm onClick={() => this.handleNewResultForm()} />
+        <NewForm
+          onClick={() => this.handleNewResultForm()}
+          label="New Result Form"
+        />
         {this.options.collection.map(child => {
           return (
-            <Item className="is-button" key={child.cid}>
+            <Item key={child.cid}>
               <MarionetteRegionContainer
                 view={ResultFormView}
                 viewOptions={{

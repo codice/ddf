@@ -14,48 +14,12 @@
  **/
 /*global require*/
 const Marionette = require('marionette')
-const SearchFormView = require('./search-form.view')
+import SearchFormView, { Item, NewForm } from './search-form.view'
 const CustomElements = require('../../js/CustomElements')
 const user = require('../singletons/user-instance')
 const wreqr = require('../../exports/wreqr.js')
-import * as React from 'react'
+import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-import styled, {
-  ThemeProvider,
-} from '../../react-component/styles/styled-components'
-
-const Item = styled.div`
-  display: inline-block;
-  padding: ${props => props.theme.mediumSpacing};
-  margin: ${props => props.theme.mediumSpacing};
-  width: calc(8 * ${props => props.theme.minimumButtonSize});
-  height: calc(4 * ${props => props.theme.minimumButtonSize});
-  text-align: left;
-  vertical-align: top;
-  position: relative;
-`
-
-const NewFormCircle = styled.div`
-  font-size: calc(3 * ${props => props.theme.largeFontSize});
-  padding-top: ${props => props.theme.minimumSpacing};
-`
-
-const NewFormText = styled.h3`
-  line-height: 2em;
-`
-
-const NewSearchForm = ({ onClick }) => {
-  return (
-    <Item
-      className="is-button"
-      style={{ textAlign: 'center' }}
-      onClick={onClick}
-    >
-      <NewFormCircle className="fa fa-plus-circle" />
-      <NewFormText>New Search Form</NewFormText>
-    </Item>
-  )
-}
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('my-search-forms'),
@@ -69,11 +33,14 @@ module.exports = Marionette.ItemView.extend({
     return (
       <React.Fragment>
         {this.options.showNewForm ? (
-          <NewSearchForm onClick={this.handleNewForm.bind(this)} />
+          <NewForm
+            label="New Search Form"
+            onClick={this.handleNewForm.bind(this)}
+          />
         ) : null}
         {this.model.filter(child => this.doFilter(child)).map(child => {
           return (
-            <Item className="is-button" key={child.get('id')}>
+            <Item key={child.get('id')}>
               <MarionetteRegionContainer
                 view={SearchFormView}
                 viewOptions={{
