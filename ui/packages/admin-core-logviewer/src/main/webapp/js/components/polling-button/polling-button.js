@@ -17,8 +17,6 @@ import React from 'react'
 import { togglePolling } from '../../actions'
 import { connect } from 'react-redux'
 
-import './polling-button.less'
-
 const pollingButton = ({ isPolling, onTogglePolling }) => {
   if (isPolling) {
     return (

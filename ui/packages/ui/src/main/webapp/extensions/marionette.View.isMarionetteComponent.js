@@ -9,6 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette')
+const Marionette = require('backbone.marionette')
 
 Marionette.View.prototype._isMarionetteView = true

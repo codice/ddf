@@ -15,7 +15,7 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   'js/views/installer/Welcome.view',
   'components/installer-navigation/installer-navigation.view.js',
   'js/views/installer/Configuration.view.js',

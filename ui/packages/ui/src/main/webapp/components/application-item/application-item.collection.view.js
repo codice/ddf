@@ -15,7 +15,7 @@
 /*global define*/
 define([
   'backbone',
-  'marionette',
+  'backbone.marionette',
   'js/wreqr',
   'jquery',
   'underscore',

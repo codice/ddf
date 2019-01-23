@@ -15,7 +15,7 @@
 /*global define, alert*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   './installer-navigation.hbs',
   './installer-navigation-buttons.hbs',
   'backbone',

@@ -11,7 +11,7 @@
  **/
 /*global define*/
 
-define(['backbone', 'marionette'], function(Backbone) {
+define(['backbone', 'backbone.marionette'], function(Backbone) {
   'use strict'
   var wreqr = {}
 

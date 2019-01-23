@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette')
+const Marionette = require('backbone.marionette')
 Marionette.Renderer.render = function(template, data, view) {
   if (!template) {
     return ''

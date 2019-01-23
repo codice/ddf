@@ -17,8 +17,6 @@ import React from 'react'
 import { dismissError } from '../../actions'
 import { connect } from 'react-redux'
 
-import './error-message.less'
-
 const errorMessage = ({ errorState, onDismissError }) => {
   if (errorState.isInError) {
     return (

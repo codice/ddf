@@ -13,7 +13,7 @@
 define([
   'jquery',
   'underscore',
-  'marionette',
+  'backbone.marionette',
   'js/wreqr',
   'properties',
   'js/views/SystemUsageModal.view',

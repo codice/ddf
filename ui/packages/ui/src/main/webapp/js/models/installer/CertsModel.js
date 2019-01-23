@@ -13,7 +13,7 @@
  *
  **/
 /*global define, location*/
-define(['marionette', 'underscore', 'backbone', 'jquery'], function(
+define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
   Marionette,
   _,
   Backbone,

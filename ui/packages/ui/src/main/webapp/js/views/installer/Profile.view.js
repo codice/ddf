@@ -15,7 +15,7 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   'backbone',
   'templates/installer/profile.handlebars',
   'jquery',

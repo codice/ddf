@@ -13,7 +13,7 @@
  *
  **/
 /*global define*/
-define(['marionette', 'templates/emptyView.handlebars'], function(
+define(['backbone.marionette', 'templates/emptyView.handlebars'], function(
   Marionette,
   emptyViewTemplate
 ) {

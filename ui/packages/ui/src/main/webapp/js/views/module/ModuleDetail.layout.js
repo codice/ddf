@@ -15,7 +15,7 @@
 /*global define*/
 define([
   'backbone',
-  'marionette',
+  'backbone.marionette',
   'js/wreqr',
   'templates/module/ModuleDetail.layout.handlebars',
 ], function(Backbone, Marionette, wreqr, moduleDetailLayout) {

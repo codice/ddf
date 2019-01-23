@@ -15,7 +15,7 @@
 /*global define*/
 define([
   'backbone',
-  'marionette',
+  'backbone.marionette',
   'js/views/module/ModuleDetail.layout',
   'js/models/module/ModulePlugin',
   'js/models/AppConfigPlugin',
