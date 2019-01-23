@@ -28,18 +28,15 @@ class OperationsCatalogStoreSupportSpec extends Specification {
     private SourceOperations sourceOperations
 
     def setup() {
-
-        def cat1 = Mock(CatalogStore)
-        def cat2 = Mock(CatalogStore)
-
-        cat1.getId() >> 'cat1'
-        cat2.getId() >> 'cat2'
-
         catalogProviders = (1..3).collect { mockCatalogProvider(it) }
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
-            catalogStores = [cat1, cat2]
+            catalogStores = [Mock(CatalogStore) {
+                getId() >> 'cat1'
+            }, Mock(CatalogStore) {
+                getId() >> 'cat2'
+            }]
         }
 
         sourceOperations = Mock(SourceOperations)
