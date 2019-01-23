@@ -13,6 +13,8 @@
  *
  **/
 /*global require, setTimeout*/
+import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
+
 var wreqr = require('../../../js/wreqr.js')
 var template = require('./map.hbs')
 var Marionette = require('marionette')
@@ -37,13 +39,6 @@ const announcement = require('../../announcement')
 
 const React = require('react')
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
-
-function wrapNum(x, range) {
-  var max = range[1],
-    min = range[0],
-    d = max - min
-  return ((((x - min) % d) + d) % d) + min
-}
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -76,8 +71,8 @@ function getHomeCoordinates() {
           if (isNaN(lon) || isNaN(lat)) {
             return undefined
           }
-          lon = Common.wrapMapCoordinates(lon, [-180, 180])
-          lat = Common.wrapMapCoordinates(lat, [-90, 90])
+          lon = wrapNum(lon, -180, 180)
+          lat = wrapNum(lat, -90, 90)
           return {
             lon: lon,
             lat: lat,

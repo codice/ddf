@@ -11,6 +11,8 @@
  **/
 /* global require, window */
 
+import wrapNum from '../../../../react-component/utils/wrap-num/wrap-num.tsx'
+
 var $ = require('jquery')
 var _ = require('underscore')
 var Map = require('../map')
@@ -86,7 +88,7 @@ function unconvertPointCoordinate(point) {
 }
 
 function offMap([longitude, latitude]) {
-  return longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90
+  return latitude < -90 || latitude > 90
 }
 
 module.exports = function OpenlayersMap(
@@ -264,12 +266,17 @@ module.exports = function OpenlayersMap(
     },
     getBoundingBox: function() {
       const extent = map.getView().calculateExtent(map.getSize())
-
+      let longitudeEast = wrapNum(extent[2], -180, 180)
+      const longitudeWest = wrapNum(extent[0], -180, 180)
+      //add 360 degrees to longitudeEast to accommodate bounding boxes that span across the anti-meridian
+      if (longitudeEast < longitudeWest) {
+        longitudeEast += 360
+      }
       return {
         north: this.limit(extent[3], -90, 90),
-        east: this.limit(extent[2], -180, 180),
+        east: longitudeEast,
         south: this.limit(extent[1], -90, 90),
-        west: this.limit(extent[0], -180, 180),
+        west: longitudeWest,
       }
     },
     overlayImage: function(model) {
