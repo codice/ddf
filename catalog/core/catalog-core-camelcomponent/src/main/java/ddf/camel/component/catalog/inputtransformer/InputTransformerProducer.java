@@ -27,7 +27,6 @@ import java.util.Optional;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.camel.Message;
-import org.apache.camel.TypeConversionException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -118,8 +117,6 @@ public class InputTransformerProducer extends TransformerProducer {
                           mimeType, MimeTypeToTransformerMapper.ID_KEY, transformerId)));
     } catch (IOException e) {
       throw new CatalogTransformerException("Unable to transform incoming product", e);
-    } catch (TypeConversionException e) {
-      throw new CatalogTransformerException("Connection halted.", e);
     }
   }
 
