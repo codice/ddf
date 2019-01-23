@@ -15,7 +15,7 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   './configuration-field-multivalue.view',
   'js/CustomElements',
 ], function(Marionette, ConfigurationFieldMultivalueView, CustomElements) {

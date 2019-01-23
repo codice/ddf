@@ -17,7 +17,7 @@
 define([
   'require',
   'backbone',
-  'marionette',
+  'backbone.marionette',
   'underscore',
   'jquery',
   'components/application-item/application-item.collection.view',

@@ -12,7 +12,7 @@
 /*global define*/
 
 // #Main Application
-define(['underscore', 'backbone', 'marionette'], function(
+define(['underscore', 'backbone', 'backbone.marionette'], function(
   _,
   Backbone,
   Marionette

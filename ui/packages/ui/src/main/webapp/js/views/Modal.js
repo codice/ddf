@@ -13,7 +13,7 @@
  *
  **/
 /* global define */
-define(['marionette'], function(Marionette) {
+define(['backbone.marionette'], function(Marionette) {
   'use strict'
 
   /**

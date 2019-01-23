@@ -15,7 +15,7 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   'underscore',
   'backbone',
   'js/models/Service',

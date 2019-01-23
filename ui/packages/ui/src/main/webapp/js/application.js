@@ -15,7 +15,7 @@
 define([
   'underscore',
   'backbone',
-  'marionette',
+  'backbone.marionette',
   'ace/handlebars',
   'jquery',
   'poller',

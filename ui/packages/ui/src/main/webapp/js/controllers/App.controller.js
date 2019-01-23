@@ -14,7 +14,7 @@
  **/
 /*global define*/
 define([
-  'marionette',
+  'backbone.marionette',
   'js/wreqr',
   'components/applications/applications.view',
   'js/models/ApplicationsLayout',

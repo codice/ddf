@@ -14,7 +14,7 @@
  **/
 /*global define, window*/
 define([
-  'marionette',
+  'backbone.marionette',
   './features.hbs',
   'js/CustomElements',
   'components/feature-item/feature-item.collection.view',

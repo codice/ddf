@@ -13,7 +13,7 @@
  *
  **/
 /* global define */
-define(['marionette', './tab-item.view', 'js/CustomElements'], function(
+define(['backbone.marionette', './tab-item.view', 'js/CustomElements'], function(
   Marionette,
   TabItemView,
   CustomElements

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette')
+const Marionette = require('backbone.marionette')
 import { render } from 'react-dom'
 import React from 'react'
 import Theme from '../components/container/theme'

@@ -15,9 +15,9 @@ import {
   ThemeInterface,
   SpecificSizingInterface,
   ThemeColorInterface,
-} from '../../../styles/styled-components'
+} from '@connexta/atlas/styled'
 import generateUUID from '../../uuid'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import withListenTo, { WithBackboneProps } from '@connexta/atlas/atoms/backbone'
 const $ = require('jquery')
 const _ = require('underscore')
 

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette')
+const Marionette = require('backbone.marionette')
 import { unmountComponentAtNode } from 'react-dom'
 
 const oldRemove = Marionette.View.prototype.remove

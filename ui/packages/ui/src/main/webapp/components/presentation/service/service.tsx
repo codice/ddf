@@ -11,8 +11,8 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import styled from '../../../styles/styled-components'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
+import styled from '@connexta/atlas/styled'
+import MarionetteRegionContainer from '@connexta/atlas/atoms/marionette'
 const ConfigurationEditView = require('components/configuration-edit/configuration-edit.view')
   .View
 import Configuration, { ConfigurationType } from '../../container/configuration'

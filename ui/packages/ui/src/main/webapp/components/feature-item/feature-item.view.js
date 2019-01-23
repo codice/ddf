@@ -15,7 +15,7 @@
 /*global define*/
 define([
   'jquery',
-  'marionette',
+  'backbone.marionette',
   'underscore',
   './feature-item.hbs',
   'js/CustomElements',

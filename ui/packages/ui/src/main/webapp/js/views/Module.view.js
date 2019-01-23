@@ -12,7 +12,7 @@
 /*global require,define,setTimeout*/
 import { iframeResizer } from 'iframe-resizer'
 define([
-  'marionette',
+  'backbone.marionette',
   'jquery',
   'js/application',
   'js/modules/Application.module.js',

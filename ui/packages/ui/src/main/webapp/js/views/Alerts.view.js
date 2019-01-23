@@ -14,7 +14,7 @@
  **/
 /*global define*/
 define([
-  'marionette',
+  'backbone.marionette',
   'templates/alerts.handlebars',
   'jquery',
   'underscore',

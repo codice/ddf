@@ -16,7 +16,7 @@
 import { iframeResizer } from 'iframe-resizer'
 define([
   'require',
-  'marionette',
+  'backbone.marionette',
   'backbone',
   'components/iframe/iframe.view.js',
   'components/application-services/application-services.view',

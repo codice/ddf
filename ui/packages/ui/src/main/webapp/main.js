@@ -18,7 +18,7 @@
   require([
     'jquery',
     'backbone',
-    'marionette',
+    'backbone.marionette',
     'js/application',
     'js/views/Module.view',
     'js/models/Alerts.js',

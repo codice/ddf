@@ -15,7 +15,7 @@
 /*global define, window*/
 import * as React from 'react'
 import Services from '../container/services'
-define(['marionette', 'js/CustomElements'], function(
+define(['backbone.marionette', 'js/CustomElements'], function(
   Marionette,
   CustomElements
 ) {

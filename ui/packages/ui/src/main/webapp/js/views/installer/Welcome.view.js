@@ -14,7 +14,7 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(['marionette', 'templates/installer/welcome.handlebars'], function(
+define(['backbone.marionette', 'templates/installer/welcome.handlebars'], function(
   Marionette,
   welcomeTemplate
 ) {

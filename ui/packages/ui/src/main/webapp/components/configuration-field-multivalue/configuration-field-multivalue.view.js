@@ -16,7 +16,7 @@
 /** Main view page for add. */
 define([
   'backbone',
-  'marionette',
+  'backbone.marionette',
   './configuration-field-multivalue.hbs',
   'js/CustomElements',
 ], function(Backbone, Marionette, template, CustomElements) {

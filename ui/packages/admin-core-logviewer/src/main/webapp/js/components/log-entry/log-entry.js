@@ -16,8 +16,6 @@
 import React from 'react'
 import moment from 'moment'
 
-import './log-entry.less'
-
 import levels from '../../levels'
 import * as actions from '../../actions'
 

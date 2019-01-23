@@ -13,7 +13,7 @@
 define([
   'jquery',
   'underscore',
-  'marionette',
+  'backbone.marionette',
   'js/wreqr',
   'js/views/SessionTimeoutModal.view',
   'js/models/SessionTimeout',

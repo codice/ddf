@@ -11,12 +11,13 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
+import MarionetteRegionContainer from '@connexta/atlas/atoms/marionette'
 const ConfigurationEditView = require('components/configuration-edit/configuration-edit.view')
   .View
-import styled from '../../../styles/styled-components'
+import styled from '@connexta/atlas/styled'
 const $ = require('jquery')
 import getId from '../../uuid'
+import Button from '@connexta/atlas/atoms/button'
 
 const ConfigurationElement = styled.div`
   display: block;
@@ -133,9 +134,8 @@ class Configuration extends React.Component<Props, State> {
         <div>{bundle_name}</div>
         <div>
           {fpid ? (
-            <a
-              href="#"
-              className="removeLink glyphicon glyphicon-remove"
+            <Button
+              color="secondary"
               onClick={e => {
                 e.preventDefault()
                 var question =
@@ -147,7 +147,9 @@ class Configuration extends React.Component<Props, State> {
                   destroy()
                 }
               }}
-            />
+            >
+              <span className="glyphicon glyphicon-remove" />
+            </Button>
           ) : null}
         </div>
       </ConfigurationElement>
