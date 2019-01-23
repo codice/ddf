@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -27,8 +28,8 @@ import org.slf4j.LoggerFactory;
 /**
  * AsyncFileAlterationObserver
  *
- * <p>Based upon {@link org.apache.commons.io.monitor.FileAlterationObserver}, except modified to
- * only update the observer state on successful async request
+ * <p>Based on {@link org.apache.commons.io.monitor.FileAlterationObserver}, except modified to only
+ * update the observer state on successful async request
  *
  * <p>This implementation only works with one AsyncFileAlterationListener.
  *
@@ -37,10 +38,9 @@ import org.slf4j.LoggerFactory;
  * directory being monitored, and call the {@link AsyncFileAlterationListener}'s corresponding
  * methods
  *
- * @apiNote The AsyncFileAlterationListener is expected to either call the callback function passed
- *     with {@code null} or pass the callback function into an {@link org.apache.camel.Exchange}.
+ * @see AsyncFileAlterationListener
  * @apiNote If this is loaded from a file after the system has been shut down, the user
- *     <strong>MUST</strong> call {@code clearCache()} in order to clear the currently processing
+ *     <strong>MUST</strong> call {@link #clearCache()} in order to clear the currently processing
  *     request.
  */
 public class AsyncFileAlterationObserver implements Serializable {
@@ -54,7 +54,7 @@ public class AsyncFileAlterationObserver implements Serializable {
     rootFile = new AsyncFileEntry(fileToObserve);
   }
 
-  //  Only for testing
+  @VisibleForTesting
   protected AsyncFileEntry getRootFile() {
     return rootFile;
   }

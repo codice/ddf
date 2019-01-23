@@ -623,7 +623,6 @@ public class AsyncFileAlterationObserverTest {
     addDelay(delay);
 
     File siblingDir = new File(monitoredDirectory, "child002");
-    assertThat(siblingDir.mkdir(), is(true));
 
     observer.checkAndNotify();
 
@@ -654,7 +653,6 @@ public class AsyncFileAlterationObserverTest {
     init();
 
     File siblingDir = new File(monitoredDirectory, "child002");
-    assertThat(siblingDir.mkdir(), is(true));
 
     observer.checkAndNotify();
 
@@ -682,7 +680,6 @@ public class AsyncFileAlterationObserverTest {
     addDelay(delay);
 
     File siblingDir = new File(monitoredDirectory, "child002");
-    assertThat(siblingDir.mkdir(), is(true));
 
     observer.checkAndNotify();
 

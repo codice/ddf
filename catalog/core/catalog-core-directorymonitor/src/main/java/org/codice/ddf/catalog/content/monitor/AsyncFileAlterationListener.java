@@ -14,27 +14,29 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import java.io.File;
+import org.apache.camel.Exchange;
 import org.apache.camel.spi.Synchronization;
 
 /**
- * AsyncFileAlterationListener
+ * AsyncFileAlterationListener Based on {@link
+ * org.apache.commons.io.monitor.FileAlterationListener}. Used by the {@link
+ * AsyncFileAlterationObserver} to handle when a file has been changed.
  *
- * <p>Based upon Apache's {@link org.apache.commons.io.monitor.FileAlterationListener}. Used by the
- * {@link AsyncFileAlterationObserver} to inform when a file has been changed.
- *
- * @implNote The {@link Synchronization} cb must be passed into a {@link org.apache.camel.Exchange}
- *     or called manually by {@code cb.onSuccess} / {@code cb.onFailure} depending if a success or
- *     failure occurred.
+ * @implNote The {@link AsyncFileAlterationListener} must call {@link
+ *     Synchronization#onComplete(Exchange)} or {@link Synchronization#onFailure(Exchange)} with
+ *     {@code null} if a success or failure occurred. Alternatively the {@link Synchronization} can
+ *     be added to an {@link org.apache.camel.Exchange} via {@link
+ *     Exchange#addOnCompletion(Synchronization)}.
  */
 public interface AsyncFileAlterationListener {
 
   void onStart(final AsyncFileAlterationObserver observer);
 
-  void onFileCreate(File file, Synchronization cb);
+  void onFileCreate(final File file, final Synchronization callback);
 
-  void onFileChange(File file, Synchronization cb);
+  void onFileChange(final File file, final Synchronization callback);
 
-  void onFileDelete(File file, Synchronization cb);
+  void onFileDelete(final File file, final Synchronization callback);
 
   void onStop(final AsyncFileAlterationObserver observer);
 }
