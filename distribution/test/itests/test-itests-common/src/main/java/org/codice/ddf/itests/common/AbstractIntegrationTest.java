@@ -120,7 +120,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.2.1";
+  protected static final String KARAF_VERSION = "4.2.2";
 
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 

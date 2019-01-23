@@ -87,12 +87,13 @@ wrapper.java.additional.4=-Dkaraf.home="%KARAF_HOME%"
 wrapper.java.additional.5=-Dkaraf.base="%KARAF_BASE%"
 wrapper.java.additional.6=-Dkaraf.data="%KARAF_DATA%"
 wrapper.java.additional.7=-Dkaraf.etc="%KARAF_ETC%"
-wrapper.java.additional.8=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.9=-Djava.io.tmpdir="%KARAF_DATA%/tmp"
-wrapper.java.additional.10=-Djava.util.logging.config.file="%KARAF_BASE%/etc/java.util.logging.properties"
-wrapper.java.additional.11=-Dcom.sun.management.jmxremote
-wrapper.java.additional.12=-Dkaraf.startLocalConsole=false
-wrapper.java.additional.13=-Dkaraf.startRemoteShell=true
+wrapper.java.additional.8=-Dkaraf.log="%KARAF_LOG%"
+wrapper.java.additional.9=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.10=-Djava.io.tmpdir="%KARAF_DATA%/tmp"
+wrapper.java.additional.11=-Djava.util.logging.config.file="%KARAF_ETC%/java.util.logging.properties"
+wrapper.java.additional.12=-Dcom.sun.management.jmxremote
+wrapper.java.additional.13=-Dkaraf.startLocalConsole=false
+wrapper.java.additional.14=-Dkaraf.startRemoteShell=true
 ----
 
 . (Windows only) Install the wrapper startup/shutdown scripts.

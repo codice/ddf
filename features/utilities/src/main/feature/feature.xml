@@ -57,6 +57,7 @@
 
     <feature name="error-api" version="${project.version}"
              description="Platform error handler API.">
+        <feature>pax-jetty</feature>
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>

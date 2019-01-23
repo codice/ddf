@@ -225,38 +225,6 @@
                                     <version>${xerces.bundle.version}</version>
                                     <outputDirectory>${setup.folder}/endorsed</outputDirectory>
                                 </artifactItem>
-                                <!-- The jaxb-api jar and locator/activation jars are needed until Karaf 4.2.2+ (https://issues.apache.org/jira/browse/KARAF-5991) -->
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.jaxb-api-2.2</artifactId>
-                                    <version>${servicemix.specs.version}</version>
-                                    <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.locator</artifactId>
-                                    <version>${servicemix.specs.version}</version>
-                                    <outputDirectory>${setup.folder}/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.servicemix.specs</groupId>
-                                    <artifactId>org.apache.servicemix.specs.activator</artifactId>
-                                    <version>${servicemix.specs.version}</version>
-                                    <outputDirectory>${setup.folder}/lib</outputDirectory>
-                                </artifactItem>
-                                <!-- The two "org.apache.karaf.specs" artifacts below are needed until Karaf 4.2.2+ (https://issues.apache.org/jira/browse/KARAF-5897) -->
-                                <artifactItem>
-                                    <groupId>org.apache.karaf.specs</groupId>
-                                    <artifactId>org.apache.karaf.specs.java.xml.ws</artifactId>
-                                    <version>${karaf.version}</version>
-                                    <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.karaf.specs</groupId>
-                                    <artifactId>org.apache.karaf.specs.activator</artifactId>
-                                    <version>${karaf.version}</version>
-                                    <outputDirectory>${setup.folder}/boot</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -332,31 +300,6 @@
         </plugins>
     </build>
     <dependencies>
-        <!--
-        We are overriding the pax-web version of these four bundles in ddf-common.
-        Kernel needs to know them to replace them. These should be removed when pax-web
-        releases their version of 7.2.4
-        -->
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-api</artifactId>
-            <version>${pax.web.codice.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-jetty</artifactId>
-            <version>${pax.web.codice.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-runtime</artifactId>
-            <version>${pax.web.codice.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-spi</artifactId>
-            <version>${pax.web.codice.version}</version>
-        </dependency>
         <!--
         Depends on the base Apache Karaf Unix and Windows distribution zip files.
         This is from where all of the Karaf .cfg, .properties, and other files are extracted.

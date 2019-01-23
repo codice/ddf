@@ -24,46 +24,24 @@
     <!-- A list of blacklisted feature identifiers that can't be installed in Karaf and are not part of the distribution -->
     <blacklistedFeatures>
         <feature>pax-jetty-http2</feature>
-        <feature version="[9.3,9.4.10]">pax-jetty</feature>
-        <feature version="[7.0.0,7.2.2]">pax-http-jetty</feature>
-        <feature version="[7.0.0,7.2.2]">pax-http</feature>
-        <feature version="[7.0.0,7.2.2]">pax-war</feature>
-        <feature version="[7.0.0,7.2.2]">pax-http-tomcat</feature>
-        <feature version="[7.0.0,7.2.2]">pax-war-tomcat</feature>
-        <feature version="[7.0.0,7.2.2]">pax-jsf-support</feature>
-        <feature version="[7.0.0,7.2.2]">pax-jsf-resources-support</feature>
-        <feature version="[7.0.0,7.2.2]">pax-http-undertow</feature>
         <feature>decanter-appender-cassandra</feature>
         <feature>decanter-appender-cassandra-core</feature>
     </blacklistedFeatures>
 
     <!-- A list of blacklisted bundle URIs that are not installed even if they are part of some features -->
-    <blacklistedBundles>
-        <bundle>mvn:org.ops4j.pax.web/pax-web-jetty/7.2.3</bundle>
-    </blacklistedBundles>
+    <blacklistedBundles/>
 
     <!-- A list of repository URIs, feature identifiers and bundle URIs to override "dependency" flag -->
     <overrideBundleDependency/>
 
     <!-- A list of bundle URI replacements that allows changing external feature definitions -->
     <bundleReplacements>
-        <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-api/7.2.3"
-                replacement="mvn:org.ops4j.pax.web/pax-web-api/7.2.4.CODICE"
-                mode="maven"/>
-        <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-jetty/7.2.3"
-                replacement="mvn:org.ops4j.pax.web/pax-web-jetty/7.2.4.CODICE"
-                mode="maven"/>
-        <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-runtime/7.2.3"
-                replacement="mvn:org.ops4j.pax.web/pax-web-runtime/7.2.4.CODICE"
-                mode="maven"/>
-        <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-spi/7.2.3"
-                replacement="mvn:org.ops4j.pax.web/pax-web-spi/7.2.4.CODICE"
-                mode="maven"/>
-        <bundle originalUri="mvn:org.ops4j.pax.web/pax-web-jsp/7.2.3"
-                replacement="mvn:org.ops4j.pax.web/pax-web-jsp/7.2.4.CODICE"
-                mode="maven"/>
-        <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.2"
-                replacement="mvn:org.apache.felix/org.apache.felix.scr/2.0.14"
+        <!--    Newer versions of felix.scr will use OSGi R7 logging if it's available.
+                Since DDF pulls in equinox 3.13.0 instead of what Karaf uses, R7 is available
+                and felix.scr tries to use R7 logging even though the current version of pax-logging
+                does not support it. This override can be removed when pax-logging supports R7.-->
+        <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.14"
+                replacement="mvn:org.apache.felix/org.apache.felix.scr/${felix.scr.version}"
                 mode="maven"/>
     </bundleReplacements>
 

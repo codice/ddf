@@ -19,16 +19,14 @@
     <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
     <repository>mvn:io.fabric8/fabric8-karaf-features/${fabric8.version}/xml/features</repository>
-    <!-- Currently karaf 4.2.0 pulls in an older version of pax.web so we need to pull in a newer version here
-                 The karaf pax.web features (version 7.0.0) are blacklisted-->
-    <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="kernel" version="${project.version}"
              description="Minimual set of features and dependencies commonly used.">
         <feature version="${karaf.version}">standard</feature>
         <feature version="${karaf.version}">eventadmin</feature>
         <feature version="${karaf.version}">jasypt-encryption</feature>
-        <feature version="${karaf.version}">http</feature>
+        <feature version="${pax.web.version}">pax-web-core</feature>
+        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
         <feature>sync-installer</feature>
         <!--Added wrap at the end so features before this can startup up while we block on the wrap feature-->
         <feature prerequisite="true">wrap</feature>
