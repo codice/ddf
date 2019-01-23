@@ -13,9 +13,14 @@
  *
  **/
 /*global define*/
-var Marionette = require('marionette')
-var template = require('./list-interactions.hbs')
-var CustomElements = require('../../js/CustomElements.js')
+const Marionette = require('marionette')
+const template = require('./list-interactions.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const announcement = require('../../component/announcement')
+import fetch from '../../react-component/utils/fetch'
+import saveFile, {
+  getFilenameFromContentDisposition,
+} from '../../react-component/utils/save-file'
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -72,9 +77,41 @@ module.exports = Marionette.ItemView.extend({
     const newList = new this.model.constructor(copyAttributes)
     this.model.collection.add(newList)
   },
-  triggerAction(event) {
+  async triggerAction(event) {
     const url = event.currentTarget.getAttribute('data-url')
-    window.open(url)
+    try {
+      let res = await fetch(url, { Accept: 'application/json' })
+      if (!res.ok) {
+        const json = await res.json()
+        throw Error(json.message)
+      }
+
+      if (res.headers.get('content-disposition') != null) {
+        const data = await res.text()
+        const contentType = res.headers.get('content-type')
+        const name = getFilenameFromContentDisposition(
+          res.headers.get('content-disposition')
+        )
+
+        return saveFile(name, contentType, data)
+      } else {
+        res = await res.json()
+      }
+
+      if (res !== undefined) {
+        announcement.announce({
+          title: 'Success',
+          message: res.message,
+          type: 'success',
+        })
+      }
+    } catch (err) {
+      announcement.announce({
+        title: 'Error',
+        message: err.message,
+        type: 'error',
+      })
+    }
   },
   handleResult() {
     this.$el.toggleClass(

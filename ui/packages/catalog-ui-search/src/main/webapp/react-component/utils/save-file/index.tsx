@@ -9,4 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default } from './save-file'
+export { default, getFilenameFromContentDisposition } from './save-file'
