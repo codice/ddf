@@ -25,7 +25,7 @@ var comparisonClass = 'Comparison',
     //Allows for non-standard single-quoted property names
     PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
     COMPARISON: /^(=|<>|<=|<|>=|>|LIKE|ILIKE)/i,
-    IS_NULL: /^IS NULL/i,
+    IS_NULL: /^(IS NULL)/i,
     COMMA: /^,/,
     LOGICAL: /^(AND|OR)/i,
     VALUE: /^('([^']|'')*'|-?\d+(\.\d*)?|\.\d+)/,
@@ -101,7 +101,7 @@ var comparisonClass = 'Comparison',
       'RPAREN',
     ],
     BETWEEN: ['VALUE'],
-    IS_NULL: ['END'],
+    IS_NULL: ['RPAREN', 'LOGICAL'],
     COMPARISON: ['RELATIVE', 'VALUE', 'BOOLEAN'],
     COMMA: ['FILTER_FUNCTION', 'GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
     VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
@@ -138,10 +138,10 @@ var comparisonClass = 'Comparison',
     '<=': comparisonClass,
     '>': comparisonClass,
     '>=': comparisonClass,
+    'IS NULL': comparisonClass,
     LIKE: comparisonClass,
     ILIKE: comparisonClass,
     BETWEEN: comparisonClass,
-    'IS NULL': comparisonClass,
     AND: logicalClass,
     OR: logicalClass,
     NOT: logicalClass,
@@ -199,6 +199,7 @@ function nextToken(text, tokens) {
 }
 
 function tokenize(text) {
+  text = text.replace(" ''", "")
   var results = []
   var token,
     expect = follows['ROOT_NODE']
@@ -263,11 +264,11 @@ function buildAst(tokens) {
         break
       case 'COMPARISON':
       case 'BETWEEN':
-      case 'IS_NULL':
       case 'LOGICAL':
       case 'BEFORE':
       case 'AFTER':
       case 'DURING':
+      case 'IS_NULL':
         var p = precedence[tok.type]
 
         while (
@@ -504,6 +505,9 @@ function wrap(property) {
 }
 
 function write(filter) {
+  if(filter===undefined){
+    return null
+  }
   switch (classes[filter.type]) {
     case spatialClass:
       switch (filter.type) {

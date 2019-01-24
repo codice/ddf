@@ -159,7 +159,8 @@ module.exports = Marionette.LayoutView.extend({
     if (filter.filters.length === 0) {
       return '("anyText" ILIKE \'%\')'
     } else {
-      return CQLUtils.transformFilterToCQL(filter)
+      let cql = CQLUtils.transformFilterToCQL(filter)
+      return cql
     }
   },
   getFilters: function() {
@@ -179,15 +180,16 @@ module.exports = Marionette.LayoutView.extend({
         ],
       }
     } else {
-      return {
+      let filtersVar = this.filterContents.currentView.children
+      .map(function(childView) {
+        return childView.getFilters()
+      })
+      .filter(function(filter) {
+        return filter
+      })
+    return {
         type: operator,
-        filters: this.filterContents.currentView.children
-          .map(function(childView) {
-            return childView.getFilters()
-          })
-          .filter(function(filter) {
-            return filter
-          }),
+        filters: filtersVar,
       }
     }
   },
