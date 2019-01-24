@@ -261,14 +261,17 @@ module.exports = Marionette.LayoutView.extend({
       case 'FLOAT':
       case 'INTEGER':
       case 'SHORT':
-        if (['>', '<', '=', '>=', '<=', 'EMPTY'].indexOf(currentComparator) === -1) {
+        if (
+          ['>', '<', '=', '>=', '<=', 'EMPTY'].indexOf(currentComparator) === -1
+        ) {
           this.model.set('comparator', '>')
         }
         break
       default:
         if (
-          ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY'].indexOf(currentComparator) ===
-          -1
+          ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY'].indexOf(
+            currentComparator
+          ) === -1
         ) {
           this.model.set('comparator', 'CONTAINS')
         }

@@ -199,7 +199,7 @@ function nextToken(text, tokens) {
 }
 
 function tokenize(text) {
-  text = text.replace(" ''", "")
+  text = text.replace(" ''", '')
   var results = []
   var token,
     expect = follows['ROOT_NODE']
@@ -505,7 +505,7 @@ function wrap(property) {
 }
 
 function write(filter) {
-  if(filter===undefined){
+  if (filter === undefined) {
     return null
   }
   switch (classes[filter.type]) {
