@@ -20,6 +20,7 @@ var PropertyView = require('../property/property.view.js')
 var Property = require('../property/property.js')
 var CQLUtils = require('../../js/CQLUtils.js')
 var Common = require('../../js/Common.js')
+import { serialize, deserialize } from './serial'
 
 /*
     For specifying a relative time.  It shows a number field and a units field.
@@ -61,42 +62,15 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   getViewValue: function() {
-    let timeLast = this.basicTimeRelativeValue.currentView.model.getValue()[0]
-    if (timeLast === '') {
-      timeLast = 0
+    let last = this.basicTimeRelativeValue.currentView.model.getValue()[0]
+    if (last === '') {
+      last = 0
     }
-    const timeUnit = this.basicTimeRelativeUnit.currentView.model.getValue()[0]
-    let duration
-    if (timeUnit === 'm' || timeUnit === 'h') {
-      duration = 'PT' + timeLast + timeUnit.toUpperCase()
-    } else {
-      duration = 'P' + timeLast + timeUnit.toUpperCase()
-    }
-    return `RELATIVE(${duration})`
+    const unit = this.basicTimeRelativeUnit.currentView.model.getValue()[0]
+    return serialize({ last, unit })
   },
   parseValue(value) {
-    if (
-      value === null ||
-      value === undefined ||
-      value.indexOf('RELATIVE') !== 0
-    ) {
-      return
-    }
-    const duration = value
-      .substring(9, value.length - 1)
-      .match(/(Z?\d+\.*\d*)./)[0]
-    let unit = duration.substring(duration.length - 1, duration.length)
-    let last = parseFloat(duration.match(/\d+\.*\d*/))
-
-    unit = unit.toLowerCase()
-    if (duration.indexOf('T') === -1 && unit === 'm') {
-      //must capitalize months
-      unit = unit.toUpperCase()
-    }
-    return {
-      last,
-      unit,
-    }
+    return deserialize(value)
   },
   getModelValue() {
     const currentValue = this.model.toJSON().value[0]
