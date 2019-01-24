@@ -422,18 +422,14 @@ const lon = {
 }
 
 const validateDmsLatInput = input => {
-  if (input.slice(lat.degreesBegin, lat.degreesEnd) > 90) {
-    return '9_' + input.slice(lat.degreesEnd)
-  } else if (input.slice(lat.minutesBegin, lat.minutesEnd) > 60) {
-    return (
-      input.slice(lat.degreesBegin, lat.minutesBegin) +
-      '6_' +
-      input.slice(lat.minutesEnd)
-    )
+  if (
+    input.slice(lat.degreesBegin, lat.degreesEnd) > 90 ||
+    input.slice(lat.minutesBegin, lat.minutesEnd) > 60 ||
+    input.slice(lat.secondsBegin, lat.secondsEnd) > 60
+  ) {
+    return false
   } else if (input.slice(lat.minutesBegin, lat.minutesEnd) === '60') {
     return input.slice(lat.degreesBegin, lat.degreesEnd) + '°60\'00"'
-  } else if (input.slice(lat.secondsBegin, lat.secondsEnd) > 60) {
-    return input.slice(lat.degreesBegin, lat.secondsBegin) + '6_"'
   } else if (input.slice(lat.degreesBegin, lat.degreesEnd) === '90') {
     return '90°00\'00"'
   } else if (
@@ -441,24 +437,25 @@ const validateDmsLatInput = input => {
     input.slice(lat.degreesEnd) === '°00\'00"'
   ) {
     return '9_°__\'__"'
+  } else if (
+    input.slice(lat.minutesBegin, lat.minutesEnd) === '6_' &&
+    input.slice(lat.minutesEnd) === '\'00"'
+  ) {
+    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°6_\'__"'
   } else {
     return input
   }
 }
 
 const validateDmsLonInput = input => {
-  if (input.slice(lon.degreesBegin, lon.degreesEnd) > 180) {
-    return input.slice(0, 2) + '_' + input.slice(lon.degreesEnd)
-  } else if (input.slice(lon.minutesBegin, lon.minutesEnd) > 60) {
-    return (
-      input.slice(lon.degreesBegin, lon.minutesBegin) +
-      '6_' +
-      input.slice(lon.minutesEnd)
-    )
+  if (
+    input.slice(lon.degreesBegin, lon.degreesEnd) > 180 ||
+    input.slice(lon.minutesBegin, lon.minutesEnd) > 60 ||
+    input.slice(lon.secondsBegin, lon.secondsEnd) > 60
+  ) {
+    return false
   } else if (input.slice(lon.minutesBegin, lon.minutesEnd) === '60') {
     return input.slice(lon.degreesBegin, lon.degreesEnd) + '°60\'00"'
-  } else if (input.slice(lon.secondsBegin, lon.secondsEnd) > 60) {
-    return input.slice(lat.degreesBegin, lat.secondsBegin) + '6_"'
   } else if (input.slice(lon.degreesBegin, lon.degreesEnd) === '180') {
     return '180°00\'00"'
   } else if (
@@ -466,6 +463,11 @@ const validateDmsLonInput = input => {
     input.slice(lon.degreesEnd) === '°00\'00"'
   ) {
     return '18_°__\'__"'
+  } else if (
+    input.slice(lon.minutesBegin, lon.minutesEnd) === '6_' &&
+    input.slice(lon.minutesEnd) === '\'00"'
+  ) {
+    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°6_\'__"'
   } else {
     return input
   }
