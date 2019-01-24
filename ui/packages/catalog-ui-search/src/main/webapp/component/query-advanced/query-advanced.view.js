@@ -117,7 +117,6 @@ module.exports = Marionette.LayoutView.extend({
         : ''
     cqlVar = cqlVar.replace(' null', '')
     let filterTreeVar = this.queryAdvanced.currentView.getFilters()
-    // "cql":"(\"location.altitude-meters\" = '\"\"' OR \"location.altitude-meters\" IS NULL)",
     this.model.set({
       cql: cqlVar,
       filterTree: filterTreeVar,
