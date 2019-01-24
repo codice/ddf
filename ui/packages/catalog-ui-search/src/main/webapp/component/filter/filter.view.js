@@ -187,7 +187,6 @@ module.exports = Marionette.LayoutView.extend({
       '=': '=',
       '<=': '<=',
       '>=': '>=',
-      'EMPTY': 'IS NULL',
     }
   },
   CQLtoComparator: function() {
