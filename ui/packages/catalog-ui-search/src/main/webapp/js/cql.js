@@ -263,8 +263,8 @@ function buildAst(tokens) {
         postfix.push(tok)
         break
       case 'COMPARISON':
-      case 'IS_NULL':
       case 'BETWEEN':
+      case 'IS_NULL':
       case 'LOGICAL':
       case 'BEFORE':
       case 'AFTER':
