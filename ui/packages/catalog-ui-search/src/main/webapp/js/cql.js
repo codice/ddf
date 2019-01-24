@@ -199,7 +199,6 @@ function nextToken(text, tokens) {
 }
 
 function tokenize(text) {
-  text = text.replace(" ''", '')
   var results = []
   var token,
     expect = follows['ROOT_NODE']
