@@ -326,6 +326,7 @@ module.exports = Marionette.LayoutView.extend({
     var property = this.model.get('type')
     var comparator = this.model.get('comparator')
     var value = this.filterInput.currentView.model.getValue()[0]
+    var type = this.comparatorToCQL()[comparator]
 
     if (comparator === 'NEAR') {
       return CQLUtils.generateFilterForFilterFunction('proximity', [
@@ -333,9 +334,11 @@ module.exports = Marionette.LayoutView.extend({
         value.distance,
         value.value,
       ])
+    } else if(comparator === 'EMPTY'){
+      return CQLUtils.generateFilter(type, property, null)
+      // let str = CQLUtils.generateFilter(type, property, null) + CQLUtils.generateFilter('=', property, "")
+      // return str
     }
-
-    var type = this.comparatorToCQL()[comparator]
     if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
       return {
         type: 'AND',
