@@ -174,6 +174,9 @@ const ResultItemView = Marionette.LayoutView.extend({
                   ''
                 )}
               </div>
+              <div className="result-extension">
+                {this.getButtonExtensions()}
+              </div>
               <button
                 className="result-download fa fa-download is-button is-neutral"
                 title="Downloads the associated resource directly to your machine."
@@ -185,9 +188,6 @@ const ResultItemView = Marionette.LayoutView.extend({
                 title="Follow external links"
                 data-help="Follow external links."
               />
-              <div className="result-validation">
-                {this.getButtonExtensions()}
-              </div>
               <button
                 className="result-add is-button is-neutral composed-button"
                 title="Add or remove the result from a list, or make a new list with this result."
