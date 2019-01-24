@@ -505,6 +505,9 @@ function wrap(property) {
 }
 
 function write(filter) {
+  if (filter === undefined) {
+    return null
+  }
   switch (classes[filter.type]) {
     case spatialClass:
       switch (filter.type) {
