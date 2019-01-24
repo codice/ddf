@@ -413,6 +413,13 @@ grant codeBase "file:/security-core-api/security-sts-attributequeryclaimshandler
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
+grant codeBase "file:/security-servlet-session-expiry" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
+}
+
 //
 // itest specific perms
 //
