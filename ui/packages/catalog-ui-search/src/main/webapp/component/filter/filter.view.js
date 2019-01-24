@@ -181,11 +181,13 @@ module.exports = Marionette.LayoutView.extend({
       CONTAINS: 'ILIKE',
       MATCHCASE: 'LIKE',
       EQUALS: '=',
+      EMPTY: 'IS NULL',
       '>': '>',
       '<': '<',
       '=': '=',
       '<=': '<=',
       '>=': '>=',
+      'EMPTY': 'IS NULL',
     }
   },
   CQLtoComparator: function() {
@@ -260,13 +262,13 @@ module.exports = Marionette.LayoutView.extend({
       case 'FLOAT':
       case 'INTEGER':
       case 'SHORT':
-        if (['>', '<', '=', '>=', '<='].indexOf(currentComparator) === -1) {
+        if (['>', '<', '=', '>=', '<=', 'EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '>')
         }
         break
       default:
         if (
-          ['CONTAINS', 'MATCHCASE', '=', 'NEAR'].indexOf(currentComparator) ===
+          ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY'].indexOf(currentComparator) ===
           -1
         ) {
           this.model.set('comparator', 'CONTAINS')
