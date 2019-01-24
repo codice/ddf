@@ -263,12 +263,12 @@ function buildAst(tokens) {
         postfix.push(tok)
         break
       case 'COMPARISON':
+      case 'IS_NULL':
       case 'BETWEEN':
       case 'LOGICAL':
       case 'BEFORE':
       case 'AFTER':
       case 'DURING':
-      case 'IS_NULL':
         var p = precedence[tok.type]
 
         while (
