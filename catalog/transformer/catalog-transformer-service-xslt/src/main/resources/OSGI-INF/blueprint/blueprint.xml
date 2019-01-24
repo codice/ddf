@@ -12,10 +12,10 @@
  **/ -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
->
+    >
 
-    <bean id="xsltBundleListener" class="ddf.catalog.services.xsltlistener.XsltListener">
-        <argument ref="blueprintBundleContext"/>
-    </bean>
+  <bean id="xsltBundleListener" class="ddf.catalog.services.xsltlistener.XsltListener">
+      <argument ref="blueprintBundleContext"/>
+  </bean>
 
 </blueprint>
