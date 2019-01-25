@@ -170,6 +170,15 @@ module.exports = Marionette.CollectionView.extend({
     str = str.toString()
     return this.options.matchcase === true ? str : str.toLowerCase()
   },
+  getWords: function(str) {
+    str = this.getAppropriateString(str)
+    return str.split(/[-\.]+/)
+  },
+  wordStartsWithFilter: function(words, filter) {
+    return words.find(function(word){
+      return word.indexOf(filter) === 0
+    })
+  },
   filter: function(child) {
     var filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
@@ -187,13 +196,13 @@ module.exports = Marionette.CollectionView.extend({
     }
     if (
       child.get('label') !== undefined &&
-      this.getAppropriateString(child.get('label')).indexOf(filterValue) === -1
+      this.wordStartsWithFilter(this.getWords(child.get('label')), filterValue) === undefined
     ) {
       return false
     }
     if (
-      child.get('label') === undefined &&
-      this.getAppropriateString(child.get('value')).indexOf(filterValue) === -1
+      child.get('value') === undefined &&
+      this.wordStartsWithFilter(this.getWords(child.get('value')), filterValue) === undefined
     ) {
       return false
     }
