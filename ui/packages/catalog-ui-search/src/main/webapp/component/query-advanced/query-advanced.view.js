@@ -88,6 +88,9 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   edit: function() {
+    if(this.model.attributes.comparator === 'EMPTY'){
+      $('.if-editing').toggle()
+    }    
     this.$el.addClass('is-editing')
     this.querySettings.currentView.turnOnEditing()
     this.queryAdvanced.currentView.turnOnEditing()
