@@ -334,10 +334,25 @@ module.exports = Marionette.LayoutView.extend({
         value.distance,
         value.value,
       ])
-    } else if(comparator === 'EMPTY'){
-      return CQLUtils.generateFilter(type, property, null)
-      // let str = CQLUtils.generateFilter(type, property, null) + CQLUtils.generateFilter('=', property, "")
-      // return str
+    }
+    // else if(comparator === 'EMPTY'){
+    //   return {
+    //     type: 'OR',
+    //     filters: {
+    //       type: ["=", "IS NULL"],
+    //       property: [property, property],
+    //       value: ["\"\"", null]
+    //     }
+    //   }
+    // } 
+    else if(comparator === 'EMPTY'){
+      return {
+        type: 'OR',
+        filters: [
+          CQLUtils.generateFilter('=', property, "\"\""),
+          CQLUtils.generateFilter(type, property, null)
+        ]
+      }
     }
     if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
       return {
