@@ -1,4 +1,13 @@
 <!--
+** For commits created to resolve GH Issues during the pilot and beyond, please prefix the
+issue number with a 0 until we roll over at issue #10000, ie: `DDF-0####`. This kludgy solution
+will avoid overlap with issues created in Jira.**
+
+See https://github.com/codice/ddf/wiki/%5BGH-ISSUES-PILOT%5D-Pull-Request-Guidelines
+for more info.
+-->
+
+<!--
 Uncomment this block and include PR # of change against 2.13.x where appropriate.
 When doing so, it is reasonable to delete much of the rest of the PR description, leaving only:
 - This uncommented block with link to 2.13.x PR
@@ -69,7 +78,12 @@ If you don't know who to ask, you can request reviews in https://groups.google.c
 <!--(List steps with links to updated documentation)-->
 #### Any background context you want to provide?
 #### What are the relevant tickets?
+For Jira:
 [](https://codice.atlassian.net/browse/)
+
+For GH Issues:
+Fixes: #____
+
 #### Screenshots
 <!--(if appropriate)-->
 #### Checklist:
