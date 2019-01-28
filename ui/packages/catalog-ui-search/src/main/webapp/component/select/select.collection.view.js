@@ -171,8 +171,11 @@ module.exports = Marionette.CollectionView.extend({
     return this.options.matchcase === true ? str : str.toLowerCase()
   },
   getWords: function(str) {
+    //Handle camelcase
+    str = str.replace(/([A-Z])/g, ' $1')
     str = this.getAppropriateString(str)
-    return str.split(/[-\.]+/)
+    //Handle dashes, dots, and spaces
+    return str.split(/[-\.\s]+/)
   },
   wordStartsWithFilter: function(words, filter) {
     return words.find(function(word){
