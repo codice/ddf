@@ -15,20 +15,23 @@ import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { Sharing } from '../sharing'
 import { Security, Restrictions } from '../../utils/security'
-import fetch from '../../utils/fetch'
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
 const wreqr = require('../../../js/wreqr.js')
 const LoadingView = require('../../../component/loading/loading.view.js')
 const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
-const announcement = require('component/announcement')
 
 type Props = {
   workspace: any
 } & WithBackboneProps
 type State = {
   subscribed: boolean
+}
+
+type Attribute = {
+  attribute: string
+  values: string[]
 }
 
 const mapPropsToState = (props: Props) => {
@@ -82,6 +85,9 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   openWorkspaceInNewTab = () => {
     window.open('./#workspaces/' + this.props.workspace.id)
   }
+  updateWorkspace = (attributes: Attribute[]) => {
+    store.setWorkspaceRestrictions(this.props.workspace.id, attributes)
+  }
   viewSharing = () => {
     lightboxInstance.model.updateTitle('Workspace Sharing')
     lightboxInstance.model.open()
@@ -89,6 +95,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       <Sharing
         key={this.props.workspace.id}
         id={this.props.workspace.id}
+        updateMetacard={this.updateWorkspace}
         lightbox={lightboxInstance}
       />
     )
@@ -144,48 +151,28 @@ class WorkspaceInteractions extends React.Component<Props, State> {
     })
   }
   deletionPrompt = () => {
-    fetch(`/search/catalog/internal/metacard/${this.props.workspace.id}`)
-      .then(response => {
-        if (response.status === 200) {
-          return response.json()
-        }
+    const workspace = store.getWorkspaceById(this.props.workspace.id)
+    const security = new Security(Restrictions.from(workspace))
 
-        throw new Error()
-      })
-      .then(data => {
-        const metacard = data.metacards[0]
-        const security = new Security(Restrictions.from(metacard))
-
-        if (!security.isShared()) {
-          this.deleteWorkspace()
-        } else {
-          const self = this
-          this.props.listenTo(
-            ConfirmationView.generateConfirmation({
-              prompt:
-                'Are you sure you want to delete this workspace? It has been shared with other users.',
-              no: 'Cancel',
-              yes: 'Delete',
-            }),
-            'change:choice',
-            function(confirmation: any) {
-              if (confirmation.get('choice')) {
-                self.deleteWorkspace()
-              }
-            }.bind(this)
-          )
-        }
-      })
-      .catch(function() {
-        announcement.announce(
-          {
-            title: 'Error',
-            message: 'Deletion failed',
-            type: 'error',
-          },
-          1500
-        )
-      })
+    if (!security.isShared()) {
+      this.deleteWorkspace()
+    } else {
+      const self = this
+      this.props.listenTo(
+        ConfirmationView.generateConfirmation({
+          prompt:
+            'Are you sure you want to delete this workspace? It has been shared with other users.',
+          no: 'Cancel',
+          yes: 'Delete',
+        }),
+        'change:choice',
+        function(confirmation: any) {
+          if (confirmation.get('choice')) {
+            self.deleteWorkspace()
+          }
+        }.bind(this)
+      )
+    }
   }
   saveWorkspace = () => {
     this.props.workspace.save()
