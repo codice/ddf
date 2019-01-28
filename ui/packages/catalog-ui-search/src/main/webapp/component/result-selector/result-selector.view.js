@@ -29,7 +29,6 @@ const cql = require('../../js/cql.js')
 const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-sort.view.js')
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
-const _throttle = require('lodash/throttle')
 require('../../behaviors/selection.behavior.js')
 
 function mixinBlackListCQL(originalCQL) {
@@ -82,10 +81,6 @@ var ResultSelector = Marionette.LayoutView.extend({
     resultSort: '.menu-resultSort',
   },
   initialize: function(options) {
-    this.onBeforeShow = _throttle(this.onBeforeShow, 200, {
-      leading: true,
-      trailing: true,
-    })
     if (!this.model.get('result')) {
       if (options.tieredSearchIds) {
         this.model.startTieredSearch(options.tieredSearchIds)
@@ -165,9 +160,6 @@ var ResultSelector = Marionette.LayoutView.extend({
     }
   },
   onBeforeShow: function() {
-    if (this.isDestroyed) {
-      return
-    }
     var resultFilter = user
       .get('user')
       .get('preferences')
