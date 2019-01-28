@@ -257,6 +257,72 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
+  public void testIOErrorReadingFiles() throws Exception {
+
+    //  Creation not tested.
+    File[] files = initFiles(1, monitoredDirectory, "file00");
+    observer.checkAndNotify();
+    init();
+
+    assertThat(monitoredDirectory.setReadable(false), is(true));
+
+    Stream.of(files).forEach(this::changeData);
+
+    observer.checkAndNotify();
+
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+
+    Stream.of(files).forEach(this::fileDelete);
+
+    observer.checkAndNotify();
+
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    assertThat(monitoredDirectory.setReadable(true), is(true));
+
+    observer.checkAndNotify();
+
+    verify(fileListener, times(files.length))
+        .onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
+  public void testIOErrorReadingFilesNestedDirectory() throws Exception {
+
+    //  Creation not tested.
+    initNestedDirectory(5, 6, 2, 5);
+    observer.checkAndNotify();
+    init();
+
+    assertThat(grandchildDir.setReadable(false), is(true));
+
+    Stream.of(childFiles).forEach(this::changeData);
+    Stream.of(grandchildFiles).forEach(this::changeData);
+    Stream.of(grandsiblingsFiles).forEach(this::changeData);
+    Stream.of(files).forEach(this::changeData);
+
+    observer.checkAndNotify();
+
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(totalSize - grandchildFiles.length))
+        .onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+
+    assertThat(grandchildDir.setReadable(true), is(true));
+
+    observer.checkAndNotify();
+
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(totalSize))
+        .onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
   public void testFileDeleteWithError() throws Exception {
 
     File[] files = initFiles(1, monitoredDirectory, "file00");
@@ -934,7 +1000,7 @@ public class AsyncFileAlterationObserverTest {
     childFiles = initFiles(child, childDir, "child-file00");
     grandchildFiles = initFiles(grand, grandchildDir, "grandchild-file00");
     files = initFiles(topLevel, monitoredDirectory, "file00");
-    grandsiblingsFiles = initFiles(gSibling, grandchildDir, "grandsiblings-00");
+    grandsiblingsFiles = initFiles(gSibling, childDir, "grandsiblings-00");
 
     totalSize = child + grand + topLevel + gSibling;
   }

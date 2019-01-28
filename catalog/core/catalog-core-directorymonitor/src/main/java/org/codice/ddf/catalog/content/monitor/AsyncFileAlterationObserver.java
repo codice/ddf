@@ -219,7 +219,15 @@ public class AsyncFileAlterationObserver implements Serializable {
    * @param files The list of current files (in sorted order)
    */
   private void checkAndNotify(
-      final AsyncFileEntry parent, final List<AsyncFileEntry> previous, final File[] files) {
+      final AsyncFileEntry parent,
+      final List<AsyncFileEntry> previous,
+      @Nullable final File[] files) {
+    //  If there was an IO error then just stop.
+    if (files == null) {
+      LOGGER.info("There was a problem reading the files contained within [{}]", parent.getName());
+      return;
+    }
+
     int c = 0;
     for (final AsyncFileEntry entry : previous) {
       while (c < files.length && entry.compareToFile(files[c]) > 0) {
@@ -271,7 +279,9 @@ public class AsyncFileAlterationObserver implements Serializable {
   /**
    * Note: returns a new Array to avoid sync access exceptions
    *
-   * @return A new sorted File Array
+   * @param file file to retrieve files from.
+   * @return A new sorted File Array if {@code file} is a directory, an empty Array if the file is
+   *     not a directory, and null if there is an error retrieving the children files.
    */
   private File[] listFiles(File file) {
     if (file.isDirectory()) {
@@ -280,6 +290,7 @@ public class AsyncFileAlterationObserver implements Serializable {
         Arrays.sort(temp);
         return temp;
       }
+      return null;
     }
     return FileUtils.EMPTY_FILE_ARRAY;
   }
