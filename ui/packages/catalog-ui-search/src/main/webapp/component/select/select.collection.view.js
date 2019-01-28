@@ -171,6 +171,8 @@ module.exports = Marionette.CollectionView.extend({
     return this.options.matchcase === true ? str : str.toLowerCase()
   },
   getWords: function(str) {
+    //Matches on word boundry
+    //var reg = new RegExp('\\b' + myWord + '\.+')
     //Handle camelcase
     str = str.replace(/([A-Z])/g, ' $1')
     str = this.getAppropriateString(str)
@@ -178,7 +180,7 @@ module.exports = Marionette.CollectionView.extend({
     return str.split(/[-\.\s]+/)
   },
   wordStartsWithFilter: function(words, filter) {
-    return words.find(function(word){
+    return words.find(function(word) {
       return word.indexOf(filter) === 0
     })
   },
@@ -186,6 +188,7 @@ module.exports = Marionette.CollectionView.extend({
     var filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
     filterValue = this.getAppropriateString(filterValue)
+    var reg = new RegExp('\\b' + filterValue + '.*')
     if (
       child.get('filterChoice') === true &&
       this.collection.filter(model => {
@@ -199,13 +202,31 @@ module.exports = Marionette.CollectionView.extend({
     }
     if (
       child.get('label') !== undefined &&
-      this.wordStartsWithFilter(this.getWords(child.get('label')), filterValue) === undefined
+      this.getAppropriateString(child.get('label')).match(reg) !== null
+    ) {
+      return true
+    }
+    if (
+      child.get('value') !== undefined &&
+      this.getAppropriateString(child.get('value')).match(reg) !== null
+    ) {
+      return true
+    }
+    if (
+      child.get('label') !== undefined &&
+      this.wordStartsWithFilter(
+        this.getWords(child.get('label')),
+        filterValue
+      ) === undefined
     ) {
       return false
     }
     if (
       child.get('value') === undefined &&
-      this.wordStartsWithFilter(this.getWords(child.get('value')), filterValue) === undefined
+      this.wordStartsWithFilter(
+        this.getWords(child.get('value')),
+        filterValue
+      ) === undefined
     ) {
       return false
     }
