@@ -229,20 +229,23 @@ module.exports = Marionette.LayoutView.extend({
   toggleDateClass: function(toggle) {
     this.$el.toggleClass('is-date', toggle)
   },
+  toggleSearchInputClass: function(toggle){
+    this.$el.toggleClass('if-editing', toggle)
+  },
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
     var currentComparator = this.model.get('comparator')
     switch (propertyJSON.type) {
       case 'LOCATION':
-        if (['INTERSECTS'].indexOf(currentComparator) === -1) {
+        if (['INTERSECTS', 'EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
         this.toggleLocationClass(true)
         break
       case 'DATE':
         if (
-          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN'].indexOf(
+          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY'].indexOf(
             currentComparator
           ) === -1
         ) {
@@ -251,7 +254,7 @@ module.exports = Marionette.LayoutView.extend({
         this.toggleDateClass(true)
         break
       case 'BOOLEAN':
-        if (['='].indexOf(currentComparator) === -1) {
+        if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '=')
         }
         break
@@ -274,6 +277,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'CONTAINS')
         }
+        this.toggleLocationClass(false)
         break
     }
   },
@@ -334,24 +338,8 @@ module.exports = Marionette.LayoutView.extend({
         value.value,
       ])
     }
-    // else if(comparator === 'EMPTY'){
-    //   return {
-    //     type: 'OR',
-    //     filters: {
-    //       type: ["=", "IS NULL"],
-    //       property: [property, property],
-    //       value: ["\"\"", null]
-    //     }
-    //   }
-    // } 
     else if(comparator === 'EMPTY'){
-      return {
-        type: 'OR',
-        filters: [
-          CQLUtils.generateFilter('=', property, "\"\""),
-          CQLUtils.generateFilter(type, property, null)
-        ]
-      }
+      return CQLUtils.generateFilter(type, property, null)
     }
     if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
       return {
