@@ -13,10 +13,10 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import de.micromata.opengis.kml.v_2_2_0.LinearRing;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.util.CollectionUtils;
 
 public class KmlToJtsLinearRingConverter {

@@ -279,14 +279,14 @@
                 <version>${tika.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.vividsolutions</groupId>
+                <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
-                <version>${jts.version}</version>
+                <version>1.16.0</version>
             </dependency>
             <dependency>
-                <groupId>com.vividsolutions</groupId>
+                <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-io</artifactId>
-                <version>${jts.version}</version>
+                <version>1.16.0</version>
             </dependency>
             <dependency>
                 <groupId>xmlunit</groupId>

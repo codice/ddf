@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.catalog.twitter.source;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,6 +23,9 @@ import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
 import org.geotools.temporal.object.DefaultPeriodDuration;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Not;

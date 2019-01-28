@@ -545,8 +545,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     return returnSearchPhrase;
   }
 
-  private org.locationtech.jts.geom.Geometry getJtsGeometery(
-      LiteralExpressionImpl geoExpression) {
+  private org.locationtech.jts.geom.Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
     org.locationtech.jts.geom.Geometry jtsGeometry;
 
     if (geoExpression.getValue() instanceof GeometryImpl) {

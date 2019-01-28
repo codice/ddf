@@ -13,14 +13,13 @@
  */
 package org.codice.ddf.libs.geo.util;
 
-import javax.measure.Measure;
+import javax.measure.Unit;
 import javax.measure.quantity.Length;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.libs.geo.GeoFormatException;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -39,6 +38,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import si.uom.SI;
 
 /** Convenience methods for performing geospatial conversions. */
 public class GeospatialUtil {
@@ -288,7 +288,7 @@ public class GeospatialUtil {
   public static Geometry createCirclePolygon(
       double lat, double lon, double radius, int maxVertices, double distanceTolerance) {
     double step = distanceTolerance;
-    Measure measure = Measure.valueOf(radius, SI.METER);
+    Measure measure = new Measure(radius, SI.METRE);
     Point jtsPoint = new GeometryFactory().createPoint(new Coordinate(lon, lat));
 
     Geometry bufferedCircle =
@@ -307,10 +307,10 @@ public class GeospatialUtil {
   }
 
   private static Geometry createBufferedCircleFromPoint(
-          Measure<Double, Length> distance, CoordinateReferenceSystem origCRS, Geometry point) {
+      Measure distance, CoordinateReferenceSystem origCRS, Geometry point) {
     Geometry pointGeo = point;
 
-    Unit<Length> unit = distance.getUnit();
+    Unit unit = distance.getUnit();
     if (!(origCRS instanceof ProjectedCRS)) {
 
       double x = point.getCoordinate().x;
@@ -323,7 +323,7 @@ public class GeospatialUtil {
         MathTransform toTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, utmCrs);
         MathTransform fromTransform = CRS.findMathTransform(utmCrs, DefaultGeographicCRS.WGS84);
         pointGeo = JTS.transform(point, toTransform);
-        return JTS.transform(pointGeo.buffer(distance.doubleValue(SI.METER)), fromTransform);
+        return JTS.transform(pointGeo.buffer(distance.doubleValue()), fromTransform);
       } catch (MismatchedDimensionException | TransformException | FactoryException e) {
         LOGGER.debug("Unable to create buffered circle from point.", e);
       }
@@ -331,6 +331,6 @@ public class GeospatialUtil {
       unit = (Unit<Length>) origCRS.getCoordinateSystem().getAxis(0).getUnit();
     }
 
-    return pointGeo.buffer(distance.doubleValue(unit));
+    return pointGeo.buffer(distance.doubleValue());
   }
 }

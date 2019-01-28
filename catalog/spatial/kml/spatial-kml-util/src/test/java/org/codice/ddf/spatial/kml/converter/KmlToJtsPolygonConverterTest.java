@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import org.locationtech.jts.geom.LineString;
 import de.micromata.opengis.kml.v_2_2_0.Boundary;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LinearRing;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.locationtech.jts.geom.LineString;
 
 public class KmlToJtsPolygonConverterTest {
 

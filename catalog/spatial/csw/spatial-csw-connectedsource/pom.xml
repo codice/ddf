@@ -103,9 +103,10 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-        </dependency>
+    <groupId>org.locationtech.jts.io</groupId>
+    <artifactId>jts-io-common</artifactId>
+    <version>1.16.0</version>
+</dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>

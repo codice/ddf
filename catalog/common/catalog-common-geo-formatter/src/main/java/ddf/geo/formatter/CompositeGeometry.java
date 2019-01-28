@@ -13,12 +13,12 @@
  */
 package ddf.geo.formatter;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import java.util.List;
 import java.util.Map;
 import org.apache.abdera.ext.geo.Position;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 
 /**
  * Abstract class that represents the geometric portion of GeoJSON.

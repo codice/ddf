@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.async.data.api.internal;
 
-ddf.catalog.data.Metacard;
+import ddf.catalog.data.Metacard;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be

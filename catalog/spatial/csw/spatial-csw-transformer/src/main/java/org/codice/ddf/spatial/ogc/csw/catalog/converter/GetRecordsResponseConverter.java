@@ -22,7 +22,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.List;
-import javax.measure.converter.ConversionException;
+import javax.measure.IncommensurableException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.slf4j.Logger;
@@ -83,7 +83,7 @@ public class GetRecordsResponseConverter implements Converter {
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     if (transformProvider == null) {
-      throw new ConversionException(
+      throw new IncommensurableException(
           "Unable to locate Converter for outputSchema: " + CswConstants.CSW_OUTPUT_SCHEMA);
     }
     CswRecordCollection cswRecords = new CswRecordCollection();

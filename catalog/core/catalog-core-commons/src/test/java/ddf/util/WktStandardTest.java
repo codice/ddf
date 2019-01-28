@@ -17,13 +17,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.io.ParseException;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
 
 /**
  * Tests the {@link WktStandard} class

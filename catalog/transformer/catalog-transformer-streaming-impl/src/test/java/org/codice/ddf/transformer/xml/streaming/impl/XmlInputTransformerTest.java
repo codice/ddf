@@ -25,8 +25,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -46,6 +44,8 @@ import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerDelegate;
 import org.codice.ddf.transformer.xml.streaming.lib.XmlInputTransformer;
 import org.geotools.gml3.GMLConfiguration;
 import org.junit.Test;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.gml2.GMLHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;

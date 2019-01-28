@@ -198,7 +198,6 @@
         <felix.framework.version>5.6.10</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
         <ftpserver-version>1.0.6</ftpserver-version>
-        <geotools.version>19.1</geotools.version>
         <geronimo-jms_2_spec.version>1.0-alpha-2</geronimo-jms_2_spec.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>

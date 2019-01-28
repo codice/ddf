@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.io.WKTWriter;
-import org.locationtech.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -36,6 +33,9 @@ import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerUtils;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventToXmlElementConverter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKTWriter;
+import org.locationtech.jts.io.gml2.GMLHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;

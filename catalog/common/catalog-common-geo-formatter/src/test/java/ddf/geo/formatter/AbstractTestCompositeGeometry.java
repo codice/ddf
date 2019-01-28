@@ -13,7 +13,6 @@
  */
 package ddf.geo.formatter;
 
-import org.locationtech.jts.io.WKTReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.BeforeClass;
+import org.locationtech.jts.io.WKTReader;
 
 public abstract class AbstractTestCompositeGeometry {
 

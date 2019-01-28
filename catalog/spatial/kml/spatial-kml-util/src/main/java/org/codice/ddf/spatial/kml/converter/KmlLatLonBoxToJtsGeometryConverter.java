@@ -15,12 +15,12 @@ package org.codice.ddf.spatial.kml.converter;
 
 import static java.lang.Math.abs;
 
+import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
-import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 
 public class KmlLatLonBoxToJtsGeometryConverter {
   private static final double ERROR_THRESHOLD = .000001;

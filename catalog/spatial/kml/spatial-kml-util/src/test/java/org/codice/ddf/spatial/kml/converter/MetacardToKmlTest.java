@@ -20,7 +20,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
-import org.locationtech.jts.geom.GeometryFactory;
 import ddf.catalog.transform.CatalogTransformerException;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
@@ -30,6 +29,7 @@ import de.micromata.opengis.kml.v_2_2_0.Point;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;

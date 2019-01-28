@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import org.locationtech.jts.geom.GeometryCollection;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
@@ -30,6 +29,7 @@ import de.micromata.opengis.kml.v_2_2_0.Point;
 import de.micromata.opengis.kml.v_2_2_0.Polygon;
 import java.io.InputStream;
 import org.junit.Test;
+import org.locationtech.jts.geom.GeometryCollection;
 
 public class KmlToJtsGeometryConverterTest {
 
@@ -51,8 +51,7 @@ public class KmlToJtsGeometryConverterTest {
     Point kmlPoint = ((Point) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(kmlPoint, notNullValue());
 
-    org.locationtech.jts.geom.Geometry jtsGeometryPoint =
-        KmlToJtsGeometryConverter.from(kmlPoint);
+    org.locationtech.jts.geom.Geometry jtsGeometryPoint = KmlToJtsGeometryConverter.from(kmlPoint);
     assertThat(jtsGeometryPoint, instanceOf(org.locationtech.jts.geom.Point.class));
 
     assertSpecificGeometry(kmlPoint, jtsGeometryPoint);
