@@ -26,7 +26,7 @@ To configure the GeoCoder Plugin:
 . Navigate to the *${admin-console}*.
 . Select *${ddf-spatial}* application.
 . Select *Configuration* tab.
-. Select *Backup Post-Ingest Plugin*.
+. Select *GeoCoder Plugin*.
 
 These are the available configurations:
 
