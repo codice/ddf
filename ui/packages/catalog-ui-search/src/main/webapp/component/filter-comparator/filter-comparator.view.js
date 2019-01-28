@@ -22,8 +22,8 @@ const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 var geometryComparators = ['INTERSECTS']
 var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN']
-// On anyText, EMPTY option should be hidden
 var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY']
+var stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
 var numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
 var booleanComparators = ['=']
 
@@ -94,6 +94,9 @@ module.exports = Marionette.ItemView.extend({
           return stringComparators.filter(function(comparator) {
             return comparator !== 'NEAR'
           })
+        }
+        if(this.model.get('type') === 'anyText'){
+          return stringComparatorsAnyText
         }
         return stringComparators
     }
