@@ -765,6 +765,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     Dictionary<String, Object> copiedProperties = new Hashtable<>();
     ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
     if (objectClassDefinition == null) {
+      LOGGER.debug(
+          "ObjectClassDefinition not found for factoryPid: {}. Unable to copy properties.",
+          factoryPid);
       return copiedProperties;
     }
     Stream.of(objectClassDefinition)

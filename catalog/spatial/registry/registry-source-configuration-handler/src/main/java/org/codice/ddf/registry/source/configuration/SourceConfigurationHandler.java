@@ -17,10 +17,12 @@ import ddf.catalog.data.Metacard;
 import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import org.apache.commons.collections.CollectionUtils;
@@ -586,6 +589,9 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
     Dictionary<String, Object> copiedProperties = new Hashtable<>();
     ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
     if (objectClassDefinition == null) {
+      LOGGER.debug(
+          "ObjectClassDefinition not found for factoryPid: {}. Unable to copy properties.",
+          factoryPid);
       return copiedProperties;
     }
     Stream.of(objectClassDefinition)
