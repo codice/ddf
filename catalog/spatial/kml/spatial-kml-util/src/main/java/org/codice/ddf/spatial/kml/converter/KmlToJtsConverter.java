@@ -13,7 +13,7 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 
 public class KmlToJtsConverter {

@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -13,8 +13,8 @@
  */
 package ddf.catalog.pubsub.predicate;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluationCriteriaImpl;

@@ -16,9 +16,9 @@ package org.codice.ddf.catalog.ui.query.geofeature;
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.COUNTRY_FEATURE_CODES;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;

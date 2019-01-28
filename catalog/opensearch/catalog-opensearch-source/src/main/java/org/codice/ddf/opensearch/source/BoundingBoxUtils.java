@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;

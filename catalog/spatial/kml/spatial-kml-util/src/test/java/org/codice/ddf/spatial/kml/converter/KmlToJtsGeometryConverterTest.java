@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import com.vividsolutions.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryCollection;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
@@ -35,7 +35,7 @@ public class KmlToJtsGeometryConverterTest {
 
   @Test
   public void testConvertNullGeometry() {
-    com.vividsolutions.jts.geom.Geometry jtsGeometry = KmlToJtsGeometryConverter.from(null);
+    org.locationtech.jts.geom.Geometry jtsGeometry = KmlToJtsGeometryConverter.from(null);
 
     assertThat(jtsGeometry, nullValue());
   }
@@ -51,9 +51,9 @@ public class KmlToJtsGeometryConverterTest {
     Point kmlPoint = ((Point) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(kmlPoint, notNullValue());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometryPoint =
+    org.locationtech.jts.geom.Geometry jtsGeometryPoint =
         KmlToJtsGeometryConverter.from(kmlPoint);
-    assertThat(jtsGeometryPoint, instanceOf(com.vividsolutions.jts.geom.Point.class));
+    assertThat(jtsGeometryPoint, instanceOf(org.locationtech.jts.geom.Point.class));
 
     assertSpecificGeometry(kmlPoint, jtsGeometryPoint);
   }
@@ -69,9 +69,9 @@ public class KmlToJtsGeometryConverterTest {
     LineString kmlLineString = ((LineString) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(kmlLineString, notNullValue());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometryLineString =
+    org.locationtech.jts.geom.Geometry jtsGeometryLineString =
         KmlToJtsGeometryConverter.from(kmlLineString);
-    assertThat(jtsGeometryLineString, instanceOf(com.vividsolutions.jts.geom.LineString.class));
+    assertThat(jtsGeometryLineString, instanceOf(org.locationtech.jts.geom.LineString.class));
 
     assertSpecificGeometry(kmlLineString, jtsGeometryLineString);
   }
@@ -87,9 +87,9 @@ public class KmlToJtsGeometryConverterTest {
     LinearRing kmlLinearRing = ((LinearRing) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(kmlLinearRing, notNullValue());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometryLinearRing =
+    org.locationtech.jts.geom.Geometry jtsGeometryLinearRing =
         KmlToJtsGeometryConverter.from(kmlLinearRing);
-    assertThat(jtsGeometryLinearRing, instanceOf(com.vividsolutions.jts.geom.LinearRing.class));
+    assertThat(jtsGeometryLinearRing, instanceOf(org.locationtech.jts.geom.LinearRing.class));
 
     assertSpecificGeometry(kmlLinearRing, jtsGeometryLinearRing);
   }
@@ -104,9 +104,9 @@ public class KmlToJtsGeometryConverterTest {
     Polygon kmlPolygon = ((Polygon) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(kmlPolygon, notNullValue());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometryPolygon =
+    org.locationtech.jts.geom.Geometry jtsGeometryPolygon =
         KmlToJtsGeometryConverter.from(kmlPolygon);
-    assertThat(jtsGeometryPolygon, instanceOf(com.vividsolutions.jts.geom.Polygon.class));
+    assertThat(jtsGeometryPolygon, instanceOf(org.locationtech.jts.geom.Polygon.class));
 
     assertSpecificGeometry(kmlPolygon, jtsGeometryPolygon);
   }
@@ -122,7 +122,7 @@ public class KmlToJtsGeometryConverterTest {
     MultiGeometry multiGeometry = ((MultiGeometry) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(multiGeometry, notNullValue());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometryCollectionGeometry =
+    org.locationtech.jts.geom.Geometry jtsGeometryCollectionGeometry =
         KmlToJtsGeometryConverter.from(multiGeometry);
     assertThat(jtsGeometryCollectionGeometry, instanceOf(GeometryCollection.class));
 
@@ -139,33 +139,33 @@ public class KmlToJtsGeometryConverterTest {
     Model model = ((Model) ((Placemark) kml.getFeature()).getGeometry());
     assertThat(model, notNullValue());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometryPointFromModel =
+    org.locationtech.jts.geom.Geometry jtsGeometryPointFromModel =
         KmlToJtsGeometryConverter.from(model);
-    assertThat(jtsGeometryPointFromModel, instanceOf(com.vividsolutions.jts.geom.Point.class));
+    assertThat(jtsGeometryPointFromModel, instanceOf(org.locationtech.jts.geom.Point.class));
 
     assertSpecificGeometry(model, jtsGeometryPointFromModel);
   }
 
   static void assertSpecificGeometry(
-      Geometry kmlGeometry, com.vividsolutions.jts.geom.Geometry jtsGeometry) {
+      Geometry kmlGeometry, org.locationtech.jts.geom.Geometry jtsGeometry) {
     if (kmlGeometry instanceof Point) {
       KmlToJtsPointConverterTest.assertJtsPoint(
-          (Point) kmlGeometry, (com.vividsolutions.jts.geom.Point) jtsGeometry);
+          (Point) kmlGeometry, (org.locationtech.jts.geom.Point) jtsGeometry);
     }
 
     if (kmlGeometry instanceof LineString) {
       KmlToJtsLineStringConverterTest.assertTestKmlLineString(
-          (LineString) kmlGeometry, (com.vividsolutions.jts.geom.LineString) jtsGeometry);
+          (LineString) kmlGeometry, (org.locationtech.jts.geom.LineString) jtsGeometry);
     }
 
     if (kmlGeometry instanceof LinearRing) {
       KmlToJtsLinearRingConverterTest.assertJtsLinearRing(
-          (LinearRing) kmlGeometry, (com.vividsolutions.jts.geom.LinearRing) jtsGeometry);
+          (LinearRing) kmlGeometry, (org.locationtech.jts.geom.LinearRing) jtsGeometry);
     }
 
     if (kmlGeometry instanceof Polygon) {
       KmlToJtsPolygonConverterTest.assertJtsPolygon(
-          (Polygon) kmlGeometry, (com.vividsolutions.jts.geom.Polygon) jtsGeometry);
+          (Polygon) kmlGeometry, (org.locationtech.jts.geom.Polygon) jtsGeometry);
     }
 
     if (kmlGeometry instanceof MultiGeometry) {
@@ -175,7 +175,7 @@ public class KmlToJtsGeometryConverterTest {
 
     if (kmlGeometry instanceof Model) {
       KmlModelToJtsPointConverterTest.assertKmlModelToJtsPoint(
-          (Model) kmlGeometry, (com.vividsolutions.jts.geom.Point) jtsGeometry);
+          (Model) kmlGeometry, (org.locationtech.jts.geom.Point) jtsGeometry);
     }
   }
 }

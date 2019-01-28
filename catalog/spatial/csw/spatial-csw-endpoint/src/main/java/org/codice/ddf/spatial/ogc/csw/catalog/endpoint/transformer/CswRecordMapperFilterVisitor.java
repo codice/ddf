@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;

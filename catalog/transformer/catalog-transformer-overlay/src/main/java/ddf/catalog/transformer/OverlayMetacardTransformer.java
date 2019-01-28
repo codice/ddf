@@ -17,8 +17,8 @@ import static ddf.catalog.transformer.GeometryUtils.canHandleGeometry;
 import static ddf.catalog.transformer.GeometryUtils.parseGeometry;
 
 import com.jhlabs.image.PerspectiveFilter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;

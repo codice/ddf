@@ -20,7 +20,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.delegate.FilterToTextDelegate;
@@ -48,6 +47,7 @@ import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.temporal.object.DefaultPosition;
 import org.junit.Test;
+import org.locationtech.jts.io.WKTReader;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -529,9 +529,9 @@ public class FilterAdapterTest {
   }
 
   @Test
-  public void testSpatialWrappedGeometry() throws com.vividsolutions.jts.io.ParseException {
+  public void testSpatialWrappedGeometry() throws org.locationtech.jts.io.ParseException {
     WKTReader reader = new WKTReader();
-    com.vividsolutions.jts.geom.Geometry geo = reader.read(MULTIPOLYGON_WKT);
+    org.locationtech.jts.geom.Geometry geo = reader.read(MULTIPOLYGON_WKT);
     Geometry geometry = new JTSGeometryWrapper(geo);
 
     assertFilterEquals(

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.gml2.GMLHandler;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;

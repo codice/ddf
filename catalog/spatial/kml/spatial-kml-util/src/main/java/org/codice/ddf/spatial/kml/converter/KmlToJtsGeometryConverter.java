@@ -25,7 +25,7 @@ public class KmlToJtsGeometryConverter {
 
   private KmlToJtsGeometryConverter() {}
 
-  public static com.vividsolutions.jts.geom.Geometry from(Geometry kmlGeometry) {
+  public static org.locationtech.jts.geom.Geometry from(Geometry kmlGeometry) {
     if (kmlGeometry == null) {
       return null;
     }

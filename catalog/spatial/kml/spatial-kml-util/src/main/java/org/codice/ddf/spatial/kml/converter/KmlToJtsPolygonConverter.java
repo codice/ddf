@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
 import de.micromata.opengis.kml.v_2_2_0.Boundary;
 import de.micromata.opengis.kml.v_2_2_0.Polygon;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 public class KmlToJtsPolygonConverter {
   private KmlToJtsPolygonConverter() {}
 
-  public static com.vividsolutions.jts.geom.Polygon from(Polygon kmlPolygon) {
+  public static org.locationtech.jts.geom.Polygon from(Polygon kmlPolygon) {
     if (!isValidPolygon(kmlPolygon)) {
       return null;
     }

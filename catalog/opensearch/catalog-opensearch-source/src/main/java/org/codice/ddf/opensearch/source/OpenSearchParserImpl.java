@@ -14,9 +14,9 @@
 package org.codice.ddf.opensearch.source;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKTWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.WKTWriter;
 import ddf.catalog.data.Result;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;

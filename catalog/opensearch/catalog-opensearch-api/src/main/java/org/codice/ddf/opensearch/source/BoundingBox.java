@@ -14,9 +14,9 @@
 package org.codice.ddf.opensearch.source;
 
 /**
- * Using a custom class here instead of {@link com.vividsolutions.jts.geom.Envelope} because {@link
+ * Using a custom class here instead of {@link org.locationtech.jts.geom.Envelope} because {@link
  * #west} may be greater than {@link #east} in a bounding box but not in an {@link
- * com.vividsolutions.jts.geom.Envelope}.
+ * org.locationtech.jts.geom.Envelope}.
  */
 public class BoundingBox {
 

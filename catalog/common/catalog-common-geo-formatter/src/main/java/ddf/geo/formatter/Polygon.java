@@ -13,8 +13,8 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LinearRing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class Polygon extends MultiPoint {
     return new Polygon(buildPolygon(coordinates));
   }
 
-  public static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
+  public static org.locationtech.jts.geom.Polygon buildPolygon(List coordinates) {
 
     // according to the GeoJson specification, first ring is the exterior
     LinearRing exterior =
@@ -67,7 +67,7 @@ public class Polygon extends MultiPoint {
 
       map.put(TYPE_KEY, TYPE);
 
-      List linearRingsList = buildJsonPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+      List linearRingsList = buildJsonPolygon((org.locationtech.jts.geom.Polygon) geometry);
 
       map.put(COORDINATES_KEY, linearRingsList);
 
@@ -78,7 +78,7 @@ public class Polygon extends MultiPoint {
     return map;
   }
 
-  protected List buildJsonPolygon(com.vividsolutions.jts.geom.Polygon polygon) {
+  protected List buildJsonPolygon(org.locationtech.jts.geom.Polygon polygon) {
     List linearRingsList = new ArrayList();
 
     // According GeoJSON spec, first LinearRing is the exterior ring
@@ -94,20 +94,20 @@ public class Polygon extends MultiPoint {
   public List<Position> toGeoRssPositions() {
 
     org.apache.abdera.ext.geo.Coordinates coords =
-        getPolygonCoordinates((com.vividsolutions.jts.geom.Polygon) geometry);
+        getPolygonCoordinates((org.locationtech.jts.geom.Polygon) geometry);
 
     return Arrays.asList((Position) (new org.apache.abdera.ext.geo.Polygon(coords)));
   }
 
   protected org.apache.abdera.ext.geo.Coordinates getPolygonCoordinates(
-      com.vividsolutions.jts.geom.Polygon polygon) {
+      org.locationtech.jts.geom.Polygon polygon) {
 
     org.apache.abdera.ext.geo.Coordinates coords = new org.apache.abdera.ext.geo.Coordinates();
 
     // it does not look like http://georss.org/simple or
     // http://georss.org/gml can handle
     // interior rings
-    for (com.vividsolutions.jts.geom.Coordinate jtsCoordinate :
+    for (org.locationtech.jts.geom.Coordinate jtsCoordinate :
         polygon.getExteriorRing().getCoordinates()) {
 
       coords.add(convert(jtsCoordinate));

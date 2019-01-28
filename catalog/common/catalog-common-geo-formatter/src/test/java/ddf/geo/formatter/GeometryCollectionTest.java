@@ -15,7 +15,7 @@ package ddf.geo.formatter;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 
-import com.vividsolutions.jts.io.ParseException;
+import org.locationtech.jts.io.ParseException;
 import java.io.IOException;
 import org.junit.Test;
 import org.xml.sax.SAXException;

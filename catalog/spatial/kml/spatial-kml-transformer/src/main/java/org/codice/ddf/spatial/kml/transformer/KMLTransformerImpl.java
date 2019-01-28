@@ -387,7 +387,7 @@ public class KMLTransformerImpl implements KMLTransformer {
   }
 
   private Geometry getKmlGeoWithPointsFromWkt(String wkt) throws CatalogTransformerException {
-    final com.vividsolutions.jts.geom.Geometry jtsGeo = getJtsGeoFromWkt(wkt);
+    final org.locationtech.jts.geom.Geometry jtsGeo = getJtsGeoFromWkt(wkt);
     Geometry kmlGeo = getKmlGeoFromJtsGeo(jtsGeo);
     kmlGeo = addJtsGeoPointsToKmlGeo(jtsGeo, kmlGeo);
     return kmlGeo;

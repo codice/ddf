@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.Calendar;
@@ -34,6 +29,11 @@ import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriodDuration;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.filter.And;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;

@@ -260,10 +260,10 @@
         <ogc-tools-gml-jts.version>1.0.3</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_1</opengis.bundle.version>
-        <opengis.version>19.1</opengis.version>
+        <opengis.version>20.1</opengis.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
-        <org.geotools.version>19.1</org.geotools.version>
+        <org.geotools.version>20.1</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.2</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>

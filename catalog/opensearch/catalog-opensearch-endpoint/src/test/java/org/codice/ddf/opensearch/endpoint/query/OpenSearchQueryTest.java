@@ -23,8 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -58,6 +56,8 @@ import org.geotools.geometry.text.WKTParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.io.WKTWriter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Literal;
@@ -727,7 +727,7 @@ public class OpenSearchQueryTest {
     Literal literalWrapper = (Literal) intersects.getExpression2();
     Object geometryExpression = literalWrapper.getValue();
     assertThat(geometryExpression, instanceOf(GeometryImpl.class));
-    com.vividsolutions.jts.geom.Geometry polygon =
+    org.locationtech.jts.geom.Geometry polygon =
         ((GeometryImpl) geometryExpression).getJTSGeometry();
     assertThat(WKT_WRITER.write(polygon), is(GEOMETRY_WKT));
   }
@@ -768,7 +768,7 @@ public class OpenSearchQueryTest {
           String wkt = WKT_WRITER.write(surface.getJTSGeometry());
           assertThat(wkt, anyOf(is(POLYGON_WKT), is(POLYGON_WKT_2)));
         } else if (geometryExpression instanceof GeometryImpl) {
-          com.vividsolutions.jts.geom.Geometry polygon =
+          org.locationtech.jts.geom.Geometry polygon =
               ((GeometryImpl) geometryExpression).getJTSGeometry();
           assertThat(WKT_WRITER.write(polygon), is(GEOMETRY_WKT));
         }

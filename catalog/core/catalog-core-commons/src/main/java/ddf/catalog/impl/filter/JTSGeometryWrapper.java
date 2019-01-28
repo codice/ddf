@@ -13,16 +13,16 @@
  */
 package ddf.catalog.impl.filter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.Objects;
 import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
+import org.locationtech.jts.geom.Geometry;
 
 // TODO Temporary work around for Geotools multi geometry support
 public class JTSGeometryWrapper extends GeometryImpl {
 
   private Geometry geo;
 
-  public JTSGeometryWrapper(com.vividsolutions.jts.geom.Geometry geo) {
+  public JTSGeometryWrapper(org.locationtech.jts.geom.Geometry geo) {
     this.geo = geo;
   }
 

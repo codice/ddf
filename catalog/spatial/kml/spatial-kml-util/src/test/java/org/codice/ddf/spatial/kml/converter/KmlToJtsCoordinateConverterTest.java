@@ -49,7 +49,7 @@ public class KmlToJtsCoordinateConverterTest {
 
   @Test
   public void testCoordinateConversion() {
-    com.vividsolutions.jts.geom.Coordinate jtsCoordinate;
+    org.locationtech.jts.geom.Coordinate jtsCoordinate;
 
     for (Coordinate kmlCoordinate : testKmlCoordinates) {
       jtsCoordinate = KmlToJtsCoordinateConverter.from(kmlCoordinate);
@@ -59,7 +59,7 @@ public class KmlToJtsCoordinateConverterTest {
 
   @Test
   public void testCoordinatesConversion() {
-    com.vividsolutions.jts.geom.Coordinate[] jtsCoordinates =
+    org.locationtech.jts.geom.Coordinate[] jtsCoordinates =
         KmlToJtsCoordinateConverter.from(testKmlCoordinates);
 
     assertJtsCoordinatesFromKmlCoordinates(testKmlCoordinates, jtsCoordinates);
@@ -67,21 +67,21 @@ public class KmlToJtsCoordinateConverterTest {
 
   @Test
   public void testNullKmlCoordinateReturnsNullJtsCoordinate() {
-    com.vividsolutions.jts.geom.Coordinate jtsCoordinate =
+    org.locationtech.jts.geom.Coordinate jtsCoordinate =
         KmlToJtsCoordinateConverter.from((Coordinate) null);
     assertThat(jtsCoordinate, nullValue());
   }
 
   @Test
   public void testNullKmlCoordinateListReturnsNullJtsCoordinateArray() {
-    com.vividsolutions.jts.geom.Coordinate[] jtsCoordinates =
+    org.locationtech.jts.geom.Coordinate[] jtsCoordinates =
         KmlToJtsCoordinateConverter.from((List<Coordinate>) null);
     assertThat(jtsCoordinates, arrayWithSize(0));
   }
 
   @Test
   public void testKmlCoordinateListWithNullObjectReturnsNullJtsCoordinateArrays() {
-    com.vividsolutions.jts.geom.Coordinate[] jtsCoordinates =
+    org.locationtech.jts.geom.Coordinate[] jtsCoordinates =
         KmlToJtsCoordinateConverter.from(Collections.singletonList(null));
     assertThat(jtsCoordinates, arrayWithSize(0));
   }
@@ -90,7 +90,7 @@ public class KmlToJtsCoordinateConverterTest {
   public void testKmlCoordinateListWithGoodCoordinatesAndANullObjectIgnoresTheNullObject() {
     List<Coordinate> kmlCoordinatesWithNull = getTestKmlCoordinatesWithNull();
 
-    com.vividsolutions.jts.geom.Coordinate[] jtsCoordinates =
+    org.locationtech.jts.geom.Coordinate[] jtsCoordinates =
         KmlToJtsCoordinateConverter.from(kmlCoordinatesWithNull);
 
     // testing against the global testKmlCoordinates because that set doesn't include the null
@@ -104,19 +104,19 @@ public class KmlToJtsCoordinateConverterTest {
   }
 
   private void assertJtsCoordinateFromKmlCoordinate(
-      Coordinate kmlCoordinate, com.vividsolutions.jts.geom.Coordinate jtsCoordinate) {
+      Coordinate kmlCoordinate, org.locationtech.jts.geom.Coordinate jtsCoordinate) {
     assertThat(jtsCoordinate.x, is(equalTo(kmlCoordinate.getLongitude())));
     assertThat(jtsCoordinate.y, is(equalTo(kmlCoordinate.getLatitude())));
     assertThat(jtsCoordinate.z, is(equalTo(kmlCoordinate.getAltitude())));
   }
 
   static void assertJtsCoordinatesFromKmlCoordinates(
-      List<Coordinate> kmlCoordinates, com.vividsolutions.jts.geom.Coordinate[] jtsCoordinates) {
+      List<Coordinate> kmlCoordinates, org.locationtech.jts.geom.Coordinate[] jtsCoordinates) {
     assertThat(jtsCoordinates.length, is(equalTo(kmlCoordinates.size())));
 
     for (Coordinate kmlCoordinate : kmlCoordinates) {
-      com.vividsolutions.jts.geom.Coordinate jtsCoordinate =
-          new com.vividsolutions.jts.geom.Coordinate(
+      org.locationtech.jts.geom.Coordinate jtsCoordinate =
+          new org.locationtech.jts.geom.Coordinate(
               kmlCoordinate.getLongitude(),
               kmlCoordinate.getLatitude(),
               kmlCoordinate.getAltitude());

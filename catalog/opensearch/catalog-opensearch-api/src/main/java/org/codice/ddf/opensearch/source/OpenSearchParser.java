@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.security.Subject;
@@ -22,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 
 /**
  * An interface to transform a {@link QueryRequest} into an OpenSearch URL

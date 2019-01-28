@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
@@ -24,7 +24,7 @@ public class KmlToJtsLineStringConverter {
 
   private KmlToJtsLineStringConverter() {}
 
-  public static com.vividsolutions.jts.geom.LineString from(LineString kmlLineString) {
+  public static org.locationtech.jts.geom.LineString from(LineString kmlLineString) {
     if (!isValidKmlLineString(kmlLineString)) {
       return null;
     }

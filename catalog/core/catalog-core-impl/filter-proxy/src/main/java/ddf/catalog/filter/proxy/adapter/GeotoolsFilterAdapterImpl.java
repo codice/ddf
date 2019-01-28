@@ -793,11 +793,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     // WKT from the getBoundary method
     if (literal instanceof GeometryImpl) {
       GeometryImpl surface = (GeometryImpl) literal;
-      com.vividsolutions.jts.geom.Geometry jtsGeometry = surface.getJTSGeometry();
+      org.locationtech.jts.geom.Geometry jtsGeometry = surface.getJTSGeometry();
       wkt = jtsGeometry.toText();
-    } else if (literal instanceof com.vividsolutions.jts.geom.Geometry) {
-      com.vividsolutions.jts.geom.Geometry jtsGeometry =
-          (com.vividsolutions.jts.geom.Geometry) literal;
+    } else if (literal instanceof org.locationtech.jts.geom.Geometry) {
+      org.locationtech.jts.geom.Geometry jtsGeometry = (org.locationtech.jts.geom.Geometry) literal;
       wkt = jtsGeometry.toText();
     } else {
       throw new UnsupportedOperationException(

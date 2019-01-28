@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.libs.geo.util;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 import javax.measure.Measure;
 import javax.measure.quantity.Length;
 import javax.measure.unit.SI;
@@ -29,6 +24,11 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
@@ -307,7 +307,7 @@ public class GeospatialUtil {
   }
 
   private static Geometry createBufferedCircleFromPoint(
-      Measure<Double, Length> distance, CoordinateReferenceSystem origCRS, Geometry point) {
+          Measure<Double, Length> distance, CoordinateReferenceSystem origCRS, Geometry point) {
     Geometry pointGeo = point;
 
     Unit<Length> unit = distance.getUnit();

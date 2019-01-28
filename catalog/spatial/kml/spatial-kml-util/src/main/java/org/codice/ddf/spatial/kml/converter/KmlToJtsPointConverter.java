@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import de.micromata.opengis.kml.v_2_2_0.Point;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
@@ -24,7 +24,7 @@ public class KmlToJtsPointConverter {
 
   private KmlToJtsPointConverter() {}
 
-  public static com.vividsolutions.jts.geom.Point from(Point kmlPoint) {
+  public static org.locationtech.jts.geom.Point from(Point kmlPoint) {
     if (!isValidKmlPoint(kmlPoint)) {
       return null;
     }
