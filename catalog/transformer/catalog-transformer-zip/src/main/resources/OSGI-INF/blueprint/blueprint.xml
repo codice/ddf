@@ -18,10 +18,6 @@
 
     <ext:property-placeholder/>
 
-    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
-
-    <bean id="jarSigner" class="org.codice.ddf.catalog.transformer.zip.JarSigner"/>
-
     <bean id="zipValidation" class="org.codice.ddf.catalog.transformer.zip.ZipValidator" init-method="init">
         <property name="signaturePropertiesPath"
                   value="${ddf.etc}/ws-security/server/signature.properties"/>
@@ -35,10 +31,8 @@
     </reference-list>
 
     <bean id="zipCompression" class="org.codice.ddf.catalog.transformer.zip.ZipCompression">
-        <argument ref="jarSigner" />
         <argument ref="metacardTransformers"/>
         <argument ref="blueprintBundleContext"/>
-        <property name="catalogFramework" ref="catalogFramework"/>
     </bean>
 
     <bean id="zipDecompression" class="org.codice.ddf.catalog.transformer.zip.ZipDecompression">
