@@ -96,6 +96,9 @@ module.exports = Marionette.ItemView.extend({
             return comparator !== 'NEAR'
           })
         }
+        if(this.model.get('type') === 'anyText'){
+          return stringComparatorsAnyText
+        }
         return stringComparators
     }
   },
