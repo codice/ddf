@@ -404,6 +404,82 @@ function getSecondsPrecision(dmsCoordinate) {
   }
 }
 
+const lat = {
+  degreesBegin: 0,
+  degreesEnd: 2,
+  minutesBegin: 3,
+  minutesEnd: 5,
+  secondsBegin: 6,
+  secondsEnd: -1,
+}
+const lon = {
+  degreesBegin: 0,
+  degreesEnd: 3,
+  minutesBegin: 4,
+  minutesEnd: 6,
+  secondsBegin: 7,
+  secondsEnd: -1,
+}
+
+const validateDmsLatInput = input => {
+  if (
+    input.slice(lat.degreesBegin, lat.degreesEnd) > 90 ||
+    input.slice(lat.minutesBegin, lat.minutesEnd) > 60 ||
+    input.slice(lat.secondsBegin, lat.secondsEnd) > 60
+  ) {
+    return false
+  } else if (input.slice(lat.minutesBegin, lat.minutesEnd) === '60') {
+    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°60\'00"'
+  } else if (input.slice(lat.degreesBegin, lat.degreesEnd) === '90') {
+    return '90°00\'00"'
+  } else if (
+    input.slice(lat.degreesBegin, lat.degreesEnd) === '9_' &&
+    input.slice(lat.degreesEnd) === '°00\'00"'
+  ) {
+    return '9_°__\'__"'
+  } else if (
+    input.slice(lat.minutesBegin, lat.minutesEnd) === '6_' &&
+    input.slice(lat.minutesEnd) === '\'00"'
+  ) {
+    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°6_\'__"'
+  } else {
+    return input
+  }
+}
+
+const validateDmsLonInput = input => {
+  if (
+    input.slice(lon.degreesBegin, lon.degreesEnd) > 180 ||
+    input.slice(lon.minutesBegin, lon.minutesEnd) > 60 ||
+    input.slice(lon.secondsBegin, lon.secondsEnd) > 60
+  ) {
+    return false
+  } else if (input.slice(lon.minutesBegin, lon.minutesEnd) === '60') {
+    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°60\'00"'
+  } else if (input.slice(lon.degreesBegin, lon.degreesEnd) === '180') {
+    return '180°00\'00"'
+  } else if (
+    input.slice(lon.degreesBegin, lon.degreesEnd) === '18_' &&
+    input.slice(lon.degreesEnd) === '°00\'00"'
+  ) {
+    return '18_°__\'__"'
+  } else if (
+    input.slice(lon.minutesBegin, lon.minutesEnd) === '6_' &&
+    input.slice(lon.minutesEnd) === '\'00"'
+  ) {
+    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°6_\'__"'
+  } else {
+    return input
+  }
+}
+const validateInput = (input, placeHolder) => {
+  if (input !== undefined && placeHolder === 'dd°mm\'ss.s"') {
+    return validateDmsLatInput(input)
+  } else if (input !== undefined && placeHolder === 'ddd°mm\'ss.s"') {
+    return validateDmsLonInput(input)
+  }
+}
+
 module.exports = {
   dmsToWkt,
   validateDms,
@@ -414,4 +490,5 @@ module.exports = {
   ddToDmsCoordinateLon,
   getSecondsPrecision,
   Direction,
+  validateInput,
 }

@@ -9,11 +9,11 @@ Enzyme.configure({ adapter: new Adapter() })
 
 const TextField = require('./text-field')
 
-const { shallow } = Enzyme
+const { mount } = Enzyme
 
 describe('<TextField />', () => {
   it('<input /> should have the right value', () => {
-    const wrapper = shallow(<TextField value="test" />)
+    const wrapper = mount(<TextField value="test" />)
     expect(wrapper.find('input').prop('value')).to.equal('test')
   })
 
@@ -22,16 +22,7 @@ describe('<TextField />', () => {
       expect(value).to.equal('test')
       done()
     }
-    const wrapper = shallow(<TextField onChange={onChange} />)
+    const wrapper = mount(<TextField onChange={onChange} />)
     wrapper.find('input').prop('onChange')({ target: { value: 'test' } })
-  })
-
-  it('should allow users to pass parse function', done => {
-    const onChange = value => {
-      expect(value).to.equal(123)
-      done()
-    }
-    const wrapper = shallow(<TextField parse={parseInt} onChange={onChange} />)
-    wrapper.find('input').prop('onChange')({ target: { value: '123' } })
   })
 })
