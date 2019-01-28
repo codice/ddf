@@ -1218,6 +1218,21 @@ public class SolrProviderQuery {
             .text("Mary had a little l!@#$%^&*()_mb"),
         provider);
 
+    /* ANY_TEXT */
+
+    queryAndVerifyCount(
+        0,
+        getFilterBuilder().attribute(Metacard.ANY_TEXT).is().equalTo().text("Mary had a "),
+        provider);
+
+    queryAndVerifyCount(
+        1, getFilterBuilder().attribute(Metacard.ANY_TEXT).is().equalTo().text("Mary"), provider);
+
+    queryAndVerifyCount(
+        1,
+        getFilterBuilder().attribute(Metacard.ANY_TEXT).is().equalTo().text("Mary had a little"),
+        provider);
+
     /* DATES */
 
     queryAndVerifyCount(
