@@ -21,6 +21,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 var geometryComparators = ['INTERSECTS', 'IS EMPTY']
 var geometryComparatorsAnyGeo = ['INTERSECTS']
 var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'IS EMPTY']
@@ -36,6 +37,14 @@ var stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
 var numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
 var booleanComparators = ['=']
 >>>>>>> b49da09f81... AnyText searches no longer contain empty operator
+=======
+var geometryComparators = ['INTERSECTS', 'EMPTY']
+var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY']
+var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY']
+var stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
+var numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
+var booleanComparators = ['=', 'EMPTY']
+>>>>>>> 65b119f54e... Adding EMPTY operator to numerical, date, and location attributes
 
 module.exports = Marionette.ItemView.extend({
   template: template,

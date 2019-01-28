@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+    <OCD description="Used to query for metadata from Content Discovery and Retrieval (CDR) Search V1.1 compliant sources" name="Catalog OpenSearch Federated Source"
+         id="OpenSearchSource">
+
+        <AD name="Source Name" id="shortname" required="true" type="String"
+            default="DDF-OS"/>
+
+        <AD name="OpenSearch service URL" id="endpointUrl" required="true"
+            type="String"
+            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/catalog/query"
+            description="The OpenSearch endpoint URL or DDF's OpenSearch endpoint (https://localhost:8993/services/catalog/query)"/>
+
+        <AD name="Username" id="username" required="false"
+            type="String"
+            default=""
+            description="Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication."/>
+
+        <AD name="Password" id="password" required="false"
+            type="Password"
+            default=""
+            description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication."/>
+
+        <AD name="OpenSearch query parameters" id="parameters" required="true"
+            type="String"
+            default="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort"
+            cardinality="100"
+            description="Query parameters to use with the OpenSearch connection."/>
+
+        <AD name="Always perform local query" id="localQueryOnly" required="true"
+            type="Boolean" default="true"
+            description="When federating with other DDFs, keep this checked. If checked, this source performs a local query on the remote site (by setting src=local in endpoint URL), as opposed to an enterprise search."/>
+
+        <AD name="Convert to BBox" id="shouldConvertToBBox" required="true"
+            type="Boolean" default="true"
+            description="Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry."/>
+
+        <AD name="Multi Point-Radius polygon approximation vertices" id="numMultiPointRadiusVertices" required="true"
+            type="Integer" default="32"
+            description="When performing a multi point-radius search, increase this value for more accurate polygon approximation. Minimum value is 4, maximum value is 32."/>
+
+        <AD name="Point radius polygon simplification distance tolerance" id="distanceTolerance" required="true"
+            type="Integer" default="1"
+            description="The maximum distance from the original vertices a reduced vertex may lie on a simplified circular polygon"/>
+
+        <AD description="Disable CN check for the server certificate. This should only be used when testing."
+            name="Disable CN Check" id="disableCnCheck" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
+
+        <AD name="Entry XML Element" id="markUpSet" required="false"
+            type="String"
+            default=""
+            cardinality="100"
+            description="XML Element from the Response Entry to transform into a Metacard."/>
+    </OCD>
+
+    <!--
+        Due to documented bug in Apache Felix (FELIX-1865) where 2 configurations are listed in web admin console by the metatype
+        mechanism, one with the Designate PID and its properties (correct) and the other with the OCD PID and no properties (incorrect).
+        This bug has been fixed in Apache Felix web-console v3.1.10, but Karaf v2.2.1 still uses Felix web-console 3.1.8.
+        Documented workaround is that Designate pid, factoryPid, ocdref, and OCD id must all be exactly the same. This is the fix
+        DDF uses and it seems to work.
+    -->
+    <Designate pid="OpenSearchSource" factoryPid="OpenSearchSource">
+        <Object ocdref="OpenSearchSource"/>
+    </Designate>
+
+</metatype:MetaData>

@@ -1,0 +1,627 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/camel/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
+
+    <feature name="security-logger" version="${project.version}"
+             description="Logs incoming and outgoing requests">
+        <feature>security-core-api</feature>
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-logger/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-core-api" version="${project.version}"
+             description="Security Core">
+        <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
+        <feature>cxf-rt-security</feature>
+        <feature>security-filter-api</feature>
+        <feature>cxf-jaxrs</feature>
+        <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
+        <feature>common-system</feature>
+
+        <feature>guava</feature>
+        <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
+        <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
+        <feature>cxf-bindings-soap</feature>
+
+        <feature>cxf-ws-policy</feature>
+        <feature>cxf-ws-security</feature>
+        <feature>spring</feature>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}
+        </bundle>
+        <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-clientapi/${project.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}
+        </bundle>
+    </feature>
+
+    <feature name="security-filter-api" version="${project.version}">
+        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
+        <bundle>mvn:ddf.platform/security-filter-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-error-page-injector" version="${project.version}"
+             description="Adding a better error page to Jetty">
+        <feature>error-api</feature>
+        <bundle>mvn:ddf.platform.error/platform-error-page-injector/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-encryption" version="${project.version}"
+             description="Security Encryption">
+        <feature>wss4j</feature>
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
+    </feature>
+
+    <feature name="web-container" version="${project.version}">
+        <feature>platform-paxweb-jettyconfig</feature>
+        <feature>platform-error-page-injector</feature>
+        <feature>war</feature>
+    </feature>
+
+    <feature name="platform-http-proxy" version="${project.version}"
+             description="HTTP to HTTPS proxy.">
+        <feature>camel-jetty9</feature>
+        <feature>security-core-api</feature>
+        <feature>camel-blueprint</feature>
+        <feature>camel-http</feature>
+        <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
+        <bundle>mvn:ddf.platform/platform-http-proxy/${project.version}</bundle>
+    </feature>
+
+    <feature name="session-manager-command" version="${project.version}"
+             description="Commands for managing active SAML sessions">
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.command/security-command-sessionmanager/${project.version}</bundle>
+    </feature>
+
+    <feature name="session-invalidator" version="${project.version}"
+             description="API for invalidating servlet sessions">
+        <bundle>mvn:ddf.platform/platform-session-invalidator/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-paxweb-jettyconfig" version="${project.version}"
+             description="Custom Session Manager">
+        <feature version="${spring.version}_1">spring</feature>
+        <feature>apache-commons</feature>
+        <feature>security-core-api</feature>
+        <feature>security-filter-api</feature>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-api/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jetty/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-runtime/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-spi/${pax.web.codice.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.codice.version}</bundle>
+        <bundle>mvn:javax.el/javax.el-api/3.0.0</bundle>
+        <feature>pax-jetty</feature>
+        <feature>session-invalidator</feature>
+        <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
+        <feature>common-system</feature>
+        <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-rest-authentication" version="${project.version}"
+             description="Authentication endpoint for handling multiple realms">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>util-uuidgenerator</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-policy-context</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.platform.security/security-rest-authn-service/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-authn-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-authn-endpoint/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-handler-api" version="${project.version}"
+             description="API for authentication handlers for web applications.">
+        <feature>security-core-api</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-migratable" version="${project.version}"
+             description="Exports security configurations and system files">
+        <feature>guava</feature>
+        <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-core" version="${project.version}"
+             description="Security Core">
+        <feature>security-core-api</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-encryption</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.util/util-uuidgenerator-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
+        <feature>cxf-jaxrs</feature>
+        <feature>security-sts-realm</feature>
+        <feature>util-uuidgenerator</feature>
+        <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
+        <feature>security-migratable</feature>
+    </feature>
+
+    <feature name="security-expansion" version="${project.version}"
+             description="Security Expansion">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-commands/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-cas-client" version="${project.version}"
+             description="Security CAS Client.">
+        <feature>security-sts-realm</feature>
+        <feature>security-core-api</feature>
+        <feature>action-core-impl</feature>
+
+        <bundle>wrap:mvn:org.jasig.cas.client/cas-client-core/${cas.client.version}</bundle>
+        <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-cas-tokenvalidator" version="${project.version}"
+             description="Security CAS Validator for the STS.">
+        <feature>security-sts-server</feature>
+        <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-casclaimshandler" version="${project.version}"
+             description="Retrieves a user's claims from a CAS server.">
+        <feature>security-sts-server</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-casclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-cas" version="${project.version}"
+             description="CAS client, token validator, and claims handler">
+        <feature>security-cas-client</feature>
+        <feature>security-cas-tokenvalidator</feature>
+        <feature>security-sts-casclaimshandler</feature>
+    </feature>
+
+    <feature name="security-pdp-authz" version="${project.version}"
+             description="Security PDP.">
+        <configfile finalname="${ddf.etc}/ddf.security.pdp.realm.AuthzRealm.config">
+            mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}/config/default-authzrealm
+        </configfile>
+        <feature>security-expansion</feature>
+        <feature>security-expansion-user-attributes</feature>
+        <feature>security-expansion-metacard-attributes</feature>
+        <feature>javax-validation</feature>
+
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>parser-xml</feature>
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-pep-serviceauthz" version="${project.version}"
+             description="Security PEP Service AuthZ">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-expansion-user-attributes" version="${project.version}"
+             description="Security Expansion User Attributes Expansion">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-userattr-map/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="security-expansion-metacard-attributes" version="${project.version}"
+             description="Security Expansion Metacard Attributes Expansion">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-metacardattr-map/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="sts-prereqs" version="${project.version}">
+        <feature>cxf-core</feature>
+        <feature>cxf-ws-security</feature>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-json-basic/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-jexl/2.1.1</bundle>
+        <feature>security-core-api</feature>
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
+        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/2.3.2.RELEASE</bundle>
+    </feature>
+
+    <feature name="security-sts-server" version="${project.version}"
+             description="Security STS.">
+        <feature>sts-prereqs</feature>
+        <feature>guava</feature>
+        <configfile finalname="${ddf.etc}/ws-security/attributeMap.properties">
+            mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
+        </configfile>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
+        <feature>security-sts-propertyclaimshandler</feature>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_6</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-classpath/1.3.7</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
+        <feature>security-core-api</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-pkivalidator/${project.version}</bundle>
+        <feature>parser-xml</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-realm" version="${project.version}"
+             description="Security STS Realm.">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-policy-context</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-ldaplogin" version="${project.version}"
+             description="Security STS JAAS LDAP Login.">
+        <feature>security-sts-server</feature>
+        <feature>javax-validation</feature>
+        <bundle>mvn:org.apache.commons/commons-pool2/2.5.0</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-ldapclaimshandler" version="${project.version}"
+             description="Retrieves claims attributes from an LDAP store.">
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <feature>security-sts-server</feature>
+        <feature>security-encryption</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="ldap-embedded-default-configs" version="${project.version}"
+             description="Installs default embedded ldap claims handler and login configs">
+        <feature>ldap-embedded-default-claimshandler-config</feature>
+        <feature>ldap-embedded-default-stslogin-config</feature>
+    </feature>
+
+    <feature name="ldap-embedded-default-claimshandler-config" version="${project.version}"
+             description="Installs a default embedded ldap login config">
+        <configfile
+                finalname="${ddf.etc}/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
+                override="false">
+            mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/config/default-ldap-claimshandler
+        </configfile>
+    </feature>
+
+    <feature name="ldap-embedded-default-stslogin-config" version="${project.version}"
+             description="Installs a default embedded ldap claims handler config">
+        <configfile
+                finalname="${ddf.etc}/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config"
+                override="false">
+            mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}/config/default-ldaplogin
+        </configfile>
+    </feature>
+
+    <feature name="security-handler-basic" version="${project.version}"
+             description="Basic Authentication Handler for web applications.">
+        <feature>security-sts-server</feature>
+        <feature>parser-xml</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-filter-login" version="${project.version}"
+             description="Login Filter for web applications.">
+        <feature>security-core</feature>
+        <feature>cxf-rs-security-sso-saml</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>security-filter-api</feature>
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-filter-authz" version="${project.version}"
+             description="Authz Filter for web applications.">
+        <feature>security-policy-context</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>security-filter-api</feature>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-handler-saml" version="${project.version}"
+             description="SAML Handler for web applications.">
+        <feature>cxf-rs-security-sso-saml</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-saml/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-handler-guest" version="${project.version}"
+             description="Guest Handler for web applications.">
+        <feature>ddf-branding</feature>
+        <feature>security-handler-basic</feature>
+        <feature>security-handler-api</feature>
+        <feature>branding-registry</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-guest/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-filter-web-sso" version="${project.version}"
+             description="Web SSO Filter for web applications.">
+        <feature>security-filter-api</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-policy-context</feature>
+        <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-policy-context" version="${project.version}"
+             description="Web Context policy manager">
+        <feature>security-core-api</feature>
+        <bundle>mvn:ddf.security.policy/security-policy-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.policy/security-policy-context/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-guestvalidator" version="${project.version}"
+             description="Validates guest tokens.">
+        <feature>guava</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+
+        <feature>security-sts-server</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-guestvalidator/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-guestclaimshandler"
+             version="${project.version}"
+             description="Retrieves the guest user claims.">
+        <feature>security-sts-server</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-guestclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-certificateclaimshandler"
+             version="${project.version}"
+             description="Retrieves claims from a user's certificate.">
+        <feature>security-sts-server</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-certificateclaimshandler/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="security-sts-propertyclaimshandler" version="${project.version}"
+             description="Looks up user properties via a properties file.">
+        <feature>security-sts-server</feature>
+        <feature>javax-validation</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-interceptor-guest" version="${project.version}"
+             description="Injects guest user information into incoming SOAP messages.">
+        <feature>guava</feature>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-policy-context</feature>
+        <feature>security-core</feature>
+        <feature>security-encryption</feature>
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-guest/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-attributequeryclaimshandler"
+             version="${project.version}"
+             description="Retrieves claims from external attribute store using an AttributeQuery request.">
+        <feature>guava</feature>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <feature>security-sts-server</feature>
+        <feature>security-encryption</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-attributequeryclaimshandler/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="security-interceptor-guest-wrapper"
+             version="${project.version}"
+             description="Wrapper for Security Interceptor Guest that injects guest user information into incoming SOAP messages.">
+        <feature>cxf-bindings-soap</feature>
+        <feature>cxf-ws-security</feature>
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-guest-wrapper/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="security-certificate"
+             version="${project.version}"
+             description="Keystore editor MBean and associated web application.">
+        <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
+        <feature>security-core-api</feature>
+        <feature>security-core</feature>
+        <bundle>
+            mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}
+        </bundle>
+        <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}
+        </bundle>
+        <bundle>mvn:ddf.security.certificate/security-crl-generator/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-guest" version="${project.version}"
+             description="Contains all of the guest security features.">
+        <feature>security-interceptor-guest-wrapper</feature>
+        <feature>security-handler-guest</feature>
+        <feature>security-sts-guestvalidator</feature>
+        <feature>security-sts-guestclaimshandler</feature>
+        <feature>security-interceptor-guest</feature>
+    </feature>
+
+    <feature name="security-servlet-logout" version="${project.version}"
+             description="Logout servlet.">
+        <feature>guava</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>action-core-impl</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.security.servlet/security-servlet-logout-service/${project.version}</bundle>
+        <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
+        <bundle>mvn:ddf.security.servlet/security-servlet-logout-endpoint/${project.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+    </feature>
+
+    <feature name="security-servlet-session-expiry" version="${project.version}"
+             description="Session expiry servlet.">
+        <feature>guava</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.platform.security/session-management-service/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/session-management-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.servlet/security-servlet-session-expiry/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-servlet-whoami" version="${project.version}"
+             description="Who Am I servlet.">
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.security.servlet/security-servlet-whoami/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-idp" version="${project.version}"
+             description="IDP server and client">
+        <feature>security-core-api</feature>
+        <feature>security-handler-api</feature>
+        <feature>javax-validation</feature>
+        <feature>action-core-impl</feature>
+        <feature>cxf-rs-security-sso-saml</feature>
+        <feature>security-filter-api</feature>
+        <feature>security-handler-saml</feature>
+        <feature>session-invalidator</feature>
+        <feature>platform-paxweb-jettyconfig</feature>
+        <feature>security-filter-login</feature>
+        <feature>guava</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature>util-uuidgenerator</feature>
+        <feature>security-handler-basic</feature>
+        <feature>security-idp-plugin</feature>
+        <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+    </feature>
+
+    <feature name="security-idp-plugin" version="${project.version}"
+            description="IDP plugin api and implementations">
+        <feature>security-core-api</feature>
+        <feature>security-expansion</feature>
+        <feature>javax-validation</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>security-handler-api</feature>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-subjectconfirmation/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-requestsubjectvalidator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-audiencerestriction/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-nameidpolicy/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-namequalifier/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-command-listener" version="${project.version}"
+             description="Audits all commands entered on the Karaf command line.">
+        <feature>security-core-api</feature>
+        <bundle>mvn:ddf.security.command/security-command-listener/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-email" version="${project.version}" start-level="50">
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
+        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <feature>guava</feature>
+        <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
+        <feature>security-logger</feature>
+        <bundle>mvn:ddf.platform.email/platform-email-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-country-local" version="${project.version}"
+             description="Service to convert country codes into various formats by performing a local lookup.">
+        <feature>guava</feature>
+        <feature>security-core-api</feature>
+        <bundle>mvn:ddf.platform.country/platform-country-converter-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.country/platform-country-converter-local/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="security-web-sso-defaults" version="${project.version}"
+             description="Installs the default features needed for web-based SSO authentication.">
+        <feature>security-policy-context</feature>
+        <feature>security-expansion</feature>
+        <feature>security-expansion-user-attributes</feature>
+        <feature>security-expansion-metacard-attributes</feature>
+        <feature>security-sts-server</feature>
+        <feature>security-filter-web-sso</feature>
+        <feature>security-filter-login</feature>
+        <feature>security-handler-saml</feature>
+        <feature>security-handler-basic</feature>
+        <feature>security-filter-authz</feature>
+        <feature>security-pdp-authz</feature>
+        <feature>security-servlet-logout</feature>
+        <feature>security-servlet-whoami</feature>
+        <feature>security-servlet-session-expiry</feature>
+        <feature>security-sts-realm</feature>
+    </feature>
+
+    <feature name="secure-boot" version="${project.version}"
+             description="Verifies that the installation is located in a secure directory.">
+        <bundle>mvn:ddf.platform.security/secure-boot/${project.version}</bundle>
+    </feature>
+</features>

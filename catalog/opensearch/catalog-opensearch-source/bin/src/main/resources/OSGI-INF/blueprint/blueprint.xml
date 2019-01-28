@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+           http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+           http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
+
+
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+    <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
+               filter="(shortname=URLResourceReader)"/>
+
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
+    <bean id="openSearchFilterVisitor"
+          class="org.codice.ddf.opensearch.source.OpenSearchFilterVisitor"/>
+
+    <bean id="openSearchParserImpl"
+          class="org.codice.ddf.opensearch.source.OpenSearchParserImpl"/>
+
+    <cm:managed-service-factory id="DDFfederationPrototypeServiceFactory"
+                                factory-pid="OpenSearchSource"
+                                interface="ddf.catalog.source.FederatedSource">
+
+        <cm:managed-component class="org.codice.ddf.opensearch.source.OpenSearchSource"
+                              init-method="init">
+            <!-- Defines the methods to be invoked when the OpenSearch Source 
+                instance is created and when it is deleted. The init method is called after 
+                all of the setter methods have been called. -->
+            <argument ref="filterAdapter"/>
+            <argument ref="openSearchParserImpl"/>
+            <argument ref="openSearchFilterVisitor"/>
+            <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="container-managed"/>
+            <property name="shortname" value="DDF-OS"/>
+            <property name="endpointUrl"
+                      value="https://localhost:8993/services/query"/>
+            <property name="username" value=""/>
+            <property name="password" value=""/>
+            <property name="localQueryOnly" value="false"/>
+            <property name="shouldConvertToBBox" value="true"/>
+            <property name="numMultiPointRadiusVertices" value="32"/>
+            <property name="distanceTolerance" value="1"/>
+            <property name="disableCnCheck" value="false"/>
+            <property name="connectionTimeout" value="30000"/>
+            <property name="receiveTimeout" value="60000"/>
+            <property name="parameters">
+                <list>
+                    <value>q</value>
+                    <value>src</value>
+                    <value>mr</value>
+                    <value>start</value>
+                    <value>count</value>
+                    <value>mt</value>
+                    <value>dn</value>
+                    <value>lat</value>
+                    <value>lon</value>
+                    <value>radius</value>
+                    <value>bbox</value>
+                    <value>geometry</value>
+                    <value>polygon</value>
+                    <value>dtstart</value>
+                    <value>dtend</value>
+                    <value>dateName</value>
+                    <value>filter</value>
+                    <value>sort</value>
+                </list>
+            </property>
+            <property name="resourceReader" ref="resourceReader"/>
+            <property name="markUpSet">
+                <list/>
+            </property>
+        </cm:managed-component>
+    </cm:managed-service-factory>
+
+</blueprint>

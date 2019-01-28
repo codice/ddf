@@ -353,13 +353,7 @@ module.exports = Marionette.LayoutView.extend({
       ])
     }
     else if(comparator === 'EMPTY'){
-      return {
-        type: 'OR',
-        filters: [
-          CQLUtils.generateFilter('=', property, "\"\""),
-          CQLUtils.generateFilter(type, property, null)
-        ]
-      }
+      return CQLUtils.generateFilter(type, property, null)
     }
     else if(comparator === 'IS EMPTY'){
       return CQLUtils.generateFilter(type, property, null)

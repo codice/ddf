@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.catalog.opensearch</groupId>
+        <artifactId>catalog-opensearch</artifactId>
+        <version>2.14.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>catalog-opensearch-source</artifactId>
+    <name>DDF :: Catalog :: OpenSearch :: Source</name>
+    <packaging>bundle</packaging>
+
+    <properties>
+        <com.rometools.version>1.9.0</com.rometools.version>
+        <!-- For maven-surefire-plugin -->
+        <surefire.argline.append>-Duser.timezone=UTC</surefire.argline.append>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+            <version>${com.rometools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome-utils</artifactId>
+            <version>${com.rometools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom2</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.opensearch</groupId>
+            <artifactId>catalog-opensearch-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- TEST DEPENDENCIES -->
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+            <version>${org.geotools.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.exparity</groupId>
+            <artifactId>hamcrest-date</artifactId>
+            <version>2.0.4</version>
+            <scope>test</scope>
+        </dependency>
+      <dependency>
+        <groupId>ddf.catalog.common</groupId>
+        <artifactId>geo-formatter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codice.thirdparty</groupId>
+                    <artifactId>gt-opengis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            rome,
+                            rome-utils,
+                            jdom2,
+                            catalog-opensearch-api,
+                            ddf-security-common,
+                            catalog-core-api-impl,
+                            security-core-impl,
+                            geospatial,
+                            platform-util
+                        </Embed-Dependency>
+                        <Import-Package>
+                            !com.rometools.utils,
+                            !ddf.security.liberty.paos.impl,
+                            !org.codice.ddf.security.common.jaxrs,
+                            !ddf.security.assertion.impl,
+                            !org.codice.ddf.platform.util.http,
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.82</minimum>
+                                        </limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.61</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
