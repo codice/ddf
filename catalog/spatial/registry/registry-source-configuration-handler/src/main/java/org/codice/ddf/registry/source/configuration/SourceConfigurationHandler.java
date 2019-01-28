@@ -416,13 +416,14 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
    */
   private Configuration toggleConfiguration(Configuration config) throws IOException {
     String newFpid;
+    Dictionary<String, Object> properties;
     if (config.getFactoryPid().contains(DISABLED_CONFIGURATION_SUFFIX)) {
       newFpid = config.getFactoryPid().replace(DISABLED_CONFIGURATION_SUFFIX, "");
-
+      properties = copyConfigProperties(config.getProperties(), newFpid);
     } else {
       newFpid = config.getFactoryPid().concat(DISABLED_CONFIGURATION_SUFFIX);
+      properties = copyConfigProperties(config.getProperties(), config.getFactoryPid());
     }
-    Dictionary<String, Object> properties = config.getProperties();
     config.delete();
     Configuration newConfig = configurationAdmin.createFactoryConfiguration(newFpid, null);
     newConfig.update(properties);
@@ -578,6 +579,22 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
     }
 
     return bindingTypeToActivate;
+  }
+
+  private Dictionary<String, Object> copyConfigProperties(
+      Dictionary<String, Object> properties, String factoryPid) {
+    Dictionary<String, Object> copiedProperties = new Hashtable<>();
+    ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
+    if (objectClassDefinition == null) {
+      return copiedProperties;
+    }
+    Stream.of(objectClassDefinition)
+        .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
+        .flatMap(Arrays::stream)
+        .map(AttributeDefinition::getID)
+        .filter(id -> properties.get(id) != null)
+        .forEach(id -> copiedProperties.put(id, properties.get(id)));
+    return copiedProperties;
   }
 
   private DictionaryMap<String, Object> getConfigurationsFromDictionary(
