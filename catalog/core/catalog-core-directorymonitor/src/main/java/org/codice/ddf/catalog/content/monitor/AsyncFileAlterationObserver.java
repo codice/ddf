@@ -47,6 +47,9 @@ public class AsyncFileAlterationObserver implements Serializable {
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
 
   public AsyncFileAlterationObserver(File fileToObserve) {
+    if (fileToObserve == null) {
+      throw new IllegalArgumentException();
+    }
     rootFile = new AsyncFileEntry(fileToObserve);
   }
 

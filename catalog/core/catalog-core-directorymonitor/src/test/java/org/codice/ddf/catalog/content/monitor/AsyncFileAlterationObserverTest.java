@@ -133,6 +133,11 @@ public class AsyncFileAlterationObserverTest {
     return null;
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullRoot() {
+    observer = new AsyncFileAlterationObserver(null);
+  }
+
   @Test(expected = IllegalStateException.class)
   public void testAddingTwoListeners() {
     observer.addListener(fileListener);
