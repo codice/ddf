@@ -230,7 +230,6 @@ public class AsyncFileAlterationObserver implements Serializable {
       @Nullable final File[] files) {
     //  If there was an IO error then just stop.
     if (files == null) {
-      LOGGER.info("There was a problem reading the files contained within [{}]", parent.getName());
       return;
     }
 
@@ -299,6 +298,7 @@ public class AsyncFileAlterationObserver implements Serializable {
         Arrays.sort(temp);
         return temp;
       }
+      LOGGER.info("There was a problem reading the files contained within [{}]", file.getName());
       return null;
     }
     return FileUtils.EMPTY_FILE_ARRAY;
