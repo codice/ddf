@@ -151,6 +151,37 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
+  public void testRemovalOfListenerDuringExecution() throws Exception {
+
+    File[] files = initFiles(100, monitoredDirectory, "null00");
+
+    CountDownLatch latch = new CountDownLatch(5);
+
+    Thread[] threads = new Thread[5];
+    for (int i = 0; i < threads.length - 1; i++) {
+      threads[i] =
+          new Thread(
+              () -> {
+                observer.checkAndNotify();
+                latch.countDown();
+              });
+    }
+
+    threads[4] = new Thread(observer::removeListener);
+
+    for (Thread i : threads) {
+      i.start();
+    }
+
+    latch.await(1000, TimeUnit.MILLISECONDS);
+
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
   public void testInitialEmptyFile() {
     observer.checkAndNotify();
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
@@ -1017,7 +1048,7 @@ public class AsyncFileAlterationObserverTest {
     }
   }
 
-  private File[] initFiles(int size, File parent, String suffix) throws Exception {
+  private File[] initFiles(int size, File parent, String suffix) throws IOException {
     File[] files = new File[size];
 
     for (int i = 0; i < files.length; i++) {

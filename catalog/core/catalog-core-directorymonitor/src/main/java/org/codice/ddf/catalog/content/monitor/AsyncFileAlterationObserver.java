@@ -55,19 +55,25 @@ public class AsyncFileAlterationObserver implements Serializable {
     return rootFile;
   }
 
+  private final Object listenerLock = new Object();
+
   public void addListener(final AsyncFileAlterationListener listener) {
-    if (this.listener != null) {
-      throw new IllegalStateException("Cannot be two listeners");
+    synchronized (listenerLock) {
+      if (this.listener != null) {
+        throw new IllegalStateException("Cannot be two listeners");
+      }
+      this.listener = listener;
     }
-    this.listener = listener;
   }
 
   public void removeListener() {
-    //  To be truly thread safe, this should block until processes is empty.
-    if (listener != null) {
-      this.listener = null;
-    } else {
-      throw new IllegalStateException("Cannot remove a listener from an empty list");
+    //  You cannot remove the listener until the checkAndNotify method is done using it.
+    synchronized (listenerLock) {
+      if (listener != null) {
+        this.listener = null;
+      } else {
+        throw new IllegalStateException("Cannot remove a listener from an empty list");
+      }
     }
   }
 
@@ -259,20 +265,23 @@ public class AsyncFileAlterationObserver implements Serializable {
    */
   public void checkAndNotify() {
 
-    if (listener == null) {
-      return;
-    }
+    //  You cannot change listeners in the middle of executions.
+    synchronized (listenerLock) {
+      if (listener == null) {
+        return;
+      }
 
-    /* fire directory/file events */
-    final File root = rootFile.getFile();
-    if (root.exists()) {
-      checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()));
-    } else {
-      //  The file doesn't exist.
-      //  We assume this can't happen so this must be a network disconnect.
-      LOGGER.debug(
-          "The monitored file [{}] does not exist. No file processing will be done through the CDM",
-          rootFile.getName());
+      /* fire directory/file events */
+      final File root = rootFile.getFile();
+      if (root.exists()) {
+        checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()));
+      } else {
+        //  The file doesn't exist.
+        //  We assume this can't happen so this must be a network disconnect.
+        LOGGER.debug(
+            "The monitored file [{}] does not exist. No file processing will be done through the CDM",
+            rootFile.getName());
+      }
     }
   }
 
