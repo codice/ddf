@@ -145,9 +145,12 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testNoListenerUpdate() {
+  public void testNoListenerUpdate() throws Exception {
+    initFiles(5, monitoredDirectory, "covert00");
     observer.removeListener();
     observer.checkAndNotify();
+
+    assertThat(observer.getRootFile().getChildren().isEmpty(), is(true));
   }
 
   @Test
