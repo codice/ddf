@@ -45,7 +45,7 @@ public class ZipCompression implements QueryResponseTransformer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ZipCompression.class);
 
-  static final String METACARD_PATH = "metacards" + File.separator;
+  private static final String METACARD_PATH = "metacards" + File.separator;
 
   private static final String TRANSFORMER_ID = "transformerId";
 
@@ -160,8 +160,7 @@ public class ZipCompression implements QueryResponseTransformer {
       throws CatalogTransformerException {
     return metacardTransformers
         .stream()
-        .filter(serviceRef -> serviceRef.getProperty("id") != null)
-        .filter(serviceRef -> serviceRef.getProperty("id").toString().equals(transformerId))
+        .filter(serviceRef -> transformerId.equals(serviceRef.getProperty("id")))
         .findFirst()
         .orElseThrow(
             () ->

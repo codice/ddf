@@ -38,7 +38,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -141,8 +140,7 @@ public class ZipCompressionTest {
 
   @Test(expected = CatalogTransformerException.class)
   public void testCompressNullTransformerId() throws Exception {
-    Map<String, Serializable> arguments = new HashMap<>();
-    arguments.put("transformerId", null);
+    Map<String, Serializable> arguments = Collections.singletonMap("transformerId", null);
 
     zipCompression.transform(SINGLE_RESULT_SOURCE_RESPONSE, arguments);
   }
