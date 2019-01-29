@@ -15,6 +15,7 @@
 /*global require*/
 const wkx = require('wkx')
 const errorMessages = require('./errors')
+const DistanceUtils = require('../../../js/DistanceUtils')
 
 function convertUserValueToWKT(val) {
   val = val
@@ -127,4 +128,88 @@ function validateWkt(wkt) {
   return { valid: valid, error: error }
 }
 
-module.exports = validateWkt
+function createCoordPair(coordinate) {
+  return coordinate.map(val => DistanceUtils.coordinateRound(val)).join(' ')
+}
+
+function createLineString(coordinates) {
+  return (
+    '(' +
+    coordinates
+      .map(coord => {
+        return createCoordPair(coord)
+      })
+      .join(', ') +
+    ')'
+  )
+}
+
+function createMultiLineString(coordinates) {
+  return (
+    '(' +
+    coordinates
+      .map(line => {
+        return createLineString(line)
+      })
+      .join(', ') +
+    ')'
+  )
+}
+
+function createMultiPolygon(coordinates) {
+  return (
+    '(' +
+    coordinates
+      .map(line => {
+        return createMultiLineString(line)
+      })
+      .join(', ') +
+    ')'
+  )
+}
+
+function createRoundedWktGeo(geoJson) {
+  switch (geoJson.type) {
+    case 'Point':
+      return (
+        geoJson.type.toUpperCase() +
+        '(' +
+        createCoordPair(geoJson.coordinates) +
+        ')'
+      )
+    case 'LineString':
+    case 'MultiPoint':
+      return geoJson.type.toUpperCase() + createLineString(geoJson.coordinates)
+    case 'Polygon':
+    case 'MultiLineString':
+      return (
+        geoJson.type.toUpperCase() + createMultiLineString(geoJson.coordinates)
+      )
+    case 'MultiPolygon':
+      return (
+        geoJson.type.toUpperCase() + createMultiPolygon(geoJson.coordinates)
+      )
+    case 'GeometryCollection':
+      return (
+        geoJson.type.toUpperCase() +
+        '(' +
+        geoJson.geometries.map(geo => createRoundedWktGeo(geo)).join(', ') +
+        ')'
+      )
+  }
+}
+
+function roundWktCoords(wkt) {
+  if (!inputIsBlank(wkt) && checkForm(wkt) && checkLonLatOrdering(wkt)) {
+    let parsed = wkx.Geometry.parse(wkt)
+    let geoJson = parsed.toGeoJSON()
+    return createRoundedWktGeo(geoJson)
+  } else {
+    return wkt
+  }
+}
+
+module.exports = {
+  validateWkt,
+  roundWktCoords,
+}

@@ -45,7 +45,7 @@ class LineRenderView extends GeometryRenderView {
 
   drawGeometry = model => {
     const json = model.toJSON()
-    const linePoints = json.line
+    let linePoints = json.line
     const lineWidth =
       DistanceUtils.getDistanceInMeters(
         json.lineWidth,
@@ -54,6 +54,12 @@ class LineRenderView extends GeometryRenderView {
     if (!linePoints) {
       return
     }
+
+    linePoints.forEach(point => {
+      point[0] = DistanceUtils.coordinateRound(point[0])
+      point[1] = DistanceUtils.coordinateRound(point[1])
+    })
+
     const setArr = _.uniq(linePoints)
     if (setArr.length < 2) {
       return

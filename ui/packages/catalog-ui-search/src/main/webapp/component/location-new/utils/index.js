@@ -1,4 +1,4 @@
-const validateWkt = require('./wkt-utils')
+const { validateWkt, roundWktCoords } = require('./wkt-utils')
 const { ddToWkt, validateDd, validateDdPoint } = require('./dd-utils')
 const {
   dmsToWkt,
@@ -16,6 +16,7 @@ const errorMessages = require('./errors')
 
 module.exports = {
   validateWkt,
+  roundWktCoords,
   validateDd,
   validateDdPoint,
   validateDms,

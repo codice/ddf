@@ -9,6 +9,7 @@ const { DdLatitude, DdLongitude } = require('./coordinates')
 const { validateDdPoint } = require('../utils')
 const { ddPoint } = require('../models')
 const errorMessages = require('../utils/errors')
+const DistanceUtils = require('../../../js/DistanceUtils')
 
 const minimumDifference = 0.0001
 
@@ -17,13 +18,17 @@ const Point = props => {
   return (
     <Group>
       <DdLatitude
-        value={dd.point.latitude}
-        onChange={setState((draft, value) => (draft.dd.point.latitude = value))}
+        value={DistanceUtils.coordinateRound(dd.point.latitude)}
+        onChange={setState(
+          (draft, value) =>
+            (draft.dd.point.latitude = DistanceUtils.coordinateRound(value))
+        )}
       />
       <DdLongitude
-        value={dd.point.longitude}
+        value={DistanceUtils.coordinateRound(dd.point.longitude)}
         onChange={setState(
-          (draft, value) => (draft.dd.point.longitude = value)
+          (draft, value) =>
+            (draft.dd.point.longitude = DistanceUtils.coordinateRound(value))
         )}
       />
     </Group>
@@ -36,15 +41,21 @@ const Circle = props => {
     <div>
       <Group>
         <DdLatitude
-          value={dd.circle.point.latitude}
+          value={DistanceUtils.coordinateRound(dd.circle.point.latitude)}
           onChange={setState(
-            (draft, value) => (draft.dd.circle.point.latitude = value)
+            (draft, value) =>
+              (draft.dd.circle.point.latitude = DistanceUtils.coordinateRound(
+                value
+              ))
           )}
         />
         <DdLongitude
-          value={dd.circle.point.longitude}
+          value={DistanceUtils.coordinateRound(dd.circle.point.longitude)}
           onChange={setState(
-            (draft, value) => (draft.dd.circle.point.longitude = value)
+            (draft, value) =>
+              (draft.dd.circle.point.longitude = DistanceUtils.coordinateRound(
+                value
+              ))
           )}
         />
       </Group>
@@ -55,9 +66,10 @@ const Circle = props => {
         <TextField
           label="Radius"
           type="number"
-          value={dd.circle.radius}
+          value={DistanceUtils.coordinateRound(dd.circle.radius)}
           onChange={setState(
-            (draft, value) => (draft.dd.circle.radius = value)
+            (draft, value) =>
+              (draft.dd.circle.radius = DistanceUtils.coordinateRound(value))
           )}
         />
       </Units>
@@ -70,15 +82,21 @@ const Line = props => {
   const points = dd.line.list.map((entry, index) => (
     <Group key={index}>
       <DdLatitude
-        value={dd.line.list[index].latitude}
+        value={DistanceUtils.coordinateRound(dd.line.list[index].latitude)}
         onChange={setState(
-          (draft, value) => (draft.dd.line.list[index].latitude = value)
+          (draft, value) =>
+            (draft.dd.line.list[index].latitude = DistanceUtils.coordinateRound(
+              value
+            ))
         )}
       />
       <DdLongitude
-        value={dd.line.list[index].longitude}
+        value={DistanceUtils.coordinateRound(dd.line.list[index].longitude)}
         onChange={setState(
-          (draft, value) => (draft.dd.line.list[index].longitude = value)
+          (draft, value) =>
+            (draft.dd.line.list[
+              index
+            ].longitude = DistanceUtils.coordinateRound(value))
         )}
       />
     </Group>
@@ -100,15 +118,21 @@ const Polygon = props => {
   const points = dd.polygon.list.map((entry, index) => (
     <Group key={index}>
       <DdLatitude
-        value={dd.polygon.list[index].latitude}
+        value={DistanceUtils.coordinateRound(dd.polygon.list[index].latitude)}
         onChange={setState(
-          (draft, value) => (draft.dd.polygon.list[index].latitude = value)
+          (draft, value) =>
+            (draft.dd.polygon.list[
+              index
+            ].latitude = DistanceUtils.coordinateRound(value))
         )}
       />
       <DdLongitude
-        value={dd.polygon.list[index].longitude}
+        value={DistanceUtils.coordinateRound(dd.polygon.list[index].longitude)}
         onChange={setState(
-          (draft, value) => (draft.dd.polygon.list[index].longitude = value)
+          (draft, value) =>
+            (draft.dd.polygon.list[
+              index
+            ].longitude = DistanceUtils.coordinateRound(value))
         )}
       />
     </Group>
@@ -131,30 +155,34 @@ const BoundingBox = props => {
     <div>
       <DdLatitude
         label="South"
-        value={dd.boundingbox.south}
+        value={DistanceUtils.coordinateRound(dd.boundingbox.south)}
         onChange={setState(
-          (draft, value) => (draft.dd.boundingbox.south = value)
+          (draft, value) =>
+            (draft.dd.boundingbox.south = DistanceUtils.coordinateRound(value))
         )}
       />
       <DdLatitude
         label="North"
-        value={dd.boundingbox.north}
+        value={DistanceUtils.coordinateRound(dd.boundingbox.north)}
         onChange={setState(
-          (draft, value) => (draft.dd.boundingbox.north = value)
+          (draft, value) =>
+            (draft.dd.boundingbox.north = DistanceUtils.coordinateRound(value))
         )}
       />
       <DdLongitude
         label="West"
-        value={dd.boundingbox.west}
+        value={DistanceUtils.coordinateRound(dd.boundingbox.west)}
         onChange={setState(
-          (draft, value) => (draft.dd.boundingbox.west = value)
+          (draft, value) =>
+            (draft.dd.boundingbox.west = DistanceUtils.coordinateRound(value))
         )}
       />
       <DdLongitude
         label="East"
-        value={dd.boundingbox.east}
+        value={DistanceUtils.coordinateRound(dd.boundingbox.east)}
         onChange={setState(
-          (draft, value) => (draft.dd.boundingbox.east = value)
+          (draft, value) =>
+            (draft.dd.boundingbox.east = DistanceUtils.coordinateRound(value))
         )}
       />
     </div>
