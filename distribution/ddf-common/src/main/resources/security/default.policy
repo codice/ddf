@@ -92,7 +92,7 @@ grant codeBase "file:/org.apache.felix.configadmin" {
     permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";
 }
 
-grant codeBase "file:/org.apache.karaf.features.core" {
+grant codeBase "file:/org.apache.karaf.features.core/org.apache.karaf.features.command" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}examples", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}examples${/}-", "read,write";
