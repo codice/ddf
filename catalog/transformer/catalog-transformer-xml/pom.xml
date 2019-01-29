@@ -12,7 +12,8 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
@@ -39,10 +40,10 @@
             <artifactId>jts-core</artifactId>
         </dependency>
         <dependency>
-    <groupId>org.locationtech.jts.io</groupId>
-    <artifactId>jts-io-common</artifactId>
-    <version>1.16.0</version>
-</dependency>
+            <groupId>org.locationtech.jts.io</groupId>
+            <artifactId>jts-io-common</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
@@ -161,7 +162,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>2.8_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
@@ -262,19 +263,24 @@
                             <pluginType>BytesThroughputOverTime</pluginType>
                             <width>800</width>
                             <height>600</height>
-                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-bytes.png</outputFile>
+                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-bytes.png
+                            </outputFile>
                         </graph>
                         <graph>
                             <pluginType>ThroughputVsThreads</pluginType>
                             <width>800</width>
                             <height>600</height>
-                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-thruvthreads.png</outputFile>
+                            <outputFile>
+                                ${project.build.directory}/jmeter/results/XMLTransformerPerformance2-thruvthreads.png
+                            </outputFile>
                         </graph>
                         <graph>
                             <pluginType>TimesVsThreads</pluginType>
                             <width>800</width>
                             <height>600</height>
-                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-timevthreads.png</outputFile>
+                            <outputFile>
+                                ${project.build.directory}/jmeter/results/XMLTransformerPerformance2-timevthreads.png
+                            </outputFile>
                         </graph>
                     </graphs>
                 </configuration>

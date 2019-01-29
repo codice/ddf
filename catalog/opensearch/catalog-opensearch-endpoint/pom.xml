@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>20.1</version>
+            <version>${org.geotools.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

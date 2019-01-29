@@ -42,10 +42,10 @@
             <artifactId>jts-core</artifactId>
         </dependency>
         <dependency>
-    <groupId>org.locationtech.jts.io</groupId>
-    <artifactId>jts-io-common</artifactId>
-    <version>1.16.0</version>
-</dependency>
+            <groupId>org.locationtech.jts.io</groupId>
+            <artifactId>jts-io-common</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>geotools-suite</artifactId>

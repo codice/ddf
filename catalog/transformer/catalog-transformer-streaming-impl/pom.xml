@@ -36,10 +36,10 @@
             <artifactId>jts-core</artifactId>
         </dependency>
         <dependency>
-    <groupId>org.locationtech.jts.io</groupId>
-    <artifactId>jts-io-common</artifactId>
-    <version>1.16.0</version>
-</dependency>
+            <groupId>org.locationtech.jts.io</groupId>
+            <artifactId>jts-io-common</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-streaming-api</artifactId>
@@ -101,7 +101,7 @@
                             catalog-transformer-streaming-lib,
                             platform-util
                         </Embed-Dependency>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

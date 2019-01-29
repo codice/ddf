@@ -103,10 +103,10 @@
             </exclusions>
         </dependency>
         <dependency>
-    <groupId>org.locationtech.jts.io</groupId>
-    <artifactId>jts-io-common</artifactId>
-    <version>1.16.0</version>
-</dependency>
+            <groupId>org.locationtech.jts.io</groupId>
+            <artifactId>jts-io-common</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
@@ -219,7 +219,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>2.3_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
