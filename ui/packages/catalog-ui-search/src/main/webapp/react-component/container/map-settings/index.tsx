@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="property-coordinate-format">
-</div>
-<div class="property-coordinate-example">
-</div>
+export { default } from './map-settings'

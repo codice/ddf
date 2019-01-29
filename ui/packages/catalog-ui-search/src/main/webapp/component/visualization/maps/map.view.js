@@ -32,13 +32,14 @@ var DropdownModel = require('../../dropdown/dropdown.js')
 var MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
 var MapModel = require('./map.model')
 var MapInfoView = require('../../map-info/map-info.view.js')
-var MapSettingsDropdown = require('../../dropdown/map-settings/dropdown.map-settings.view.js')
 var properties = require('../../../js/properties.js')
 var Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
 
 const React = require('react')
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
+
+import MapSettings from '../../../react-component/container/map-settings/map-settings'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -311,15 +312,16 @@ module.exports = Marionette.LayoutView.extend({
       )
   },
   addSettings: function() {
+    const MapSettingsView = Marionette.ItemView.extend({
+      template() {
+        return <MapSettings />
+      },
+    })
     this.$el
       .find('.cesium-viewer-toolbar')
       .append('<div class="toolbar-settings is-button"></div>')
     this.addRegion('toolbarSettings', '.toolbar-settings')
-    this.toolbarSettings.show(
-      new MapSettingsDropdown({
-        model: new DropdownModel(),
-      })
-    )
+    this.toolbarSettings.show(new MapSettingsView())
   },
   onMapHover: function(event, mapEvent) {
     var metacard = this.options.selectionInterface

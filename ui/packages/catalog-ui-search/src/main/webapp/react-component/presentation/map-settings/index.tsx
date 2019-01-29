@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<span class="interaction-text">
-    Settings
-</span>
-<span class="interaction-icon fa fa-cog"/>
+export { default } from './map-settings'
