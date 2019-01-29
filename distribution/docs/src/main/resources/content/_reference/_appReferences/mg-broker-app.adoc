@@ -60,7 +60,7 @@ config=file:etc/artemis-backup.xml
 The ${branding} instances should be restarted in the following order:
 1. Live server
 2. Backup server
-
++
 In order to maintain connectivity to the broker during a restart, only stop and start a single server at a time. See <<{managing-prefix}starting,Starting ${branding}>> for detailed steps.
 +
 . Verify Cluster Replication: +

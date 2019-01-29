@@ -73,9 +73,9 @@ _This parameter is only applicable for the metric's graph display format._
 
 |title
 |The title to be applied to the graph.
-+
+
 Will default to the metric's name plus the time range used for the graph.
-+
+
 _This parameter is only applicable for the metric's graph display format._
 |Catalog Query Count for the last 15 minutes
 |false
