@@ -16,10 +16,26 @@
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 var ListItemView = require('./list-item.view')
+const user = require('../../component/singletons/user-instance')
 
 module.exports = Marionette.CollectionView.extend({
   setDefaultCollection: function() {
     this.collection = this.options.workspaceLists
+  },
+  viewComparator: function(list1, list2) {
+    const defaultListId = user
+      .get('user')
+      .getPreferences()
+      .get('defaultListId')
+    if (list1.get('id') === defaultListId) {
+      return -1
+    }
+
+    if (list2.get('id') === defaultListId) {
+      return 1
+    }
+
+    return list1.get('title') < list2.get('title') ? -1 : 1
   },
   tagName: CustomElements.register('list-item-collection'),
   childView: ListItemView,
@@ -27,5 +43,10 @@ module.exports = Marionette.CollectionView.extend({
     if (!options.collection) {
       this.setDefaultCollection()
     }
+    this.listenTo(
+      user.get('user').getPreferences(),
+      'change:defaultListId',
+      this.render
+    )
   },
 })

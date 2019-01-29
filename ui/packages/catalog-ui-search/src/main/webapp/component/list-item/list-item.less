@@ -111,6 +111,11 @@
   .list-refresh {
     display: none;
   }
+
+  .default-icon {
+    float: right;
+    display: none;
+  }
 }
 
 @{customElementNamespace}list-item.is-out-of-date:not(.is-empty) {
@@ -152,5 +157,11 @@
   }
   .list-run {
     display: none;
+  }
+}
+
+@{customElementNamespace}list-item.is-default {
+  .default-icon {
+    display: block;
   }
 }

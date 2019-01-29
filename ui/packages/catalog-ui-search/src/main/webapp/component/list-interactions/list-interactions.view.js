@@ -17,6 +17,7 @@ const Marionette = require('marionette')
 const template = require('./list-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const announcement = require('../../component/announcement')
+const user = require('../../component/singletons/user-instance')
 import fetch from '../../react-component/utils/fetch'
 import saveFile, {
   getFilenameFromContentDisposition,
@@ -32,6 +33,8 @@ module.exports = Marionette.ItemView.extend({
     'click .interaction-delete': 'triggerDelete',
     'click .interaction-duplicate': 'triggerDuplicate',
     'click .interaction-action': 'triggerAction',
+    'click .interaction-default': 'triggerMakeDefault',
+    'click .interaction-clear': 'triggerClearDefault',
     click: 'triggerClick',
   },
   modelEvents: {
@@ -39,6 +42,12 @@ module.exports = Marionette.ItemView.extend({
   },
   onRender() {
     this.handleResult()
+    this.handleDefault()
+    this.listenTo(
+      user.get('user').getPreferences(),
+      'change:defaultListId',
+      this.handleDefault
+    )
   },
   initialize() {
     if (!this.model.get('query').get('result')) {
@@ -113,10 +122,29 @@ module.exports = Marionette.ItemView.extend({
       })
     }
   },
+  triggerMakeDefault: function() {
+    const prefs = user.get('user').getPreferences()
+    prefs.set('defaultListId', this.model.get('id'))
+    prefs.savePreferences()
+    this.$el.toggleClass('is-default', true)
+  },
+  triggerClearDefault: function() {
+    const prefs = user.get('user').getPreferences()
+    prefs.set('defaultListId', {})
+    prefs.savePreferences()
+    this.$el.toggleClass('is-default', false)
+  },
   handleResult() {
     this.$el.toggleClass(
       'has-results',
       this.model.get('query').get('result') !== undefined
+    )
+  },
+  handleDefault: function() {
+    const prefs = user.get('user').getPreferences()
+    this.$el.toggleClass(
+      'is-default',
+      prefs.get('defaultListId') === this.model.get('id')
     )
   },
   triggerClick() {

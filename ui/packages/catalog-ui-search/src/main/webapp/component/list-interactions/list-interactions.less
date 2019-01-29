@@ -29,4 +29,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .interaction-clear {
+    display: none;
+  }
+}
+
+@{customElementNamespace}list-interactions.is-default {
+  > .interaction-default {
+    display: none;
+  }
+  > .interaction-clear {
+    display: block;
+  }
 }
