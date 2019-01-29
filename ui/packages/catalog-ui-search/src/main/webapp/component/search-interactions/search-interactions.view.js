@@ -40,6 +40,8 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click > .interaction-reset': 'triggerReset',
     'click > .interaction-type-advanced': 'triggerTypeAdvanced',
+    'click > .interaction-type-text': 'triggerTypeText',
+    'click > .interaction-type-basic': 'triggerTypeBasic',
   },
   onRender: function() {
     this.listenTo(
@@ -47,6 +49,7 @@ module.exports = Marionette.LayoutView.extend({
       'change:type closeDropdown',
       this.triggerCloseDropdown
     )
+
     this.generateSearchFormSelector()
     this.generateSearchSettings()
   },
@@ -98,14 +101,24 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
+  triggerType: function(type) {
+    this.model.set('type', type)
+    user.getQuerySettings().set('type', type)
+    user.savePreferences()
+  },
+  triggerTypeText: function() {
+    this.triggerType('text')
+  },
+  triggerTypeBasic: function() {
+    this.triggerType('basic')
+  },
   triggerTypeAdvanced: function() {
     let oldType = this.model.get('type')
     if (oldType === 'custom' || oldType === 'new-form') {
       this.model.set('title', 'Search Name')
     }
-    this.model.set('type', 'advanced')
-    user.getQuerySettings().set('type', 'advanced')
-    user.savePreferences()
+
+    this.triggerType('advanced')
     this.triggerCloseDropdown()
   },
   serializeData() {

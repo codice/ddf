@@ -57,8 +57,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender: function() {
     if (
-      this.model.get('type') === 'basic' ||
-      this.model.get('type') === 'text' ||
       this.model.get('type') === 'new-form' ||
       this.model.get('type') === 'new-result'
     ) {
@@ -93,20 +91,6 @@ module.exports = Marionette.LayoutView.extend({
           this.options.queryModel.trigger('change:type')
         }
         this.routeToSearchFormEditor('create')
-        break
-      case 'basic':
-        this.options.queryModel.set('type', 'basic')
-        if (oldType === 'new-form' || oldType === 'custom') {
-          this.options.queryModel.set('title', 'Search Name')
-        }
-        user.getQuerySettings().set('type', 'basic')
-        break
-      case 'text':
-        this.options.queryModel.set('type', 'text')
-        if (oldType === 'new-form' || oldType === 'custom') {
-          this.options.queryModel.set('title', 'Search Name')
-        }
-        user.getQuerySettings().set('type', 'text')
         break
       case 'custom':
         const sharedAttributes = this.model.transformToQueryStructure()

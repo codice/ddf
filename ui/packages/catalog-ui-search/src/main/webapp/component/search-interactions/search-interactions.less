@@ -33,15 +33,21 @@
   .interaction-revert {
     display: none;
   }
+
+  .interaction-form {
+    margin: 0 @minimumButtonSize;
+    padding: 0 @minimumButtonSize;
+  }
+
   .interaction-form > .interaction-text .fa-level-up {
     transform: rotate(90deg);
     font-size: @mediumFontSize;
     margin-right: @minimumSpacing;
   }
-}
 
-@{customElementNamespace}search-interactions.allow-revert {
-  .interaction-revert {
-    display: block;
+  @{customElementNamespace}search-interactions.allow-revert {
+    .interaction-revert {
+      display: block;
+    }
   }
 }
