@@ -67,6 +67,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
@@ -87,7 +91,10 @@ import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -178,6 +185,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
 
+  // todo
+  protected Integer pollInterval;
+
+  private ScheduledExecutorService scheduler;
+
+  private ScheduledFuture<?> availabilityPollFuture;
+
+  private AvailabilityTask availabilityTask;
+
   /**
    * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
    * overwritten using the setter methods.
@@ -214,6 +230,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
     this.clientFactoryFactory = clientFactoryFactory;
+    this.scheduler =
+        Executors.newSingleThreadScheduledExecutor(
+            StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
   }
 
   /**
@@ -222,9 +241,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   public void init() {
     configureXmlInputFactory();
+    setupAvailabilityPoll();
   }
 
-  // lazy init
   private SecureCxfClientFactory<OpenSearch> getClientFactory() {
     if (factory == null) {
       factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
@@ -270,14 +289,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   @Override
   public boolean isAvailable() {
-    try {
-      final WebClient client = getClientFactory().getWebClient();
-      final Response response = client.head();
-      return response != null && !(response.getStatus() >= 404 || response.getStatus() == 402);
-    } catch (Exception e) {
-      LOGGER.debug("Web Client was unable to connect to endpoint.", e);
-      return false;
-    }
+    return availabilityTask.isAvailable();
   }
 
   @Override
@@ -811,6 +823,76 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
   }
 
+  // todo
+  public void setPollInterval(Integer interval) {
+    if (pollInterval == null || !pollInterval.equals(interval)) {
+      LOGGER.trace("Poll Interval was changed for source {}.", getId());
+      this.pollInterval = interval;
+      if (availabilityPollFuture != null) {
+        availabilityPollFuture.cancel(true);
+      }
+      setupAvailabilityPoll();
+    }
+  }
+
+  private void setupAvailabilityPoll() {
+    LOGGER.debug(
+        "Setting Availability poll task for {} minute(s) on Source {}", pollInterval, getId());
+    SourceAvailabilityCommand command = new SourceAvailabilityCommand();
+    long interval = TimeUnit.MINUTES.toMillis(pollInterval);
+    if (availabilityPollFuture == null || availabilityPollFuture.isCancelled()) {
+      if (availabilityTask == null) {
+        availabilityTask = new AvailabilityTask(interval, command, getId());
+      } else {
+        availabilityTask.setInterval(interval);
+      }
+      // Run the availability check immediately prior to scheduling it in a thread.
+      // This is necessary to allow the catalog framework to have the correct
+      // availability when the source is bound
+      availabilityTask.run();
+      // Run the availability check every 1 second. The actually call to
+      // the remote server will only occur if the pollInterval has
+      // elapsed.
+      availabilityPollFuture =
+          scheduler.scheduleWithFixedDelay(
+              availabilityTask,
+              AvailabilityTask.NO_DELAY,
+              AvailabilityTask.ONE_SECOND,
+              TimeUnit.SECONDS);
+    }
+  }
+
+  public void destroy(int code) {
+    availabilityPollFuture.cancel(true);
+    scheduler.shutdownNow();
+  }
+
+  /**
+   * Callback class to check the Availability of the WfsSource.
+   *
+   * <p>NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
+   * have an AvailabilityTask that cached each Source's availability. Until that is done, allow the
+   * command to handle the logic of managing availability.
+   *
+   * @author kcwire
+   */
+  private class SourceAvailabilityCommand implements AvailabilityCommand {
+
+    @Override
+    public boolean isAvailable() {
+      LOGGER.debug("Checking availability for source {} ", getId());
+
+      try {
+        final WebClient client = getClientFactory().getWebClient();
+        final Response response = client.head();
+        return response != null && !(response.getStatus() >= 404 || response.getStatus() == 402);
+      } catch (Exception e) {
+        LOGGER.debug("Web Client was unable to connect to endpoint.", e);
+        return false;
+      }
+    }
+  }
+
   @Override
   public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> requestProperties)
       throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
@@ -1022,6 +1104,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   protected static class SpatialSearch {
+
     private final Geometry geometry;
     private final BoundingBox boundingBox;
     private final Polygon polygon;

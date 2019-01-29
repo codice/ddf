@@ -71,6 +71,10 @@
             name="Receive Timeout" id="receiveTimeout"
             required="true" type="Integer" default="60000"/>
 
+        <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
+            name="Poll Interval" id="pollInterval"
+            required="true" type="Integer" default="5"/>
+
         <AD name="Entry XML Element" id="markUpSet" required="false"
             type="String"
             default=""

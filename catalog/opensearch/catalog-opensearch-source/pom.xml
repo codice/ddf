@@ -122,6 +122,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-ogc-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -140,6 +145,7 @@
                             ddf-security-common,
                             catalog-core-api-impl,
                             security-core-impl,
+                            spatial-ogc-common,
                             geospatial,
                             platform-util
                         </Embed-Dependency>
