@@ -39,7 +39,6 @@ import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.platform.serviceflag.ServiceFlag;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,17 +103,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
    * @param configurationExecutor the executor used to run configuration and updates.
-   * @param inputTransformerServiceFlag used to block creation of services from the MSF in
-   *     blueprint. the MSF will not start creating CDM services until the {@link ServiceFlag} is
-   *     injected.
    */
   public ContentDirectoryMonitor(
       CamelContext camelContext,
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      Executor configurationExecutor,
-      ServiceFlag inputTransformerServiceFlag) {
+      Executor configurationExecutor) {
     this.camelContext = camelContext;
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
@@ -172,17 +167,20 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * called whenever an existing route is updated.
    */
   public void init() {
-    SECURITY.runAsAdmin(this::configure);
+    CompletableFuture.runAsync(this::configure, configurationExecutor);
   }
 
   private Object configure() {
-    if (StringUtils.isEmpty(monitoredDirectory)) {
-      LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
-      return null;
-    }
+    return SECURITY.runAsAdmin(
+        () -> {
+          if (StringUtils.isEmpty(monitoredDirectory)) {
+            LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
+            return null;
+          }
 
-    CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
-    return null;
+          CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
+          return null;
+        });
   }
 
   /**
@@ -194,14 +192,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   @SuppressWarnings(
       "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
-    if (routeBuilder == null) {
-      return;
-    }
-
     CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
   }
 
   private void removeRoutes() {
+    if (routeBuilder == null) {
+      return;
+    }
+
     for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
         String routeId = routeDef.getId();
@@ -235,8 +233,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         setAttributeOverrides(Arrays.asList(parameterArray));
       }
 
-      destroy(0);
-      init();
+      CompletableFuture.runAsync(
+          () -> {
+            removeRoutes();
+            configure();
+          },
+          configurationExecutor);
     }
   }
 
@@ -262,8 +264,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             "Invalid attribute override configured for monitored directory");
       }
 
-      attributeOverrideMap.computeIfAbsent(keyValue[0], k -> new ArrayList<String>());
-      List valueList = (List) attributeOverrideMap.get(keyValue[0]);
+      final List valueList =
+          (List) attributeOverrideMap.computeIfAbsent(keyValue[0], k -> new ArrayList<String>());
       valueList.add(keyValue[1]);
     }
     this.attributeOverrides = attributeOverrideMap;

@@ -139,7 +139,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.osgi</groupId>
-            <artifactId>platform-osgi-serviceflag</artifactId>
+            <artifactId>serviceflag-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- Component test dependencies -->
@@ -171,6 +171,12 @@
             <groupId>org.codice.test</groupId>
             <artifactId>junit-extensions</artifactId>
             <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.osgi</groupId>
+            <artifactId>serviceflag-inputtransformer</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 

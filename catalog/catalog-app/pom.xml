@@ -648,7 +648,12 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.osgi</groupId>
-            <artifactId>platform-osgi-serviceflag</artifactId>
+            <artifactId>serviceflag-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.osgi</groupId>
+            <artifactId>serviceflag-inputtransformer</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

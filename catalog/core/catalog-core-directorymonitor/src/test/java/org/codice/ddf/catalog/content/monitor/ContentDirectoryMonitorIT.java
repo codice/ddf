@@ -346,7 +346,8 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("org.apache.httpcomponents", "httpcore-osgi"),
         new BundleInfo("org.apache.httpcomponents", "httpclient-osgi"),
         new BundleInfo("net.jodah", "failsafe"),
-        new BundleInfo("ddf.platform.osgi", "platform-osgi-serviceflag"));
+        new BundleInfo("ddf.platform.osgi", "serviceflag-api"),
+        new BundleInfo("ddf.platform.osgi", "serviceflag-inputtransformer"));
   }
 
   private CatalogFramework mockCatalogFramework() throws Exception {

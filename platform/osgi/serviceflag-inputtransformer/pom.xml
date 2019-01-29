@@ -23,8 +23,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ddf.platform.osgi</groupId>
-    <artifactId>platform-osgi-serviceflag</artifactId>
-    <name>Platform :: OSGi :: Service Flag</name>
+    <artifactId>serviceflag-inputtransformer</artifactId>
+    <name>DDF :: Platform :: Service Flag :: Input Transformer</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -53,13 +53,10 @@
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
-
-        <!-- Test Dependencies -->
         <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>junit-extensions</artifactId>
-            <version>${codice-test.version}</version>
-            <scope>test</scope>
+            <groupId>ddf.platform.osgi</groupId>
+            <artifactId>serviceflag-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -71,9 +68,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>
-                            org.codice.ddf.platform.serviceflag
-                        </Export-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

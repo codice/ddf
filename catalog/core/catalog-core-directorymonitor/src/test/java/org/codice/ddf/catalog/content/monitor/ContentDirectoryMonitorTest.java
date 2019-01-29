@@ -38,7 +38,6 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.platform.serviceflag.ServiceFlag;
 import org.codice.junit.rules.RestoreSystemProperties;
 import org.junit.After;
 import org.junit.Before;
@@ -392,12 +391,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext,
-            mock(AttributeRegistry.class),
-            1,
-            1,
-            Runnable::run,
-            mock(ServiceFlag.class));
+            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run);
 
     monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);

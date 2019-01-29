@@ -14,11 +14,15 @@
 package org.codice.ddf.platform.serviceflag;
 
 /**
- * A {@code ServiceFlag} is a marker interface that indicates some sort of condition is met
- * indicated by the service being available in the OSGi registry. A service property should be used
- * to allow filtering.
+ * A {@code BootServiceFlag} is a marker interface that indicates some sort of condition is met
+ * indicated by the service being available in the OSGi service registry. A service property should
+ * be used to allow filtering.
+ *
+ * <p>The condition for the {@code BootServiceFlag} is only checked once at system startup time. If
+ * the service is registered, unregistering it at a later time will have no effect. The service
+ * should only be relied upon at system startup time.
  *
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
-public interface ServiceFlag {}
+public interface BootServiceFlag {}

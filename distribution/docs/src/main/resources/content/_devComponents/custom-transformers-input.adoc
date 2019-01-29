@@ -194,5 +194,5 @@ An example of using an Apache Camel route to define an `InputTransformer` in a b
 
 ==== Input Transformer OSGi Service Flag
 
-The `org.codice.ddf.platform.serviceflag.ServiceFlag` service with a service property of `id=inputTransformerServiceFlag` is used to indicate certain Input Transformers are ready in the system.
+The `org.codice.ddf.platform.serviceflag.BootServiceFlag` service with a service property of `id=inputTransformerServiceFlag` is used to indicate certain Input Transformers are ready in the system.
 Adding an Input Transformers ID to a new or existing JSON file under `${home_directory}/etc/transformers` will cause the service to wait for an Input Transformer with the given ID.

@@ -106,7 +106,8 @@
     <feature name="catalog-core-directorymonitor" version="${project.version}"
              description="Monitors directories to process content files.">
         <feature>apache-commons</feature>
-        <feature>inputtransformer-serviceflag</feature>
+        <feature>serviceflag-api</feature>
+        <feature>serviceflag-inputtransformer</feature>
         <bundle>mvn:com.hazelcast/hazelcast/${hazelcast.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
@@ -115,12 +116,18 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
     </feature>
 
-    <feature name="inputtransformer-serviceflag" version="${project.version}"
+    <feature name="serviceflag-inputtransformer" version="${project.version}"
              description="Flag OSGi service which indicates all default InputTransformers in the system are ready.">
         <feature>catalog-core-api</feature>
+        <feature>serviceflag-api</feature>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
-        <bundle>mvn:ddf.platform.osgi/platform-osgi-serviceflag/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.osgi/serviceflag-inputtransformer/${project.version}</bundle>
+    </feature>
+
+    <feature name="serviceflag-api" version="${project.version}"
+             description="API for services which act as flags for conditions in the system.">
+        <bundle>mvn:ddf.platform.osgi/serviceflag-api/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-downloadaction" version="${project.version}"

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.platform.serviceflag.ServiceFlag;
+import org.codice.ddf.platform.serviceflag.BootServiceFlag;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -34,13 +34,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Waits for configured {@link InputTransformer}s. Once this service is available in the OSGi
- * registry with the service property {@code id} equal to {@code inputTransformerServiceFlag}, it
- * indicates that all the {@link InputTransformer}s are available.
+ * Waits for configured {@link InputTransformer}s. This check is only done once initially on system
+ * startup. Once this service is available in the OSGi registry with the service property {@code id}
+ * equal to {@code inputTransformerServiceFlag}, it indicates that all the {@link InputTransformer}s
+ * are available.
+ *
+ * <p>If an {@link InputTransformer} that was initially waited for becomes no longer available in
+ * the system, and this service is already published, the service will not be unpublished.
  */
-public class InputTransformerServiceFlag implements ServiceFlag {
+public class InputTransformerBootServiceFlag implements BootServiceFlag {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(InputTransformerServiceFlag.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(InputTransformerBootServiceFlag.class);
 
   private static final String TRANSFORMER_WAIT_TIMEOUT_PROPERTY =
       "org.codice.ddf.platform.osgi.transformerWaitTimeoutSeconds";
@@ -63,13 +68,13 @@ public class InputTransformerServiceFlag implements ServiceFlag {
   private final List<ServiceReference<InputTransformer>> inputTransformers;
 
   /**
-   * Creates a new {@code InputTransformerServiceFlag} and begins waiting for the list of configured
-   * {@link InputTransformer}s.
+   * Creates a new {@code InputTransformerBootServiceFlag} and begins waiting for the list of
+   * configured {@link InputTransformer}s.
    *
    * @param inputTransformerIds list of {@link InputTransformer} ids to wait for
    * @param inputTransformers {@link InputTransformer}s in the OSGi service registry
    */
-  public InputTransformerServiceFlag(
+  public InputTransformerBootServiceFlag(
       InputTransformerIds inputTransformerIds,
       List<ServiceReference<InputTransformer>> inputTransformers) {
     this.inputTransformerIds = inputTransformerIds;
@@ -82,7 +87,7 @@ public class InputTransformerServiceFlag implements ServiceFlag {
   }
 
   @VisibleForTesting
-  InputTransformerServiceFlag(
+  InputTransformerBootServiceFlag(
       InputTransformerIds inputTransformerIds,
       List<ServiceReference<InputTransformer>> inputTransformers,
       Bundle bundle,
@@ -191,6 +196,6 @@ public class InputTransformerServiceFlag implements ServiceFlag {
 
     Dictionary<String, String> props = new DictionaryMap<>();
     props.put("id", "inputTransformerServiceFlag");
-    bundleContext.registerService(ServiceFlag.class, this, props);
+    bundleContext.registerService(BootServiceFlag.class, this, props);
   }
 }

@@ -24,7 +24,7 @@
     <bean id="inputTransformerIds" class="org.codice.ddf.platform.serviceflag.inputtransformer.InputTransformerIds"/>
 
     <bean id="inputTransformerServiceFlag"
-          class="org.codice.ddf.platform.serviceflag.inputtransformer.InputTransformerServiceFlag">
+          class="org.codice.ddf.platform.serviceflag.inputtransformer.InputTransformerBootServiceFlag">
         <argument ref="inputTransformerIds"/>
         <argument ref="inputTransformers"/>
     </bean>

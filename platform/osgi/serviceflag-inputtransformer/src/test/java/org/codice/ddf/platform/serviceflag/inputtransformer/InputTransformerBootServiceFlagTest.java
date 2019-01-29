@@ -36,7 +36,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class InputTransformerServiceFlagTest {
+public class InputTransformerBootServiceFlagTest {
 
   private static final String TRANSFORMER_WAIT_TIMEOUT_PROPERTY =
       "org.codice.ddf.platform.osgi.transformerWaitTimeoutSeconds";
@@ -64,7 +64,8 @@ public class InputTransformerServiceFlagTest {
     List<ServiceReference<InputTransformer>> inputTransformerReferences =
         mockServiceReferences("id1", "id2", "id3");
 
-    new InputTransformerServiceFlag(inputTransformerIds, inputTransformerReferences, bundle, 1, 5);
+    new InputTransformerBootServiceFlag(
+        inputTransformerIds, inputTransformerReferences, bundle, 1, 5);
 
     verify(bundleContext, times(1))
         .registerService(isA(Class.class), isA(Object.class), isA(Dictionary.class));
@@ -75,7 +76,7 @@ public class InputTransformerServiceFlagTest {
     InputTransformerIds inputTransformerIds = mock(InputTransformerIds.class);
     when(inputTransformerIds.getIds()).thenReturn(Collections.emptySet());
 
-    new InputTransformerServiceFlag(inputTransformerIds, Collections.emptyList(), bundle, 1, 5);
+    new InputTransformerBootServiceFlag(inputTransformerIds, Collections.emptyList(), bundle, 1, 5);
 
     verify(bundleContext, times(1))
         .registerService(isA(Class.class), isA(Object.class), isA(Dictionary.class));
@@ -89,7 +90,8 @@ public class InputTransformerServiceFlagTest {
     List<ServiceReference<InputTransformer>> inputTransformerReferences =
         mockServiceReferences("id1", "id2");
 
-    new InputTransformerServiceFlag(inputTransformerIds, inputTransformerReferences, bundle, 1, 5);
+    new InputTransformerBootServiceFlag(
+        inputTransformerIds, inputTransformerReferences, bundle, 1, 5);
 
     verify(bundleContext, times(0))
         .registerService(isA(Class.class), isA(Object.class), isA(Dictionary.class));
@@ -98,8 +100,9 @@ public class InputTransformerServiceFlagTest {
   @Test
   public void testTimeoutSystemPropertyIsRespected() {
     System.setProperty(TRANSFORMER_WAIT_TIMEOUT_PROPERTY, "1");
-    InputTransformerServiceFlag waiter =
-        new InputTransformerServiceFlag(mock(InputTransformerIds.class), Collections.emptyList());
+    InputTransformerBootServiceFlag waiter =
+        new InputTransformerBootServiceFlag(
+            mock(InputTransformerIds.class), Collections.emptyList());
     assertThat(waiter.getTransformerWaitTimeoutMillis(), is(1000L));
   }
 
