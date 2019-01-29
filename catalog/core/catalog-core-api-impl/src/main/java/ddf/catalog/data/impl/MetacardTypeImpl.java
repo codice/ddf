@@ -25,8 +25,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -53,6 +55,8 @@ public class MetacardTypeImpl implements MetacardType {
 
   /** Set of {@link AttributeDescriptor}s */
   protected transient Set<AttributeDescriptor> descriptors = new HashSet<>();
+
+  protected transient Map<String, AttributeDescriptor> descriptorNameMap = new HashMap<>();
 
   /**
    * The name of this {@code MetacardTypeImpl}
@@ -157,13 +161,14 @@ public class MetacardTypeImpl implements MetacardType {
     if (attributeName == null) {
       return null;
     }
-    // TODO could this be faster?
-    for (AttributeDescriptor descriptor : descriptors) {
-      if (attributeName.equals(descriptor.getName())) {
-        return descriptor;
+
+    if (descriptors.size() != descriptorNameMap.size()) {
+      descriptorNameMap.clear();
+      for (AttributeDescriptor descriptor : descriptors) {
+        descriptorNameMap.put(descriptor.getName(), descriptor);
       }
     }
-    return null;
+    return descriptorNameMap.get(attributeName);
   }
 
   /**
@@ -209,6 +214,7 @@ public class MetacardTypeImpl implements MetacardType {
     int numElements = stream.readInt();
 
     descriptors = new HashSet<>();
+    descriptorNameMap = new HashMap<>();
 
     for (int i = 0; i < numElements; i++) {
       descriptors.add((AttributeDescriptor) stream.readObject());
