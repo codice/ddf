@@ -83,7 +83,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>target/classes/feature.xml</file>
+                                    <file>target/classes/test-feature.xml</file>
                                     <type>xml</type>
                                     <classifier>feature</classifier>
                                 </artifact>

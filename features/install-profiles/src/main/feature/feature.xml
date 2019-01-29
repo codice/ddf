@@ -36,10 +36,12 @@
              description="This will install all the applications for development purposes."
              start-level="3">
         <feature>profile-standard</feature>
-        <feature>opendj-embedded</feature>
         <feature>resourcemanagement-app</feature>
         <feature>registry-app</feature>
         <feature>broker-app</feature>
+
+        <!--DDF-4427: The slow startup of opendj can be long enough to cause dependency waits to timeout. Uncomment once slow startup has been addressed.-->
+        <!--<feature>opendj-embedded</feature>-->
     </feature>
 
 </features>

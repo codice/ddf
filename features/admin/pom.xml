@@ -66,6 +66,106 @@
             <artifactId>platform-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>resource-bundle-locator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-configpolicy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-jolokia</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-configplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-appservice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-insecuredefaults</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-modules-configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-modules-installer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-modules-application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-metrics-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-security-certificate-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-migration-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-logviewer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configurator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configurator-actions-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configurator-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configuration-configupdater</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--feature dependencies-->
         <dependency>
@@ -112,6 +212,12 @@
         </dependency>
         <!--end feature dependencies-->
 
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.11.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>
