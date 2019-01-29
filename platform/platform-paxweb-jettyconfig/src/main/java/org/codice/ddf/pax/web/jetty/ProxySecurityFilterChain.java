@@ -16,54 +16,48 @@ package org.codice.ddf.pax.web.jetty;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import org.codice.ddf.platform.filter.AuthenticationException;
+import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of filter chain that allows the ability to add new {@link Filter}s to a chain. The
- * {@link ProxyFilterChain} may not be reused. That is, once the {@link ProxyFilterChain#doFilter}
- * method is called, no more {@link Filter}s may be added.
+ * Implementation of filter chain that allows the ability to add new {@link SecurityFilter}s to a
+ * chain. The {@link ProxySecurityFilterChain} may not be reused. That is, once the {@link
+ * ProxySecurityFilterChain#doFilter} method is called, no more {@link SecurityFilter}s may be
+ * added.
  */
-public class ProxyFilterChain implements FilterChain {
+public class ProxySecurityFilterChain implements FilterChain {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilterChain.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProxySecurityFilterChain.class);
 
-  private final FilterChain filterChain;
+  private final LinkedList<SecurityFilter> filters;
 
-  private final LinkedList<Filter> filters;
+  private Iterator<SecurityFilter> iterator;
 
-  private Iterator<Filter> iterator;
-
-  /**
-   * Creates a new ProxyFilterChain with the specified filter chain included.
-   *
-   * @param filterChain The filter chain from the web container.
-   */
-  public ProxyFilterChain(FilterChain filterChain) {
-    this.filterChain = filterChain;
+  /** Creates a new ProxySecurityFilterChain */
+  public ProxySecurityFilterChain() {
     filters = new LinkedList<>();
   }
 
   /**
-   * Adds a single {@link Filter} to the start of the local filter chain.
+   * Adds a single {@link SecurityFilter} to the start of the local filter chain.
    *
    * @param filter The servlet filter to add.
-   * @throws IllegalArgumentException when the {@param filter} is null
+   * @throws IllegalArgumentException when the {@param filer} is null
    * @throws IllegalStateException when a trying to add a {@link Filter} to this when the {@link
-   *     ProxyFilterChain#doFilter} has been called at least once. This ensures that the {@link
-   *     ProxyFilterChain} may not be reused.
+   *     ProxySecurityFilterChain#doFilter} has been called at least once. This ensures that the
+   *     {@link ProxySecurityFilterChain} may not be reused.
    */
-  public void addFilter(Filter filter) {
+  public void addSecurityFilter(SecurityFilter filter) {
     if (filter == null) {
       throw new IllegalArgumentException("Cannot add null filter to chain.");
     }
 
-    // a null iterator indicates that the ProxyFilterChain is not yet running
+    // a null iterator indicates that the ProxySecurityFilterChain is not yet running
     if (iterator != null) {
       throw new IllegalStateException("Cannot add filter to current running chain.");
     }
@@ -74,13 +68,13 @@ public class ProxyFilterChain implements FilterChain {
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-      throws IOException, ServletException {
+      throws IOException, AuthenticationException {
     if (iterator == null) {
       iterator = filters.iterator();
     }
 
     if (iterator.hasNext()) {
-      Filter filter = iterator.next();
+      SecurityFilter filter = iterator.next();
       LOGGER.debug(
           "Calling filter {}.doFilter({}, {}, {})",
           filter.getClass().getName(),
@@ -88,13 +82,6 @@ public class ProxyFilterChain implements FilterChain {
           servletResponse,
           this);
       filter.doFilter(servletRequest, servletResponse, this);
-    } else {
-      LOGGER.debug(
-          "Calling filterChain {}.doFilter({}, {})",
-          filterChain.getClass().getName(),
-          servletRequest,
-          servletResponse);
-      filterChain.doFilter(servletRequest, servletResponse);
     }
   }
 }

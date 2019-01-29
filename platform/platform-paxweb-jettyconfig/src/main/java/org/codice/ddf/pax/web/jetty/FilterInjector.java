@@ -51,7 +51,7 @@ public class FilterInjector implements EventListenerHook {
 
   private final List<Filter> filterList;
 
-  private final List<Filter> referenceFilterList;
+  private final Filter serviceReferencedFiltersDelegate;
 
   private final ScheduledExecutorService executorService;
 
@@ -63,10 +63,10 @@ public class FilterInjector implements EventListenerHook {
    */
   public FilterInjector(
       List<Filter> filterList,
-      List<Filter> referenceFilterList,
+      Filter serviceReferencedFiltersDelegate,
       ScheduledExecutorService executorService) {
     this.filterList = filterList;
-    this.referenceFilterList = referenceFilterList;
+    this.serviceReferencedFiltersDelegate = serviceReferencedFiltersDelegate;
     this.executorService = executorService;
   }
 
@@ -108,9 +108,8 @@ public class FilterInjector implements EventListenerHook {
       Collection<ServiceReference<ServletContext>> references =
           context.getServiceReferences(ServletContext.class, null);
 
-      List<Filter> allFilterList = new ArrayList<>();
-      allFilterList.addAll(filterList);
-      allFilterList.addAll(referenceFilterList);
+      List<Filter> allFilterList = new ArrayList<>(filterList);
+      allFilterList.add(serviceReferencedFiltersDelegate);
 
       for (ServiceReference<ServletContext> reference : references) {
         Bundle refBundle = reference.getBundle();
@@ -157,9 +156,8 @@ public class FilterInjector implements EventListenerHook {
           "Failed trying to set the cookie config path to /. This can usually be ignored", e);
     }
 
-    List<Filter> allFilterList = new ArrayList<>();
-    allFilterList.addAll(filterList);
-    allFilterList.addAll(referenceFilterList);
+    List<Filter> allFilterList = new ArrayList<>(filterList);
+    allFilterList.add(serviceReferencedFiltersDelegate);
 
     for (Filter filter : allFilterList) {
       try {

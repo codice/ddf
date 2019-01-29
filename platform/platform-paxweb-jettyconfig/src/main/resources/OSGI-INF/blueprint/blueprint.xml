@@ -23,6 +23,8 @@
         <argument ref="securityJavaSubjectThreadFactory"/>
     </bean>
 
+    <bean id="serviceReferencedFiltersDelegate" class="org.codice.ddf.pax.web.jetty.DelegateServletFilter" />
+
     <bean id="filterInjector" class="org.codice.ddf.pax.web.jetty.FilterInjector" init-method="init"
           destroy-method="destroy">
         <argument type="java.util.List">
@@ -63,7 +65,7 @@
                 <bean class="org.codice.ddf.pax.web.jetty.SecurityJavaSubjectFilter"/>
             </list>
         </argument>
-        <argument ref="filterList" />
+        <argument ref="serviceReferencedFiltersDelegate" />
         <argument ref="executor"/>
     </bean>
 
@@ -75,6 +77,16 @@
 
     <service interface="org.osgi.framework.hooks.service.EventListenerHook" ref="filterInjector"/>
 
-    <reference-list id="filterList" availability="optional" interface="javax.servlet.Filter" />
+    <service id="DoSFilter" interface="javax.servlet.Filter" ranking="100">
+        <service-properties>
+            <entry key="filter-name" value="DoSFilter"/>
+            <entry key="urlPatterns" value="/*"/>
+            <entry key="init.maxRequestsPerSec" value="1000"/>
+            <entry key="init.delayMs" value="-1" />
+            <entry key="init.enabled" value="true" />
+            <entry key="init.ipWhitelist" value="127.0.0.1,0:0:0:0:0:0:0:1" />
+        </service-properties>
+        <bean class="org.eclipse.jetty.servlets.DoSFilter"/>
+    </service>
 
 </blueprint>
