@@ -42,7 +42,7 @@ public class CustomConverter extends ogc.catalog.common.converter.AbstractFeatur
 ----
 +
 . Implement the `FeatureConverterFactory` interface and the `createConverter()` method for the `CustomConverter`.
-+￼
++
 [source,java,linenums]
 ----
 public class CustomConverterFactory implements FeatureConverterFactory {
@@ -59,7 +59,7 @@ public class CustomConverterFactory implements FeatureConverterFactory {
 }
 ----
 +
-. Implement the `unmarshal` method required by the `FeatureConverter` interface. The `createMetacardFromFeature(reader, metacardType)` method implemented in the `AbstractFeatureConverter` is recommended.
+. Implement the `unmarshal` method required by the `FeatureConverter` interface. The `createMetacardFromFeature(reader, metacardType)` method implemented in the `AbstractFeatureConverter` is recommended. +
 +
 [source,java,linenums]
 ----
