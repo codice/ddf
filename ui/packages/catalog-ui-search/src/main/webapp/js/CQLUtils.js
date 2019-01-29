@@ -70,6 +70,13 @@ function bboxToCQLPolygon(model) {
 }
 
 function generateAnyGeoFilter(property, model) {
+  if(model === null){
+    return {
+      type: 'IS NULL',
+      property,
+      value: null
+    }
+  }
   switch (model.type) {
     case 'LINE':
       return {

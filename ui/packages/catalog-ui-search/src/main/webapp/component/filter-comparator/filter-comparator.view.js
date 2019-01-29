@@ -64,6 +64,9 @@ module.exports = Marionette.ItemView.extend({
         if (geometryComparators.indexOf(this.model.get('comparator')) === -1) {
           this.model.set('comparator', geometryComparators[0])
         }
+        if(this.model.get('type') === 'anyGeo'){
+          return stringComparatorsAnyGeo
+        }
         return geometryComparators
       case 'DATE':
         if (dateComparators.indexOf(this.model.get('comparator')) === -1) {
