@@ -69,7 +69,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
@@ -93,8 +92,6 @@ import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -185,14 +182,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
 
-  // todo
   protected Integer pollInterval;
 
   private ScheduledExecutorService scheduler;
 
-  private ScheduledFuture<?> availabilityPollFuture;
-
-  private AvailabilityTask availabilityTask;
+  private AvailabilityCheck availabilityCheck;
 
   /**
    * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -230,9 +224,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
     this.clientFactoryFactory = clientFactoryFactory;
-    this.scheduler =
-        Executors.newSingleThreadScheduledExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
+    availabilityCheck = new AvailabilityCheck();
   }
 
   /**
@@ -241,10 +233,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   public void init() {
     configureXmlInputFactory();
-    setupAvailabilityPoll();
   }
 
-  private SecureCxfClientFactory<OpenSearch> getClientFactory() {
+  private synchronized SecureCxfClientFactory<OpenSearch> getClientFactory() {
     if (factory == null) {
       factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
     }
@@ -289,7 +280,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   @Override
   public boolean isAvailable() {
-    return availabilityTask.isAvailable();
+    return availabilityCheck.isAvailable;
   }
 
   @Override
@@ -823,65 +814,42 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
   }
 
-  // todo
   public void setPollInterval(Integer interval) {
-    if (pollInterval == null || !pollInterval.equals(interval)) {
-      LOGGER.trace("Poll Interval was changed for source {}.", getId());
-      this.pollInterval = interval;
-      if (availabilityPollFuture != null) {
-        availabilityPollFuture.cancel(true);
-      }
-      setupAvailabilityPoll();
+    if (interval == null || interval.equals(pollInterval)) {
+      return;
     }
-  }
 
-  private void setupAvailabilityPoll() {
+    this.pollInterval = interval;
     LOGGER.debug(
         "Setting Availability poll task for {} minute(s) on Source {}", pollInterval, getId());
-    SourceAvailabilityCommand command = new SourceAvailabilityCommand();
-    long interval = TimeUnit.MINUTES.toMillis(pollInterval);
-    if (availabilityPollFuture == null || availabilityPollFuture.isCancelled()) {
-      if (availabilityTask == null) {
-        availabilityTask = new AvailabilityTask(interval, command, getId());
-      } else {
-        availabilityTask.setInterval(interval);
-      }
-      // Run the availability check immediately prior to scheduling it in a thread.
-      // This is necessary to allow the catalog framework to have the correct
-      // availability when the source is bound
-      availabilityTask.run();
-      // Run the availability check every 1 second. The actually call to
-      // the remote server will only occur if the pollInterval has
-      // elapsed.
-      availabilityPollFuture =
-          scheduler.scheduleWithFixedDelay(
-              availabilityTask,
-              AvailabilityTask.NO_DELAY,
-              AvailabilityTask.ONE_SECOND,
-              TimeUnit.SECONDS);
+
+    if (scheduler != null) {
+      scheduler.shutdownNow();
     }
+
+    scheduler =
+        Executors.newSingleThreadScheduledExecutor(
+            StandardThreadFactoryBuilder.newThreadFactory("openSearchSourceThread"));
+
+    scheduler.scheduleWithFixedDelay(availabilityCheck, 0, pollInterval, TimeUnit.MINUTES);
   }
 
   public void destroy(int code) {
-    availabilityPollFuture.cancel(true);
-    scheduler.shutdownNow();
+    if (scheduler != null) {
+      scheduler.shutdownNow();
+    }
   }
 
-  /**
-   * Callback class to check the Availability of the WfsSource.
-   *
-   * <p>NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
-   * have an AvailabilityTask that cached each Source's availability. Until that is done, allow the
-   * command to handle the logic of managing availability.
-   *
-   * @author kcwire
-   */
-  private class SourceAvailabilityCommand implements AvailabilityCommand {
+  private class AvailabilityCheck implements Runnable {
+    volatile boolean isAvailable;
 
     @Override
-    public boolean isAvailable() {
-      LOGGER.debug("Checking availability for source {} ", getId());
+    public void run() {
+      isAvailable = check();
+    }
 
+    private boolean check() {
+      LOGGER.debug("Checking availability for source {} ", getId());
       try {
         final WebClient client = getClientFactory().getWebClient();
         final Response response = client.head();
