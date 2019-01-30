@@ -255,7 +255,11 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
+<<<<<<< HEAD
         currentComparator === 'IS EMPTY' ? this.toggleDateClass(false) : this.toggleDateClass(true)
+=======
+        currentComparator === 'EMPTY' ? this.toggleDateClass(false) : this.toggleDateClass(true)
+>>>>>>> 4d3a13fb8e... Input field disappears for all search types
         break
       case 'BOOLEAN':
         if (['=', 'IS EMPTY'].indexOf(currentComparator) === -1) {
@@ -273,7 +277,11 @@ module.exports = Marionette.LayoutView.extend({
         if (['>', '<', '=', '>=', '<=', 'IS EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '>')
         }
+<<<<<<< HEAD
         currentComparator === 'IS EMPTY' ? this.toggleViewingClass(false) : this.toggleViewingClass(true)
+=======
+        currentComparator === 'EMPTY' ? this.toggleViewingClass(false) : this.toggleViewingClass(true)
+>>>>>>> 4d3a13fb8e... Input field disappears for all search types
         break
       default:
         if (
@@ -310,7 +318,11 @@ module.exports = Marionette.LayoutView.extend({
     )
     const ViewToUse = determineView(currentComparator)
     let modelObj = new PropertyModel(propertyJSON)
+<<<<<<< HEAD
     if(currentComparator === 'IS EMPTY'){
+=======
+    if(currentComparator === 'EMPTY'){
+>>>>>>> 4d3a13fb8e... Input field disappears for all search types
       modelObj.attributes.value =  ""
     }
     this.filterInput.show(
@@ -320,9 +332,16 @@ module.exports = Marionette.LayoutView.extend({
     )
 
     var isEditing = this.$el.hasClass('is-editing')
+<<<<<<< HEAD
     if(this.model.attributes.comparator === 'IS EMPTY'){
       this.$el.find('filter-comparator').toggle()
       this.$el.find('filter-input').toggle()
+=======
+    if(this.model.attributes.comparator === 'EMPTY'){
+      this.$el.find('filter-comparator').toggle()
+      this.$el.find('filter-input').toggle()
+      // $('.if-editing').toggleAttribute()
+>>>>>>> 4d3a13fb8e... Input field disappears for all search types
     }
     else if (isEditing) {
       this.turnOnEditing()

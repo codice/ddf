@@ -53,9 +53,12 @@ module.exports = Marionette.ItemView.extend({
     var value = $(e.currentTarget).attr('data-value')
     this.model.set('comparator', value)
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+<<<<<<< HEAD
     if(this.model.attributes.comparator === 'IS EMPTY'){
       $('.if-editing').toggle()
     }
+=======
+>>>>>>> 4d3a13fb8e... Input field disappears for all search types
   },
   serializeData: function() {
     switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
