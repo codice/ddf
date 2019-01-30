@@ -108,24 +108,6 @@ public class QueryApplication implements SparkApplication, Function {
 
     after("/cql", (req, res) -> res.header("Content-Encoding", "gzip"));
 
-    get(
-        "/cql/transforms",
-        (req, res) -> {
-          List<String> transformers =
-              Optional.ofNullable(cqlTransformHandler)
-                  .map(CqlTransformHandler::getQueryResponseTransformers)
-                  .orElse(Collections.emptyList())
-                  .stream()
-                  .map(
-                      serviceReference ->
-                          serviceReference.getProperty(CqlTransformHandler.TRANSFORMER_ID_PROPERTY))
-                  .map(Object::toString)
-                  .filter(StringUtils::isNotBlank)
-                  .collect(Collectors.toList());
-
-          return GSON.toJson(transformers);
-        });
-
     post("/cql/transform/:transformerId", cqlTransformHandler, GSON::toJson);
 
     get(
