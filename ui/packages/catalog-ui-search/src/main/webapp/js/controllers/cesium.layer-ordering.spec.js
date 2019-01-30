@@ -17,6 +17,26 @@ describe('Cesium Layer Ordering', () => {
     expect(actual).to.have.same.ordered.members(expected)
 
   describe('addLayer()', () => {
+    describe('Returns correct layer order when adding to:', () => {
+      const prev = ['b', 'd']
+      const cur = ['a', 'b', 'c', 'd', 'e']
+      const testData = [
+        { test: 'beginning', layer: 'a', expectedOrder: ['a', 'b', 'd'] },
+        { test: 'middle', layer: 'c', expectedOrder: ['b', 'c', 'd'] },
+        { test: 'end', layer: 'e', expectedOrder: ['b', 'd', 'e'] },
+      ]
+
+      testData.forEach(({ test, layer, expectedOrder }) => {
+        it(`${test}`, () => {
+          const newLayerOrder = addLayer({
+            prev,
+            cur,
+            layer,
+          })
+          checkOrdering({ actual: newLayerOrder, expected: expectedOrder })
+        })
+      })
+    })
     it('Can add layer to empty ordering', () => {
       const newLayerOrder = addLayer({
         prev: [],
@@ -24,19 +44,6 @@ describe('Cesium Layer Ordering', () => {
         layer: 'a',
       })
       checkOrdering({ actual: newLayerOrder, expected: ['a'] })
-    })
-    it('Adds layer to correct location', () => {
-      const prev = ['b', 'd']
-      const cur = ['a', 'b', 'c', 'd', 'e']
-      const testData = [
-        { layer: 'a', expectedOrder: ['a', 'b', 'd'] },
-        { layer: 'c', expectedOrder: ['b', 'c', 'd'] },
-        { layer: 'e', expectedOrder: ['b', 'd', 'e'] },
-      ]
-      testData.forEach(({ layer, expectedOrder }) => {
-        const newLayerOrder = addLayer({ prev, cur, layer })
-        checkOrdering({ actual: newLayerOrder, expected: expectedOrder })
-      })
     })
     it('Does not duplicate an existing layer', () => {
       const newLayerOrder = addLayer({
@@ -51,42 +58,40 @@ describe('Cesium Layer Ordering', () => {
   describe('Shift Layers', () => {
     const testData = [
       //shift from ['a', 'b', 'c', 'd', 'e']
-      ['b', 'c', 'a', 'd', 'e'], //shift from beginning
-      ['b', 'c', 'd', 'e', 'a'],
-      ['c', 'a', 'b', 'd', 'e'], //shift from middle
-      ['a', 'b', 'd', 'e', 'c'],
-      ['a', 'b', 'd', 'c', 'e'],
-      ['a', 'c', 'b', 'd', 'e'],
-      ['a', 'b', 'e', 'c', 'd'], //shift from end
-      ['e', 'a', 'b', 'c', 'd'],
-      ['a', 'b', 'c', 'd', 'e'], //no shift
+      { test: 'from beginning to middle', cur: ['b', 'c', 'a', 'd', 'e'] },
+      { test: 'from beginning to end', cur: ['b', 'c', 'd', 'e', 'a'] },
+      { test: 'from middle to beginning', cur: ['c', 'a', 'b', 'd', 'e'] },
+      { test: 'from middle to end', cur: ['a', 'b', 'd', 'e', 'c'] },
+      { test: 'from middle leftwards', cur: ['a', 'c', 'b', 'd', 'e'] },
+      { test: 'from middle rightwards', cur: ['a', 'b', 'd', 'c', 'e'] },
+      { test: 'from end to middle', cur: ['a', 'b', 'e', 'c', 'd'] },
+      { test: 'from end to beginning', cur: ['e', 'a', 'b', 'c', 'd'] },
+      { test: 'no change in ordering', cur: ['a', 'b', 'c', 'd', 'e'] },
     ]
     describe('shiftLayers()', () => {
       describe('All layers initialized', () => {
         const prev = ['a', 'b', 'c', 'd', 'e']
-        it('Shifts layers correctly', () => {
-          testData.forEach(cur => {
-            const newLayerOrder = shiftLayers({ prev, cur })
-            checkOrdering({ actual: newLayerOrder, expected: cur })
+
+        describe('Returns correct layer order for shifts:', () => {
+          testData.forEach(({ test, cur }) => {
+            it(`${test}`, () => {
+              const newLayerOrder = shiftLayers({ prev, cur })
+              checkOrdering({ actual: newLayerOrder, expected: cur })
+            })
           })
-        })
-        it('Shifts correctly when there is no change in ordering', () => {
-          const newLayerOrder = shiftLayers({
-            prev,
-            cur: prev,
-          })
-          checkOrdering({ actual: newLayerOrder, expected: prev })
         })
       })
       describe('Not all layers initialized', () => {
         const prev = ['b', 'c', 'e']
         const previousLayers = new Set(prev)
-        it('Shifts layers correctly', () => {
-          testData.forEach(cur => {
-            const newLayerOrder = shiftLayers({ prev, cur })
-            checkOrdering({
-              actual: newLayerOrder,
-              expected: cur.filter(layer => previousLayers.has(layer)),
+        describe('Returns correct layer order for shifts:', () => {
+          testData.forEach(({ test, cur }) => {
+            it(`${test}`, () => {
+              const newLayerOrder = shiftLayers({ prev, cur })
+              checkOrdering({
+                actual: newLayerOrder,
+                expected: cur.filter(layer => previousLayers.has(layer)),
+              })
             })
           })
         })
@@ -117,14 +122,16 @@ describe('Cesium Layer Ordering', () => {
           index,
         })
       }
-      it('Gets the correct shift', () => {
-        testData.forEach(cur => {
-          const { layer, method, count } = getShift({
-            prev,
-            cur,
+      describe('Returns the correct shift:', () => {
+        testData.forEach(({ test, cur }) => {
+          it(`${test}`, () => {
+            const { layer, method, count } = getShift({
+              prev,
+              cur,
+            })
+            const appliedShift = applyShift({ prev, layer, method, count })
+            checkOrdering({ actual: appliedShift, expected: cur })
           })
-          const appliedShift = applyShift({ prev, layer, method, count })
-          checkOrdering({ actual: appliedShift, expected: cur })
         })
       })
     })
