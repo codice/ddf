@@ -179,15 +179,15 @@ module.exports = Marionette.LayoutView.extend({
         ],
       }
     } else {
-      return {
+    return {
         type: operator,
         filters: this.filterContents.currentView.children
-          .map(function(childView) {
-            return childView.getFilters()
-          })
-          .filter(function(filter) {
-            return filter
-          }),
+        .map(function(childView) {
+          return childView.getFilters()
+        })
+        .filter(function(filter) {
+          return filter
+        }),
       }
     }
   },
