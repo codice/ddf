@@ -17,11 +17,16 @@ import { Restrictions, Access, Security, Entry } from '../../utils/security'
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
 const announcement = require('component/announcement')
-const store = require('../../../js/store.js')
+
+type Attribute = {
+  attribute: string
+  values: string[]
+}
 
 type Props = {
   id: number
   lightbox: any
+  onUpdate?: (attributes: Attribute[]) => void
 }
 
 type State = {
@@ -120,12 +125,13 @@ export class Sharing extends React.Component<Props, State> {
         if (res.status !== 200) {
           throw new Error()
         }
-
-        store.setWorkspaceRestrictions(this.props.id, attributes)
-
         return res.json()
       })
       .then(() => {
+        if (this.props.onUpdate) {
+          this.props.onUpdate(attributes)
+        }
+
         this.props.lightbox.close()
         announcement.announce(
           {

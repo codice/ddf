@@ -29,6 +29,11 @@ type State = {
   subscribed: boolean
 }
 
+type Attribute = {
+  attribute: string
+  values: string[]
+}
+
 const mapPropsToState = (props: Props) => {
   return {
     subscribed: props.workspace.get('subscribed'),
@@ -80,6 +85,9 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   openWorkspaceInNewTab = () => {
     window.open('./#workspaces/' + this.props.workspace.id)
   }
+  updateWorkspaceRestrictions = (attributes: Attribute[]) => {
+    store.setWorkspaceRestrictions(this.props.workspace.id, attributes)
+  }
   viewSharing = () => {
     lightboxInstance.model.updateTitle('Workspace Sharing')
     lightboxInstance.model.open()
@@ -88,6 +96,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
         key={this.props.workspace.id}
         id={this.props.workspace.id}
         lightbox={lightboxInstance}
+        onUpdate={this.updateWorkspaceRestrictions}
       />
     )
   }
