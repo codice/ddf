@@ -2,7 +2,7 @@
 :type: architectureIntro
 :status: published
 :children: Filters
-:order: 02
+:order: 03
 :summary: Introduction to Queries.
 
 Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>. 

@@ -1,5 +1,5 @@
-:title: Data Intro
-:type: data
+:title: Data
+:type: architectureIntro
 :status: published
 :summary: Introduction to data and metadata sections.
 :order: 00
