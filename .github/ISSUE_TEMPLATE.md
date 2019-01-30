@@ -10,8 +10,14 @@ is the best place for getting support.
 
 -->
 ### Description
-
 [Description of the issue]
+<!-- 
+
+Why is this change being proposed?
+Why should this be added to the codebase?
+ 
+-->
+ 
 
 #### Expected behavior (if applicable):
 [What you expect to happen]
