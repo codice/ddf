@@ -269,7 +269,6 @@ function transformFilterToCQL(filter) {
   let read = cql.read(write)
   let simp = cql.simplify(read)
   write = cql.write(simp)
-  console.log(write)
   return this.sanitizeGeometryCql('(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')')
 }
 function transformMultiFilterToCQL(filter) {

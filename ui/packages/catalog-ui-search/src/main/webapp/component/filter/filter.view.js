@@ -242,23 +242,23 @@ module.exports = Marionette.LayoutView.extend({
     var currentComparator = this.model.get('comparator')
     switch (propertyJSON.type) {
       case 'LOCATION':
-        if (['INTERSECTS', 'EMPTY'].indexOf(currentComparator) === -1) {
+        if (['INTERSECTS', 'IS EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
         this.toggleLocationClass(true)
         break
       case 'DATE':
         if (
-          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY'].indexOf(
+          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'IS EMPTY'].indexOf(
             currentComparator
           ) === -1
         ) {
           this.model.set('comparator', 'BEFORE')
         }
-        currentComparator === 'EMPTY' ? this.toggleDateClass(false) : this.toggleDateClass(true)
+        currentComparator === 'IS EMPTY' ? this.toggleDateClass(false) : this.toggleDateClass(true)
         break
       case 'BOOLEAN':
-        if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
+        if (['=', 'IS EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '=')
         }
         break
@@ -272,11 +272,11 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', '>')
         }
-        currentComparator === 'EMPTY' ? this.toggleViewingClass(false) : this.toggleViewingClass(true)
+        currentComparator === 'IS EMPTY' ? this.toggleViewingClass(false) : this.toggleViewingClass(true)
         break
       default:
         if (
-          ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY'].indexOf(
+          ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'IS EMPTY'].indexOf(
             currentComparator
           ) === -1
         ) {
@@ -309,7 +309,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     const ViewToUse = determineView(currentComparator)
     let modelObj = new PropertyModel(propertyJSON)
-    if(currentComparator === 'EMPTY'){
+    if(currentComparator === 'IS EMPTY'){
       modelObj.attributes.value =  ""
     }
     this.filterInput.show(
@@ -319,10 +319,9 @@ module.exports = Marionette.LayoutView.extend({
     )
 
     var isEditing = this.$el.hasClass('is-editing')
-    if(this.model.attributes.comparator === 'EMPTY'){
+    if(this.model.attributes.comparator === 'IS EMPTY'){
       this.$el.find('filter-comparator').toggle()
       this.$el.find('filter-input').toggle()
-      // $('.if-editing').toggleAttribute()
     }
     else if (isEditing) {
       this.turnOnEditing()
@@ -352,7 +351,7 @@ module.exports = Marionette.LayoutView.extend({
         value.value,
       ])
     }
-    else if(comparator === 'EMPTY'){
+    else if(comparator === 'IS EMPTY'){
       return CQLUtils.generateFilter(type, property, null)
     }
     if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
