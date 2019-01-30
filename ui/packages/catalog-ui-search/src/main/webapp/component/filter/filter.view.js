@@ -270,7 +270,7 @@ module.exports = Marionette.LayoutView.extend({
         if (
           ['>', '<', '=', '>=', '<=', 'EMPTY'].indexOf(currentComparator) === -1
         ) {
-        if (['>', '<', '=', '>=', '<=', 'EMPTY'].indexOf(currentComparator) === -1) {
+        if (['>', '<', '=', '>=', '<=', 'IS EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '>')
         }
         currentComparator === 'IS EMPTY' ? this.toggleViewingClass(false) : this.toggleViewingClass(true)

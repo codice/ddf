@@ -265,6 +265,7 @@ function isGeoFilter(type) {
 }
 
 function transformFilterToCQL(filter) {
+<<<<<<< HEAD
   let write = cql.write(filter)
   let read = cql.read(write)
   let simp = cql.simplify(read)
@@ -273,6 +274,11 @@ function transformFilterToCQL(filter) {
 }
 function transformMultiFilterToCQL(filter) {
   return this.sanitizeGeometryCql('(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')')
+=======
+  return this.sanitizeGeometryCql(
+    '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')'
+  )
+>>>>>>> 5af39c04c1... ausQuery format
 }
 
 function transformCQLToFilter(cqlString) {
