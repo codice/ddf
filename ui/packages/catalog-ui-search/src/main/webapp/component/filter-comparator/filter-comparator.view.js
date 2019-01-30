@@ -20,13 +20,13 @@ const template = require('./filter-comparator.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
-var geometryComparators = ['INTERSECTS', 'EMPTY']
+var geometryComparators = ['INTERSECTS', 'IS EMPTY']
 var geometryComparatorsAnyGeo = ['INTERSECTS']
-var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY']
-var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY']
+var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'IS EMPTY']
+var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'IS EMPTY']
 var stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
-var numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
-var booleanComparators = ['=', 'EMPTY']
+var numberComparators = ['>', '<', '=', '>=', '<=', 'IS EMPTY']
+var booleanComparators = ['=', 'IS EMPTY']
 
 module.exports = Marionette.ItemView.extend({
   template: template,
