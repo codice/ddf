@@ -98,8 +98,9 @@
             <version>1.1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts.io</groupId>

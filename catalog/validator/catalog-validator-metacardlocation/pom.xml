@@ -43,14 +43,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-io</artifactId>
+            <version>${jts.version}</version>
             <scope>test</scope>
+            <type>pom</type>
         </dependency>
     </dependencies>
 

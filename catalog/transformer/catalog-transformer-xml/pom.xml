@@ -38,6 +38,7 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
+            <version>1.14.0</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts.io</groupId>

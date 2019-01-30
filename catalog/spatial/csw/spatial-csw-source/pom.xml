@@ -98,7 +98,7 @@
             <artifactId>spatial-csw-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <exclusions>
                 <exclusion>
@@ -106,6 +106,7 @@
                     <groupId>xerces</groupId>
                 </exclusion>
             </exclusions>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts.io</groupId>
