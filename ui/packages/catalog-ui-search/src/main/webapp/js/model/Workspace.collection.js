@@ -86,7 +86,7 @@ module.exports = Backbone.Collection.extend({
       type: 'text',
     })
     this.create({
-      title: title,
+      title: 'New Workspace',
       queries: [queryForWorkspace.toJSON()],
     })
       .get('queries')
