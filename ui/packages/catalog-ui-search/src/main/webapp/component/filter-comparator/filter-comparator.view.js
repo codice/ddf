@@ -20,7 +20,6 @@ const template = require('./filter-comparator.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
-<<<<<<< HEAD
 var geometryComparators = ['INTERSECTS', 'IS EMPTY']
 var geometryComparatorsAnyGeo = ['INTERSECTS']
 var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'IS EMPTY']
@@ -28,14 +27,6 @@ var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'IS EMPTY']
 var stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
 var numberComparators = ['>', '<', '=', '>=', '<=', 'IS EMPTY']
 var booleanComparators = ['=', 'IS EMPTY']
-=======
-var geometryComparators = ['INTERSECTS']
-var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN']
-// On anyText, EMPTY option should be hidden
-var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY']
-var numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
-var booleanComparators = ['=']
->>>>>>> 9a2feed6de... ausQuery Null and Empty String searches work separately
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -62,6 +53,9 @@ module.exports = Marionette.ItemView.extend({
     var value = $(e.currentTarget).attr('data-value')
     this.model.set('comparator', value)
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+    if(this.model.attributes.comparator === 'EMPTY'){
+      $('.if-editing').toggle()
+    }
   },
   serializeData: function() {
     switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
