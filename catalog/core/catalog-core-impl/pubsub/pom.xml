@@ -123,8 +123,8 @@
                             org.codice.ddf.platform.util
                         </Private-Package>
                         <Import-Package>
-                            com.vividsolutions.jts.operation.distance;version="1.1.0",
-                            com.vividsolutions.jts.geom;version="1.1.0",
+                            org.locationtech.jts.operation.distance;version="1.1.0",
+                            org.locationtech.jts.geom;version="1.1.0",
                             *
                         </Import-Package>
                     </instructions>
