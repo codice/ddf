@@ -233,6 +233,9 @@ module.exports = Marionette.LayoutView.extend({
   toggleSearchInputClass: function(toggle){
     this.$el.toggleClass('if-editing', toggle)
   },
+  toggleViewingClass: function(toggle){
+    this.$el.toggleClass('if-viewing', toggle)
+  },
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
@@ -252,7 +255,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
-        this.toggleDateClass(true)
+        currentComparator === 'EMPTY' ? this.toggleDateClass(false) : this.toggleDateClass(true)
         break
       case 'BOOLEAN':
         if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
@@ -269,6 +272,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', '>')
         }
+        currentComparator === 'EMPTY' ? this.toggleViewingClass(false) : this.toggleViewingClass(true)
         break
       default:
         if (
@@ -304,14 +308,23 @@ module.exports = Marionette.LayoutView.extend({
       currentComparator
     )
     const ViewToUse = determineView(currentComparator)
+    let modelObj = new PropertyModel(propertyJSON)
+    if(currentComparator === 'EMPTY'){
+      modelObj.attributes.value =  ""
+    }
     this.filterInput.show(
       new ViewToUse({
-        model: new PropertyModel(propertyJSON),
+        model: modelObj
       })
     )
 
     var isEditing = this.$el.hasClass('is-editing')
-    if (isEditing) {
+    if(this.model.attributes.comparator === 'EMPTY'){
+      this.$el.find('filter-comparator').toggle()
+      this.$el.find('filter-input').toggle()
+      // $('.if-editing').toggleAttribute()
+    }
+    else if (isEditing) {
       this.turnOnEditing()
     } else {
       this.turnOffEditing()
