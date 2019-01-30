@@ -351,6 +351,10 @@ module.exports = Marionette.LayoutView.extend({
         value.distance,
         value.value,
       ])
+    } else if(comparator === 'EMPTY'){
+      return CQLUtils.generateFilter(type, property, null)
+      // let str = CQLUtils.generateFilter(type, property, null) + CQLUtils.generateFilter('=', property, "")
+      // return str
     }
     else if(comparator === 'IS EMPTY'){
       return CQLUtils.generateFilter(type, property, null)
