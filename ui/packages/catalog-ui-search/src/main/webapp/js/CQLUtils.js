@@ -265,30 +265,14 @@ function isGeoFilter(type) {
 }
 
 function transformFilterToCQL(filter) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> c19a161949... ausQuery: EMPTY search now deletes the text input area
   let write = cql.write(filter)
   let read = cql.read(write)
   let simp = cql.simplify(read)
   write = cql.write(simp)
-<<<<<<< HEAD
-=======
-  console.log(write)
->>>>>>> c19a161949... ausQuery: EMPTY search now deletes the text input area
   return this.sanitizeGeometryCql('(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')')
 }
 function transformMultiFilterToCQL(filter) {
   return this.sanitizeGeometryCql('(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')')
-<<<<<<< HEAD
-=======
-  return this.sanitizeGeometryCql(
-    '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')'
-  )
->>>>>>> 5af39c04c1... ausQuery format
-=======
->>>>>>> c19a161949... ausQuery: EMPTY search now deletes the text input area
 }
 
 function transformCQLToFilter(cqlString) {
