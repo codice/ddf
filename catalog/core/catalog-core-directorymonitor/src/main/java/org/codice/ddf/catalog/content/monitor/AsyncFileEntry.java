@@ -59,25 +59,20 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   }
 
   private void refresh() {
-    name = contentFile.getName();
-    exists = contentFile.exists();
-    lastModified = exists ? contentFile.lastModified() : 0;
-    directory = contentFile.exists() && contentFile.isDirectory();
-    length = getLength();
+    name = snapName();
+    exists = snapExist();
+    lastModified = snapLastModified();
+    directory = snapDirectory();
+    length = snapLength();
   }
 
   public synchronized boolean hasChanged() {
 
-    final boolean snapExist = contentFile.exists();
-    final long snapLastModified = snapExist ? contentFile.lastModified() : 0;
-    final boolean snapOrigDirectory = snapExist && contentFile.isDirectory();
-    final long snapLength = getLength();
-
     //  Checks to see if the file has been changed
-    return exists != snapExist
-        || lastModified != snapLastModified
-        || directory != snapOrigDirectory
-        || length != snapLength;
+    return exists != snapExist()
+        || lastModified != snapLastModified()
+        || directory != snapDirectory()
+        || length != snapLength();
   }
 
   public String getName() {
@@ -111,7 +106,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
       rootParent = rootParent.getParent().get();
     }
     if (rootParent == null) {
-      return contentFile.exists();
+      return snapExist();
     }
 
     return rootParent.getFile().exists();
@@ -124,8 +119,24 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
     refresh();
   }
 
-  private long getLength() {
+  private long snapLastModified() {
+    return contentFile.exists() ? contentFile.lastModified() : 0;
+  }
+
+  private long snapLength() {
     return contentFile.exists() && !contentFile.isDirectory() ? contentFile.length() : 0;
+  }
+
+  private boolean snapDirectory() {
+    return contentFile.exists() && contentFile.isDirectory();
+  }
+
+  private boolean snapExist() {
+    return contentFile.exists();
+  }
+
+  private String snapName() {
+    return contentFile.getName();
   }
 
   /**
@@ -163,8 +174,6 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   public boolean equals(@NotNull Object o) {
     if (o instanceof AsyncFileEntry) {
       return contentFile.equals(((AsyncFileEntry) o).getFile());
-    } else if (o instanceof File) {
-      return contentFile.equals(o);
     }
     return false;
   }
@@ -179,7 +188,7 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
   }
 
   public void destroy() {
-    exists = false;
+    children.clear();
   }
 
   /**

@@ -45,6 +45,7 @@ public class AsyncFileAlterationObserver implements Serializable {
   @Nullable private AsyncFileAlterationListener listener = null;
   private final transient Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
+  private final Object listenerLock = new Object();
 
   public AsyncFileAlterationObserver(File fileToObserve) {
     if (fileToObserve == null) {
@@ -53,12 +54,35 @@ public class AsyncFileAlterationObserver implements Serializable {
     rootFile = new AsyncFileEntry(fileToObserve);
   }
 
+  //  Returns true on errors;
+  private boolean initHelper(AsyncFileEntry entry) {
+    File[] children = listFiles(entry.getFile());
+    if (children == null) {
+      //  Error while initializing... some records may appear twice.
+      LOGGER.debug("Error getting children for [{}]", entry.getName());
+      return true;
+    }
+    boolean errors = false;
+    for (File child : children) {
+      AsyncFileEntry childEntry = new AsyncFileEntry(entry, child);
+      entry.addChild(childEntry);
+      errors = errors || initHelper(childEntry);
+    }
+    return errors;
+  }
+
+  public boolean initialize() {
+    return !initHelper(rootFile);
+  }
+
+  public void destroy() {
+    rootFile.destroy();
+  }
+
   @VisibleForTesting
   protected AsyncFileEntry getRootFile() {
     return rootFile;
   }
-
-  private final Object listenerLock = new Object();
 
   public void addListener(final AsyncFileAlterationListener listener) {
     synchronized (listenerLock) {
@@ -85,7 +109,7 @@ public class AsyncFileAlterationObserver implements Serializable {
    *
    * @param entry The file entry
    */
-  private void doCreate(AsyncFileEntry entry) {
+  private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listener) {
 
     if (!addToProcessors(entry)) {
       return;
@@ -111,7 +135,7 @@ public class AsyncFileAlterationObserver implements Serializable {
 
       File[] children = listFiles(entry.getFile());
       for (File child : children) {
-        doCreate(new AsyncFileEntry(entry, child));
+        doCreate(new AsyncFileEntry(entry, child), listener);
       }
 
       commitCreate(entry, true);
@@ -139,7 +163,7 @@ public class AsyncFileAlterationObserver implements Serializable {
    *
    * @param entry The previous file system entry
    */
-  private void doMatch(AsyncFileEntry entry) {
+  private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listener) {
 
     if (entry.hasChanged()) {
       LOGGER.trace("{} has changed", entry.getName());
@@ -180,7 +204,7 @@ public class AsyncFileAlterationObserver implements Serializable {
    *
    * @param entry The file entry
    */
-  private void doDelete(AsyncFileEntry entry) {
+  private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listener) {
     if (!addToProcessors(entry)) {
       return;
     }
@@ -230,7 +254,8 @@ public class AsyncFileAlterationObserver implements Serializable {
   private void checkAndNotify(
       final AsyncFileEntry parent,
       final List<AsyncFileEntry> previous,
-      @Nullable final File[] files) {
+      @Nullable final File[] files,
+      final AsyncFileAlterationListener listener) {
     //  If there was an IO error then just stop.
     if (files == null) {
       return;
@@ -239,12 +264,12 @@ public class AsyncFileAlterationObserver implements Serializable {
     int c = 0;
     for (final AsyncFileEntry entry : previous) {
       while (c < files.length && entry.compareToFile(files[c]) > 0) {
-        doCreate(new AsyncFileEntry(parent, files[c]));
+        doCreate(new AsyncFileEntry(parent, files[c]), listener);
         c++;
       }
       if (c < files.length && entry.compareToFile(files[c]) == 0) {
-        doMatch(entry);
-        checkAndNotify(entry, entry.getChildren(), listFiles(files[c]));
+        doMatch(entry, listener);
+        checkAndNotify(entry, entry.getChildren(), listFiles(files[c]), listener);
         c++;
       } else {
         //  Do Delete
@@ -252,12 +277,12 @@ public class AsyncFileAlterationObserver implements Serializable {
           //  The file MAY still exist but it's the network that's down.
           return;
         }
-        checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY);
-        doDelete(entry);
+        checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY, listener);
+        doDelete(entry, listener);
       }
     }
     for (; c < files.length; c++) {
-      doCreate(new AsyncFileEntry(parent, files[c]));
+      doCreate(new AsyncFileEntry(parent, files[c]), listener);
     }
   }
 
@@ -268,22 +293,25 @@ public class AsyncFileAlterationObserver implements Serializable {
   public void checkAndNotify() {
 
     //  You cannot change listeners in the middle of executions.
+    //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
+    // the
+    //  one we had when we started the method.
+    AsyncFileAlterationListener listener;
     synchronized (listenerLock) {
-      if (listener == null) {
+      if (this.listener == null) {
         return;
       }
+      listener = this.listener;
+    }
 
-      /* fire directory/file events */
-      final File root = rootFile.getFile();
-      if (root.exists()) {
-        checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()));
-      } else {
-        //  The file doesn't exist.
-        //  We assume this can't happen so this must be a network disconnect.
-        LOGGER.debug(
-            "The monitored file [{}] does not exist. No file processing will be done through the CDM",
-            rootFile.getName());
-      }
+    /* fire directory/file events */
+    if (rootFile.checkNetwork()) {
+      checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()), listener);
+    } else {
+      //  If we can't connect to the network then the file doesn't exist to us now.
+      LOGGER.debug(
+          "The monitored file [{}] does not exist. No file processing will be done through the CDM",
+          rootFile.getName());
     }
   }
 

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
 import java.io.IOException;
@@ -625,6 +626,28 @@ public class AsyncFileAlterationObserverTest {
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
+  public void testNestedDirectoryInit() throws Exception {
+    //  Create the observer after the nested directory. Nothing should be added.
+    initNestedDirectory(5, 3, 4, 2);
+
+    observer = new AsyncFileAlterationObserver(monitoredDirectory);
+    observer.addListener(fileListener);
+    assertThat(observer.initialize(), is(true));
+    observer.checkAndNotify();
+    verifyNoMoreInteractions(fileListener);
+  }
+
+  @Test
+  public void testNestedDirectoryCreateAndDestroy() throws Exception {
+    //  Create the observer after the nested directory. Nothing should be added.
+    initNestedDirectory(5, 3, 4, 2);
+    init();
+    observer.destroy();
+    observer.checkAndNotify();
+    verify(fileListener, times(totalSize)).onFileCreate(any(), any());
   }
 
   @Test
