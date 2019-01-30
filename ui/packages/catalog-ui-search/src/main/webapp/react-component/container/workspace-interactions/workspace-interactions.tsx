@@ -85,7 +85,7 @@ class WorkspaceInteractions extends React.Component<Props, State> {
   openWorkspaceInNewTab = () => {
     window.open('./#workspaces/' + this.props.workspace.id)
   }
-  updateWorkspace = (attributes: Attribute[]) => {
+  updateWorkspaceRestrictions = (attributes: Attribute[]) => {
     store.setWorkspaceRestrictions(this.props.workspace.id, attributes)
   }
   viewSharing = () => {
@@ -95,8 +95,8 @@ class WorkspaceInteractions extends React.Component<Props, State> {
       <Sharing
         key={this.props.workspace.id}
         id={this.props.workspace.id}
-        updateMetacard={this.updateWorkspace}
         lightbox={lightboxInstance}
+        onUpdate={this.updateWorkspaceRestrictions}
       />
     )
   }

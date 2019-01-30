@@ -171,7 +171,6 @@ module.exports = Marionette.ItemView.extend({
       <Sharing
         key={this.model.id}
         id={this.model.id}
-        updateMetacard={() => {}}
         lightbox={lightboxInstance}
       />
     )

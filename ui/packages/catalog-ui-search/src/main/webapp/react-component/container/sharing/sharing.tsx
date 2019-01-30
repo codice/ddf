@@ -25,8 +25,8 @@ type Attribute = {
 
 type Props = {
   id: number
-  updateMetacard: (attributes: Attribute[]) => void
   lightbox: any
+  onUpdate?: (attributes: Attribute[]) => void
 }
 
 type State = {
@@ -128,7 +128,10 @@ export class Sharing extends React.Component<Props, State> {
         return res.json()
       })
       .then(() => {
-        this.props.updateMetacard(attributes)
+        if (this.props.onUpdate) {
+          this.props.onUpdate(attributes)
+        }
+
         this.props.lightbox.close()
         announcement.announce(
           {
