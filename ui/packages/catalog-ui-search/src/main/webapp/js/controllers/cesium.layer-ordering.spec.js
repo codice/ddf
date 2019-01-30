@@ -10,15 +10,15 @@
  *
  **/
 import { expect } from 'chai'
-import { CesiumLayerOrdering } from './cesium.layerCollection.controller'
+import { addLayer, shiftLayers, getShift } from './cesium.layer-ordering'
 
-describe('CesiumLayerOrdering', () => {
+describe('Cesium Layer Ordering', () => {
   const checkOrdering = ({ actual, expected }) =>
     expect(actual).to.have.same.ordered.members(expected)
 
   describe('addLayer()', () => {
     it('Can add layer to empty ordering', () => {
-      const newLayerOrder = CesiumLayerOrdering.addLayer({
+      const newLayerOrder = addLayer({
         prev: [],
         cur: ['a', 'b', 'c', 'd', 'e'],
         layer: 'a',
@@ -34,12 +34,12 @@ describe('CesiumLayerOrdering', () => {
         { layer: 'e', expectedOrder: ['b', 'd', 'e'] },
       ]
       testData.forEach(({ layer, expectedOrder }) => {
-        const newLayerOrder = CesiumLayerOrdering.addLayer({ prev, cur, layer })
+        const newLayerOrder = addLayer({ prev, cur, layer })
         checkOrdering({ actual: newLayerOrder, expected: expectedOrder })
       })
     })
     it('Does not duplicate an existing layer', () => {
-      const newLayerOrder = CesiumLayerOrdering.addLayer({
+      const newLayerOrder = addLayer({
         prev: ['a', 'c', 'd'],
         cur: ['a', 'b', 'c', 'd', 'e'],
         layer: 'c',
@@ -66,12 +66,12 @@ describe('CesiumLayerOrdering', () => {
         const prev = ['a', 'b', 'c', 'd', 'e']
         it('Shifts layers correctly', () => {
           testData.forEach(cur => {
-            const newLayerOrder = CesiumLayerOrdering.shiftLayers({ prev, cur })
+            const newLayerOrder = shiftLayers({ prev, cur })
             checkOrdering({ actual: newLayerOrder, expected: cur })
           })
         })
         it('Shifts correctly when there is no change in ordering', () => {
-          const newLayerOrder = CesiumLayerOrdering.shiftLayers({
+          const newLayerOrder = shiftLayers({
             prev,
             cur: prev,
           })
@@ -83,7 +83,7 @@ describe('CesiumLayerOrdering', () => {
         const previousLayers = new Set(prev)
         it('Shifts layers correctly', () => {
           testData.forEach(cur => {
-            const newLayerOrder = CesiumLayerOrdering.shiftLayers({ prev, cur })
+            const newLayerOrder = shiftLayers({ prev, cur })
             checkOrdering({
               actual: newLayerOrder,
               expected: cur.filter(layer => previousLayers.has(layer)),
@@ -119,7 +119,7 @@ describe('CesiumLayerOrdering', () => {
       }
       it('Gets the correct shift', () => {
         testData.forEach(cur => {
-          const { layer, method, count } = CesiumLayerOrdering.getShift({
+          const { layer, method, count } = getShift({
             prev,
             cur,
           })

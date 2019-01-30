@@ -12,11 +12,11 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-const _ = require('underscore')
-const Marionette = require('marionette')
 const Cesium = require('cesium')
 const CommonLayerController = require('./common.layerCollection.controller.js')
 const properties = require('../properties.js')
+import { addLayer, shiftLayers, getShift } from './cesium.layer-ordering'
+import _ from 'underscore'
 
 const DEFAULT_HTTPS_PORT = 443
 const DEFAULT_HTTP_PORT = 80
@@ -33,77 +33,6 @@ var imageryProviderTypes = {
   AGS: Cesium.ArcGisImageServerTerrainProvider,
   VRW: Cesium.VRTheWorldTerrainProvider,
   SI: Cesium.SingleTileImageryProvider,
-}
-
-const LayerOrdering = {
-  /* params: {prev: array of ids, 
-              cur: array of ids, 
-              layer: id of layer to add}
-    return: new ordering
-    assumption: layer is in cur, cur is a superset of prev, layer ordering has not changed
-  */
-  addLayer: function({
-    prev: previousLayerOrder,
-    cur: currentLayerOrder,
-    layer: layerId,
-  }) {
-    const previousLayers = new Set(previousLayerOrder)
-    return currentLayerOrder.filter(
-      id => id === layerId || previousLayers.has(id)
-    )
-  },
-
-  shiftLayers: function({ prev: previousLayerOrder, cur: currentLayerOrder }) {
-    const previousLayers = new Set(previousLayerOrder)
-    return currentLayerOrder.filter(id => previousLayers.has(id))
-  },
-
-  getShift: function({ prev: previousLayerOrder, cur: currentLayerOrder }) {
-    if (
-      _.intersection(previousLayerOrder, currentLayerOrder).length !==
-        previousLayerOrder.length ||
-      currentLayerOrder.length !== previousLayerOrder.length
-    ) {
-      console.warn(`getShift(): arrays must contain the same ids`)
-      return {}
-    }
-
-    if (_.isEqual(previousLayerOrder, currentLayerOrder)) {
-      return { layer: previousLayerOrder[0], method: 'lower', count: 0 }
-    }
-
-    const shiftLayerToIndex = ({ layerOrder, layer: layerId, index }) => {
-      const layerRemoved = layerOrder.filter(id => id !== layerId)
-      return [
-        ...layerRemoved.slice(0, index),
-        layerId,
-        ...layerRemoved.slice(index),
-      ]
-    }
-
-    const changedLayers = previousLayerOrder.filter(
-      (id, index) => currentLayerOrder[index] !== id
-    )
-
-    for (let i = 0; i < changedLayers.length; i++) {
-      const layer = changedLayers[i]
-      const previousOrder = previousLayerOrder.indexOf(layer)
-      const currentOrder = currentLayerOrder.indexOf(layer)
-      const shiftLayer = shiftLayerToIndex({
-        layerOrder: previousLayerOrder,
-        layer,
-        index: currentOrder,
-      })
-      if (_.isEqual(shiftLayer, currentLayerOrder)) {
-        return {
-          layer,
-          method: currentOrder > previousOrder ? 'raise' : 'lower', // raise means move to higher index :(
-          count: Math.abs(currentOrder - previousOrder),
-        }
-      }
-    }
-    return {}
-  },
 }
 
 var Controller = CommonLayerController.extend({
@@ -165,7 +94,7 @@ var Controller = CommonLayerController.extend({
       Cesium.TrustedServers.add(parsedUrl.hostname, port)
     }
 
-    this.layerOrder = LayerOrdering.addLayer({
+    this.layerOrder = addLayer({
       prev: this.layerOrder,
       cur: this.collection.models.map(model => model.id).reverse(),
       layer: model.id,
@@ -206,11 +135,11 @@ var Controller = CommonLayerController.extend({
     in other words, order 1 means highest index.
   */
   reIndexLayers: function() {
-    const newLayerOrder = LayerOrdering.shiftLayers({
+    const newLayerOrder = shiftLayers({
       prev: this.layerOrder,
       cur: this.collection.models.map(model => model.id).reverse(),
     })
-    const { layer, method, count } = LayerOrdering.getShift({
+    const { layer, method, count } = getShift({
       prev: this.layerOrder,
       cur: newLayerOrder,
     })
@@ -237,4 +166,3 @@ var Controller = CommonLayerController.extend({
 Controller.imageryProviderTypes = imageryProviderTypes
 
 export default Controller
-export const CesiumLayerOrdering = LayerOrdering
