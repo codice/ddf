@@ -138,8 +138,8 @@
             <version>${gson.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.osgi</groupId>
-            <artifactId>serviceflag-api</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>bootflag-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- Component test dependencies -->
@@ -174,8 +174,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.osgi</groupId>
-            <artifactId>serviceflag-inputtransformer</artifactId>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-bootflag</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -167,20 +167,21 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * called whenever an existing route is updated.
    */
   public void init() {
-    CompletableFuture.runAsync(this::configure, configurationExecutor);
+    SECURITY.runAsAdmin(
+        () -> {
+          CompletableFuture.runAsync(this::configure, configurationExecutor);
+          return null;
+        });
   }
 
   private Object configure() {
-    return SECURITY.runAsAdmin(
-        () -> {
-          if (StringUtils.isEmpty(monitoredDirectory)) {
-            LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
-            return null;
-          }
+    if (StringUtils.isEmpty(monitoredDirectory)) {
+      LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
+      return null;
+    }
 
-          CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
-          return null;
-        });
+    attemptAddRoutes();
+    return null;
   }
 
   /**

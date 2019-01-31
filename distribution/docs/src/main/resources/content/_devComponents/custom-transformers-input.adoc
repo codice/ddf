@@ -192,7 +192,7 @@ This will ensure that the value is taken exactly as is, and is especially useful
 An example of using an Apache Camel route to define an `InputTransformer` in a blueprint file and deploying it as a bundle to an OSGi container can be found in the ${branding} SDK examples at `${ddf-branding}/sdk/sample-transformers/xslt-identity-input-transformer`
 ====
 
-==== Input Transformer OSGi Service Flag
+==== Input Transformer Boot Service Flag
 
-The `org.codice.ddf.platform.serviceflag.BootServiceFlag` service with a service property of `id=inputTransformerServiceFlag` is used to indicate certain Input Transformers are ready in the system.
+The `org.codice.ddf.platform.bootflag.BootServiceFlag` service with a service property of `id=inputTransformerBootFlag` is used to indicate certain Input Transformers are ready in the system.
 Adding an Input Transformers ID to a new or existing JSON file under `${home_directory}/etc/transformers` will cause the service to wait for an Input Transformer with the given ID.

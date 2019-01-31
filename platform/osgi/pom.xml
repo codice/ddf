@@ -29,8 +29,6 @@
         <module>platform-osgi-configadmin</module>
         <module>platform-osgi-condpermadmin</module>
         <module>platform-osgi-internal-api</module>
-        <module>serviceflag-api</module>
-        <module>serviceflag-inputtransformer</module>
+        <module>bootflag-api</module>
     </modules>
-
 </project>

@@ -647,14 +647,19 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.osgi</groupId>
-            <artifactId>serviceflag-api</artifactId>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-bootflag</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Feature Dependencies -->
         <dependency>
-            <groupId>ddf.platform.osgi</groupId>
-            <artifactId>serviceflag-inputtransformer</artifactId>
+            <groupId>ddf.features</groupId>
+            <artifactId>utilities</artifactId>
             <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
+        <!-- End Feature Dependencies -->
     </dependencies>
 </project>

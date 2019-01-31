@@ -164,7 +164,7 @@ grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-securit
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";
 }
 
-grant codeBase "file:/serviceflag-inputtransformer" {
+grant codeBase "file:/catalog-transformer-bootflag" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}transformers", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}transformers${/}-", "read";

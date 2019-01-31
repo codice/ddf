@@ -27,8 +27,8 @@
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
     <!-- Waits for all input transformers before registering CDM services -->
-    <reference id="inputTransformerServiceFlag" interface="org.codice.ddf.platform.serviceflag.BootServiceFlag"
-               filter="(id=inputTransformerServiceFlag)"/>
+    <reference id="inputTransformerServiceFlag" interface="org.codice.ddf.platform.bootflag.BootServiceFlag"
+               filter="(id=inputTransformerBootFlag)"/>
 
     <bean id="configurationExecutor" class="java.util.concurrent.Executors"
           factory-method="newSingleThreadExecutor">
