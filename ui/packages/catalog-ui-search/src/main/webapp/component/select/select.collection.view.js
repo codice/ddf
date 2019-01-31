@@ -20,6 +20,7 @@ const $ = require('jquery')
 const childView = require('./select.view')
 const CustomElements = require('../../js/CustomElements.js')
 const Common = require('../../js/Common.js')
+const FilterHelper = require('./filterHelper')
 
 module.exports = Marionette.CollectionView.extend({
   emptyView: Marionette.ItemView.extend({
@@ -187,8 +188,6 @@ module.exports = Marionette.CollectionView.extend({
   filter: function(child) {
     var filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
-    filterValue = this.getAppropriateString(filterValue)
-    var reg = new RegExp('\\b' + filterValue + '.*')
     if (
       child.get('filterChoice') === true &&
       this.collection.filter(model => {
@@ -201,35 +200,39 @@ module.exports = Marionette.CollectionView.extend({
       return false
     }
     if (
-      child.get('label') !== undefined &&
-      this.getAppropriateString(child.get('label')).match(reg) !== null
+      child.get('label') !== undefined 
     ) {
-      return true
+      return FilterHelper.matchesFilter(filterValue, child.get('label'), this.options.matchcase);
     }
     if (
-      child.get('value') !== undefined &&
-      this.getAppropriateString(child.get('value')).match(reg) !== null
+      child.get('value') !== undefined
     ) {
-      return true
+      FilterHelper.matchesFilter(filterValue, child.get('value'), this.options.matchcase);
     }
-    if (
-      child.get('label') !== undefined &&
-      this.wordStartsWithFilter(
-        this.getWords(child.get('label')),
-        filterValue
-      ) === undefined
-    ) {
-      return false
-    }
-    if (
-      child.get('value') === undefined &&
-      this.wordStartsWithFilter(
-        this.getWords(child.get('value')),
-        filterValue
-      ) === undefined
-    ) {
-      return false
-    }
+    // if (
+    //   child.get('value') !== undefined &&
+    //   this.getAppropriateString(child.get('value')).match(reg) !== null
+    // ) {
+    //   return true
+    // }
+    // if (
+    //   child.get('label') !== undefined &&
+    //   this.wordStartsWithFilter(
+    //     this.getWords(child.get('label')),
+    //     filterValue
+    //   ) === undefined
+    // ) {
+    //   return false
+    // }
+    // if (
+    //   child.get('value') === undefined &&
+    //   this.wordStartsWithFilter(
+    //     this.getWords(child.get('value')),
+    //     filterValue
+    //   ) === undefined
+    // ) {
+    //   return false
+    // }
     return true
   },
   addValues: function(values) {
