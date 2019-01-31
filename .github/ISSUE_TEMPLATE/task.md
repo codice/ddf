@@ -1,8 +1,8 @@
 ---
-name: Bug Report
-about: Report a Bug within the product
+name: Task
+about: Dependency Upgrade, Docs
 title: ''
-labels: 'Bug Fix'
+labels: ''
 assignees: ''
 
 ---
@@ -22,32 +22,14 @@ is the best place for getting support.
 ### Description
 <!-- 
 Description of the issue
-Are there currently any workarounds?
-Severity of the bug (minor, major, critical)?
+What is being updated and why?
 -->
 
-### Steps to Reproduce
-<!--
-1. [First Step]
-2. [Second Step]
-3. [and so on...]
--->
-
-#### Expected behavior :
+#### Expected behavior (if applicable):
 <!-- What you expect to happen -->
-
-#### Actual behavior:
-<!-- What actually happens -->
-
-#### Reproduces how often:
-<!-- What percentage of the time does it reproduce? -->
-
-#### Platform:
-<!-- Windows, Mac, Linux? -->
 
 ### Version
 <!-- Application version(s) -->
 
 ### Additional Information
-<!-- Any additional information, configuration or data that might be necessary
-to reproduce the issue. -->
+<!-- Any additional information, or data that might be useful to know about -->
