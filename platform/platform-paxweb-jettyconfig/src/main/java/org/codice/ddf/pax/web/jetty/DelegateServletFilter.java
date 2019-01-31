@@ -18,9 +18,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -47,8 +48,9 @@ public class DelegateServletFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DelegateServletFilter.class);
 
-  private CopyOnWriteArraySet<String> keysOfInitializedFilters;
+  private final Set<String> keysOfInitializedFilters;
 
+  @Nullable
   private FilterConfig filterConfig;
 
   public DelegateServletFilter() {
@@ -64,7 +66,7 @@ public class DelegateServletFilter implements Filter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) {
+  public void init(@Nullable FilterConfig filterConfig) {
     this.filterConfig = filterConfig;
     // need to (re)initialize every Filter after the DelegateServletFilter is initialized
     keysOfInitializedFilters.clear();
@@ -91,7 +93,7 @@ public class DelegateServletFilter implements Filter {
       sortedFilterServiceReferences =
           new TreeSet<>(bundleContext.getServiceReferences(Filter.class, null));
     } catch (InvalidSyntaxException ise) {
-      LOGGER.debug("Should never get this exception as there is no filter being passed.");
+      LOGGER.debug("Should never get this exception as there is no filter being passed.", ise);
     }
 
     if (!CollectionUtils.isEmpty(sortedFilterServiceReferences)) {
@@ -144,7 +146,7 @@ public class DelegateServletFilter implements Filter {
     LOGGER.debug("Initialized Filter {}", filterName);
   }
 
-  public void removeFilter(final ServiceReference<Filter> filterServiceReference) {
+  public void removeFilter(@Nullable final ServiceReference<Filter> filterServiceReference) {
     if (filterServiceReference != null) {
       final BundleContext bundleContext = getContext();
 
@@ -160,7 +162,6 @@ public class DelegateServletFilter implements Filter {
     }
   }
 
-  @Nonnull
   private static String getFilterKey(
       final ServiceReference<Filter> filterServiceReference, final BundleContext bundleContext) {
     return getFilterName(filterServiceReference, bundleContext);
@@ -173,7 +174,6 @@ public class DelegateServletFilter implements Filter {
    * org.osgi.service.http.whiteboard.HttpWhiteboardConstants#HTTP_WHITEBOARD_FILTER_NAME} for how
    * to configure {@link Filter} services with a filter name.
    */
-  @Nonnull
   private static String getFilterName(
       ServiceReference<Filter> filterServiceReference, BundleContext bundleContext) {
     final String HTTP_WHITEBOARD_FILTER_NAME = "osgi.http.whiteboard.filter.name";
@@ -188,6 +188,7 @@ public class DelegateServletFilter implements Filter {
     }
   }
 
+  @Nullable
   private static String getStringProperty(ServiceReference<?> serviceReference, String key) {
     Object value = serviceReference.getProperty(key);
     if (value != null && !(value instanceof String)) {
@@ -207,6 +208,13 @@ public class DelegateServletFilter implements Filter {
    * org.ops4j.pax.web.extender.whiteboard} feature.
    */
   private static class InitFilterConfig implements FilterConfig {
+
+    private final String DEFAULT_INIT_PREFIX_PROP = "init.";
+
+    private final String HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX = "servlet.init.";
+
+    private final String PROPERTY_INIT_PREFIX = "init-prefix";
+
 
     private final ServiceReference<Filter> filterServiceReference;
 
@@ -256,22 +264,17 @@ public class DelegateServletFilter implements Filter {
      */
     private Map<String, String> createInitParams() {
       String[] initParamKeys = filterServiceReference.getPropertyKeys();
-      final String PROPERTY_INIT_PREFIX = "init-prefix";
       String initPrefixProp = getStringProperty(filterServiceReference, PROPERTY_INIT_PREFIX);
       if (initPrefixProp == null) {
-        final String DEFAULT_INIT_PREFIX_PROP = "init.";
         initPrefixProp = DEFAULT_INIT_PREFIX_PROP;
       }
 
       // make all the service parameters available as initParams
       Map<String, String> initParameters = new HashMap<>();
       for (String key : initParamKeys) {
-        String value =
-            filterServiceReference.getProperty(key) == null
-                ? ""
-                : filterServiceReference.getProperty(key).toString();
+        Object valueObject = filterServiceReference.getProperty(key);
+        String value = valueObject == null ? "" : valueObject.toString();
 
-        final String HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX = "servlet.init.";
         if (key.startsWith(initPrefixProp)) {
           initParameters.put(key.replaceFirst(initPrefixProp, ""), value);
         } else if (key.startsWith(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX)) {

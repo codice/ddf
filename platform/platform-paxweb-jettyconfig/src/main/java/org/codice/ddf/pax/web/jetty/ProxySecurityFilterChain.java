@@ -16,8 +16,11 @@ package org.codice.ddf.pax.web.jetty;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.validation.constraints.Null;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
@@ -34,8 +37,9 @@ public class ProxySecurityFilterChain implements FilterChain {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProxySecurityFilterChain.class);
 
-  private final LinkedList<SecurityFilter> filters;
+  private final List<SecurityFilter> filters;
 
+  @Nullable
   private Iterator<SecurityFilter> iterator;
 
   /** Creates a new ProxySecurityFilterChain */

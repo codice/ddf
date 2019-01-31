@@ -16,6 +16,8 @@ package org.codice.ddf.pax.web.jetty;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -35,8 +37,9 @@ public class ProxyFilterChain implements FilterChain {
 
   private final FilterChain filterChain;
 
-  private final LinkedList<Filter> filters;
+  private final List<Filter> filters;
 
+  @Nullable
   private Iterator<Filter> iterator;
 
   /**
