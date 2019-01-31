@@ -15,10 +15,11 @@
 /*global require*/
 const Marionette = require('marionette')
 const template = require('../search-form.collection.hbs')
-const SearchFormCollectionView = require('./search-form-sharing.collection.view')
-const SearchFormsSharingCollection = require('./search-form-sharing-collection-instance')
+const SearchFormCollectionView = require('../search-form.collection.view')
+const SearchFormCollection = require('../search-form-collection-instance')
 const CustomElements = require('../../../js/CustomElements.js')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+const user = require('../../singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -27,9 +28,9 @@ module.exports = Marionette.LayoutView.extend({
     collectionView: '.collection',
   },
   initialize: function() {
-    this.searchFormSharingCollection = SearchFormsSharingCollection
+    this.searchFormCollection = SearchFormCollection
     this.listenTo(
-      this.searchFormSharingCollection,
+      this.searchFormCollection,
       'change:doneLoading',
       this.handleLoadingSpinner
     )
@@ -37,16 +38,19 @@ module.exports = Marionette.LayoutView.extend({
   onRender: function() {
     this.collectionView.show(
       new SearchFormCollectionView({
-        collection: this.searchFormSharingCollection.getCollection(),
+        collection: this.searchFormCollection.getCollection(),
         model: this.model,
-        hideInteractionMenu: this.options.hideInteractionMenu,
+        filter: child =>
+          child.get('createdBy') !== user.getEmail() &&
+          user.canRead(child) &&
+          child.get('createdBy') !== 'system',
       })
     )
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner: function() {
-    if (this.searchFormSharingCollection.getDoneLoading()) {
+    if (this.searchFormCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }
   },

@@ -56,20 +56,16 @@ let bootstrapPromise = templatePromiseSupplier()
 module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
-    searchForms: [
-      new SearchForm({ type: 'new-form' }),
-      new SearchForm({ type: 'basic' }),
-      new SearchForm({ type: 'text' }),
-    ],
+    searchForms: [],
   },
   initialize: function() {
     if (promiseIsResolved === true) {
-      this.addCustomForms()
+      this.addAllForms()
       promiseIsResolved = false
       bootstrapPromise = new templatePromiseSupplier()
     }
     bootstrapPromise.then(() => {
-      this.addCustomForms()
+      this.addAllForms()
       this.doneLoading()
     })
   },
@@ -81,36 +77,40 @@ module.exports = Backbone.AssociatedModel.extend({
         model: SearchForm,
         url: './internal/forms/query',
         initialize: function() {},
+        comparator: function(a, b) {
+          const titleA = a.get('title') || ''
+          const titleB = b.get('title') || ''
+          return titleA.toLowerCase().localeCompare(titleB.toLowerCase())
+        },
       }),
     },
   ],
-  addCustomForms: function() {
+  addAllForms: function() {
     if (!this.isDestroyed) {
       cachedTemplates.forEach(
         function(value, index) {
-          if (value.creator === user.getEmail()) {
-            this.addSearchForm(
-              new SearchForm({
-                createdOn: value.created,
-                id: value.id,
-                title: value.title,
-                description: value.description,
-                type: 'custom',
-                filterTemplate: value.filterTemplate,
-                accessIndividuals: value.accessIndividuals,
-                accessIndividualsRead: value.accessIndividualsRead,
-                accessAdministrators: value.accessAdministrators,
-                accessGroups: value.accessGroups,
-                accessGroupsRead: value.accessGroupsRead,
-                createdBy: value.creator,
-                owner: value.owner,
-                querySettings: value.querySettings,
-              })
-            )
-          }
+          this.addSearchForm(
+            new SearchForm({
+              createdOn: value.created,
+              id: value.id,
+              title: value.title,
+              description: value.description,
+              type: 'custom',
+              filterTemplate: value.filterTemplate,
+              accessIndividuals: value.accessIndividuals,
+              accessIndividualsRead: value.accessIndividualsRead,
+              accessAdministrators: value.accessAdministrators,
+              accessGroups: value.accessGroups,
+              accessGroupsRead: value.accessGroupsRead,
+              createdBy: value.creator,
+              owner: value.owner,
+              querySettings: value.querySettings,
+            })
+          )
         }.bind(this)
       )
     }
+    this.get('searchForms').sort()
   },
   getCollection: function() {
     return this.get('searchForms')

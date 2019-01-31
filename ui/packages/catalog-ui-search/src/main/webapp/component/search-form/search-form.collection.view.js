@@ -14,25 +14,69 @@
  **/
 /*global require*/
 const Marionette = require('marionette')
-const SearchFormView = require('./search-form.view')
+import SearchFormView, { Item, NewForm } from './search-form.view'
 const CustomElements = require('../../js/CustomElements')
+const user = require('../singletons/user-instance')
+const wreqr = require('../../exports/wreqr.js')
+import React from 'react'
+import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 
-module.exports = Marionette.CollectionView.extend({
-  childView: SearchFormView,
+module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('my-search-forms'),
   className: 'is-list is-inline has-list-highlighting',
-  initialize: function(options) {},
-  childViewOptions: function() {
-    return {
-      queryModel: this.options.queryModel,
-      collectionWrapperModel: this.options.collectionWrapperModel,
-      hideInteractionMenu: this.options.hideInteractionMenu,
-    }
+  initialize(options) {
+    this.model = this.options.collection
+    this.filter = this.options.filter
+    this.listenTo(this.model, 'add remove', this.render)
   },
-  filter: function(child) {
-    if (this.options.hideNewForm) {
-      return child.get('type') !== 'new-form'
+  template() {
+    return (
+      <React.Fragment>
+        {this.options.showNewForm ? (
+          <NewForm
+            label="New Search Form"
+            onClick={this.handleNewForm.bind(this)}
+          />
+        ) : null}
+        {this.model.filter(child => this.doFilter(child)).map(child => {
+          return (
+            <Item key={child.get('id')}>
+              <MarionetteRegionContainer
+                view={SearchFormView}
+                viewOptions={{
+                  model: child,
+                  queryModel: this.options.queryModel,
+                  collectionWrapperModel: this.options.collectionWrapperModel,
+                }}
+              />
+            </Item>
+          )
+        })}
+      </React.Fragment>
+    )
+  },
+  handleNewForm() {
+    this.options.queryModel.set({
+      type: 'new-form',
+      associatedFormModel: this.model,
+    })
+    user.getQuerySettings().set('type', 'new-form')
+    this.routeToSearchFormEditor('create')
+  },
+  doFilter(child) {
+    if (typeof this.options.filter !== 'function') {
+      // Show all children if no filter is provided
+      return true
     }
-    return child.get('type') !== 'basic' && child.get('type') !== 'text'
+    return this.options.filter(child)
+  },
+  routeToSearchFormEditor(newSearchFormId) {
+    const fragment = `forms/${newSearchFormId}`
+    wreqr.vent.trigger('router:navigate', {
+      fragment,
+      options: {
+        trigger: true,
+      },
+    })
   },
 })

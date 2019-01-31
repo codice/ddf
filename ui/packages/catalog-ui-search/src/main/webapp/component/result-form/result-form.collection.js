@@ -40,12 +40,7 @@ module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     doneLoading: false,
     added: false,
-    resultForms: [
-      new ResultForm({
-        title: 'Create New Data View',
-        type: 'new-result',
-      }),
-    ],
+    resultForms: [],
   },
   initialize: function() {
     if (promiseIsResolved === true) {
@@ -66,6 +61,11 @@ module.exports = Backbone.AssociatedModel.extend({
         model: ResultForm,
         url: './internal/forms/result',
         initialize: function() {},
+        comparator: function(a, b) {
+          const titleA = a.get('title') || ''
+          const titleB = b.get('title') || ''
+          return titleA.toLowerCase().localeCompare(titleB.toLowerCase())
+        },
       }),
     },
   ],
@@ -107,6 +107,7 @@ module.exports = Backbone.AssociatedModel.extend({
           )
         }.bind(this)
       )
+      this.get('resultForms').sort()
     }
   },
   addResultForm: function(newForm) {

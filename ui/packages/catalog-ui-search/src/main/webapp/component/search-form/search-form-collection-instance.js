@@ -10,5 +10,5 @@
  *
  **/
 
-const SearchFormsCollection = require('./search-form.collection.js')
+const SearchFormsCollection = require('./search-form.collection')
 module.exports = new SearchFormsCollection()

@@ -16,8 +16,7 @@ import { ChangeBackground } from '../../react-component/styles/mixins/change-bac
 const Marionette = require('marionette')
 const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
 const Router = require('../router/router.js')
-const SearchFormsCollection = require('../search-form/search-form-collection-instance.js')
-const SearchFormsSharingCollection = require('../search-form/forms-sharing/search-form-sharing-collection-instance.js')
+const SearchFormCollection = require('../search-form/search-form-collection-instance')
 const SearchFormModel = require('../search-form/search-form.js')
 const SelectionInterface = require('../selection-interface/selection-interface.model.js')
 const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
@@ -95,19 +94,17 @@ module.exports = Marionette.LayoutView.extend({
       return
     }
 
-    let collection
+    const collection = SearchFormCollection.getCollection()
 
     if (id === 'create') {
-      collection = SearchFormsCollection.getCollection()
       this.model = new QueryModel.Model()
     } else {
-      collection = SearchFormsCollection.getCollection()
       this.model = collection.get(id)
-      if (!this.model) {
-        collection = SearchFormsSharingCollection.getCollection()
-        this.model = collection.get(id)
+      if (this.model) {
+        this.model.set(this.model.transformToQueryStructure())
+      } else {
+        return
       }
-      this.model.set(this.model.transformToQueryStructure())
     }
     this.map.show(
       new MapView({
