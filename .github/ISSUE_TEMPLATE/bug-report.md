@@ -42,8 +42,8 @@ Severity of the bug (minor, major, critical)?
 #### Reproduces how often:
 <!-- What percentage of the time does it reproduce? -->
 
-#### Platform:
-<!-- Windows, Mac, Linux? -->
+#### Platform and environment:
+<!-- OS, Java version, browser, etc, as applicable -->
 
 ### Version
 <!-- Application version(s) -->
