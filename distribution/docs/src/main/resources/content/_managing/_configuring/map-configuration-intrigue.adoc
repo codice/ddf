@@ -7,13 +7,13 @@
 
 == {title}
 
-Customize the look of the map displayed to users in ${catalog-search-ui} through the *Catalog UI Search*.
+The look of the map displayed to users in ${catalog-search-ui} can be customized.
 Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}configuring_map_layers_for_intrigue,Configuring Map Layers for ${catalog-search-ui}>>.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
-. Select the *Catalog UI Search* configuration.
+. Select the *Catalog Search UI* configuration.
 
 .Edit a Map Layer (Imagery Provider)
 . Enter the properties of the map layer into the *Imagery Provider* in the proper syntax.

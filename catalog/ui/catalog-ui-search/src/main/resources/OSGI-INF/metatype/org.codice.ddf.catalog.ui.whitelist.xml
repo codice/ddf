@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search Metacard Type Whitelist" id="org.codice.ddf.catalog.ui.whitelist">
+    <OCD name="Catalog Search UI Metacard Type Whitelist" id="org.codice.ddf.catalog.ui.whitelist">
 
         <AD id="whiteListedMetacardTypes"
             name="Metacard Type Whitelist"

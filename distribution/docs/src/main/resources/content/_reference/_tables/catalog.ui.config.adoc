@@ -1,11 +1,11 @@
-:title: Catalog UI Search
+:title: Catalog Search UI
 :id: org.codice.ddf.catalog.ui
 :type: table
 :status: published
 :application: ${ddf-ui}
-:summary: Catalog UI Search.
+:summary: Catalog Search UI.
 
-.[[_org.codice.ddf.catalog.ui]]Catalog UI Search
+.[[_org.codice.ddf.catalog.ui]]Catalog Search UI
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -64,7 +64,7 @@ Example:
 |Default Layout
 |defaultLayout
 |String
-|The default UI layout and visualization configuration used in the Catalog UI. See http://golden-layout.com/docs/Config.html {external-link} for more information. Example: `[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]`.
+|The default UI layout and visualization configuration used in the Catalog Search UI. See http://golden-layout.com/docs/Config.html {external-link} for more information. Example: `[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]`.
 |[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]
 |true
 
@@ -293,7 +293,7 @@ thumbnail
 |Query Schedule Frequencies
 |scheduleFrequencyList
 |Long
-|Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.
+|Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog Search UI.
 |1800, +
 3600, +
 7200, +
@@ -405,7 +405,7 @@ listed as required but not shown in the editor, it will be ignored.
 
 |===
 
-.[[_org.codice.ddf.catalog.ui.theme]]Catalog UI Search Theme
+.[[_org.codice.ddf.catalog.ui.theme]]Catalog Search UI Theme
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -517,7 +517,7 @@ listed as required but not shown in the editor, it will be ignored.
 |===
 
 
-.[[_org.codice.ddf.catalog.ui.attributes.hidden]]Catalog UI Search Hidden Attributes
+.[[_org.codice.ddf.catalog.ui.attributes.hidden]]Catalog Search UI Hidden Attributes
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -540,7 +540,7 @@ listed as required but not shown in the editor, it will be ignored.
 
 |===
 
-.[[_org.codice.ddf.catalog.ui.attributes.aliases]]Catalog UI Search Attribute Aliases
+.[[_org.codice.ddf.catalog.ui.attributes.aliases]]Catalog Search UI Attribute Aliases
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -560,7 +560,7 @@ listed as required but not shown in the editor, it will be ignored.
 
 |===
 
-.[[_org.codice.ddf.catalog.ui.attributes.descriptions]]Catalog UI Search Attribute Descriptions
+.[[_org.codice.ddf.catalog.ui.attributes.descriptions]]Catalog Search UI Attribute Descriptions
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 

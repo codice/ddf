@@ -1,11 +1,11 @@
-:title: Catalog UI Search Transformer Blacklists
+:title: Catalog Search UI Transformer Blacklists
 :id: org.codice.ddf.catalog.ui.transformer.TransformerDescriptors
 :type: table
 :status: published
 :application: ${ddf-ui}
-:summary: Catalog UI Search Transformer Blacklists.
+:summary: Catalog Search UI Transformer Blacklists.
 
-.[[_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors]]Catalog UI Search Transformer Blacklists
+.[[_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors]]Catalog Search UI Transformer Blacklists
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 

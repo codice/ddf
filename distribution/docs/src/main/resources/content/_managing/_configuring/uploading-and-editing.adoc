@@ -19,7 +19,7 @@ remove the users' ability to ingest.
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
-. Select *Catalog UI Search*.
+. Select *Catalog Search UI*.
 . Select "Show Uploader".
 . Select *Save* to complete.
 
@@ -29,6 +29,6 @@ Allow or restrict the editing of metadata.
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
-. Select *Catalog UI Search*.
+. Select *Catalog Search UI*.
 . Select "Allow Editing".
 . Select *Save* to complete.

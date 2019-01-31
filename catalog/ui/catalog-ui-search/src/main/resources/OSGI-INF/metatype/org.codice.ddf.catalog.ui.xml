@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui">
+    <OCD name="Catalog Search UI" id="org.codice.ddf.catalog.ui">
         <AD id="resultCount"
             name="Result Count"
             description="Specifies the number of results to request from each source."
@@ -43,7 +43,7 @@
 
         <AD id="defaultLayout"
             name="Default Layout"
-            description='The default UI layout and visualization configuration used in the Catalog UI. See http://golden-layout.com/docs/Config.html for more information. Example: [{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}].'
+            description='The default UI layout and visualization configuration used in the Catalog Search UI. See http://golden-layout.com/docs/Config.html for more information. Example: [{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}].'
             type="String"
             default='[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]'/>
 
@@ -246,7 +246,7 @@
 
         <AD id="scheduleFrequencyList"
             name="Query Schedule Frequencies"
-            description="Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI."
+            description="Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog Search UI."
             type="Long"
             cardinality="10000"
             default="1800,3600,7200,14400,28800,57600,86400"/>

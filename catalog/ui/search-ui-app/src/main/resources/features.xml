@@ -17,15 +17,15 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="catalog-ui-search-api" version="${project.version}"
-             description="API for interacting with Catalog UI">
+    <feature name="catalog-search-ui-api" version="${project.version}"
+             description="API for interacting with Catalog Search UI">
         <bundle>mvn:ddf.ui/catalog-ui-search-api/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-ui" version="${project.version}" description="Catalog UI">
+    <feature name="catalog-search-ui" version="${project.version}" description="Catalog Search UI">
         <feature>spatial-app</feature>
         <feature>camel-http</feature>
-        <feature>catalog-ui-search-api</feature>
+        <feature>catalog-search-ui-api</feature>
         <feature>platform-usng4j</feature>
 
         <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.config" override="false">
@@ -51,7 +51,7 @@
         <bundle>mvn:ddf.ui/zip-splitter/${project.version}</bundle>
     </feature>
 
-    <feature name="simple-search-ui" version="${project.version}">
+    <feature name="simple-search-ui" version="${project.version}" description="Simple Search UI">
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
     </feature>
@@ -62,14 +62,14 @@
     </feature>
 
     <feature name="search-ui-app" version="${project.version}"
-             description="The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the Search UI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both the Catalog UI (3d globe) and Simple Search UI (text page) versions.">
+             description="The Search UI application provides querying user interfaces.">
         <configfile finalname="${ddf.etc}/org.codice.ddf.ui.searchui.filter.RedirectServlet.config" override="false">
             mvn:ddf.ui/search-ui-app/${project.version}/config/redirect
         </configfile>
         <feature>catalog-app</feature>
         <feature>catalog-versioning-plugin</feature>
         <feature>catalog-core-validator</feature>
-        <feature>catalog-ui</feature>
+        <feature>catalog-search-ui</feature>
         <feature>simple-search-ui</feature>
         <feature>search-redirect</feature>
     </feature>

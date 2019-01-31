@@ -16,7 +16,7 @@ for any of these types of metacards.
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
-. Select Catalog UI Search.
+. Select *Catalog Search UI*.
 . Scroll down to the "Disable Local Catalog" option with the other options below it.
 . To disable searching for a metacard type, check the corresponding box.
 . Select *Save* to complete.

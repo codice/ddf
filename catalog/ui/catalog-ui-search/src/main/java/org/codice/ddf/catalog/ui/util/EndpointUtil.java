@@ -776,7 +776,7 @@ public class EndpointUtil {
   @SuppressWarnings("squid:S1172") // needed for compilation
   public void handleEntityTooLargeException(Exception ex, Request req, Response res) {
     LOGGER.info(
-        "User uploaded object greater than maximum size ({} bytes). If this is a valid request then you may consider increasing the maximum allowed request size under: <system>/admin/index.html > Search UI > Catalog UI Search > Maximum Endpoint Upload Size. Please consider the constraints of system memory before adjusting this value.  It is roughly 3 * (max number concurrent system users) * (maximum endpoint upload bytes size) just for this endpoint, not considering the rest of the system. ",
+        "User uploaded object greater than maximum size ({} bytes). If this is a valid request then you may consider increasing the maximum allowed request size under: Catalog Search UI > Maximum Endpoint Upload Size. Please consider the constraints of system memory before adjusting this value. It is roughly 3 * (max number concurrent system users) * (maximum endpoint upload bytes size) just for this endpoint, not considering the rest of the system.",
         config.getMaximumUploadSize(),
         ex);
     String errorId = null;

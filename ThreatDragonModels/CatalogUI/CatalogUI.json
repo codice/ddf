@@ -7,7 +7,7 @@
     "contributors": [],
     "diagrams": [
       {
-        "title": "Catalog UI Endpoints",
+        "title": "Catalog Search UI Endpoints",
         "thumbnail": "./public/content/images/thumbnail.jpg",
         "id": 0,
         "diagramJson": {
@@ -161,7 +161,7 @@
                   "class": "element-shape hasNoOpenThreats isInScope"
                 },
                 "text": {
-                  "text": "Catalog UI Client"
+                  "text": "Catalog Search UI Client"
                 },
                 ".element-text": {
                   "class": "element-text hasNoOpenThreats isInScope"
@@ -187,7 +187,7 @@
                   "class": "element-shape hasNoOpenThreats isInScope"
                 },
                 "text": {
-                  "text": "Catalog UI Client"
+                  "text": "Catalog Search UI Client"
                 },
                 ".element-text": {
                   "class": "element-text hasNoOpenThreats isInScope"
@@ -213,7 +213,7 @@
                   "class": "element-shape hasNoOpenThreats isInScope"
                 },
                 "text": {
-                  "text": "Catalog UI Client"
+                  "text": "Catalog Search UI Client"
                 },
                 ".element-text": {
                   "class": "element-text hasNoOpenThreats isInScope"
@@ -239,7 +239,7 @@
                   "class": "element-shape hasNoOpenThreats isInScope"
                 },
                 "text": {
-                  "text": "Catalog UI Client"
+                  "text": "Catalog Search UI Client"
                 },
                 ".element-text": {
                   "class": "element-text hasNoOpenThreats isInScope"
@@ -413,7 +413,7 @@
                   "severity": "High",
                   "title": "Metacard App May be Subject to Elevation of Privilege Using Remote Code Execution",
                   "type": "Elevation of privilege",
-                  "description": "Catalog UI Client may be able to remotely execute code for Metacard App.",
+                  "description": "Catalog Search UI Client may be able to remotely execute code for Metacard App.",
                   "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including Metacard App's endpoints.",
                   "$$hashKey": "object:1356"
                 },
@@ -423,7 +423,7 @@
                   "title": "Elevation by Changing the Execution Flow in DDF Catalog Framework",
                   "type": "Elevation of privilege",
                   "description": "An attacker may pass data into DDF Catalog Framework in order to change the flow of program execution within DDF Catalog Framework to the attacker's choosing.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1362"
                 },
                 {
@@ -477,7 +477,7 @@
                   "title": "Potential Lack of Input Validation for DDF Catalog Framework",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against DDF Catalog Framework or an elevation of privilege attack against DDF Catalog Framework or an information disclosure by DDF Catalog Framework. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1398"
                 },
                 {
@@ -566,7 +566,7 @@
                   "title": "Potential Lack of Input Validation for User App",
                   "type": "Tampering",
                   "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against User App or an elevation of privilege attack against User App or an information disclosure by User App. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "Data should be encrypted before it is sent. DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "Data should be encrypted before it is sent. DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:342"
                 },
                 {
@@ -697,7 +697,7 @@
                   "title": "Potential Lack of Input Validation for DDF Catalog Framework",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against DDF Catalog Framework or an elevation of privilege attack against DDF Catalog Framework or an information disclosure by DDF Catalog Framework. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1148"
                 },
                 {
@@ -760,7 +760,7 @@
                   "title": "Elevation by Changing the Execution Flow in DDF Catalog Framework",
                   "type": "Elevation of privilege",
                   "description": "An attacker may pass data into DDF Catalog Framework in order to change the flow of program execution within DDF Catalog Framework to the attacker's choosing.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1190"
                 }
               ],
@@ -828,7 +828,7 @@
                   "title": "Potential Lack of Input Validation for Configuration Endpoint",
                   "type": "Tampering",
                   "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against Configuration Endpoint or an elevation of privilege attack against Configuration Endpoint or an information disclosure by Configuration Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "Data should be encrypted before it is sent. DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "Data should be encrypted before it is sent. DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:414"
                 },
                 {
@@ -959,7 +959,7 @@
                   "title": "Potential Lack of Input Validation for DDF Catalog Framework",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against DDF Catalog Framework or an elevation of privilege attack against DDF Catalog Framework or an information disclosure by DDF Catalog Framework. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1216"
                 },
                 {
@@ -1013,7 +1013,7 @@
                   "title": "Elevation by Changing the Execution Flow in DDF Catalog Framework",
                   "type": "Elevation of privilege",
                   "description": "An attacker may pass data into DDF Catalog Framework in order to change the flow of program execution within DDF Catalog Framework to the attacker's choosing.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1278"
                 },
                 {
@@ -1099,7 +1099,7 @@
                   "title": "Potential Lack of Input Validation for Query CQL Endpoint",
                   "type": "Tampering",
                   "description": "Data flowing across Response may be tampered with by an attacker. This may lead to a denial of service attack against Query CQL Endpoint or an elevation of privilege attack against Query CQL Endpoint or an information disclosure by Query CQL Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "Data should be encrypted before it is sent. DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "Data should be encrypted before it is sent. DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:494"
                 },
                 {
@@ -1200,18 +1200,18 @@
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing of the Catalog UI Client External Destination Entity",
+                  "title": "Spoofing of the Catalog Search UI Client External Destination Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog UI Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog Search UI Client. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Encrypt data before it is sent. Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:246"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "External Entity Catalog UI Client Potentially Denies Receiving Data",
+                  "title": "External Entity Catalog Search UI Client Potentially Denies Receiving Data",
                   "type": "Repudiation",
-                  "description": "Catalog UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "description": "Catalog Search UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
                   "mitigation": "Errors and warnings are logged upon finding any irregularities.",
                   "$$hashKey": "object:252"
                 },
@@ -1270,16 +1270,16 @@
                   "severity": "High",
                   "title": "Spoofing the Query CQL Endpoint Process",
                   "type": "Spoofing",
-                  "description": "Query CQL Endpoint may be spoofed by an attacker and this may lead to information disclosure by Catalog UI Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "description": "Query CQL Endpoint may be spoofed by an attacker and this may lead to information disclosure by Catalog Search UI Client. Consider using a standard authentication mechanism to identify the destination process.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:1072"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing the Catalog UI Client External Entity",
+                  "title": "Spoofing the Catalog Search UI Client External Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to unauthorized access to Query CQL Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to unauthorized access to Query CQL Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:1078"
                 },
@@ -1289,7 +1289,7 @@
                   "title": "Potential Lack of Input Validation for Query CQL Endpoint",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against Query CQL Endpoint or an elevation of privilege attack against Query CQL Endpoint or an information disclosure by Query CQL Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1084"
                 },
                 {
@@ -1333,7 +1333,7 @@
                   "severity": "High",
                   "title": "Elevation Using Impersonation",
                   "type": "Elevation of privilege",
-                  "description": "Query CQL Endpoint may be able to impersonate the context of Catalog UI Client in order to gain additional privilege.",
+                  "description": "Query CQL Endpoint may be able to impersonate the context of Catalog Search UI Client in order to gain additional privilege.",
                   "mitigation": "Query Endpoint is a trusted process/entity and will not attack the client(s). Authentication options are available for verification of legitimacy/identity.",
                   "$$hashKey": "object:1114"
                 },
@@ -1342,7 +1342,7 @@
                   "severity": "High",
                   "title": "Query CQL Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
                   "type": "Elevation of privilege",
-                  "description": "Catalog UI Client may be able to remotely execute code for Query CQL Endpoint.",
+                  "description": "Catalog Search UI Client may be able to remotely execute code for Query CQL Endpoint.",
                   "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including Query's endpoints.",
                   "$$hashKey": "object:1120"
                 },
@@ -1399,19 +1399,19 @@
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing of the Catalog UI Client External Destination Entity",
+                  "title": "Spoofing of the Catalog Search UI Client External Destination Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog UI Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog Search UI Client. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Encrypt data before it is sent. Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:224"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "External Entity Catalog UI Client Potentially Denies Receiving Data",
+                  "title": "External Entity Catalog Search UI Client Potentially Denies Receiving Data",
                   "type": "Repudiation",
-                  "description": "Catalog UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
-                  "mitigation": "Catalog UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "description": "Catalog Search UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "mitigation": "Catalog Search UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
                   "$$hashKey": "object:230"
                 },
                 {
@@ -1469,16 +1469,16 @@
                   "severity": "High",
                   "title": "Spoofing the Configuration Endpoint Process",
                   "type": "Spoofing",
-                  "description": "Configuration Endpoint may be spoofed by an attacker and this may lead to information disclosure by Catalog UI Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "description": "Configuration Endpoint may be spoofed by an attacker and this may lead to information disclosure by Catalog Search UI Client. Consider using a standard authentication mechanism to identify the destination process.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:1008"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing the Catalog UI Client External Entity",
+                  "title": "Spoofing the Catalog Search UI Client External Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to unauthorized access to Configuration Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to unauthorized access to Configuration Endpoint. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:1014"
                 },
@@ -1488,7 +1488,7 @@
                   "title": "Potential Lack of Input Validation for Configuration Endpoint",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against Configuration Endpoint or an elevation of privilege attack against Configuration Endpoint or an information disclosure by Configuration Endpoint. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1020"
                 },
                 {
@@ -1532,7 +1532,7 @@
                   "severity": "High",
                   "title": "Elevation Using Impersonation",
                   "type": "Elevation of privilege",
-                  "description": "Configuration Endpoint may be able to impersonate the context of Catalog UI Client in order to gain additional privilege.",
+                  "description": "Configuration Endpoint may be able to impersonate the context of Catalog Search UI Client in order to gain additional privilege.",
                   "mitigation": "Configuration Endpoint is a trusted process/entity and will not attack the client(s). Authentication options are available for verification of legitimacy/identity.",
                   "$$hashKey": "object:1050"
                 },
@@ -1541,7 +1541,7 @@
                   "severity": "High",
                   "title": "Configuration Endpoint May be Subject to Elevation of Privilege Using Remote Code Execution",
                   "type": "Elevation of privilege",
-                  "description": "Catalog UI Client may be able to remotely execute code for Configuration Endpoint.",
+                  "description": "Catalog Search UI Client may be able to remotely execute code for Configuration Endpoint.",
                   "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including Configuration endpoints.",
                   "$$hashKey": "object:1056"
                 },
@@ -1598,18 +1598,18 @@
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing of the Catalog UI Client External Destination Entity",
+                  "title": "Spoofing of the Catalog Search UI Client External Destination Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog UI Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog Search UI Client. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Encrypt data before it is sent. Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:202"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "External Entity Catalog UI Client Potentially Denies Receiving Data",
+                  "title": "External Entity Catalog Search UI Client Potentially Denies Receiving Data",
                   "type": "Repudiation",
-                  "description": "Catalog UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "description": "Catalog Search UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
                   "mitigation": "Errors and warnings are logged upon finding any irregularities.",
                   "$$hashKey": "object:208"
                 },
@@ -1668,16 +1668,16 @@
                   "severity": "High",
                   "title": "Spoofing the User App Process",
                   "type": "Spoofing",
-                  "description": "User App may be spoofed by an attacker and this may lead to information disclosure by Catalog UI Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "description": "User App may be spoofed by an attacker and this may lead to information disclosure by Catalog Search UI Client. Consider using a standard authentication mechanism to identify the destination process.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:944"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing the Catalog UI Client External Entity",
+                  "title": "Spoofing the Catalog Search UI Client External Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to unauthorized access to User App. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to unauthorized access to User App. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:950"
                 },
@@ -1687,7 +1687,7 @@
                   "title": "Potential Lack of Input Validation for User App",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against User App or an elevation of privilege attack against User App or an information disclosure by User App. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:956"
                 },
                 {
@@ -1731,7 +1731,7 @@
                   "severity": "High",
                   "title": "Elevation Using Impersonation",
                   "type": "Elevation of privilege",
-                  "description": "User App may be able to impersonate the context of Catalog UI Client in order to gain additional privilege.",
+                  "description": "User App may be able to impersonate the context of Catalog Search UI Client in order to gain additional privilege.",
                   "mitigation": "User App is a trusted process/entity and will not attack the client(s). Authentication options are available for verification of legitimacy/identity.",
                   "$$hashKey": "object:986"
                 },
@@ -1740,7 +1740,7 @@
                   "severity": "High",
                   "title": "User App May be Subject to Elevation of Privilege Using Remote Code Execution",
                   "type": "Elevation of privilege",
-                  "description": "Catalog UI Client may be able to remotely execute code for User App.",
+                  "description": "Catalog Search UI Client may be able to remotely execute code for User App.",
                   "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including User App's endpoints.",
                   "$$hashKey": "object:992"
                 },
@@ -1797,18 +1797,18 @@
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing of the Catalog UI Client External Destination Entity",
+                  "title": "Spoofing of the Catalog Search UI Client External Destination Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog UI Client. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to data being sent to the attacker's target instead of Catalog Search UI Client. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Encrypt data before it is sent. Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:858"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "External Entity Catalog UI Client Potentially Denies Receiving Data",
+                  "title": "External Entity Catalog Search UI Client Potentially Denies Receiving Data",
                   "type": "Repudiation",
-                  "description": "Catalog UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
+                  "description": "Catalog Search UI Client claims that it did not receive data from a process on the other side of the trust boundary. Consider using logging or auditing to record the source, time, and summary of the received data.",
                   "mitigation": "Errors and warnings are logged upon finding any irregularities.",
                   "$$hashKey": "object:864"
                 },
@@ -1867,16 +1867,16 @@
                   "severity": "High",
                   "title": "Spoofing the Metacard App Process",
                   "type": "Spoofing",
-                  "description": "Metacard App may be spoofed by an attacker and this may lead to information disclosure by Catalog UI Client. Consider using a standard authentication mechanism to identify the destination process.",
+                  "description": "Metacard App may be spoofed by an attacker and this may lead to information disclosure by Catalog Search UI Client. Consider using a standard authentication mechanism to identify the destination process.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:880"
                 },
                 {
                   "status": "Mitigated",
                   "severity": "High",
-                  "title": "Spoofing the Catalog UI Client External Entity",
+                  "title": "Spoofing the Catalog Search UI Client External Entity",
                   "type": "Spoofing",
-                  "description": "Catalog UI Client may be spoofed by an attacker and this may lead to unauthorized access to Metacard App. Consider using a standard authentication mechanism to identify the external entity.",
+                  "description": "Catalog Search UI Client may be spoofed by an attacker and this may lead to unauthorized access to Metacard App. Consider using a standard authentication mechanism to identify the external entity.",
                   "mitigation": "Various authentication options are available over HTTPS. Default authentication is present as well.",
                   "$$hashKey": "object:886"
                 },
@@ -1886,7 +1886,7 @@
                   "title": "Potential Lack of Input Validation for Metacard App",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against Metacard App or an elevation of privilege attack against Metacard App or an information disclosure by Metacard App. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:892"
                 },
                 {
@@ -1930,7 +1930,7 @@
                   "severity": "High",
                   "title": "Elevation Using Impersonation",
                   "type": "Elevation of privilege",
-                  "description": "Metacard App may be able to impersonate the context of Catalog UI Client in order to gain additional privilege.",
+                  "description": "Metacard App may be able to impersonate the context of Catalog Search UI Client in order to gain additional privilege.",
                   "mitigation": "Metacard App is a trusted process/entity and will not attack the client(s). Authentication options are available for verification of legitimacy/identity.",
                   "$$hashKey": "object:922"
                 },
@@ -1939,7 +1939,7 @@
                   "severity": "High",
                   "title": "Metacard App May be Subject to Elevation of Privilege Using Remote Code Execution",
                   "type": "Elevation of privilege",
-                  "description": "Catalog UI Client may be able to remotely execute code for Metacard App.",
+                  "description": "Catalog Search UI Client may be able to remotely execute code for Metacard App.",
                   "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including Metacard App's endpoints.",
                   "$$hashKey": "object:928"
                 },
@@ -2017,7 +2017,7 @@
                   "title": "Potential Lack of Input Validation for DDF Catalog Framework",
                   "type": "Tampering",
                   "description": "Data flowing across Request may be tampered with by an attacker. This may lead to a denial of service attack against DDF Catalog Framework or an elevation of privilege attack against DDF Catalog Framework or an information disclosure by DDF Catalog Framework. Failure to verify that input is as expected is a root cause of a very large number of exploitable issues. Consider all paths and the way they handle data. Verify that all input is verified for correctness using an approved list input validation approach.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1300"
                 },
                 {
@@ -2080,7 +2080,7 @@
                   "title": "Elevation by Changing the Execution Flow in DDF Catalog Framework",
                   "type": "Elevation of privilege",
                   "description": "An attacker may pass data into DDF Catalog Framework in order to change the flow of program execution within DDF Catalog Framework to the attacker's choosing.",
-                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog UI's endpoints.",
+                  "mitigation": "DDF Catalog Framework performs input validation to guarantee sanitization for any endpoint including DDF Catalog Search UI's endpoints.",
                   "$$hashKey": "object:1342"
                 }
               ],

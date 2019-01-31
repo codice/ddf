@@ -15,13 +15,13 @@ mark certain attributes as required. They may also disable the editor if desired
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
-. Select *Catalog UI Search*.
+. Select *Catalog Search UI*.
 . Use the "Upload Editor: Attribute Configuration" field to configure the attributes shown in the
 editor.
 . Use the "Upload Editor: Required Attributes" field to mark attributes as required.
 . Select *Save* to complete.
 
-See <<{reference-prefix}org.codice.ddf.catalog.ui,Catalog UI Search Configurations>> for more information
+See <<{reference-prefix}org.codice.ddf.catalog.ui,Catalog Search UI Configurations>> for more information
 regarding these configurations.
 
 

@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD name="Catalog UI Search Transformer Blacklists" id="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
+  <OCD name="Catalog Search UI Transformer Blacklists" id="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
 
     <AD id="blackListedMetacardTransformerIds"
       name="Metacard Transformer Blacklist"

@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search Attribute Aliases" id="org.codice.ddf.catalog.ui.attribute.aliases">
+    <OCD name="Catalog Search UI Attribute Aliases" id="org.codice.ddf.catalog.ui.attribute.aliases">
         <AD id="attributeAliases"
             name="Attribute Aliases"
             description='List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: "title=Title".'
@@ -23,7 +23,7 @@
             required="false"/>
     </OCD>
 
-    <OCD name="Catalog UI Search Hidden Attributes" id="org.codice.ddf.catalog.ui.attribute.hidden">
+    <OCD name="Catalog Search UI Hidden Attributes" id="org.codice.ddf.catalog.ui.attribute.hidden">
         <AD id="hiddenAttributes"
             name="Hidden Attributes"
             description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
@@ -33,7 +33,7 @@
             required="false"/>
     </OCD>
 
-    <OCD name="Catalog UI Search Attribute Descriptions" id="org.codice.ddf.catalog.ui.attribute.descriptions">
+    <OCD name="Catalog Search UI Attribute Descriptions" id="org.codice.ddf.catalog.ui.attribute.descriptions">
         <AD id="attributeDescriptions"
             name="Attribute Descriptions"
             description='List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: "checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors".'

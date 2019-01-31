@@ -9,9 +9,9 @@
     "factory": false,
     "configurations": [
       {
-        "name": "Catalog UI Search",
+        "name": "Catalog Search UI",
         "id": "org.codice.ddf.catalog.ui",
-        "bundle_name": "DDF :: Catalog :: UI :: Catalog UI Search",
+        "bundle_name": "DDF :: Catalog :: UI :: Catalog Search UI",
         "bundle": 503,
         "properties": {
           "resultCount": 250,
@@ -81,7 +81,7 @@
         "enabled": true
       }
     ],
-    "name": "Catalog UI Search",
+    "name": "Catalog Search UI",
     "metatype": [
       {
         "defaultValue": ["250"],
@@ -119,7 +119,7 @@
         "defaultValue": ["[{type: \"stack\""],
         "optionLabels": [],
         "name": "Default Layout",
-        "description": "The default UI layout and visualization configuration used in the Catalog UI. See http://golden-layout.com/docs/Config.html for more information. Example: [{type: \"stack\", \"content\": [{\"type\": \"component\", \"componentName\": \"cesium\", \"title\": \"3D Map\"}, {\"type\": \"component\", \"componentName\": \"inspector\", \"title\": \"Inspector\"}]",
+        "description": "The default UI layout and visualization configuration used in the Catalog Search UI. See http://golden-layout.com/docs/Config.html for more information. Example: [{type: \"stack\", \"content\": [{\"type\": \"component\", \"componentName\": \"cesium\", \"title\": \"3D Map\"}, {\"type\": \"component\", \"componentName\": \"inspector\", \"title\": \"Inspector\"}]",
         "id": "defaultLayout",
         "type": 1,
         "cardinality": 0,
@@ -346,7 +346,7 @@
         ],
         "optionLabels": [],
         "name": "Query Schedule Frequencies",
-        "description": "Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab.  Leave this empty to use the frequency list on the Catalog UI.",
+        "description": "Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog Search UI.",
         "id": "scheduleFrequencyList",
         "type": 2,
         "cardinality": 10000,

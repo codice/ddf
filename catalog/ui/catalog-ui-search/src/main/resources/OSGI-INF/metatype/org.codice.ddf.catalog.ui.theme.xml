@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search Theme" id="org.codice.ddf.catalog.ui.theme">
+    <OCD name="Catalog Search UI Theme" id="org.codice.ddf.catalog.ui.theme">
 
         <AD id="theme"
             name="Theme"
