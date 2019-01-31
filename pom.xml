@@ -308,7 +308,8 @@
         <!-- Be warned! Changing the osgi version here could impact platform-osgi-configadmin since we
 are essentially embedding a slightly modified version of felix -->
         <osgi.version>5.0.0</osgi.version>
-        <keyczar.version>0.66</keyczar.version>
+        <tink.version>1.2.2</tink.version>
+        <org.json.version>20170516</org.json.version>
         <cas.client.version>3.5.0</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
         <javax.inject.version>1</javax.inject.version>

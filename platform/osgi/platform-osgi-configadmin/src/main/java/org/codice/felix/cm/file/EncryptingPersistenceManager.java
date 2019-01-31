@@ -18,12 +18,26 @@ import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.crypto.tink.Aead;
+import com.google.crypto.tink.CleartextKeysetHandle;
+import com.google.crypto.tink.JsonKeysetReader;
+import com.google.crypto.tink.JsonKeysetWriter;
+import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.aead.AeadConfig;
+import com.google.crypto.tink.aead.AeadFactory;
+import com.google.crypto.tink.aead.AeadKeyTemplates;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.AccessController;
+import java.security.GeneralSecurityException;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -31,8 +45,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import org.apache.felix.cm.PersistenceManager;
-import org.keyczar.Crypter;
-import org.keyczar.KeyczarTool;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +70,10 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
   private static final String AUDIT_MESSAGE_INIT =
       "The system did not initialize encryption keys correctly and is insecure.";
 
+  private static final String KEYSET_FILE_NAME = "keyset.json";
+
+  private static final byte[] ASSOCIATED_DATA = "associated.data".getBytes();
+
   private static final Set<String> EXCLUDED_PROPERTIES = new HashSet<>();
 
   static {
@@ -79,7 +95,7 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
     }
   }
 
-  private final EncryptionAgent agent;
+  @VisibleForTesting final EncryptionAgent agent;
 
   public EncryptingPersistenceManager(PersistenceManager persistenceManager) {
     this(
@@ -161,12 +177,15 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
    * PAX Logging might not be fully configured and ready if there is a failure in the agent's
    * constructor. To remedy this, we will cache failure data to later throw back.
    */
-  private class EncryptionAgent {
+  @VisibleForTesting
+  class EncryptionAgent {
     private String initFailureMessage = null;
 
     private Exception initException = null;
 
-    private Crypter crypter;
+    @VisibleForTesting KeysetHandle keysetHandle;
+
+    private Aead aead;
 
     EncryptionAgent(String pwDirString) {
       File pwDir = new File(pwDirString);
@@ -191,21 +210,39 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
         throw new IllegalStateException(initFailureMessage);
       }
 
-      synchronized (EncryptionAgent.class) {
-        if (!Arrays.asList(children).contains("meta")) {
-          KeyczarTool.main(
-              new String[] {
-                "create", "--location=" + pwDirString, "--purpose=crypt", "--name=Password"
-              });
-          KeyczarTool.main(
-              new String[] {"addkey", "--location=" + pwDirString, "--status=primary"});
-        }
+      String keysetLocation = Paths.get(pwDirString, KEYSET_FILE_NAME).toString();
+
+      synchronized (EncryptingPersistenceManager.class) {
+        File keysetFile = new File(keysetLocation);
+        InputStream keysetFileInputStream = null;
+        OutputStream keysetFileOutputStream = null;
         try {
-          this.crypter = new Crypter(pwDirString);
-        } catch (Exception e) {
+          AeadConfig.register();
+          if (!keysetFile.exists()) {
+            keysetHandle = KeysetHandle.generateNew(AeadKeyTemplates.AES128_GCM);
+            keysetFileOutputStream = Files.newOutputStream(Paths.get(keysetLocation));
+            CleartextKeysetHandle.write(
+                keysetHandle, JsonKeysetWriter.withOutputStream(keysetFileOutputStream));
+          } else {
+            keysetFileInputStream = Files.newInputStream(Paths.get(keysetLocation));
+            keysetHandle =
+                CleartextKeysetHandle.read(JsonKeysetReader.withInputStream(keysetFileInputStream));
+          }
+          aead = AeadFactory.getPrimitive(keysetHandle);
+        } catch (GeneralSecurityException | IOException e) {
           initFailureMessage = "Could not setup encryption. ";
           initException = e;
           throw new IllegalStateException(initFailureMessage, initException);
+        } finally {
+          // close streams
+          try {
+            keysetFileInputStream.close();
+          } catch (IOException | NullPointerException ignore) {
+          }
+          try {
+            keysetFileOutputStream.close();
+          } catch (IOException | NullPointerException ignore) {
+          }
         }
       }
     }
@@ -215,7 +252,8 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
         alertSystem(initFailureMessage, initException);
       }
       try {
-        return crypter.encrypt(plainTextValue);
+        byte[] encryptedBytes = aead.encrypt(plainTextValue.getBytes(), ASSOCIATED_DATA);
+        return Base64.getEncoder().encodeToString(encryptedBytes);
       } catch (Exception e) {
         LOGGER.error("Failed to encrypt to bundle cache. {}", e);
         AUDIT_LOG.warn(AUDIT_MESSAGE);
@@ -228,8 +266,9 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
         alertSystem(initFailureMessage, initException);
       }
       try {
-        return crypter.decrypt(encryptedValue);
-      } catch (Exception e) {
+        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedValue);
+        return new String(aead.decrypt(encryptedBytes, ASSOCIATED_DATA));
+      } catch (GeneralSecurityException e) {
         LOGGER.error("Failed to decrypt from bundle cache. {}", e);
         return encryptedValue;
       }

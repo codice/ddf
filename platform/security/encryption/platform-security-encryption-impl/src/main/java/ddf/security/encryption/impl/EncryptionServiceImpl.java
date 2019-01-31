@@ -13,13 +13,27 @@
  */
 package ddf.security.encryption.impl;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.crypto.tink.Aead;
+import com.google.crypto.tink.CleartextKeysetHandle;
+import com.google.crypto.tink.JsonKeysetReader;
+import com.google.crypto.tink.JsonKeysetWriter;
+import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.aead.AeadConfig;
+import com.google.crypto.tink.aead.AeadFactory;
+import com.google.crypto.tink.aead.AeadKeyTemplates;
 import ddf.security.encryption.EncryptionService;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.keyczar.Crypter;
-import org.keyczar.KeyczarTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,54 +42,75 @@ public class EncryptionServiceImpl implements EncryptionService {
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
   private static final String ENC_TEMPLATE = "ENC(%s)";
+  private static final String KEYSET_FILE_NAME = "keyset.json";
+  private static final byte[] ASSOCIATED_DATA = "associated.data".getBytes();
 
-  private final Crypter crypter;
+  @VisibleForTesting KeysetHandle keysetHandle;
+  private Aead aead;
 
   public EncryptionServiceImpl() {
     String passwordDirectory = System.getProperty("ddf.etc").concat("/certs");
+    String keysetLocation = Paths.get(passwordDirectory, KEYSET_FILE_NAME).toString();
 
     synchronized (EncryptionServiceImpl.class) {
-      if (!new File(passwordDirectory.concat("/meta")).exists()) {
-        KeyczarTool.main(
-            new String[] {
-              "create", "--location=" + passwordDirectory, "--purpose=crypt", "--name=Password"
-            });
-        KeyczarTool.main(
-            new String[] {"addkey", "--location=" + passwordDirectory, "--status=primary"});
-      }
-      Crypter crypter = null;
+      File keysetFile = new File(keysetLocation);
+      InputStream keysetFileInputStream = null;
+      OutputStream keysetFileOutputStream = null;
       try {
-        crypter = new Crypter(passwordDirectory);
-      } catch (Exception e) {
-        LOGGER.debug(e.getMessage());
+        AeadConfig.register();
+        if (!keysetFile.exists()) {
+          keysetHandle = KeysetHandle.generateNew(AeadKeyTemplates.AES128_GCM);
+          keysetFileOutputStream = Files.newOutputStream(Paths.get(keysetLocation));
+          CleartextKeysetHandle.write(
+              keysetHandle, JsonKeysetWriter.withOutputStream(keysetFileOutputStream));
+        } else {
+          keysetFileInputStream = Files.newInputStream(Paths.get(keysetLocation));
+          keysetHandle =
+              CleartextKeysetHandle.read(JsonKeysetReader.withInputStream(keysetFileInputStream));
+        }
+        aead = AeadFactory.getPrimitive(keysetHandle);
+      } catch (GeneralSecurityException | IOException e) {
+        LOGGER.warn("Problem initializing Tink. Enable debug logging for more information.");
+        LOGGER.debug("", e);
+      } finally {
+        // close streams
+        try {
+          keysetFileInputStream.close();
+        } catch (IOException | NullPointerException ignore) {
+        }
+        try {
+          keysetFileOutputStream.close();
+        } catch (IOException | NullPointerException ignore) {
+        }
       }
-      this.crypter = crypter;
     }
   }
 
   /**
-   * Encrypts a plain text value using Keyczar.
+   * Encrypts a plain text value using Tink.
    *
    * @param plainTextValue The value to encrypt.
    */
   public synchronized String encrypt(String plainTextValue) {
     try {
-      return crypter.encrypt(plainTextValue);
-    } catch (Exception e) {
+      byte[] encryptedBytes = aead.encrypt(plainTextValue.getBytes(), ASSOCIATED_DATA);
+      return Base64.getEncoder().encodeToString(encryptedBytes);
+    } catch (GeneralSecurityException | NullPointerException e) {
       LOGGER.debug("Key and encryption service failed to set up. Failed to encrypt.", e);
       return plainTextValue;
     }
   }
 
   /**
-   * Decrypts a plain text value using Keyczar
+   * Decrypts a plain text value using Tink
    *
    * @param encryptedValue The value to decrypt.
    */
   public synchronized String decrypt(String encryptedValue) {
     try {
-      return crypter.decrypt(encryptedValue);
-    } catch (Exception e) {
+      byte[] encryptedBytes = Base64.getDecoder().decode(encryptedValue);
+      return new String(aead.decrypt(encryptedBytes, ASSOCIATED_DATA));
+    } catch (GeneralSecurityException | NullPointerException e) {
       LOGGER.debug("Key and encryption service failed to set up. Failed to decrypt.", e);
       return encryptedValue;
     }

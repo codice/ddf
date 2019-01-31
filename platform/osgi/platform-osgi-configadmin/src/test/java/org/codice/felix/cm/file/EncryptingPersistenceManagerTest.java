@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -64,16 +65,30 @@ public class EncryptingPersistenceManagerTest {
 
   @Mock private PersistenceManager mockManager;
 
-  private EncryptingPersistenceManager persistenceManager;
+  private String pwDirectory;
 
   @Before
   public void setup() throws Exception {
-    String pwDirectory = temporaryFolder.newFolder().getAbsolutePath();
-    persistenceManager = new EncryptingPersistenceManager(mockManager, pwDirectory);
+    pwDirectory = temporaryFolder.newFolder().getAbsolutePath();
+  }
+
+  @Test
+  public void testKeysetReusability() throws Exception {
+    final EncryptingPersistenceManager persistenceManager1 =
+        new EncryptingPersistenceManager(mockManager, pwDirectory);
+    final EncryptingPersistenceManager persistenceManager2 =
+        new EncryptingPersistenceManager(mockManager, pwDirectory);
+
+    assertEquals(
+        persistenceManager1.agent.keysetHandle.getKeysetInfo(),
+        persistenceManager2.agent.keysetHandle.getKeysetInfo());
   }
 
   @Test
   public void testPropertyEncryptionRoundTrip() throws Exception {
+    EncryptingPersistenceManager persistenceManager =
+        new EncryptingPersistenceManager(mockManager, pwDirectory);
+
     ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
     persistenceManager.store(PID, TEST_PROPS);
     verify(mockManager).store(eq(PID), captor.capture());

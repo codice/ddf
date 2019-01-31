@@ -374,5 +374,13 @@
                 </include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/ddf/platform/security/tink-crypto/${project.version}
+            </outputDirectory>
+            <includes>
+                <include>ddf.platform.security:tink-crypto:jar:${project.version}</include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 </component>

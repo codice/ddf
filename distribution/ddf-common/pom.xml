@@ -60,6 +60,11 @@ These shared resources include:
       <artifactId>org.apache.felix.scr</artifactId>
       <version>${felix.scr.version}</version>
     </dependency>
+    <dependency>
+      <groupId>ddf.platform.security</groupId>
+      <artifactId>tink-crypto</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>

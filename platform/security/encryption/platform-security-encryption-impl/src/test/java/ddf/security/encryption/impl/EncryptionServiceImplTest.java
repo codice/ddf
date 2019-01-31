@@ -70,6 +70,27 @@ public class EncryptionServiceImplTest {
   }
 
   @Test
+  public void testKeysetReusability() throws Exception {
+    final EncryptionServiceImpl encryptionService1 = new EncryptionServiceImpl();
+    final EncryptionServiceImpl encryptionService2 = new EncryptionServiceImpl();
+
+    assertEquals(
+        encryptionService1.keysetHandle.getKeysetInfo(),
+        encryptionService2.keysetHandle.getKeysetInfo());
+
+    final String unencryptedPassword = "protect";
+
+    String encryptedPassword1 = encryptionService1.encrypt(unencryptedPassword);
+    String encryptedPassword2 = encryptionService2.encrypt(unencryptedPassword);
+
+    String plainPassword1 = encryptionService1.decrypt(encryptedPassword2);
+    String plainPassword2 = encryptionService2.decrypt(encryptedPassword1);
+
+    assertEquals(unencryptedPassword, plainPassword1);
+    assertEquals(unencryptedPassword, plainPassword2);
+  }
+
+  @Test
   public void testEncryptDecrypt() throws Exception {
     final String unencryptedPassword = "protect";
 

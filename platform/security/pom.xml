@@ -244,5 +244,6 @@
         <module>security-migratable</module>
         <module>command</module>
         <module>secure-boot</module>
+        <module>tink-crypto</module>
     </modules>
 </project>
