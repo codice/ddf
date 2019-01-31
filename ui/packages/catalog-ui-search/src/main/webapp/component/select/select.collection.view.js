@@ -209,30 +209,6 @@ module.exports = Marionette.CollectionView.extend({
     ) {
       FilterHelper.matchesFilter(filterValue, child.get('value'), this.options.matchcase);
     }
-    // if (
-    //   child.get('value') !== undefined &&
-    //   this.getAppropriateString(child.get('value')).match(reg) !== null
-    // ) {
-    //   return true
-    // }
-    // if (
-    //   child.get('label') !== undefined &&
-    //   this.wordStartsWithFilter(
-    //     this.getWords(child.get('label')),
-    //     filterValue
-    //   ) === undefined
-    // ) {
-    //   return false
-    // }
-    // if (
-    //   child.get('value') === undefined &&
-    //   this.wordStartsWithFilter(
-    //     this.getWords(child.get('value')),
-    //     filterValue
-    //   ) === undefined
-    // ) {
-    //   return false
-    // }
     return true
   },
   addValues: function(values) {
