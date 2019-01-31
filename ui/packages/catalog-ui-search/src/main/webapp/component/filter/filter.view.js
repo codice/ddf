@@ -254,9 +254,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
-        currentComparator === 'EMPTY'
-          ? this.toggleDateClass(false)
-          : this.toggleDateClass(true)
+        this.toggleDateClass(currentComparator === 'EMPTY')        
         break
       case 'BOOLEAN':
         if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
@@ -273,9 +271,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', '>')
         }
-        currentComparator === 'EMPTY'
-          ? this.toggleViewingClass(false)
-          : this.toggleViewingClass(true)
+        this.toggleViewingClass(currentComparator === 'EMPTY')
         break
       default:
         if (
@@ -312,9 +308,9 @@ module.exports = Marionette.LayoutView.extend({
     )
     const ViewToUse = determineView(currentComparator)
     let modelObj = new PropertyModel(propertyJSON)
-    if (currentComparator === 'EMPTY') {
-      modelObj.attributes.value = ''
-    }
+    // if (currentComparator === 'EMPTY') {
+    //   modelObj.attributes.value = ''
+    // }
     this.filterInput.show(
       new ViewToUse({
         model: modelObj,
