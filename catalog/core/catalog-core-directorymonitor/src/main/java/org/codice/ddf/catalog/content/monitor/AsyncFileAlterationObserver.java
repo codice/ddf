@@ -71,6 +71,11 @@ public class AsyncFileAlterationObserver implements Serializable {
     return errors;
   }
 
+  /**
+   * Initializes the object state of the Observer.
+   *
+   * @return true on success, false if an IO error occurs
+   */
   public boolean initialize() {
     return !initHelper(rootFile);
   }

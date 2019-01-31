@@ -18,8 +18,14 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
+import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileSystemFileConsumer.class);
+
   private DurableFileAlterationListener listener;
 
   private AsyncFileAlterationObserver observer;
@@ -54,12 +60,35 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     }
     if (observer == null && fileName != null) {
       if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
-        observer =
-            (AsyncFileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
+        Object tempObserver = fileSystemPersistenceProvider.loadFromPersistence(sha1);
+        if (tempObserver instanceof AsyncFileAlterationObserver) {
+          observer = (AsyncFileAlterationObserver) tempObserver;
+        } else {
+          backwardsCompatibility(
+              (FileAlterationObserver) tempObserver,
+              new AsyncFileAlterationObserver(new File(fileName)));
+        }
       } else {
         observer = new AsyncFileAlterationObserver(new File(fileName));
       }
     }
+  }
+
+  //  We got an old version.
+  private void backwardsCompatibility(
+      FileAlterationObserver oldBoye, AsyncFileAlterationObserver newBoye) {
+    boolean success = newBoye.initialize();
+    if (!success) {
+      //  Screams internally.
+      //  There was an IO error setting up the initial state of the observer
+      LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");
+      return;
+    }
+    oldBoye.addListener(listener);
+    oldBoye.checkAndNotify();
+    oldBoye.removeListener(listener);
+
+    observer = newBoye;
   }
 
   @Override

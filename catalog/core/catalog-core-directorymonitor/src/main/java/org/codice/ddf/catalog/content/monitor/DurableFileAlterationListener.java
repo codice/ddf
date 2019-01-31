@@ -22,16 +22,20 @@ import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.spi.Synchronization;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.content.monitor.AbstractDurableFileConsumer.ExchangeHelper;
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
 import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
+import org.codice.ddf.catalog.content.monitor.synchronizations.LoggingSynchronization;
 import org.codice.ddf.catalog.content.monitor.watcher.FileWatcher;
 import org.codice.ddf.catalog.content.monitor.watcher.FilesWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DurableFileAlterationListener implements AsyncFileAlterationListener {
+public class DurableFileAlterationListener
+    implements AsyncFileAlterationListener, FileAlterationListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileAlterationListener.class);
 
@@ -153,5 +157,49 @@ public class DurableFileAlterationListener implements AsyncFileAlterationListene
     }
 
     return (String) productToMetacardIdMap.loadFromPersistence(ref);
+  }
+
+  /**
+   * Backwards compatibility. In case we need to add this listener to an old version due to
+   * serializable concerns.
+   */
+  @Override
+  public void onStart(FileAlterationObserver observer) {
+    //  noop
+  }
+
+  @Override
+  public void onDirectoryCreate(File directory) {
+    //  noop
+  }
+
+  @Override
+  public void onDirectoryChange(File directory) {
+    //  noop
+  }
+
+  @Override
+  public void onDirectoryDelete(File directory) {
+    //  noop
+  }
+
+  @Override
+  public void onFileCreate(File file) {
+    onFileCreate(file, new LoggingSynchronization(file, "CREATE"));
+  }
+
+  @Override
+  public void onFileChange(File file) {
+    onFileChange(file, new LoggingSynchronization(file, "MODIFY"));
+  }
+
+  @Override
+  public void onFileDelete(File file) {
+    onFileChange(file, new LoggingSynchronization(file, "DELETE"));
+  }
+
+  @Override
+  public void onStop(FileAlterationObserver observer) {
+    //  noop
   }
 }
