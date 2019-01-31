@@ -84,6 +84,12 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'change:list.bookmarks', this.handleEmptyList)
     this.handleEmptyList()
     this.handleOutOfDate()
+    this.handleDefault()
+    this.listenTo(
+      user.get('user').getPreferences(),
+      'change:defaultListId',
+      this.handleDefault
+    )
   },
   handleOutOfDate: function() {
     this.$el.toggleClass('is-out-of-date', this.model.get('query>isOutdated'))
@@ -93,12 +99,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender: function() {
     this.setupFeed()
-    this.handleDefault()
-    this.listenTo(
-      user.get('user').getPreferences(),
-      'change:defaultListId',
-      this.handleDefault
-    )
   },
   setupFeed: function() {
     this.queryFeed.show(

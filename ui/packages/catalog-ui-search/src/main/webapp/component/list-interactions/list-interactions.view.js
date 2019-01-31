@@ -42,18 +42,18 @@ module.exports = Marionette.ItemView.extend({
   },
   onRender() {
     this.handleResult()
-    this.handleDefault()
-    this.listenTo(
-      user.get('user').getPreferences(),
-      'change:defaultListId',
-      this.handleDefault
-    )
   },
   initialize() {
     if (!this.model.get('query').get('result')) {
       this.startListeningToSearch()
     }
     this.handleResult()
+    this.handleDefault()
+    this.listenTo(
+      user.get('user').getPreferences(),
+      'change:defaultListId',
+      this.handleDefault
+    )
   },
   startListeningToSearch() {
     this.listenToOnce(
