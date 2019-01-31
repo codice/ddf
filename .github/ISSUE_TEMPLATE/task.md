@@ -1,7 +1,7 @@
 ---
 name: Task
 about: Dependency Upgrade, Docs
-title: '[Whats getting updated or changed, e.g. 2.3 - 3.0]'
+title: '[Summarize what's being changed]'
 labels: ''
 assignees: ''
 
@@ -22,7 +22,7 @@ is the best place for getting support.
 ### Description
 <!-- 
 Description of the issue
-What is being updated and why?
+Why is this being updated or changed?
 -->
 
 #### Expected behavior (if applicable):
