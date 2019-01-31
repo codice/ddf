@@ -1,6 +1,9 @@
-:title: Eventing Intro
-:type: eventing
+:title: Eventing
+:type: architectureIntro
 :status: published
+:children:
+:order: 07
+:summary: Introduction to the Migration API.
 
 .Eventing Architecture
 [ditaa, catalog_architecture_eventing, png, ${image-width}]
@@ -39,14 +42,8 @@ Once subscribed, users will receive notifications of events such as update or cr
 
 The key components of ${branding} Eventing include:
 
-* Subscription
-* Delivery Method
+* <<{developing-prefix}developing_subscriptions,Subscription>>
+* <<{developing-prefix}delivery_method,Delivery Method>>
 * <<{architecture-prefix}event_processor,Event Processor>>
 
-After reading this section, you will be able to:
-
-* Create new subscriptions
-* Register subscriptions
-* Perform operations on event notification
-* Remove a subscription
 

@@ -1,32 +1,33 @@
-:title: Subscriptions
-:type: eventing
+:title: Developing Subscriptions
+:type: developingComponent
 :status: published
-
-==== Subscriptions
+:link: _subscriptions
+:order: 32
+:summary: Creating a custom Subscription.
 
 Subscriptions represent "standing queries" in the Catalog.
 Like a query, subscriptions are based on the OGC Filter specification.
 
-===== Subscription Lifecycle
+==== Subscription Lifecycle
 
 A Subscription itself is a series of events during which various plugins or transformers can be called to process the subscription.
 
-====== Creation
+===== Creation
 
 * Subscriptions are created directly with the <<{architecture-prefix}event_processor,Event Processor>> or declaratively through use of the Whiteboard Design Pattern.
 * The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.
 
-====== Evaluation
+===== Evaluation
 
 * When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin will be invoked.
 
 * If the delivery is not rejected, the associated Delivery Method callback will be invoked.
 
-====== Update Evaluation
+===== Update Evaluation
 
 Notably, the Catalog allows event evaluation on both the previous value (if available) and new value of a Metacard when an update occurs.
 
-====== Durability
+===== Durability
 
 Subscription durability is not provided by the Event Processor.
 Thus, all subscriptions are transient and will not be recreated in the event of a system restart.

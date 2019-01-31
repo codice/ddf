@@ -5,7 +5,7 @@
 :project: ${branding}
 :order: 09
 
-==== Firewall Port Configuration
+=== Firewall Port Configuration
 
 Below is a table listing all of the default ports that ${branding} uses and a description of what they are used for.
 Firewalls will need to be configured to open these ports in order for external systems to communicate with ${branding}.
