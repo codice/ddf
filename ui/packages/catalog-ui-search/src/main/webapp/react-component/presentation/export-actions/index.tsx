@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,9 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-{{#each this}}
-    <div data-url="{{this.url}}">
-        {{this.title}}
-    </div>
-{{/each}}
+export { default } from './export-actions'

@@ -27,7 +27,6 @@ import * as QueryConfirmationView from '../../../component/confirmation/query/co
 import * as LoadingView from '../../../component/loading/loading.view'
 import * as PopoutView from '../../../component/dropdown/popout/dropdown.popout.view'
 import * as ResultAddView from '../../../component/result-add/result-add.view'
-import * as ExportActionsView from '../../../component/export-actions/export-actions.view'
 
 import * as router from '../../../component/router/router'
 import * as sources from '../../../component/singletons/sources-instance'
@@ -37,8 +36,11 @@ import * as user from '../../../component/singletons/user-instance'
 
 import MarionetteRegionContainer from '../marionette-region-container'
 
+import ExportActions from '../../../react-component/presentation/export-actions'
+
 const Query = require('../../../js/model/Query')
 const wreqr = require('wreqr')
+const Marionette = require('marionette')
 
 type Props = {
   model: {} | any
@@ -288,7 +290,17 @@ const createAddRemoveRegion = (model: Model) =>
 
 const createResultActionsExportRegion = (model: Model) =>
   PopoutView.createSimpleDropdown({
-    componentToShow: ExportActionsView,
+    componentToShow: Marionette.LayoutView.extend({
+      template() {
+        return (
+          <ExportActions
+            actions={this.model.getExportActions().map((action: any) => {
+              return { url: action.get('url'), title: action.getExportType() }
+            })}
+          />
+        )
+      },
+    }),
     dropdownCompanionBehaviors: {
       navigation: {},
     },
