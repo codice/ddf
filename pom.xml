@@ -84,21 +84,21 @@
         <!--This property allows using the '${variable-name}' syntax in code blocks
             without accidental filtering/replacement-->
         <variable-prefix>${</variable-prefix>
-        <!--Individual application names-->
         <catalog-search-ui>Intrigue</catalog-search-ui>
-        <ddf-admin>Admin</ddf-admin>
         <admin-console>Admin Console</admin-console>
         <command-console>Command Console</command-console>
+        <!--Individual application names-->
+        <ddf-admin>Admin</ddf-admin>
+        <message-broker>Message Broker</message-broker>
         <ddf-catalog>Catalog</ddf-catalog>
         <ddf-geowebcache>GeoWebCache</ddf-geowebcache>
         <ddf-platform>Platform</ddf-platform>
-        <message-broker>Message Broker</message-broker>
         <ddf-registry>Registry</ddf-registry>
         <ddf-resource-management>Resource Management</ddf-resource-management>
+        <ddf-ui>Search UI</ddf-ui>
         <ddf-security>Security</ddf-security>
         <ddf-solr>Solr Catalog</ddf-solr>
         <ddf-spatial>Spatial</ddf-spatial>
-        <ddf-ui>Search UI</ddf-ui>
         <deprecated>
             [IMPORTANT]
             ====
