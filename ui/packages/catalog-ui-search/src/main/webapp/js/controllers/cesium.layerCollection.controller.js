@@ -95,8 +95,8 @@ var Controller = CommonLayerController.extend({
     }
 
     this.layerOrder = addLayer({
-      prev: this.layerOrder,
-      cur: this.collection.models.map(model => model.id).reverse(),
+      initialized: this.layerOrder,
+      all: this.collection.models.map(model => model.id).reverse(), //this.collection.models sorts layers from top to bottom, while Cesium expects the reverse.
       layer: model.id,
     })
 
@@ -144,12 +144,9 @@ var Controller = CommonLayerController.extend({
       cur: newLayerOrder,
     })
 
-    if (typeof layer === 'undefined') {
-      return
-    }
-    const name = this.collection.models
-      .find(model => model.id === layer)
-      .get('name')
+    // const name = this.collection.models
+    //   .find(model => model.id === layer)
+    //   .get('name')
     //console.log(method + ' ' + name + ' ' + count) // useful for debugging!
 
     _.times(

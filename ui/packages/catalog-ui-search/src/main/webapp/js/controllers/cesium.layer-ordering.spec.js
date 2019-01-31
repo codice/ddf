@@ -18,8 +18,8 @@ describe('Cesium Layer Ordering', () => {
 
   describe('addLayer()', () => {
     describe('Returns correct layer order when adding to:', () => {
-      const prev = ['b', 'd']
-      const cur = ['a', 'b', 'c', 'd', 'e']
+      const initialized = ['b', 'd']
+      const all = ['a', 'b', 'c', 'd', 'e']
       const testData = [
         { test: 'beginning', layer: 'a', expectedOrder: ['a', 'b', 'd'] },
         { test: 'middle', layer: 'c', expectedOrder: ['b', 'c', 'd'] },
@@ -29,8 +29,8 @@ describe('Cesium Layer Ordering', () => {
       testData.forEach(({ test, layer, expectedOrder }) => {
         it(`${test}`, () => {
           const newLayerOrder = addLayer({
-            prev,
-            cur,
+            initialized,
+            all,
             layer,
           })
           checkOrdering({ actual: newLayerOrder, expected: expectedOrder })
@@ -39,19 +39,51 @@ describe('Cesium Layer Ordering', () => {
     })
     it('Can add layer to empty ordering', () => {
       const newLayerOrder = addLayer({
-        prev: [],
-        cur: ['a', 'b', 'c', 'd', 'e'],
+        initialized: [],
+        all: ['a', 'b', 'c', 'd', 'e'],
         layer: 'a',
       })
       checkOrdering({ actual: newLayerOrder, expected: ['a'] })
     })
     it('Does not duplicate an existing layer', () => {
       const newLayerOrder = addLayer({
-        prev: ['a', 'c', 'd'],
-        cur: ['a', 'b', 'c', 'd', 'e'],
+        initialized: ['a', 'c', 'd'],
+        all: ['a', 'b', 'c', 'd', 'e'],
         layer: 'c',
       })
       checkOrdering({ actual: newLayerOrder, expected: ['a', 'c', 'd'] })
+    })
+    it('Does not add a layer that does not exist', () => {
+      const newLayerOrder = addLayer({
+        initialized: ['a', 'c', 'd'],
+        all: ['a', 'b', 'c', 'd', 'e'],
+        layer: 'g',
+      })
+      checkOrdering({ actual: newLayerOrder, expected: ['a', 'c', 'd'] })
+    })
+    it('Throws the correct error when the passed in layer orders have different orders', () => {
+      expect(
+        addLayer.bind(this, {
+          initialized: ['d', 'a', 'b'],
+          all: ['a', 'b', 'c', 'd', 'e'],
+          layer: 'c',
+        })
+      ).to.throw(
+        Error,
+        'addLayer: the two layer orders cannot have different orders'
+      )
+    })
+    it('Throws the correct error when the when the set of all layers is not a superset of the initialized layers', () => {
+      expect(
+        addLayer.bind(this, {
+          initialized: ['a', 'g', 'd'],
+          all: ['a', 'b', 'c', 'd', 'e'],
+          layer: 'c',
+        })
+      ).to.throw(
+        Error,
+        'addLayer: the set of all layers must be a superset of initialized layers'
+      )
     })
   })
 
@@ -107,11 +139,11 @@ describe('Cesium Layer Ordering', () => {
       }) => {
         const METHOD_RAISE = 'raise'
         const shiftLayerToIndex = ({ layerOrder, layer: layerId, index }) => {
-          const layerRemoved = layerOrder.filter(id => id !== layerId)
+          const layerIdRemoved = layerOrder.filter(id => id !== layerId)
           return [
-            ...layerRemoved.slice(0, index),
+            ...layerIdRemoved.slice(0, index),
             layerId,
-            ...layerRemoved.slice(index),
+            ...layerIdRemoved.slice(index),
           ]
         }
         const modifier = method === METHOD_RAISE ? 1 : -1
@@ -132,6 +164,22 @@ describe('Cesium Layer Ordering', () => {
             const appliedShift = applyShift({ prev, layer, method, count })
             checkOrdering({ actual: appliedShift, expected: cur })
           })
+        })
+        it('Throws the correct error when the passed in layer orders do not contain the same ids', () => {
+          expect(
+            getShift.bind(this, {
+              prev: ['a', 'b', 'c', 'd'],
+              cur: ['a', 'b'],
+            })
+          ).to.throw(Error, 'getShift: arrays must contain the same ids')
+        })
+        it('Throws the correct error when more than one shift is required', () => {
+          expect(
+            getShift.bind(this, {
+              prev: ['d', 'a', 'b'],
+              cur: ['b', 'a', 'd'],
+            })
+          ).to.throw(Error, 'getShift: unable to find shift')
         })
       })
     })

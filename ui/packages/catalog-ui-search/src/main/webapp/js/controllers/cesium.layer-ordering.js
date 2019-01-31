@@ -1,13 +1,24 @@
 import { isEqual, intersection } from 'lodash'
+
 export function addLayer({
-  prev: previousLayerOrder,
-  cur: currentLayerOrder,
+  initialized: initializedLayerOrder,
+  all: allLayerOrder,
   layer: layerId,
 }) {
-  const previousLayers = new Set(previousLayerOrder)
-  return currentLayerOrder.filter(
-    id => id === layerId || previousLayers.has(id)
-  )
+  const initializedLayers = new Set(initializedLayerOrder)
+  const filtered = allLayerOrder.filter(id => initializedLayers.has(id))
+
+  if (filtered.length < initializedLayerOrder.length) {
+    throw new Error(
+      `addLayer: the set of all layers must be a superset of initialized layers`
+    )
+  }
+  if (!isEqual(filtered, initializedLayerOrder)) {
+    throw new Error(
+      `addLayer: the two layer orders cannot have different orders`
+    )
+  }
+  return allLayerOrder.filter(id => id === layerId || initializedLayers.has(id))
 }
 
 export function shiftLayers({
@@ -24,8 +35,7 @@ export function getShift({ prev: previousLayerOrder, cur: currentLayerOrder }) {
       previousLayerOrder.length ||
     currentLayerOrder.length !== previousLayerOrder.length
   ) {
-    console.warn(`getShift(): arrays must contain the same ids`)
-    return {}
+    throw new Error(`getShift: arrays must contain the same ids`)
   }
 
   if (isEqual(previousLayerOrder, currentLayerOrder)) {
@@ -33,11 +43,11 @@ export function getShift({ prev: previousLayerOrder, cur: currentLayerOrder }) {
   }
 
   const shiftLayerToIndex = ({ layerOrder, layer: layerId, index }) => {
-    const layerRemoved = layerOrder.filter(id => id !== layerId)
+    const layerIdRemoved = layerOrder.filter(id => id !== layerId)
     return [
-      ...layerRemoved.slice(0, index),
+      ...layerIdRemoved.slice(0, index),
       layerId,
-      ...layerRemoved.slice(index),
+      ...layerIdRemoved.slice(index),
     ]
   }
 
@@ -54,7 +64,7 @@ export function getShift({ prev: previousLayerOrder, cur: currentLayerOrder }) {
       layer,
       index: currentOrder,
     })
-    if (_.isEqual(shiftLayer, currentLayerOrder)) {
+    if (isEqual(shiftLayer, currentLayerOrder)) {
       return {
         layer,
         method: currentOrder > previousOrder ? 'raise' : 'lower', // raise means move to higher index :(
@@ -62,5 +72,5 @@ export function getShift({ prev: previousLayerOrder, cur: currentLayerOrder }) {
       }
     }
   }
-  return {}
+  throw new Error(`getShift: unable to find shift`)
 }
