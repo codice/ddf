@@ -392,7 +392,7 @@ public abstract class AbstractIntegrationTest {
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog?_wadl");
 
-      getServiceManager().startFeature(true, "search-ui-app", "catalog-ui");
+      getServiceManager().startFeature(true, "search-ui-app", "catalog-search-ui");
       getServiceManager().waitForAllBundles();
     } catch (Exception e) {
       throw new IllegalStateException("Failed to start up required features.", e);

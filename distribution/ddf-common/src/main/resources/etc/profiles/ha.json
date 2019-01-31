@@ -42,7 +42,7 @@
     "catalog-versioning-plugin",
     "catalog-solr-provider",
     "webservice-gazetteer",
-    "catalog-ui",
+    "catalog-search-ui",
     "catalog-core-plugins",
     "simple-search-ui",
     "security-sts-attributequeryclaimshandler",

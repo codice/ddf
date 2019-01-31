@@ -1,6 +1,6 @@
 {
   "name": "search-ui-app",
-  "description": "The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both standard (3d globe) and simple (text page) versions.::Search UI",
+  "description": "The Search UI application provides querying user interfaces.::Search UI",
   "bundleLocations": [
     "mvn:ddf.ui.search/search-endpoint/${project.version}",
     "mvn:ddf.ui.search/search-redirect/${project.version}",
