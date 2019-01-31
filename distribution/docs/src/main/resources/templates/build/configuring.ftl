@@ -17,8 +17,6 @@ include::${configuration.file}[leveloffset=+2]
 
 include::${subConfiguration.file}[leveloffset=+3]
 
-'''
-
 </#if>
 </#list>
 </#if>

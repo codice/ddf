@@ -1,0 +1,20 @@
+:title: Configuring CSW Endpoint
+:type: subConfiguration
+:status: published
+:parent: Configuring Endpoints
+:summary: Configuring CSW Endpoint
+:order: 01
+
+== {title}
+
+The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.
+
+To install the CSW endpoint:
+
+. Navigate to the *${admin-console}*.
+. Select *System*.
+. Select *Features*.
+. Install the `csw-endpoint` feature.
+
+The CSW endpoint has no configurable properties.
+It can only be installed or uninstalled.

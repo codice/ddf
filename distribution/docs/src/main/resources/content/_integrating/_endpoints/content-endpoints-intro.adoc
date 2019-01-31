@@ -1,0 +1,9 @@
+:type: endpointIntro
+:status: published
+:title: Content Retrieval Endpoints
+:operations: retrieval
+:order: 04
+
+== {title}
+
+To retrieve content from an instance of ${branding}, use one of these endpoints.

@@ -5,8 +5,6 @@
 
 ${branding} is structured to enable flexible integration with external clients and into larger component systems.
 
-Federation with ${branding} is primarily accomplished through <<{integrating-prefix}endpoints,Endpoints>> accessible through http(s) requests and responses.
-
 If integrating with an existing installation of ${branding}, continue to the following sections on endpoints and data/metadata management.
 
 If a new installation of ${branding} is required, first see the <<{managing-prefix}managing,Managing>> section for installation and configuration instructions, then return to this section for guidance on connecting external clients.

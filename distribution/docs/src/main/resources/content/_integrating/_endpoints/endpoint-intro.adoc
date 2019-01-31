@@ -1,0 +1,13 @@
+:title: Endpoints
+:type: endpointIntro
+:status: published
+:operations: na
+:order: 00
+
+Federation with ${branding} is primarily accomplished through <<{integrating-prefix}endpoints,Endpoints>> accessible through http(s) requests and responses.
+
+[NOTE]
+====
+Not all installations will expose all available endpoints. Check with ${branding} administrator to confirm availability of these endpoints.
+====
+
