@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Attribute;
@@ -37,8 +38,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.common.audit.SecurityLogger;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -98,6 +97,8 @@ public class DumpCommand extends CqlCommands {
   private static final String METACARD_PATH = "metacards" + File.separator;
 
   private static final String CONTENT = "content";
+
+  private static final int BUFFER_SIZE = 4096;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -450,20 +451,25 @@ public class DumpCommand extends CqlCommands {
   }
 
   private void writeMetacardToZip(ZipOutputStream zipOutputStream, Metacard metacard) {
+    InputStream inputStream = null;
 
-    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+    try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(BUFFER_SIZE);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileBackedOutputStream)) {
 
       ZipEntry zipEntry = new ZipEntry(METACARD_PATH + metacard.getId());
       zipOutputStream.putNextEntry(zipEntry);
 
       objectOutputStream.writeObject(new MetacardImpl(metacard));
-      InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+      inputStream = fileBackedOutputStream.asByteSource().openStream();
 
       IOUtils.copy(inputStream, zipOutputStream);
-      inputStream.close();
     } catch (IOException e) {
       LOGGER.debug("Failed to add metacard with id {}.", metacard.getId(), e);
+    } finally {
+      try {
+        inputStream.close();
+      } catch (IOException | NullPointerException ignore) {
+      }
     }
   }
 

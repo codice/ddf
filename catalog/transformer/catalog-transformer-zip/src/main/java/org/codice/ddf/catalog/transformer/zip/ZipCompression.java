@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.transformer.zip;
 
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -21,8 +22,6 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +47,8 @@ public class ZipCompression implements QueryResponseTransformer {
   private static final String METACARD_PATH = "metacards" + File.separator;
 
   private static final String TRANSFORMER_ID = "transformerId";
+
+  private static final int BUFFER_SIZE = 4096;
 
   private List<ServiceReference> metacardTransformers;
 
@@ -115,8 +116,8 @@ public class ZipCompression implements QueryResponseTransformer {
       extension = "." + extension;
     }
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try (ZipOutputStream zipOutputStream = new ZipOutputStream(baos)) {
+    try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(BUFFER_SIZE);
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileBackedOutputStream)) {
 
       for (Result result : sourceResponse.getResults()) {
         Metacard metacard = result.getMetacard();
@@ -130,7 +131,7 @@ public class ZipCompression implements QueryResponseTransformer {
         zipOutputStream.closeEntry();
       }
 
-      return new ByteArrayInputStream(baos.toByteArray());
+      return fileBackedOutputStream.asByteSource().openStream();
 
     } catch (IOException e) {
       throw new CatalogTransformerException(
