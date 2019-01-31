@@ -1,7 +1,7 @@
 ---
 name: Task
 about: Dependency Upgrade, Docs
-title: ''
+title: '[Whats getting updated or changed, e.g. 2.3 - 3.0]'
 labels: ''
 assignees: ''
 

@@ -1,7 +1,7 @@
 ---
 name: Improvement
 about: Suggest an idea or improvement for this project
-title: ''
+title: '[Positively summarize your feature]'
 labels: ''
 assignees: ''
 
@@ -23,6 +23,7 @@ is the best place for getting support.
 <!-- 
 Description of the issue
 Why is this change being proposed?
+Who would want this change implemented?
 Why should this be added to the codebase?
 -->
 

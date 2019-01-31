@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Report a Bug within the product
-title: ''
+title: '[Your issue, expressed as a negative statement]'
 labels: 'Bug Fix'
 assignees: ''
 
@@ -45,7 +45,7 @@ Severity of the bug (minor, major, critical)?
 #### Platform and environment:
 <!-- OS, Java version, browser, etc, as applicable -->
 
-### Version
+### Affects versions
 <!-- Application version(s) -->
 
 ### Additional Information
