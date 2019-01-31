@@ -52,7 +52,7 @@ const DrawButton = ({ onDraw }) => (
 )
 
 const DropdownPadding = styled.div`
-  padding: ${props => props.theme.minimumSpacing};
+  padding-bottom: ${props => props.theme.minimumSpacing};
 `
 
 const Component = CustomElements.registerReact('location')
