@@ -22,8 +22,8 @@ is the best place for getting support.
 ### Description
 <!-- 
 Description of the issue
-Why is this change being proposed?
-Why should this be added to the codebase?
+Are there currently any workarounds?
+Severity of the bug (minor, major, critical)?
 -->
 
 ### Steps to Reproduce
@@ -46,5 +46,5 @@ Why should this be added to the codebase?
 <!-- Application version(s) -->
 
 ### Additional Information
-Any additional information, configuration or data that might be necessary
-to reproduce the issue.
+<!-- Any additional information, configuration or data that might be necessary
+to reproduce the issue. -->

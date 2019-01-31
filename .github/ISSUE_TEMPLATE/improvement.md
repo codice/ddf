@@ -33,4 +33,4 @@ Why should this be added to the codebase?
 <!-- Application version(s) -->
 
 ### Additional Information
-Any additional information, or data that might be useful to know about
+<!-- Any additional information, or data that might be useful to know about -->
