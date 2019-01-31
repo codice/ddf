@@ -68,12 +68,31 @@
         vertical-align: top;
       }
     }
+    .is-split-button button {
+      cursor: pointer;
+      opacity: @minimumOpacity;
 
+      &:hover:not(.is-disabled):not([disabled]),
+      &:focus:not(.is-disabled):not([disabled]) {
+        opacity: 1;
+      }
+
+      &.is-active:not(.is-disabled):not([disabled]) {
+        opacity: 1;
+      }
+    }
+    .is-split-button button,
     .is-button {
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
       display: inline-block;
       margin-left: @mediumSpacing;
+    }
+    .zoomToHome-container {
+      display: inline-block;
+    }
+    .toolbar-panzoom.is-button {
+      display: block;
     }
   }
 
