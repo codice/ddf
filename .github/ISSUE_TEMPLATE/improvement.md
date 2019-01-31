@@ -1,3 +1,12 @@
+---
+name: Improvement
+about: Suggest an idea or improvement for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 <!--
 
 Have you read DDF's Code of Conduct? By filing an Issue, you are
@@ -17,7 +26,7 @@ Why is this change being proposed?
 Why should this be added to the codebase?
 -->
 
-#### Expected behavior (if applicable):
+#### Expected behavior:
 <!-- What you expect to happen -->
 
 ### Version
