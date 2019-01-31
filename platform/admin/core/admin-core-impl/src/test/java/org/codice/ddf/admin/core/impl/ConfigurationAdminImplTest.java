@@ -89,6 +89,10 @@ public class ConfigurationAdminImplTest {
 
   private static final String TEST_VALUE = "TestValue";
 
+  private static final String TEST_KEY_IN_METATYPE = "TestKeyInMetatype";
+
+  private static final String INVALID_TEST_KEY = "InvalidTestKey";
+
   private Configuration testConfig;
 
   private Bundle testBundle;
@@ -192,6 +196,9 @@ public class ConfigurationAdminImplTest {
    */
   @Test
   public void testEnableConfigurations() throws Exception {
+    setUpListServices();
+    when(testAttDef.getID()).thenReturn(TEST_KEY_IN_METATYPE);
+
     org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
         mock(org.osgi.service.cm.ConfigurationAdmin.class);
     ConfigurationAdminImpl configurationAdminImpl =
@@ -203,6 +210,8 @@ public class ConfigurationAdminImplTest {
 
     testProperties.put(
         org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID_DISABLED);
+    testProperties.put(TEST_KEY_IN_METATYPE, TEST_VALUE);
+    testProperties.put(INVALID_TEST_KEY, TEST_VALUE);
 
     when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
         .thenReturn(new Configuration[] {testConfig});
@@ -222,6 +231,46 @@ public class ConfigurationAdminImplTest {
         "Should show the original disabled pid.",
         (String) result.get("originalFactoryPid"),
         is(TEST_FACT_PID_DISABLED));
+
+    Dictionary<String, Object> enabledProperties = new Hashtable<>();
+    enabledProperties.put(
+        org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
+    enabledProperties.put(TEST_KEY_IN_METATYPE, TEST_VALUE);
+
+    verify(testConfig).delete();
+    verify(testFactoryConfig).update(enabledProperties);
+  }
+
+  /**
+   * Tests the {@link AdminConsoleService#enableConfiguration(String)} method for the case where
+   * configurationAdmin.copyConfigProperties(..) throws an Exception because no
+   * ObjectClassDefinition is found
+   *
+   * @throws Exception
+   */
+  @Test(expected = IllegalStateException.class)
+  public void testEnableConfigurationsException() throws Exception {
+    setUpListServices();
+    when(testMTI.getObjectClassDefinition(anyString(), anyString())).thenReturn(null);
+
+    org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+        mock(org.osgi.service.cm.ConfigurationAdmin.class);
+    ConfigurationAdminImpl configurationAdminImpl =
+        getConfigurationAdminImpl(testConfigAdmin, new ArrayList<>());
+
+    Configuration testConfig = mock(Configuration.class);
+    Configuration testFactoryConfig = mock(Configuration.class);
+    Dictionary<String, Object> testProperties = new Hashtable<>();
+
+    testProperties.put(
+        org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID_DISABLED);
+
+    when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
+        .thenReturn(new Configuration[] {testConfig});
+    when(testConfig.getProperties()).thenReturn(testProperties);
+    when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
+
+    configurationAdminImpl.enableManagedServiceFactoryConfiguration(TEST_PID, testConfig);
   }
 
   /**
@@ -231,6 +280,9 @@ public class ConfigurationAdminImplTest {
    */
   @Test
   public void testDisableConfiguration() throws Exception {
+    setUpListServices();
+    when(testAttDef.getID()).thenReturn(TEST_KEY_IN_METATYPE);
+
     org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
         mock(org.osgi.service.cm.ConfigurationAdmin.class);
     ConfigurationAdminImpl configurationAdminImpl =
@@ -241,6 +293,8 @@ public class ConfigurationAdminImplTest {
     Dictionary<String, Object> testProperties = new Hashtable<>();
 
     testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
+    testProperties.put(TEST_KEY_IN_METATYPE, TEST_VALUE);
+    testProperties.put(INVALID_TEST_KEY, TEST_VALUE);
 
     when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
         .thenReturn(new Configuration[] {testConfig});
@@ -261,8 +315,13 @@ public class ConfigurationAdminImplTest {
         (String) result.get("originalFactoryPid"),
         is(TEST_FACTORY_PID));
 
+    Dictionary<String, Object> disabledProperties = new Hashtable<>();
+    disabledProperties.put(
+        org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID_DISABLED);
+    disabledProperties.put(TEST_KEY_IN_METATYPE, TEST_VALUE);
+
     verify(testConfig).delete();
-    verify(testFactoryConfig).update(testProperties);
+    verify(testFactoryConfig).update(disabledProperties);
   }
 
   /**

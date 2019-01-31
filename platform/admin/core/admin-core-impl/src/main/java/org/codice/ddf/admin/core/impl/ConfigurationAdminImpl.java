@@ -43,6 +43,7 @@ import org.codice.ddf.admin.core.api.ConfigurationStatus;
 import org.codice.ddf.admin.core.api.Metatype;
 import org.codice.ddf.admin.core.api.MetatypeAttribute;
 import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -762,21 +763,32 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
   private Dictionary<String, Object> copyConfigProperties(
       Dictionary<String, Object> properties, String factoryPid) {
-    Dictionary<String, Object> copiedProperties = new Hashtable<>();
+    final Dictionary<String, Object> copiedProperties = new Hashtable<>();
     ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
     if (objectClassDefinition == null) {
       LOGGER.debug(
           "ObjectClassDefinition not found for factoryPid: {}. Unable to copy properties.",
           factoryPid);
-      return copiedProperties;
+      throw new IllegalStateException(
+          "ObjectClassDefinition not found for factoryPid: " + factoryPid);
     }
     Stream.of(objectClassDefinition)
         .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
         .flatMap(Arrays::stream)
         .map(AttributeDefinition::getID)
-        .filter(id -> properties.get(id) != null)
-        .forEach(id -> copiedProperties.put(id, properties.get(id)));
+        .forEach(id -> copyIfDefined(id, properties, copiedProperties));
+    copyIfDefined(
+        RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, properties, copiedProperties);
     return copiedProperties;
+  }
+
+  private void copyIfDefined(
+      String id, Dictionary<String, Object> source, Dictionary<String, Object> destination) {
+    final Object value = source.get(id);
+
+    if (value != null) {
+      destination.put(id, value);
+    }
   }
 
   /**
