@@ -120,22 +120,3 @@ To update the disk quota, a client can post a new XML configuration: `curl -v -k
 ----
 
 See http://geowebcache.org/docs/current/configuration/diskquotas.html[Disk Quotas] for more information on configuration options for disk quota.
-
-=== Configuring the Standard Search UI for GeoWebCache
-
-Add a new Imagery Provider in the ${admin-console}:
-
-. Navigate to the *${admin-console}*.
-. Select *Configuration* tab.
-. Select *Standard Search UI* configuration.
-. Click the *Add* button next to *Imagery Providers*
-. Enter configuration for Imagery Provider in new textbox:
-. `{"type" "WMS" "url" "${secure_url}/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`
-. Set the Map Projection to `EPSG:900913` or `EPSG:4326`. (GeoWebCache supports either of these projections.)
-
-[NOTE]
-====
-Currently, GeoWebCache only supports WMS 1.1.1 and below. If the version number is not specified in the imagery provider, ${branding} will default to version `1.3.0`, and OpenLayers will not project the image tiles properly. Thus, the version `1.1.1` must be specified when using `EPSG:4326` projections.
-
-`{"type" "WMS" "url" "${secure_url}/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`
-====

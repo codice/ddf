@@ -25,7 +25,7 @@ By installing this application in DDF, all of the GeoWebCache capabilities are a
 ## Usage
 
 ### Configure GWC layers
-GWC needs to be configured to utilize one or more *backend* tile services which are exposed via a service endpoint that the Search UI can utilize.  The following XML shows the minimum amount of information required to configure a WMS layer :
+GWC needs to be configured to utilize one or more *backend* tile services which are exposed via a service endpoint that ${catalog-search-ui} can utilize.  The following XML shows the minimum amount of information required to configure a WMS layer:
 
 states.xml:
 ```
@@ -86,14 +86,3 @@ diskquota.xml:
 ```
 
 See http://geowebcache.org/docs/current/configuration/diskquotas.html for more information on configuration options for disk quota.
-
-### Configure the Standard Search UI
-Add a new Imagery Provider in the Search UI Config in the Admin Console (/admin).
-Set the Map Projection to `EPSG:900913` or `EPSG:4326`.  Out of the box, GeoWebCache supports either of these projections.
-
-`{"type" "WMS" "url" "https://localhost:8993/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`
-
-**Note: Currently, GeoWebCache only supports WMS 1.1.1 and below.  If the version number is not specified in the imagery provider, DDF will default to version 1.3.0, and OpenLayers will not project the image tiles properly.  Thus, the version 1.1.1 must be specified using EPSG:4326 projections.**
-
-`{"type" "WMS" "url" "https://localhost:8993/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`
-
