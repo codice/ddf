@@ -230,6 +230,9 @@ function generateFilter(type, property, value, metacardDefinitions) {
   switch (metacardDefinitions.metacardTypes[property].type) {
     case 'LOCATION':
     case 'GEOMETRY':
+      // if(type === 'IS NULL' || type === undefined){
+      //   property = 'location'
+      // }
       return generateAnyGeoFilter(property, value)
     default:
       const filter = {

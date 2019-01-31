@@ -235,6 +235,10 @@ module.exports = Marionette.LayoutView.extend({
   toggleViewingClass: function(toggle) {
     this.$el.toggleClass('if-viewing', toggle)
   },
+  toggleEditor: function(toggle) {
+    this.toggleViewingClass(toggle)
+    this.toggleSearchInputClass(toggle)
+  },
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
@@ -244,7 +248,8 @@ module.exports = Marionette.LayoutView.extend({
         if (['INTERSECTS', 'EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
-        this.toggleLocationClass(true)
+        this.toggleEditor(currentComparator !== 'EMPTY')
+        this.toggleLocationClass(currentComparator === 'EMPTY')
         break
       case 'DATE':
         if (
@@ -254,7 +259,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
-        this.toggleDateClass(currentComparator === 'EMPTY')        
+        this.toggleEditor(currentComparator !== 'EMPTY')        
         break
       case 'BOOLEAN':
         if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
@@ -271,7 +276,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', '>')
         }
-        this.toggleViewingClass(currentComparator === 'EMPTY')
+        this.toggleEditor(currentComparator !== 'EMPTY')
         break
       default:
         if (
@@ -281,7 +286,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'CONTAINS')
         }
-        this.toggleLocationClass(false)
+        // this.toggleEditor(currentComparator === 'EMPTY')
         break
     }
   },
@@ -301,6 +306,9 @@ module.exports = Marionette.LayoutView.extend({
     let value = Common.duplicate(this.model.get('value'))
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
+    if(currentComparator === 'EMPTY'){
+      value = []
+    }
     const propertyJSON = generatePropertyJSON(
       value,
       this.model.get('type'),
@@ -308,7 +316,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     const ViewToUse = determineView(currentComparator)
     let modelObj = new PropertyModel(propertyJSON)
-    // if (currentComparator === 'EMPTY') {
+    // if (this.model.changed.comparator === 'EMPTY') {
     //   modelObj.attributes.value = ''
     // }
     this.filterInput.show(
