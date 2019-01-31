@@ -1,13 +1,13 @@
-:title: Configuring Query Feedback for ${catalog-ui}
+:title: Configuring Query Feedback for ${catalog-search-ui}
 :type: subConfiguration
 :status: published
-:parent: Configuring ${catalog-ui}
+:parent: Configuring ${catalog-search-ui}
 :order: 04
-:summary: Configuring Query Feedback for ${catalog-ui}.
+:summary: Configuring Query Feedback for ${catalog-search-ui}.
 
 == {title}
 
-${catalog-ui} provides an option to allow users to submit Query Feedback.
+${catalog-search-ui} provides an option to allow users to submit Query Feedback.
 
 .Configuring Query Feedback
 . First, configure the *Email Service* to point to a mail server. See <<{reference-prefix}org.codice.ddf.platform.email.impl.SmtpClientImpl,Email Service Configurations>>.
@@ -15,7 +15,7 @@ ${catalog-ui} provides an option to allow users to submit Query Feedback.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
 . Select *Catalog UI Search*.
-. Select the *Enable Query Feedback* option to enable the query comments option for users in ${catalog-ui}.
+. Select the *Enable Query Feedback* option to enable the query comments option for users in ${catalog-search-ui}.
 . Add a *Query Feedback Email Subject Template*.
 . Add a *Query Feedback Email Body Template*. The template may include HTML formatting.
 . Add the *Query Feedback Email Destination*.

@@ -1,13 +1,13 @@
-:title: Configuring User Access to Ingest and Metadata for ${catalog-ui}
+:title: Configuring User Access to Ingest and Metadata for ${catalog-search-ui}
 :type: subConfiguration
 :status: published
-:parent: Configuring ${catalog-ui}
+:parent: Configuring ${catalog-search-ui}
 :order: 02
-:summary: Configuring user ability to upload products and edit existing metadata in ${catalog-ui}.
+:summary: Configuring user ability to upload products and edit existing metadata in ${catalog-search-ui}.
 
 == {title}
 
-${catalog-ui} lets the administrator control user access to ingest and metadata. The administrator
+${catalog-search-ui} lets the administrator control user access to ingest and metadata. The administrator
 can show or hide the uploader, letting them control whether users can ingest products. They
 can also choose whether or not users can edit existing metadata. By default, the uploader is
 available to users and editing is allowed.

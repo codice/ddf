@@ -1,13 +1,13 @@
-:title: Configuring Default Layout for ${catalog-ui}
+:title: Configuring Default Layout for ${catalog-search-ui}
 :type: subConfiguration
 :status: published
-:parent: Configuring ${catalog-ui}
+:parent: Configuring ${catalog-search-ui}
 :order: 00
-:summary: Configuring default layout for ${catalog-ui} using Default Layout UI.
+:summary: Configuring default layout for ${catalog-search-ui} using Default Layout UI.
 
 == {title}
 
-${catalog-ui} includes several options for users to display search results.
+${catalog-search-ui} includes several options for users to display search results.
 By default, users start with a *3D map* and an *Inspector* to view details of results or groups of results.
 Add or remove additional *visualizations* to the default view through the *Default Layout UI*.
 Users can customize their individual views as well.

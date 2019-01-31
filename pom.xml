@@ -85,7 +85,7 @@
             without accidental filtering/replacement-->
         <variable-prefix>${</variable-prefix>
         <!--Individual application names-->
-        <catalog-ui>Intrigue</catalog-ui>
+        <catalog-search-ui>Intrigue</catalog-search-ui>
         <ddf-admin>Admin</ddf-admin>
         <admin-console>Admin Console</admin-console>
         <command-console>Command Console</command-console>

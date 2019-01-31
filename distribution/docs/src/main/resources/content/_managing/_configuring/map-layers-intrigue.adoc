@@ -1,14 +1,14 @@
-:title: Configuring Map Layers for ${catalog-ui}
+:title: Configuring Map Layers for ${catalog-search-ui}
 :type: subConfiguration
 :status: published
-:parent: Configuring ${catalog-ui}
+:parent: Configuring ${catalog-search-ui}
 :order: 00
-:summary: Configuring Map Layers for ${catalog-ui}
+:summary: Configuring Map Layers for ${catalog-search-ui}
 
 == {title}
 
-Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Map Layers UI*.
-Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}map_configuration_for_intrigue,Map Configuration for ${catalog-ui}>>.
+Customize the look of the map displayed to users in ${catalog-search-ui} by adding or removing map layers through the *Map Layers UI*.
+Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}map_configuration_for_intrigue,Map Configuration for ${catalog-search-ui}>>.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
@@ -26,7 +26,7 @@ Adding a Map Layer translates to adding an Imagery Provider
 . Select from the list of available *Provider Types*.
 . Select a value for the *Alpha* to set the overall opacity of the _map layer_.
 .. Setting *Alpha* to 0 will prevent the layer from loading.
-. Select *Show* to make the layer visible in ${catalog-ui}. (Deselect to hide.)
+. Select *Show* to make the layer visible in ${catalog-search-ui}. (Deselect to hide.)
 . Select *Transparent* if _tile_ images contain transparency.
 
 .Deleting a Map Layer

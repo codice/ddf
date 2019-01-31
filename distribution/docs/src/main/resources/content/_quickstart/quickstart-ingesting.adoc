@@ -16,7 +16,7 @@ This is one way to ingest into the catalog, for a complete list of the different
 === Ingesting Sample Data
 
 . Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here] {external-link}.
-. Navigate in the browser to ${catalog-ui} at \${secure_url}/search/catalog.
+. Navigate in the browser to ${catalog-search-ui} at \${secure_url}/search/catalog.
 . Select the Menu icon (image:navigator-icon.png[navigator icon]) in the upper left corner
 . Select *Upload*.
 . Drag and drop the sample file or click to navigate to it.
@@ -27,7 +27,7 @@ This is one way to ingest into the catalog, for a complete list of the different
 XML metadata for text searching is not automatically generated from GeoJson fields.
 ====
 
-Querying from ${catalog-ui} (\${secure_url}/search/catalog) will return the record for the file ingested:
+Querying from ${catalog-search-ui} (\${secure_url}/search/catalog) will return the record for the file ingested:
 
 . Select the Menu icon (image:navigator-icon.png[navigator icon])and return to *Workspaces*.
 . Search for the ingested data.

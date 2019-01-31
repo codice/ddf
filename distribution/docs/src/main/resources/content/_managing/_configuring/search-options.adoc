@@ -1,13 +1,13 @@
-:title: Configuring Search Options for ${catalog-ui}
+:title: Configuring Search Options for ${catalog-search-ui}
 :type: subConfiguration
 :status: published
-:parent: Configuring ${catalog-ui}
+:parent: Configuring ${catalog-search-ui}
 :order: 03
-:summary: Configuring local, historical, and archived Search Options for ${catalog-ui}.
+:summary: Configuring local, historical, and archived Search Options for ${catalog-search-ui}.
 
 == {title}
 
-${catalog-ui} provides a few options to control what metacards may be searched.
+${catalog-search-ui} provides a few options to control what metacards may be searched.
 By default, the user can perform searches that produce historical metacards, archived metacards,
 and metacards from the local catalog. However, administrators can disable searching
 for any of these types of metacards.

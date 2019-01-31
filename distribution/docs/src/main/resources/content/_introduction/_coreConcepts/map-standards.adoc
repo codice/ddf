@@ -7,7 +7,7 @@
 
 == {title}
 
-${catalog-ui} includes capabilities to support custom map layer providers as well as support for several popular map layer providers.
+${catalog-search-ui} includes capabilities to support custom map layer providers as well as support for several popular map layer providers.
 
 Some provider types are currently only supported by the https://openlayers.org[2D OpenLayers] {external-link} map and some only by the https://cesiumjs.org[3D Cesium] {external-link} map.
 

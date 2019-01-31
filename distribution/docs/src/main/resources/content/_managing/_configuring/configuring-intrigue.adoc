@@ -1,4 +1,4 @@
-:title: Configuring ${catalog-ui}
+:title: Configuring ${catalog-search-ui}
 :type: configuration
 :status: published
 :parent: Configuring User Interfaces
@@ -6,4 +6,4 @@
 
 == {title}
 
-Start here to configure ${catalog-ui}.
+Start here to configure ${catalog-search-ui}.

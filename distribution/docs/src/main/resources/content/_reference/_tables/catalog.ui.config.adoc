@@ -320,14 +320,14 @@ thumbnail
 |Query Feedback Email Subject Template
 |queryFeedbackEmailSubjectTemplate
 |String
-|See <<{managing-prefix}configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
+|See <<{managing-prefix}configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-search-ui}>> for more details about Query Feedback templates.
 |Query Feedback from {{username}}
 |true
 
 |Query Feedback Email Body Template
 |queryFeedbackEmailBodyTemplate
 |String
-|See <<{managing-prefix}configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
+|See <<{managing-prefix}configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-search-ui}>> for more details about Query Feedback templates.
 |
 <h2>Query Feedback</h2> +
 <p><br> +

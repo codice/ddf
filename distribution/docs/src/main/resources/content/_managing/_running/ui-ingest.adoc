@@ -1,18 +1,18 @@
 :title: User Interface Ingest
 :type: dataManagement
 :status: published
-:summary: Ingesting from the ${catalog-ui}.
+:summary: Ingesting from the ${catalog-search-ui}.
 :parent: Ingesting Data
 :order: 01
 
 == {title}
 
-Files can also be ingested directly from ${catalog-ui}.
+Files can also be ingested directly from ${catalog-search-ui}.
 
 [WARNING]
 ====
-The ${catalog-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
+The ${catalog-search-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
 ====
 
-See <<{using-prefix}ui_ingest,Ingesting from ${catalog-ui}>> for details.
+See <<{using-prefix}ui_ingest,Ingesting from ${catalog-search-ui}>> for details.
 

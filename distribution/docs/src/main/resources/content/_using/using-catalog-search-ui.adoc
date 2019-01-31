@@ -1,22 +1,22 @@
-:title: Using ${catalog-ui}
+:title: Using ${catalog-search-ui}
 :type: using
 :status: published
-:summary: Using ${catalog-ui}.
+:summary: Using ${catalog-search-ui}.
 :link: _using_intrigue
 :order: 01
 
-Introduction: ${catalog-ui} represents the most advanced search interface available with ${branding}.
+Introduction: ${catalog-search-ui} represents the most advanced search interface available with ${branding}.
 It provides metadata search and discovery, resource retrieval, and workspace management with a 3D or optional 2D map visualization.
 
 [NOTE]
 ====
-For more detail on any feature or button within ${catalog-ui}, click the `?` icon in the upper right of the screen; then, hover over any item on the screen and a contextual tooltip will be displayed to define its purpose.
+For more detail on any feature or button within ${catalog-search-ui}, click the `?` icon in the upper right of the screen; then, hover over any item on the screen and a contextual tooltip will be displayed to define its purpose.
 To exit this mode, click the `?` again or press `escape`.
 ====
 
-=== Accessing ${catalog-ui}
+=== Accessing ${catalog-search-ui}
 
-The default URL for ${catalog-ui} is \${secure_url}/search/catalog
+The default URL for ${catalog-search-ui} is \${secure_url}/search/catalog
 
 .Catalog UI Guest Users
 [NOTE]
@@ -24,18 +24,18 @@ The default URL for ${catalog-ui} is \${secure_url}/search/catalog
 If Guest access has been enabled, users not signed in to ${branding} (i.e. guest users) will have access to search functions, but all workspace configuration and settings will only exist locally and will not be available for sharing.
 ====
 
-The default view for ${catalog-ui} is the *Workspaces* view. For other views or to return to the *Workspaces* view, click the *Navigation* menu in the upper-left corner of ${catalog-ui} and select the desired view.
+The default view for ${catalog-search-ui} is the *Workspaces* view. For other views or to return to the *Workspaces* view, click the *Navigation* menu in the upper-left corner of ${catalog-search-ui} and select the desired view.
 
 image::navigator-icon.png[navigator icon]
 
 .Select the desired view from the *Navigation* menu.
 image::navigator-menu-icon.png[navigation menu]
 
-=== Workspaces in ${catalog-ui}
+=== Workspaces in ${catalog-search-ui}
 
-Within ${catalog-ui}, workspaces are collections of settings, searches, and bookmarks that can be shared between users and stored for repeated access.
+Within ${catalog-search-ui}, workspaces are collections of settings, searches, and bookmarks that can be shared between users and stored for repeated access.
 
-==== Creating a Workspace in ${catalog-ui}
+==== Creating a Workspace in ${catalog-search-ui}
 
 Before searching in ${branding}, at least one workspace must be created.
 
@@ -59,7 +59,7 @@ Federated:: An example of a search across all federated sources and the local ${
 Location:: An example of a geographically constrained search.
 Temporal:: An example of a time-range search.
 
-==== Configuring a Workspace in ${catalog-ui}
+==== Configuring a Workspace in ${catalog-search-ui}
 
 Configure each workspace with searches and share options.
 
@@ -107,13 +107,13 @@ Workspaces can be shared between users at different levels of access as needed.
 . Click *Apply*.
 
 [[_ui_ingest]]
-=== Ingesting from ${catalog-ui}
+=== Ingesting from ${catalog-search-ui}
 
-Data can be ingested via ${catalog-ui}.
+Data can be ingested via ${catalog-search-ui}.
 
 [WARNING]
 ====
-The ${catalog-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
+The ${catalog-search-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
 ====
 
 . Select the Menu icon (image:navigator-icon.png[]) in the upper left corner.
@@ -133,7 +133,7 @@ Additional configuration may be needed to view these products in searches.
 ====
 
 ==== Using the Upload Editor
-${catalog-ui} provides an upload editor form which allows users to customize the metadata of their
+${catalog-search-ui} provides an upload editor form which allows users to customize the metadata of their
 uploads. If enabled, it will appear alongside the upload dropzone and will displays a list of
 attributes a that may be set.
 
@@ -145,7 +145,7 @@ form.
 Certain attributes within the form may be marked as required (indicated by an asterisk). These
 fields must be set before uploads will be permitted.
 
-=== Searching with ${catalog-ui}
+=== Searching with ${catalog-search-ui}
 
 The Search pane has two tabs: *Search* and *Lists*.
 
@@ -333,7 +333,7 @@ image:sample-dropdown-menu.png[]
 
 Visuals are different ways to view search results.
 
-. Click the *Add Visual* (image:add-visual-icon.png[add visual icon]) icon in the bottom right corner of ${catalog-ui}.
+. Click the *Add Visual* (image:add-visual-icon.png[add visual icon]) icon in the bottom right corner of ${catalog-search-ui}.
 . Select a visual to add.
 .. *2D Map*: A 2 dimensional map view.
 .. *3D Map*: A 3 dimensional map view.
@@ -457,9 +457,9 @@ Replace a resource.
 . Select *Overwrite*
 . Navigate to the new content via the navigation window.
 
-==== ${catalog-ui} Settings
+==== ${catalog-search-ui} Settings
 
-Customize the look and feel of ${catalog-ui} using the *Settings* (image:gear-icon.png[settings]) menu on the navigation bar.
+Customize the look and feel of ${catalog-search-ui} using the *Settings* (image:gear-icon.png[settings]) menu on the navigation bar.
 
 .Settings Menu Options
 image::catalog-ui-settings-options.png[]
@@ -471,11 +471,11 @@ image::catalog-ui-settings-options.png[]
 * *Time*: Set the time format (ISO-8601, 24 Hour or 12 Hour), as well as the timezone (UTC-12:00 through UTC+12:00).
 * *Hidden*: View or edit a list of results that have been hidden from the current search results.
 
-==== ${catalog-ui} Notifications
+==== ${catalog-search-ui} Notifications
 
 Notifications can be checked/dismissed by clicking the *Notifications* icon (image:notifications-icon.png[]) on the navigation bar.
 
-==== ${catalog-ui} Low Bandwidth Mode
+==== ${catalog-search-ui} Low Bandwidth Mode
 
-Low bandwidth mode can be enabled by passing in a `?lowBandwidth` parameter along with any URL targeting the ${catalog-ui} endpoint.
+Low bandwidth mode can be enabled by passing in a `?lowBandwidth` parameter along with any URL targeting the ${catalog-search-ui} endpoint.
 Ex: `${secure_url}/search/catalog/?lowBandwidth#workspaces`. Currently, enabling this parameter causes the system to prompt the user for confirmation before loading potentially bandwidth-intensive components like the 2D or 3D Maps.

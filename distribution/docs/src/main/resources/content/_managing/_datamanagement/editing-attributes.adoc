@@ -17,7 +17,7 @@ fanout proxy will appear to be editable but are not truly local
 so changes will not be saved.
 ====
 
-. Navigate to *${catalog-ui}*.
+. Navigate to *${catalog-search-ui}*.
 . Search for the metacard(s) to be updated.
 . Select the metacards to be updated from the results list.
 . Select *Summary* or *Details*.

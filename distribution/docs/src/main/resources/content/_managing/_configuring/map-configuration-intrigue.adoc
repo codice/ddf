@@ -1,14 +1,14 @@
-:title: Map Configuration for ${catalog-ui}
+:title: Map Configuration for ${catalog-search-ui}
 :type: subConfiguration
 :status: published
-:parent: Configuring ${catalog-ui}
+:parent: Configuring ${catalog-search-ui}
 :order: 01
-:summary: Map Configuration for ${catalog-ui}
+:summary: Map Configuration for ${catalog-search-ui}
 
 == {title}
 
-Customize the look of the map displayed to users in ${catalog-ui} through the *Catalog UI Search*.
-Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}configuring_map_layers_for_intrigue,Configuring Map Layers for ${catalog-ui}>>.
+Customize the look of the map displayed to users in ${catalog-search-ui} through the *Catalog UI Search*.
+Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}configuring_map_layers_for_intrigue,Configuring Map Layers for ${catalog-search-ui}>>.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
@@ -37,5 +37,5 @@ Equivalent addition and deletion of a map layer can be found in <<{managing-pref
 
 .Edit Gazetteer Configuration
 . Check/Uncheck *Show Gazetteer* to control searching place names functionality.
-. Check/Uncheck *Use Online Gazetteer* to control ${catalog-ui} search gazetteer.
+. Check/Uncheck *Use Online Gazetteer* to control ${catalog-search-ui} search gazetteer.
 .. Unchecked: use local gazetteer service.
