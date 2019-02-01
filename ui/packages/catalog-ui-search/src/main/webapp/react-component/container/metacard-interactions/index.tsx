@@ -292,13 +292,11 @@ const createResultActionsExportRegion = (model: Model) =>
   PopoutView.createSimpleDropdown({
     componentToShow: Marionette.LayoutView.extend({
       template() {
-        return (
-          <ExportActions
-            actions={this.model.getExportActions().map((action: any) => {
-              return { url: action.get('url'), title: action.getExportType() }
-            })}
-          />
-        )
+        const actions = this.model.getExportActions().map((action: any) => {
+          return { url: action.get('url'), title: action.getExportType() }
+        })
+
+        return <ExportActions actions={actions} />
       },
     }),
     dropdownCompanionBehaviors: {

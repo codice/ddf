@@ -10,8 +10,8 @@
  *
  **/
 import * as React from 'react'
-import { hot } from 'react-hot-loader'
 import styled from '../../styles/styled-components'
+import { hot } from 'react-hot-loader'
 
 const Root = styled.div`
   overflow: auto;
@@ -68,3 +68,4 @@ const render = (props: Props) => {
 }
 
 export default hot(module)(render)
+export const testComponent = render
