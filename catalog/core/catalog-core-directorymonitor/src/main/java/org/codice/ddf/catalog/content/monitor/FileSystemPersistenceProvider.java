@@ -213,19 +213,8 @@ public class FileSystemPersistenceProvider
   }
 
   public void storeJson(String key, Object value, Class<?> aClass) {
-    File dir = new File(getMapStorePath());
-    if (!dir.exists() && !dir.mkdir()) {
-      LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
-    }
-    LOGGER.trace("Entering: store - key: {}", key);
     String jsonToWrite = new Gson().toJson(value, aClass);
-    try (OutputStream file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
-        OutputStream buffer = new BufferedOutputStream(file);
-        ObjectOutputStream output = new ObjectOutputStream(buffer)) {
-      output.writeObject(jsonToWrite);
-    } catch (IOException e) {
-      LOGGER.debug("IOException storing value in cache with key = " + key, e);
-    }
+    store(key, jsonToWrite);
   }
 
   Object loadFromJson(String key, Class<?> theClass) {
