@@ -266,6 +266,18 @@ function isGeoFilter(type) {
 }
 
 function transformFilterToCQL(filter) {
+<<<<<<< HEAD
+=======
+  let write = cql.write(filter)
+  console.log(write)
+  let read = cql.read(write)
+  let simp = cql.simplify(read)
+  return this.sanitizeGeometryCql(
+    '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))).replace(' null', '') + ')'
+  )
+}
+function transformMultiFilterToCQL(filter) {
+>>>>>>> df4834b09e... Failing at trying to fix bug
   return this.sanitizeGeometryCql(
     '(' +
       cql
