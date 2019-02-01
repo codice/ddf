@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export default function matchesFilter(filterValue, str, matchcase) {
+function matchesFilter(filterValue, str, matchcase) {
   filterValue = getAppropriateString(filterValue, matchcase)
   var reg = new RegExp('\\b' + filterValue + '.*')
   if (getAppropriateString(str, matchcase).match(reg) !== null) {
@@ -40,5 +40,10 @@ function wordStartsWithFilter(words, filter) {
   return words.find(function(word) {
     return word.indexOf(filter) === 0
   })
+}
+
+export {
+    matchesFilter,
+    getAppropriateString,
 }
 

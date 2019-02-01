@@ -20,7 +20,7 @@ const $ = require('jquery')
 const childView = require('./select.view')
 const CustomElements = require('../../js/CustomElements.js')
 const Common = require('../../js/Common.js')
-import matchesFilter from './filterHelper'
+import {matchesFilter, getAppropriateString} from './filterHelper'
 
 module.exports = Marionette.CollectionView.extend({
   emptyView: Marionette.ItemView.extend({
@@ -167,10 +167,6 @@ module.exports = Marionette.CollectionView.extend({
       }
     }
   },
-  getAppropriateString: function(str) {
-    str = str.toString()
-    return this.options.matchcase === true ? str : str.toLowerCase()
-  },
   filter: function(child) {
     var filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
@@ -178,8 +174,8 @@ module.exports = Marionette.CollectionView.extend({
       child.get('filterChoice') === true &&
       this.collection.filter(model => {
         return (
-          this.getAppropriateString(model.get('value')) ===
-          this.getAppropriateString(child.get('value'))
+          getAppropriateString(model.get('value')) ===
+          getAppropriateString(child.get('value'))
         )
       }).length > 1
     ) {
