@@ -181,6 +181,7 @@ module.exports = Marionette.LayoutView.extend({
       CONTAINS: 'ILIKE',
       MATCHCASE: 'LIKE',
       EQUALS: '=',
+      'IS EMPTY': 'IS NULL',
       '>': '>',
       '<': '<',
       '=': '=',
