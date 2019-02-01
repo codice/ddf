@@ -53,7 +53,7 @@
             <!-- deprecated -->
             <entry key="shortname" value="xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
-            <entry key="displayName" value="OGC XML"/>
+            <entry key="displayName" value="OGC GML"/>
         </service-properties>
         <bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer">
             <argument ref="mcMarshaller"/>
@@ -80,7 +80,7 @@
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
             <entry key="export-resultset" value="true"/>
-            <entry key="displayName" value="OGC XML"/>
+            <entry key="displayName" value="OGC GML"/>
         </service-properties>
     </service>
 
