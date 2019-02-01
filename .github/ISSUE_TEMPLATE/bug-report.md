@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Report a Bug within the product
-title: ''
+title: '[Negatively summarize the cause and effect of the bug]'
 labels: 'Bug Fix'
 assignees: ''
 
@@ -22,8 +22,8 @@ is the best place for getting support.
 ### Description
 <!-- 
 Description of the issue
-Why is this change being proposed?
-Why should this be added to the codebase?
+Are there any known workarounds?
+Severity of the bug (minor, major, critical)?
 -->
 
 ### Steps to Reproduce
@@ -42,9 +42,12 @@ Why should this be added to the codebase?
 #### Reproduces how often:
 <!-- What percentage of the time does it reproduce? -->
 
-### Version
+#### Platform and environment:
+<!-- OS, Java version, browser, etc, as applicable -->
+
+### Affects versions
 <!-- Application version(s) -->
 
 ### Additional Information
-Any additional information, configuration or data that might be necessary
-to reproduce the issue.
+<!-- Any additional information, configuration or data that might be necessary
+to reproduce the issue. -->

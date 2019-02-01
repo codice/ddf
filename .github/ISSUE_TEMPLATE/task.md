@@ -1,7 +1,7 @@
 ---
-name: Improvement
-about: Suggest an idea or improvement for this project
-title: '[Positively summarize your feature]'
+name: Task
+about: Dependency Upgrade, Docs
+title: '[Summarize what's being changed]'
 labels: ''
 assignees: ''
 
@@ -22,12 +22,10 @@ is the best place for getting support.
 ### Description
 <!-- 
 Description of the issue
-Why is this change being proposed?
-Who would want this change implemented?
-Why should this be added to the codebase?
+Why is this being updated or changed?
 -->
 
-#### Expected behavior:
+#### Expected behavior (if applicable):
 <!-- What you expect to happen -->
 
 ### Version
