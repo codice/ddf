@@ -41,17 +41,26 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncFileAlterationObserver implements Serializable {
 
-  private final AsyncFileEntry rootFile;
-  @Nullable private AsyncFileAlterationListener listener = null;
+  @Nullable private final AsyncFileEntry rootFile; //  In case GSON returns it.
+  @Nullable private transient AsyncFileAlterationListener listener = null;
   private final transient Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
-  private final Object listenerLock = new Object();
+  private final transient Object listenerLock = new Object();;
 
   public AsyncFileAlterationObserver(File fileToObserve) {
     if (fileToObserve == null) {
       throw new IllegalArgumentException();
     }
     rootFile = new AsyncFileEntry(fileToObserve);
+  }
+
+  //  For GSON serialization;
+  private AsyncFileAlterationObserver() {
+    rootFile = null;
+  }
+
+  public void onLoad() {
+    if (rootFile != null) rootFile.initialize();
   }
 
   //  Returns true on errors;

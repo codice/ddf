@@ -142,6 +142,11 @@
             <artifactId>bootflag-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
         <!-- Component test dependencies -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -380,6 +385,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            gson,
                             catalog-core-api-impl,
                             ddf-security-common,
                             platform-util,

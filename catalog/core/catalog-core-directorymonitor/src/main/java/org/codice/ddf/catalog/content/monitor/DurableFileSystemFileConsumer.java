@@ -46,7 +46,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       observer.addListener(listener);
       observer.checkAndNotify();
       observer.removeListener();
-      fileSystemPersistenceProvider.store(sha1, observer);
+      fileSystemPersistenceProvider.storeJson(sha1, observer, observer.getClass());
       return true;
     } else {
       return isMatched(null, null, null);
@@ -60,12 +60,13 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     }
     if (observer == null && fileName != null) {
       if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
-        Object tempObserver = fileSystemPersistenceProvider.loadFromPersistence(sha1);
-        if (tempObserver instanceof AsyncFileAlterationObserver) {
+        Object tempObserver = fileSystemPersistenceProvider.loadFromJson(sha1, observer.getClass());
+        if (tempObserver != null) {
           observer = (AsyncFileAlterationObserver) tempObserver;
+          observer.onLoad();
         } else {
           backwardsCompatibility(
-              (FileAlterationObserver) tempObserver,
+              (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1),
               new AsyncFileAlterationObserver(new File(fileName)));
         }
       } else {

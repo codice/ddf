@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import com.google.gson.Gson;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import java.io.BufferedInputStream;
@@ -209,6 +210,31 @@ public class FileSystemPersistenceProvider
         }
       }
     }
+  }
+
+  public void storeJson(String key, Object value, Class<?> aClass) {
+    File dir = new File(getMapStorePath());
+    if (!dir.exists() && !dir.mkdir()) {
+      LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
+    }
+    LOGGER.trace("Entering: store - key: {}", key);
+    String jsonToWrite = new Gson().toJson(value, aClass);
+    try (OutputStream file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
+        OutputStream buffer = new BufferedOutputStream(file);
+        ObjectOutputStream output = new ObjectOutputStream(buffer)) {
+      output.writeObject(jsonToWrite);
+    } catch (IOException e) {
+      LOGGER.debug("IOException storing value in cache with key = " + key, e);
+    }
+  }
+
+  Object loadFromJson(String key, Class<?> theClass) {
+    Object json = loadFromPersistence(key);
+    if (!(json instanceof String)) {
+      return null;
+    }
+
+    return new Gson().fromJson((String) json, theClass);
   }
 
   @Override

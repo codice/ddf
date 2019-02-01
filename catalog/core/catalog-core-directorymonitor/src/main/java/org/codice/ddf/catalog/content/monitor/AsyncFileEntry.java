@@ -36,7 +36,8 @@ import javax.validation.constraints.NotNull;
  */
 public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> {
 
-  private final File contentFile;
+  //  Only Nullable for GSON serialization
+  @Nullable private final File contentFile;
   private boolean exists;
   private long lastModified;
   private boolean directory;
@@ -44,7 +45,8 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
 
   private final Set<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
 
-  @Nullable private AsyncFileEntry parent;
+  //  Leaving transient to avoid loops
+  @Nullable private transient AsyncFileEntry parent;
 
   private String name;
 
@@ -56,6 +58,11 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
     this.parent = parent;
     contentFile = file;
     refresh();
+  }
+
+  //  For GSON serialization
+  private AsyncFileEntry() {
+    contentFile = null;
   }
 
   private void refresh() {
@@ -204,5 +211,24 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
       }
     }
     return null;
+  }
+
+  //  Serializing to JSON doesn't allow infinite loops. Thus we
+  //  Make the parent null and allow users to re-initialize after loading
+  //  from a json.
+  private void setParent(@Nullable AsyncFileEntry parentalUnit) {
+    parent = parentalUnit;
+  }
+
+  private void initializeHelper(AsyncFileEntry toInit) {
+    for (AsyncFileEntry child : toInit.getChildren()) {
+      child.setParent(toInit);
+      initializeHelper(child);
+    }
+  }
+
+  //  Initializes the entire tree.
+  public void initialize() {
+    initializeHelper(this);
   }
 }

@@ -24,6 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -1049,6 +1051,23 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, times(grandchildFiles.length))
         .onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, times(5)).onFileDelete(any(File.class), any(Synchronization.class));
+  }
+
+  @Test
+  public void testJsonSerial() throws Exception {
+    initNestedDirectory(1, 1, 0, 0);
+    observer.initialize();
+
+    AsyncFileEntry ehh = observer.getRootFile();
+    Gson gson = new GsonBuilder().serializeNulls().create();
+    final String Json = gson.toJson(observer);
+
+    AsyncFileAlterationObserver two = gson.fromJson(Json, AsyncFileAlterationObserver.class);
+    two.onLoad();
+
+    two.checkAndNotify();
+
+    assertThat(two.getRootFile().getChildren().get(0).getParent().isPresent(), is(true));
   }
 
   private void initNestedDirectory(int child, int grand, int topLevel, int gSibling)
