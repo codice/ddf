@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.ws;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.common.SecurityTokenHolder;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import org.eclipse.jetty.websocket.api.Session;
@@ -46,7 +47,13 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
   @Override
   public void configure(WebSocketServletFactory factory) {
-    factory.setCreator((req, resp) -> new SocketWrapper(executor, ws));
+    factory.setCreator(
+        (req, resp) ->
+            new SocketWrapper(
+                executor,
+                ws,
+                (SecurityTokenHolder)
+                    req.getSession().getAttribute(SecurityConstants.SAML_ASSERTION)));
   }
 
   @org.eclipse.jetty.websocket.api.annotations.WebSocket
@@ -54,10 +61,12 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
     private final WebSocket ws;
     private final ExecutorService executor;
+    private final SecurityTokenHolder securityTokenHolder;
 
-    SocketWrapper(ExecutorService executor, WebSocket ws) {
+    SocketWrapper(ExecutorService executor, WebSocket ws, SecurityTokenHolder securityTokenHolder) {
       this.ws = ws;
       this.executor = executor;
+      this.securityTokenHolder = securityTokenHolder;
     }
 
     private void runWithUser(Session session, Runnable runnable) {
@@ -75,7 +84,11 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-      runWithUser(session, () -> ws.onOpen(session));
+      if (securityTokenHolder.getRealmTokenMap().size() == 0) {
+        onError(session, new SecureWebSocketException("User not logged in."));
+      } else {
+        runWithUser(session, () -> ws.onOpen(session));
+      }
     }
 
     @OnWebSocketClose
@@ -90,15 +103,19 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-      runWithUser(
-          session,
-          () -> {
-            try {
-              ws.onMessage(session, message);
-            } catch (IOException e) {
-              LOGGER.error("Failed to receive ws message.", e);
-            }
-          });
+      if (securityTokenHolder.getRealmTokenMap().size() == 0) {
+        onError(session, new SecureWebSocketException("User not logged in.", message));
+      } else {
+        runWithUser(
+            session,
+            () -> {
+              try {
+                ws.onMessage(session, message);
+              } catch (IOException e) {
+                LOGGER.error("Failed to receive ws message.", e);
+              }
+            });
+      }
     }
   }
 }
