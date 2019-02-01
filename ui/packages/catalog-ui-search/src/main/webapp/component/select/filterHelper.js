@@ -42,8 +42,4 @@ function wordStartsWithFilter(words, filter) {
   })
 }
 
-export {
-    matchesFilter,
-    getAppropriateString,
-}
-
+export { matchesFilter, getAppropriateString }

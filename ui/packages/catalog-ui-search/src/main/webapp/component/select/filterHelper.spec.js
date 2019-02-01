@@ -16,265 +16,106 @@ import { expect } from 'chai'
 
 var filterHelper = require('./filterHelper.js')
 
+function testAllSubstrings(testString, str, matchcase, expectation) {
+  var i
+  for (i = 0; i < testString.length; i++) {
+    var filterValue = testString.substring(0, i)
+    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
+      expectation
+    )
+  }
+}
+
+function testWholeStrings(testString, str, matchcase, expectation) {
+  expect(filterHelper.matchesFilter(testString, str, matchcase)).to.equal(
+    expectation
+  )
+}
+
 describe('fitler attrs', () => {
   it('filter anyText', () => {
     var str = 'anyText'
     var matchcase = false
 
-    var filterValue = 'w'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
+    var positiveTestStrings = ['text', 'any', 'anytext', 'ANYTEXT', 'aNyTeXt']
+    var negativeTestStrings = ['test', 'anyG', 'any text', 'anyText ', 'az']
 
-    var filterValue = 't'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
+    positiveTestStrings.forEach(function(string) {
+      testAllSubstrings(string, str, matchcase, true)
+    })
 
-    var filterValue = 'te'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'tex'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'text'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'a'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'an'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'any'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'anyt'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'anyT'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'anyG'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'anyText'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
+    negativeTestStrings.forEach(function(string) {
+      testWholeStrings(string, str, matchcase, false)
+    })
   })
 
   it('filter aString.WithDots-andDashes', () => {
     var str = 'aString.WithDots-andDashes'
     var matchcase = false
 
-    var filterValue = 'z'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
+    var positiveTestStrings = [
+      'aString.WithDots-andDashes',
+      'a',
+      'string',
+      'with',
+      'dots',
+      'and',
+      'dashes',
+      'withdots-',
+      '-andDashes',
+    ]
+    var negativeTestStrings = ['az', 'thdo', 'ndDash', 'aString-']
 
-    var filterValue = 'w'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'with'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'withdots'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'withDots'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'withDots-and'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'aString.WithDots-andDashes'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
+    positiveTestStrings.forEach(function(string) {
+      testAllSubstrings(string, str, matchcase, true)
+    })
+    negativeTestStrings.forEach(function(string) {
+      testWholeStrings(string, str, matchcase, false)
+    })
   })
 
   it('filter ALLCAPSSTRING', () => {
     var str = 'ALLCAPSSTRING'
     var matchcase = false
 
-    var filterValue = 'z'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
+    var positiveTestStrings = ['ALLCAPSSTRING', 'allcapsstring']
+    var negativeTestStrings = ['z', 'CA', 'STR', "ING"]
 
-    var filterValue = 'C'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    // A limitation to full capitalized attrs is they can't be filtered by words
-    var filterValue = 'CA'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'all'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'allcaps'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'allcapsstring'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'ALLCAPSSTRING'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
+    positiveTestStrings.forEach(function(string) {
+      testAllSubstrings(string, str, matchcase, true)
+    })
+    negativeTestStrings.forEach(function(string) {
+      testWholeStrings(string, str, matchcase, false)
+    })
   })
 
   it('filter matches case', () => {
     var str = 'aCamelCasedString'
     var matchcase = true
 
-    var filterValue = 'z'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
+    var positiveTestStrings = ['aCamelCasedString', 'a', 'Camel', 'Cased', 'String']
+    var negativeTestStrings = ['A', 'camel', 'cased', 'string', 'acamelcasedstring']
 
-    var filterValue = 'a'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'Camel'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'Cased'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'String'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'A'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'camel'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'cased'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'string'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'aCamelCasedString'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
+    positiveTestStrings.forEach(function(string) {
+      testAllSubstrings(string, str, matchcase, true)
+    })
+    negativeTestStrings.forEach(function(string) {
+      testWholeStrings(string, str, matchcase, false)
+    })
   })
 
   it('filter spaces', () => {
     var str = 'A few strings divided by spaces'
     var matchcase = false
 
-    var filterValue = 'z'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
+    var positiveTestStrings = ['A few strings divided by spaces', 'A', 'few', 'strings', 'divided', 'by', 'spaces']
+    var negativeTestStrings = ['A few strings divided by spaces ', 'vid', 'rings']
 
-    var filterValue = 'a'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'few'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'strings'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'divided'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'by'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'spaces'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'a strings by'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
-
-    var filterValue = 'strings divided by'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'a few strings divided by spaces'
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      true
-    )
-
-    var filterValue = 'a few strings divided by spaces '
-    expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
-      false
-    )
+    positiveTestStrings.forEach(function(string) {
+      testAllSubstrings(string, str, matchcase, true)
+    })
+    negativeTestStrings.forEach(function(string) {
+      testWholeStrings(string, str, matchcase, false)
+    })
   })
 })
