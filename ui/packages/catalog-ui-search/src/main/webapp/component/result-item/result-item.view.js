@@ -43,6 +43,20 @@ const plugin = require('plugins/result-item')
 const LIST_DISPLAY_TYPE = 'List'
 const GRID_DISPLAY_TYPE = 'Grid'
 
+const renderResultLink = (shouldRender, model) =>
+  shouldRender && (
+    <MarionetteRegionContainer
+      className="result-link is-button is-neutral composed-button"
+      data-help="Follow external links."
+      view={props => PopoutView.createSimpleDropdown(props)}
+      viewOptions={{
+        componentToShow: ResultLinkView,
+        modelForComponent: model,
+        leftIcon: 'fa fa-external-link',
+      }}
+    />
+  )
+
 const getResultDisplayType = () =>
   (user &&
     user
@@ -55,8 +69,11 @@ const ResultItemView = Marionette.LayoutView.extend({
   template(data) {
     const model = this.model
     const displayAsGrid = getResultDisplayType() === GRID_DISPLAY_TYPE
-    const renderThumbnail =
-      displayAsGrid || (data.metacard.properties.thumbnail && this.itemSelected)
+    const renderThumbnail = displayAsGrid && data.metacard.properties.thumbnail
+    const renderResultLinkDropdown = model
+      .get('metacard')
+      .get('properties')
+      .get('associations.external')
 
     return (
       <React.Fragment>
@@ -65,7 +82,11 @@ const ResultItemView = Marionette.LayoutView.extend({
           data-metacard-id={data.id}
           data-query-id={data.metacard.queryId}
         >
-          <div className="container-indicator" />
+          <MarionetteRegionContainer
+            className="container-indicator"
+            view={ResultIndicatorView}
+            viewOptions={{ model: model }}
+          />
           <div className="container-content">
             <div className="content-header">
               <span
@@ -203,11 +224,7 @@ const ResultItemView = Marionette.LayoutView.extend({
                 data-help="Downloads
                         the results associated product directly to your machine."
               />
-              <div
-                className="result-link is-button is-neutral composed-button"
-                title="Follow external links"
-                data-help="Follow external links."
-              />
+              {renderResultLink(renderResultLinkDropdown, model)}
               <button
                 className="result-add is-button is-neutral composed-button"
                 title="Add or remove the result from a list, or make a new list with this result."
@@ -237,16 +254,12 @@ const ResultItemView = Marionette.LayoutView.extend({
   },
   tagName: CustomElements.register('result-item'),
   modelEvents: {},
-  itemSelected: false,
-  currentDisplayType: LIST_DISPLAY_TYPE,
   events: {
     'click .result-download': 'triggerDownload',
-    'click .result-container': 'handleItemSelected',
   },
   regions: {
-    resultIndicator: '.container-indicator',
+    resultActions: '.result-actions',
     resultAdd: '.result-add',
-    resultLink: '.result-link',
   },
   behaviors() {
     return {
@@ -299,48 +312,20 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
     this.handleSelectionChange()
   },
-  handleItemSelected() {
-    if (this.itemSelected) return
-
-    this.itemSelected = true
-    this.render()
-  },
   handleSelectionChange: function() {
-    var selectedResults = this.options.selectionInterface.getSelectedResults()
-    var isSelected = selectedResults.get(this.model.id)
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    const isSelected = selectedResults.get(this.model.id)
     this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
   handleMetacardUpdate: function() {
     this.$el.attr(this.attributes())
     this.render()
-    this.onBeforeShow()
     this.checkDisplayType()
     this.checkTags()
     this.checkIsInWorkspace()
     this.checkIfBlacklisted()
     this.checkIfDownloadable()
     this.checkIfLinks()
-  },
-  onBeforeShow: function() {
-    this.resultIndicator.show(
-      new ResultIndicatorView({
-        model: this.model,
-      })
-    )
-    if (
-      this.model
-        .get('metacard')
-        .get('properties')
-        .get('associations.external')
-    ) {
-      this.resultLink.show(
-        PopoutView.createSimpleDropdown({
-          componentToShow: ResultLinkView,
-          modelForComponent: this.model,
-          leftIcon: 'fa fa-external-link',
-        })
-      )
-    }
   },
   addConfiguredResultProperties: function(result) {
     result.showSource = false
@@ -445,26 +430,15 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
   },
   checkDisplayType() {
-    const displayType = getResultDisplayType()
-
-    switch (displayType) {
+    switch (getResultDisplayType()) {
       case LIST_DISPLAY_TYPE:
         this.$el.removeClass('is-grid').addClass('is-list')
         break
       case GRID_DISPLAY_TYPE:
         this.$el.addClass('is-grid').removeClass('is-list')
+        this.render()
         break
     }
-
-    //Only re-render when going from `List` to `Grid`
-    if (
-      this.currentDisplayType !== displayType &&
-      displayType === GRID_DISPLAY_TYPE
-    ) {
-      this.render()
-    }
-
-    this.currentDisplayType = displayType
   },
   checkTags: function() {
     this.$el.toggleClass('is-workspace', this.model.isWorkspace())
