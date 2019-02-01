@@ -32,11 +32,6 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
-            catalogStores = [Mock(CatalogStore) {
-                getId() >> 'cat1'
-            }, Mock(CatalogStore) {
-                getId() >> 'cat2'
-            }]
         }
 
         sourceOperations = Mock(SourceOperations)
@@ -147,16 +142,26 @@ class OperationsCatalogStoreSupportSpec extends Specification {
 
     def 'get stores for catalog stores including one unknown'() {
         setup:
-        def request = Mock(Request)
-        request.getStoreIds() >> { ['cat1', 'unknown2'] }
+        final String storeId = 'cat1'
+
+        final CatalogStore catalogStore = Mock() {
+            getId() >> storeId
+        }
+
+        frameworkProperties.setCatalogStores([catalogStore, Mock(CatalogStore) {
+            getId() >> "anotherId"
+        }])
+
         def opsCatalog = new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations)
         def exceptions = [] as Set
 
         when:
-        def response = opsCatalog.getCatalogStoresForRequest(request, exceptions)
+        def response = opsCatalog.getCatalogStoresForRequest(Mock(Request) {
+            getStoreIds() >> [storeId, 'unknown2']
+        }, exceptions)
 
         then:
-        response == [frameworkProperties.catalogStores.find{it.getId() == 'cat1'}]
+        response == [catalogStore]
         exceptions.size() == 1
     }
 
