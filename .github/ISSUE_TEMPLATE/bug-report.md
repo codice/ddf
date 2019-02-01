@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Report a Bug within the product
-title: '[Negatively summarize the cause and affect of the bug]'
+title: '[Negatively summarize the cause and effect of the bug]'
 labels: 'Bug Fix'
 assignees: ''
 
