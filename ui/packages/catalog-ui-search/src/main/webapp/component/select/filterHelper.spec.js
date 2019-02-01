@@ -79,7 +79,7 @@ describe('filter attrs', () => {
     var matchcase = false
 
     var positiveTestStrings = ['ALLCAPSSTRING', 'allcapsstring']
-    var negativeTestStrings = ['z', 'CA', 'STR', "ING"]
+    var negativeTestStrings = ['z', 'CA', 'STR', 'ING']
 
     positiveTestStrings.forEach(function(string) {
       testAllSubstrings(string, str, matchcase, true)
@@ -93,8 +93,20 @@ describe('filter attrs', () => {
     var str = 'aCamelCasedString'
     var matchcase = true
 
-    var positiveTestStrings = ['aCamelCasedString', 'a', 'Camel', 'Cased', 'String']
-    var negativeTestStrings = ['A', 'camel', 'cased', 'string', 'acamelcasedstring']
+    var positiveTestStrings = [
+      'aCamelCasedString',
+      'a',
+      'Camel',
+      'Cased',
+      'String',
+    ]
+    var negativeTestStrings = [
+      'A',
+      'camel',
+      'cased',
+      'string',
+      'acamelcasedstring',
+    ]
 
     positiveTestStrings.forEach(function(string) {
       testAllSubstrings(string, str, matchcase, true)
@@ -108,8 +120,20 @@ describe('filter attrs', () => {
     var str = 'A few strings divided by spaces'
     var matchcase = false
 
-    var positiveTestStrings = ['A few strings divided by spaces', 'A', 'few', 'strings', 'divided', 'by', 'spaces']
-    var negativeTestStrings = ['A few strings divided by spaces ', 'vid', 'rings']
+    var positiveTestStrings = [
+      'A few strings divided by spaces',
+      'A',
+      'few',
+      'strings',
+      'divided',
+      'by',
+      'spaces',
+    ]
+    var negativeTestStrings = [
+      'A few strings divided by spaces ',
+      'vid',
+      'rings',
+    ]
 
     positiveTestStrings.forEach(function(string) {
       testAllSubstrings(string, str, matchcase, true)
