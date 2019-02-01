@@ -2,9 +2,10 @@
 :type: securityFramework
 :status: published
 :parent: Security Framework
-:children: Security PEP Interceptor
 :order: 09
 :summary: Security Token Service.
+
+== {title}
 
 The Security Token Service (STS) is a service running in ${branding} that generates SAML v2.0 assertions.
 These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to ${branding} services.

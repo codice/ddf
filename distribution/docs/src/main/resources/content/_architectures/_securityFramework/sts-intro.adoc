@@ -1,8 +1,11 @@
-:type: securitySts
+:type: subSecurityFramework
 :status: published
 :title: Security STS
 :link: _security_sts
+:parent: Security Token Service
 :order: 00
+
+== {title}
 
 The Security STS application contains the bundles and services necessary to run and talk to a Security Token Service (STS).
 It builds off of the Apache CXF STS code and adds components specific to ${branding} functionality. 

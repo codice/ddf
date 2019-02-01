@@ -1,8 +1,11 @@
-:type: securitySts
+:type: subSecurityFramework
 :status: published
 :title: Security STS Server
 :link: _security_sts_server
+:parent: Security Token Service
 :order: 05
+
+== {title}
 
 The ${ddf-security} STS Server is a bundle that starts up an implementation of the CXF STS.
 The STS obtains many of its configurations (Claims Handlers, Token Validators, etc.) from the OSGi service registry as those items are registered as services using the CXF interfaces.
@@ -13,11 +16,11 @@ The various services that the STS Server imports are listed in the Implementatio
 The WSDL for the STS is located at the `security-sts-server/src/main/resources/META-INF/sts/wsdl/ws-trust-1.4-service.wsdl` within the source code.
 ====
 
-===== Installing the Security STS Server
+=== Installing the Security STS Server
 
 This bundle is installed by default and is required for ${branding} to operate.
 
-===== Configuring the Security STS Server
+=== Configuring the Security STS Server
 
 Configure the Security STS Server from the ${admin-console}:
 

@@ -5,6 +5,8 @@
 :order: 00
 :summary: Securing REST.
 
+== {title}
+
 .Security Architecture
 [ditaa,security_architecture,png]
 ....

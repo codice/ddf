@@ -7,6 +7,4 @@ include::${ii.file}[]
 
 <#include "endpoints.ftl">
 
-<#include "security-services.ftl">
-
 include::${project.build.directory}/doc-contents/content/scripts.html[]

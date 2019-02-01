@@ -5,6 +5,8 @@
 :order: 02
 :summary: Security Encryption commands.
 
+== {title}
+
 The Security Encryption Commands bundle enhances the ${branding} system console by allowing administrators and integrators to encrypt and decrypt values directly from the console.
 
 The `security:encrypt` command allows plain text to be encrypted using HMAC + AES for encryption with a randomly generated key that is created when the system is installed.
@@ -20,12 +22,12 @@ ${ddf-branding-lowercase}@local>security:encrypt myPasswordToEncrypt
 bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
 
-===== Installing the Security Encryption Commands
+=== Installing the Security Encryption Commands
 
 This bundle is installed by default with the `security-encryption` feature.
 This bundle is tied specifically to the ${branding} console and can be uninstalled if not needed.
 When uninstalled, however, administrators will not be able to encrypt and decrypt data from the console.
 
-===== Configuring the Security Encryption Commands
+=== Configuring the Security Encryption Commands
 
 The Security Encryption Commands have no configurable properties.

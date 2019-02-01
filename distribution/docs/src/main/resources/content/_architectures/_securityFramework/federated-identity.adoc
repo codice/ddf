@@ -5,6 +5,8 @@
 :order: 10
 :summary: How a user's identity is shared with federated Sources during queries
 
+== {title}
+
 Each instance of {branding} may be configured with its own security policy that determines the
 resources a user may access and the actions they may perform. To decide whether a given request is
 permitted, {branding} references the SAML assertion stored internally in the requestor's

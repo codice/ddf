@@ -5,10 +5,12 @@
 :order: 01
 :summary: Shiro realms.
 
+== {title}
+
 ${branding} uses https://shiro.org[Apache Shiro] for the concept of https://shiro.apache.org/realm.html[Realms] for Authentication and Authorization.
 Realms are components that access security data such as such as users or permissions.
 
-===== Authenticating Realms
+=== Authenticating Realms
 
 `org.apache.shiro.realm.AuthenticatingRealm`
 
@@ -27,7 +29,7 @@ A Subject is an application user and all available security-relevant information
 
 |===
 
-===== Authorizing Realms
+=== Authorizing Realms
 
 `org.apache.shiro.realm.AuthorizingRealm`
 

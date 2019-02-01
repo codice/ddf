@@ -1,8 +1,11 @@
-:type: securitySts
+:type: subSecurityFramework
 :status: published
 :title: Security STS LDAP Claims Handler
 :link: _security_sts_ldap_claims_handler
+:parent: Security Token Service
 :order: 04
+
+== {title}
 
 The ${ddf-security} STS LDAP Claims Handler bundle adds functionality to the STS server that allows it to retrieve claims from an LDAP server.
 It also adds mappings for the LDAP attributes to the STS SAML claims.
@@ -13,13 +16,13 @@ All claims handlers are queried for user attributes regardless of realm.
 This means that two different users with the same username in different LDAP servers will end up with both of their claims in each of their individual assertions.
 ====
 
-===== Installing Security STS LDAP Claims Handler
+=== Installing Security STS LDAP Claims Handler
 
 This bundle is not installed by default and can be added by installing the
 `security-sts-ldapclaimshandler`
  feature.
 
-===== Configuring the Security STS LDAP Claims Handler
+=== Configuring the Security STS LDAP Claims Handler
 
 Configure the Security STS LDAP Claims Handler from the ${admin-console}:
 

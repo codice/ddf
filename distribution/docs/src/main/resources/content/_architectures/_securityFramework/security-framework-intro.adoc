@@ -1,9 +1,10 @@
 :title: Security Framework
 :type: securityFrameworkIntro
 :status: published
-:children: Security Framework
 :order: 00
 :summary: Introduction to Security Framework.
+
+== {title}
 
 The ${branding} Security Framework utilizes http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
 The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by ${branding}.

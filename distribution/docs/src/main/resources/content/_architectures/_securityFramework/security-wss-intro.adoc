@@ -6,6 +6,8 @@
 :order: 05
 :summary: Web Service Security architecture.
 
+== {title}
+
 The Web Service Security (WSS) functionality that comes with ${branding} is integrated throughout the system.
 This is a central resource describing how all of the pieces work together and where they are located within the system.
 

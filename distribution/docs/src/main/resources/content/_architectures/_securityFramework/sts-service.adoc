@@ -1,16 +1,19 @@
-:type: securitySts
+:type: subSecurityFramework
 :status: published
 :title: Security STS Service
 :link: _security_sts_service
+:parent: Security Token Service
 :order: 06
+
+== {title}
 
 The ${ddf-security} STS Service performs authentication of a user by delegating the authentication request to an STS. This is different than the services located within the Security PDP application as those ones only perform authorization and not authentication.
 
-===== Installing the Security STS Realm
+=== Installing the Security STS Realm
 
 This bundle is installed by default and should not be uninstalled.
 
-===== Configuring the Security STS Realm
+=== Configuring the Security STS Realm
 
 The Security STS Realm has no configurable properties.
 

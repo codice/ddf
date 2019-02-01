@@ -5,6 +5,8 @@
 :order: 00
 :summary: Security Manager.
 
+== {title}
+
 `ddf.security.service.SecurityManager`
 
 The Security Manager is a service that handles the creation of Subject objects.

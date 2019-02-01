@@ -6,6 +6,8 @@
 :order: 04
 :summary: Security PDP application.
 
+== {title}
+
 The ${ddf-security} Policy Decision Point (PDP) module contains services that are able to perform authorization decisions based on configurations and policies.
 In the ${ddf-security} Framework, these components are called realms, and they implement the `org.apache.shiro.realm.Realm` and `org.apache.shiro.authz.Authorizer` interfaces.
 Although these components perform decisions on access control, enforcement of this decision is performed by components within the notional PEP application.
