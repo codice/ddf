@@ -78,7 +78,13 @@ class SplitButton extends React.Component<Props, State> {
   }
   renderMenu(contents: Element) {
     return (
-      <Menu onMouseUp={() => this.setState({ isOpen: false })}>{contents}</Menu>
+      <Menu
+        onMouseUp={() =>
+          setTimeout(() => this.setState({ isOpen: false }), 250)
+        }
+      >
+        {contents}
+      </Menu>
     )
   }
   render() {
