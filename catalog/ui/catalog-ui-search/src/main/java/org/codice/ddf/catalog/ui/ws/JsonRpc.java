@@ -57,7 +57,11 @@ public class JsonRpc implements WebSocket {
     return new Error(code, message);
   }
 
-  public static Error error(int code, String message, Object data) {
+  public static Error invalidParams(String message, Object params) {
+    return error(INVALID_PARAMS, String.format("Invalid params: %s", message), params);
+  }
+
+  private static Error error(int code, String message, Object data) {
     return new Error(code, message, data);
   }
 
@@ -73,16 +77,12 @@ public class JsonRpc implements WebSocket {
     return response;
   }
 
-  public static Error invalid(String message) {
+  private static Error invalid(String message) {
     return invalid(message, null);
   }
 
-  public static Error invalid(String message, Object data) {
+  private static Error invalid(String message, Object data) {
     return error(INVALID_REQUEST, String.format("Invalid Request: %s", message), data);
-  }
-
-  public static Error invalidParams(String message, Object params) {
-    return error(INVALID_PARAMS, String.format("Invalid params: %s", message), params);
   }
 
   @Override
@@ -98,6 +98,23 @@ public class JsonRpc implements WebSocket {
   @Override
   public void onError(Session session, Throwable ex) {
     // no action required on error
+  }
+
+  @Override
+  public void onMessage(Session session, String message) throws IOException {
+    session.getRemote().sendStringByFuture(mapper.toJson(handleMessage(message)));
+  }
+
+  private Object handleMessage(String message) {
+    Object parsed;
+
+    try {
+      parsed = mapper.fromJson(message);
+    } catch (RuntimeException ex) {
+      return response(null, error(PARSE_ERROR, "Parse error", message));
+    }
+
+    return exec(parsed);
   }
 
   private Object exec(Object message) {
@@ -151,23 +168,6 @@ public class JsonRpc implements WebSocket {
     } catch (RuntimeException e) {
       return response(id, JsonRpc.error(INTERNAL_ERROR, "Internal Error"));
     }
-  }
-
-  private Object handleMessage(String message) {
-    Object parsed;
-
-    try {
-      parsed = mapper.fromJson(message);
-    } catch (RuntimeException ex) {
-      return response(null, error(PARSE_ERROR, "Parse error", message));
-    }
-
-    return exec(parsed);
-  }
-
-  @Override
-  public void onMessage(Session session, String message) throws IOException {
-    session.getRemote().sendStringByFuture(mapper.toJson(handleMessage(message)));
   }
 
   private static class Error {
