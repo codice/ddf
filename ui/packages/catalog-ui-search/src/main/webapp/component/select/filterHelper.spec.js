@@ -32,7 +32,7 @@ function testWholeStrings(testString, str, matchcase, expectation) {
   )
 }
 
-describe('fitler attrs', () => {
+describe('filter attrs', () => {
   it('filter anyText', () => {
     var str = 'anyText'
     var matchcase = false
