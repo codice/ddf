@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.transformer;
 
-import static org.codice.ddf.catalog.ui.transformer.TransformerDescriptors.getTransformerDescriptor;
 import static spark.Spark.get;
 
 import com.google.common.collect.ImmutableMap;
@@ -43,11 +42,21 @@ public class TransformerDescriptorApplication implements SparkApplication {
 
   @Override
   public void init() {
-    get("/transformers/metacard", (req, res) -> GSON.toJson(descriptors.getMetacardTransformers()));
+    get(
+        "/transformers/metacard",
+        (req, res) -> {
+          res.type("application/json");
+          return descriptors.getMetacardTransformers();
+        },
+        GSON::toJson);
 
     get(
         "/transformers/query",
-        (req, res) -> GSON.toJson(descriptors.getQueryResponseTransformers()));
+        (req, res) -> {
+          res.type("application/json");
+          return descriptors.getQueryResponseTransformers();
+        },
+        GSON::toJson);
 
     get(
         "/transformers/:type/:id",
@@ -57,10 +66,12 @@ public class TransformerDescriptorApplication implements SparkApplication {
 
           Map<String, String> descriptor;
 
+          res.type("application/json");
+
           if (METACARD_TRANSFORMER.equals(type)) {
-            descriptor = getTransformerDescriptor(descriptors.getMetacardTransformers(), id);
+            descriptor = descriptors.getMetacardTransformer(id);
           } else if (QUERY_RESPONSE_TRANSFORMER.equals(type)) {
-            descriptor = getTransformerDescriptor(descriptors.getQueryResponseTransformers(), id);
+            descriptor = descriptors.getQueryResponseTransformer(id);
           } else {
             res.status(404);
             return GSON.toJson(TRANSFORMER_TYPE_NOT_FOUND_RESPONSE);

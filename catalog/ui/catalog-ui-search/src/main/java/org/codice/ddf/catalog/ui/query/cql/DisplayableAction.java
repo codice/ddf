@@ -16,11 +16,11 @@ package org.codice.ddf.catalog.ui.query.cql;
 import ddf.action.Action;
 import ddf.action.impl.ActionImpl;
 
-public class CqlAction extends ActionImpl {
+public class DisplayableAction extends ActionImpl {
 
   private String displayName;
 
-  public CqlAction(Action action, String displayName) {
+  public DisplayableAction(Action action, String displayName) {
     super(action.getId(), action.getTitle(), action.getDescription(), action.getUrl());
     this.displayName = displayName;
   }

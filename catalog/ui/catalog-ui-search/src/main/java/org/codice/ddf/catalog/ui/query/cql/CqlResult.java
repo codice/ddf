@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
-import static org.codice.ddf.catalog.ui.transformer.TransformerDescriptors.getTransformerDescriptor;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.Action;
@@ -45,6 +43,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.WktQueryDelegate;
+import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -100,7 +99,7 @@ public class CqlResult {
 
   private boolean isResourceLocal;
 
-  public CqlResult(CqlResult result, List<Map<String, String>> transformers) {
+  public CqlResult(CqlResult result, TransformerDescriptors descriptors) {
     this.hasThumbnail = result.getHasThumbnail();
     this.isResourceLocal = result.getIsResourceLocal();
     this.distance = result.getDistance();
@@ -111,10 +110,9 @@ public class CqlResult {
             .getActions()
             .stream()
             .map(
-                cqlAction ->
-                    new CqlAction(
-                        cqlAction,
-                        getDisplayName(transformers, cqlAction.getId(), cqlAction.getTitle())))
+                action ->
+                    new DisplayableAction(
+                        action, getDisplayName(descriptors, action.getId(), action.getTitle())))
             .collect(Collectors.toList());
   }
 
@@ -150,13 +148,13 @@ public class CqlResult {
         actionRegistry
             .list(result.getMetacard())
             .stream()
-            .map(cqlAction -> new CqlAction(cqlAction, cqlAction.getId()))
+            .map(action -> new DisplayableAction(action, action.getId()))
             .collect(Collectors.toList());
     metacard = metacardToMap(result);
   }
 
-  private String getDisplayName(List<Map<String, String>> transformers, String id, String title) {
-    Map<String, String> transformerDescriptor = getTransformerDescriptor(transformers, id);
+  private String getDisplayName(TransformerDescriptors descriptors, String id, String title) {
+    Map<String, String> transformerDescriptor = descriptors.getMetacardTransformer(id);
 
     if (transformerDescriptor != null) {
       return transformerDescriptor.get("displayName");

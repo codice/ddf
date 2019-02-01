@@ -21,32 +21,41 @@ import org.osgi.framework.ServiceReference;
 
 public class TransformerDescriptors {
 
-  private List<Map<String, String>> metacardTransformers;
+  private List<ServiceReference> metacardTransformers;
 
-  private List<Map<String, String>> queryResponseTransformers;
+  private List<ServiceReference> queryResponseTransformers;
 
   public TransformerDescriptors(
       List<ServiceReference> metacardTransformers,
       List<ServiceReference> queryResponseTransformers) {
-    this.metacardTransformers = getTransformerDescriptors(metacardTransformers);
-    this.queryResponseTransformers = getTransformerDescriptors(queryResponseTransformers);
+    this.metacardTransformers = metacardTransformers;
+    this.queryResponseTransformers = queryResponseTransformers;
   }
 
   public List<Map<String, String>> getMetacardTransformers() {
-    return metacardTransformers;
+    return getTransformerDescriptors(metacardTransformers);
   }
 
   public List<Map<String, String>> getQueryResponseTransformers() {
-    return queryResponseTransformers;
+    return getTransformerDescriptors(queryResponseTransformers);
   }
 
-  public static Map<String, String> getTransformerDescriptor(
-      List<Map<String, String>> descriptors, String id) {
-    return descriptors
+  public Map<String, String> getMetacardTransformer(String id) {
+    return getTransformerDescriptor(metacardTransformers, id);
+  }
+
+  public Map<String, String> getQueryResponseTransformer(String id) {
+    return getTransformerDescriptor(queryResponseTransformers, id);
+  }
+
+  private Map<String, String> getTransformerDescriptor(
+      List<ServiceReference> serviceReferences, String id) {
+    return serviceReferences
         .stream()
-        .filter(descriptor -> descriptor.get("id") != null)
-        .filter(descriptor -> id.endsWith(descriptor.get("id")))
+        .filter(serviceRef -> serviceRef.getProperty("id") != null)
+        .filter(serviceRef -> id.endsWith(serviceRef.getProperty("id").toString()))
         .findFirst()
+        .map(this::getTransformerDescriptor)
         .orElse(null);
   }
 

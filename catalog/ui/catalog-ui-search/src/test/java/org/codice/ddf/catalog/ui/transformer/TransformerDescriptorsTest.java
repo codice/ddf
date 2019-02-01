@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.transformer;
 
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -21,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -31,27 +31,52 @@ public class TransformerDescriptorsTest {
 
   private TransformerDescriptors descriptors =
       new TransformerDescriptors(
-          ImmutableList.of(createMockServiceReference("foo", "bar")),
-          ImmutableList.of(createMockServiceReference("foo", "bar")));
+          ImmutableList.of(
+              createMockServiceReference("foo", "bar"), createMockServiceReference("hello", null)),
+          ImmutableList.of(
+              createMockServiceReference("bar", "foo"), createMockServiceReference(null, null)));
 
   @Test
-  public void testGetTransformerDescriptor() {
-    List<Map<String, String>> transformers =
-        ImmutableList.of(ImmutableMap.of("id", "foo", "displayName", "bar"));
+  public void testGetMetacardTransformerDescriptors() {
+    List<Map<String, String>> transformerDescriptors = descriptors.getMetacardTransformers();
 
-    Map<String, String> descriptor = descriptors.getTransformerDescriptor(transformers, "foo");
-
-    assertThat(descriptor, hasEntry("id", "foo"));
-    assertThat(transformers.get(0), hasEntry("displayName", "bar"));
+    assertThat(transformerDescriptors, hasSize(2));
+    assertTransformerDescriptor(transformerDescriptors.get(0), "foo", "bar");
   }
 
   @Test
-  public void testGetTransformerDescriptorNotFound() {
-    List<Map<String, String>> transformers = ImmutableList.of(ImmutableMap.of("id", "bar"));
+  public void testGetQueryResponseTransformerDescriptors() {
+    List<Map<String, String>> transformerDescriptors = descriptors.getQueryResponseTransformers();
 
-    Map<String, String> descriptor = descriptors.getTransformerDescriptor(transformers, "foo");
+    assertThat(transformerDescriptors, hasSize(1));
+    assertTransformerDescriptor(transformerDescriptors.get(0), "bar", "foo");
+  }
+
+  @Test
+  public void testGetMetacardTransformerDescriptorNotFound() {
+    Map<String, String> descriptor = descriptors.getMetacardTransformer("bar");
 
     assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetQueryResponseTransformerDescriptorNotFound() {
+    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("foo");
+
+    assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetTransformerDescriptorNullDisplayName() {
+    Map<String, String> descriptor = descriptors.getMetacardTransformer("hello");
+
+    assertTransformerDescriptor(descriptor, "hello", "hello");
+  }
+
+  private void assertTransformerDescriptor(
+      Map<String, String> descriptor, String id, String displayName) {
+    assertThat(descriptor, hasEntry("id", id));
+    assertThat(descriptor, hasEntry("displayName", displayName));
   }
 
   private ServiceReference createMockServiceReference(String id, String displayName) {

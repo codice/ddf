@@ -564,7 +564,7 @@ public class EndpointUtil {
         cqlRequest.isNormalize(),
         filterAdapter,
         actionRegistry,
-        descriptors.getMetacardTransformers());
+        descriptors);
   }
 
   private List<Result> retrieveHitCount(QueryRequest request, List<QueryResponse> responses)
