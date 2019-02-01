@@ -261,7 +261,7 @@
         <opengis.bundle.version>${opengis.version}_1</opengis.bundle.version>
         <opengis.version>20.1</opengis.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
-        <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
+        <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
         <org.geotools.version>20.1</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.2</org.ops4j.pax.swissbox.version>
