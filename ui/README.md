@@ -61,6 +61,18 @@ use [tap](https://www.node-tap.org/basics/). New packages should favor
 mocha over tap and should prefer to run in node if they do not require a
 dom.
 
+#### Test Server
+
+Some of the packages have a `start:test` script to start running a test
+server which serves local spec files that can be developed / debugged in
+many browsers. To invoke the start:test script, do:
+
+    yarn start:test
+
+The host and port which the test server binds to is project specific, but
+is most likely [http://localhost:8080](http://localhost:8080) or
+[http://localhost:8282](http://localhost:8282).
+
 ### Formatting
 
 To format the code in all sub-packages, do:
