@@ -20,7 +20,7 @@ const $ = require('jquery')
 const childView = require('./select.view')
 const CustomElements = require('../../js/CustomElements.js')
 const Common = require('../../js/Common.js')
-const FilterHelper = require('./filterHelper')
+import matchesFilter from './filterHelper'
 
 module.exports = Marionette.CollectionView.extend({
   emptyView: Marionette.ItemView.extend({
@@ -171,20 +171,6 @@ module.exports = Marionette.CollectionView.extend({
     str = str.toString()
     return this.options.matchcase === true ? str : str.toLowerCase()
   },
-  getWords: function(str) {
-    //Matches on word boundry
-    //var reg = new RegExp('\\b' + myWord + '\.+')
-    //Handle camelcase
-    str = str.replace(/([A-Z])/g, ' $1')
-    str = this.getAppropriateString(str)
-    //Handle dashes, dots, and spaces
-    return str.split(/[-\.\s]+/)
-  },
-  wordStartsWithFilter: function(words, filter) {
-    return words.find(function(word) {
-      return word.indexOf(filter) === 0
-    })
-  },
   filter: function(child) {
     var filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
@@ -199,15 +185,19 @@ module.exports = Marionette.CollectionView.extend({
     ) {
       return false
     }
-    if (
-      child.get('label') !== undefined 
-    ) {
-      return FilterHelper.matchesFilter(filterValue, child.get('label'), this.options.matchcase);
+    if (child.get('label') !== undefined) {
+      return matchesFilter(
+        filterValue,
+        child.get('label'),
+        this.options.matchcase
+      )
     }
-    if (
-      child.get('value') !== undefined
-    ) {
-      FilterHelper.matchesFilter(filterValue, child.get('value'), this.options.matchcase);
+    if (child.get('value') !== undefined) {
+      return matchesFilter(
+        filterValue,
+        child.get('value'),
+        this.options.matchcase
+      )
     }
     return true
   },

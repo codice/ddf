@@ -12,35 +12,33 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([], function() {
-  return {
-    matchesFilter: function(filterValue, str, matchcase) {
-      filterValue = this.getAppropriateString(filterValue, matchcase)
-      var reg = new RegExp('\\b' + filterValue + '.*')
-      if (this.getAppropriateString(str, matchcase).match(reg) !== null) {
-        return true
-      }
-      if (this.wordStartsWithFilter(this.getWords(str, matchcase), filterValue) === undefined) {
-        return false
-      }
-      return true
-    },
-    getAppropriateString: function(str, matchcase) {
-      str = str.toString()
-      return matchcase === true ? str : str.toLowerCase()
-    },
-    getWords: function(str, matchcase) {
-      //Handle camelcase
-      str = str.replace(/([A-Z])/g, ' $1')
-      str = this.getAppropriateString(str, matchcase)
-      //Handle dashes, dots, and spaces
-      return str.split(/[-\.\s]+/)
-    },
-    wordStartsWithFilter: function(words, filter) {
-      return words.find(function(word) {
-        return word.indexOf(filter) === 0
-      })
-    },
+export default function matchesFilter(filterValue, str, matchcase) {
+  filterValue = getAppropriateString(filterValue, matchcase)
+  var reg = new RegExp('\\b' + filterValue + '.*')
+  if (getAppropriateString(str, matchcase).match(reg) !== null) {
+    return true
   }
-})
+  if (
+    wordStartsWithFilter(getWords(str, matchcase), filterValue) === undefined
+  ) {
+    return false
+  }
+  return true
+}
+function getAppropriateString(str, matchcase) {
+  str = str.toString()
+  return matchcase === true ? str : str.toLowerCase()
+}
+function getWords(str, matchcase) {
+  //Handle camelcase
+  str = str.replace(/([A-Z])/g, ' $1')
+  str = getAppropriateString(str, matchcase)
+  //Handle dashes, dots, and spaces
+  return str.split(/[-\.\s]+/)
+}
+function wordStartsWithFilter(words, filter) {
+  return words.find(function(word) {
+    return word.indexOf(filter) === 0
+  })
+}
+
