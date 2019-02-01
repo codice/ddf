@@ -147,6 +147,10 @@ module.exports = Marionette.LayoutView.extend({
     this.determineInput()
   },
   transformValue: function(value, comparator) {
+    if(value[0] === null){
+      value[0]='*'
+    }
+
     switch (comparator) {
       case 'NEAR':
         if (value[0].constructor !== Object) {
@@ -181,7 +185,7 @@ module.exports = Marionette.LayoutView.extend({
       CONTAINS: 'ILIKE',
       MATCHCASE: 'LIKE',
       EQUALS: '=',
-      'IS EMPTY': 'IS NULL',
+      'EMPTY': 'IS NULL',
       '>': '>',
       '<': '<',
       '=': '=',

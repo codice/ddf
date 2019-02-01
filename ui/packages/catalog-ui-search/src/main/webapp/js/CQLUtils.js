@@ -77,6 +77,12 @@ function generateAnyGeoFilter(property, model) {
       value: null,
     }
   }
+  const filter = {
+    type,
+    property,
+    value,
+  }
+
   switch (model.type) {
     case 'LINE':
       return {
@@ -269,10 +275,9 @@ function isGeoFilter(type) {
 
 function transformFilterToCQL(filter) {
   let write = cql.write(filter)
+  console.log(write)
   let read = cql.read(write)
   let simp = cql.simplify(read)
-  write = cql.write(simp)
-  console.log(write.replace(' null', ''))
   return this.sanitizeGeometryCql(
     '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))).replace(' null', '') + ')'
   )

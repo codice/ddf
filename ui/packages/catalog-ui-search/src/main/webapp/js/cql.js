@@ -101,7 +101,7 @@ var comparisonClass = 'Comparison',
       'RPAREN',
     ],
     BETWEEN: ['VALUE'],
-    IS_NULL: ['RPAREN', 'LOGICAL'],
+    IS_NULL: ['RPAREN', 'LOGICAL', '[', ']'],
     COMPARISON: ['RELATIVE', 'VALUE', 'BOOLEAN'],
     COMMA: ['FILTER_FUNCTION', 'GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
     VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
@@ -584,6 +584,9 @@ function write(filter) {
       }
       break
     case comparisonClass:
+      if (filter.type === 'IS NULL' && filter.property === 'location'){
+        return '(\"' + filter.property + '\" ' + filter.type + 'null)'
+      }
       if (filter.type === 'BETWEEN') {
         return (
           wrap(filter.property) +
