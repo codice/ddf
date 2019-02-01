@@ -3,8 +3,10 @@ const React = require('react')
 const CustomElements = require('../../js/CustomElements.js')
 
 const Button = require('../button')
+const Dropdown = require('../dropdown')
 const Json = require('../json')
-const { Radio, RadioItem } = require('../radio')
+const { Menu, MenuItem } = require('../menu')
+import styled from '../styles/styled-components/styled-components'
 
 const Line = require('./line')
 const Polygon = require('./polygon')
@@ -49,6 +51,10 @@ const DrawButton = ({ onDraw }) => (
   </Button>
 )
 
+const DropdownPadding = styled.div`
+  padding-bottom: ${props => props.theme.minimumSpacing};
+`
+
 const Component = CustomElements.registerReact('location')
 
 const LocationInput = props => {
@@ -59,13 +65,17 @@ const LocationInput = props => {
   return (
     <Component>
       <Json value={props} onChange={value => setState(value)} />
-      <Radio value={mode} onChange={cursor('mode')}>
-        {Object.keys(inputs).map(key => (
-          <RadioItem key={key} value={key}>
-            {inputs[key].label}
-          </RadioItem>
-        ))}
-      </Radio>
+      <DropdownPadding>
+        <Dropdown label={input.label || 'Select Location Option'}>
+          <Menu value={mode} onChange={cursor('mode')}>
+            {Object.keys(inputs).map(key => (
+              <MenuItem key={key} value={key}>
+                {inputs[key].label}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Dropdown>
+      </DropdownPadding>
       <Form>
         {Input !== null ? <Input {...props} /> : null}
         {drawTypes.includes(mode) ? <DrawButton onDraw={props.onDraw} /> : null}
