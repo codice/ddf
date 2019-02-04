@@ -21,20 +21,37 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-
     <reference id="camelContext" interface="org.apache.camel.CamelContext"
                filter="(camel.context.name=catalogCamelContext)"/>
 
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
+    <!-- Waits for all input transformers before registering CDM services -->
+    <reference id="inputTransformerServiceFlag" interface="org.codice.ddf.platform.bootflag.BootServiceFlag"
+               filter="(id=inputTransformerBootFlag)"/>
+
+    <bean id="configurationExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor">
+        <argument ref="cdmThreadFactory"/>
+    </bean>
+
+    <bean id="cdmThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="cdmThread"/>
+    </bean>
+
     <cm:managed-service-factory
-        id="contentDirectoryMonitor_MSF"
-        factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
-        interface="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
+            id="contentDirectoryMonitor_MSF"
+            factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
+            interface="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
         <cm:managed-component class="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
                               init-method="init" destroy-method="destroy">
             <argument ref="camelContext"/>
             <argument ref="attributeRegistry"/>
+            <argument value="20"/>
+            <argument value="5"/>
+            <argument ref="configurationExecutor"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>

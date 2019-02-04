@@ -113,5 +113,6 @@
         <module>catalog-transformer-preview</module>
         <module>catalog-transformer-csv-common</module>
         <module>catalog-transformer-csv-queryresponse</module>
+        <module>catalog-transformer-bootflag</module>
     </modules>
 </project>

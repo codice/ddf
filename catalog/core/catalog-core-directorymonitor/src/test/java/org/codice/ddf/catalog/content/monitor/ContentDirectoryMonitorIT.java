@@ -102,7 +102,6 @@ import org.ops4j.pax.tinybundles.core.TinyBundles;
 @RunWith(ComponentTestRunner.class)
 @ExamReactorStrategy(PerClass.class)
 public class ContentDirectoryMonitorIT extends AbstractComponentTest {
-
   private static final String WEBDAV_FILE_CONTENT = "test";
 
   @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
@@ -341,7 +340,14 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
         new BundleInfo("ddf.catalog.transformer", "tika-input-transformer"),
         new BundleInfo("ddf.thirdparty", "restito"),
-        new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"));
+        new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"),
+        new BundleInfo("com.google.code.gson", "gson"),
+        new BundleInfo("com.hazelcast", "hazelcast"),
+        new BundleInfo("org.apache.httpcomponents", "httpcore-osgi"),
+        new BundleInfo("org.apache.httpcomponents", "httpclient-osgi"),
+        new BundleInfo("net.jodah", "failsafe"),
+        new BundleInfo("ddf.platform", "bootflag-api"),
+        new BundleInfo("ddf.catalog.transformer", "catalog-transformer-bootflag"));
   }
 
   private CatalogFramework mockCatalogFramework() throws Exception {
@@ -373,7 +379,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     File tmpFile = Paths.get(System.getProperty("java.io.tmpdir")).toFile();
     File[] cachedDavFiles = tmpFile.listFiles(file -> file.getName().startsWith("dav"));
 
-    return cachedDavFiles.length == 0 ? false : true;
+    return cachedDavFiles.length != 0;
   }
 
   private SourceInfoResponse mockSourceInfoResponse() {

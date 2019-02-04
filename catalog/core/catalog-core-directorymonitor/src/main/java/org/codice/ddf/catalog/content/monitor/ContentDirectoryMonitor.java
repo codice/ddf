@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
@@ -39,7 +39,6 @@ import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * automatically ingested when dropped into the specified monitored directory.
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
+
   public static final String DELETE = "delete";
 
   public static final String MOVE = "move";
@@ -56,8 +56,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   public static final String IN_PLACE = "in_place";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
-
-  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
   private static final int MAX_THREAD_SIZE = 8;
 
@@ -71,17 +69,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private final int delayBetweenRetries;
 
-  private final Executor configurationExecutor;
-
   private final CamelContext camelContext;
 
   private final AttributeRegistry attributeRegistry;
+
+  private final Executor configurationExecutor;
 
   private String monitoredDirectory = null;
 
   private String processingMechanism = DELETE;
 
-  private List<RouteDefinition> routeCollection;
+  @Nullable private volatile RouteBuilder routeBuilder;
 
   private List<String> badFiles;
 
@@ -96,32 +94,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   Processor systemSubjectBinder = new SystemSubjectBinder();
 
   /**
-   * Constructs a monitor for a specific directory that will ingest files into the Content
-   * Framework.
-   *
-   * @param camelContext the Camel context to use across all Content Directory Monitors. Note that
-   *     if Apache changes this ModelCamelContext interface there is no guarantee that whatever DM
-   *     is being used (Blueprint in this case) will be updated accordingly.
-   */
-  public ContentDirectoryMonitor(CamelContext camelContext, AttributeRegistry attributeRegistry) {
-    this(
-        camelContext,
-        attributeRegistry,
-        20,
-        5,
-        Executors.newSingleThreadExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("contentDirectoryMonitorThread")));
-  }
-
-  /**
    * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
    * the given Executor to run the setup and Camel configuration.
    *
    * @param camelContext the Camel context to use across all Content directory monitors.
+   * @param attributeRegistry {@link AttributeRegistry} to use to perform attribute lookup for
+   *     attribute overrides for in-place monitoring
    * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
    *     directory monitor, the number of times it will poll.
-   * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
-   *     content directory monitor, the number of seconds it will wait between consecutive polls.
    * @param configurationExecutor the executor used to run configuration and updates.
    */
   public ContentDirectoryMonitor(
@@ -183,26 +163,15 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   /**
-   * This method will stop and remove any existing Camel routes in this context, and then configure
-   * a new Camel route using the properties set in the setter methods.
-   *
-   * <p>Invoked after all of the setter methods have been called (for initial route creation), and
-   * also called whenever an existing route is updated.
+   * Invoked after all of the setter methods have been called (for initial route creation), and also
+   * called whenever an existing route is updated.
    */
   public void init() {
-    if (routeCollection != null) {
-      try {
-        // This stops the route before trying to remove it
-        LOGGER.trace("Removing {} routes", routeCollection.size());
-        camelContext.removeRouteDefinitions(routeCollection);
-      } catch (Exception e) {
-        LOGGER.debug("Unable to remove Camel routes from Content Directory Monitor", e);
-      }
-    } else {
-      LOGGER.trace("No routes to remove before configuring a new route");
-    }
-
-    SECURITY.runAsAdmin(this::configure);
+    SECURITY.runAsAdmin(
+        () -> {
+          CompletableFuture.runAsync(this::configure, configurationExecutor);
+          return null;
+        });
   }
 
   private Object configure() {
@@ -211,7 +180,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       return null;
     }
 
-    CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
+    attemptAddRoutes();
     return null;
   }
 
@@ -224,20 +193,22 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   @SuppressWarnings(
       "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
-    if (routeCollection == null) {
+    CompletableFuture.runAsync(this::removeRoutes, configurationExecutor);
+  }
+
+  private void removeRoutes() {
+    if (routeBuilder == null) {
       return;
     }
 
-    for (RouteDefinition routeDef : routeCollection) {
+    for (RouteDefinition routeDef : routeBuilder.getRouteCollection().getRoutes()) {
       try {
         String routeId = routeDef.getId();
-        if (isMyRoute(routeId)) {
-          LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
-          camelContext.stopRoute(routeId);
-          boolean status = camelContext.removeRoute(routeId);
-          LOGGER.trace("Status of removing route {} is {}", routeId, status);
-          camelContext.removeRouteDefinition(routeDef);
-        }
+        LOGGER.trace("Stopping route with ID = {} and path {}", routeId, monitoredDirectory);
+        camelContext.stopRoute(routeId);
+        boolean status = camelContext.removeRoute(routeId);
+        LOGGER.trace("Status of removing route {} is {}", routeId, status);
+        camelContext.removeRouteDefinition(routeDef);
       } catch (Exception e) {
         LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
       }
@@ -263,7 +234,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         setAttributeOverrides(Arrays.asList(parameterArray));
       }
 
-      init();
+      CompletableFuture.runAsync(
+          () -> {
+            removeRoutes();
+            configure();
+          },
+          configurationExecutor);
     }
   }
 
@@ -289,10 +265,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             "Invalid attribute override configured for monitored directory");
       }
 
-      if (attributeOverrideMap.get(keyValue[0]) == null) {
-        attributeOverrideMap.put(keyValue[0], new ArrayList<String>());
-      }
-      ArrayList valueList = (ArrayList) attributeOverrideMap.get(keyValue[0]);
+      final List valueList =
+          (List) attributeOverrideMap.computeIfAbsent(keyValue[0], k -> new ArrayList<String>());
       valueList.add(keyValue[1]);
     }
     this.attributeOverrides = attributeOverrideMap;
@@ -316,10 +290,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     return String.join("|", patterns);
   }
 
-  public List<RouteDefinition> getRouteDefinitions() {
-    return camelContext.getRouteDefinitions();
-  }
-
   /*
      Task that waits for the "content" and "catalog" CamelComponents before adding the routes from the
      RouteBuilder to the CamelContext. This ensures content directory monitors will
@@ -329,14 +299,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     LOGGER.trace(
         "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
     try {
-      RouteBuilder routeBuilder = createRouteBuilder();
+      routeBuilder = createRouteBuilder();
       verifyCamelComponentIsAvailable("content");
       verifyCamelComponentIsAvailable("catalog");
       camelContext.addRoutes(routeBuilder);
-      setRouteCollection(routeBuilder);
     } catch (Exception e) {
-      LOGGER.info("Unable to configure Camel route.", e);
-      INGEST_LOGGER.warn("Unable to configure Camel route.", e);
+      LOGGER.warn(
+          "Unable to configure Camel route. Resources will not be ingested. CDM configuration may still exist and should be deleted and remade or the system should be restarted.",
+          e);
     } finally {
       if (LOGGER.isDebugEnabled()) {
         dumpCamelContext("after attemptAddRoutes()");
@@ -344,9 +314,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
   }
 
-  /*
-     Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
-  */
   private void verifyCamelComponentIsAvailable(String componentName) {
     Failsafe.with(
             new RetryPolicy()
@@ -358,22 +325,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
               throw new IllegalStateException("Could not get Camel component " + componentName);
             })
         .get(() -> camelContext.getComponent(componentName));
-  }
-
-  /*
-     Assign this content directory monitor's routeCollection to the routes generated by
-     this content directory monitor's RouteBuilder.
-  */
-  private void setRouteCollection(RouteBuilder routeBuilder) {
-    routeCollection = routeBuilder.getRouteCollection().getRoutes();
-  }
-
-  /*
-     Does the given routeId belong to this content directory monitor's routeCollection?
-  */
-  private boolean isMyRoute(String routeId) {
-    return this.routeCollection != null
-        && this.routeCollection.stream().map(RouteDefinition::getId).anyMatch(routeId::equals);
   }
 
   private RouteBuilder createRouteBuilder() {

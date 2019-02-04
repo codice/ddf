@@ -28,6 +28,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
+
     <feature name="catalog-core-api" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
         <feature>security-core</feature>
@@ -106,8 +108,23 @@
     <feature name="catalog-core-directorymonitor" version="${project.version}"
              description="Monitors directories to process content files.">
         <feature>apache-commons</feature>
+        <feature>bootflag-api</feature>
+        <feature>catalog-transformer-bootflag</feature>
+        <bundle>mvn:com.hazelcast/hazelcast/${hazelcast.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcontext/${project.version}</bundle>
+        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-transformer-bootflag" version="${project.version}"
+             description="Flag service which indicates all default InputTransformers in the system are ready.">
+        <feature>catalog-core-api</feature>
+        <feature>bootflag-api</feature>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+        <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-bootflag/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-downloadaction" version="${project.version}"

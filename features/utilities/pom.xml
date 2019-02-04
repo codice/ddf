@@ -130,7 +130,11 @@
             <artifactId>tika-bundle</artifactId>
             <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>bootflag-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>

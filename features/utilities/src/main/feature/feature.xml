@@ -135,4 +135,9 @@
              description="Top Level Platform API">
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
     </feature>
+
+    <feature name="bootflag-api" version="${project.version}"
+             description="API for registering services to indicate a boot condition in the system has been met.">
+        <bundle>mvn:ddf.platform/bootflag-api/${project.version}</bundle>
+    </feature>
 </features>
