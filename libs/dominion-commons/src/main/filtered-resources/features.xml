@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,23 +12,17 @@
  *
  **/
 -->
-<configuration>
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{ISO8601} | %-5.5p | %-16.16t | %-32.32c{1} | %m%n</pattern>
-        </encoder>
-    </appender>
+    <repository>mvn:org.codice.test/dominion-pax-exam-feature/${codice-test.version}/xml/features
+    </repository>
 
-    <root level="WARN">
-        <appender-ref ref="STDOUT" />
-    </root>
+    <feature name="dominion-commons" version="${project.version}">
+        <feature>dominion-pax-exam</feature>
 
-    <logger name="org.ops4j.pax.exam" level="INFO" />
-    <logger name="ddf" level="INFO" />
-    <logger name="org.codice.ddf" level="INFO" />
-    <logger name="org.codice.junit" level="INFO" />
-    <logger name="org.codice.dominion" level="INFO" />
-    <logger name="org.codice.pax-exam" level="INFO" />
-
-</configuration>
+        <bundle>mvn:ddf.lib/dominion-ddf-commons/${project.version}</bundle>
+    </feature>
+</features>
