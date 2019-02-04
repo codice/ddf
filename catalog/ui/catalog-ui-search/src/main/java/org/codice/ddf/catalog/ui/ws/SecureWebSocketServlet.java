@@ -45,6 +45,11 @@ public class SecureWebSocketServlet extends WebSocketServlet {
     executor.shutdown();
   }
 
+  /*
+   Pass the TokenHolder into the WebSocket, in order to know when the user has logged out. Can't
+   pass the Session because Jetty won't let anything check session attributes unless there's a
+   request (excluding WebSocket requests) being actively fulfilled for that session.
+  */
   @Override
   public void configure(WebSocketServletFactory factory) {
     factory.setCreator(
