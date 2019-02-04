@@ -77,11 +77,11 @@ function generateAnyGeoFilter(property, model) {
       value: null,
     }
   }
-  const filter = {
-    type,
-    property,
-    value,
-  }
+  // const filter = {
+  //   type,
+  //   property,
+  //   value,
+  // }
 
   switch (model.type) {
     case 'LINE':
