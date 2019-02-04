@@ -103,7 +103,7 @@ module.exports = Backbone.Model.extend({
   hasChanged: function() {
     var currentValue = this.getValue()
     currentValue.sort()
-    var type = this.getCalculatedType()
+    const type = this.getCalculatedType()
     switch (this.getCalculatedType()) {
       case 'location':
         return (

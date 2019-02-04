@@ -194,7 +194,7 @@ module.exports = Marionette.LayoutView.extend({
   deleteInvalidFilters: function() {
     this.filterContents.currentView.children.forEach(function(childView) {
       if (childView.model.attributes.comparator === 'EMPTY') {
-        return false
+        return
       }
       childView.deleteInvalidFilters()
     })
