@@ -21,7 +21,6 @@ define([
   'js/views/installer/Configuration.view.js',
   'js/views/installer/GuestClaims.view.js',
   'js/views/installer/Finish.view.js',
-  'js/views/installer/Profile.view.js',
   'icanhaz',
   './installer.hbs',
   'js/application',
@@ -35,7 +34,6 @@ define([
   ConfigurationView,
   GuestClaimsView,
   FinishView,
-  ProfileView,
   ich,
   mainTemplate,
   Application,
@@ -63,7 +61,6 @@ define([
       configuration: '#configuration',
       guestClaims: '#guestClaims',
       finish: '#finish',
-      profiles: '#profiles',
       navigation: '#navigation',
     },
     onRender: function() {
@@ -75,10 +72,9 @@ define([
       //close whatever view is open
       this.$el.toggleClass('is-loading', false)
       var welcomeStep = 0,
-        guestClaimsStep = 2,
-        profileStep = 1,
-        configStep = 3,
-        finishStep = 4
+        guestClaimsStep = 1,
+        configStep = 2,
+        finishStep = 3
 
       if (
         this.welcome.currentView &&
@@ -97,12 +93,6 @@ define([
         this.model.get('stepNumber') !== guestClaimsStep
       ) {
         this.hideGuestClaims()
-      }
-      if (
-        this.profiles.currentView &&
-        this.model.get('stepNumber') !== profileStep
-      ) {
-        this.hideProfiles()
       }
 
       if (
@@ -127,11 +117,6 @@ define([
         this.model.get('stepNumber') === guestClaimsStep
       ) {
         this.showGuestClaims()
-      } else if (
-        !this.profiles.currentView &&
-        this.model.get('stepNumber') === profileStep
-      ) {
-        this.showProfiles()
       } else if (
         !this.finish.currentView &&
         this.model.get('stepNumber') >= finishStep
@@ -202,37 +187,6 @@ define([
       }
       this.$(this.finish.el).show()
     },
-    showProfiles: function() {
-      var self = this
-      if (this.profiles.currentView) {
-        this.profiles.show()
-      } else {
-        Application.App.submodules.Installation.installerMainController
-          .fetchInstallProfiles()
-          .then(function(profiles) {
-            // set initial selected profile if null.
-            var profileKey = self.model.get('selectedProfile')
-            if (!profileKey && !profiles.isEmpty()) {
-              profileKey = profiles.first().get('name')
-              self.model.set('selectedProfile', profileKey)
-            }
-
-            self.profiles.show(
-              new ProfileView({
-                navigationModel: self.model,
-                collection: profiles,
-              })
-            )
-          })
-          .fail(function(error) {
-            if (console) {
-              console.log(error)
-            }
-          })
-          .done()
-      }
-      this.$(this.profiles.el).show()
-    },
     hideWelcome: function() {
       this.welcome.close()
       this.$(this.welcome.el).hide()
@@ -248,10 +202,6 @@ define([
     hideFinish: function() {
       this.finish.close()
       this.$(this.finish.el).hide()
-    },
-    hideProfiles: function() {
-      this.profiles.close()
-      this.$(this.profiles.el).hide()
     },
   })
 

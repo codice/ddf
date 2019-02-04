@@ -56,7 +56,7 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
       return {
         hasNext: true,
         hasPrevious: false,
-        totalSteps: 4,
+        totalSteps: 3,
         stepNumber: 0,
         percentComplete: 0,
         busy: false,
