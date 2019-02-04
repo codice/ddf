@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +33,7 @@ import javax.validation.constraints.NotNull;
  * @apiNote once hasChanged returns true, the user must commit the file once it's finished
  *     processing to create a new meta-snapshot.
  */
-public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> {
+public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
   //  Only Nullable for GSON serialization
   @Nullable private final File contentFile;
@@ -222,12 +221,20 @@ public class AsyncFileEntry implements Serializable, Comparable<AsyncFileEntry> 
 
   private void initializeHelper(AsyncFileEntry toInit) {
     for (AsyncFileEntry child : toInit.getChildren()) {
+      if (child.getFile() == null) {
+        throw new IllegalStateException(
+            "File cannot be null. There was a problem initializing the File entries from JSON");
+      }
       child.setParent(toInit);
       initializeHelper(child);
     }
   }
 
-  //  Initializes the entire tree.
+  /**
+   * Must be called when a {@link AsyncFileEntry} is loaded from a json file.
+   *
+   * @throws IllegalStateException if a {@link File} is null
+   */
   public void initialize() {
     initializeHelper(this);
   }

@@ -1058,7 +1058,6 @@ public class AsyncFileAlterationObserverTest {
     initNestedDirectory(1, 1, 0, 0);
     observer.initialize();
 
-    AsyncFileEntry ehh = observer.getRootFile();
     Gson gson = new GsonBuilder().serializeNulls().create();
     final String Json = gson.toJson(observer);
 

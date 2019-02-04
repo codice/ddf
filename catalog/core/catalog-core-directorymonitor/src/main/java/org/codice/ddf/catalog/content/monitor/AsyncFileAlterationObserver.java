@@ -15,7 +15,6 @@ package org.codice.ddf.catalog.content.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -38,10 +37,13 @@ import org.slf4j.LoggerFactory;
  * methods
  *
  * @see AsyncFileAlterationListener
+ * @see AsyncFileAlterationObserver#onLoad()
  */
-public class AsyncFileAlterationObserver implements Serializable {
+public class AsyncFileAlterationObserver {
 
-  @Nullable private final AsyncFileEntry rootFile; //  In case GSON returns it.
+  //  Only @Nullable in case GSON returns it. Will throw an Illegal state exception if onLoad is
+  // called when this is null.
+  @Nullable private final AsyncFileEntry rootFile;
   @Nullable private transient AsyncFileAlterationListener listener = null;
   private final transient Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
@@ -59,23 +61,30 @@ public class AsyncFileAlterationObserver implements Serializable {
     rootFile = null;
   }
 
-  public void onLoad() {
-    if (rootFile != null) rootFile.initialize();
+  /**
+   * @apiNote Must be called when the observer has been initialized from a JSON file.
+   * @throws IllegalStateException when there was an error loading from a json.
+   */
+  public void onLoad() throws IllegalStateException {
+    if (rootFile == null) {
+      throw new IllegalStateException(
+          "Root file must not be null. Invalid state after parsing JSON");
+    }
+    rootFile.initialize();
   }
 
-  //  Returns true on errors;
   private boolean initHelper(AsyncFileEntry entry) {
     File[] children = listFiles(entry.getFile());
     if (children == null) {
       //  Error while initializing... some records may appear twice.
       LOGGER.debug("Error getting children for [{}]", entry.getName());
-      return true;
+      return false;
     }
-    boolean errors = false;
+    boolean errors = true;
     for (File child : children) {
       AsyncFileEntry childEntry = new AsyncFileEntry(entry, child);
       entry.addChild(childEntry);
-      errors = errors || initHelper(childEntry);
+      errors = errors && initHelper(childEntry);
     }
     return errors;
   }
@@ -86,7 +95,7 @@ public class AsyncFileAlterationObserver implements Serializable {
    * @return true on success, false if an IO error occurs
    */
   public boolean initialize() {
-    return !initHelper(rootFile);
+    return initHelper(rootFile);
   }
 
   public void destroy() {

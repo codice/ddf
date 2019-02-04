@@ -77,19 +77,18 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
   //  We got an old version.
   private void backwardsCompatibility(
-      FileAlterationObserver oldBoye, AsyncFileAlterationObserver newBoye) {
-    boolean success = newBoye.initialize();
+      FileAlterationObserver oldObserver, AsyncFileAlterationObserver newObserver) {
+    boolean success = newObserver.initialize();
     if (!success) {
-      //  Screams internally.
       //  There was an IO error setting up the initial state of the observer
       LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");
       return;
     }
-    oldBoye.addListener(listener);
-    oldBoye.checkAndNotify();
-    oldBoye.removeListener(listener);
+    oldObserver.addListener(listener);
+    oldObserver.checkAndNotify();
+    oldObserver.removeListener(listener);
 
-    observer = newBoye;
+    observer = newObserver;
   }
 
   @Override
