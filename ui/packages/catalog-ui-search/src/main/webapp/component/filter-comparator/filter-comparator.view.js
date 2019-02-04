@@ -103,3 +103,5 @@ module.exports = Marionette.ItemView.extend({
     }
   },
 })
+
+export { numberComparators }

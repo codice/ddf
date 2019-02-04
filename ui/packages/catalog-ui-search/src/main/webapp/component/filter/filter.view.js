@@ -147,7 +147,12 @@ module.exports = Marionette.LayoutView.extend({
     this.determineInput()
   },
   transformValue: function(value, comparator) {
-    if (value[0] === null) {
+    const numberComparators = ['>', '<', '=', '>=', '<=']
+    const comparatorIndex = numberComparators.indexOf(this.model.get('comparator'))
+    if (comparatorIndex !== -1) {
+      value[0] = 0
+    }
+    else if (value[0] === null) {
       value[0] = '*'
     }
 
@@ -253,6 +258,7 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
+        this.toggleDateClass(true)
         break
       case 'BOOLEAN':
         if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
