@@ -234,16 +234,6 @@ module.exports = Marionette.LayoutView.extend({
   toggleDateClass: function(toggle) {
     this.$el.toggleClass('is-date', toggle)
   },
-  toggleSearchInputClass: function(toggle) {
-    this.$el.toggleClass('if-editing', toggle)
-  },
-  toggleViewingClass: function(toggle) {
-    this.$el.toggleClass('if-viewing', toggle)
-  },
-  toggleEditor: function(toggle) {
-    this.toggleViewingClass(toggle)
-    this.toggleSearchInputClass(toggle)
-  },
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
@@ -253,7 +243,6 @@ module.exports = Marionette.LayoutView.extend({
         if (['INTERSECTS', 'EMPTY'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
-        this.toggleEditor(currentComparator !== 'EMPTY')
         this.toggleLocationClass(currentComparator === 'EMPTY')
         break
       case 'DATE':
@@ -264,7 +253,6 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'BEFORE')
         }
-        this.toggleEditor(currentComparator !== 'EMPTY')        
         break
       case 'BOOLEAN':
         if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
@@ -281,7 +269,6 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', '>')
         }
-        this.toggleEditor(currentComparator !== 'EMPTY')
         break
       default:
         if (
@@ -291,7 +278,6 @@ module.exports = Marionette.LayoutView.extend({
         ) {
           this.model.set('comparator', 'CONTAINS')
         }
-        // this.toggleEditor(currentComparator === 'EMPTY')
         break
     }
   },
@@ -320,13 +306,9 @@ module.exports = Marionette.LayoutView.extend({
       currentComparator
     )
     const ViewToUse = determineView(currentComparator)
-    let modelObj = new PropertyModel(propertyJSON)
-    // if (this.model.changed.comparator === 'EMPTY') {
-    //   modelObj.attributes.value = ''
-    // }
     this.filterInput.show(
       new ViewToUse({
-        model: modelObj,
+        model: new PropertyModel(propertyJSON),
       })
     )
 
@@ -334,7 +316,6 @@ module.exports = Marionette.LayoutView.extend({
     if (this.model.attributes.comparator === 'EMPTY') {
       this.$el.find('filter-comparator').toggle()
       this.$el.find('filter-input').toggle()
-      // $('.if-editing').toggleAttribute()
     } else if (isEditing) {
       this.turnOnEditing()
     } else {
@@ -351,10 +332,10 @@ module.exports = Marionette.LayoutView.extend({
     return text
   },
   getFilters: function() {
-    var property = this.model.get('type')
-    var comparator = this.model.get('comparator')
-    var value = this.filterInput.currentView.model.getValue()[0]
-    var type = this.comparatorToCQL()[comparator]
+    const property = this.model.get('type')
+    const comparator = this.model.get('comparator')
+    const value = this.filterInput.currentView.model.getValue()[0]
+    const type = this.comparatorToCQL()[comparator]
 
     if (comparator === 'NEAR') {
       return CQLUtils.generateFilterForFilterFunction('proximity', [
