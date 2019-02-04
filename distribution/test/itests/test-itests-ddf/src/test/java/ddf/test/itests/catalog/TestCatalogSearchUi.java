@@ -107,11 +107,11 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
           .put("metadata", "Metadata XML")
           .put("rtf", "RTF")
           .put("overlay.thumbnail", "Overlay Thumbnail")
-          .put("xml", "OGC XML")
+          .put("xml", "OGC GML")
           .put("preview", "Preview")
           .put("resource", "Binary Resource")
           .put("geojson", "GeoJSON")
-          .put("html", "HTML")
+          .put("html", "Preview HTML")
           .put("thumbnail", "Thumbnail")
           .put("propertyjson", "Property JSON")
           .put("kml", "KML")
@@ -121,9 +121,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private static final Map<String, String> QUERY_RESPONSE_TRANSFORMER_DESCRIPTORS =
       ImmutableMap.<String, String>builder()
-          .put("html", "HTML")
+          .put("html", "Preview HTML")
           .put("rtf", "RTF")
-          .put("xml", "XML")
+          .put("xml", "OGC GML")
           .put("csv", "CSV")
           .put("geojson", "GeoJSON")
           .put("atom", "Atom")
@@ -477,7 +477,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     Map<String, String> body = (Map<String, String>) parse(res);
 
-    assertTransformerDescriptor(body, "html", "HTML");
+    assertTransformerDescriptor(body, "html", "Preview HTML");
   }
 
   @Test
