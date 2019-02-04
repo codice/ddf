@@ -16,7 +16,6 @@ package org.codice.ddf.security.idp.client;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
-import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
@@ -180,10 +179,15 @@ public class LogoutRequestService {
           return buildLogoutResponse(msg);
         }
 
+        SecurityToken idpSecToken = getIdpSecurityToken();
+        if (idpSecToken == null) {
+          LOGGER.info("Unable to logout. Please try again.");
+          return buildLogoutResponse("Unable to logout. Please try again.");
+        }
         // Logout removes the SAML assertion. This statement must be called before the SAML
         // assertion is removed.
         List<String> sessionIndexes =
-            getIdpSecurityAssertion()
+            new SecurityAssertionImpl(idpSecToken)
                 .getAuthnStatements()
                 .stream()
                 .filter(Objects::nonNull)
@@ -512,9 +516,8 @@ public class LogoutRequestService {
     return SystemBaseUrl.EXTERNAL.constructUrl("/saml", true);
   }
 
-  private SecurityAssertion getIdpSecurityAssertion() {
-
-    return new SecurityAssertionImpl(getTokenHolder().getSecurityToken(IDP_REALM_NAME));
+  private SecurityToken getIdpSecurityToken() {
+    return getTokenHolder().getSecurityToken(IDP_REALM_NAME);
   }
 
   private void logout() {
@@ -523,17 +526,23 @@ public class LogoutRequestService {
   }
 
   private void logSecurityAuditRole() {
-    if (shouldAuditSubject()) {
-      SecurityLogger.audit(
-          "Subject with admin privileges has logged out: {}",
-          getIdpSecurityAssertion().getPrincipal().getName());
+    SecurityToken idpSecToken = getIdpSecurityToken();
+    if (idpSecToken != null) {
+      if (shouldAuditSubject(idpSecToken)) {
+        SecurityLogger.audit(
+            "Subject with admin privileges has logged out: {}",
+            new SecurityAssertionImpl(idpSecToken).getPrincipal().getName());
+      }
     }
   }
 
-  private boolean shouldAuditSubject() {
+  private boolean shouldAuditSubject(SecurityToken idpSecToken) {
     return Arrays.stream(System.getProperty(SECURITY_AUDIT_ROLES).split(","))
         .anyMatch(
-            role -> getIdpSecurityAssertion().getPrincipals().contains(new RolePrincipal(role)));
+            role ->
+                new SecurityAssertionImpl(idpSecToken)
+                    .getPrincipals()
+                    .contains(new RolePrincipal(role)));
   }
 
   private SecurityTokenHolder getTokenHolder() {
