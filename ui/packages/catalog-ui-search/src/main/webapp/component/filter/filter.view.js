@@ -147,8 +147,8 @@ module.exports = Marionette.LayoutView.extend({
     this.determineInput()
   },
   transformValue: function(value, comparator) {
-    if(value[0] === null){
-      value[0]='*'
+    if (value[0] === null) {
+      value[0] = '*'
     }
 
     switch (comparator) {
@@ -185,7 +185,7 @@ module.exports = Marionette.LayoutView.extend({
       CONTAINS: 'ILIKE',
       MATCHCASE: 'LIKE',
       EQUALS: '=',
-      'EMPTY': 'IS NULL',
+      EMPTY: 'IS NULL',
       '>': '>',
       '<': '<',
       '=': '=',
@@ -297,7 +297,7 @@ module.exports = Marionette.LayoutView.extend({
     let value = Common.duplicate(this.model.get('value'))
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
-    if(currentComparator === 'EMPTY'){
+    if (currentComparator === 'EMPTY') {
       value = []
     }
     const propertyJSON = generatePropertyJSON(

@@ -77,11 +77,6 @@ function generateAnyGeoFilter(property, model) {
       value: null,
     }
   }
-  // const filter = {
-  //   type,
-  //   property,
-  //   value,
-  // }
 
   switch (model.type) {
     case 'LINE':
@@ -236,9 +231,6 @@ function generateFilter(type, property, value, metacardDefinitions) {
   switch (metacardDefinitions.metacardTypes[property].type) {
     case 'LOCATION':
     case 'GEOMETRY':
-      // if(type === 'IS NULL' || type === undefined){
-      //   property = 'location'
-      // }
       return generateAnyGeoFilter(property, value)
     default:
       const filter = {
@@ -274,17 +266,12 @@ function isGeoFilter(type) {
 }
 
 function transformFilterToCQL(filter) {
-  let write = cql.write(filter)
-  console.log(write)
-  let read = cql.read(write)
-  let simp = cql.simplify(read)
   return this.sanitizeGeometryCql(
-    '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))).replace(' null', '') + ')'
-  )
-}
-function transformMultiFilterToCQL(filter) {
-  return this.sanitizeGeometryCql(
-    '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')'
+    '(' +
+      cql
+        .write(cql.simplify(cql.read(cql.write(filter))))
+        .replace(' null', '') +
+      ')'
   )
 }
 

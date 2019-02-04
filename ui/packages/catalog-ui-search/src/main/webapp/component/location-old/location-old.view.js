@@ -109,7 +109,11 @@ module.exports = Marionette.LayoutView.extend({
   deserialize: function() {
     if (this.propertyModel) {
       var filter = this.propertyModel.get('value')
-      if(filter === null || filter.value == undefined || filter.value == null){
+      if (
+        filter === null ||
+        filter.value == undefined ||
+        filter.value == null
+      ) {
         return
       }
       var filterValue =
