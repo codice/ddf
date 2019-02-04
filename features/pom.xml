@@ -38,8 +38,6 @@
         <module>solr</module>
         <module>security</module>
         <module>utilities</module>
-        <module>apps</module>
-        <module>install-profiles</module>
     </modules>
 
     <properties>

@@ -53,7 +53,6 @@
 
     <feature name="resourcemanagement-app" version="${project.version}"
              description="The Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.">
-        <feature>catalog-app</feature>
         <feature>resourcemanagement-usage-ui</feature>
         <feature>resourcemanagement-usage-plugin</feature>
         <feature>resourcemanagement-querymonitor-plugin</feature>

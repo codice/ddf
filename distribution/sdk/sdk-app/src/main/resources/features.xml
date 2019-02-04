@@ -56,8 +56,6 @@
     </feature>
 
     <feature name="sdk-app" version="${project.version}" description="SDK app.">
-        <feature>security-services-app</feature>
-        <feature>catalog-app</feature>
         <feature>security-expansion</feature>
         <feature>security-pep-serviceauthz</feature>
         <feature>security-expansion-user-attributes</feature>

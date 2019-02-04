@@ -139,7 +139,6 @@
 
     <feature name="catalog-core-backupplugin" version="${project.version}"
              description="Catalog post ingest plug-in to backup metacards to a file system.">
-        <feature>catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
     </feature>
 
@@ -213,7 +212,6 @@
 
     <feature name="catalog-plugin-federationreplication"
              version="${project.version}" description="">
-        <feature>catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
     </feature>
 
@@ -581,7 +579,6 @@
 
     <feature name="catalog-ftp" version="${project.version}"
              description="FTP endpoint for ingesting files into the catalog. Supports PUT and MPUT operations only. Avoids the extra IO overhead of otherwise having to temporarily write the file to the file system.">
-        <feature>catalog-app</feature>
         <bundle>mvn:ddf.catalog/ftp/${project.version}</bundle>
         <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
     </feature>
@@ -596,7 +593,6 @@
     </feature>
 
     <feature name="catalog-async-inmemory" version="${project.version}">
-        <feature>catalog-app</feature>
         <feature>catalog-async-api</feature>
         <bundle>mvn:ddf.catalog.async/catalog-async-postingestplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.async/catalog-async-processingframework/${project.version}</bundle>
@@ -616,62 +612,5 @@
 
     <feature name="workspace-query-separation" version="${project.version}">
         <bundle>mvn:ddf.catalog.migrate/workspace-query-separation/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-app" version="${project.version}"
-             description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.">
-        <feature>admin-app</feature>
-        <feature>catalog-core-api</feature>
-        <feature>catalog-core</feature>
-        <feature>catalog-core-plugins</feature>
-        <feature>catalog-core-content</feature>
-        <feature>catalog-core-directorymonitor</feature>
-        <feature>catalog-core-downloadaction</feature>
-        <feature>catalog-metrics</feature>
-        <feature>catalog-schematron-plugin</feature>
-        <feature>catalog-rest</feature>
-        <feature>catalog-confluence-source</feature>
-        <feature>catalog-plugin-jpeg2000</feature>
-        <feature>catalog-transformer-html</feature>
-        <feature>catalog-transformer-metadata</feature>
-        <feature>catalog-transformer-xsltengine</feature>
-        <feature>catalog-transformer-resource</feature>
-        <feature>catalog-transformer-tika</feature>
-        <feature>catalog-transformer-video</feature>
-        <feature>catalog-transformer-json</feature>
-        <feature>catalog-transformer-atom</feature>
-        <feature>catalog-transformer-csv</feature>
-        <feature>catalog-transformer-xml</feature>
-        <feature>catalog-transformer-zip</feature>
-        <feature>catalog-transformer-rtf</feature>
-        <feature>catalog-security-filter</feature>
-        <feature>catalog-security-operationplugin</feature>
-        <feature>catalog-security-plugin</feature>
-        <feature>catalog-security-resourceplugin</feature>
-        <feature>catalog-security-policyplugin</feature>
-        <feature>catalog-security-pointofcontact-readonly</feature>
-        <feature>catalog-security-metacardattributeplugin</feature>
-        <feature>catalog-security-xmlattributeplugin</feature>
-        <feature>catalog-plugin-security-audit</feature>
-        <feature>catalog-admin-module-sources</feature>
-        <feature>catalog-admin-module-maplayers</feature>
-        <feature>catalog-admin-module-layout</feature>
-        <feature>catalog-admin-poller-service</feature>
-        <feature>catalog-core-validationparser</feature>
-        <feature>catalog-transformer-pdf</feature>
-        <feature>catalog-transformer-pptx</feature>
-        <feature>catalog-validator-metacardwkt</feature>
-        <feature>catalog-validator-metacardduplication</feature>
-        <feature>catalog-validator-metacardlocation</feature>
-        <feature>catalog-validator-metacardframecenter</feature>
-        <feature>catalog-transformer-overlay</feature>
-        <feature>catalog-transformer-preview</feature>
-        <feature>catalog-client-info</feature>
-        <feature>catalog-transformer-geoformatter</feature>
-        <feature>catalog-transformer-thumbnail</feature>
-        <feature>catalog-metacardingest-network</feature>
-        <feature>catalog-core-attachment</feature>
-        <feature>catalog-plugin-gazetteer</feature>
-        <feature>data-migration</feature>
     </feature>
 </features>

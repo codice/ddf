@@ -36,6 +36,7 @@
     </feature>
 
     <feature name="spatial-common-ogc" version="${project.version}" description="Common ogc">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
         <bundle>mvn:org.jvnet.jaxb2_commons/jaxb2-basics-runtime/0.11.0</bundle>
         <bundle>wrap:mvn:org.hisrc.w3c/xlink-v_1_0/1.4.0$Bundle-Name=xlink-v_1_0&amp;Bundle-SymbolicName=xlink-v_1_0&amp;Bundle-Version=1.4.0&amp;Export-Package=*;version="1.4.0"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
     </feature>
@@ -76,6 +77,7 @@
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-wfs-v1_0_0" version="${project.version}"
@@ -144,10 +146,11 @@
         <feature>catalog-solr-provider</feature>
         <feature>spatial-geocoding-endpoint</feature>
         <feature>catalog-core-plugins</feature>
+        <feature>country-code-converter</feature>
+
         <bundle>mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
         <bundle>mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
         <bundle>mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
-        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
@@ -177,25 +180,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-wps-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-app" version="${project.version}"
-             description="Spatial contains standards-based, geospatial endpoints, sources, and transforms.">
-        <feature>catalog-app</feature>
-        <feature>catalog-transformer-xml</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
+    <feature name="country-code-converter" version="${project.version}" description="Country code converter" >
         <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
-        <feature>spatial-kml</feature>
-        <feature>spatial-wfs-core</feature>
-        <feature>spatial-csw</feature>
-        <feature>offline-gazetteer</feature>
-        <feature>spatial-process-api</feature>
-        <feature>spatial-wps-api</feature>
-        <feature>spatial-wfs-feature-transformer-xstream</feature>
-        <feature>spatial-wfs-feature-transformer-handlebars</feature>
-        <feature>spatial-wfs-v1_0_0</feature>
-        <feature>spatial-wfs-v1_1_0</feature>
-        <feature>spatial-wfs-v2_0_0</feature>
     </feature>
-
 </features>

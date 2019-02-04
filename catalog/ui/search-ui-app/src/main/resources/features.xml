@@ -23,7 +23,6 @@
     </feature>
 
     <feature name="catalog-ui" version="${project.version}" description="Catalog UI">
-        <feature>spatial-app</feature>
         <feature>camel-http</feature>
         <feature>catalog-ui-search-api</feature>
         <feature>platform-usng4j</feature>
@@ -58,20 +57,9 @@
 
     <feature name="search-redirect" version="${project.version}"
              description="Configuration to redirect /search to another endpoint">
-        <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
-    </feature>
-
-    <feature name="search-ui-app" version="${project.version}"
-             description="The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the Search UI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both the Catalog UI (3d globe) and Simple Search UI (text page) versions.">
         <configfile finalname="${ddf.etc}/org.codice.ddf.ui.searchui.filter.RedirectServlet.config" override="false">
             mvn:ddf.ui/search-ui-app/${project.version}/config/redirect
         </configfile>
-        <feature>catalog-app</feature>
-        <feature>catalog-versioning-plugin</feature>
-        <feature>catalog-core-validator</feature>
-        <feature>catalog-ui</feature>
-        <feature>simple-search-ui</feature>
-        <feature>search-redirect</feature>
+        <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
     </feature>
-
 </features>
