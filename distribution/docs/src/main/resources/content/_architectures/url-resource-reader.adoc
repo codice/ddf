@@ -20,17 +20,6 @@ For example, if path `/my/valid/path` is configured in the `URLResourceReader`&#
 
 The `URLResourceReader` is installed by default with a standard installation in the ${ddf-catalog} application.
 
-===== Configuring the URL Resource Reader
-
-Configure the URL Resource Reader from the ${admin-console}.
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-catalog}* application.
-. Select the *Configuration* tab.
-. Select the *URL Resource Reader*.
-
-See <<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader configurations>> for all possible configurations.
-
 ===== Configuring Permissions for the URL Resource Reader
 
 Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permissions to the directory containing the resources. The following permissions, replacing <DIRECTORY_PATH> with the path of the directory containing resources should be placed in the URL Resource Reader section inside ${home_directory}/security/configurations.policy.
@@ -47,6 +36,17 @@ After adding permissions, a system restart is required for them to take effect.
 Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "${/}test${/}path" and "${/}test${/}path${/}" are equivalent. The recursive forms "${/}test${/}path${/}-", and "${/}test${/}path${/}${/}-" are also equivalent.
 
 Line 1 gives the URL Resource Reader the permissions to read from the directory. Line 2 gives the URL Resource Reader the permissions to recursively read from the directory, specified by the directory path's suffix "${/}-".
+
+===== Configuring the URL Resource Reader
+
+Configure the URL Resource Reader from the ${admin-console}.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select the *URL Resource Reader*.
+
+See <<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader configurations>> for all possible configurations.
 
 ===== Using the URL Resource Reader
 
