@@ -175,6 +175,10 @@ module.exports = function (load, options) {
 
     // find if dependency already exists in a pom
     var find = function ($) {
+      var self = depEq({
+        artifact: $('project > artifactId').first().text(),
+        group: $('project > groupId').first().text()
+      })
       var deps = $('project > dependencies > dependency')
         .map(function (i, el) {
           return {
@@ -184,7 +188,7 @@ module.exports = function (load, options) {
         }).get()
 
       return function (dep) {
-        return deps.filter(depEq(dep)).length > 0
+        return self(dep) || deps.filter(depEq(dep)).length > 0
       }
     }
 
