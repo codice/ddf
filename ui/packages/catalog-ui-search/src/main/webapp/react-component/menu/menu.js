@@ -130,6 +130,7 @@ class MenuItem extends React.Component {
     } = this.props
     return (
       <div
+        title={value.name}
         style={style}
         onMouseEnter={() => onHover(value)}
         onFocus={() => onHover(value)}
