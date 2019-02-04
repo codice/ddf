@@ -39,6 +39,23 @@
         Duplicate
     </div>
 </div>
+
+<div class="interaction interaction-default" data-help="Sets list as default. Causes new searches that contain lists to default to using this list.">
+    <div class="interaction-icon fa fa-star">
+    </div>
+    <div class="interaction-text">
+        Make Default List
+    </div>
+</div>
+
+<div class="interaction interaction-clear" data-help="Clears this list as default. Causes new searches that contain lists to not necessarily default to using this list.">
+    <div class="interaction-icon fa fa-eraser">
+    </div>
+    <div class="interaction-text">
+        Clear Default List
+    </div>
+</div>
+
 {{#each actions}}
 <div class="interaction interaction-action" title="{{title}}" data-help="{{description}}" data-url="{{{url}}}">
     <div class="interaction-icon fa fa-list">

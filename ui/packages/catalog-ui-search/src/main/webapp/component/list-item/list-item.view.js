@@ -26,6 +26,7 @@ var QueryFeedView = require('../query-feed/query-feed.view.js')
 var ListInteractionsView = require('../list-interactions/list-interactions.view.js')
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 var ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js')
+const user = require('../../component/singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-item'),
@@ -83,6 +84,12 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'change:list.bookmarks', this.handleEmptyList)
     this.handleEmptyList()
     this.handleOutOfDate()
+    this.handleDefault()
+    this.listenTo(
+      user.get('user').getPreferences(),
+      'change:defaultListId',
+      this.handleDefault
+    )
   },
   handleOutOfDate: function() {
     this.$el.toggleClass('is-out-of-date', this.model.get('query>isOutdated'))
@@ -181,6 +188,13 @@ module.exports = Marionette.LayoutView.extend({
       {
         icon: this.model.getIcon(),
       }
+    )
+  },
+  handleDefault() {
+    const prefs = user.get('user').getPreferences()
+    this.$el.toggleClass(
+      'is-default',
+      prefs.get('defaultListId') === this.model.get('id')
     )
   },
 })
