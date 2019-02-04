@@ -1191,7 +1191,7 @@ public class MetacardApplication implements SparkApplication {
 
           Function<Serializable, Serializable> mapFunc = Function.identity();
           if (isChangeTypeDate(attributeChange, resultMetacard)) {
-            mapFunc = mapFunc.andThen(util::parseDate);
+            mapFunc = mapFunc.andThen(serializable -> Date.from(util.parseDate(serializable)));
           }
 
           resultMetacard.setAttribute(
