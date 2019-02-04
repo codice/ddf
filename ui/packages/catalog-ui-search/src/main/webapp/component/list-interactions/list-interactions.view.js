@@ -122,13 +122,13 @@ module.exports = Marionette.ItemView.extend({
       })
     }
   },
-  triggerMakeDefault: function() {
+  triggerMakeDefault() {
     const prefs = user.get('user').getPreferences()
     prefs.set('defaultListId', this.model.get('id'))
     prefs.savePreferences()
     this.$el.toggleClass('is-default', true)
   },
-  triggerClearDefault: function() {
+  triggerClearDefault() {
     const prefs = user.get('user').getPreferences()
     prefs.set('defaultListId', {})
     prefs.savePreferences()
@@ -140,7 +140,7 @@ module.exports = Marionette.ItemView.extend({
       this.model.get('query').get('result') !== undefined
     )
   },
-  handleDefault: function() {
+  handleDefault() {
     const prefs = user.get('user').getPreferences()
     this.$el.toggleClass(
       'is-default',

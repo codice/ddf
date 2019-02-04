@@ -22,7 +22,7 @@ module.exports = Marionette.CollectionView.extend({
   setDefaultCollection: function() {
     this.collection = this.options.workspaceLists
   },
-  viewComparator: function(list1, list2) {
+  viewComparator(list1, list2) {
     const defaultListId = user
       .get('user')
       .getPreferences()

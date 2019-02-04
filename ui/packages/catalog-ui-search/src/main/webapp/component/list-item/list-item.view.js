@@ -190,7 +190,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
-  handleDefault: function() {
+  handleDefault() {
     const prefs = user.get('user').getPreferences()
     this.$el.toggleClass(
       'is-default',
