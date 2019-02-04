@@ -308,8 +308,11 @@ module.exports = Marionette.LayoutView.extend({
     let value = Common.duplicate(this.model.get('value'))
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
+<<<<<<< HEAD
     let type = this.model.get('type')
 
+=======
+>>>>>>> 6927e8399a... Addressed second half of PR commits
     if (currentComparator === 'EMPTY') {
       value = []
       type = 'STRING'
