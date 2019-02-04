@@ -23,10 +23,11 @@ module.exports = Backbone.AssociatedModel.extend({
       description: undefined,
       id: undefined,
       queryId: undefined,
+      displayName: undefined,
     }
   },
   getExportType: function() {
-    return this.get('title').replace(/^Export( as)?\s+\b/, '')
+    return this.get('displayName')
   },
   initialize: function() {
     this.handleQueryId()

@@ -22,6 +22,7 @@
         <service-properties>
             <entry key="id" value="propertyjson"/>
             <entry key="mime-type" value="application/json"/>
+            <entry key="displayName" value="Property JSON"/>
         </service-properties>
     </service>
 

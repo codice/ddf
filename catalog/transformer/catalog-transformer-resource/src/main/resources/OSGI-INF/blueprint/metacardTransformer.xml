@@ -24,6 +24,8 @@
 
 			<entry key="title" value="Get Resource..."/>
 
+			<entry key="displayName" value="Binary Resource"/>
+
             <!-- deprecated -->
             <entry key="shortname" value="resource"/>
 		</service-properties>

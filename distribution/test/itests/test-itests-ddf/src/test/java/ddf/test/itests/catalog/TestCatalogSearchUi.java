@@ -17,6 +17,8 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -41,6 +43,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,6 +85,8 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   public static final String RESULT_TEMPLATES_PATH = "/search/catalog/internal/forms/result";
 
+  public static final String TRANSFORMERS_PATH = "/search/catalog/internal/transformers";
+
   public static final DynamicUrl QUERIES_API_PATH =
       new DynamicUrl(SECURE_ROOT, HTTPS_PORT, QUERIES_PATH);
 
@@ -93,6 +98,38 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   public static final DynamicUrl RESULT_TEMPLATES_API_PATH =
       new DynamicUrl(SECURE_ROOT, HTTPS_PORT, RESULT_TEMPLATES_PATH);
+
+  public static final DynamicUrl TRANSFORMERS_API_PATH =
+      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, TRANSFORMERS_PATH);
+
+  private static final Map<String, String> METACARD_TRANSFORMER_DESCRIPTORS =
+      ImmutableMap.<String, String>builder()
+          .put("metadata", "Metadata XML")
+          .put("rtf", "RTF")
+          .put("overlay.thumbnail", "Overlay Thumbnail")
+          .put("xml", "OGC GML")
+          .put("preview", "Preview")
+          .put("resource", "Binary Resource")
+          .put("geojson", "GeoJSON")
+          .put("html", "Preview HTML")
+          .put("thumbnail", "Thumbnail")
+          .put("propertyjson", "Property JSON")
+          .put("kml", "KML")
+          .put("gmd:MD_Metadata", "GMD Metadata")
+          .put("csw:Record", "CSW Record XML")
+          .build();
+
+  private static final Map<String, String> QUERY_RESPONSE_TRANSFORMER_DESCRIPTORS =
+      ImmutableMap.<String, String>builder()
+          .put("html", "Preview HTML")
+          .put("rtf", "RTF")
+          .put("xml", "OGC GML")
+          .put("csv", "CSV")
+          .put("geojson", "GeoJSON")
+          .put("atom", "Atom")
+          .put("kml", "KML")
+          .put("csw:Record", "CSW Record XML")
+          .build();
 
   @BeforeExam
   public void beforeExam() throws Exception {
@@ -127,6 +164,10 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private static String resultTemplatesApi() {
     return RESULT_TEMPLATES_API_PATH.getUrl();
+  }
+
+  private static String transformersApi() {
+    return TRANSFORMERS_API_PATH.getUrl();
   }
 
   private static Map parse(Response res) {
@@ -394,6 +435,105 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         "Result template did not have expected descriptors in the data",
         descriptors,
         hasItems("title", "description", "created", "resource-download-url", "thumbnail"));
+  }
+
+  @Test
+  public void testGetMetacardTransformerDescriptors() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 200)
+            .get(transformersApi() + "/metacard");
+
+    List<Map> body = parseList(res);
+
+    for (Entry<String, String> entry : METACARD_TRANSFORMER_DESCRIPTORS.entrySet()) {
+      String id = entry.getKey();
+      String displayName = entry.getValue();
+
+      assertTransformerDescriptorsContains(body, id, displayName);
+    }
+  }
+
+  @Test
+  public void testGetQueryResponseTransformerDescriptors() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 200)
+            .get(transformersApi() + "/query");
+
+    List<Map> body = parseList(res);
+
+    for (Entry<String, String> entry : QUERY_RESPONSE_TRANSFORMER_DESCRIPTORS.entrySet()) {
+      String id = entry.getKey();
+      String displayName = entry.getValue();
+
+      assertTransformerDescriptorsContains(body, id, displayName);
+    }
+  }
+
+  @Test
+  public void testGetMetacardTransformerDescriptorById() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 200)
+            .get(transformersApi() + "/metacard/html");
+
+    Map<String, String> body = (Map<String, String>) parse(res);
+
+    assertTransformerDescriptor(body, "html", "Preview HTML");
+  }
+
+  @Test
+  public void testGetQueryResponseTransformerDescriptorById() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 200)
+            .get(transformersApi() + "/query/atom");
+
+    Map<String, String> body = (Map<String, String>) parse(res);
+
+    assertTransformerDescriptor(body, "atom", "Atom");
+  }
+
+  @Test
+  public void testGetMetacardTransformerDescriptorNotFound() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 404)
+            .get(transformersApi() + "/metacard/foo");
+
+    Map<String, String> body = (Map<String, String>) parse(res);
+
+    assertThat(body, hasEntry("message", "Transformer not found"));
+  }
+
+  @Test
+  public void testGetQueryResponseTransformerDescriptorNotFound() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 404)
+            .get(transformersApi() + "/query/bar");
+
+    Map<String, String> body = (Map<String, String>) parse(res);
+
+    assertThat(body, hasEntry("message", "Transformer not found"));
+  }
+
+  @Test
+  public void testGetTransformerDescriptorTypeNotFound() {
+    Response res =
+        expect(asUser("random", "password").header("Origin", transformersApi()), 404)
+            .get(transformersApi() + "/foo/bar");
+
+    Map<String, String> body = (Map<String, String>) parse(res);
+
+    assertThat(body, hasEntry("message", "Transformer type not found"));
+  }
+
+  private static void assertTransformerDescriptorsContains(
+      List<Map> descriptors, String id, String displayName) {
+    assertThat(descriptors, hasItem(hasEntry("id", id)));
+    assertThat(descriptors, hasItem(hasEntry("displayName", displayName)));
+  }
+
+  private static void assertTransformerDescriptor(
+      Map<String, String> descriptor, String id, String displayName) {
+    assertThat(descriptor, hasEntry("id", id));
+    assertThat(descriptor, hasEntry("displayName", displayName));
   }
 
   private static void assertTemplateDataStructures(JsonPath json) {

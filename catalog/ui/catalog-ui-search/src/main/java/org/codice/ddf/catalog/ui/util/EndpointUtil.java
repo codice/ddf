@@ -83,6 +83,7 @@ import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryIteratorProvider;
@@ -142,6 +143,8 @@ public class EndpointUtil {
   private final Random random = new Random();
 
   private List<String> whiteListedMetacardTypes = Collections.emptyList();
+
+  private TransformerDescriptors descriptors;
 
   public EndpointUtil(
       List<MetacardType> metacardTypes,
@@ -560,7 +563,8 @@ public class EndpointUtil {
         stopwatch.elapsed(TimeUnit.MILLISECONDS),
         cqlRequest.isNormalize(),
         filterAdapter,
-        actionRegistry);
+        actionRegistry,
+        descriptors);
   }
 
   private List<Result> retrieveHitCount(QueryRequest request, List<QueryResponse> responses)
@@ -857,5 +861,10 @@ public class EndpointUtil {
         | FederationException e) {
       return null;
     }
+  }
+
+  @SuppressWarnings("WeakerAccess" /* setter must be public for blueprint access */)
+  public void setDescriptors(TransformerDescriptors descriptors) {
+    this.descriptors = descriptors;
   }
 }

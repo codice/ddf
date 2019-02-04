@@ -42,6 +42,7 @@
 			<entry key="shortname" value="atom"/>
 			<entry key="mime-type" value="application/atom+xml"/>
 			<entry key="export-resultset" value="true"/>
+			<entry key="displayName" value="Atom"/>
 		</service-properties>
 	</service>
 

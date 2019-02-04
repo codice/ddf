@@ -26,5 +26,5 @@ export const exportDataAs = async (
 }
 
 export const retrieveExportOptions: () => Promise<Response> = async () => {
-  return await fetch('./internal/cql/transforms')
+  return await fetch('./internal/transformers/query')
 }

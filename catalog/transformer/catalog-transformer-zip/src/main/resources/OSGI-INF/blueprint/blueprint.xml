@@ -42,6 +42,8 @@
             <entry key="shortname" value="zipC"/>
             <entry key="mime-type" value="application/zip"/>
             <entry key="schema" value="urn:catalog:metacard"/>
+            <entry key="export-resultset" value="false"/>
+            <entry key="displayName" value="Signed ZIP"/>
         </service-properties>
     </service>
 

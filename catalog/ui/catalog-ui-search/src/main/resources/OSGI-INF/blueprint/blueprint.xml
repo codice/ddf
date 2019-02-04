@@ -200,6 +200,23 @@
         <argument ref="metacardMultiActionProviders"/>
     </bean>
 
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list interface="ddf.catalog.transform.MetacardTransformer"
+      member-type="service-reference">
+        <reference-listener ref="metacardTransformers" bind-method="bindService" unbind-method="unbindService"/>
+    </reference-list>
+
+    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
+      member-type="service-reference" filter="(export-resultset=true)">
+        <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
+    </reference-list>
+
+    <bean id="transformerDescriptors" class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
+        <argument ref="metacardTransformers"/>
+        <argument ref="queryResponseTransformers"/>
+    </bean>
+
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.whitelist"
@@ -219,6 +236,7 @@
         <property name="whiteListedMetacardTypes">
             <array/>
         </property>
+        <property name="descriptors" ref="transformerDescriptors"/>
     </bean>
 
     <!--Exposing endpoint util as a service to allow for system templates to be managed through the means of a Karaf command (reference injection)-->
@@ -277,12 +295,6 @@
     <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
                     availability="optional">
         <reference-listener ref="workspaceTransformations" bind-method="bindPlugin" unbind-method="unbindPlugin"/>
-    </reference-list>
-
-    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
-                    member-type="service-reference" filter="(export-resultset=true)">
-        <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
     </reference-list>
 
     <bean id="workspaceTransformer"
@@ -539,6 +551,10 @@
         <argument ref="sessionManagementService"/>
     </bean>
 
+    <bean id="transformerDescriptorApplication" class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptorApplication">
+        <property name="descriptors" ref="transformerDescriptors"/>
+    </bean>
+
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <property name="sparkApplications">
@@ -557,6 +573,7 @@
                 <ref component-id="listApplication"/>
                 <ref component-id="buildApplication"/>
                 <ref component-id="geoCoderApplication"/>
+                <ref component-id="transformerDescriptorApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>

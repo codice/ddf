@@ -116,6 +116,11 @@ type Source = {
   hits: number
 }
 
+type ExportResponse = {
+  displayName: string
+  id: string
+}
+
 export default hot(module)(
   class TableExport extends React.Component<Props, State> {
     constructor(props: Props) {
@@ -140,11 +145,26 @@ export default hot(module)(
     async componentDidMount() {
       const response = await retrieveExportOptions()
       const exportFormats = await response.json()
+      const sortedExportFormats = exportFormats.sort(
+        (format1: ExportResponse, format2: ExportResponse) => {
+          if (format1.displayName > format2.displayName) {
+            return 1
+          }
+
+          if (format1.displayName < format2.displayName) {
+            return -1
+          }
+
+          return 0
+        }
+      )
       this.setState({
-        exportFormats: exportFormats.map((exportFormat: string) => ({
-          label: exportFormat,
-          value: exportFormat,
-        })),
+        exportFormats: sortedExportFormats.map(
+          (exportFormat: ExportResponse) => ({
+            label: exportFormat.displayName,
+            value: exportFormat.id,
+          })
+        ),
       })
     }
     handleExportFormatChange(value: string) {

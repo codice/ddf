@@ -71,6 +71,7 @@ import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.cql.CqlResult;
+import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -163,6 +164,9 @@ public class EndpointUtilTest {
             injectableAttributeList,
             attributeRegistryMock,
             configurationApplicationMock);
+
+    endpointUtil.setDescriptors(
+        new TransformerDescriptors(Collections.emptyList(), Collections.emptyList()));
   }
 
   @Test

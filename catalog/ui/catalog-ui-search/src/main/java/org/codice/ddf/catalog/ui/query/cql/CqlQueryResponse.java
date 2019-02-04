@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
+import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,8 @@ public class CqlQueryResponse {
       long elapsedTime,
       boolean normalize,
       FilterAdapter filterAdapter,
-      ActionRegistry actionRegistry) {
+      ActionRegistry actionRegistry,
+      TransformerDescriptors descriptors) {
     this.id = id;
 
     this.queryResponse = queryResponse;
@@ -132,6 +134,7 @@ public class CqlQueryResponse {
                         normalize,
                         filterAdapter,
                         actionRegistry))
+            .map(cqlResult -> new CqlResult(cqlResult, descriptors))
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));

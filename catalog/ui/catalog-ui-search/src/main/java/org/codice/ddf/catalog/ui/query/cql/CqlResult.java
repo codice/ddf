@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.WktQueryDelegate;
+import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -98,6 +99,23 @@ public class CqlResult {
 
   private boolean isResourceLocal;
 
+  public CqlResult(CqlResult result, TransformerDescriptors descriptors) {
+    this.hasThumbnail = result.getHasThumbnail();
+    this.isResourceLocal = result.getIsResourceLocal();
+    this.distance = result.getDistance();
+    this.relevance = result.getRelevance();
+    this.metacard = result.getMetacard();
+    this.actions =
+        result
+            .getActions()
+            .stream()
+            .map(
+                action ->
+                    new DisplayableAction(
+                        action, getDisplayName(descriptors, action.getId(), action.getTitle())))
+            .collect(Collectors.toList());
+  }
+
   public CqlResult(
       Result result,
       Set<SearchTerm> searchTerms,
@@ -126,8 +144,23 @@ public class CqlResult {
       countMatches(searchTerms, mc);
     }
 
-    actions = actionRegistry.list(result.getMetacard()).stream().collect(Collectors.toList());
+    actions =
+        actionRegistry
+            .list(result.getMetacard())
+            .stream()
+            .map(action -> new DisplayableAction(action, action.getId()))
+            .collect(Collectors.toList());
     metacard = metacardToMap(result);
+  }
+
+  private String getDisplayName(TransformerDescriptors descriptors, String id, String title) {
+    Map<String, String> transformerDescriptor = descriptors.getMetacardTransformer(id);
+
+    if (transformerDescriptor != null) {
+      return transformerDescriptor.get("displayName");
+    }
+
+    return title.replaceFirst("^Export( as)?\\s+\\b", "");
   }
 
   private void countMatches(Set<SearchTerm> searchTerms, Metacard mc) {
