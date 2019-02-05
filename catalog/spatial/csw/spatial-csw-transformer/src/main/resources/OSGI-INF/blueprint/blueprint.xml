@@ -198,7 +198,6 @@
                 </list>
             </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
-            <entry key="export-resultset" value="true"/>
             <entry key="displayName" value="CSW Record XML"/>
         </service-properties>
     </service>

@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.transformer;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +26,10 @@ public class TransformerDescriptors {
 
   private List<ServiceReference> queryResponseTransformers;
 
+  private List<String> blackListedMetacardTransformers = Collections.emptyList();
+
+  private List<String> blackListedQueryResponseTransformers = Collections.emptyList();
+
   public TransformerDescriptors(
       List<ServiceReference> metacardTransformers,
       List<ServiceReference> queryResponseTransformers) {
@@ -33,36 +38,58 @@ public class TransformerDescriptors {
   }
 
   public List<Map<String, String>> getMetacardTransformers() {
-    return getTransformerDescriptors(metacardTransformers);
+    return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformers);
   }
 
   public List<Map<String, String>> getQueryResponseTransformers() {
-    return getTransformerDescriptors(queryResponseTransformers);
+    return getTransformerDescriptors(
+        queryResponseTransformers, blackListedQueryResponseTransformers);
   }
 
   public Map<String, String> getMetacardTransformer(String id) {
-    return getTransformerDescriptor(metacardTransformers, id);
+    return getTransformerDescriptor(metacardTransformers, blackListedMetacardTransformers, id);
   }
 
   public Map<String, String> getQueryResponseTransformer(String id) {
-    return getTransformerDescriptor(queryResponseTransformers, id);
+    return getTransformerDescriptor(
+        queryResponseTransformers, blackListedQueryResponseTransformers, id);
+  }
+
+  public List<String> getBlackListedMetacardTransformers() {
+    return blackListedMetacardTransformers;
+  }
+
+  public List<String> getBlackListedQueryResponseTransformers() {
+    return blackListedQueryResponseTransformers;
+  }
+
+  public void setBlackListedMetacardTransformers(List<String> blackListedMetacardTransformers) {
+    this.blackListedMetacardTransformers = blackListedMetacardTransformers;
+  }
+
+  public void setBlackListedQueryResponseTransformers(
+      List<String> blackListedQueryResponseTransformers) {
+    this.blackListedQueryResponseTransformers = blackListedQueryResponseTransformers;
   }
 
   private Map<String, String> getTransformerDescriptor(
-      List<ServiceReference> serviceReferences, String id) {
+      List<ServiceReference> serviceReferences, List<String> blacklist, String id) {
     return serviceReferences
         .stream()
         .filter(serviceRef -> serviceRef.getProperty("id") != null)
+        .filter(serviceRef -> !blacklist.contains(serviceRef.getProperty("id").toString()))
         .filter(serviceRef -> id.endsWith(serviceRef.getProperty("id").toString()))
         .findFirst()
         .map(this::getTransformerDescriptor)
         .orElse(null);
   }
 
-  private List<Map<String, String>> getTransformerDescriptors(List<ServiceReference> transformers) {
+  private List<Map<String, String>> getTransformerDescriptors(
+      List<ServiceReference> transformers, List<String> blacklist) {
     return transformers
         .stream()
         .filter(serviceRef -> serviceRef.getProperty("id") != null)
+        .filter(serviceRef -> !blacklist.contains(serviceRef.getProperty("id").toString()))
         .map(this::getTransformerDescriptor)
         .collect(Collectors.toList());
   }

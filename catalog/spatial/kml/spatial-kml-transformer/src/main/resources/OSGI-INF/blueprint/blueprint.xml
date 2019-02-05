@@ -60,7 +60,6 @@
             <entry key="title" value="View Results as KML..."/>
             <entry key="description"
                    value="Transforms a Metacard to KML for use with Google Earth and other visualization tools."/>
-            <entry key="export-resultset" value="true"/>
             <entry key="displayName" value="KML"/>
         </service-properties>
     </service>

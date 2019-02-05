@@ -27,7 +27,6 @@ Query Response Transformers can be used through the Catalog transform convenienc
         <entry key="shortname" value="[[sampletransform]]" />
         <entry key="title" value="[[Sample Response Transformer]]" />
         <entry key="description" value="[[A new transformer for response queues.]]" />
-        <entry key="export-resultset" value="[[true]]" />
     </service-properties>
 </service>
 ...
@@ -51,10 +50,6 @@ Query Response Transformers can be used through the Catalog transform convenienc
 |`description`
 |A short, human-readable description that describes the functionality of the service and the output.
 |_This service converts a single metacard xml document to an atom entry element_.
-
-|`export-resultset`
-|A boolean value that if true allows the transformer to populate the list of QueryResponseTransformers available as an export option.
-|true
 
 |===
 

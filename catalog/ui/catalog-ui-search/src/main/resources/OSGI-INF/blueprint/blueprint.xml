@@ -208,11 +208,14 @@
 
     <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
     <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
-      member-type="service-reference" filter="(export-resultset=true)">
+      member-type="service-reference">
         <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
     </reference-list>
 
     <bean id="transformerDescriptors" class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
+        <cm:managed-properties
+          persistent-id="org.codice.ddf.catalog.ui.transformer.blacklist"
+          update-strategy="container-managed"/>
         <argument ref="metacardTransformers"/>
         <argument ref="queryResponseTransformers"/>
     </bean>

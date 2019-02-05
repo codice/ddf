@@ -22,7 +22,6 @@
              interface="ddf.catalog.transform.QueryResponseTransformer">
         <service-properties>
             <entry key="id" value="csv"/>
-            <entry key="export-resultset" value="true"/>
             <entry key="mime-type">
                 <list>
                     <value>text/csv</value>

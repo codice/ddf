@@ -41,7 +41,6 @@
       <entry key="id" value="html"/>
       <entry key="shortname" value="html"/>
       <entry key="mime-type" value="text/html"/>
-      <entry key="export-resultset" value="true"/>
       <entry key="displayName" value="Preview HTML"/>
     </service-properties>
   </service>
