@@ -19,15 +19,15 @@
     <OCD name="Metacard Validation Filter Plugin"
          id="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
         <AD
-                description="Comma-delimited mapping of Metacard SECURITY attribute to user attribute. Users with this role will always receive metacards with errors and/or warnings."
+                description="Comma-delimited mapping of Metacard SECURITY attribute to user attributes. Users with one of these attributes will always receive metacards with errors and/or warnings."
                 name="Attribute map" id="attributeMap" required="false" type="String"
-                default="invalid-state=data-manager\,system-user" cardinality="100"/>
+                default="invalid-state=localhost-data-manager\,system-user" cardinality="100"/>
         <AD
-                description="Sets whether metacards with validation errors are filtered for users without the configured user attribute."
+                description="Sets whether metacards with validation errors are filtered for users without one of the configured user attribute."
                 name="Filter errors" id="filterErrors" type="Boolean"
                 default="true"/>
         <AD
-                description="Sets whether metacards with validation warnings are filtered for users without the configured user attribute."
+                description="Sets whether metacards with validation warnings are filtered for users without one of the configured user attribute."
                 name="Filter warnings" id="filterWarnings" type="Boolean"
                 default="false"/>
     </OCD>
@@ -40,11 +40,11 @@
                 type="String"
                 default="" cardinality="100"/>
         <AD
-                description="Sets whether validation errors are enforced"
+                description="Sets whether validation errors are enforced."
                 name="Enforce errors" id="enforceErrors" required="true" type="Boolean"
                 default="true"/>
         <AD
-                description="Sets whether validation warnings are enforced"
+                description="Sets whether validation warnings are enforced."
                 name="Enforce warnings" id="enforceWarnings" required="true" type="Boolean"
                 default="true"/>
     </OCD>
