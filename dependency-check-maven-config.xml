@@ -545,6 +545,24 @@
     </suppress>
     <suppress>
         <notes>
+            False positives against cxf
+        </notes>
+        <cve>CVE-2007-6423</cve>
+        <cve>CVE-2010-0425</cve>
+        <cve>CVE-2009-1890</cve>
+        <cve>CVE-2009-1891</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            False positives against artemis
+        </notes>
+        <cve>CVE-2007-6423</cve>
+        <cve>CVE-2010-0425</cve>
+        <cve>CVE-2009-1890</cve>
+        <cve>CVE-2009-1891</cve>
+    </suppress>
+    <suppress>
+        <notes>
             A CVE against slf4j for the class "EventData", which is not used in DDF or pax-logging.
         </notes>
         <cve>CVE-2018-8088</cve>
