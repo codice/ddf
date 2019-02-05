@@ -82,7 +82,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
   }
 
   private void addRegistryAttributes() {
-    descriptors.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
+    add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
     addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
     addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
     addQueryableDate(LAST_PUBLISHED);
@@ -150,7 +150,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
   protected void addDescriptor(
       String name, boolean queryable, boolean multivalued, AttributeType<?> type) {
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             name,
             queryable /* indexed */,

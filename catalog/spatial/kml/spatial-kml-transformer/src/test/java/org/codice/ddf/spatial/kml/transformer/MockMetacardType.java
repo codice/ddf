@@ -30,42 +30,42 @@ public class MockMetacardType extends MetacardTypeImpl {
   public MockMetacardType() {
     super(NAME, (Set<AttributeDescriptor>) null);
 
-    descriptors.addAll(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
+    addAll(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
 
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.BINARY.toString(), true, true, false, true, BasicTypes.BINARY_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.BOOLEAN.toString(), true, true, false, true, BasicTypes.BOOLEAN_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.DATE.toString(), true, true, false, true, BasicTypes.DATE_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.DOUBLE.toString(), true, true, false, true, BasicTypes.DOUBLE_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.FLOAT.toString(), true, true, false, true, BasicTypes.FLOAT_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.GEOMETRY.toString(), true, true, false, true, BasicTypes.GEO_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.INTEGER.toString(), true, true, false, true, BasicTypes.INTEGER_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.LONG.toString(), true, true, false, true, BasicTypes.LONG_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.OBJECT.toString(), true, true, false, true, BasicTypes.OBJECT_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.SHORT.toString(), true, true, false, true, BasicTypes.SHORT_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.STRING.toString(), true, true, false, true, BasicTypes.STRING_TYPE));
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AttributeFormat.XML.toString(), true, true, false, true, BasicTypes.XML_TYPE));
   }
