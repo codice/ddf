@@ -37,6 +37,8 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
 
   FileSystemPersistenceProvider fileSystemPersistenceProvider;
 
+  ObjectPersistentStore jsonSerializer;
+
   private String remaining;
 
   AbstractDurableFileConsumer(
@@ -62,15 +64,14 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
   @Override
   protected boolean pollDirectory(String fileName, List list, int depth) {
     if (remaining != null) {
-      String sha1 = getShaFor(remaining);
-      initialize(remaining, sha1);
-      return doPoll(sha1);
+      initialize(remaining);
+      return doPoll(remaining);
     }
 
     return false;
   }
 
-  protected abstract void initialize(@NotNull String remaining, @NotNull String sha1);
+  protected abstract void initialize(@NotNull String remaining);
 
   protected abstract boolean doPoll(@NotNull String sha1);
 

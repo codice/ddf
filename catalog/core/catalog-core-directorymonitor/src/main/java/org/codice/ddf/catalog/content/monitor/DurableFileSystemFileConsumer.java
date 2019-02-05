@@ -18,6 +18,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,41 +55,56 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   }
 
   @Override
-  protected void initialize(String fileName, String sha1) {
+  protected void initialize(String fileName) {
     if (fileSystemPersistenceProvider == null) {
       fileSystemPersistenceProvider = new FileSystemPersistenceProvider(getClass().getSimpleName());
     }
+    if (jsonSerializer == null) {
+      jsonSerializer = new JsonPersistantStore(getClass().getSimpleName());
+    }
+
     if (observer == null && fileName != null) {
-      if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
-        Object tempObserver = fileSystemPersistenceProvider.loadFromJson(sha1, observer.getClass());
-        if (tempObserver != null) {
-          observer = (AsyncFileAlterationObserver) tempObserver;
-          observer.onLoad();
-        } else {
-          backwardsCompatibility(
-              (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1),
-              new AsyncFileAlterationObserver(new File(fileName)));
-        }
+
+      observer =
+          (AsyncFileAlterationObserver)
+              jsonSerializer.load(fileName, AsyncFileAlterationObserver.class);
+
+      if (observer != null) {
+        observer.onLoad();
+      }
+
+      //  Backwards Compatibility
+      else if (isOldVersion(fileName)) {
+        observer = backwardsCompatibility(fileName);
       } else {
         observer = new AsyncFileAlterationObserver(new File(fileName));
       }
     }
   }
 
-  //  We got an old version.
-  private void backwardsCompatibility(
-      FileAlterationObserver oldObserver, AsyncFileAlterationObserver newObserver) {
+  private boolean isOldVersion(String fileName) {
+    String sha1 = DigestUtils.sha1Hex(fileName);
+    return fileSystemPersistenceProvider.loadAllKeys().contains(sha1);
+  }
+
+  private AsyncFileAlterationObserver backwardsCompatibility(String fileName) {
+
+    String sha1 = DigestUtils.sha1Hex(fileName);
+    AsyncFileAlterationObserver newObserver = new AsyncFileAlterationObserver(new File(fileName));
+    FileAlterationObserver oldObserver =
+        (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
+
     boolean success = newObserver.initialize();
     if (!success) {
       //  There was an IO error setting up the initial state of the observer
       LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");
-      return;
+      return null;
     }
     oldObserver.addListener(listener);
     oldObserver.checkAndNotify();
     oldObserver.removeListener(listener);
 
-    observer = newObserver;
+    return newObserver;
   }
 
   @Override
