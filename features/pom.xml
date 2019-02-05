@@ -58,7 +58,7 @@
         <commons-pool-version>${commons-pool.version}</commons-pool-version>
         <commons-io-version>${commons-io.version}</commons-io-version>
         <cxf-version-range>[3.1,4.0)</cxf-version-range>
-        <c3p0-bundle-version>0.9.5.2_2</c3p0-bundle-version>
+        <c3p0-bundle-version>0.9.5.3</c3p0-bundle-version>
         <freemarker-version>2.3.28</freemarker-version>
         <geronimo-jms-spec-version>1.1.1</geronimo-jms-spec-version>
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
