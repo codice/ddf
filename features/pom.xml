@@ -52,7 +52,7 @@
         - Added netty41 version and removed netty40 version
         - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match -->
         <aws-java-sdk-bundle-version>1.11.344_1</aws-java-sdk-bundle-version>
-        <c3p0-bundle-version>0.9.5.2_2</c3p0-bundle-version>
+        <c3p0-bundle-version>0.9.5.3</c3p0-bundle-version>
         <commons-codec-version>1.11</commons-codec-version>
         <commons-httpclient-bundle-version>3.1_7</commons-httpclient-bundle-version>
         <commons-io-version>2.6</commons-io-version>
