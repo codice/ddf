@@ -41,7 +41,6 @@ const ZoomToHome = (props: Props) => {
   return (
     <SplitButton
       title="Return To Home Location"
-      className="is-split-button"
       onSelect={goHome}
       style={{
         width: '165px',

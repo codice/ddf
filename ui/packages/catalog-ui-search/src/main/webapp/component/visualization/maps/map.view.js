@@ -15,7 +15,6 @@
 /*global require, setTimeout*/
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
 import ZoomToHomeButton from '../../../react-component/button/split-button/zoomToHome.tsx'
 
 var wreqr = require('../../../js/wreqr.js')
@@ -272,13 +271,10 @@ module.exports = Marionette.LayoutView.extend({
     userPreferences.set('mapHome', boundingBox)
   },
   addPanZoom: function() {
-    const self = this
     const PanZoomView = Marionette.ItemView.extend({
-      template() {
-        return (
-          <Gazetteer setState={({ polygon }) => self.map.doPanZoom(polygon)} />
-        )
-      },
+      template: () => (
+        <Gazetteer setState={({ polygon }) => this.map.doPanZoom(polygon)} />
+      ),
     })
     this.$el
       .find('.cesium-viewer-toolbar')
@@ -287,17 +283,14 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
-    const self = this
     const containerClass = 'zoomToHome-container'
     const ZoomToHomeButtonView = Marionette.ItemView.extend({
-      template() {
-        return (
-          <ZoomToHomeButton
-            goHome={() => self.zoomToHome()}
-            saveHome={() => self.saveAsHome()}
-          />
-        )
-      },
+      template: () => (
+        <ZoomToHomeButton
+          goHome={() => this.zoomToHome()}
+          saveHome={() => this.saveAsHome()}
+        />
+      ),
     })
     this.$el
       .find('.cesium-viewer-toolbar')

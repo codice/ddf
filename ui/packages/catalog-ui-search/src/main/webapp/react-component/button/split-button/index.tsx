@@ -46,7 +46,7 @@ const Menu = styled.div`
   background-color: ${props => props.theme.backgroundDropdown};
 `
 
-const MainButton = styled.button`
+const DefaultButton = styled.button`
   flex: 1;
 `
 
@@ -66,6 +66,7 @@ class SplitButton extends React.Component<Props, State> {
   public static defaultProps = {
     title: '',
     style: {},
+    className: '',
   }
   constructor(props: Props) {
     super(props)
@@ -90,12 +91,16 @@ class SplitButton extends React.Component<Props, State> {
   render() {
     const { label, menu } = this.props.children
     const { style = {}, title = '', onSelect, className = '' } = this.props
+    const rootClassName = 'is-split-button ' + className
     return (
-      <Root style={style} className={className}>
-        <MainButton title={title} type="button" onClick={onSelect}>
+      <Root style={style} className={rootClassName}>
+        <DefaultButton title={title} type="button" onClick={onSelect}>
           {label}
-        </MainButton>
-        <Icon className="fa fa-caret-down" onClick={() => this.onToggle()} />
+        </DefaultButton>
+        <Icon
+          className="fa fa-caret-down toggle"
+          onClick={() => this.onToggle()}
+        />
         {this.state.isOpen ? this.renderMenu(menu) : null}
       </Root>
     )
