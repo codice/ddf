@@ -44,10 +44,6 @@
             mvn:ddf.ui/search-ui-app/${project.version}/config/intrigue-bundle-config
         </configfile>
 
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.transformer.blacklist.config" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/config/catalog-blacklisted-transformers-config
-        </configfile>
-
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>

@@ -22,8 +22,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.ServiceReference;
 
@@ -32,9 +36,16 @@ public class TransformerDescriptorsTest {
   private TransformerDescriptors descriptors =
       new TransformerDescriptors(
           ImmutableList.of(
-              createMockServiceReference("foo", "bar"), createMockServiceReference("hello", null)),
+              createMockServiceReference("foo", "bar"),
+              createMockServiceReference("hello", null),
+              createMockServiceReference("world", null)),
           ImmutableList.of(
               createMockServiceReference("bar", "foo"), createMockServiceReference(null, null)));
+
+  @Before
+  public void setup() {
+    descriptors.setBlackListedMetacardTransformerIds(Collections.singleton("world"));
+  }
 
   @Test
   public void testGetMetacardTransformerDescriptors() {
@@ -71,6 +82,38 @@ public class TransformerDescriptorsTest {
     Map<String, String> descriptor = descriptors.getMetacardTransformer("hello");
 
     assertTransformerDescriptor(descriptor, "hello", "hello");
+  }
+
+  @Test
+  public void testGetBlacklistedTransformerDescriptor() {
+    Map<String, String> descriptor = descriptors.getMetacardTransformer("world");
+
+    assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetDefaultQueryResponseTransformerBlacklist() {
+    Set<String> blacklist = descriptors.getBlackListedQueryResponseTransformerIds();
+
+    assertThat(blacklist, is(Collections.singleton("zipCompression")));
+  }
+
+  @Test
+  public void testGetBlacklistedMetacardTransformers() {
+    Set<String> blacklist = ImmutableSet.of("hello", "world");
+
+    descriptors.setBlackListedMetacardTransformerIds(blacklist);
+
+    assertThat(descriptors.getBlackListedMetacardTransformerIds(), is(blacklist));
+  }
+
+  @Test
+  public void testGetBlacklistedQueryResponseTransformers() {
+    Set<String> blacklist = ImmutableSet.of("hello", "world");
+
+    descriptors.setBlackListedQueryResponseTransformerIds(blacklist);
+
+    assertThat(descriptors.getBlackListedQueryResponseTransformerIds(), is(blacklist));
   }
 
   private void assertTransformerDescriptor(

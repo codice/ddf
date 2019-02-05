@@ -14,21 +14,27 @@
 package org.codice.ddf.catalog.ui.transformer;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.osgi.framework.ServiceReference;
 
+/**
+ * Provides descriptors for all metacard and query response transformers. This class provides
+ * transformer blacklisting as well as display names.
+ */
 public class TransformerDescriptors {
 
-  private List<ServiceReference> metacardTransformers;
+  private final List<ServiceReference> metacardTransformers;
 
-  private List<ServiceReference> queryResponseTransformers;
+  private final List<ServiceReference> queryResponseTransformers;
 
-  private List<String> blackListedMetacardTransformers = Collections.emptyList();
+  private Set<String> blackListedMetacardTransformerIds = Collections.emptySet();
 
-  private List<String> blackListedQueryResponseTransformers = Collections.emptyList();
+  private Set<String> blackListedQueryResponseTransformerIds = ImmutableSet.of("zipCompression");
 
   public TransformerDescriptors(
       List<ServiceReference> metacardTransformers,
@@ -38,54 +44,59 @@ public class TransformerDescriptors {
   }
 
   public List<Map<String, String>> getMetacardTransformers() {
-    return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformers);
+    return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformerIds);
   }
 
   public List<Map<String, String>> getQueryResponseTransformers() {
     return getTransformerDescriptors(
-        queryResponseTransformers, blackListedQueryResponseTransformers);
+        queryResponseTransformers, blackListedQueryResponseTransformerIds);
   }
 
   public Map<String, String> getMetacardTransformer(String id) {
-    return getTransformerDescriptor(metacardTransformers, blackListedMetacardTransformers, id);
+    return getTransformerDescriptor(metacardTransformers, blackListedMetacardTransformerIds, id);
   }
 
   public Map<String, String> getQueryResponseTransformer(String id) {
     return getTransformerDescriptor(
-        queryResponseTransformers, blackListedQueryResponseTransformers, id);
+        queryResponseTransformers, blackListedQueryResponseTransformerIds, id);
   }
 
-  public List<String> getBlackListedMetacardTransformers() {
-    return blackListedMetacardTransformers;
+  public Set<String> getBlackListedMetacardTransformerIds() {
+    return blackListedMetacardTransformerIds;
   }
 
-  public List<String> getBlackListedQueryResponseTransformers() {
-    return blackListedQueryResponseTransformers;
+  public Set<String> getBlackListedQueryResponseTransformerIds() {
+    return blackListedQueryResponseTransformerIds;
   }
 
-  public void setBlackListedMetacardTransformers(List<String> blackListedMetacardTransformers) {
-    this.blackListedMetacardTransformers = blackListedMetacardTransformers;
+  public void setBlackListedMetacardTransformerIds(Set<String> blackListedMetacardTransformerIds) {
+    this.blackListedMetacardTransformerIds = blackListedMetacardTransformerIds;
   }
 
-  public void setBlackListedQueryResponseTransformers(
-      List<String> blackListedQueryResponseTransformers) {
-    this.blackListedQueryResponseTransformers = blackListedQueryResponseTransformers;
+  public void setBlackListedQueryResponseTransformerIds(
+      Set<String> blackListedQueryResponseTransformerIds) {
+    this.blackListedQueryResponseTransformerIds = blackListedQueryResponseTransformerIds;
   }
 
   private Map<String, String> getTransformerDescriptor(
-      List<ServiceReference> serviceReferences, List<String> blacklist, String id) {
-    return serviceReferences
-        .stream()
-        .filter(serviceRef -> serviceRef.getProperty("id") != null)
-        .filter(serviceRef -> !blacklist.contains(serviceRef.getProperty("id").toString()))
-        .filter(serviceRef -> id.endsWith(serviceRef.getProperty("id").toString()))
-        .findFirst()
-        .map(this::getTransformerDescriptor)
-        .orElse(null);
+      List<ServiceReference> serviceReferences, Set<String> blacklist, String id) {
+    for (ServiceReference serviceRef : serviceReferences) {
+      Object idProperty = serviceRef.getProperty("id");
+
+      if (idProperty != null) {
+        String serviceId = idProperty.toString();
+
+        if (!blacklist.contains(serviceId) && id.endsWith(serviceId)) {
+          return getTransformerDescriptor(serviceRef);
+        }
+      }
+    }
+
+    return null;
   }
 
   private List<Map<String, String>> getTransformerDescriptors(
-      List<ServiceReference> transformers, List<String> blacklist) {
+      List<ServiceReference> transformers, Set<String> blacklist) {
     return transformers
         .stream()
         .filter(serviceRef -> serviceRef.getProperty("id") != null)

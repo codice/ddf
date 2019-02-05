@@ -95,11 +95,6 @@
                                     <type>config</type>
                                     <classifier>intrigue-bundle-config</classifier>
                                 </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.transformer.blacklist.config</file>
-                                    <type>config</type>
-                                    <classifier>catalog-blacklisted-transformers-config</classifier>
-                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

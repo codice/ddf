@@ -24,6 +24,7 @@ Query Response Transformers can be used through the Catalog transform convenienc
 ...
 <service ref="SampleResponseTransformer" interface="ddf.catalog.transform.QueryResponseTransformer">
     <service-properties>
+        <entry key="id" value="[[sampleId]]" />
         <entry key="shortname" value="[[sampletransform]]" />
         <entry key="title" value="[[Sample Response Transformer]]" />
         <entry key="description" value="[[A new transformer for response queues.]]" />
@@ -38,6 +39,10 @@ Query Response Transformers can be used through the Catalog transform convenienc
 |Key
 |Description of Value
 |Example
+
+|`id`
+|A unique identifier to target a specific query response transformer.
+|atom
 
 |`shortname`
 |An abbreviation for the return type of the BinaryContent being sent to the user.

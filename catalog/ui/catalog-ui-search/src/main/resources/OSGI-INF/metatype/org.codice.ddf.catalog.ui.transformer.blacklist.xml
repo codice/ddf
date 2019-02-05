@@ -16,19 +16,20 @@
 
   <OCD name="Catalog UI Search Transformer Blacklist" id="org.codice.ddf.catalog.ui.transformer.blacklist">
 
-    <AD id="blackListedMetacardTransformers"
+    <AD id="blackListedMetacardTransformerIds"
       name="Metacard Transformer Blacklist"
-      description=""
+      description="The IDs of all metacard transformers that will not show up as export actions in the UI."
       type="String"
       cardinality="1000"
       required="false"/>
 
-    <AD id="blackListedQueryResponseTransformers"
+    <AD id="blackListedQueryResponseTransformerIds"
       name="Query Response Transformer Blacklist"
-      description=""
+      description="The IDs of all query response transformers that will not show up as export actions in the UI."
       type="String"
       cardinality="1000"
-      required="false"/>
+      required="false"
+      default="zipCompression"/>
   </OCD>
 
   <Designate pid="org.codice.ddf.catalog.ui.transformer.blacklist">

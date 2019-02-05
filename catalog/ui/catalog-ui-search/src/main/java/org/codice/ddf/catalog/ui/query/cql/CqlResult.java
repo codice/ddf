@@ -165,13 +165,10 @@ public class CqlResult {
   }
 
   private static boolean isBlacklistedTransformer(TransformerDescriptors descriptors, String id) {
-    for (String transformer : descriptors.getBlackListedMetacardTransformers()) {
-      if (id.endsWith(transformer)) {
-        return true;
-      }
-    }
-
-    return false;
+    return descriptors
+        .getBlackListedMetacardTransformerIds()
+        .stream()
+        .anyMatch(s -> id.endsWith(s));
   }
 
   private void countMatches(Set<SearchTerm> searchTerms, Metacard mc) {
