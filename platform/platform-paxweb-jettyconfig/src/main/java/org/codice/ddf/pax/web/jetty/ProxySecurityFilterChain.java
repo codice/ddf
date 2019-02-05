@@ -20,7 +20,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.validation.constraints.Null;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
@@ -39,8 +38,7 @@ public class ProxySecurityFilterChain implements FilterChain {
 
   private final List<SecurityFilter> filters;
 
-  @Nullable
-  private Iterator<SecurityFilter> iterator;
+  @Nullable private Iterator<SecurityFilter> iterator;
 
   /** Creates a new ProxySecurityFilterChain */
   public ProxySecurityFilterChain() {

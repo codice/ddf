@@ -39,8 +39,7 @@ public class ProxyFilterChain implements FilterChain {
 
   private final List<Filter> filters;
 
-  @Nullable
-  private Iterator<Filter> iterator;
+  @Nullable private Iterator<Filter> iterator;
 
   /**
    * Creates a new ProxyFilterChain with the specified filter chain included.
