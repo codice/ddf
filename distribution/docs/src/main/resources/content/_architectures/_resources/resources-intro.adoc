@@ -2,7 +2,7 @@
 :type: architectureIntro
 :status: published
 :children: Content Item, Resource Components, Resource Readers, Resource Writers, Content Directory Monitor
-:order: 01
+:order: 02
 :summary: Resources.
 
 .Resources Architecture

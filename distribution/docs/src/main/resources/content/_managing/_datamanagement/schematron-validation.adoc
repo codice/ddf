@@ -1,11 +1,13 @@
-:title: Validation with Schematron
-:type: dataValidation
+:title: Configuring Schematron Services
+:type: dataManagement
 :status: published
-:link: _validation_with_schematron
-:summary: Introduction to validation with schematron.
+:parent: Validating Data
 :order: 00
+:summary: Adding Schematron Validation Services.
 
-${branding} uses https://github.com/schematron[Schematron Validation] to validate metadata ingested into the catalog.
+== {title}
+
+${branding} uses https://github.com/schematron[Schematron Validation] {external-link} to validate metadata ingested into the catalog.
 
 Custom schematron rulesets can be used to validate metacard metadata.
 Multiple services can be created, and each service can have multiple rulesets associated with it.
@@ -19,8 +21,6 @@ Schematron files may reference other schematron files using an include statement
 However, when using the document function within a schematron ruleset to reference another file, the path must be absolute or relative to the ${branding} installation home directory.
 ====
 
-===== Configuring Schematron Services
-
 Schematron validation services are configured with a namespace and one or more schematron rulesets.
 Additionally, warnings may be suppressed so that only errors are reported.
 
@@ -31,4 +31,3 @@ To create a new service:
 * Select *Configuration*.
 * Ensure that `catalog-schematron-plugin` is started.
 * Select *Schematron Validation Services*.
-

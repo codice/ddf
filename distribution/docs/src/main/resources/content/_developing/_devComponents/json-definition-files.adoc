@@ -1,10 +1,8 @@
 :title: JSON Definition Files
-:type: data
+:type: developingComponent
 :status: published
 :summary: Introduction to JSON definition files.
-:order: 01
-
-=== JSON "Definition" Files.
+:order: 32
 
 [WARNING]
 ====

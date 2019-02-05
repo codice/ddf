@@ -2,14 +2,14 @@
 :type: dataManagement
 :status: published
 :parent: Validating Data
-:order: 01
+:order: 02
 :summary: Manually editing attributes.
 
 == {title}
 
 For small numbers of metacards, or for metacards ingested without overrides, attributes can be edited directly.
 
-.
+
 [WARNING]
 ====
 Metacards retrieved from connected sources or from a

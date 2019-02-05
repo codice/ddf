@@ -2,7 +2,7 @@
 :type: architectureIntro
 :status: published
 :children: na
-:order: 00
+:order: 01
 :summary: Operations.
 
 [ditaa, catalog_architecture_operations, png, ${image-width}]
