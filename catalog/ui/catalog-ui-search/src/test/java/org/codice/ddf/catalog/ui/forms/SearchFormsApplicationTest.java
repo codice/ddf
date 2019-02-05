@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Header;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
@@ -56,6 +57,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -156,7 +158,7 @@ public class SearchFormsApplicationTest {
   private static final ConfigurationApplication MOCK_CONFIG = mock(ConfigurationApplication.class);
 
   private static final TemplateTransformer TRANSFORMER =
-      new TemplateTransformer(MOCK_BUILDER, MOCK_FRAMEWORK, getWriter());
+      new TemplateTransformer(getWriter(), getRegistry());
 
   private static final EndpointUtil UTIL =
       new EndpointUtil(
@@ -277,6 +279,12 @@ public class SearchFormsApplicationTest {
     } catch (JAXBException e) {
       throw new AssertionError("Could not make filter writer, " + e.getMessage());
     }
+  }
+
+  private static AttributeRegistry getRegistry() {
+    AttributeRegistry registry = mock(AttributeRegistry.class);
+    doReturn(Optional.empty()).when(registry).lookup(any());
+    return registry;
   }
 
   private static String getContentsOfFile(String... resourceRoute) {
