@@ -106,14 +106,15 @@ module.exports = Marionette.LayoutView.extend({
   updateMaxAndMin: function() {
     this.model.setLatLon()
   },
+  isFilterUndefinedOrNull: function(filter) {
+    if (filter === null || filter.value == undefined || filter.value == null) {
+      return true
+    }
+  },
   deserialize: function() {
     if (this.propertyModel) {
       var filter = this.propertyModel.get('value')
-      if (
-        filter === null ||
-        filter.value == undefined ||
-        filter.value == null
-      ) {
+      if (this.isFilterUndefinedOrNull(filter)) {
         return
       }
       var filterValue =

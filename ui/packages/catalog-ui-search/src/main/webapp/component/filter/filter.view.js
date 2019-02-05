@@ -30,6 +30,12 @@ const CQLUtils = require('../../js/CQLUtils.js')
 const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
 
+const geometryComparators = ['INTERSECTS', 'EMPTY']
+const dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY']
+const stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY']
+const numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
+const booleanComparators = ['=', 'EMPTY']
+
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
     value: value,
@@ -249,24 +255,20 @@ module.exports = Marionette.LayoutView.extend({
     var currentComparator = this.model.get('comparator')
     switch (propertyJSON.type) {
       case 'LOCATION':
-        if (['INTERSECTS', 'EMPTY'].indexOf(currentComparator) === -1) {
+        if (geometryComparators.indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
         this.toggleLocationClass(currentComparator === 'EMPTY')
         this.toggleGeometryClass(currentComparator === 'EMPTY')
         break
       case 'DATE':
-        if (
-          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY'].indexOf(
-            currentComparator
-          ) === -1
-        ) {
+        if (dateComparators.indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'BEFORE')
         }
         this.toggleDateClass(true)
         break
       case 'BOOLEAN':
-        if (['=', 'EMPTY'].indexOf(currentComparator) === -1) {
+        if (booleanComparators.indexOf(currentComparator) === -1) {
           this.model.set('comparator', '=')
         }
         break
@@ -275,18 +277,12 @@ module.exports = Marionette.LayoutView.extend({
       case 'FLOAT':
       case 'INTEGER':
       case 'SHORT':
-        if (
-          ['>', '<', '=', '>=', '<=', 'EMPTY'].indexOf(currentComparator) === -1
-        ) {
+        if (numberComparators.indexOf(currentComparator) === -1) {
           this.model.set('comparator', '>')
         }
         break
       default:
-        if (
-          ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY'].indexOf(
-            currentComparator
-          ) === -1
-        ) {
+        if (numberComparators.indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'CONTAINS')
         }
         break
