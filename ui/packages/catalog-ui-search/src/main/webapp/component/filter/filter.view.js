@@ -30,11 +30,11 @@ const CQLUtils = require('../../js/CQLUtils.js')
 const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
 
-const geometryComparators = ['INTERSECTS', 'EMPTY']
-const dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'EMPTY']
-const stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'EMPTY']
-const numberComparators = ['>', '<', '=', '>=', '<=', 'EMPTY']
-const booleanComparators = ['=', 'EMPTY']
+const geometryComparators = ['EMPTY', 'INTERSECTS']
+const dateComparators = ['EMPTY', 'BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN']
+const stringComparators = ['EMPTY', 'CONTAINS', 'MATCHCASE', '=', 'NEAR']
+const numberComparators = ['EMPTY', '>', '<', '=', '>=', '<=']
+const booleanComparators = ['EMPTY', '=']
 
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
@@ -153,11 +153,10 @@ module.exports = Marionette.LayoutView.extend({
     this.determineInput()
   },
   transformValue: function(value, comparator) {
-    const numberComparators = ['>', '<', '=', '>=', '<=']
     const comparatorIndex = numberComparators.indexOf(
       this.model.get('comparator')
     )
-    if (comparatorIndex !== -1) {
+    if (comparatorIndex > 0) {
       value[0] = 0
     } else if (value[0] === null) {
       value[0] = '*'

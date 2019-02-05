@@ -164,7 +164,7 @@ module.exports = Marionette.LayoutView.extend({
     this.model.set({
       cql:
         this.options.isFormBuilder !== true
-          ? this.queryAdvanced.currentView.transformToCql().replace(' null', '')
+          ? this.queryAdvanced.currentView.transformToCql()
           : '',
       filterTree: this.queryAdvanced.currentView.getFilters(),
     })
