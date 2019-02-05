@@ -174,6 +174,9 @@ const ResultItemView = Marionette.LayoutView.extend({
                   ''
                 )}
               </div>
+              <div className="result-extension">
+                {this.getButtonExtensions()}
+              </div>
               <button
                 className="result-download fa fa-download is-button is-neutral"
                 title="Downloads the associated resource directly to your machine."
@@ -207,6 +210,9 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
   },
   getExtensions: function() {
+    return null
+  },
+  getButtonExtensions: function() {
     return null
   },
   attributes: function() {
