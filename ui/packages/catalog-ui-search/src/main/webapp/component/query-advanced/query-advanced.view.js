@@ -135,7 +135,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   edit: function() {
-    if (this.model.attributes.comparator === 'EMPTY') {
+    if (this.model.attributes.comparator === 'IS EMPTY') {
       $('.if-editing').toggle()
     }
     this.$el.addClass('is-editing')
