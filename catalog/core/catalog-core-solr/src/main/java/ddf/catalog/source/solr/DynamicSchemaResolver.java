@@ -624,7 +624,7 @@ public class DynamicSchemaResolver {
       case INTEGER:
       case SHORT:
       case FLOAT:
-        return findAnyMatchingNumericalField(propertyName);
+        return findAnyMatchingNumericalField(propertyName, getFieldSuffix(format));
       default:
         break;
     }
@@ -730,7 +730,7 @@ public class DynamicSchemaResolver {
     }
   }
 
-  private String findAnyMatchingNumericalField(String propertyName) {
+  private String findAnyMatchingNumericalField(String propertyName, String fieldSuffix) {
 
     if (fieldsCache.contains(propertyName + SchemaFields.DOUBLE_SUFFIX)) {
       return propertyName + SchemaFields.DOUBLE_SUFFIX;
@@ -752,8 +752,8 @@ public class DynamicSchemaResolver {
         "Did not find any numerical schema fields for property [{}]. Replacing with property [{}{}]",
         propertyName,
         propertyName,
-        SchemaFields.INTEGER_SUFFIX);
-    return propertyName + SchemaFields.INTEGER_SUFFIX;
+        fieldSuffix);
+    return propertyName + fieldSuffix;
   }
 
   /**
