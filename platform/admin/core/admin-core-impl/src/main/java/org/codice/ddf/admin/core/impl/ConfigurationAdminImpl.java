@@ -83,11 +83,11 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
   private static final Map<Long, String> BUNDLE_LOCATIONS = new ConcurrentHashMap<>();
 
+  private static final String CONFIGURATION_REGISTRY_ID_PROPERTY = "registry-id";
+
   private final ConfigurationAdmin configurationAdmin;
 
   private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
-
-  private final String CONFIGURATION_REGISTRY_ID_PROPERTY = "registry-id";
 
   private List<ConfigurationAdminPlugin> configurationAdminPluginList;
 
