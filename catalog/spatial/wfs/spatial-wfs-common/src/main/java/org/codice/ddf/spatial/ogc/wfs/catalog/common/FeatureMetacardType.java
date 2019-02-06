@@ -116,14 +116,17 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     }
 
     Set<String> existingAttributeNames =
-        descriptors.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());
+        getAttributeDescriptors()
+            .stream()
+            .map(AttributeDescriptor::getName)
+            .collect(Collectors.toSet());
 
     metacardTypeEnhancer
         .getAttributeDescriptors()
         .stream()
         .filter(
             attributeDescriptor -> !existingAttributeNames.contains(attributeDescriptor.getName()))
-        .forEach(attributeDescriptor -> descriptors.add(attributeDescriptor));
+        .forEach(this::add);
   }
 
   /**
@@ -143,7 +146,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
               basicAttributeDescriptor.isTokenized(),
               basicAttributeDescriptor.isMultiValued(),
               basicAttributeDescriptor.getType());
-      descriptors.add(attributeDescriptor);
+      add(attributeDescriptor);
     }
   }
 
@@ -241,7 +244,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     if (attributeType != null) {
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
-      descriptors.add(
+      add(
           new FeatureAttributeDescriptor(
               propertyPrefix + name,
               name,
@@ -271,7 +274,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
       temporalProperties.add(propertyPrefix + name);
 
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
-      descriptors.add(
+      add(
           new FeatureAttributeDescriptor(
               propertyPrefix + name,
               name,
@@ -293,7 +296,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
       gmlProperties.add(propertyPrefix + name);
 
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
-      descriptors.add(
+      add(
           new FeatureAttributeDescriptor(
               propertyPrefix + name,
               name,

@@ -38,7 +38,7 @@ public class Mp4MetacardType extends MetacardTypeImpl {
   }
 
   private void addMp4Attributes() {
-    descriptors.add(
+    add(
         new AttributeDescriptorImpl(
             AUDIO_SAMPLE_RATE,
             true /* indexed */,
