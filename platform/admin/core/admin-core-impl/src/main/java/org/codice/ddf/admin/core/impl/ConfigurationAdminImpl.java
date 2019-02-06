@@ -43,7 +43,6 @@ import org.codice.ddf.admin.core.api.ConfigurationStatus;
 import org.codice.ddf.admin.core.api.Metatype;
 import org.codice.ddf.admin.core.api.MetatypeAttribute;
 import org.codice.ddf.admin.core.api.Service;
-import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -87,6 +86,8 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
   private final ConfigurationAdmin configurationAdmin;
 
   private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
+
+  private final String CONFIGURATION_REGISTRY_ID_PROPERTY = "registry-id";
 
   private List<ConfigurationAdminPlugin> configurationAdminPluginList;
 
@@ -777,8 +778,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
         .flatMap(Arrays::stream)
         .map(AttributeDefinition::getID)
         .forEach(id -> copyIfDefined(id, properties, copiedProperties));
-    copyIfDefined(
-        RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, properties, copiedProperties);
+    copyIfDefined(CONFIGURATION_REGISTRY_ID_PROPERTY, properties, copiedProperties);
     return copiedProperties;
   }
 
