@@ -267,9 +267,7 @@ function isGeoFilter(type) {
 
 function transformFilterToCQL(filter) {
   return this.sanitizeGeometryCql(
-    '(' +
-      cql
-        .write(cql.simplify(cql.read(cql.write(filter)))) + ')'
+    '(' + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ')'
   )
 }
 
