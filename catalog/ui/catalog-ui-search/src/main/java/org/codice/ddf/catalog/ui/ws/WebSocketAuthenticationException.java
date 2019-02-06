@@ -14,14 +14,14 @@
 package org.codice.ddf.catalog.ui.ws;
 
 /** An exception to represent a security-related error in the {@link SecureWebSocketServlet}. */
-public class SecureWebSocketException extends RuntimeException {
+public class WebSocketAuthenticationException extends RuntimeException {
   private final String wsMessage;
 
-  SecureWebSocketException(String message) {
+  WebSocketAuthenticationException(String message) {
     this(message, null);
   }
 
-  SecureWebSocketException(String message, String wsMessage) {
+  WebSocketAuthenticationException(String message, String wsMessage) {
     super(message);
     this.wsMessage = wsMessage;
   }

@@ -89,10 +89,10 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-      if (securityTokenHolder.getRealmTokenMap().size() == 0) {
-        onError(session, new SecureWebSocketException("User not logged in."));
-      } else {
+      if (isUserLoggedIn()) {
         runWithUser(session, () -> ws.onOpen(session));
+      } else {
+        onError(session, new WebSocketAuthenticationException("User not logged in."));
       }
     }
 
@@ -108,9 +108,7 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-      if (securityTokenHolder.getRealmTokenMap().size() == 0) {
-        onError(session, new SecureWebSocketException("User not logged in.", message));
-      } else {
+      if (isUserLoggedIn()) {
         runWithUser(
             session,
             () -> {
@@ -120,7 +118,13 @@ public class SecureWebSocketServlet extends WebSocketServlet {
                 LOGGER.error("Failed to receive ws message.", e);
               }
             });
+      } else {
+        onError(session, new WebSocketAuthenticationException("User not logged in.", message));
       }
+    }
+
+    private boolean isUserLoggedIn() {
+      return securityTokenHolder.getRealmTokenMap().size() > 0;
     }
   }
 }

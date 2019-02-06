@@ -40,6 +40,7 @@ public class JsonRpc implements WebSocket {
 
   private static final String JSONRPC = "jsonrpc";
   private static final String METHOD = "method";
+  private static final String ID = "id";
 
   private final Map<String, Function> methods;
 
@@ -61,7 +62,7 @@ public class JsonRpc implements WebSocket {
   }
 
   public static Error invalidParams(String message, Object params) {
-    return error(INVALID_PARAMS, String.format("Invalid params: %s", message), params);
+    return error(INVALID_PARAMS, String.format("Invalid parameters: %s", message), params);
   }
 
   private static Error error(int code, String message, Object data) {
@@ -71,7 +72,7 @@ public class JsonRpc implements WebSocket {
   private static Map<String, Object> response(Object id, Object value) {
     Map<String, Object> response = new HashMap<>();
     response.put(JSONRPC, VERSION);
-    response.put("id", id);
+    response.put(ID, id);
     if (value instanceof Error) {
       response.put("error", value);
     } else {
@@ -100,11 +101,11 @@ public class JsonRpc implements WebSocket {
 
   @Override
   public void onError(Session session, Throwable ex) {
-    if (ex instanceof SecureWebSocketException) {
+    if (ex instanceof WebSocketAuthenticationException) {
       SecurityLogger.audit("Received WebSockets request for user that is not logged in.");
       handleMessage(
           session,
-          ((SecureWebSocketException) ex).getWsMessage(),
+          ((WebSocketAuthenticationException) ex).getWsMessage(),
           (message, id) -> error(NOT_LOGGED_IN_ERROR, ex.getMessage()));
     } else {
       // no action required
@@ -151,14 +152,15 @@ public class JsonRpc implements WebSocket {
   }
 
   private Object parseId(Map message) throws JsonRpcException {
-    if (!message.containsKey("id")) {
-      throw new JsonRpcException(null, invalid("required key `id` missing"));
+    if (!message.containsKey(ID)) {
+      throw new JsonRpcException(null, invalid(String.format("required key `%s` missing", ID)));
     }
 
-    Object id = message.get("id");
+    Object id = message.get(ID);
 
     if (!(id instanceof String || id instanceof Number || id == null)) {
-      throw new JsonRpcException(null, invalid("key `id` not string or number or null", id));
+      throw new JsonRpcException(
+          null, invalid(String.format("key `%s` not string or number or null", ID), id));
     } else {
       return id;
     }
@@ -166,22 +168,25 @@ public class JsonRpc implements WebSocket {
 
   private void validateJsonRpcVersion(Map message, Object id) throws JsonRpcException {
     if (!message.containsKey(JSONRPC)) {
-      throw new JsonRpcException(id, invalid("required key `jsonrpc` missing"));
+      throw new JsonRpcException(id, invalid(String.format("required key `%s` missing", JSONRPC)));
     }
 
     if (!VERSION.equals(message.get(JSONRPC))) {
       throw new JsonRpcException(
-          id, invalid("key `jsonrpc` not equal to `2.0`", message.get(JSONRPC)));
+          id,
+          invalid(
+              String.format("key `%s` not equal to `%s`", JSONRPC, VERSION), message.get(JSONRPC)));
     }
   }
 
   private Object callMethod(Map message, Object id) throws JsonRpcException {
     if (!message.containsKey(METHOD)) {
-      throw new JsonRpcException(id, invalid("required key `method` missing"));
+      throw new JsonRpcException(id, invalid(String.format("required key `%s` missing", METHOD)));
     }
 
     if (!(message.get(METHOD) instanceof String)) {
-      throw new JsonRpcException(id, invalid("key `method` not string", message.get(METHOD)));
+      throw new JsonRpcException(
+          id, invalid(String.format("key `%s` not string", METHOD), message.get(METHOD)));
     }
 
     String method = (String) message.get(METHOD);
