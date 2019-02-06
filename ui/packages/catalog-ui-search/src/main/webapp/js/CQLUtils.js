@@ -269,9 +269,7 @@ function transformFilterToCQL(filter) {
   return this.sanitizeGeometryCql(
     '(' +
       cql
-        .write(cql.simplify(cql.read(cql.write(filter))))
-        .replace(' null', '') +
-      ')'
+        .write(cql.simplify(cql.read(cql.write(filter)))) + ')'
   )
 }
 

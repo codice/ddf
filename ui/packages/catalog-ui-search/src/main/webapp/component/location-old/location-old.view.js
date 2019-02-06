@@ -107,7 +107,11 @@ module.exports = Marionette.LayoutView.extend({
     this.model.setLatLon()
   },
   isFilterUndefinedOrNull: function(filter) {
-    if (filter === null || filter.value === undefined || filter.value === null) {
+    if (
+      filter === null ||
+      filter.value === undefined ||
+      filter.value === null
+    ) {
       return true
     }
   },
