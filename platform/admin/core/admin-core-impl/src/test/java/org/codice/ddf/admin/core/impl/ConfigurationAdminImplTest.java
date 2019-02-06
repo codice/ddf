@@ -33,6 +33,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.admin.core.api.ConfigurationStatus;
@@ -251,7 +252,8 @@ public class ConfigurationAdminImplTest {
   @Test(expected = IllegalStateException.class)
   public void testEnableConfigurationsException() throws Exception {
     setUpListServices();
-    when(testMTI.getObjectClassDefinition(anyString(), anyString())).thenReturn(null);
+    when(testMTI.getObjectClassDefinition(TEST_FACTORY_PID, Locale.getDefault().toString()))
+        .thenReturn(null);
 
     org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
         mock(org.osgi.service.cm.ConfigurationAdmin.class);
