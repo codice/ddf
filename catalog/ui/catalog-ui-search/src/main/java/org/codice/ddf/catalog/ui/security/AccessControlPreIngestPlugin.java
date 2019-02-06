@@ -17,6 +17,8 @@ import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Security;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
@@ -24,6 +26,7 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectIdentity;
 import ddf.security.principal.GuestPrincipal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,16 +77,14 @@ public class AccessControlPreIngestPlugin implements PreIngestPlugin {
         request
             .getMetacards()
             .stream()
-            .filter((m) -> aclMetacardTypes.contains(m.getMetacardType().getName()))
-            .filter((m) -> !m.getTags().contains(SYSTEM_TEMPLATE))
+            .filter(m -> aclMetacardTypes.contains(m.getMetacardType().getName()))
+            .filter(m -> !m.getTags().contains(SYSTEM_TEMPLATE))
             .collect(Collectors.toList());
 
     boolean missingOwner =
         metacards
             .stream()
-            .filter(metacard -> StringUtils.isEmpty(AccessControlUtil.getOwner(metacard)))
-            .findFirst()
-            .isPresent();
+            .anyMatch(metacard -> StringUtils.isEmpty(AccessControlUtil.getOwner(metacard)));
 
     if (missingOwner && isGuest(ownerSubject)) {
       throw new StopProcessingException(
@@ -97,7 +98,7 @@ public class AccessControlPreIngestPlugin implements PreIngestPlugin {
                   ? AccessControlUtil.getOwner(metacard)
                   : subjectIdentity.getUniqueIdentifier(ownerSubject);
           AccessControlUtil.setOwner(metacard, owner);
-          AccessControlUtil.setAccessAdministrator(metacard, owner);
+          setAccessAdministrator(metacard, owner);
         });
 
     return request;
@@ -120,5 +121,11 @@ public class AccessControlPreIngestPlugin implements PreIngestPlugin {
 
   private boolean isGuest(Subject subject) {
     return subject.getPrincipal() instanceof GuestPrincipal;
+  }
+
+  private static void setAccessAdministrator(Metacard metacard, String subjectIdentity) {
+    metacard.setAttribute(
+        new AttributeImpl(
+            Security.ACCESS_ADMINISTRATORS, Collections.singletonList(subjectIdentity)));
   }
 }
