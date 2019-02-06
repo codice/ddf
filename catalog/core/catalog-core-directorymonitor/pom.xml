@@ -385,7 +385,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            gson,
                             catalog-core-api-impl,
                             ddf-security-common,
                             platform-util,
