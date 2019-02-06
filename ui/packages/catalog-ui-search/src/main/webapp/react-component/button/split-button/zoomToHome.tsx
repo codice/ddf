@@ -26,12 +26,23 @@ type Props = {
 const Button = styled.button`
   flex: 1;
 `
+const Icon = styled.div`
+  color: white;
+  display: inline-block;
+  background-color: ${props => props.theme.backgroundDropdown};
+  width: ${props => props.theme.minimumButtonSize};
+  height: ${props => props.theme.minimumButtonSize};
+  line-height: ${props => `${props.theme.minimumButtonSize} !important`};
+  text-align: center;
+  font-size: ${props => props.theme.largeFontSize};
+`
 
 const renderMenu = (onSelect: voidFunc) => {
   return (
     <Button onClick={onSelect} title="Save Current View as Home Location">
-      <span>Set Home </span>
-      <span className="cf cf-map-marker" />
+      <span>Set Home
+        <Icon className="cf cf-map-marker" />
+      </span>
     </Button>
   )
 }
@@ -43,11 +54,11 @@ const ZoomToHome = (props: Props) => {
       title="Return To Home Location"
       onSelect={goHome}
       style={{
-        width: '165px',
+        width: '160px'
       }}
     >
       {{
-        label: 'Home',
+        label: <span>Home<Icon className="fa fa-home"/></span>,
         menu: renderMenu(saveHome),
       }}
     </SplitButton>

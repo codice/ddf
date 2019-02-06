@@ -48,18 +48,34 @@ const Menu = styled.div`
 
 const DefaultButton = styled.button`
   flex: 1;
+  margin-left: 0 !important;
 `
 
 const Icon = styled.button`
   color: white;
   display: inline-block;
-  background: ${props => props.theme.primaryColor};
+  background-color: ${props => props.theme.backgroundDropdown};
   width: ${props => props.theme.minimumButtonSize};
   height: ${props => props.theme.minimumButtonSize};
   line-height: ${props => props.theme.minimumButtonSize};
   text-align: center;
   font-size: ${props => props.theme.largeFontSize};
-  margin-left: ${props => props.theme.minimumSpacing};
+  padding: 0;
+  margin: 0;
+  margin-left: 0 !important;
+`
+const Divider = styled.div`
+  position: absolute;
+  top: ${props => props.theme.minimumSpacing};
+  right: ${props => props.theme.minimumButtonSize};
+  width: 1px;
+  height: ${props => `calc(${props.theme.minimumButtonSize} - ${props.theme.minimumSpacing} * 2)`};
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: white;
+  background-color: white;
+  opacity: 0.6;
 `
 
 class SplitButton extends React.Component<Props, State> {
@@ -97,8 +113,9 @@ class SplitButton extends React.Component<Props, State> {
         <DefaultButton title={title} type="button" onClick={onSelect}>
           {label}
         </DefaultButton>
+        <Divider>&nbsp;</Divider>
         <Icon
-          className="fa fa-caret-down toggle"
+          className="fa fa-chevron-down toggle"
           onClick={() => this.onToggle()}
         />
         {this.state.isOpen ? this.renderMenu(menu) : null}
