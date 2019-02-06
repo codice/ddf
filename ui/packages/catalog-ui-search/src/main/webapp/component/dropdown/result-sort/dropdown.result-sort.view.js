@@ -13,18 +13,27 @@
  *
  **/
 /*global define*/
+import React from 'react'
+
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-sort.hbs')
-const ComponentView = require('../../result-sort/result-sort.view.js')
 const user = require('../../singletons/user-instance.js')
+
+import ResultSort from '../../../react-component/container/result-sort'
+
+const ResultSortView = Marionette.LayoutView.extend({
+  template() {
+    return <ResultSort closeDropdown={this.model.close.bind(this.model)} />
+  },
+})
 
 module.exports = DropdownView.extend({
   template: template,
   className: 'is-resultSort',
-  componentToShow: ComponentView,
+  componentToShow: ResultSortView,
   initialize: function() {
     DropdownView.prototype.initialize.call(this)
     this.listenTo(

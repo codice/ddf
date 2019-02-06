@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,15 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="editor-properties">
-
-</div>
-<div class="editor-footer">
-    <button class="footer-remove is-negative">
-        Remove Sort
-    </button>
-    <button class="footer-save is-positive">
-        Save Sort
-    </button>
-</div>
+export { default } from './result-sort'
