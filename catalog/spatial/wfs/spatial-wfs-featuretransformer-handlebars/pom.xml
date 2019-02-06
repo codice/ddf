@@ -26,6 +26,7 @@
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -113,6 +114,11 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-metacardtype-registry-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
     </dependencies>
     <build>

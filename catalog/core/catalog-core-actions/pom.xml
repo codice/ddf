@@ -40,5 +40,15 @@
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
