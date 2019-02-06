@@ -197,23 +197,25 @@ Query.Model = PartialAssociatedModel.extend({
   },
   startTieredSearch: function(ids) {
     this.set('federation', 'local')
-    $.when(...this.startSearch()).then(() => {
-      const queryResponse = this.get('result')
-      if (queryResponse && queryResponse.isUnmerged()) {
-        this.listenToOnce(
-          queryResponse,
-          'change:merged',
-          handleTieredSearchLocalFinish.bind(this, ids)
-        )
-      } else {
-        handleTieredSearchLocalFinish.call(this, ids)
-      }
+    this.startSearch(undefined, searches => {
+      $.when(searches).then(() => {
+        const queryResponse = this.get('result')
+        if (queryResponse && queryResponse.isUnmerged()) {
+          this.listenToOnce(
+            queryResponse,
+            'change:merged',
+            handleTieredSearchLocalFinish.bind(this, ids)
+          )
+        } else {
+          handleTieredSearchLocalFinish.call(this, ids)
+        }
+      })
     })
   },
-  preQueryPlugin: function(data) {
+  preQueryPlugin: async function(data) {
     return data
   },
-  startSearch: function(options) {
+  startSearch: function(options, done) {
     this.set('isOutdated', false)
     if (this.get('cql') === '') {
       return
@@ -273,15 +275,6 @@ Query.Model = PartialAssociatedModel.extend({
       result.get('results').fullCollection
     )
 
-    if (sources.length === 0) {
-      announcement.announce({
-        title: 'Search "' + this.get('title') + '" cannot be run.',
-        message: properties.i18n['search.sources.selected.none.message'],
-        type: 'warn',
-      })
-      return []
-    }
-
     if (!properties.isCacheDisabled) {
       sources.unshift('cache')
     }
@@ -293,53 +286,68 @@ Query.Model = PartialAssociatedModel.extend({
       cqlString = limitToHistoric(cqlString)
     }
     var query = this
-    this.currentSearches = sources.map(function(src) {
-      data.src = src
-      data.start = query.getStartIndexForSource(src)
 
-      // since the "cache" source will return all cached results, need to
-      // limit the cached results to only those from a selected source
-      data.cql =
-        src === 'cache'
-          ? CacheSourceSelector.trimCacheSources(cqlString, sources)
-          : cqlString
+    const currentSearches = this.preQueryPlugin(
+      sources.map(src => ({
+        ...data,
+        src,
+        start: query.getStartIndexForSource(src),
+        // since the "cache" source will return all cached results, need to
+        // limit the cached results to only those from a selected source
+        cql:
+          src === 'cache'
+            ? CacheSourceSelector.trimCacheSources(cqlString, sources)
+            : cqlString,
+      }))
+    )
 
-      data = this.preQueryPlugin(data)
+    currentSearches.then(currentSearches => {
+      if (currentSearches.length === 0) {
+        announcement.announce({
+          title: 'Search "' + this.get('title') + '" cannot be run.',
+          message: properties.i18n['search.sources.selected.none.message'],
+          type: 'warn',
+        })
+        this.currentSearches = []
+        return
+      }
 
-      var payload = JSON.stringify(data)
-
-      return result.fetch({
-        customErrorHandling: true,
-        data: payload,
-        remove: false,
-        dataType: 'json',
-        contentType: 'application/json',
-        method: 'POST',
-        processData: false,
-        timeout: properties.timeout,
-        success: function(model, response, options) {
-          response.options = options
-          if (options.resort === true) {
-            model.get('results').fullCollection.sort()
-          }
-        },
-        error: function(model, response, options) {
-          var srcStatus = result.get('status').get(src)
-          if (srcStatus) {
-            srcStatus.set({
-              successful: false,
-              pending: false,
-            })
-          }
-          response.options = options
-        },
+      this.currentSearches = currentSearches.map(search => {
+        return result.fetch({
+          customErrorHandling: true,
+          data: JSON.stringify(search),
+          remove: false,
+          dataType: 'json',
+          contentType: 'application/json',
+          method: 'POST',
+          processData: false,
+          timeout: properties.timeout,
+          success: function(model, response, options) {
+            response.options = options
+            if (options.resort === true) {
+              model.get('results').fullCollection.sort()
+            }
+          },
+          error: function(model, response, options) {
+            var srcStatus = result.get('status').get(search.src)
+            if (srcStatus) {
+              srcStatus.set({
+                successful: false,
+                pending: false,
+              })
+            }
+            response.options = options
+          },
+        })
       })
-    }, this)
-    return this.currentSearches
+      if (typeof done === 'function') {
+        done(this.currentSearches)
+      }
+    })
   },
   currentSearches: [],
   cancelCurrentSearches: function() {
-    this.currentSearches.forEach(function(request) {
+    this.currentSearches.forEach(request => {
       request.abort('Canceled')
     })
     this.currentSearches = []

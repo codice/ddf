@@ -175,29 +175,31 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
     queryToRun = originalQuery.clone()
     queryToRun.set('cql', addTimeRangeToCQLString(originalQuery, timeRange))
   }
-  $.whenAll.apply(this, queryToRun.startSearch()).always(function() {
-    if (pollingQueries[originalQuery.id]) {
-      checkForFailures(arguments, originalQuery, timeRange)
-      queryToRun.get('result').mergeNewResults()
-      var metacardIds = queryToRun
-        .get('result')
-        .get('results')
-        .map(function(result) {
-          return result
-            .get('metacard')
-            .get('properties')
-            .get('id')
-        })
-      var when = Date.now()
-      if (metacardIds.length > 0) {
-        wreqr.vent.trigger('alerts:add', {
-          queryId: originalQuery.id,
-          workspaceId: originalQuery.collection.parents[0].id,
-          when: when,
-          metacardIds: metacardIds,
-        })
+  queryToRun.startSearch(undefined, searches => {
+    $.whenAll.apply(this, searches).always(function() {
+      if (pollingQueries[originalQuery.id]) {
+        checkForFailures(arguments, originalQuery, timeRange)
+        queryToRun.get('result').mergeNewResults()
+        var metacardIds = queryToRun
+          .get('result')
+          .get('results')
+          .map(function(result) {
+            return result
+              .get('metacard')
+              .get('properties')
+              .get('id')
+          })
+        var when = Date.now()
+        if (metacardIds.length > 0) {
+          wreqr.vent.trigger('alerts:add', {
+            queryId: originalQuery.id,
+            workspaceId: originalQuery.collection.parents[0].id,
+            when: when,
+            metacardIds: metacardIds,
+          })
+        }
       }
-    }
+    })
   })
 }
 
