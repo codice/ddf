@@ -5,7 +5,7 @@
 :project: ${branding}
 :order: 09
 
-==== Internet Explorer 11 Enhanced Security Configuration
+=== Internet Explorer 11 Enhanced Security Configuration
 
 Below are steps listing all of the changes that ${branding} requires to run on Internet Explorer 11 and several additional considerations to keep in mind.
 

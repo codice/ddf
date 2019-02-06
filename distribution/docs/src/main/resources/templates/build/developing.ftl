@@ -14,4 +14,3 @@ include::${di.file}[]
 <#include "architectures.ftl">
 
 <#include "security-framework.ftl">
-
