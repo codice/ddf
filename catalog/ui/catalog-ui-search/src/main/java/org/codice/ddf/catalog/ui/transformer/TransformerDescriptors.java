@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.validation.constraints.Null;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -43,6 +45,7 @@ public class TransformerDescriptors {
     this.queryResponseTransformers = queryResponseTransformers;
   }
 
+  @Nullable
   public List<Map<String, String>> getMetacardTransformers() {
     return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformerIds);
   }
@@ -52,10 +55,12 @@ public class TransformerDescriptors {
         queryResponseTransformers, blackListedQueryResponseTransformerIds);
   }
 
+  @Nullable
   public Map<String, String> getMetacardTransformer(String id) {
     return getTransformerDescriptor(metacardTransformers, blackListedMetacardTransformerIds, id);
   }
 
+  @Nullable
   public Map<String, String> getQueryResponseTransformer(String id) {
     return getTransformerDescriptor(
         queryResponseTransformers, blackListedQueryResponseTransformerIds, id);
@@ -78,6 +83,7 @@ public class TransformerDescriptors {
     this.blackListedQueryResponseTransformerIds = blackListedQueryResponseTransformerIds;
   }
 
+  @Nullable
   private Map<String, String> getTransformerDescriptor(
       List<ServiceReference> serviceReferences, Set<String> blacklist, String id) {
     for (ServiceReference serviceRef : serviceReferences) {
