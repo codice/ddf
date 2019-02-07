@@ -45,9 +45,11 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -59,6 +61,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
@@ -139,7 +147,7 @@ public class SearchFormsApplicationTest {
       removePrettyPrintingOnJson(getContentsOfFile("form-simple-response.json"));
 
   private static final String TEMPLATE_FORM_FILTER_XML_SIMPLE =
-      getContentsOfFile("form-filter-simple.xml");
+      removePrettyPrintingOnXml(getContentsOfFile("form-filter-simple.xml"));
 
   private static final String CANNED_TITLE = "MY_TITLE";
 
@@ -269,8 +277,44 @@ public class SearchFormsApplicationTest {
     return ((QueryTemplateMetacard) searchForm).getFormsFilter();
   }
 
+  /**
+   * Given a pretty JSON string, flatten out the string to enable string comparison operations
+   * regardless of formatting.
+   *
+   * @param json the input JSON string to flatten to a single line.
+   * @return a single line string of the given JSON.
+   */
   private static String removePrettyPrintingOnJson(String json) {
     return json.replaceAll("\\h|\\v", "");
+  }
+
+  /**
+   * Given a pretty XML string, flatten out the string to enable string comparison operations
+   * regardless of formatting.
+   *
+   * @param xml the input XML string to flatten to a single line.
+   * @return a single line string of the given XML.
+   */
+  private static String removePrettyPrintingOnXml(String xml) {
+    try {
+      TransformerFactory factory = TransformerFactory.newInstance();
+      Source xslt = new StreamSource(getResourceFile("inline-xml.xslt"));
+      Transformer transformer = factory.newTransformer(xslt);
+
+      Source text = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
+      StringWriter destination = new StringWriter();
+
+      transformer.transform(text, new StreamResult(destination));
+
+      // Replace the header that the XSLT transform removed
+      return destination
+          .toString()
+          .replace(
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+              "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+    } catch (TransformerException e) {
+      throw new AssertionError("Could not remove pretty printing from XML, " + xml, e);
+    }
   }
 
   private static FilterWriter getWriter() {
@@ -287,7 +331,7 @@ public class SearchFormsApplicationTest {
     return registry;
   }
 
-  private static String getContentsOfFile(String... resourceRoute) {
+  private static File getResourceFile(String... resourceRoute) {
     try {
       File dir = new File(FILTER_RESOURCES_DIR.toURI());
       if (!dir.exists()) {
@@ -307,10 +351,17 @@ public class SearchFormsApplicationTest {
         fail("File was not found " + resourceFile.getAbsolutePath());
       }
 
-      try (FileInputStream fis = new FileInputStream(resourceFile)) {
-        return IOUtils.toString(fis, StandardCharsets.UTF_8);
-      }
-    } catch (IOException | URISyntaxException e) {
+      return resourceFile;
+    } catch (URISyntaxException e) {
+      throw new AssertionError("Could not complete test setup due to exception", e);
+    }
+  }
+
+  private static String getContentsOfFile(String... resourceRoute) {
+    File resourceFile = getResourceFile(resourceRoute);
+    try (FileInputStream fis = new FileInputStream(resourceFile)) {
+      return IOUtils.toString(fis, StandardCharsets.UTF_8);
+    } catch (IOException e) {
       throw new AssertionError("Could not complete test setup due to exception", e);
     }
   }
