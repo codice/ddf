@@ -229,7 +229,7 @@ When searching with wildcards, do not include the punctuation at the beginning o
 **** *MATCHCASE*: Equivalent to <<_text_search_details,Basic Text Search>> with Matchcase set to Yes.
 **** *=*: Matches if an attribute is precisely equal to that search term.
 **** *NEAR*: Performs a fuzzy proximity-based textual search. A NEAR query of `"car street" within 3` will match a sample text of `the blue car drove down the street with the red building` because performing three word deletions in that phrase (`drove`, `down`, `the`) causes `car` and `street` to become adjacent.
-**** *EMPTY*: Searches for records where the attribute itself does not exist or when the attribute value is null.
+**** *EMPTY*: Search records where the attribute itself does not exist or when the attribute value is null.
 +
 More generally, a NEAR query of `"A B" within N` matches a text document if you can perform at most N insertions/deletions to your document and end up with `A` followed by `B`.
 +
@@ -242,12 +242,12 @@ If multiple terms are used in the phrase, then the `within` amount specifies the
 **** *BEFORE*: Search records before a specified time.
 **** *AFTER*: Search records after a specified time.
 **** *RELATIVE* Search records relative to the current time.
-**** *EMPTY*: Searches for records where the attribute itself does not exist or when the attribute value is null.
+**** *EMPTY*: Search records where the attribute itself does not exist or when the attribute value is null.
 +
 *** *Spatial*:
 [no-bullet]
 **** *INTERSECTS*: Gives a component with the same functionality as <<_spatial_search_details,Basic Spatial Search>>.
-**** *EMPTY*: Searches for records where the attribute itself does not exist or when the attribute value is null.
+**** *EMPTY*: Search records where the attribute itself does not exist or when the attribute value is null.
 +
 *** *Numeric*:
 [no-bullet]
@@ -256,7 +256,7 @@ If multiple terms are used in the phrase, then the `within` amount specifies the
 **** *=*: Search records with field entries equal to the specified value.
 **** *\<=*: Search records with field entries less than or equal to the specified value.
 **** *<*: Search records with field entries less than the specified value.
-**** *EMPTY*: Searches for records where the attribute itself does not exist or when the attribute value is null.
+**** *EMPTY*: Search records where the attribute itself does not exist or when the attribute value is null.
 
 ====== Editing Search Settings
 
