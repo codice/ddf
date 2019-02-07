@@ -11,7 +11,8 @@ class Keyword extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      value: typeof props.value === 'string' ? props.value : '',
+      keywordValue:
+        typeof props.keywordValue === 'string' ? props.keywordValue : '',
       loading: false,
       error: null,
       polyType: null,
@@ -31,7 +32,7 @@ class Keyword extends React.Component {
   async onChange(suggestion) {
     const geofeature =
       this.props.geofeature || (suggestItem => this.geofeature(suggestItem))
-    this.setState({ value: suggestion.name, loading: true })
+    this.setState({ keywordValue: suggestion.name, loading: true })
     try {
       const { type, geometry = {} } = await geofeature(suggestion)
       this.setState({ loading: false })
@@ -44,7 +45,7 @@ class Keyword extends React.Component {
             locationType: 'latlon',
             polygon: polygon,
             polyType: 'polygon',
-            keywordValue: this.state.value,
+            keywordValue: this.state.keywordValue,
           })
           break
         }
@@ -57,7 +58,7 @@ class Keyword extends React.Component {
             locationType: 'latlon',
             polygon: polygon,
             polyType: 'multipolygon',
-            keywordValue: this.state.value,
+            keywordValue: this.state.keywordValue,
           })
           break
         }
@@ -89,11 +90,11 @@ class Keyword extends React.Component {
       polygonBufferUnits,
       polyType,
     } = this.props
-    const { value, loading, error } = this.state
+    const { keywordValue, loading, error } = this.state
     return (
       <div>
         <AutoComplete
-          value={value}
+          value={keywordValue}
           onChange={option => this.onChange(option)}
           minimumInputLength={2}
           placeholder="Enter a region, country, or city"

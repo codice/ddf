@@ -85,6 +85,28 @@ Query.Model = PartialAssociatedModel.extend({
       isTransient: true,
     },
   ],
+  set: function(data, ...args) {
+    if (
+      typeof data === 'object' &&
+      data.filterTree !== undefined &&
+      typeof data.filterTree === 'string'
+    ) {
+      // for backwards compatability 
+      try {
+        data.filterTree = JSON.parse(data.filterTree)
+      } catch (e) {
+        data.filterTree = CQLUtils.transformCQLToFilter(data.cql)
+      }
+    }
+    return PartialAssociatedModel.prototype.set.call(this, data, ...args)
+  },
+  toJSON: function(...args) {
+    const json = PartialAssociatedModel.prototype.toJSON.call(this, ...args)
+    if (typeof json.filterTree === 'object') {
+      json.filterTree = JSON.stringify(json.filterTree)
+    }
+    return json
+  },
   //in the search we are checking for whether or not the model
   //only contains 5 items to know if we can search or not
   //as soon as the model contains more than 5 items, we assume
