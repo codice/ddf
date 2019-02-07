@@ -214,7 +214,7 @@
 
     <bean id="transformerDescriptors" class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
         <cm:managed-properties
-          persistent-id="org.codice.ddf.catalog.ui.transformer.blacklist"
+          persistent-id="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"
           update-strategy="container-managed"/>
         <argument ref="metacardTransformers"/>
         <argument ref="queryResponseTransformers"/>

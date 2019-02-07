@@ -1,0 +1,33 @@
+:title: Transformer Blacklists Configuration
+:id: org.codice.ddf.catalog.ui.transformer.TransformerDescriptors
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Catalog UI Search Transformer Blacklists.
+
+.[[_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors]]Catalog UI Search Transformer Blacklist
+[cols="1,1m,1,3,1m,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Metacard Transformer Blacklist
+|blackListedMetacardTransformerIds
+|String
+|The IDs of all Metacard Transformers services that will not show up as export actions in the UI. Every ID in this set will remove that transformer as an export option in the UI.
+|[]
+|false
+
+|Query Response Transformer Blacklist
+|blackListedQueryResponseTransformerIds
+|String
+|The IDs of all Query Response Transformers services that will not show up as export actions in the UI. Every ID in this set will remove that transformer as an export option in the UI.
+|[`zipCompression`]
+|false
+
+|===
