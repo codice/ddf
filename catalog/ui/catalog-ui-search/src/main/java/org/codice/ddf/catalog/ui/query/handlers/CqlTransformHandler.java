@@ -200,7 +200,7 @@ public class CqlTransformHandler implements Route {
   }
 
   private String getFileExtFromMimeType(String mimeType) throws MimeTypeException {
-    MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+    Mim eTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt = allTypes.forName(mimeType).getExtension();
     if (StringUtils.isEmpty(fileExt)) {
       LOGGER.debug("Null or empty file extension from mime-type {}", mimeType);
