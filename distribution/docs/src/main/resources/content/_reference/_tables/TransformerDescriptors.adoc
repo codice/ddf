@@ -1,4 +1,4 @@
-:title: Transformer Blacklists Configuration
+:title: Catalog UI Search Transformer Blacklists
 :id: org.codice.ddf.catalog.ui.transformer.TransformerDescriptors
 :type: table
 :status: published
