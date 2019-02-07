@@ -92,10 +92,19 @@ public class TransformerDescriptorsTest {
   }
 
   @Test
-  public void testGetDefaultQueryResponseTransformerBlacklist() {
-    Set<String> blacklist = descriptors.getBlackListedQueryResponseTransformerIds();
+  public void testGetBlacklistedQueryResponseTransformerDescriptor() {
+    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("zipCompression");
 
-    assertThat(blacklist, is(Collections.singleton("zipCompression")));
+    assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetBlacklistedQueryResponseTransformer() {
+    descriptors.setBlackListedQueryResponseTransformerIds(ImmutableSet.of("bar"));
+
+    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("bar");
+
+    assertThat(descriptor, is(nullValue()));
   }
 
   @Test
@@ -105,15 +114,6 @@ public class TransformerDescriptorsTest {
     descriptors.setBlackListedMetacardTransformerIds(blacklist);
 
     assertThat(descriptors.getBlackListedMetacardTransformerIds(), is(blacklist));
-  }
-
-  @Test
-  public void testGetBlacklistedQueryResponseTransformers() {
-    Set<String> blacklist = ImmutableSet.of("hello", "world");
-
-    descriptors.setBlackListedQueryResponseTransformerIds(blacklist);
-
-    assertThat(descriptors.getBlackListedQueryResponseTransformerIds(), is(blacklist));
   }
 
   private void assertTransformerDescriptor(

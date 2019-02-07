@@ -1,4 +1,11 @@
-.Catalog UI Search Transformer Blacklist
+:title: Transformer Blacklist Configuration
+:id: org.codice.ddf.catalog.ui.transformer.blacklist
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Transformer blacklist configuration.
+
+.[[_org.codice.ddf.catalog.ui.transformer.blacklist]]Catalog UI Search Transformer Blacklist
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -11,14 +18,14 @@
 
 |Metacard Transformer Blacklist
 |blackListedMetacardTransformerIds
-|String cardinality=1000
+|String
 |The IDs of all metacard transformers that will not show up as export actions in the UI.
 |
 |false
 
 |Query Response Transformer Blacklist
 |blackListedQueryResponseTransformerIds
-|String cardinality=1000
+|String
 |The IDs of all query response transformers that will not show up as export actions in the UI.
 |zipCompression
 |false

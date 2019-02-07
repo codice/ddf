@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import javax.validation.constraints.Null;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -67,10 +66,6 @@ public class TransformerDescriptors {
 
   public Set<String> getBlackListedMetacardTransformerIds() {
     return blackListedMetacardTransformerIds;
-  }
-
-  public Set<String> getBlackListedQueryResponseTransformerIds() {
-    return blackListedQueryResponseTransformerIds;
   }
 
   public void setBlackListedMetacardTransformerIds(Set<String> blackListedMetacardTransformerIds) {
