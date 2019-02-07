@@ -45,7 +45,6 @@ public class TransformerDescriptors {
     this.queryResponseTransformers = queryResponseTransformers;
   }
 
-  @Nullable
   public List<Map<String, String>> getMetacardTransformers() {
     return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformerIds);
   }
