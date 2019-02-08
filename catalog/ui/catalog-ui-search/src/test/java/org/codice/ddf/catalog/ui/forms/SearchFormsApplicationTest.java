@@ -50,6 +50,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.SocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -60,6 +63,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -138,8 +142,6 @@ public class SearchFormsApplicationTest {
 
   private static final Header CONTENT_IS_JSON = new Header("Content-Type", "application/json");
 
-  private static final String LOCALHOST_FORMS_QUERY = "http://localhost:4567/forms/query";
-
   private static final String TEMPLATE_FORM_METACARD_JSON_SIMPLE =
       getContentsOfFile("form-simple.json");
 
@@ -183,6 +185,9 @@ public class SearchFormsApplicationTest {
       new SearchFormsApplication(
           MOCK_FRAMEWORK, MOCK_BUILDER, TRANSFORMER, UTIL, () -> MOCK_SUBJECT);
 
+  // Will be initialized by setUpClass() when the port is known
+  private static String localhostFormsUrl = null;
+
   private final ArgumentCaptor<CreateRequest> requestCaptor;
 
   private final String formFilterXml;
@@ -204,8 +209,11 @@ public class SearchFormsApplicationTest {
 
   @BeforeClass
   public static void setUpClass() {
+    // Scan from Spark's default port to some arbitrarily higher port
+    Spark.port(getFirstAvailablePortBetween(4567, 9999));
     APPLICATION.init();
     Spark.awaitInitialization();
+    localhostFormsUrl = format("http://localhost:%d/forms/query", Spark.port());
   }
 
   @AfterClass
@@ -244,7 +252,7 @@ public class SearchFormsApplicationTest {
         RestAssured.given()
             .header(CONTENT_IS_JSON)
             .content(formRequestJson)
-            .post(LOCALHOST_FORMS_QUERY)
+            .post(localhostFormsUrl)
             .statusCode();
     assertThat(statusCode, is(200));
     assertThat(getCapturedXml(), is(formFilterXml));
@@ -268,7 +276,7 @@ public class SearchFormsApplicationTest {
 
     // Execute
     String json =
-        RestAssured.given().header(CONTENT_IS_JSON).get(LOCALHOST_FORMS_QUERY).body().asString();
+        RestAssured.given().header(CONTENT_IS_JSON).get(localhostFormsUrl).body().asString();
     assertThat(json, is(formResponseJson));
   }
 
@@ -363,6 +371,70 @@ public class SearchFormsApplicationTest {
       return IOUtils.toString(fis, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new AssertionError("Could not complete test setup due to exception", e);
+    }
+  }
+
+  /**
+   * Given a port range, this function returns the first port within the range that it's able to
+   * bind to. The range is inclusive on both sides.
+   *
+   * <p>The discovered port should be available for another client to bind to by the time this
+   * function has returned. Given this detail, running unit tests on environments that are in the
+   * process of being provisioned or are otherwise in a state of flux may cause erroneous failures
+   * due to port binding race conditions.
+   *
+   * @param min the lowest port to consider.
+   * @param max the highest port to consider.
+   * @return a port number the caller can <b>reasonably</b> assume is available to bind to.
+   * @throws AssertionError if the specified range was not valid or no port was available.
+   */
+  private static int getFirstAvailablePortBetween(int min, int max) {
+    if (min > max) {
+      throw new AssertionError(min + " - " + max + " is not a valid port range");
+    }
+    int port = min;
+    while (!portIsAvailable(port)) {
+      if (port > max) {
+        throw new AssertionError("No available port within specified range");
+      }
+      port++;
+    }
+    return port;
+  }
+
+  /**
+   * Test a port number's availability.
+   *
+   * <p>Attempt a full bind and close operation on the given port number.
+   *
+   * @param port the port number to test.
+   * @return false if the port number is already bound, true otherwise.
+   * @throws AssertionError if the available port could not be closed after we successfully bound to
+   *     it.
+   */
+  private static boolean portIsAvailable(int port) {
+    boolean portAvailable = true;
+    ServerSocket socket = null;
+    try {
+      SocketAddress address = new InetSocketAddress("localhost", port);
+      socket = new ServerSocket();
+      socket.bind(address);
+    } catch (IOException e) {
+      portAvailable = false;
+    } finally {
+      tryCloseSocket(socket, port);
+    }
+    return portAvailable;
+  }
+
+  private static void tryCloseSocket(@Nullable ServerSocket socket, int port) {
+    try {
+      if (socket != null) {
+        socket.close();
+      }
+    } catch (IOException e) {
+      throw new AssertionError(
+          "Problem while enumerating ports (specifically, port " + port + ")", e);
     }
   }
 }
