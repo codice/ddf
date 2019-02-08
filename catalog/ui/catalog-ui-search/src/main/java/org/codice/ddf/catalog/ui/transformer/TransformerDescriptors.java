@@ -14,16 +14,28 @@
 package org.codice.ddf.catalog.ui.transformer;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.osgi.framework.ServiceReference;
 
+/**
+ * Provides descriptors for all metacard and query response transformers. This class provides
+ * transformer blacklisting as well as display names.
+ */
 public class TransformerDescriptors {
 
-  private List<ServiceReference> metacardTransformers;
+  private final List<ServiceReference> metacardTransformers;
 
-  private List<ServiceReference> queryResponseTransformers;
+  private final List<ServiceReference> queryResponseTransformers;
+
+  private Set<String> blackListedMetacardTransformerIds = Collections.emptySet();
+
+  private Set<String> blackListedQueryResponseTransformerIds = ImmutableSet.of("zipCompression");
 
   public TransformerDescriptors(
       List<ServiceReference> metacardTransformers,
@@ -33,36 +45,62 @@ public class TransformerDescriptors {
   }
 
   public List<Map<String, String>> getMetacardTransformers() {
-    return getTransformerDescriptors(metacardTransformers);
+    return getTransformerDescriptors(metacardTransformers, blackListedMetacardTransformerIds);
   }
 
   public List<Map<String, String>> getQueryResponseTransformers() {
-    return getTransformerDescriptors(queryResponseTransformers);
+    return getTransformerDescriptors(
+        queryResponseTransformers, blackListedQueryResponseTransformerIds);
   }
 
+  @Nullable
   public Map<String, String> getMetacardTransformer(String id) {
-    return getTransformerDescriptor(metacardTransformers, id);
+    return getTransformerDescriptor(metacardTransformers, blackListedMetacardTransformerIds, id);
   }
 
+  @Nullable
   public Map<String, String> getQueryResponseTransformer(String id) {
-    return getTransformerDescriptor(queryResponseTransformers, id);
+    return getTransformerDescriptor(
+        queryResponseTransformers, blackListedQueryResponseTransformerIds, id);
   }
 
+  public Set<String> getBlackListedMetacardTransformerIds() {
+    return blackListedMetacardTransformerIds;
+  }
+
+  public void setBlackListedMetacardTransformerIds(Set<String> blackListedMetacardTransformerIds) {
+    this.blackListedMetacardTransformerIds = blackListedMetacardTransformerIds;
+  }
+
+  public void setBlackListedQueryResponseTransformerIds(
+      Set<String> blackListedQueryResponseTransformerIds) {
+    this.blackListedQueryResponseTransformerIds = blackListedQueryResponseTransformerIds;
+  }
+
+  @Nullable
   private Map<String, String> getTransformerDescriptor(
-      List<ServiceReference> serviceReferences, String id) {
-    return serviceReferences
-        .stream()
-        .filter(serviceRef -> serviceRef.getProperty("id") != null)
-        .filter(serviceRef -> id.endsWith(serviceRef.getProperty("id").toString()))
-        .findFirst()
-        .map(this::getTransformerDescriptor)
-        .orElse(null);
+      List<ServiceReference> serviceReferences, Set<String> blacklist, String id) {
+    for (ServiceReference serviceRef : serviceReferences) {
+      Object idProperty = serviceRef.getProperty("id");
+
+      if (idProperty != null) {
+        String serviceId = idProperty.toString();
+
+        if (!blacklist.contains(serviceId) && id.endsWith(serviceId)) {
+          return getTransformerDescriptor(serviceRef);
+        }
+      }
+    }
+
+    return null;
   }
 
-  private List<Map<String, String>> getTransformerDescriptors(List<ServiceReference> transformers) {
+  private List<Map<String, String>> getTransformerDescriptors(
+      List<ServiceReference> transformers, Set<String> blacklist) {
     return transformers
         .stream()
         .filter(serviceRef -> serviceRef.getProperty("id") != null)
+        .filter(serviceRef -> !blacklist.contains(serviceRef.getProperty("id").toString()))
         .map(this::getTransformerDescriptor)
         .collect(Collectors.toList());
   }

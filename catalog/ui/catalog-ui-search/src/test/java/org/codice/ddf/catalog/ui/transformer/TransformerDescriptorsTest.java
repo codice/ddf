@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.transformer;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -22,8 +24,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.osgi.framework.ServiceReference;
 
@@ -32,24 +37,49 @@ public class TransformerDescriptorsTest {
   private TransformerDescriptors descriptors =
       new TransformerDescriptors(
           ImmutableList.of(
-              createMockServiceReference("foo", "bar"), createMockServiceReference("hello", null)),
+              createMockServiceReference("foo", "bar"),
+              createMockServiceReference("hello", null),
+              createMockServiceReference("world", null)),
           ImmutableList.of(
-              createMockServiceReference("bar", "foo"), createMockServiceReference(null, null)));
+              createMockServiceReference("bar", "foo"),
+              createMockServiceReference(null, null),
+              createMockServiceReference("zipCompression", null)));
+
+  @Test
+  public void testGetDefaultMetacardTransformerBlacklist() {
+    Set<String> metacardTransformerBlacklist = descriptors.getBlackListedMetacardTransformerIds();
+
+    assertThat(metacardTransformerBlacklist, hasSize(0));
+  }
+
+  @Test
+  public void testGetDefaultQueryResponseTransformerBlacklist() {
+    List<Map<String, String>> queryResponseTransformerDescriptors =
+        descriptors.getQueryResponseTransformers();
+    Map<String, String> descriptor = queryResponseTransformerDescriptors.get(0);
+
+    assertThat(queryResponseTransformerDescriptors, hasSize(1));
+    assertThat(descriptor, allOf(hasEntry("id", "bar"), hasEntry("displayName", "foo")));
+  }
 
   @Test
   public void testGetMetacardTransformerDescriptors() {
+    descriptors.setBlackListedMetacardTransformerIds(Collections.singleton("world"));
+
     List<Map<String, String>> transformerDescriptors = descriptors.getMetacardTransformers();
+    Map<String, String> descriptor = transformerDescriptors.get(0);
 
     assertThat(transformerDescriptors, hasSize(2));
-    assertTransformerDescriptor(transformerDescriptors.get(0), "foo", "bar");
+    assertThat(descriptor, allOf(hasEntry("id", "foo"), hasEntry("displayName", "bar")));
   }
 
   @Test
   public void testGetQueryResponseTransformerDescriptors() {
     List<Map<String, String>> transformerDescriptors = descriptors.getQueryResponseTransformers();
+    Map<String, String> descriptor = transformerDescriptors.get(0);
 
     assertThat(transformerDescriptors, hasSize(1));
-    assertTransformerDescriptor(transformerDescriptors.get(0), "bar", "foo");
+    assertThat(descriptor, allOf(hasEntry("id", "bar"), hasEntry("displayName", "foo")));
   }
 
   @Test
@@ -70,13 +100,41 @@ public class TransformerDescriptorsTest {
   public void testGetTransformerDescriptorNullDisplayName() {
     Map<String, String> descriptor = descriptors.getMetacardTransformer("hello");
 
-    assertTransformerDescriptor(descriptor, "hello", "hello");
+    assertThat(descriptor, allOf(hasEntry("id", "hello"), hasEntry("displayName", "hello")));
   }
 
-  private void assertTransformerDescriptor(
-      Map<String, String> descriptor, String id, String displayName) {
-    assertThat(descriptor, hasEntry("id", id));
-    assertThat(descriptor, hasEntry("displayName", displayName));
+  @Test
+  public void testGetBlacklistedTransformerDescriptor() {
+    descriptors.setBlackListedMetacardTransformerIds(Collections.singleton("world"));
+
+    Map<String, String> descriptor = descriptors.getMetacardTransformer("world");
+
+    assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetBlacklistedQueryResponseTransformerDescriptor() {
+    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("zipCompression");
+
+    assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetBlacklistedQueryResponseTransformer() {
+    descriptors.setBlackListedQueryResponseTransformerIds(ImmutableSet.of("bar"));
+
+    Map<String, String> descriptor = descriptors.getQueryResponseTransformer("bar");
+
+    assertThat(descriptor, is(nullValue()));
+  }
+
+  @Test
+  public void testGetBlacklistedMetacardTransformers() {
+    Set<String> blacklist = ImmutableSet.of("hello", "world");
+
+    descriptors.setBlackListedMetacardTransformerIds(blacklist);
+
+    assertThat(descriptors.getBlackListedMetacardTransformerIds(), contains("hello", "world"));
   }
 
   private ServiceReference createMockServiceReference(String id, String displayName) {

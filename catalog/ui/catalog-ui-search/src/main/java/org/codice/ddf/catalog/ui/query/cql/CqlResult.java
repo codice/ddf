@@ -109,6 +109,7 @@ public class CqlResult {
         result
             .getActions()
             .stream()
+            .filter(action -> !isBlacklistedTransformer(descriptors, action.getId()))
             .map(
                 action ->
                     new DisplayableAction(
@@ -161,6 +162,13 @@ public class CqlResult {
     }
 
     return title.replaceFirst("^Export( as)?\\s+\\b", "");
+  }
+
+  private static boolean isBlacklistedTransformer(TransformerDescriptors descriptors, String id) {
+    return descriptors
+        .getBlackListedMetacardTransformerIds()
+        .stream()
+        .anyMatch(s -> id.endsWith(s));
   }
 
   private void countMatches(Set<SearchTerm> searchTerms, Metacard mc) {
