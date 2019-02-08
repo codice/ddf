@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -81,6 +82,8 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminImpl.class);
 
   private static final Map<Long, String> BUNDLE_LOCATIONS = new ConcurrentHashMap<>();
+
+  private static final String CONFIGURATION_REGISTRY_ID_PROPERTY = "registry-id";
 
   private final ConfigurationAdmin configurationAdmin;
 
@@ -716,12 +719,14 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
     // Copy configuration from the original configuration and change its factory PID to end with
     // "disabled"
+    Dictionary<String, Object> disabledProperties =
+        copyConfigProperties(properties, originalFactoryPid);
     String disabledServiceFactoryPid = originalFactoryPid + ConfigurationStatus.DISABLED_EXTENSION;
-    properties.put(
+    disabledProperties.put(
         org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, disabledServiceFactoryPid);
     Configuration disabledConfig =
         configurationAdmin.createFactoryConfiguration(disabledServiceFactoryPid, null);
-    disabledConfig.update(properties);
+    disabledConfig.update(disabledProperties);
 
     // remove original configuration
     originalConfig.delete();
@@ -743,15 +748,47 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
     String enabledFactoryPid =
         StringUtils.removeEnd(disabledFactoryPid, ConfigurationStatus.DISABLED_EXTENSION);
-    properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
+    Dictionary<String, Object> enabledProperties =
+        copyConfigProperties(properties, enabledFactoryPid);
+    enabledProperties.put(
+        org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
     Configuration enabledConfiguration =
         configurationAdmin.createFactoryConfiguration(enabledFactoryPid, null);
-    enabledConfiguration.update(properties);
+    enabledConfiguration.update(enabledProperties);
 
     disabledConfig.delete();
 
     return new ConfigurationStatusImpl(
         enabledFactoryPid, enabledConfiguration.getPid(), disabledFactoryPid, servicePid);
+  }
+
+  private Dictionary<String, Object> copyConfigProperties(
+      Dictionary<String, Object> properties, String factoryPid) {
+    final Dictionary<String, Object> copiedProperties = new Hashtable<>();
+    ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
+    if (objectClassDefinition == null) {
+      LOGGER.debug(
+          "ObjectClassDefinition not found for factoryPid: {}. Unable to copy properties.",
+          factoryPid);
+      throw new IllegalStateException(
+          "ObjectClassDefinition not found for factoryPid: " + factoryPid);
+    }
+    Stream.of(objectClassDefinition)
+        .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
+        .flatMap(Arrays::stream)
+        .map(AttributeDefinition::getID)
+        .forEach(id -> copyIfDefined(id, properties, copiedProperties));
+    copyIfDefined(CONFIGURATION_REGISTRY_ID_PROPERTY, properties, copiedProperties);
+    return copiedProperties;
+  }
+
+  private void copyIfDefined(
+      String id, Dictionary<String, Object> source, Dictionary<String, Object> destination) {
+    final Object value = source.get(id);
+
+    if (value != null) {
+      destination.put(id, value);
+    }
   }
 
   /**

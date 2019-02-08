@@ -17,10 +17,12 @@ import ddf.catalog.data.Metacard;
 import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import org.apache.commons.collections.CollectionUtils;
@@ -416,13 +419,15 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
    */
   private Configuration toggleConfiguration(Configuration config) throws IOException {
     String newFpid;
-    if (config.getFactoryPid().contains(DISABLED_CONFIGURATION_SUFFIX)) {
-      newFpid = config.getFactoryPid().replace(DISABLED_CONFIGURATION_SUFFIX, "");
-
+    final Dictionary<String, Object> properties;
+    String configFactoryPid = config.getFactoryPid();
+    if (configFactoryPid.contains(DISABLED_CONFIGURATION_SUFFIX)) {
+      newFpid = configFactoryPid.replace(DISABLED_CONFIGURATION_SUFFIX, "");
+      properties = copyConfigProperties(config.getProperties(), newFpid);
     } else {
-      newFpid = config.getFactoryPid().concat(DISABLED_CONFIGURATION_SUFFIX);
+      newFpid = configFactoryPid.concat(DISABLED_CONFIGURATION_SUFFIX);
+      properties = copyConfigProperties(config.getProperties(), configFactoryPid);
     }
-    Dictionary<String, Object> properties = config.getProperties();
     config.delete();
     Configuration newConfig = configurationAdmin.createFactoryConfiguration(newFpid, null);
     newConfig.update(properties);
@@ -578,6 +583,36 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
     }
 
     return bindingTypeToActivate;
+  }
+
+  private Dictionary<String, Object> copyConfigProperties(
+      Dictionary<String, Object> properties, String factoryPid) {
+    final Dictionary<String, Object> copiedProperties = new Hashtable<>();
+    ObjectClassDefinition objectClassDefinition = getObjectClassDefinition(factoryPid);
+    if (objectClassDefinition == null) {
+      LOGGER.debug(
+          "ObjectClassDefinition not found for factoryPid: {}. Unable to copy properties.",
+          factoryPid);
+      throw new IllegalStateException(
+          "ObjectClassDefinition not found for factoryPid: " + factoryPid);
+    }
+    Stream.of(objectClassDefinition)
+        .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
+        .flatMap(Arrays::stream)
+        .map(AttributeDefinition::getID)
+        .forEach(id -> copyIfDefined(id, properties, copiedProperties));
+    copyIfDefined(
+        RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, properties, copiedProperties);
+    return copiedProperties;
+  }
+
+  private void copyIfDefined(
+      String id, Dictionary<String, Object> source, Dictionary<String, Object> destination) {
+    final Object value = source.get(id);
+
+    if (value != null) {
+      destination.put(id, value);
+    }
   }
 
   private DictionaryMap<String, Object> getConfigurationsFromDictionary(
