@@ -62,6 +62,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
@@ -101,41 +102,30 @@ import spark.Spark;
  */
 @RunWith(Parameterized.class)
 public class SearchFormsApplicationTest {
+  /**
+   * Set of symbols upon which to parameterize the tests; defined as they appear in a JSON document.
+   */
   @Parameterized.Parameters(name = "Verify search form REST I/O for symbol: {0}")
   public static Iterable<Object[]> data() {
     return Arrays.asList(
         new Object[][] {
-          // Following symbols may have different escaped representations depending on data flow
-          //          {"\""}, {"\\"}, {"<"}, {">"}, {"&"},
-          {"'"},
-          {"{"},
-          {"}"},
-          {"["},
-          {"]"},
-          {":"},
-          {";"},
-          {","},
-          {"."},
-          {"?"},
-          {"/"},
-          {"|"},
-          {"-"},
-          {"_"},
-          {"+"},
-          {"="},
-          {"*"},
-          {"^"},
-          {"%"},
-          {"$"},
-          {"#"},
-          {"@"},
-          {"!"},
-          {"~"},
-          {"`"},
-          {"("},
-          {")"}
+          {"'"}, {"\\\""}, {"\\\\"}, {">"}, {"<"}, {"&"}, {"{"}, {"}"}, {"["}, {"]"}, {":"}, {";"},
+          {","}, {"."}, {"?"}, {"/"}, {"|"}, {"-"}, {"_"}, {"+"}, {"="}, {"*"}, {"^"}, {"%"}, {"$"},
+          {"#"}, {"@"}, {"!"}, {"~"}, {"`"}, {"("}, {")"}
         });
   }
+
+  /**
+   * Not all JSON representations are communitively validatable against XML. This mapping is what
+   * all the tests use to ensure expected XML counterparts are built correctly.
+   */
+  private static final Map<String, String> JSON_TO_XML_SYMBOL_MAPPING =
+      ImmutableMap.of(
+          "\\\"", "\"",
+          "\\\\", "\\",
+          ">", "&gt;",
+          "<", "&lt;",
+          "&", "&amp;");
 
   private static final URL FILTER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/app");
@@ -202,9 +192,17 @@ public class SearchFormsApplicationTest {
     StrSubstitutor substitutor =
         new StrSubstitutor(ImmutableMap.of("value", "hello" + symbolUnderTest));
 
-    this.formFilterXml = substitutor.replace(TEMPLATE_FORM_FILTER_XML_SIMPLE);
     this.formRequestJson = substitutor.replace(TEMPLATE_FORM_METACARD_JSON_SIMPLE);
     this.formResponseJson = substitutor.replace(TEMPLATE_FORM_METACARD_JSON_SIMPLE_RESPONSE);
+
+    final String xmlVariation = JSON_TO_XML_SYMBOL_MAPPING.get(symbolUnderTest);
+    if (xmlVariation == null) {
+      this.formFilterXml = substitutor.replace(TEMPLATE_FORM_FILTER_XML_SIMPLE);
+    } else {
+      StrSubstitutor xmlSubstitutor =
+          new StrSubstitutor(ImmutableMap.of("value", "hello" + xmlVariation));
+      this.formFilterXml = xmlSubstitutor.replace(TEMPLATE_FORM_FILTER_XML_SIMPLE);
+    }
   }
 
   @BeforeClass
