@@ -59,6 +59,15 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     refresh();
   }
 
+  /**
+   * Must be called when a {@link AsyncFileEntry} is loaded from a json file.
+   *
+   * @throws IllegalStateException if a {@link File} is null
+   */
+  public void initialize() {
+    initializeHelper(this);
+  }
+
   //  For GSON serialization
   private AsyncFileEntry() {
     contentFile = null;
@@ -125,26 +134,6 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     refresh();
   }
 
-  private long snapLastModified() {
-    return contentFile.exists() ? contentFile.lastModified() : 0;
-  }
-
-  private long snapLength() {
-    return contentFile.exists() && !contentFile.isDirectory() ? contentFile.length() : 0;
-  }
-
-  private boolean snapDirectory() {
-    return contentFile.exists() && contentFile.isDirectory();
-  }
-
-  private boolean snapExist() {
-    return contentFile.exists();
-  }
-
-  private String snapName() {
-    return contentFile.getName();
-  }
-
   /**
    * Note: returns a new List to avoid sync access exceptions
    *
@@ -160,10 +149,6 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
   public void removeChild(AsyncFileEntry child) {
     children.remove(child);
-  }
-
-  private boolean hasChild(AsyncFileEntry child) {
-    return children.contains(child);
   }
 
   @Override
@@ -227,12 +212,27 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     }
   }
 
-  /**
-   * Must be called when a {@link AsyncFileEntry} is loaded from a json file.
-   *
-   * @throws IllegalStateException if a {@link File} is null
-   */
-  public void initialize() {
-    initializeHelper(this);
+  private boolean hasChild(AsyncFileEntry child) {
+    return children.contains(child);
+  }
+
+  private long snapLastModified() {
+    return contentFile.exists() ? contentFile.lastModified() : 0;
+  }
+
+  private long snapLength() {
+    return contentFile.exists() && !contentFile.isDirectory() ? contentFile.length() : 0;
+  }
+
+  private boolean snapDirectory() {
+    return contentFile.exists() && contentFile.isDirectory();
+  }
+
+  private boolean snapExist() {
+    return contentFile.exists();
+  }
+
+  private String snapName() {
+    return contentFile.getName();
   }
 }
