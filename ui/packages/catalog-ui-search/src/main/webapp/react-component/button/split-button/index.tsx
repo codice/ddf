@@ -69,7 +69,10 @@ const Divider = styled.div`
   top: ${props => props.theme.minimumSpacing};
   right: ${props => props.theme.minimumButtonSize};
   width: 1px;
-  height: ${props => `calc(${props.theme.minimumButtonSize} - ${props.theme.minimumSpacing} * 2)`};
+  height: ${props =>
+    `calc(${props.theme.minimumButtonSize} - ${
+      props.theme.minimumSpacing
+    } * 2)`};
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -90,7 +93,10 @@ class SplitButton extends React.Component<Props, State> {
       isOpen: false,
     }
   }
-  onToggle() {
+  onToggle(e: any) {
+    if (e) {
+      e.target.blur()
+    }
     this.setState({ isOpen: !this.state.isOpen })
   }
   renderMenu(contents: Element) {
@@ -116,7 +122,7 @@ class SplitButton extends React.Component<Props, State> {
         <Divider>&nbsp;</Divider>
         <Icon
           className="fa fa-chevron-down toggle"
-          onClick={() => this.onToggle()}
+          onClick={e => this.onToggle(e)}
         />
         {this.state.isOpen ? this.renderMenu(menu) : null}
       </Root>

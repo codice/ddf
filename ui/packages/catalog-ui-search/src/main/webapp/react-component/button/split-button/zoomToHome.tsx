@@ -40,7 +40,8 @@ const Icon = styled.div`
 const renderMenu = (onSelect: voidFunc) => {
   return (
     <Button onClick={onSelect} title="Save Current View as Home Location">
-      <span>Set Home
+      <span>
+        Set Home
         <Icon className="cf cf-map-marker" />
       </span>
     </Button>
@@ -54,11 +55,16 @@ const ZoomToHome = (props: Props) => {
       title="Return To Home Location"
       onSelect={goHome}
       style={{
-        width: '160px'
+        width: '160px',
       }}
     >
       {{
-        label: <span>Home<Icon className="fa fa-home"/></span>,
+        label: (
+          <span>
+            Home
+            <Icon className="fa fa-home" />
+          </span>
+        ),
         menu: renderMenu(saveHome),
       }}
     </SplitButton>
