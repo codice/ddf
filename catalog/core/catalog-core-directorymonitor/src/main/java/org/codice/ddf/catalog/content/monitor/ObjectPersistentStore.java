@@ -17,5 +17,5 @@ public interface ObjectPersistentStore {
 
   void store(String key, Object toStore);
 
-  Object load(String key, Class<?> objectClass);
+  <T> T load(String key, Class<T> objectClass);
 }

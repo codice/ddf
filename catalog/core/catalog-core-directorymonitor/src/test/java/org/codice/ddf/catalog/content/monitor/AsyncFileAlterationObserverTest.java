@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -96,7 +95,7 @@ public class AsyncFileAlterationObserverTest {
     fileListener = Mockito.mock(AsyncFileAlterationListener.class);
     monitoredDirectory = temporaryFolder.newFolder("inbox");
     observer = new AsyncFileAlterationObserver(monitoredDirectory);
-    observer.addListener(fileListener);
+    observer.setListener(fileListener);
 
     childDir = null;
     grandchildDir = null;
@@ -139,17 +138,6 @@ public class AsyncFileAlterationObserverTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNullRoot() {
     observer = new AsyncFileAlterationObserver(null);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testAddingTwoListeners() {
-    observer.addListener(fileListener);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testNoListener() {
-    observer.removeListener();
-    observer.removeListener();
   }
 
   @Test
@@ -636,7 +624,7 @@ public class AsyncFileAlterationObserverTest {
     initNestedDirectory(5, 3, 4, 2);
 
     observer = new AsyncFileAlterationObserver(monitoredDirectory);
-    observer.addListener(fileListener);
+    observer.setListener(fileListener);
     assertThat(observer.initialize(), is(true));
     observer.checkAndNotify();
     verifyNoMoreInteractions(fileListener);
@@ -1053,20 +1041,48 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, times(5)).onFileDelete(any(File.class), any(Synchronization.class));
   }
 
+  private String json;
+
+  private Object setJson(InvocationOnMock invocationOnMock) {
+    Gson gson = new Gson();
+    json = gson.toJson(invocationOnMock.getArguments()[1], AsyncFileEntry.class);
+    return null;
+  }
+
+  private Object loadJson(InvocationOnMock invocationOnMock) {
+    Gson gson = new Gson();
+    return gson.fromJson(json, AsyncFileEntry.class);
+  }
+
   @Test
   public void testJsonSerial() throws Exception {
+
+    ObjectPersistentStore store = Mockito.mock(ObjectPersistentStore.class);
+
+    doAnswer(this::setJson).when(store).store(any(), any());
+
+    doAnswer(this::loadJson).when(store).load(any(), any());
+
     initNestedDirectory(1, 1, 0, 0);
     observer.initialize();
 
-    Gson gson = new GsonBuilder().serializeNulls().create();
-    final String Json = gson.toJson(observer);
+    observer.store(store);
 
-    AsyncFileAlterationObserver two = gson.fromJson(Json, AsyncFileAlterationObserver.class);
-    two.onLoad();
+    AsyncFileAlterationObserver two = AsyncFileAlterationObserver.load("File01", store);
 
     two.checkAndNotify();
 
     assertThat(two.getRootFile().getChildren().get(0).getParent().isPresent(), is(true));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testStoreWithNull() {
+    observer.store(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testloadNull() {
+    AsyncFileAlterationObserver.load("File", null);
   }
 
   private void initNestedDirectory(int child, int grand, int topLevel, int gSibling)

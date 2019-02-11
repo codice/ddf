@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import javax.validation.constraints.NotNull;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -71,9 +70,9 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
     return false;
   }
 
-  protected abstract void initialize(@NotNull String remaining);
+  protected abstract void initialize(String fileName);
 
-  protected abstract boolean doPoll(@NotNull String sha1);
+  protected abstract boolean doPoll(String sha1);
 
   void submitExchange(Exchange exchange) {
     processExchange(exchange);

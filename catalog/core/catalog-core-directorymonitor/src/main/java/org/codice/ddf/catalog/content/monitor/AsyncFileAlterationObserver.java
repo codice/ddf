@@ -37,17 +37,15 @@ import org.slf4j.LoggerFactory;
  * methods
  *
  * @see AsyncFileAlterationListener
- * @see AsyncFileAlterationObserver#onLoad()
  */
 public class AsyncFileAlterationObserver {
 
-  //  Only @Nullable in case GSON returns it. Will throw an Illegal state exception if onLoad is
-  // called when this is null.
-  @Nullable private final AsyncFileEntry rootFile;
-  @Nullable private transient AsyncFileAlterationListener listener = null;
-  private final transient Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileAlterationObserver.class);
-  private final transient Object listenerLock = new Object();;
+
+  private final AsyncFileEntry rootFile;
+  private AsyncFileAlterationListener listener = null;
+  private final Set<AsyncFileEntry> processing = new ConcurrentSkipListSet<>();
+  private final Object listenerLock = new Object();
 
   public AsyncFileAlterationObserver(File fileToObserve) {
     if (fileToObserve == null) {
@@ -56,37 +54,30 @@ public class AsyncFileAlterationObserver {
     rootFile = new AsyncFileEntry(fileToObserve);
   }
 
-  //  For GSON serialization;
-  private AsyncFileAlterationObserver() {
-    rootFile = null;
-  }
-
-  /**
-   * @apiNote Must be called when the observer has been initialized from a JSON file.
-   * @throws IllegalStateException when there was an error loading from a json.
-   */
-  public void onLoad() throws IllegalStateException {
-    if (rootFile == null) {
-      throw new IllegalStateException(
-          "Root file must not be null. Invalid state after parsing JSON");
+  private AsyncFileAlterationObserver(AsyncFileEntry entry) {
+    if (entry == null) {
+      throw new IllegalArgumentException("entry can not be null");
     }
+    rootFile = entry;
     rootFile.initialize();
   }
 
-  private boolean initHelper(AsyncFileEntry entry) {
-    File[] children = listFiles(entry.getFile());
-    if (children == null) {
-      //  Error while initializing... some records may appear twice.
-      LOGGER.debug("Error getting children for [{}]", entry.getName());
-      return false;
+  public static AsyncFileAlterationObserver load(String fileName, ObjectPersistentStore store) {
+    if (fileName == null || store == null) {
+      throw new IllegalArgumentException("Arguments can not be null");
     }
-    boolean errors = true;
-    for (File child : children) {
-      AsyncFileEntry childEntry = new AsyncFileEntry(entry, child);
-      entry.addChild(childEntry);
-      errors = errors && initHelper(childEntry);
+    AsyncFileEntry temp = store.load(fileName, AsyncFileEntry.class);
+    if (temp == null) {
+      return null;
     }
-    return errors;
+    return new AsyncFileAlterationObserver(temp);
+  }
+
+  public void store(ObjectPersistentStore objectPersistentStore) {
+    if (objectPersistentStore == null) {
+      throw new IllegalArgumentException("Cannot store this object without a store");
+    }
+    objectPersistentStore.store(rootFile.getName(), rootFile);
   }
 
   /**
@@ -95,7 +86,7 @@ public class AsyncFileAlterationObserver {
    * @return true on success, false if an IO error occurs
    */
   public boolean initialize() {
-    return initHelper(rootFile);
+    return initChildEntries(rootFile);
   }
 
   public void destroy() {
@@ -103,15 +94,12 @@ public class AsyncFileAlterationObserver {
   }
 
   @VisibleForTesting
-  protected AsyncFileEntry getRootFile() {
+  AsyncFileEntry getRootFile() {
     return rootFile;
   }
 
-  public void addListener(final AsyncFileAlterationListener listener) {
+  public void setListener(final AsyncFileAlterationListener listener) {
     synchronized (listenerLock) {
-      if (this.listener != null) {
-        throw new IllegalStateException("Cannot be two listeners");
-      }
       this.listener = listener;
     }
   }
@@ -119,11 +107,36 @@ public class AsyncFileAlterationObserver {
   public void removeListener() {
     //  You cannot remove the listener until the checkAndNotify method is done using it.
     synchronized (listenerLock) {
-      if (listener != null) {
-        this.listener = null;
-      } else {
-        throw new IllegalStateException("Cannot remove a listener from an empty list");
+      this.listener = null;
+    }
+  }
+
+  /**
+   * Called when the observer should compare the snapshot state to the actual state of the directory
+   * being monitored.
+   */
+  public void checkAndNotify() {
+
+    //  You cannot change listeners in the middle of executions.
+    //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
+    // the
+    //  one we had when we started the method.
+    AsyncFileAlterationListener listenerCopy;
+    synchronized (listenerLock) {
+      if (listener == null) {
+        return;
       }
+      listenerCopy = listener;
+    }
+
+    /* fire directory/file events */
+    if (rootFile.checkNetwork()) {
+      checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()), listenerCopy);
+    } else {
+      //  If we can't connect to the network then the file doesn't exist to us now.
+      LOGGER.debug(
+          "The monitored file [{}] does not exist. No file processing will be done through the CDM",
+          rootFile.getName());
     }
   }
 
@@ -132,15 +145,13 @@ public class AsyncFileAlterationObserver {
    *
    * @param entry The file entry
    */
-  private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listener) {
+  private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
 
     if (!addToProcessors(entry)) {
       return;
     }
 
-    AsyncFileEntry temp = entry.getFromParent();
-
-    if (temp != null) {
+    if (entry.isChildOfParent()) {
       //  Someone already committed us. so we're done.
       removeFromProcessors(entry);
       return;
@@ -150,7 +161,7 @@ public class AsyncFileAlterationObserver {
 
       LOGGER.trace("Sending create Request for {}", entry.getName());
 
-      listener.onFileCreate(
+      listenerCopy.onFileCreate(
           entry.getFile(), new CompletionSynchronization(entry, this::commitCreate));
     } else {
       // Directories are always committed and added to the parent IF they
@@ -158,7 +169,7 @@ public class AsyncFileAlterationObserver {
 
       File[] children = listFiles(entry.getFile());
       for (File child : children) {
-        doCreate(new AsyncFileEntry(entry, child), listener);
+        doCreate(new AsyncFileEntry(entry, child), listenerCopy);
       }
 
       commitCreate(entry, true);
@@ -186,7 +197,7 @@ public class AsyncFileAlterationObserver {
    *
    * @param entry The previous file system entry
    */
-  private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listener) {
+  private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
 
     if (entry.hasChanged()) {
       LOGGER.trace("{} has changed", entry.getName());
@@ -200,7 +211,7 @@ public class AsyncFileAlterationObserver {
           return;
         }
         LOGGER.trace("Sending Match Request for {}...", entry.getName());
-        listener.onFileChange(
+        listenerCopy.onFileChange(
             entry.getFile(), new CompletionSynchronization(entry, this::commitMatch));
       } else {
         entry.commit();
@@ -227,11 +238,11 @@ public class AsyncFileAlterationObserver {
    *
    * @param entry The file entry
    */
-  private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listener) {
+  private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
     if (!addToProcessors(entry)) {
       return;
     }
-    if (entry.getFromParent() == null) {
+    if (!entry.isChildOfParent()) {
       //  If we don't exist in the parent another thread beat us here.
       removeFromProcessors(entry);
       return;
@@ -239,7 +250,7 @@ public class AsyncFileAlterationObserver {
 
     if (!entry.getFile().isDirectory() && !entry.isDirectory()) {
       LOGGER.trace("Sending Delete Request for {}...", entry.getName());
-      listener.onFileDelete(
+      listenerCopy.onFileDelete(
           entry.getFile(), new CompletionSynchronization(entry, this::commitDelete));
     }
     //  Once there are no more children we can delete directories.
@@ -278,7 +289,7 @@ public class AsyncFileAlterationObserver {
       final AsyncFileEntry parent,
       final List<AsyncFileEntry> previous,
       @Nullable final File[] files,
-      final AsyncFileAlterationListener listener) {
+      final AsyncFileAlterationListener listenerCopy) {
     //  If there was an IO error then just stop.
     if (files == null) {
       return;
@@ -287,12 +298,12 @@ public class AsyncFileAlterationObserver {
     int c = 0;
     for (final AsyncFileEntry entry : previous) {
       while (c < files.length && entry.compareToFile(files[c]) > 0) {
-        doCreate(new AsyncFileEntry(parent, files[c]), listener);
+        doCreate(new AsyncFileEntry(parent, files[c]), listenerCopy);
         c++;
       }
       if (c < files.length && entry.compareToFile(files[c]) == 0) {
-        doMatch(entry, listener);
-        checkAndNotify(entry, entry.getChildren(), listFiles(files[c]), listener);
+        doMatch(entry, listenerCopy);
+        checkAndNotify(entry, entry.getChildren(), listFiles(files[c]), listenerCopy);
         c++;
       } else {
         //  Do Delete
@@ -300,41 +311,12 @@ public class AsyncFileAlterationObserver {
           //  The file MAY still exist but it's the network that's down.
           return;
         }
-        checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY, listener);
-        doDelete(entry, listener);
+        checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY, listenerCopy);
+        doDelete(entry, listenerCopy);
       }
     }
     for (; c < files.length; c++) {
-      doCreate(new AsyncFileEntry(parent, files[c]), listener);
-    }
-  }
-
-  /**
-   * Called when the observer should compare the snapshot state to the actual state of the directory
-   * being monitored.
-   */
-  public void checkAndNotify() {
-
-    //  You cannot change listeners in the middle of executions.
-    //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
-    // the
-    //  one we had when we started the method.
-    AsyncFileAlterationListener listener;
-    synchronized (listenerLock) {
-      if (this.listener == null) {
-        return;
-      }
-      listener = this.listener;
-    }
-
-    /* fire directory/file events */
-    if (rootFile.checkNetwork()) {
-      checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()), listener);
-    } else {
-      //  If we can't connect to the network then the file doesn't exist to us now.
-      LOGGER.debug(
-          "The monitored file [{}] does not exist. No file processing will be done through the CDM",
-          rootFile.getName());
+      doCreate(new AsyncFileEntry(parent, files[c]), listenerCopy);
     }
   }
 
@@ -356,6 +338,21 @@ public class AsyncFileAlterationObserver {
       return null;
     }
     return FileUtils.EMPTY_FILE_ARRAY;
+  }
+
+  private boolean initChildEntries(AsyncFileEntry parent) {
+    File[] children = listFiles(parent.getFile());
+    if (children == null) {
+      LOGGER.debug("Error while initializing children for [{}]", parent.getName());
+      return false;
+    }
+    boolean errors = true;
+    for (File child : children) {
+      AsyncFileEntry childEntry = new AsyncFileEntry(parent, child);
+      parent.addChild(childEntry);
+      errors = errors && initChildEntries(childEntry);
+    }
+    return errors;
   }
 
   /**

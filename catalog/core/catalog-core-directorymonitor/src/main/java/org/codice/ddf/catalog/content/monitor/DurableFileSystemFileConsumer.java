@@ -44,7 +44,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   @Override
   protected boolean doPoll(String sha1) {
     if (observer != null) {
-      observer.addListener(listener);
+      observer.setListener(listener);
       observer.checkAndNotify();
       observer.removeListener();
       fileSystemPersistenceProvider.storeJson(sha1, observer, observer.getClass());
@@ -65,16 +65,10 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
     if (observer == null && fileName != null) {
 
-      observer =
-          (AsyncFileAlterationObserver)
-              jsonSerializer.load(fileName, AsyncFileAlterationObserver.class);
-
-      if (observer != null) {
-        observer.onLoad();
-      }
+      observer = AsyncFileAlterationObserver.load(fileName, jsonSerializer);
 
       //  Backwards Compatibility
-      else if (isOldVersion(fileName)) {
+      if (observer == null && isOldVersion(fileName)) {
         observer = backwardsCompatibility(fileName);
       } else {
         observer = new AsyncFileAlterationObserver(new File(fileName));

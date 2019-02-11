@@ -27,16 +27,16 @@ import javax.validation.constraints.NotNull;
  * update only on successful async operations.
  *
  * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots taken
- * when commit() is called. hasChanged will compare the current value of the file to the last time
- * it's been committed, or the snapshot.
+ * when ${@link AsyncFileEntry#commit()} is called. ${@link AsyncFileEntry#hasChanged()} will
+ * compare the current value of the file to the last time it's been committed, or the snapshot.
  *
- * @apiNote once hasChanged returns true, the user must commit the file once it's finished
- *     processing to create a new meta-snapshot.
+ * @apiNote once ${@link AsyncFileEntry#hasChanged()} returns true, the user must call ${@link
+ *     AsyncFileEntry#commit()} once the file is finished processing to create a new meta-snapshot.
+ * @see AsyncFileEntry#initialize()
  */
 public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
-  //  Only Nullable for GSON serialization
-  @Nullable private final File contentFile;
+  private final File contentFile;
   private boolean exists;
   private long lastModified;
   private boolean directory;
@@ -198,18 +198,15 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
   }
 
   /**
-   * gets the {@link AsyncFileEntry} from the parent if it exists.
+   * if the child still exists wtihin the parent
    *
    * @return the entry from the parent or null.
    */
-  public AsyncFileEntry getFromParent() {
+  public boolean isChildOfParent() {
     if (parent != null) {
-      if (parent.hasChild(this)) {
-        List<AsyncFileEntry> children = parent.getChildren();
-        return children.get(children.indexOf(this));
-      }
+      return parent.hasChild(this);
     }
-    return null;
+    return false;
   }
 
   //  Serializing to JSON doesn't allow infinite loops. Thus we

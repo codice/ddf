@@ -77,7 +77,7 @@ public class JsonPersistantStore implements ObjectPersistentStore {
   }
 
   @Override
-  public Object load(String key, Class<?> objectClass) {
+  public <T> T load(String key, Class<T> objectClass) {
     String shaKey = getShaFor(key);
     File file = new File(getPath() + shaKey + PERSISTED_FILE_SUFFIX);
     if (!file.exists()) {
