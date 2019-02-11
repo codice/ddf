@@ -58,8 +58,10 @@ const minimumDifference = 0.0001
 const minimumBuffer = 0.000001
 
 const filterToLocationOldModel = filter => {
+  if (filter === '') return filter
+
   const filterValue =
-    typeof filter.value === 'object' ? filter.value.value : filter.value
+    typeof filter.geojson === 'object' ? filter.geojson : filter.value.value
 
   // for backwards compatability with wkt
   if (typeof filterValue === 'string') {
@@ -127,7 +129,6 @@ module.exports = Marionette.LayoutView.extend({
     const filter = this.propertyModel.get('value')
     this.model.set(filterToLocationOldModel(filter))
 
-    debugger
     switch (filter.type) {
       // these cases are for when the model matches the filter model
       case 'DWITHIN':

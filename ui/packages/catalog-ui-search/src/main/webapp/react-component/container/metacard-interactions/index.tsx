@@ -19,7 +19,7 @@ import {
 
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
-const CqlUtils = require('../../../js/CQLUtils')
+import * as CqlUtils from '../../../js/CQLUtils'
 
 import * as CustomElements from '../../../js/CustomElements'
 

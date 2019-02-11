@@ -91,7 +91,7 @@ Query.Model = PartialAssociatedModel.extend({
       data.filterTree !== undefined &&
       typeof data.filterTree === 'string'
     ) {
-      // for backwards compatability 
+      // for backwards compatability
       try {
         data.filterTree = JSON.parse(data.filterTree)
       } catch (e) {
