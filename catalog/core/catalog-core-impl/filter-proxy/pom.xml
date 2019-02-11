@@ -26,11 +26,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-referencing</artifactId>
-            <version>20.1</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
@@ -60,26 +55,7 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.5</version>
-        </dependency>
     </dependencies>
-    <!--<dependencyManagement>-->
-        <!--<dependencies>-->
-            <!--<dependency>-->
-                <!--<groupId>tec.uom</groupId>-->
-                <!--<artifactId>uom-se</artifactId>-->
-                <!--<version>1.0.8</version>-->
-            <!--</dependency>-->
-        <!--</dependencies>-->
-    <!--</dependencyManagement>-->
     <build>
         <plugins>
             <plugin>
