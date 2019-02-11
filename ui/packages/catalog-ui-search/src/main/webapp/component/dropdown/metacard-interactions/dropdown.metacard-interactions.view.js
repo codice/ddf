@@ -13,9 +13,6 @@
  *
  **/
 /*global define*/
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.metacard-interactions.hbs')
 const ComponentView = require('../../metacard-interactions/metacard-interactions.view.js')

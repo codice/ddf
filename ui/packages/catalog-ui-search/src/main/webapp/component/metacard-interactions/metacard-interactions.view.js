@@ -15,42 +15,22 @@
 /*global define, window*/
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
-const plugin = require('plugins/metacard-interactions')
 
 import React from 'react'
 import InteractionsView from '../../react-component/container/metacard-interactions'
 
-const MetacardInteractionsView = Marionette.LayoutView.extend({
+const MetacardInteractionsView = Marionette.ItemView.extend({
   template() {
     const props = {
       model: this.model,
-      el: this.$el,
-      extensions: this.getExtensions(),
-      categories: this.getCategories(),
+      onClose: () => {
+        this.$el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
+      },
     }
     return <InteractionsView {...props} />
   },
   tagName: CustomElements.register('metacard-interactions'),
-  className: 'composed-menu',
-  modelEvents: {
-    change: 'render',
-  },
-  ui: {},
-  getExtensions() {},
   handleShare() {},
-
-  /**
-   * Should return a list of items comprising a 'category' of action links that will be rendered in the drop-down.
-   * Ex.
-   * {`category-name`: [{
-   *  parent: `parent-css-class`,
-   *  dataHelp: `Something helpful here`,
-   *  icon: `icon class`, //should be consistent throughout the category
-   *  linkText: `Text to be rendered for the link`,
-   *  actionHandler: () => `Perform on-click`
-   * }]}
-   */
-  getCategories() {},
 })
 
-module.exports = plugin(MetacardInteractionsView)
+module.exports = MetacardInteractionsView

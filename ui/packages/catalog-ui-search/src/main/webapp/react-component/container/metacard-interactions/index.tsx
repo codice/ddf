@@ -12,17 +12,11 @@
 import * as React from 'react'
 import { Geometry } from 'wkx'
 
-import {
-  render as View,
-  Model as ViewModel,
-} from '../../presentation/metacard-interactions'
-
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+import { hot } from 'react-hot-loader'
 
 // import * as CqlUtils from '../../../js/CQLUtils'
 const CqlUtils = require('../../../js/CQLUtils')
-
-import * as CustomElements from '../../../js/CustomElements'
 
 import * as QueryConfirmationView from '../../../component/confirmation/query/confirmation.query.view'
 import * as LoadingView from '../../../component/loading/loading.view'
@@ -37,22 +31,19 @@ import * as store from '../../../js/store'
 import * as user from '../../../component/singletons/user-instance'
 
 import MarionetteRegionContainer from '../marionette-region-container'
+import { Divider, MetacardInteraction } from './common'
+
+const plugin = require('plugins/metacard-interactions')
 
 const Query = require('../../../js/model/Query')
 const wreqr = require('wreqr')
 
 type Props = {
   model: {} | any
-  el: {} | any
+  onClose: () => void
   extensions: {} | any
-  handleShare?: () => void
   categories: { [key: string]: Array<{}> }
 } & WithBackboneProps
-
-type El = {
-  find: (matcher: string) => any
-  toggleClass: (key: string, flag: boolean) => void
-}
 
 type Result = {
   get: (key: any) => any
@@ -77,26 +68,6 @@ type Model = {
   forEach: (result: Result | any) => void
   find: (result: Result | any) => boolean
 } & Array<any>
-
-const withCloseDropdown = (
-  context: Props,
-  action: (context: Props) => void
-) => {
-  context.el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
-  action(context)
-}
-
-const handleDownload = (context: Props) => {
-  const openValidUrl = (result: Result) => {
-    const downloadUrl = result
-      .get('metacard')
-      .get('properties')
-      .get('resource-download-url')
-    downloadUrl && window.open(downloadUrl)
-  }
-
-  context.model.forEach(openValidUrl)
-}
 
 const getGeoLocations = (model: Model) =>
   model.reduce((locationArray: Array<string>, result: Result) => {
@@ -159,6 +130,7 @@ const handleCreateSearch = (context: Props) => {
 }
 
 const handleShow = (context: Props) => {
+  context.onClose()
   const preferences = user.get('user').get('preferences')
   const getResult = (result: Result) =>
     result
@@ -171,6 +143,7 @@ const handleShow = (context: Props) => {
 }
 
 const handleHide = (context: Props) => {
+  context.onClose()
   const preferences = user.get('user').get('preferences')
   const getResult = (result: Result) => ({
     id: result
@@ -188,11 +161,14 @@ const handleHide = (context: Props) => {
 }
 
 const handleExpand = (context: Props) => {
-  const id = context.model
+  context.onClose()
+  let id = context.model
     .first()
     .get('metacard')
     .get('properties')
     .get('id')
+
+  id = encodeURIComponent(id)
 
   wreqr.vent.trigger('router:navigate', {
     fragment: 'metacards/' + id,
@@ -202,53 +178,6 @@ const handleExpand = (context: Props) => {
   })
 }
 
-const handleShare = (context: Props) =>
-  context.handleShare && context.handleShare()
-
-const appendCssIfNeeded = (model: Model, el: El) => {
-  const isMixed = model.reduce((accum: number, item: Result) => {
-    if (item.isRemote()) {
-      el.toggleClass('is-remote', true)
-      return ++accum
-    }
-    if (item.isWorkspace()) {
-      el.toggleClass('is-workspace', true)
-      return ++accum
-    }
-    if (item.isResource()) {
-      el.toggleClass('is-resource', true)
-      return ++accum
-    }
-    if (item.isRevision()) {
-      el.toggleClass('is-revision', true)
-      return ++accum
-    }
-    if (item.isDeleted()) {
-      el.toggleClass('is-deleted', true)
-      return ++accum
-    }
-  }, 0)
-
-  el.toggleClass('is-mixed', isMixed > 1)
-
-  const currentWorkspace = store.getCurrentWorkspace()
-  el.toggleClass('in-workspace', Boolean(currentWorkspace))
-  el.toggleClass('is-downloadable', isDownloadable(model))
-  el.toggleClass('is-multiple', model.length > 1)
-  el.toggleClass('is-routed', isRouted())
-  el.toggleClass('is-blacklisted', isBlacklisted(model))
-  el.toggleClass('has-location', hasLocation(model))
-}
-
-const isDownloadable = (model: Model): boolean =>
-  model.some((result: Result) =>
-    result
-      .get('metacard')
-      .get('properties')
-      .get('resource-download-url')
-  )
-const isRouted = (): boolean =>
-  router && router.toJSON().name === 'openMetacard'
 const isBlacklisted = (model: Model): boolean => {
   const blacklist = user
     .get('user')
@@ -276,8 +205,6 @@ const isRemoteResourceCached = (model: Model): boolean => {
   )
 }
 
-const hasLocation = (model: Model): boolean => getGeoLocations(model).length > 0
-
 const createAddRemoveRegion = (model: Model) =>
   PopoutView.createSimpleDropdown({
     componentToShow: ResultAddView,
@@ -299,114 +226,194 @@ const createResultActionsExportRegion = (model: Model) =>
     label: 'Export as',
   })
 
-const defaultLinks = [
-  {
-    parent: `interaction-hide`,
-    dataHelp: `Adds to a list
-    of results that will be hidden from future searches.  To clear this list,
-    click the Settings icon, select Hidden, then choose to unhide the record.`,
-    icon: `fa fa-eye-slash`,
-    linkText: `Hide from Future Searches`,
-    actionHandler: handleHide,
-  },
-  {
-    parent: `interaction-show`,
-    dataHelp: `Removes from the
-    list of results that are hidden from future searches.`,
-    icon: `fa fa-eye`,
-    linkText: `Unhide from Future Searches`,
-    actionHandler: handleShow,
-  },
-  {
-    parent: `interaction-expand`,
-    dataHelp: `Takes you to a
-    view that only focuses on this particular result.  Bookmarking it will allow
-    you to come back to this result directly.`,
-    icon: `fa fa-expand`,
-    linkText: `Expand Metacard View`,
-    actionHandler: handleExpand,
-  },
-  {
-    parent: `interaction-share`,
-    dataHelp: `Copies the
-    URL that leads to this result directly to your clipboard.`,
-    icon: `fa fa-share-alt`,
-    linkText: `Share Metacard`,
-    actionHandler: handleShare,
-  },
-]
+const AddToList = (props: any) => {
+  const currentWorkspace = store.getCurrentWorkspace()
+  if (!currentWorkspace) {
+    return null
+  }
 
-const viewModelFromProps = (props: Props): ViewModel => {
-  const defaultCategories = [{ name: 'default', items: defaultLinks }]
-
-  if (!props.categories) return { categories: defaultCategories } as ViewModel
-
-  const categories = Object.keys(props.categories).map(key => ({
-    name: key,
-    items: props.categories[key],
-  }))
-  return { categories: [...defaultCategories, ...categories] } as ViewModel
+  return (
+    <MarionetteRegionContainer
+      data-help="Add the result to a list."
+      className="metacard-interaction interaction-add"
+      view={createAddRemoveRegion(props.model)}
+      viewOptions={{ model: props.model }}
+    />
+  )
 }
 
-class MetacardInteractions extends React.Component<Props> {
+const isDownloadable = (model: Model): boolean =>
+  model.some((result: Result) =>
+    result
+      .get('metacard')
+      .get('properties')
+      .get('resource-download-url')
+  )
+
+const handleDownload = (model: Model) => {
+  const openValidUrl = (result: Result) => {
+    const downloadUrl = result
+      .get('metacard')
+      .get('properties')
+      .get('resource-download-url')
+    downloadUrl && window.open(downloadUrl)
+  }
+
+  model.forEach(openValidUrl)
+}
+
+const DownloadProduct = (props: any) => {
+  if (!isDownloadable(props.model)) {
+    return null
+  }
+  return (
+    <MetacardInteraction
+      text="Download"
+      help="Downloads the result's associated product directly to your machine."
+      icon="fa fa-download"
+      onClick={() => handleDownload(props.model)}
+    >
+      {isRemoteResourceCached(props.model) && (
+        <span
+          data-help="Displayed if the remote resource has been cached locally."
+          className="download-cached"
+        >
+          Local
+        </span>
+      )}
+    </MetacardInteraction>
+  )
+}
+
+const hasLocation = (model: Model): boolean => getGeoLocations(model).length > 0
+
+const CreateLocationSearch = (props: any) => {
+  if (!hasLocation(props.model)) {
+    return null
+  }
+  return (
+    <MetacardInteraction
+      {...props}
+      icon="fa fa-globe"
+      text="Create Search from Location"
+      help="Uses the geometry of the metacard to populate a search"
+      onClick={() => handleCreateSearch(props)}
+    />
+  )
+}
+
+const ExportActions = (props: any) => {
+  return (
+    <MarionetteRegionContainer
+      data-help="Opens the available actions for the item."
+      className="metacard-interaction interaction-actions-export composed-menu"
+      view={createResultActionsExportRegion(props.model)}
+      viewOptions={{ model: props.model }}
+    />
+  )
+}
+
+const BlacklistToggle = (props: any) => {
+  if (props.blacklisted) {
+    return (
+      <MetacardInteraction
+        text="Unhide from Future Searches"
+        help="Removes from the
+              list of results that are hidden from future searches."
+        icon="fa fa-eye"
+        onClick={() => handleShow(props)}
+      />
+    )
+  } else {
+    return (
+      <MetacardInteraction
+        text="Hide from Future Searches"
+        help="Adds to a list
+              of results that will be hidden from future searches.  To clear this list,
+              click the Settings icon, select Hidden, then choose to unhide the record."
+        icon="fa fa-eye-slash"
+        onClick={() => handleHide(props)}
+      />
+    )
+  }
+}
+
+const ExpandMetacard = (props: any) => {
+  const isRouted = router && router.toJSON().name === 'openMetacard'
+
+  if (isRouted || props.model.length > 1) {
+    return null
+  }
+
+  return (
+    <MetacardInteraction
+      text="Expand Metacard View"
+      help="Takes you to a
+            view that only focuses on this particular result.  Bookmarking it will allow
+            you to come back to this result directly."
+      icon="fa fa-expand"
+      onClick={() => handleExpand(props)}
+    />
+  )
+}
+
+type State = {
+  blacklisted: Boolean
+  model: any
+}
+
+const interactions = plugin([
+  AddToList,
+  BlacklistToggle,
+  ExpandMetacard,
+  Divider,
+  DownloadProduct,
+  CreateLocationSearch,
+  ExportActions,
+])
+
+class MetacardInteractions extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      model: null,
+      blacklisted: false,
+    }
+  }
   componentDidMount = () => {
-    appendCssIfNeeded(this.props.model, this.props.el)
-
     const setState = (model: Model) => this.setState({ model: model })
-
-    const toggleIsBlacklisted = () =>
-      this.props.el.toggleClass(
-        'is-blacklisted',
-        isBlacklisted(this.props.model)
-      )
 
     this.props.listenTo(
       this.props.model,
       'change:metacard>properties',
       setState
     )
+
     this.props.listenTo(
       user
         .get('user')
         .get('preferences')
         .get('resultBlacklist'),
       'add remove update reset',
-      toggleIsBlacklisted
+      () => this.setState({ blacklisted: isBlacklisted(this.props.model) })
     )
   }
 
   render = () => (
     <>
-      <MarionetteRegionContainer
-        data-help="Add the result to a list."
-        className="metacard-interaction interaction-add"
-        view={createAddRemoveRegion(this.props.model)}
-        viewOptions={{ model: this.props.model }}
-      />
-      <View
-        handleCreateSearch={() =>
-          withCloseDropdown(this.props, handleCreateSearch)
-        }
-        handleDownload={() => withCloseDropdown(this.props, handleDownload)}
-        isRemoteResourceCached={isRemoteResourceCached(this.props.model)}
-        withCloseDropdown={handler => withCloseDropdown(this.props, handler)}
-        viewModel={viewModelFromProps(this.props)}
-      />
-      <MarionetteRegionContainer
-        data-help="Opens the available actions for the item."
-        className="metacard-interaction interaction-actions-export composed-menu"
-        view={createResultActionsExportRegion(this.props.model)}
-        viewOptions={{ model: this.props.model }}
-      />
-      {this.props.extensions && (
-        <MarionetteRegionContainer
-          className="composed-menu interaction-extensions"
-          view={this.props.extensions}
-          viewOptions={{ mode: this.props.model }}
-        />
-      )}
+      {interactions.map((Component: any, i: number) => {
+        return (
+          <Component
+            key={i}
+            {...this.props}
+            blacklisted={this.state.blacklisted}
+          />
+        )
+      })}
     </>
   )
 }
 
-export default withListenTo(MetacardInteractions)
+const Component = withListenTo(MetacardInteractions)
+
+export default hot(module)(Component)
