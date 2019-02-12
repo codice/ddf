@@ -38,8 +38,9 @@ function getCoordinateFormat() {
 
 function leftPad(numToPad, size) {
   var sign = Math.sign(numToPad) === -1 ? '-' : ''
+  var numNoDecimal = Math.floor(Math.abs(numToPad))
   return new Array(sign === '-' ? size - 1 : size)
-    .concat([numToPad])
+    .concat([Math.sign(numToPad) * numNoDecimal])
     .join(' ')
     .slice(-size)
 }
@@ -113,10 +114,10 @@ module.exports = Marionette.LayoutView.extend({
   decimalComponent(lat, lon) {
     return (
       <span>
-        {`${leftPad(Math.floor(lat), 3, ' ')}.${Math.abs(lat % 1)
+        {`${leftPad(lat, 3, ' ')}.${Math.abs(lat % 1)
           .toFixed(6)
           .toString()
-          .slice(2)} ${leftPad(Math.floor(lon), 4, ' ')}.${Math.abs(lon % 1)
+          .slice(2)} ${leftPad(lon, 4, ' ')}.${Math.abs(lon % 1)
           .toFixed(6)
           .toString()
           .slice(2)}`}
