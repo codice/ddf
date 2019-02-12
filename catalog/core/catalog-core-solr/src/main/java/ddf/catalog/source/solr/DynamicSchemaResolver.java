@@ -609,10 +609,9 @@ public class DynamicSchemaResolver {
       return Metacard.GEOGRAPHY + "_geo_index";
     }
 
+    final String fieldSuffix = getFieldSuffix(format);
     String fieldName =
-        propertyName
-            + schemaFields.getFieldSuffix(format)
-            + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
+        propertyName + fieldSuffix + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
 
     if (fieldsCache.contains(fieldName)) {
       return fieldName;
@@ -624,7 +623,7 @@ public class DynamicSchemaResolver {
       case INTEGER:
       case SHORT:
       case FLOAT:
-        return findAnyMatchingNumericalField(propertyName, getFieldSuffix(format));
+        return findAnyMatchingNumericalField(propertyName, fieldSuffix);
       default:
         break;
     }

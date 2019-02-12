@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
@@ -268,5 +269,38 @@ public class DynamicSchemaResolverTest {
 
   private MetacardType deserializeMetacardType(byte[] serializedMetacardType) throws IOException {
     return METACARD_TYPE_MAPPER.readValue(serializedMetacardType, MetacardType.class);
+  }
+
+  @Test
+  public void getFieldGeo() {
+    assertThat(
+        new DynamicSchemaResolver().getField("anyGeo", AttributeFormat.DOUBLE, false),
+        is("location_geo_index"));
+  }
+
+  @Test
+  public void getFieldMatchingNumerical() {
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.DOUBLE, false),
+        is("unknown_dbl"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.LONG, false),
+        is("unknown_lng"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.INTEGER, false),
+        is("unknown_int"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.SHORT, false),
+        is("unknown_shr"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.FLOAT, false),
+        is("unknown_flt"));
+  }
+
+  @Test
+  public void getFieldNonNumerical() {
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, false),
+        is("unknown_txt_tokenized"));
   }
 }
