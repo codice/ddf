@@ -70,11 +70,6 @@ public class SortByImpl implements SortBy {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("propertyName=");
-    sb.append(propertyName);
-    sb.append(",sortOrder=");
-    sb.append(sortOrder);
-    return sb.toString();
+    return "SortByImpl{" + "propertyName=" + propertyName + ", sortOrder=" + sortOrder + '}';
   }
 }

@@ -108,6 +108,7 @@ public class MetacardTransformerActionProviderTest extends AbstractActionProvide
     String invalidHost = "23^&*#";
     System.setProperty(SystemBaseUrl.EXTERNAL_HOST, invalidHost);
 
+    // Create new provider to reset the SystemBaseUrl.EXTERNAL_HOST property lookup is cached
     MetacardTransformerActionProvider testProvider =
         new MetacardTransformerActionProvider(ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
     testProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);

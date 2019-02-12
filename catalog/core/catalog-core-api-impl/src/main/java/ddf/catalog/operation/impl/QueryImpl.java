@@ -162,21 +162,21 @@ public class QueryImpl implements Query {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("filter=");
-    sb.append(filter);
-    sb.append(",startIndex=");
-    sb.append(startIndex);
-    sb.append(",pageSize=");
-    sb.append(pageSize);
-    sb.append(",requestsTotalResultsCount=");
-    sb.append(requestsTotalResultsCount);
-    sb.append(",timeoutMillis=");
-    sb.append(timeoutMillis);
-    sb.append(",sortBy=");
-    sb.append(sortBy);
-    sb.append(",properties=");
-    sb.append(properties);
-    return sb.toString();
+    return "QueryImpl{"
+        + "filter="
+        + filter
+        + ", startIndex="
+        + startIndex
+        + ", pageSize="
+        + pageSize
+        + ", requestsTotalResultsCount="
+        + requestsTotalResultsCount
+        + ", timeoutMillis="
+        + timeoutMillis
+        + ", sortBy="
+        + sortBy
+        + ", properties="
+        + properties
+        + '}';
   }
 }

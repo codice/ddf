@@ -122,14 +122,16 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
   private URL getActionUrl(String metacardSource, String metacardId)
       throws MalformedURLException, URISyntaxException {
-    StringBuilder sb = new StringBuilder();
-    sb.append(baseUrl);
-    sb.append(context);
-    sb.append("/");
-    sb.append(
+    String actionUrl =
         String.format(
-            "%s%s/%s/%s?transform=%s",
-            CONTEXT_ROOT, SOURCES_PATH, metacardSource, metacardId, metacardTransformerId));
-    return new URI(sb.toString()).toURL();
+            "%s%s/%s%s/%s/%s?transform=%s",
+            baseUrl,
+            context,
+            CONTEXT_ROOT,
+            SOURCES_PATH,
+            metacardSource,
+            metacardId,
+            metacardTransformerId);
+    return new URI(actionUrl).toURL();
   }
 }
