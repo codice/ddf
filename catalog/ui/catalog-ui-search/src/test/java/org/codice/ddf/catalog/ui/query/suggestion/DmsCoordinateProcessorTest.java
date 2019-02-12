@@ -39,17 +39,62 @@ public class DmsCoordinateProcessorTest {
   @Test
   public void testDmsStringOnlyNumbers() {
     assertSuggestion(
-        "28 56 26 N 117 38 11W",
+        "28 56 26 N 117 38 11 W",
         "DMS: [ 28°56'26\"N 117°38'11\"W ]",
         ImmutableList.of(new LatLon(1.0, 2.0)));
   }
 
   @Test
+  public void testDmsStringNoDirection() {
+    assertSuggestionDoesNotExist("28°56\'26\" 117°38\'11\"");
+  }
+
+  @Test
+  public void testDmsStringLatDegreesTooLarge() {
+    assertSuggestionDoesNotExist("91°56\'26\"N 117°38\'11\"W");
+  }
+
+  @Test
+  public void testDmsStringLonDegreesTooLarge() {
+    assertSuggestionDoesNotExist("28°56\'26\"N 181°38\'11\"W");
+  }
+
+  @Test
+  public void testDmsStringLatMinutesTooLarge() {
+    assertSuggestionDoesNotExist("28°60\'26\"N 117°38\'11\"W");
+  }
+
+  @Test
+  public void testDmsStringLonMinutesTooLarge() {
+    assertSuggestionDoesNotExist("28°56\'26\"N 117°60\'11\"W");
+  }
+
+  @Test
+  public void testDmsStringLatSecondsTooLarge() {
+    assertSuggestionDoesNotExist("28°56\'60\"N 117°38\'11\"W");
+  }
+
+  @Test
+  public void testDmsStringLonSecondsTooLarge() {
+    assertSuggestionDoesNotExist("28°56\'26\"N 117°38\'60\"W");
+  }
+
+  @Test
+  public void testDmsStringConvertedLatTooLarge() {
+    assertSuggestionDoesNotExist("90°59\'26\"N 117°38\'11\"W");
+  }
+
+  //  @Test
+  //  public void testDmsString(){
+  //
+  //  }
+
+  @Test
   public void testDmsStringMultipleCoordinates() {
     assertSuggestion(
-            "28°56\'26\"N 117°38\'11\"W 28°56\'26\"S 117°38\'11\"W 28°56\'26\"N 117°38\'11\"E",
-
-    );
+        "28°56\'26\"N 117°38\'11\"W 28°56\'26\"S 117°38\'11\"W 28°56\'26\"N 117°38\'11\"E",
+        "DMS: [ 28°56'26\"N 117°38'11\"W ] [ 28°56'26\"S 117°38'11\"W ] [ 28°56'26\"N 117°38'11\"E ]",
+        ImmutableList.of(new LatLon(1.0, 2.0)));
   }
 
   private void assertSuggestionDoesNotExist(String query) {
