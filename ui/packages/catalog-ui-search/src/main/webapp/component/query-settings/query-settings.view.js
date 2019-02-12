@@ -117,6 +117,8 @@ module.exports = plugin(
       const extensions = this.getExtensions()
       if (extensions !== undefined) {
         this.extensions.show(extensions)
+      } else {
+        this.extensions.empty()
       }
     },
     handleChangeDetailLevel: function(model, values) {
