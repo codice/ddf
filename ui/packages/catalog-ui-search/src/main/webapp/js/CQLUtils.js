@@ -224,6 +224,14 @@ function getProperty(filter) {
   return filter.property.split('"').join('')
 }
 
+function generateIsEmptyFilter(property) {
+  return {
+    type: 'IS NULL',
+    property,
+    value: null,
+  }
+}
+
 function generateFilter(type, property, value, metacardDefinitions) {
   if (!metacardDefinitions) {
     metacardDefinitions = require('../component/singletons/metacard-definitions.js')
@@ -367,6 +375,7 @@ function arrayFromPolygonWkt(wkt) {
 module.exports = {
   sanitizeGeometryCql,
   getProperty,
+  generateIsEmptyFilter,
   generateFilter,
   generateFilterForFilterFunction,
   isGeoFilter,

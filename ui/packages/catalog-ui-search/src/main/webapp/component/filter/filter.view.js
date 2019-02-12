@@ -227,10 +227,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   updateTypeDropdown: function() {
     const attribute = this.model.get('type')
-    if(attribute === 'anyGeo'){
+    if (attribute === 'anyGeo') {
       this.model.set('comparator', [geometryComparators[1]])
     }
-    if(attribute === 'anyText'){
+    if (attribute === 'anyText') {
       this.model.set('comparator', [stringComparators[1]])
     }
     this.filterAttribute.currentView.model.set('value', [attribute])
@@ -353,7 +353,7 @@ module.exports = Marionette.LayoutView.extend({
         value.value,
       ])
     } else if (comparator === 'IS EMPTY') {
-      return CQLUtils.generateFilter(type, property, null)
+      return CQLUtils.generateIsEmptyFilter(property)
     }
     if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
       return {

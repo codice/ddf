@@ -582,7 +582,7 @@ function write(filter) {
       break
     case comparisonClass:
       if (filter.type === 'IS NULL') {
-        return `("${filter.property} ${filter.type})`
+        return `("${filter.property}" ${filter.type})`
       }
       if (filter.type === 'BETWEEN') {
         return (
