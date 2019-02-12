@@ -226,9 +226,14 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   updateTypeDropdown: function() {
-    this.filterAttribute.currentView.model.set('value', [
-      this.model.get('type'),
-    ])
+    const attribute = this.model.get('type')
+    if(attribute === 'anyGeo'){
+      this.model.set('comparator', [geometryComparators[1]])
+    }
+    if(attribute === 'anyText'){
+      this.model.set('comparator', [stringComparators[1]])
+    }
+    this.filterAttribute.currentView.model.set('value', [attribute])
   },
   handleAttributeUpdate: function() {
     this.model.set(
@@ -364,6 +369,9 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   deleteInvalidFilters: function() {
+    if (this.model.attributes.comparator === 'IS EMPTY') {
+      return
+    }
     if (!this.filterInput.currentView.isValid()) {
       this.delete()
     }

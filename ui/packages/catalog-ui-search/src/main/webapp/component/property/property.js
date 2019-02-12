@@ -103,7 +103,6 @@ module.exports = Backbone.Model.extend({
   hasChanged: function() {
     var currentValue = this.getValue()
     currentValue.sort()
-    const type = this.getCalculatedType()
     switch (this.getCalculatedType()) {
       case 'location':
         return (
@@ -116,7 +115,7 @@ module.exports = Backbone.Model.extend({
           ) !==
             JSON.stringify(
               currentValue.map(function(val) {
-                val = CQLUtils.generateFilter(undefined, type, val)
+                val = CQLUtils.generateFilter(undefined, 'anyGeo', val)
                 if (val === undefined) {
                   return val
                 }
