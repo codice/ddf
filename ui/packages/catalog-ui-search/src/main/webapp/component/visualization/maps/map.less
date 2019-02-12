@@ -37,11 +37,13 @@
   }
 
   .cesium-viewer-toolbar {
-    top: 0px;
-    right: 0px;
-    padding-right: @minimumSpacing;
+    top: @minimumSpacing;
+    right: @minimumSpacing;
+    padding: @minimumSpacing;
+    max-width: ~'calc(100% - 2*@{minimumSpacing})';
     background: inherit;
     line-height: @minimumButtonSize;
+    .is-medium-font;
     &,
     button,
     button span {
