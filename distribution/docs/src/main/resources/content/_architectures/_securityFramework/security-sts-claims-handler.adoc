@@ -5,6 +5,8 @@
 :order: 00
 :summary: STS Claims Handlers.
 
+== {title}
+
 Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
 An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
 These attributes are then mapped and added to the SAML assertion being created.

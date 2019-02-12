@@ -5,14 +5,16 @@
 :order: 00
 :summary: Security Encryption API.
 
+== {title}
+
 The Security Encryption API bundle provides the framework for the encryption service.
 Applications that use the encryption service should use the interfaces defined within it instead of calling an implementation directly.
 
-===== Installing Security Encryption API
+=== Installing Security Encryption API
 
 This bundle is installed by default as part of the `security-encryption` feature.
 Many applications that come with ${branding} depend on this bundle and it should not be uninstalled.
 
-===== Configuring the Security Encryption API
+=== Configuring the Security Encryption API
 
 The Security Encryption API has no configurable properties.

@@ -2,9 +2,10 @@
 :type: securityFramework
 :status: published
 :parent: Security Framework
-:children: Security Manager, Realms
 :order: 00
 :summary: Subject within Security Framework.
+
+== {title}
 
 `ddf.security.Subject <extends> org.apache.shiro.subject.Subject`
 

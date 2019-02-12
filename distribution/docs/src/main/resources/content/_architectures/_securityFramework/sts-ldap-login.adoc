@@ -1,16 +1,19 @@
-:type: securitySts
+:type: subSecurityFramework
 :status: published
 :title: Security STS LDAP Login
 :link: _security_sts_ldap_login
+:parent: Security Token Service
 :order: 03
+
+== {title}
 
 The ${ddf-security} STS LDAP Login bundle enables functionality within the STS that allows it to use an LDAP to perform authentication when passed a `UsernameToken` in a `RequestSecurityToken` SOAP request.
 
-===== Installing the Security STS LDAP Login
+=== Installing the Security STS LDAP Login
 
 This bundle is not installed by default but can be added by installing the `security-sts-ldaplogin` feature.
 
-===== Configuring the Security STS LDAP Login
+=== Configuring the Security STS LDAP Login
 
 Configure the Security STS LDAP Login from the ${admin-console}:
 

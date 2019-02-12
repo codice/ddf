@@ -5,6 +5,8 @@
 :order: 01
 :summary: Guest Interceptor.
 
+== {title}
+
 The goal of the `GuestInterceptor` is to allow non-secure clients (such as SOAP requests without security headers) to access secure service endpoints. 
 
 All requests to secure endpoints must satisfy the WS-SecurityPolicy that is included in the WSDL.
@@ -12,11 +14,11 @@ All requests to secure endpoints must satisfy the WS-SecurityPolicy that is incl
 Rather than reject requests without user credentials, the guest interceptor detects the missing credentials and inserts an assertion that represents the "guest" user.
 The attributes included in this guest user assertion are configured by the administrator to represent any unknown user on the current network.
 
-===== Installing Guest Interceptor
+=== Installing Guest Interceptor
 
 The `GuestInterceptor` is installed by default with ${ddf-security} Application.
 
-===== Configuring Guest Interceptor
+=== Configuring Guest Interceptor
 
 Configure the Guest Interceptor from the ${admin-console}:
 

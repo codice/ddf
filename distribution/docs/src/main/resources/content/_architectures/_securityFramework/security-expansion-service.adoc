@@ -2,13 +2,15 @@
 :type: securityFramework
 :status: published
 :parent: Security Framework
-:children: na
 :order: 08
-:summary: Expansion Service.
+:summary: Expansion Service defines rulesets to map metacard and user attributes to more complete sets of values.
+
+== {title}
 
 The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to ${branding} during user attribute and metadata card processing.
 In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
 
+.Expansion Service Rulesets
 Each instance of the expansion service consists of a collection of rulesets.
 Each ruleset consists of a key value and its associated set of rules.
 Callers of the expansion service provide a key and a value to be expanded.
@@ -42,6 +44,15 @@ The result is returned to the caller.
 
 |===
 
+.Included Expansions
+Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
+In the example `Location:Goodyear` would expand to `Goodyear AZ USA` and `Title:VP-Sales` would expand to `VP-Sales VP Sales`.
+
+To use the expansion service, modify the following two files within the `${home_directory}/etc/pdp` directory:
+
+* `${home_directory}/etc/pdp/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
+* `${home_directory}/etc/pdp/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
+
 The examples below use the following collection of rulesets:
 
 .Expansion Service Example Ruleset
@@ -70,5 +81,104 @@ The examples below use the following collection of rulesets:
 
 |===
 
-Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
-In the example `Location:Goodyear` would expand to `Goodyear AZ USA` and `Title:VP-Sales` would expand to `VP-Sales VP Sales`.
+It is expected that multiple instances of the expansion service will be running at the same time.
+Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service.
+There are two pre-defined instances used by ${ddf-branding}: one for expanding user attributes and one for metacard attributes.
+
+[cols="1,3,5" options="header"]
+|===
+|Property Name
+|Value
+|Description
+
+|mapping
+|`security.user.attribute.mapping`
+|This instance is configured with rules that expand the user's attribute values for security checking.
+
+|mapping
+|`security.metacard.attribute.mapping`
+|This instance is configured with rules that expand the metacard's security attributes before comparing with the user's attributes.
+
+|===
+
+.Expansion Service Configuration Files
+Additional instance of the expansion service can be configured using a configuration file.
+The configuration file can have three different types of lines:
+
+comments:: any line prefixed with the `#` character is ignored as a comment (for readability, blank lines are also ignored)
+attribute separator:: a line starting with `separator=` defines the attribute separator string.
+rule:: all other lines are assumed to be rules defined in a string format `<key>:<original value>:<new value>`
+
+The following configuration file defines the rules shown above in the example table (using the space as a separator):
+
+.Sample Expansion Configuration File
+----
+# This defines the separator that will be used when the expansion string contains multiple
+# values - each will be separated by this string. The expanded string will be split at the
+# separator string and each resulting attribute added to the attribute set (duplicates are
+# suppressed). No value indicates the default value of ' ' (space).
+separator=
+
+# The following rules define the attribute expansion to be performed. The rules are of the
+# form:
+#       <attribute name>:<original value>:<expanded value>
+# The rules are ordered, so replacements from the first rules may be found in the original
+# values of subsequent rules.
+Location:Goodyear:Goodyear AZ
+Location:AZ:AZ USA
+Location:CA:CA USA
+Title:VP-Sales:VP-Sales VP Sales
+Title:VP-Engineering:VP-Engineering VP Engineering
+----
+
+.Expansion Commands
+${branding} includes commands to work with the Expansion service.
+
+.Included Expansion Commands
+[cols="2,1,4" options="header"]
+|===
+
+|Title
+|Namespace
+|Description
+
+|${ddf-branding}::Security::Expansion::Commands
+|security
+|The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active ruleset.
+|===
+
+[cols="2m,3,3m,5m"]
+|===
+|Command
+|Description
+|Sample Input
+|Results
+
+.3+|security:expand
+.3+|Runs the expansion service on the provided data returning the expanded value.
+It takes an attribute and an original value, expands the original value using the current expansion service and ruleset and dumps the results.
+|${branding-lowercase}${at-symbol}local>security:expand Location Goodyear
+|[Goodyear, USA, AZ]
+
+|${branding-lowercase}${at-symbol}local>security:expand Title VP-Engineering
+|`[VP-Engineering, Engineering, VP]`
+
+|${branding-lowercase}${at-symbol}local>expand Title "VP-Engineering Manager"
+|`[VP-Engineering, Engineering, VP, Manager]`
+
+.2+|security:expansions
+.2+|Displays the ruleset for each active expansion service.
+|Expansion service configured:
+
+${branding-lowercase}${at-symbol}local>security:expansions
+|[Location : Goodyear : Goodyear AZ +
+Location : AZ : AZ USA +
+Location : CA : CA USA +
+Title : VP-Sales : VP-Sales VP Sales +
+Title : VP-Engineering : VP-Engineering VP Engineering]
+
+|No active expansion service:
+
+${branding-lowercase}${at-symbol}local>security:expansions
+|`No expansion services currently available.`
+|===

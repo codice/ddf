@@ -6,6 +6,8 @@
 :order: 02
 :summary: Security Encryption.
 
+== {title}
+
 The ${ddf-security} Encryption application offers an encryption framework and service implementation for other applications to use.
 This service is commonly used to encrypt and decrypt default passwords that are located within the metatype and ${admin-console}.
 

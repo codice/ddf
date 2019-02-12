@@ -5,13 +5,15 @@
 :order: 01
 :summary: Security Encryption implementation.
 
+== {title}
+
 The Security Encryption Implementation bundle contains all of the service implementations for the Encryption Framework and exports those implementations as services to the OSGi service registry.
 
-===== Installing Security Encryption Implementation
+=== Installing Security Encryption Implementation
 
 This bundle is installed by default as part of the `security-encryption` feature.
 Other projects are dependent on the services this bundle exports and it should not be uninstalled unless another security service implementation is being added.
 
-===== Configuring Security Encryption Implementation
+=== Configuring Security Encryption Implementation
 
 The Security Encryption Implementation has no configurable properties.

@@ -5,14 +5,16 @@
 :order: 01
 :summary: Security Core implementation.
 
+== {title}
+
 The Security Core Implementation contains the reference implementations for the Security Core API interfaces that come with the ${branding} distribution.
 
-===== Installing the Security Core Implementation
+=== Installing the Security Core Implementation
 
 The Security Core app installs this bundle by default.
 It is recommended to use this bundle as it contains the reference implementations for many classes used within the ${ddf-security} Framework.
 
-===== Configuring the Security Core Implementation
+=== Configuring the Security Core Implementation
 
 The Security Core Implementation has no configurable properties.
 

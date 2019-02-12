@@ -2,22 +2,18 @@
 <#list securityFrameworkIntros as sfi>
 <#if (sfi.status == "published")>
 
-== ${sfi.title}
-
 include::${sfi.file}[]
 
 <#list securityFrameworks?sort_by("order") as securityFramework>
 
-<#if (securityFramework.status == "published") && (sfi.children?contains (securityFramework.parent))>
-=== ${securityFramework.title}
+<#if (securityFramework.status == "published") && (securityFramework.parent == sfi.title)>
 
-include::${securityFramework.file}[]
+include::${securityFramework.file}[leveloffset=+1]
 
 <#list subSecurityFrameworks?sort_by("order") as subSecurityFramework>
-<#if (subSecurityFramework.status == "published") && (securityFramework.title?contains (subSecurityFramework.parent))>
-==== ${subSecurityFramework.title}
+<#if (subSecurityFramework.status == "published") && (subSecurityFramework.parent == securityFramework.title)>
 
-include::${subSecurityFramework.file}[]
+include::${subSecurityFramework.file}[leveloffset=+2]
 
 </#if>
 </#list>

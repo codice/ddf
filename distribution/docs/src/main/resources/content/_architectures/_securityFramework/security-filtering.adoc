@@ -6,6 +6,8 @@
 :order: 07
 :summary: Intro to security filtering.
 
+== {title}
+
 Metacard filtering is performed by the <<{developing-prefix}filter_plugin,Filter Plugin>> after a query has been performed, but before the results are returned to the requestor.
 
 Each metacard result will contain security attributes that are populated by the CatalogFramework based on the PolicyPlugins (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.

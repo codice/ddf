@@ -5,10 +5,12 @@
 :order: 02
 :summary: Security Core commons.
 
+== {title}
+
 The Security Core Commons bundle contains helper and utility classes that are used within ${branding} to help with performing common security operations.
 Most notably, this bundle contains the `ddf.security.common.audit.SecurityLogger` class that performs the security audit logging within ${branding}.
 
-===== Configuring the Security Core Commons
+=== Configuring the Security Core Commons
 
 The Security Core Commons bundle has no configurable properties.
 

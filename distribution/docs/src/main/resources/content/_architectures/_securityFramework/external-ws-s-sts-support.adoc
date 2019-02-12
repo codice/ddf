@@ -1,16 +1,17 @@
-:type: securitySts
+:type: subSecurityFramework
 :status: published
 :title: External/WS-S STS Support
 :link: _external_ws_s_sts_support
+:parent: Security Token Service
 :order: 02
 
-===== Security STS WSS
+== {title}
 
 This configuration works just like the STS Client Config for the internal STS, but produces standard requests instead of the custom ${branding} ones.
 It supports two new auth types for the context policy manager, WSSBASIC and WSSPKI.
 Use these auth types when connecting to a non-${branding} STS or if ignoring realms.
 
-===== Security STS Address Provider
+=== Security STS Address Provider
 
 This allows one to select which STS address will be used (e.g. in SOAP sources) for clients of this service.
 Default is off (internal).

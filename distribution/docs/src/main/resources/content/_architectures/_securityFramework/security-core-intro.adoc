@@ -2,8 +2,9 @@
 :type: securityFramework
 :status: published
 :parent: Security Framework
-:children: Security Core API, Security Core Implementations
 :order: 01
 :summary: Security Core application.
+
+== {title}
 
 The Security Core application contains all of the necessary components that are used to perform security operations (authentication, authorization, and auditing) required in the framework.

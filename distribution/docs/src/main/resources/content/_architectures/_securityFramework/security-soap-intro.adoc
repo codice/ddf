@@ -5,6 +5,8 @@
 :order: 01
 :summary: Securing SOAP.
 
+== {title}
+
 [ditaa,soap_security_flow,png]
 ....
 +--------------------------------------------------------------------------------------------+
@@ -72,13 +74,13 @@
 +--------------------------------------------------------------------------------------------+
 ....
 
-===== SOAP Secure Client
+=== SOAP Secure Client
 
 When calling to an endpoint from a SOAP secure client, it first requests the WSDL from the endpoint and the SOAP endpoint returns the WSDL.
 The client then calls to STS for authentication token to proceed.
 If the client receives the token, it makes a secure call to the endpoint and receives results.
 
-===== Policy-unaware SOAP Client
+=== Policy-unaware SOAP Client
 
 If calling an endpoint from a non-secure client, at the point the of the initial call, the Guest Interceptor catches the request and prepares it to be accepted by the endpoint.
 

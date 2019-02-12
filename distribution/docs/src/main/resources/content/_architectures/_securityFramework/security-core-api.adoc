@@ -5,14 +5,16 @@
 :order: 00
 :summary: Security Core API.
 
+== {title}
+
 The Security Core API contains all of the ${branding} APIs that are used to perform security operations within ${branding}.
 
-===== Installing the Security Core API
+=== Installing the Security Core API
 
 The Security Services App installs the Security Core API by default.
 Do not uninstall the Security Core API as it is integral to system function and all of the other security services depend upon it.
 
-===== Configuring the Security Core API
+=== Configuring the Security Core API
 
 The Security Core API has no configurable properties.
 
