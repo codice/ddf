@@ -43,6 +43,9 @@
         <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.14"
                 replacement="mvn:org.apache.felix/org.apache.felix.scr/${felix.scr.version}"
                 mode="maven"/>
+        <bundle originalUri="mvn:org.apache.aries.proxy/org.apache.aries.proxy/1.1.3"
+                replacement="mvn:org.apache.aries.proxy/org.apache.aries.proxy/1.1.4"
+                mode="maven"/>
     </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->
