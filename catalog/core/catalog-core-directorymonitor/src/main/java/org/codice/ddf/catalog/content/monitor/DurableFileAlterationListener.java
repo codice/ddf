@@ -71,6 +71,7 @@ public class DurableFileAlterationListener
     }
   }
 
+  @Override
   public void onFileChange(File file, Synchronization cb) {
     filesWatcher.watch(new FileWatcher(file, (e) -> fileUpdate(e, cb)));
   }
@@ -98,6 +99,7 @@ public class DurableFileAlterationListener
     consumer.submitExchange(exchange);
   }
 
+  @Override
   public void onFileCreate(File file, Synchronization cb) {
     filesWatcher.watch(new FileWatcher(file, (e) -> fileCreate(e, cb)));
   }
@@ -118,6 +120,7 @@ public class DurableFileAlterationListener
     consumer.submitExchange(exchange);
   }
 
+  @Override
   public void onFileDelete(File file, Synchronization cb) {
     String referenceKey = file.toURI().toASCIIString();
     String metacardId =
