@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A regex-based processor for identifying potential UTM/UPS coordinate literals in a given input
- * string despite deviations from the official spec. The general policy is to be as forgiving as
- * possible without sacrificing determinism.
+ * A regex-based processor for identifying potential DMS coordinate literals in a given input string
+ * despite deviations from the official spec. The general policy is to be as forgiving as possible
+ * without sacrificing determinism.
  */
 public class DmsCoordinateProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(DmsCoordinateProcessor.class);
@@ -41,10 +42,10 @@ public class DmsCoordinateProcessor {
       "\\D*(" + MINUTES_SECONDS_REGEX_STRING + ")\\D*(" + MINUTES_SECONDS_REGEX_STRING + ")\\D*";
 
   private static final String DMS_LAT_REGEX_STRING =
-      "\\D*(" + DEGREES_LAT_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([NS])\\D*";
+      "\\D*(" + DEGREES_LAT_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([NnSs])\\D*";
 
   private static final String DMS_LON_REGEX_STRING =
-      "\\D*(" + DEGREES_LON_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([EW])\\D*";
+      "\\D*(" + DEGREES_LON_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([EeWw])\\D*";
 
   private static final int DEGREES_LAT_GROUP = 1;
   private static final int MINUTES_LAT_GROUP = 2;
@@ -59,22 +60,22 @@ public class DmsCoordinateProcessor {
   private static final Pattern PATTERN_DMS_COORDINATE =
       Pattern.compile(DMS_LAT_REGEX_STRING + DMS_LON_REGEX_STRING);
 
-  //          Pattern.compile(
-  //                  "("
-  //                          + UsngCoordinate.ZONE_REGEX_STRING
-  //                          + ")"
-  //                          + UsngCoordinate.LATITUDE_BAND_PART_ONE_REGEX_STRING
-  //                          + "?( )+(\\d){1,6}(me)?( )+(\\d{1,7}|10000000)(mn)?",
-  //                  Pattern.CASE_INSENSITIVE);
-
   private static class CoordinateTranslator {
 
     private static LatLon dmsToLatLon(String dmsString) {
       Map<String, Object> dmsLat = new HashMap<String, Object>();
       Map<String, Object> dmsLon = new HashMap<String, Object>();
-
       parseDms(dmsLat, dmsLon, dmsString);
-      return toLatLon(dmsLat, dmsLon);
+
+      boolean dmsLatExists =
+          dmsLat.containsKey("degrees")
+              && dmsLat.containsKey("minutes")
+              && dmsLat.containsKey("seconds");
+      boolean dmsLonExists =
+          dmsLon.containsKey("degrees")
+              && dmsLon.containsKey("minutes")
+              && dmsLon.containsKey("seconds");
+      return (dmsLatExists && dmsLonExists) ? toLatLon(dmsLat, dmsLon) : null;
     }
 
     private static void parseDms(
@@ -107,7 +108,7 @@ public class DmsCoordinateProcessor {
             .append("\'")
             .append(dmsPart.get("seconds"))
             .append("\"")
-            .append(dmsPart.get("direction") + " ");
+            .append(dmsPart.get("direction").toString().toUpperCase() + " ");
       }
       return dmsBuilder.toString().trim();
     }
@@ -117,7 +118,9 @@ public class DmsCoordinateProcessor {
       Double lat = toDecimalDegrees(dmsLat);
       Double lon = toDecimalDegrees(dmsLon);
 
-      return new LatLon(lat, lon);
+      return (LatLon.isValidLatitude(lat) && LatLon.isValidLongitude(lon))
+          ? new LatLon(lat, lon)
+          : null;
     }
 
     private static Double toDecimalDegrees(Map<String, Object> dms) {
@@ -139,52 +142,40 @@ public class DmsCoordinateProcessor {
    * @param query the user-provided gazetteer query text, which may contain coordinate literals.
    */
   public void enhanceResults(final List<Suggestion> results, final String query) {
-    LOGGER.trace("(UTM/UPS) Adding result for query [{}]", query);
-    LatLon parsedDms = CoordinateTranslator.dmsToLatLon(query);
+    LOGGER.trace("(DMS) Adding result for query [{}]", query);
 
     LiteralSuggestion dmsSuggestion = getDmsSuggestion(query);
-
-    results.add(dmsSuggestion);
+    if (dmsSuggestion != null && dmsSuggestion.hasGeo()) {
+      LOGGER.trace("Adding the DMS suggestion to results [{}]", dmsSuggestion);
+      results.add(dmsSuggestion);
+    }
+    LOGGER.trace("(DMS) Done");
   }
 
   private LiteralSuggestion getDmsSuggestion(final String query) {
+    final List<LatLon> dmsCoordinates = new ArrayList<>();
     final Matcher matcher = PATTERN_DMS_COORDINATE.matcher(query);
     final StringBuilder nameBuilder = new StringBuilder("DMS:");
-    matcher.find();
-    LatLon parsedDms = CoordinateTranslator.dmsToLatLon(matcher.group());
 
-    nameBuilder
-        .append(" [ ")
-        .append(CoordinateTranslator.normalizedDmsString(matcher.group()))
-        .append(" ]");
+    int start = 0;
+    while (matcher.find()) {
+
+      LatLon parsedDms = CoordinateTranslator.dmsToLatLon(query.substring(start, matcher.end()));
+      start = matcher.end();
+      if (parsedDms != null) {
+        dmsCoordinates.add(parsedDms);
+        nameBuilder
+            .append(" [ ")
+            .append(CoordinateTranslator.normalizedDmsString(matcher.group()))
+            .append(" ]");
+      }
+    }
+    if (dmsCoordinates.isEmpty()) {
+      LOGGER.trace("No valid DMS strings could be inferred from query [{}]", query);
+      return null;
+    }
     LiteralSuggestion dmsSuggestion =
-        new LiteralSuggestion(
-            LITERAL_SUGGESTION_ID, nameBuilder.toString(), Arrays.asList(parsedDms));
+        new LiteralSuggestion(LITERAL_SUGGESTION_ID, nameBuilder.toString(), dmsCoordinates);
     return dmsSuggestion;
   }
-  /*final StringBuilder nameBuilder = new StringBuilder("UTM/UPS:");
-  final List<UtmUpsCoordinate> utmUpsCoords = new ArrayList<>();
-    while (matcher.find()) {
-    final String group = matcher.group();
-    LOGGER.trace("Match found [{}]", group);
-    final String utmOrUpsText = normalizeCoordinate(group);
-    final UtmUpsCoordinate utmUps = parseUtmUpsString(utmOrUpsText);
-    if (utmUps != null) {
-      nameBuilder.append(" [ ").append(utmUps.toString()).append(" ]");
-      utmUpsCoords.add(utmUps);
-    }
-  }
-    if (utmUpsCoords.isEmpty()) {
-    LOGGER.trace("No valid UTM or UPS strings could be inferred from query [{}]", query);
-    return null;
-  }
-    return new LiteralSuggestion(
-          LITERAL_SUGGESTION_ID,
-          nameBuilder.toString(),
-        utmUpsCoords
-                .stream()
-                .map(this::toLatLon)
-            .filter(Objects::nonNull)
-            .map(d -> new LatLon(d.getLat(), d.getLon()))
-          .collect(Collectors.toList()));*/
 }
