@@ -75,7 +75,8 @@ public class AsyncFileAlterationObserver {
 
   public void store(ObjectPersistentStore objectPersistentStore) {
     if (objectPersistentStore == null) {
-      throw new IllegalArgumentException("Cannot store this object without a store");
+      throw new IllegalArgumentException(
+          "Cannot store this object without an ObjectPersistentStore");
     }
     objectPersistentStore.store(rootFile.getName(), rootFile);
   }
@@ -119,8 +120,7 @@ public class AsyncFileAlterationObserver {
 
     //  You cannot change listeners in the middle of executions.
     //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
-    // the
-    //  one we had when we started the method.
+    //  the one we had when we started the method.
     AsyncFileAlterationListener listenerCopy;
     synchronized (listenerLock) {
       if (listener == null) {
