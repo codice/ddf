@@ -30,7 +30,6 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.Describable;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,7 +39,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang.Validate;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
@@ -174,19 +172,22 @@ public class SourceOperations extends DescribableImpl {
   //
   public Set<String> getSourceIds(boolean fanoutEnabled) {
     Set<String> ids = new TreeSet<>();
+
     ids.add(getId());
     if (!fanoutEnabled) {
-      Stream<String> tempStream =
-          frameworkProperties.getFederatedSources().stream().map(Describable::getId);
-      if (LOGGER.isDebugEnabled()) {
-        List<String> duplicates =
-            new ArrayList<>(
-                tempStream.collect(Collectors.groupingBy(e -> e, Collectors.counting())).keySet());
-        for (String dup : duplicates) {
-          LOGGER.debug("Multiple FederatedSources found for id: {}", dup);
-        }
-      }
-      ids.addAll(tempStream.collect(Collectors.toSet()));
+      List<String> tempList =
+          frameworkProperties
+              .getFederatedSources()
+              .stream()
+              .map(Describable::getId)
+              .collect(Collectors.toList());
+
+      tempList.forEach(
+          e -> {
+            if (!ids.add(e)) {
+              LOGGER.debug("Multiple FederatedSources found for id: {}", e);
+            }
+          });
     }
     return ids;
   }
