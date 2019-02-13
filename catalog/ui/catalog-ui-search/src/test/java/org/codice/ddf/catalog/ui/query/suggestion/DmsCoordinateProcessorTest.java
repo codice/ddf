@@ -18,8 +18,10 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -33,7 +35,7 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "28°56\'26\"N 117°38\'11\"W",
         "DMS: [ 28°56'26\"N 117°38'11\"W ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(new LatLon(28.940555, -117.636388)));
   }
 
   @Test
@@ -41,7 +43,7 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "*28^&*56(*&26\\N 117°38s11:OW",
         "DMS: [ 28°56'26\"N 117°38'11\"W ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(new LatLon(28.940555, -117.636388)));
   }
 
   @Test
@@ -49,7 +51,7 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "28 56 26 N 117 38 11 W",
         "DMS: [ 28°56'26\"N 117°38'11\"W ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(new LatLon(28.940555, -117.636388)));
   }
 
   @Test
@@ -57,7 +59,7 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "90°00\'00\"N 117°38\'11\"W",
         "DMS: [ 90°00'00\"N 117°38'11\"W ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(new LatLon(90.0, -117.636388)));
   }
 
   @Test
@@ -65,7 +67,7 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "28°56\'26\"N 180°00\'00\"W",
         "DMS: [ 28°56'26\"N 180°00'00\"W ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(new LatLon(28.940555, -180.0)));
   }
 
   @Test
@@ -73,7 +75,7 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "0°0\'0\"S 0°0\'0\"E",
         "DMS: [ 00°00'00\"S 000°00'00\"E ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(new LatLon(0.0, 0.0)));
   }
 
   @Test
@@ -131,7 +133,10 @@ public class DmsCoordinateProcessorTest {
     assertSuggestion(
         "28°56\'26\"N 117°38\'11\"W 28°56\'26\"S 117°38\'11\"W 28°56\'26\"N 117°38\'11\"E",
         "DMS: [ 28°56'26\"N 117°38'11\"W ] [ 28°56'26\"S 117°38'11\"W ] [ 28°56'26\"N 117°38'11\"E ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        ImmutableList.of(
+            new LatLon(28.940555, -117.636388),
+            new LatLon(-28.940555, -117.636388),
+            new LatLon(28.940555, 117.636388)));
   }
 
   private void assertSuggestionDoesNotExist(String query) {
@@ -150,6 +155,23 @@ public class DmsCoordinateProcessorTest {
     assertThat(literalSuggestion.getId(), is("LITERAL-DMS"));
     assertThat(literalSuggestion.getName(), is(expectedName));
     assertThat(literalSuggestion.hasGeo(), is(true));
-    //    assertThat(literalSuggestion.getGeo(), is(equalTo(expectedGeo)));
+
+    List<LatLon> actualGeo = literalSuggestion.getGeo();
+    List<LatLon> diff = new ArrayList<>();
+    assertThat(
+        "Actual geo and expected geo are the same size",
+        actualGeo.size(),
+        is(equalTo(expectedGeo.size())));
+    for (int i = 0; i < expectedGeo.size(); i++) {
+      LatLon actual = actualGeo.get(i);
+      LatLon expected = expectedGeo.get(i);
+      Double latDiff = actual.getLat() - expected.getLat();
+      Double lonDiff = actual.getLon() - expected.getLon();
+
+      if (Math.abs(latDiff) > 0.00001 || Math.abs(lonDiff) > 0.00001) {
+        diff.add(actual);
+      }
+    }
+    assertThat("Actual geo is the same as the expected geo", diff, is(empty()));
   }
 }

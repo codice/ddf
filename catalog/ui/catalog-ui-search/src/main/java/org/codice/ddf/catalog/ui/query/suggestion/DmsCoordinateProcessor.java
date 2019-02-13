@@ -122,9 +122,10 @@ public class DmsCoordinateProcessor {
     }
 
     private static LatLon toLatLon(Map<String, Object> dmsLat, Map<String, Object> dmsLon) {
-
-      Double lat = toDecimalDegrees(dmsLat);
-      Double lon = toDecimalDegrees(dmsLon);
+      int latModifier = dmsLat.get("direction").toString().toUpperCase().equals("N") ? 1 : -1;
+      int lonModifier = dmsLon.get("direction").toString().toUpperCase().equals("E") ? 1 : -1;
+      Double lat = toDecimalDegrees(dmsLat) * latModifier;
+      Double lon = toDecimalDegrees(dmsLon) * lonModifier;
 
       return (LatLon.isValidLatitude(lat) && LatLon.isValidLongitude(lon))
           ? new LatLon(lat, lon)
