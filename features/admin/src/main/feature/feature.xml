@@ -112,6 +112,7 @@
         <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
 
         <feature>camel-blueprint</feature>
+        <feature>camel-quartz2</feature>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
     </feature>
 
