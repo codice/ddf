@@ -175,19 +175,16 @@ public class SourceOperations extends DescribableImpl {
 
     ids.add(getId());
     if (!fanoutEnabled) {
-      List<String> tempList =
-          frameworkProperties
-              .getFederatedSources()
-              .stream()
-              .map(Describable::getId)
-              .collect(Collectors.toList());
-
-      tempList.forEach(
-          e -> {
-            if (!ids.add(e)) {
-              LOGGER.debug("Multiple FederatedSources found for id: {}", e);
-            }
-          });
+      frameworkProperties
+          .getFederatedSources()
+          .stream()
+          .map(Describable::getId)
+          .forEach(
+              e -> {
+                if (!ids.add(e)) {
+                  LOGGER.debug("Multiple FederatedSources found for id: {}", e);
+                }
+              });
     }
     return ids;
   }
