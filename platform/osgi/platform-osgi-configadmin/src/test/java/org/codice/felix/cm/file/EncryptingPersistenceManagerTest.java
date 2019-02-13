@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -27,9 +26,11 @@ import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
+import ddf.security.SecurityConstants;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.apache.felix.cm.PersistenceManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,29 +66,27 @@ public class EncryptingPersistenceManagerTest {
 
   @Mock private PersistenceManager mockManager;
 
-  private String pwDirectory;
-
   @Before
   public void setup() throws Exception {
-    pwDirectory = temporaryFolder.newFolder().getAbsolutePath();
+    temporaryFolder.create();
+    String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
+    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
+    System.setProperty(
+        SecurityConstants.ASSOCIATED_DATA_PATH,
+        associatedDataHome.concat("/associatedData.properties"));
   }
 
-  @Test
-  public void testKeysetReusability() throws Exception {
-    final EncryptingPersistenceManager persistenceManager1 =
-        new EncryptingPersistenceManager(mockManager, pwDirectory);
-    final EncryptingPersistenceManager persistenceManager2 =
-        new EncryptingPersistenceManager(mockManager, pwDirectory);
-
-    assertEquals(
-        persistenceManager1.agent.keysetHandle.getKeysetInfo(),
-        persistenceManager2.agent.keysetHandle.getKeysetInfo());
+  @After
+  public void cleanup() throws Exception {
+    temporaryFolder.delete();
+    System.clearProperty(SecurityConstants.KEYSET_DIR);
+    System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
   @Test
   public void testPropertyEncryptionRoundTrip() throws Exception {
-    EncryptingPersistenceManager persistenceManager =
-        new EncryptingPersistenceManager(mockManager, pwDirectory);
+    EncryptingPersistenceManager persistenceManager = new EncryptingPersistenceManager(mockManager);
 
     ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
     persistenceManager.store(PID, TEST_PROPS);

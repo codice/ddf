@@ -43,9 +43,6 @@ public final class SecurityConstants {
   /** Property key to obtain the legacy saml cookie from an incoming HTTP Request */
   public static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
-  /** Property key to obtain the legacy saml cookie reference from an incoming HTTP request */
-  public static final String SAML_COOKIE_REF = "or.codice.websso.saml.ref";
-
   /** Name of the header containing the saml assertion for HTTP requests/responses */
   public static final String SAML_HEADER_NAME = "Authorization";
 
@@ -63,6 +60,10 @@ public final class SecurityConstants {
   public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
 
   public static final String TRUSTSTORE_TYPE = "javax.net.ssl.trustStoreType";
+
+  public static final String KEYSET_DIR = "keyset.dir";
+
+  public static final String ASSOCIATED_DATA_PATH = "associated.data.path";
 
   /**
    * Helper method for retrieving the keystore

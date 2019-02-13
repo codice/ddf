@@ -22,72 +22,41 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.File;
-import java.nio.file.Files;
-import org.apache.commons.io.FileUtils;
+import ddf.security.SecurityConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EncryptionServiceImplTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImplTest.class);
 
-  private static File ddfHome;
+  private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
-    ddfHome = Files.createTempDirectory("encrypt").toFile();
-    System.setProperty("ddf.home", ddfHome.getAbsolutePath());
-    System.setProperty("ddf.etc", ddfHome.getAbsolutePath().concat("/etc"));
-    String path = new File(System.getProperty("ddf.etc").concat("/certs")).getCanonicalPath();
-    new File(path).mkdirs();
+    TEMPORARY_FOLDER.create();
+    String keysetHome = TEMPORARY_FOLDER.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = TEMPORARY_FOLDER.newFolder("etc").getAbsolutePath();
+    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
+    System.setProperty(
+        SecurityConstants.ASSOCIATED_DATA_PATH,
+        associatedDataHome.concat("/associatedData.properties"));
   }
 
   @After
   public void cleanUp() throws Exception {
-    FileUtils.deleteDirectory(ddfHome);
+    TEMPORARY_FOLDER.delete();
+    System.clearProperty(SecurityConstants.KEYSET_DIR);
+    System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
-  @Test
+  @Test(expected = RuntimeException.class)
   public void testBadSetup() throws Exception {
-    System.setProperty("ddf.etc", ddfHome.getAbsolutePath() + System.nanoTime());
-    final String unencryptedPassword = "protect";
-
-    final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-
-    final String encryptedPassword = encryptionService.encrypt(unencryptedPassword);
-    assertEquals(encryptedPassword, unencryptedPassword);
-
-    final String decryptedPassword = encryptionService.decrypt(encryptedPassword);
-    assertEquals(decryptedPassword, encryptedPassword);
-
-    final String wrappedPassword = "ENC(" + unencryptedPassword + ")";
-    final String unWrappedDecryptedPassword = encryptionService.decryptValue(wrappedPassword);
-
-    assertEquals(unWrappedDecryptedPassword, unencryptedPassword);
-  }
-
-  @Test
-  public void testKeysetReusability() throws Exception {
-    final EncryptionServiceImpl encryptionService1 = new EncryptionServiceImpl();
-    final EncryptionServiceImpl encryptionService2 = new EncryptionServiceImpl();
-
-    assertEquals(
-        encryptionService1.keysetHandle.getKeysetInfo(),
-        encryptionService2.keysetHandle.getKeysetInfo());
-
-    final String unencryptedPassword = "protect";
-
-    String encryptedPassword1 = encryptionService1.encrypt(unencryptedPassword);
-    String encryptedPassword2 = encryptionService2.encrypt(unencryptedPassword);
-
-    String plainPassword1 = encryptionService1.decrypt(encryptedPassword2);
-    String plainPassword2 = encryptionService2.decrypt(encryptedPassword1);
-
-    assertEquals(unencryptedPassword, plainPassword1);
-    assertEquals(unencryptedPassword, plainPassword2);
+    System.setProperty(SecurityConstants.KEYSET_DIR, "!@#$%^&*()");
+    new EncryptionServiceImpl();
   }
 
   @Test
@@ -108,6 +77,40 @@ public class EncryptionServiceImplTest {
   }
 
   @Test
+  public void testEncryptionServiceInteroperability() throws Exception {
+    final EncryptionServiceImpl encryptionService1 = new EncryptionServiceImpl();
+    final EncryptionServiceImpl encryptionService2 = new EncryptionServiceImpl();
+
+    final String unencryptedPassword = "protect";
+
+    String encryptedPassword1 = encryptionService1.encrypt(unencryptedPassword);
+    String encryptedPassword2 = encryptionService2.encrypt(unencryptedPassword);
+
+    String plainPassword1 = encryptionService1.decrypt(encryptedPassword2);
+    String plainPassword2 = encryptionService2.decrypt(encryptedPassword1);
+
+    assertEquals(unencryptedPassword, plainPassword1);
+    assertEquals(unencryptedPassword, plainPassword2);
+  }
+
+  @Test
+  public void testWrappingAndEncrypting() {
+    final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
+    final String wrappedEncryptedValue = encryptionService.encryptValue("test");
+    assertThat(wrappedEncryptedValue, startsWith("ENC"));
+    assertThat(wrappedEncryptedValue, endsWith(")"));
+  }
+
+  @Test
+  public void testEncryptValueWithEmptyAndNull() {
+    final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
+    String encryptedNull = encryptionService.encryptValue(null);
+    assertThat(encryptedNull, is(nullValue()));
+    String encryptedEmpty = encryptionService.encryptValue("");
+    assertThat(encryptedEmpty, equalTo(""));
+  }
+
+  @Test
   public void testUnwrapDecrypt() throws Exception {
     final String expectedDecryptedValue = "test";
     final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
@@ -121,14 +124,6 @@ public class EncryptionServiceImplTest {
     LOGGER.debug("Unwrapped decrypted value is: {}", decryptedValue);
 
     assertEquals(expectedDecryptedValue, decryptedValue);
-  }
-
-  @Test
-  public void testWrappingAndEncrypting() {
-    final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-    final String wrappedEncryptedValue = encryptionService.encryptValue("test");
-    assertThat(wrappedEncryptedValue, startsWith("ENC"));
-    assertThat(wrappedEncryptedValue, endsWith(")"));
   }
 
   @Test
@@ -169,14 +164,5 @@ public class EncryptionServiceImplTest {
     LOGGER.debug("Unwrapped decrypted value is: {}", decryptedValue);
 
     assertEquals(wrappedEncryptedValue, decryptedValue);
-  }
-
-  @Test
-  public void testEncryptValueWithEmptyAndNull() {
-    final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-    String encryptedNull = encryptionService.encryptValue(null);
-    assertThat(encryptedNull, is(nullValue()));
-    String encryptedEmpty = encryptionService.encryptValue("");
-    assertThat(encryptedEmpty, equalTo(""));
   }
 }
