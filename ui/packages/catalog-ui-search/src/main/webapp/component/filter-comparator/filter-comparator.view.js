@@ -20,13 +20,15 @@ const template = require('./filter-comparator.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
-const geometryComparators = ['INTERSECTS', 'IS EMPTY']
-const geometryComparatorsAnyGeo = ['INTERSECTS']
-const dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN', 'IS EMPTY']
-const stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR', 'IS EMPTY']
-const stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
-const numberComparators = ['>', '<', '=', '>=', '<=', 'IS EMPTY']
-const booleanComparators = ['=', 'IS EMPTY']
+import {
+  geometryComparators,
+  geometryComparatorsAnyGeo,
+  dateComparators,
+  stringComparators,
+  stringComparatorsAnyText,
+  numberComparators,
+  booleanComparators,
+} from '../filter/comparators'
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -55,16 +57,18 @@ module.exports = Marionette.ItemView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   serializeData: function() {
+    let comparators
     switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
       case 'LOCATION':
       case 'GEOMETRY':
-        if (geometryComparators.indexOf(this.model.get('comparator')) === -1) {
-          this.model.set('comparator', geometryComparators[0])
+        comparators =
+          this.model.get('type') === 'anyGeo'
+            ? geometryComparatorsAnyGeo
+            : geometryComparators
+        if (comparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', comparators[0])
         }
-        if (this.model.get('type') === 'anyGeo') {
-          return geometryComparatorsAnyGeo
-        }
-        return geometryComparators
+        return comparators
       case 'DATE':
         if (dateComparators.indexOf(this.model.get('comparator')) === -1) {
           this.model.set('comparator', dateComparators[0])
@@ -85,21 +89,22 @@ module.exports = Marionette.ItemView.extend({
         }
         return numberComparators
       default:
-        if (stringComparators.indexOf(this.model.get('comparator')) === -1) {
-          this.model.set('comparator', stringComparators[0])
+        comparators =
+          this.model.get('type') === 'anyText'
+            ? stringComparatorsAnyText
+            : stringComparators
+        if (comparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', comparators[0])
         }
         if (this.model.get('isResultFilter')) {
           // if this view is being used as an ad hoc search results filter
           // (as opposed to a filter saved on a search), don't include
           // complex comparators like NEAR
-          return stringComparators.filter(function(comparator) {
+          comparators = comparators.filter(function(comparator) {
             return comparator !== 'NEAR'
           })
         }
-        if (this.model.get('type') === 'anyText') {
-          return stringComparatorsAnyText
-        }
-        return stringComparators
+        return comparators
     }
   },
 })

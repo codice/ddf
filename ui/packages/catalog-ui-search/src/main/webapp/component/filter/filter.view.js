@@ -29,12 +29,13 @@ const ValueModel = require('../value/value.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
-
-const geometryComparators = ['IS EMPTY', 'INTERSECTS']
-const dateComparators = ['IS EMPTY', 'BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN']
-const stringComparators = ['IS EMPTY', 'CONTAINS', 'MATCHCASE', '=', 'NEAR']
-const numberComparators = ['IS EMPTY', '>', '<', '=', '>=', '<=']
-const booleanComparators = ['IS EMPTY', '=']
+import {
+  geometryComparators,
+  dateComparators,
+  stringComparators,
+  numberComparators,
+  booleanComparators,
+} from './comparators'
 
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
@@ -153,15 +154,6 @@ module.exports = Marionette.LayoutView.extend({
     this.determineInput()
   },
   transformValue: function(value, comparator) {
-    const comparatorIndex = numberComparators.indexOf(
-      this.model.get('comparator')
-    )
-    if (comparatorIndex > 0) {
-      value[0] = 0
-    } else if (value[0] === null) {
-      value[0] = '*'
-    }
-
     switch (comparator) {
       case 'NEAR':
         if (value[0].constructor !== Object) {
@@ -309,10 +301,6 @@ module.exports = Marionette.LayoutView.extend({
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
     let type = this.model.get('type')
-    if (currentComparator === 'IS EMPTY') {
-      value = []
-      type = 'STRING'
-    }
     const propertyJSON = generatePropertyJSON(value, type, currentComparator)
     const ViewToUse = determineView(currentComparator)
     this.filterInput.show(
@@ -322,14 +310,15 @@ module.exports = Marionette.LayoutView.extend({
     )
 
     var isEditing = this.$el.hasClass('is-editing')
-    if (this.model.attributes.comparator === 'IS EMPTY') {
-      this.$el.find('filter-comparator').toggle()
-      this.$el.find('filter-input').toggle()
-    } else if (isEditing) {
+    if (isEditing) {
       this.turnOnEditing()
     } else {
       this.turnOffEditing()
     }
+    this.$el.toggleClass(
+      'is-empty',
+      this.model.get('comparator') === 'IS EMPTY'
+    )
     this.setDefaultComparator(propertyJSON)
   },
   getValue: function() {
