@@ -796,30 +796,32 @@ public class QueryOperations extends DescribableImpl {
           for (String id : sourceIds) {
             LOGGER.debug("Looking up source ID = {}", id);
 
-            final Optional<FederatedSource> fedSource =
+            final List<FederatedSource> fedSources =
                 frameworkProperties
                     .getFederatedSources()
                     .stream()
                     .filter(e -> e.getId().equals(id))
-                    .findFirst();
+                    .collect(Collectors.toList());
 
-            fedSource.ifPresent(
-                source -> {
-                  boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
-                  if (!canAccessSource) {
-                    notPermittedSources.add(source.getId());
-                  }
-                  if (source.isAvailable() && canAccessSource) {
-                    sourcesToQuery.add(source);
-                  } else {
-                    exceptions.add(queryOps.createUnavailableProcessingDetails(source));
-                  }
-                });
-
-            if (!fedSource.isPresent()) {
+            if (fedSources.isEmpty()) {
               exceptions.add(
                   new ProcessingDetailsImpl(
                       id, new SourceUnavailableException("Source id is not found")));
+            } else {
+              if (fedSources.size() != 1) {
+                LOGGER.debug("Multiple sources found for id: {}", id);
+              }
+              FederatedSource source = fedSources.get(0);
+
+              boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
+              if (!canAccessSource) {
+                notPermittedSources.add(source.getId());
+              }
+              if (source.isAvailable() && canAccessSource) {
+                sourcesToQuery.add(source);
+              } else {
+                exceptions.add(queryOps.createUnavailableProcessingDetails(source));
+              }
             }
           }
           if (!notPermittedSources.isEmpty()) {

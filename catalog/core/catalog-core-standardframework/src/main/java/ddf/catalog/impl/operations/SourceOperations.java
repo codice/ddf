@@ -216,20 +216,21 @@ public class SourceOperations extends DescribableImpl {
         for (String requestedSourceId : requestedSourceIds) {
           // Check if the requestedSourceId can be found in the known federatedSources
 
-          final Optional<FederatedSource> source =
+          final List<FederatedSource> sources =
               frameworkProperties
                   .getFederatedSources()
                   .stream()
                   .filter(e -> e.getId().equals(requestedSourceId))
-                  .findFirst();
+                  .collect(Collectors.toList());
 
-          source.ifPresent(
-              e -> {
-                LOGGER.debug("Found federated source: {}", requestedSourceId);
-                discoveredSources.add(e);
-              });
-
-          if (!source.isPresent()) {
+          if (!sources.isEmpty()) {
+            String logMsg =
+                (sources.size() == 1)
+                    ? "Found federated source: {}"
+                    : "Multiple FederatedSources found for id: {}";
+            LOGGER.debug(logMsg, requestedSourceId);
+            discoveredSources.add(sources.get(0));
+          } else {
             LOGGER.debug("Unable to find source: {}", requestedSourceId);
 
             // Check for the local catalog provider, DDF sourceId represents this

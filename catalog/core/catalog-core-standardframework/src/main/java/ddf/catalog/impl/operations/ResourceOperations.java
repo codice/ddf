@@ -57,8 +57,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.resource.download.DownloadException;
 import org.codice.ddf.configuration.SystemInfo;
@@ -363,17 +363,21 @@ public class ResourceOperations extends DescribableImpl {
         LOGGER.debug("Searching federatedSource {} for resource.", resourceSourceName);
         LOGGER.debug("metacard for product found on source: {}", resolvedSourceId);
 
-        final Optional<FederatedSource> source =
+        final List<FederatedSource> sources =
             frameworkProperties
                 .getFederatedSources()
                 .stream()
                 .filter(e -> e.getId().equals(resourceSourceName))
-                .findFirst();
+                .collect(Collectors.toList());
 
-        if (source.isPresent()) {
-          LOGGER.debug("Adding federated site to federated query: {}", source.get().getId());
-          LOGGER.debug("Retrieving product from remote source {}", source.get().getId());
-          retriever = new RemoteResourceRetriever(source.get(), responseURI, requestProperties);
+        if (!sources.isEmpty()) {
+          if (sources.size() != 1) {
+            LOGGER.debug("Found multiple federatedSources for id: {}", resourceSourceName);
+          }
+          FederatedSource source = sources.get(0);
+          LOGGER.debug("Adding federated site to federated query: {}", source.getId());
+          LOGGER.debug("Retrieving product from remote source {}", source.getId());
+          retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
         } else {
           LOGGER.debug("Could not find federatedSource: {}", resourceSourceName);
         }
@@ -732,17 +736,20 @@ public class ResourceOperations extends DescribableImpl {
       throws ResourceNotFoundException {
     LOGGER.trace("ENTERING: getOptionsFromFederatedSource");
 
-    final Optional<FederatedSource> source =
+    final List<FederatedSource> sources =
         frameworkProperties
             .getFederatedSources()
             .stream()
             .filter(e -> e.getId().equals(sourceId))
-            .findFirst();
+            .collect(Collectors.toList());
 
-    if (source.isPresent()) {
+    if (!sources.isEmpty()) {
+      if (sources.size() != 1) {
+        LOGGER.debug("Multiple FederatedSources found for id: {}", sourceId);
+      }
       LOGGER.trace("EXITING: getOptionsFromFederatedSource");
 
-      return source.get().getOptions(metacard);
+      return sources.get(0).getOptions(metacard);
     } else {
       String message = "Unable to find source corresponding to given site name: " + sourceId;
       LOGGER.trace("EXITING: getOptionsFromFederatedSource");

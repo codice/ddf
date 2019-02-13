@@ -21,9 +21,11 @@ import ddf.catalog.source.CatalogStore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Support class for working with {@code CatalogStore}s for the {@code CatalogFrameworkImpl}.
@@ -33,6 +35,9 @@ import org.apache.commons.collections.CollectionUtils;
  * catalog stores.
  */
 public class OperationsCatalogStoreSupport {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SourceOperations.class);
+
   // Inject properties
   private final FrameworkProperties frameworkProperties;
 
@@ -52,18 +57,22 @@ public class OperationsCatalogStoreSupport {
 
     List<CatalogStore> results = new ArrayList<>(request.getStoreIds().size());
     for (String destination : request.getStoreIds()) {
-      final Optional<CatalogStore> source =
+      final List<CatalogStore> sources =
           frameworkProperties
               .getCatalogStores()
               .stream()
               .filter(e -> e.getId().equals(destination))
-              .findFirst();
-      source.ifPresent(results::add);
+              .collect(Collectors.toList());
 
-      if (!source.isPresent()
+      if (sources.isEmpty()
           && (sourceOperations.getCatalog() == null
               || !destination.equals(sourceOperations.getCatalog().getId()))) {
         exceptions.add(new ProcessingDetailsImpl(destination, null, "CatalogStore does not exist"));
+      } else {
+        if (sources.size() != 1) {
+          LOGGER.debug("Multiple CatalogStores for id: {}", destination);
+        }
+        results.add(sources.get(0));
       }
     }
     return results;
