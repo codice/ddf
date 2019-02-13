@@ -34,10 +34,10 @@ public class DmsCoordinateProcessor {
 
   private static final Character SPACE_CHAR = ' ';
 
-  private static final String DEGREES_LAT_REGEX_STRING = "90|[1-8]?[0-9]";
-  private static final String DEGREES_LON_REGEX_STRING = "180|1[0-7][0-9]|[1-9]?[0-9]";
+  private static final String DEGREES_LAT_REGEX_STRING = "90|[0-8]?[0-9]";
+  private static final String DEGREES_LON_REGEX_STRING = "180|1[0-7][0-9]|0?[0-9]?[0-9]";
 
-  private static final String MINUTES_SECONDS_REGEX_STRING = "[1-5]?[0-9]";
+  private static final String MINUTES_SECONDS_REGEX_STRING = "[0-5]?[0-9]";
   private static final String DMS_MINUTES_SECONDS_REGEX_STRING =
       "\\D*(" + MINUTES_SECONDS_REGEX_STRING + ")\\D*(" + MINUTES_SECONDS_REGEX_STRING + ")\\D*";
 
@@ -86,11 +86,13 @@ public class DmsCoordinateProcessor {
         dmsLat.put("minutes", Integer.parseInt(matcher.group(MINUTES_LAT_GROUP)));
         dmsLat.put("seconds", Integer.parseInt(matcher.group(SECONDS_LAT_GROUP)));
         dmsLat.put("direction", matcher.group(DIRECTION_LAT_GROUP));
+        dmsLat.put("formattedDegrees", String.format("%02d", (int) dmsLat.get("degrees")));
 
         dmsLon.put("degrees", Integer.parseInt(matcher.group(DEGREES_LON_GROUP)));
         dmsLon.put("minutes", Integer.parseInt(matcher.group(MINUTES_LON_GROUP)));
         dmsLon.put("seconds", Integer.parseInt(matcher.group(SECONDS_LON_GROUP)));
         dmsLon.put("direction", matcher.group(DIRECTION_LON_GROUP));
+        dmsLon.put("formattedDegrees", String.format("%03d", (int) dmsLon.get("degrees")));
       }
     }
 
@@ -101,14 +103,20 @@ public class DmsCoordinateProcessor {
 
       final StringBuilder dmsBuilder = new StringBuilder();
       for (Map<String, Object> dmsPart : Arrays.asList(dmsLat, dmsLon)) {
+        final String degrees = dmsPart.get("formattedDegrees").toString();
+        final String minutes = String.format("%02d", (int) dmsPart.get("minutes"));
+        final String seconds = String.format("%02d", (int) dmsPart.get("seconds"));
+        final String direction = dmsPart.get("direction").toString().toUpperCase();
+
         dmsBuilder
-            .append(dmsPart.get("degrees"))
+            .append(degrees)
             .append("°")
-            .append(dmsPart.get("minutes"))
+            .append(minutes)
             .append("\'")
-            .append(dmsPart.get("seconds"))
+            .append(seconds)
             .append("\"")
-            .append(dmsPart.get("direction").toString().toUpperCase() + " ");
+            .append(direction)
+            .append(" ");
       }
       return dmsBuilder.toString().trim();
     }

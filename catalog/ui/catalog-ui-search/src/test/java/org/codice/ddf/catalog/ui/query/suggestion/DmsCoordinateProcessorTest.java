@@ -37,10 +37,42 @@ public class DmsCoordinateProcessorTest {
   }
 
   @Test
+  public void testDmsStringExtraneousSymbols() {
+    assertSuggestion(
+        "*28^&*56(*&26\\N 117°38s11:OW",
+        "DMS: [ 28°56'26\"N 117°38'11\"W ]",
+        ImmutableList.of(new LatLon(1.0, 2.0)));
+  }
+
+  @Test
   public void testDmsStringOnlyNumbers() {
     assertSuggestion(
         "28 56 26 N 117 38 11 W",
         "DMS: [ 28°56'26\"N 117°38'11\"W ]",
+        ImmutableList.of(new LatLon(1.0, 2.0)));
+  }
+
+  @Test
+  public void testDmsStringAtLatBoundary() {
+    assertSuggestion(
+        "90°00\'00\"N 117°38\'11\"W",
+        "DMS: [ 90°00'00\"N 117°38'11\"W ]",
+        ImmutableList.of(new LatLon(1.0, 2.0)));
+  }
+
+  @Test
+  public void testDmsStringAtLonBoundary() {
+    assertSuggestion(
+        "28°56\'26\"N 180°00\'00\"W",
+        "DMS: [ 28°56'26\"N 180°00'00\"W ]",
+        ImmutableList.of(new LatLon(1.0, 2.0)));
+  }
+
+  @Test
+  public void testDmsStringAllZeros() {
+    assertSuggestion(
+        "0°0\'0\"S 0°0\'0\"E",
+        "DMS: [ 00°00'00\"S 000°00'00\"E ]",
         ImmutableList.of(new LatLon(1.0, 2.0)));
   }
 
@@ -81,7 +113,12 @@ public class DmsCoordinateProcessorTest {
 
   @Test
   public void testDmsStringConvertedLatTooLarge() {
-    assertSuggestionDoesNotExist("90°59\'26\"N 117°38\'11\"W");
+    assertSuggestionDoesNotExist("90°00\'01\"N 117°38\'11\"W");
+  }
+
+  @Test
+  public void testDmsStringConvertedLonTooLarge() {
+    assertSuggestionDoesNotExist("28°56\'26\"N 180°00\'01\"W");
   }
 
   //  @Test
