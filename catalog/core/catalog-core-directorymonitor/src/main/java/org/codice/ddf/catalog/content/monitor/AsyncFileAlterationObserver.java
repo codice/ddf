@@ -62,11 +62,11 @@ public class AsyncFileAlterationObserver {
     rootFile.initialize();
   }
 
-  public static AsyncFileAlterationObserver load(String fileName, ObjectPersistentStore store) {
-    if (fileName == null || store == null) {
+  public static AsyncFileAlterationObserver load(File observedFile, ObjectPersistentStore store) {
+    if (observedFile == null || store == null) {
       throw new IllegalArgumentException("Arguments can not be null");
     }
-    AsyncFileEntry temp = store.load(fileName, AsyncFileEntry.class);
+    AsyncFileEntry temp = store.load(observedFile.getName(), AsyncFileEntry.class);
     if (temp == null) {
       return null;
     }
