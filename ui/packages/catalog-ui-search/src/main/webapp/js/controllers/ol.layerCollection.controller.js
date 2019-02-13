@@ -65,7 +65,7 @@ const WMT = async opts => {
   const result = parser.read(text)
 
   if (result.Contents.Layer.length === 0) {
-    throw new Error('WMT map layer source has no layers.')
+    throw new Error('WMTS map layer source has no layers.')
   }
 
   let { layer, matrixSet } = opts
@@ -86,7 +86,7 @@ const WMT = async opts => {
   })
 
   if (options === null) {
-    throw new Error('WMT map layer source could not be setup.')
+    throw new Error('WMTS map layer source could not be setup.')
   }
 
   return createTile(opts, () => new ol.source.WMTS(options))
