@@ -12,11 +12,11 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-const _ = require('underscore')
-const Marionette = require('marionette')
 const Cesium = require('cesium')
 const CommonLayerController = require('./common.layerCollection.controller.js')
 const properties = require('../properties.js')
+import { addLayer, shiftLayers, getShift } from './cesium.layer-ordering'
+import _ from 'underscore'
 
 const DEFAULT_HTTPS_PORT = 443
 const DEFAULT_HTTP_PORT = 80
@@ -43,55 +43,72 @@ var Controller = CommonLayerController.extend({
   makeMap: function(options) {
     // must create cesium map after containing DOM is attached.
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
+    this.layerOrder = []
 
     this.collection.forEach(function(model) {
-      var type = imageryProviderTypes[model.get('type')]
-      var initObj = _.omit(
-        model.attributes,
-        'type',
-        'label',
-        'index',
-        'modelCid'
-      )
-
-      if (model.get('type') === 'WMT') {
-        /* If matrixSet is present (OpenLayers WMTS keyword) set tileMatrixSetID (Cesium WMTS keyword) */
-        if (initObj.matrixSet) {
-          initObj.tileMatrixSetID = initObj.matrixSet
-        }
-        /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
-        if (properties.projection === 'EPSG:4326') {
-          initObj.tilingScheme = new Cesium.GeographicTilingScheme()
-        }
+      if (model.get('show')) {
+        this.initLayer(model)
       }
-
-      var provider = new type(initObj)
-
-      /*
-                  Optionally add this provider as a TrustedServer. This sets withCredentials = true
-                  on the XmlHttpRequests for CORS.
-                 */
-      if (model.get('withCredentials')) {
-        const url = require('url')
-        var parsedUrl = url.parse(provider.url)
-        var port = parsedUrl.port
-        if (!port) {
-          port =
-            parsedUrl.protocol === 'https:'
-              ? DEFAULT_HTTPS_PORT
-              : DEFAULT_HTTP_PORT
-        }
-        Cesium.TrustedServers.add(parsedUrl.hostname, port)
-      }
-
-      var layer = this.map.imageryLayers.addImageryProvider(provider, 0) // the collection is sorted by order, so later things should go at bottom of stack
-      this.layerForCid[model.id] = layer
-      layer.alpha = model.get('alpha')
-      layer.show = model.shouldShowLayer()
     }, this)
 
     this.isMapCreated = true
     return this.map
+  },
+  initLayer: function(model) {
+    const type = imageryProviderTypes[model.get('type')]
+    const initObj = _.omit(
+      model.attributes,
+      'type',
+      'label',
+      'index',
+      'modelCid'
+    )
+
+    if (model.get('type') === 'WMT') {
+      /* If matrixSet is present (OpenLayers WMTS keyword) set tileMatrixSetID (Cesium WMTS keyword) */
+      if (initObj.matrixSet) {
+        initObj.tileMatrixSetID = initObj.matrixSet
+      }
+      /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
+      if (properties.projection === 'EPSG:4326') {
+        initObj.tilingScheme = new Cesium.GeographicTilingScheme()
+      }
+    }
+
+    const provider = new type(initObj)
+
+    /*
+      Optionally add this provider as a TrustedServer. This sets withCredentials = true
+      on the XmlHttpRequests for CORS.
+    */
+    if (model.get('withCredentials')) {
+      const url = require('url')
+      const parsedUrl = url.parse(provider.url)
+      let port = parsedUrl.port
+      if (!port) {
+        port =
+          parsedUrl.protocol === 'https:'
+            ? DEFAULT_HTTPS_PORT
+            : DEFAULT_HTTP_PORT
+      }
+      Cesium.TrustedServers.add(parsedUrl.hostname, port)
+    }
+
+    this.layerOrder = addLayer({
+      initialized: this.layerOrder,
+      all: this.collection.models.map(model => model.id).reverse(), //this.collection.models sorts layers from top to bottom, while Cesium expects the reverse.
+      layer: model.id,
+    })
+
+    const layerIndex = this.layerOrder.indexOf(model.id)
+    const layer = this.map.imageryLayers.addImageryProvider(
+      provider,
+      layerIndex
+    )
+
+    this.layerForCid[model.id] = layer
+    layer.alpha = model.get('alpha')
+    layer.show = model.shouldShowLayer()
   },
   onDestroy: function() {
     if (this.isMapCreated) {
@@ -100,39 +117,49 @@ var Controller = CommonLayerController.extend({
     }
   },
   setAlpha: function(model) {
-    var layer = this.layerForCid[model.id]
+    const layer = this.layerForCid[model.id]
     layer.alpha = model.get('alpha')
   },
   setShow: function(model) {
-    var layer = this.layerForCid[model.id]
+    if (!this.layerForCid[model.id]) {
+      this.initLayer(model)
+    }
+    const layer = this.layerForCid[model.id]
     layer.show = model.shouldShowLayer()
   },
   /*
-            removing/re-adding the layers causes visible "re-render" of entire map;
-            raising/lowering is smoother.
-            raising means to move to a higher index.  higher indexes are displayed on top of lower indexes.
-            so we have to reverse the order property here to make it display correctly.  
-            in other words, order 1 means highest index.
-        */
+    removing/re-adding the layers causes visible "re-render" of entire map;
+    raising/lowering is smoother.
+    raising means to move to a higher index.  higher indexes are displayed on top of lower indexes.
+    so we have to reverse the order property here to make it display correctly.  
+    in other words, order 1 means highest index.
+  */
   reIndexLayers: function() {
-    this.collection.forEach(function(model, index) {
-      var layer = this.layerForCid[model.id]
-      var previousOrder = this.map.imageryLayers.indexOf(layer) + 1
-      var currentOrder = this.collection.length - model.get('order') // order is backwards on cesium (higher indexes are displayed above lower)
-      var method = currentOrder > previousOrder ? 'raise' : 'lower' // raise means move to higher index :(
-      var count = Math.abs(currentOrder - previousOrder)
-      // console.log(method + " " + model.get('name') + " " + count);  // useful for debugging!
-      _.times(
-        count,
-        function() {
-          this.map.imageryLayers[method](layer)
-        },
-        this
-      )
-    }, this)
+    const newLayerOrder = shiftLayers({
+      prev: this.layerOrder,
+      cur: this.collection.models.map(model => model.id).reverse(),
+    })
+    const { layer, method, count } = getShift({
+      prev: this.layerOrder,
+      cur: newLayerOrder,
+    })
+
+    // const name = this.collection.models
+    //   .find(model => model.id === layer)
+    //   .get('name')
+    //console.log(method + ' ' + name + ' ' + count) // useful for debugging!
+
+    _.times(
+      count,
+      function() {
+        this.map.imageryLayers[method](this.layerForCid[layer])
+      },
+      this
+    )
+    this.layerOrder = newLayerOrder
   },
 })
 
 Controller.imageryProviderTypes = imageryProviderTypes
 
-module.exports = Controller
+export default Controller
