@@ -169,8 +169,7 @@ class Poller<K, V> {
       final long timeout,
       final TimeUnit timeoutTimeUnit,
       final ImmutableMap<K, Callable<V>> itemsToPoll)
-      throws IllegalArgumentException, NullPointerException, IllegalStateException,
-          InterruptedException, CancellationException, ExecutionException, PollerException {
+      throws InterruptedException, ExecutionException, PollerException {
     Validate.isTrue(
         notNull(timeoutTimeUnit).toMillis(timeout) >= MINIMUM_TIMEOUT_MS,
         "timeout argument may not be less than %d ms",
@@ -258,7 +257,7 @@ class Poller<K, V> {
    */
   private void doPollItems(
       long timeout, TimeUnit timeoutTimeUnit, ImmutableMap<K, Callable<V>> itemsToPoll)
-      throws InterruptedException, CancellationException, ExecutionException, PollerException {
+      throws InterruptedException, ExecutionException, PollerException {
     removeNoncurrentKeysFromTheCache(itemsToPoll.keySet());
 
     if (itemsToPoll.isEmpty()) {
@@ -422,6 +421,7 @@ class Poller<K, V> {
    *
    * @throws InterruptedException if the current thread was interrupted
    */
+  @SuppressWarnings("squid:S1181" /*Catching throwable intentionally*/)
   private void attemptToCommitLoadedValue(
       final K key, final Commitable commitable, final Map<K, Throwable> gatheredExceptions)
       throws InterruptedException {
@@ -493,9 +493,7 @@ class Poller<K, V> {
      *     loader {@link Callable} to complete
      */
     @SuppressWarnings(
-        "squid:S00112" /*The thrown RuntimeException is the one thrown by handleTimeout or handleException.*/)
-    void commit()
-        throws RejectedExecutionException, IllegalArgumentException, RuntimeException, Throwable,
-            CancellationException, InterruptedException;
+        "squid:S00112" /*InterruptedException and Throwable can be thrown while trying to load the value. Exceptions should be handled by the caller.*/)
+    void commit() throws Throwable;
   }
 }
