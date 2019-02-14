@@ -16,7 +16,6 @@ package ddf.catalog.operation.impl;
 import ddf.catalog.Constants;
 import ddf.catalog.operation.Query;
 import java.util.Map;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.sort.SortBy;
@@ -163,6 +162,21 @@ public class QueryImpl implements Query {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    return "QueryImpl{"
+        + "filter="
+        + filter
+        + ", startIndex="
+        + startIndex
+        + ", pageSize="
+        + pageSize
+        + ", requestsTotalResultsCount="
+        + requestsTotalResultsCount
+        + ", timeoutMillis="
+        + timeoutMillis
+        + ", sortBy="
+        + sortBy
+        + ", properties="
+        + properties
+        + '}';
   }
 }

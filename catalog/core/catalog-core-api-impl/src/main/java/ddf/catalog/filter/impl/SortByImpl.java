@@ -67,4 +67,9 @@ public class SortByImpl implements SortBy {
   public SortOrder getSortOrder() {
     return sortOrder;
   }
+
+  @Override
+  public String toString() {
+    return "SortByImpl{" + "propertyName=" + propertyName + ", sortOrder=" + sortOrder + '}';
+  }
 }
