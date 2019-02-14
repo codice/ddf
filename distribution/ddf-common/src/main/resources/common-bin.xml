@@ -373,5 +373,15 @@
                 </include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>
+                system/org/apache/aries/proxy/org.apache.aries.proxy/${org.apache.aries.version}
+            </outputDirectory>
+            <includes>
+                <include>
+                    org.apache.aries.proxy:org.apache.aries.proxy:jar:${org.apache.aries.version}
+                </include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 </component>
