@@ -179,7 +179,7 @@ public class DmsCoordinateProcessor {
     int start = 0;
     while (matcher.find()) {
       LOGGER.trace("Match found [{}]", matcher.group());
-      LatLon parsedDms = CoordinateTranslator.dmsToLatLon(query.substring(start, matcher.end()));
+      final LatLon parsedDms = CoordinateTranslator.dmsToLatLon(query.substring(start, matcher.end()));
       start = matcher.end();
       if (parsedDms != null) {
         dmsCoordinates.add(parsedDms);
