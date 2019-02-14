@@ -242,9 +242,6 @@ module.exports = Marionette.LayoutView.extend({
   toggleDateClass: function(toggle) {
     this.$el.toggleClass('is-date', toggle)
   },
-  toggleGeometryClass: function(toggle) {
-    this.$el.toggleClass('location-radio', toggle)
-  },
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
@@ -254,8 +251,7 @@ module.exports = Marionette.LayoutView.extend({
         if (geometryComparators.indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
-        this.toggleLocationClass(currentComparator === 'EMPTY')
-        this.toggleGeometryClass(currentComparator === 'EMPTY')
+        this.toggleLocationClass(currentComparator === 'IS EMPTY')
         break
       case 'DATE':
         if (dateComparators.indexOf(currentComparator) === -1) {
@@ -301,6 +297,7 @@ module.exports = Marionette.LayoutView.extend({
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
     let type = this.model.get('type')
+
     const propertyJSON = generatePropertyJSON(value, type, currentComparator)
     const ViewToUse = determineView(currentComparator)
     this.filterInput.show(
