@@ -139,11 +139,6 @@ public class DmsCoordinateProcessorTest {
     assertSuggestionDoesNotExist("28°56\'26\"N 180°00\'01\"W");
   }
 
-  //  @Test
-  //  public void testDmsString(){
-  //
-  //  }
-
   @Test
   public void testDmsStringMultipleCoordinates() {
     assertSuggestion(

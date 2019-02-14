@@ -34,6 +34,7 @@ import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler;
+import org.codice.ddf.catalog.ui.query.suggestion.DmsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.UtmUpsCoordinateProcessor;
@@ -68,6 +69,8 @@ public class QueryApplication implements SparkApplication, Function {
 
   private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
+  private final DmsCoordinateProcessor dmsCoordinateProcessor;
+
   private final MgrsCoordinateProcessor mgrsCoordinateProcessor;
 
   private final UtmUpsCoordinateProcessor utmUpsCoordinateProcessor;
@@ -81,9 +84,11 @@ public class QueryApplication implements SparkApplication, Function {
   public QueryApplication(
       CqlTransformHandler cqlTransformHandler,
       LatLonCoordinateProcessor latLonCoordinateProcessor,
+      DmsCoordinateProcessor dmsCoordinateProcessor,
       MgrsCoordinateProcessor mgrsCoordinateProcessor,
       UtmUpsCoordinateProcessor utmUpsCoordinateProcessor) {
     this.latLonCoordinateProcessor = latLonCoordinateProcessor;
+    this.dmsCoordinateProcessor = dmsCoordinateProcessor;
     this.mgrsCoordinateProcessor = mgrsCoordinateProcessor;
     this.utmUpsCoordinateProcessor = utmUpsCoordinateProcessor;
     this.cqlTransformHandler = cqlTransformHandler;
@@ -114,6 +119,7 @@ public class QueryApplication implements SparkApplication, Function {
           List<Suggestion> efficientPrependingResults = new LinkedList<>(results);
           this.utmUpsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           this.mgrsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
+          this.dmsCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           this.latLonCoordinateProcessor.enhanceResults(efficientPrependingResults, query);
           return GSON.toJson(efficientPrependingResults);
         });

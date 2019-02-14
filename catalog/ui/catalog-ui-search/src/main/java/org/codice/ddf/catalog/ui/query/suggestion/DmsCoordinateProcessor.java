@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DmsCoordinateProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(DmsCoordinateProcessor.class);
-
-  private static final Character SPACE_CHAR = ' ';
 
   private static final String DEGREES_LAT_REGEX_STRING = "90|[0-8]?[0-9]";
   private static final String DEGREES_LON_REGEX_STRING = "180|1[0-7][0-9]|0?[0-9]?[0-9]";
@@ -65,25 +64,11 @@ public class DmsCoordinateProcessor {
 
   private static class CoordinateTranslator {
 
-    private static LatLon dmsToLatLon(String dmsString) {
-      Map<String, Object> dmsLat = new HashMap<String, Object>();
-      Map<String, Object> dmsLon = new HashMap<String, Object>();
-      parseDms(dmsLat, dmsLon, dmsString);
-
-      boolean dmsLatExists =
-          dmsLat.containsKey("degrees")
-              && dmsLat.containsKey("minutes")
-              && dmsLat.containsKey("seconds");
-      boolean dmsLonExists =
-          dmsLon.containsKey("degrees")
-              && dmsLon.containsKey("minutes")
-              && dmsLon.containsKey("seconds");
-      return (dmsLatExists && dmsLonExists) ? toLatLon(dmsLat, dmsLon) : null;
-    }
-
     private static void parseDms(
-        Map<String, Object> dmsLat, Map<String, Object> dmsLon, String dmsString) {
-      Matcher matcher = PATTERN_DMS_COORDINATE.matcher(dmsString);
+        final Map<String, Object> dmsLat,
+        final Map<String, Object> dmsLon,
+        final String dmsString) {
+      final Matcher matcher = PATTERN_DMS_COORDINATE.matcher(dmsString);
       if (matcher.matches()) {
         dmsLat.put("degrees", Integer.parseInt(matcher.group(DEGREES_LAT_GROUP)));
         dmsLat.put("minutes", Integer.parseInt(matcher.group(MINUTES_LAT_GROUP)));
@@ -99,9 +84,9 @@ public class DmsCoordinateProcessor {
       }
     }
 
-    private static String normalizedDmsString(String dmsString) {
-      Map<String, Object> dmsLat = new HashMap<String, Object>();
-      Map<String, Object> dmsLon = new HashMap<String, Object>();
+    private static String normalizedDmsString(final String dmsString) {
+      final Map<String, Object> dmsLat = new HashMap<String, Object>();
+      final Map<String, Object> dmsLon = new HashMap<String, Object>();
       parseDms(dmsLat, dmsLon, dmsString);
 
       final NumberFormat minutesSecondsFormat = new DecimalFormat("00.###");
@@ -128,21 +113,38 @@ public class DmsCoordinateProcessor {
       return dmsBuilder.toString().trim();
     }
 
-    private static LatLon toLatLon(Map<String, Object> dmsLat, Map<String, Object> dmsLon) {
-      int latModifier = dmsLat.get("direction").toString().toUpperCase().equals("N") ? 1 : -1;
-      int lonModifier = dmsLon.get("direction").toString().toUpperCase().equals("E") ? 1 : -1;
-      Double lat = toDecimalDegrees(dmsLat) * latModifier;
-      Double lon = toDecimalDegrees(dmsLon) * lonModifier;
+    private static LatLon dmsToLatLon(final String dmsString) {
+      final Map<String, Object> dmsLat = new HashMap<String, Object>();
+      final Map<String, Object> dmsLon = new HashMap<String, Object>();
+      parseDms(dmsLat, dmsLon, dmsString);
+
+      final boolean dmsLatExists =
+          dmsLat.containsKey("degrees")
+              && dmsLat.containsKey("minutes")
+              && dmsLat.containsKey("seconds");
+      final boolean dmsLonExists =
+          dmsLon.containsKey("degrees")
+              && dmsLon.containsKey("minutes")
+              && dmsLon.containsKey("seconds");
+      return (dmsLatExists && dmsLonExists) ? toLatLon(dmsLat, dmsLon) : null;
+    }
+
+    private static LatLon toLatLon(
+        final Map<String, Object> dmsLat, final Map<String, Object> dmsLon) {
+      final int latModifier = dmsLat.get("direction").toString().toUpperCase().equals("N") ? 1 : -1;
+      final int lonModifier = dmsLon.get("direction").toString().toUpperCase().equals("E") ? 1 : -1;
+      final Double lat = toDecimalDegrees(dmsLat) * latModifier;
+      final Double lon = toDecimalDegrees(dmsLon) * lonModifier;
 
       return (LatLon.isValidLatitude(lat) && LatLon.isValidLongitude(lon))
           ? new LatLon(lat, lon)
           : null;
     }
 
-    private static Double toDecimalDegrees(Map<String, Object> dms) {
-      int degrees = (int) dms.get("degrees");
-      int minutes = (int) dms.get("minutes");
-      double seconds = (double) dms.get("seconds");
+    private static Double toDecimalDegrees(final Map<String, Object> dms) {
+      final int degrees = (int) dms.get("degrees");
+      final int minutes = (int) dms.get("minutes");
+      final double seconds = (double) dms.get("seconds");
 
       return degrees + minutes / 60.0 + seconds / 3600.0;
     }
@@ -160,15 +162,15 @@ public class DmsCoordinateProcessor {
    */
   public void enhanceResults(final List<Suggestion> results, final String query) {
     LOGGER.trace("(DMS) Adding result for query [{}]", query);
-
-    LiteralSuggestion dmsSuggestion = getDmsSuggestion(query);
+    final LiteralSuggestion dmsSuggestion = getDmsSuggestion(query);
     if (dmsSuggestion != null && dmsSuggestion.hasGeo()) {
       LOGGER.trace("Adding the DMS suggestion to results [{}]", dmsSuggestion);
-      results.add(dmsSuggestion);
+      results.add(0, dmsSuggestion);
     }
     LOGGER.trace("(DMS) Done");
   }
 
+  @Nullable
   private LiteralSuggestion getDmsSuggestion(final String query) {
     final List<LatLon> dmsCoordinates = new ArrayList<>();
     final Matcher matcher = PATTERN_DMS_COORDINATE.matcher(query);
@@ -176,7 +178,7 @@ public class DmsCoordinateProcessor {
 
     int start = 0;
     while (matcher.find()) {
-
+      LOGGER.trace("Match found [{}]", matcher.group());
       LatLon parsedDms = CoordinateTranslator.dmsToLatLon(query.substring(start, matcher.end()));
       start = matcher.end();
       if (parsedDms != null) {
@@ -191,8 +193,6 @@ public class DmsCoordinateProcessor {
       LOGGER.trace("No valid DMS strings could be inferred from query [{}]", query);
       return null;
     }
-    LiteralSuggestion dmsSuggestion =
-        new LiteralSuggestion(LITERAL_SUGGESTION_ID, nameBuilder.toString(), dmsCoordinates);
-    return dmsSuggestion;
+    return new LiteralSuggestion(LITERAL_SUGGESTION_ID, nameBuilder.toString(), dmsCoordinates);
   }
 }

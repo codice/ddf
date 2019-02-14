@@ -412,6 +412,9 @@
     <bean id="latLonProcessor"
           class="org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor"/>
 
+    <bean id="dmsProcessor"
+          class="org.codice.ddf.catalog.ui.query.suggestion.DmsCoordinateProcessor"/>
+
     <bean id="mgrsProcessor"
           class="org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor">
         <argument ref="coordinateSystemTranslator"/>
@@ -427,6 +430,7 @@
         <property name="endpointUtil" ref="endpointUtil"/>
         <argument ref="cqlTransformHandler"/>
         <argument ref="latLonProcessor"/>
+        <argument ref="dmsProcessor"/>
         <argument ref="mgrsProcessor"/>
         <argument ref="utmUpsProcessor"/>
     </bean>
