@@ -68,7 +68,7 @@ public class OperationsCatalogStoreSupport {
           && (sourceOperations.getCatalog() == null
               || !destination.equals(sourceOperations.getCatalog().getId()))) {
         exceptions.add(new ProcessingDetailsImpl(destination, null, "CatalogStore does not exist"));
-      } else {
+      } else if (!sources.isEmpty()) {
         if (sources.size() != 1) {
           LOGGER.debug("Multiple CatalogStores for id: {}", destination);
         }
