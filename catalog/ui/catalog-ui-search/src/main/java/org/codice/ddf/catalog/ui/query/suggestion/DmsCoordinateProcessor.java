@@ -40,14 +40,24 @@ public class DmsCoordinateProcessor {
 
   private static final String MINUTES_REGEX_STRING = "[0-5]?[0-9]";
   private static final String SECONDS_REGEX_STRING = "[0-5]?[0-9](?:\\.\\d*)?";
-  private static final String DMS_MINUTES_SECONDS_REGEX_STRING =
-      "\\D*(" + MINUTES_REGEX_STRING + ")\\D*(" + SECONDS_REGEX_STRING + ")\\D*";
 
   private static final String DMS_LAT_REGEX_STRING =
-      "\\D*(" + DEGREES_LAT_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([NnSs])\\D*";
+      "(?:\\d+\\D|\\D)*?("
+          + DEGREES_LAT_REGEX_STRING
+          + ")\\D+("
+          + MINUTES_REGEX_STRING
+          + ")\\D+("
+          + SECONDS_REGEX_STRING
+          + ")\\D*([NnSs])\\D*";
 
   private static final String DMS_LON_REGEX_STRING =
-      "\\D*(" + DEGREES_LON_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([EeWw])\\D*";
+      "(?:\\d+\\D|\\D)*?("
+          + DEGREES_LON_REGEX_STRING
+          + ")\\D+("
+          + MINUTES_REGEX_STRING
+          + ")\\D+("
+          + SECONDS_REGEX_STRING
+          + ")\\D*([EeWw])\\D*";
 
   private static final int DEGREES_LAT_GROUP = 1;
   private static final int MINUTES_LAT_GROUP = 2;
