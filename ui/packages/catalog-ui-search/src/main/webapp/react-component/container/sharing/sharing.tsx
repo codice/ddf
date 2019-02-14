@@ -30,7 +30,8 @@ type Props = {
 }
 
 type State = {
-  items: Item[]
+  items: Item[],
+  previousWorkspace: any,
 }
 
 export enum Category {
@@ -52,6 +53,7 @@ export class Sharing extends React.Component<Props, State> {
 
     this.state = {
       items: [],
+      previousWorkspace: undefined,
     }
   }
   componentDidMount = () => {
@@ -77,12 +79,13 @@ export class Sharing extends React.Component<Props, State> {
             visible: user.getRoles().indexOf(e.value) > -1, // only display the groups the current user has
           } as Item
         })
-        this.setState({ items: groups.concat(individuals) })
+        this.setState({items: groups.concat(individuals), previousWorkspace: metacard })
         this.add()
       })
   }
 
   save = () => {
+    debugger
     const groups = this.state.items.filter(e => e.category === Category.Group)
     const users = this.state.items.filter(
       e => e.value !== '' && e.category === Category.User
@@ -110,48 +113,83 @@ export class Sharing extends React.Component<Props, State> {
         values: users.filter(e => e.access === Access.Share).map(e => e.value),
       },
     ]
+    this.attemptSave(attributes)
+  }
 
-    fetch(`/search/catalog/internal/metacards`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify([
-        {
-          ids: [this.props.id],
-          attributes: attributes,
-        },
-      ]),
-    })
-      .then(res => {
-        if (res.status !== 200) {
-          throw new Error()
-        }
-        return res.json()
-      })
-      .then(() => {
-        if (this.props.onUpdate) {
-          this.props.onUpdate(attributes)
-        }
-
-        this.props.lightbox.close()
+  attemptSave = (attributes: any) => {
+    fetch('/search/catalog/internal/metacard/' + this.props.id)
+    .then(res => res.json())
+    .then(data => {
+      // Only allow a user to save if the previous workspace state is the same as the latest workspace state
+      // so that changes made by other users are not clobbered.
+      // NOTE: This is a temporary workaround.
+      if(JSON.stringify(data.metacards[0]) === JSON.stringify(this.state.previousWorkspace)) {
+        this.doSave(attributes)
+      } else {
         announcement.announce(
           {
-            title: 'Success!',
-            message: 'Sharing saved',
-            type: 'success',
-          },
-          1500
-        )
-      })
-      .catch(function() {
-        announcement.announce(
-          {
-            title: 'Error',
-            message: 'Save failed',
+            title: 'The workspace settings could not be updated',
+            message: 'The workspace has been modified by another. Please refresh the page and reattempt your changes.',
             type: 'error',
           },
           1500
         )
-      })
+      }
+    })
+    .catch(function() {
+      announcement.announce(
+        {
+          title: 'Error',
+          message: 'Save failed',
+          type: 'error',
+        },
+        1500
+      )
+    })
+  }
+
+  doSave = (attributes: any) => {
+    fetch(`/search/catalog/internal/metacards`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      {
+        ids: [this.props.id],
+        attributes: attributes,
+      },
+    ]),
+  })
+    .then(res => {
+      if (res.status !== 200) {
+        throw new Error()
+      }
+      return res.json()
+    })
+    .then(() => {
+      if (this.props.onUpdate) {
+        this.props.onUpdate(attributes)
+      }
+
+      this.props.lightbox.close()
+      announcement.announce(
+        {
+          title: 'Success!',
+          message: 'Sharing saved',
+          type: 'success',
+        },
+        1500
+      )
+    })
+    .catch(function() {
+      announcement.announce(
+        {
+          title: 'Error',
+          message: 'Save failed',
+          type: 'error',
+        },
+        1500
+      )
+    })
   }
 
   add = () => {
