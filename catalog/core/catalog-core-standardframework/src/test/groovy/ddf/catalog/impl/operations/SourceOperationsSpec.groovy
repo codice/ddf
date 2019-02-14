@@ -29,13 +29,16 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
+import java.util.stream.Collector
+import java.util.stream.Collectors
+
 class SourceOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 
     private FrameworkProperties frameworkProperties
     private List<CatalogProvider> catalogProviders
     private List<StorageProvider> storageProviders
-    private Map<String, FederatedSource> fedSources
+    private List<FederatedSource> fedSources
     private SourcePoller sourcePoller
     private SourcePollerRunner pollerRunner
     private SourceOperations sourceOperations
@@ -45,16 +48,16 @@ class SourceOperationsSpec extends Specification {
         frameworkProperties = new FrameworkProperties()
         catalogProviders = (1..3).collect { mockCatalogProvider(it) }
         storageProviders = [Mock(StorageProvider)]
-        fedSources = ['fed1', 'fed2'].collectEntries { [(it): mockFedSource(it)] }
+        fedSources = [mockFedSource('fed1'), mockFedSource('fed2')]
         pollerRunner = new SourcePollerRunner()
         sourcePoller = new SourcePoller(pollerRunner)
-        for (FederatedSource federatedSource : fedSources.values()) {
+        for (FederatedSource federatedSource : fedSources) {
             pollerRunner.bind(federatedSource)
         }
         pollerRunner.bind(catalogProviders.get(0))
         int wait = 0
         while (wait < 5) {
-            for (FederatedSource source : fedSources.values()) {
+            for (FederatedSource source : fedSources) {
                 CachedSource cachedSource = sourcePoller.getCachedSource(source)
                 if (cachedSource == null || !cachedSource.isAvailable()) {
                     Thread.sleep(100)
@@ -118,7 +121,7 @@ class SourceOperationsSpec extends Specification {
         def ids = sourceOperations.getSourceIds(false)
 
         then:
-        ids == fedSources.keySet() + SOURCE_ID
+        ids == fedSources.collect { it.id } + SOURCE_ID as Set
     }
 
     def 'test getSourceIds with fanout'() {
@@ -149,7 +152,7 @@ class SourceOperationsSpec extends Specification {
         response.sourceInfo*.sourceId as Set == [SOURCE_ID] as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name as Set == fedContentTypes*.name as Set
     }
 
@@ -165,7 +168,7 @@ class SourceOperationsSpec extends Specification {
         response.sourceInfo*.sourceId as Set == [SOURCE_ID] as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name as Set == fedContentTypes*.name as Set
     }
 
@@ -193,7 +196,7 @@ class SourceOperationsSpec extends Specification {
         response.sourceInfo*.sourceId as Set == [SOURCE_ID] as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name as Set == fedContentTypes*.name as Set
     }
 
@@ -201,12 +204,12 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.getSourceIds() >> { [SOURCE_ID] }
-        def oneDisabledSource = [fed1: mockFedSource('fed1'), fed2: mockFedSource('fed2', false)]
+        def oneDisabledSource = [mockFedSource('fed1'), mockFedSource('fed2', false)]
         frameworkProperties.federatedSources = oneDisabledSource
-        frameworkProperties.sourcePoller.runner.bind(oneDisabledSource.fed2)
+        frameworkProperties.sourcePoller.runner.bind(oneDisabledSource[1])
         int retry
         while (retry < 5) {
-            def source = frameworkProperties.sourcePoller.getCachedSource(oneDisabledSource.fed2)
+            def source = frameworkProperties.sourcePoller.getCachedSource(oneDisabledSource[1])
             if (source.isAvailable()) {
                 break
             }
@@ -221,7 +224,7 @@ class SourceOperationsSpec extends Specification {
         response.sourceInfo*.sourceId as Set == [SOURCE_ID] as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        def fedContentTypes = oneDisabledSource.fed1.contentTypes as Set
+        def fedContentTypes = oneDisabledSource[0].contentTypes as Set
         types*.name as Set == fedContentTypes*.name as Set
     }
 
@@ -255,10 +258,10 @@ class SourceOperationsSpec extends Specification {
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == fedSources.keySet() + SOURCE_ID
+        response.sourceInfo*.sourceId as Set == fedSources.collect { it.id } + SOURCE_ID as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name == fedContentTypes*.name
     }
 
@@ -346,16 +349,16 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.isEnterprise() >> { false }
-        request.getSourceIds() >> { [fedSources.keySet().first()] }
+        request.getSourceIds() >> { [fedSources.collect { it.id }.first()] as Set }
 
         when:
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == [fedSources.keySet().first()] as Set
+        response.sourceInfo*.sourceId as Set == [ fedSources.collect { it.id }.first() ] as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values().first().contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources.first().contentTypes.flatten() as Set<ContentType>
         types*.name == fedContentTypes*.name
     }
 
@@ -363,16 +366,16 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.isEnterprise() >> { false }
-        request.getSourceIds() >> { fedSources.keySet() }
+        request.getSourceIds() >> { fedSources.collect { it.id } as Set }
 
         when:
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == fedSources.keySet()
+        response.sourceInfo*.sourceId as Set == fedSources.collect { it.id } as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name == fedContentTypes*.name
     }
 
@@ -380,16 +383,16 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.isEnterprise() >> { false }
-        request.getSourceIds() >> { fedSources.keySet() + ['unknown1'] }
+        request.getSourceIds() >> { fedSources.collect { it.id } + ['unknown1'] as Set }
 
         when:
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == fedSources.keySet()
+        response.sourceInfo*.sourceId as Set == fedSources.collect { it.id } as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name == fedContentTypes*.name
     }
 
@@ -397,16 +400,16 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.isEnterprise() >> { false }
-        request.getSourceIds() >> { fedSources.keySet() + SOURCE_ID }
+        request.getSourceIds() >> { fedSources.collect { it.id } + SOURCE_ID as Set}
 
         when:
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == fedSources.keySet() + SOURCE_ID
+        response.sourceInfo*.sourceId as Set == fedSources.collect { it.id } + SOURCE_ID as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name == fedContentTypes*.name
     }
 
@@ -414,16 +417,16 @@ class SourceOperationsSpec extends Specification {
         setup:
         def request = Mock(SourceInfoRequest)
         request.isEnterprise() >> { false }
-        request.getSourceIds() >> { fedSources.keySet() + SOURCE_ID + "unknown1" }
+        request.getSourceIds() >> { fedSources.collect { it.id } + SOURCE_ID + "unknown1" as Set }
 
         when:
         def response = sourceOperations.getSourceInfo(request, false)
 
         then:
-        response.sourceInfo*.sourceId as Set == fedSources.keySet() + SOURCE_ID
+        response.sourceInfo*.sourceId as Set == fedSources.collect { it.id } + SOURCE_ID as Set
 
         Set<ContentType> types = response.sourceInfo*.contentTypes.flatten() as Set<ContentType>
-        Set<ContentType> fedContentTypes = fedSources.values()*.contentTypes.flatten() as Set<ContentType>
+        Set<ContentType> fedContentTypes = fedSources*.contentTypes.flatten() as Set<ContentType>
         types*.name == fedContentTypes*.name
     }
 

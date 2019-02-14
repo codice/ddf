@@ -27,8 +27,6 @@
                     availability="optional">
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourcePollerRunner"/>
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="federatedSourceMap"/>
     </reference-list>
 
     <reference-list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"
@@ -57,19 +55,15 @@
                             unbind-method="unbind" ref="cfSourceOps"/>
     </reference-list>
 
-    <reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
+    <reference-list id="catalogStores" interface="ddf.catalog.source.CatalogStore"
                     availability="optional">
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="catalogStoreMap"/>
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourcePollerRunner"/>
     </reference-list>
 
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
-    <bean id="federatedSourceMap" class="ddf.catalog.util.impl.DescribableServiceMap"/>
     <bean id="resourceReaderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="catalogProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="storageProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <bean id="catalogStoreMap" class="ddf.catalog.util.impl.DescribableServiceMap"/>
 
 </blueprint>

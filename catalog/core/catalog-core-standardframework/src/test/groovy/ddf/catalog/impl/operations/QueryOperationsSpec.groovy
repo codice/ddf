@@ -52,7 +52,7 @@ class QueryOperationsSpec extends Specification {
 
     private List<CatalogProvider> catalogProviders
     private List<StorageProvider> storageProviders
-    private Map<String, FederatedSource> fedSources
+    private Collection<FederatedSource> fedSources
     private List<ConnectedSource> connSources
     private SourcePoller sourcePoller
     private SourcePollerRunner pollerRunner
@@ -66,7 +66,7 @@ class QueryOperationsSpec extends Specification {
         frameworkProperties = new FrameworkProperties()
         catalogProviders = (1..3).collect { mockCatalogProvider(it) }
         storageProviders = [Mock(StorageProvider)]
-        fedSources = ['fed1', 'fed2'].collectEntries { [(it): mockFedSource(it)] }
+        fedSources = [mockFedSource('fed1'), mockFedSource('fed2')]
         connSources = ['conn1', 'conn2'].collect { mockConnectedSource(it) }
         pollerRunner = new SourcePollerRunner()
         sourcePoller = new SourcePoller(pollerRunner)
@@ -135,7 +135,7 @@ class QueryOperationsSpec extends Specification {
         then:
         sources.needToAddConnectedSources
         sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.sourcesToQuery as Set == frameworkProperties.federatedSources.values() as Set
+        sources.sourcesToQuery as Set == frameworkProperties.federatedSources as Set
         sources.exceptions.isEmpty()
     }
 
@@ -183,7 +183,7 @@ class QueryOperationsSpec extends Specification {
         then:
         sources.needToAddConnectedSources
         sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.get('fed1')] as Set
+        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find{it.getId() == 'fed1'}] as Set
         sources.exceptions.size() == frameworkProperties.federatedSources.size() - 1
     }
 
@@ -235,7 +235,7 @@ class QueryOperationsSpec extends Specification {
         then:
         sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
         sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
-        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.get('fed1')] as Set
+        sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.find{it.getId() == 'fed1'}] as Set
         sources.exceptions.isEmpty()
     }
 

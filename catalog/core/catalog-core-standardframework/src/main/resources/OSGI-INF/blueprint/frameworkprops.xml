@@ -18,7 +18,7 @@
     <bean id="frameworkProperties" class="ddf.catalog.impl.FrameworkProperties">
         <property name="catalogProviders" ref="catalogProviderSortedList"/>
         <property name="storageProviders" ref="storageProviderSortedList"/>
-        <property name="catalogStoresMap" ref="catalogStoreMap"/>
+        <property name="catalogStores" ref="catalogStores"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="preCreateStoragePlugins" ref="preCreateStorageSortedList"/>
         <property name="postCreateStoragePlugins" ref="postCreateStorageSortedList"/>
@@ -31,7 +31,7 @@
         <property name="preResource" ref="preResourceSortedList"/>
         <property name="postResource" ref="postResourceSortedList"/>
         <property name="connectedSources" ref="connectedSources"/>
-        <property name="federatedSources" ref="federatedSourceMap"/>
+        <property name="federatedSources" ref="federatedSources"/>
         <property name="resourceReaders" ref="resourceReaderSortedList"/>
         <property name="federationStrategy" ref="federationStrategy"/>
         <property name="pool" ref="queryThreadPool"/>
