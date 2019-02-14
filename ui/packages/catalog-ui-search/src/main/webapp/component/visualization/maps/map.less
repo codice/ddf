@@ -41,9 +41,14 @@
     right: @minimumSpacing;
     padding: @minimumSpacing;
     max-width: ~'calc(100% - 2*@{minimumSpacing})';
-    .is-medium-font;
     background: inherit;
     line-height: @minimumButtonSize;
+    .is-medium-font;
+    &,
+    button,
+    button span {
+      .is-medium-font;
+    }
     .cesium-viewer-geocoderContainer,
     .geocoder-container {
       margin: 0px;
@@ -68,12 +73,18 @@
         vertical-align: top;
       }
     }
-
+    .is-split-button button,
     .is-button {
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
       display: inline-block;
       margin-left: @mediumSpacing;
+    }
+    .zoomToHome-container {
+      display: inline-block;
+    }
+    .toolbar-panzoom.is-button {
+      display: block;
     }
   }
 
