@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.ui.query.suggestion;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -214,7 +213,6 @@ public class DmsCoordinateProcessorTest {
   private void assertSuggestion(String query, String expectedName, List<LatLon> expectedGeo) {
     List<Suggestion> list = new LinkedList<>();
     processor.enhanceResults(list, query);
-    assertThat(list, is(not(empty())));
     assertThat(list, hasSize(1));
 
     LiteralSuggestion literalSuggestion = (LiteralSuggestion) list.get(0);
@@ -225,7 +223,7 @@ public class DmsCoordinateProcessorTest {
     List<LatLon> actualGeo = literalSuggestion.getGeo();
     List<LatLon> diff = new ArrayList<>();
     assertThat(
-        "Actual geo and expected geo are the same size",
+        "Actual geo and expected geo are not the same size",
         actualGeo.size(),
         is(equalTo(expectedGeo.size())));
     for (int i = 0; i < expectedGeo.size(); i++) {
@@ -238,6 +236,6 @@ public class DmsCoordinateProcessorTest {
         diff.add(actual);
       }
     }
-    assertThat("Actual geo is the same as the expected geo", diff, is(empty()));
+    assertThat("Actual geo is not the same as the expected geo", diff, is(empty()));
   }
 }

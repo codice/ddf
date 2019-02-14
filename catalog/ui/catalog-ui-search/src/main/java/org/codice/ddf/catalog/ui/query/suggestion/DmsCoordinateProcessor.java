@@ -74,11 +74,17 @@ public class DmsCoordinateProcessor {
 
   private static class CoordinateTranslator {
 
-    private static void parseDms(
-        final Map<String, Object> dmsLat,
-        final Map<String, Object> dmsLon,
-        final String dmsString) {
+    /**
+     * Deserialize a DMS string.
+     *
+     * @param dmsString the DMS string to deserialize.
+     * @return [dmsLat, dmsLon] The two deserialized parts of the DMS string.
+     */
+    private static List<Map<String, Object>> parseDms(final String dmsString) {
       final Matcher matcher = PATTERN_DMS_COORDINATE.matcher(dmsString);
+      final Map<String, Object> dmsLat = new HashMap<String, Object>();
+      final Map<String, Object> dmsLon = new HashMap<String, Object>();
+
       if (matcher.matches()) {
         dmsLat.put("degrees", Integer.parseInt(matcher.group(DEGREES_LAT_GROUP)));
         dmsLat.put("minutes", Integer.parseInt(matcher.group(MINUTES_LAT_GROUP)));
@@ -92,17 +98,17 @@ public class DmsCoordinateProcessor {
         dmsLon.put("direction", matcher.group(DIRECTION_LON_GROUP));
         dmsLon.put("degreeFormat", new DecimalFormat("000"));
       }
+      return Arrays.asList(dmsLat, dmsLon);
     }
 
     private static String normalizedDmsString(final String dmsString) {
-      final Map<String, Object> dmsLat = new HashMap<String, Object>();
-      final Map<String, Object> dmsLon = new HashMap<String, Object>();
-      parseDms(dmsLat, dmsLon, dmsString);
+
+      final List<Map<String, Object>> dmsCoordinate = parseDms(dmsString);
 
       final NumberFormat minutesSecondsFormat = new DecimalFormat("00.###");
 
       final StringBuilder dmsBuilder = new StringBuilder();
-      for (Map<String, Object> dmsPart : Arrays.asList(dmsLat, dmsLon)) {
+      for (Map<String, Object> dmsPart : dmsCoordinate) {
 
         final NumberFormat degreeFormat = (NumberFormat) dmsPart.get("degreeFormat");
         final String degrees = degreeFormat.format((int) dmsPart.get("degrees"));
@@ -112,7 +118,7 @@ public class DmsCoordinateProcessor {
 
         dmsBuilder
             .append(degrees)
-            .append("°")
+            .append("\u00B0")
             .append(minutes)
             .append("\'")
             .append(seconds)
@@ -124,9 +130,9 @@ public class DmsCoordinateProcessor {
     }
 
     private static LatLon dmsToLatLon(final String dmsString) {
-      final Map<String, Object> dmsLat = new HashMap<String, Object>();
-      final Map<String, Object> dmsLon = new HashMap<String, Object>();
-      parseDms(dmsLat, dmsLon, dmsString);
+      final List<Map<String, Object>> dmsCoordinate = parseDms(dmsString);
+      final Map<String, Object> dmsLat = dmsCoordinate.get(0);
+      final Map<String, Object> dmsLon = dmsCoordinate.get(1);
 
       final boolean dmsLatExists =
           dmsLat.containsKey("degrees")
@@ -188,14 +194,15 @@ public class DmsCoordinateProcessor {
 
     int start = 0;
     while (matcher.find()) {
-      LOGGER.trace("Match found [{}]", matcher.group());
-      final LatLon parsedDms = CoordinateTranslator.dmsToLatLon(query.substring(start, matcher.end()));
+      final String group = query.substring(start, matcher.end());
+      final LatLon parsedDms = CoordinateTranslator.dmsToLatLon(group);
       start = matcher.end();
       if (parsedDms != null) {
+        LOGGER.trace("Match found [{}]", matcher.group());
         dmsCoordinates.add(parsedDms);
         nameBuilder
             .append(" [ ")
-            .append(CoordinateTranslator.normalizedDmsString(matcher.group()))
+            .append(CoordinateTranslator.normalizedDmsString(group))
             .append(" ]");
       }
     }
