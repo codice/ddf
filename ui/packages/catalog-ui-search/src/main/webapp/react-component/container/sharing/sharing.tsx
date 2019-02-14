@@ -135,7 +135,7 @@ export class Sharing extends React.Component<Props, State> {
             {
               title: 'The workspace settings could not be updated',
               message:
-                'The workspace has been modified by another. Please refresh the page and reattempt your changes.',
+                'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
               type: 'error',
             },
             1500
