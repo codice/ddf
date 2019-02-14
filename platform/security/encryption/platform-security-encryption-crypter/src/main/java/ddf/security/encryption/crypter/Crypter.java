@@ -97,7 +97,7 @@ public class Crypter {
    *
    * @param plainTextValue The value to encrypt.
    */
-  public synchronized String encrypt(String plainTextValue) throws CrypterException {
+  public String encrypt(String plainTextValue) throws CrypterException {
     if (plainTextValue == null || plainTextValue.isEmpty()) {
       throw new CrypterException("Value to encrypt cannot be null or empty.");
     }
@@ -118,7 +118,7 @@ public class Crypter {
    *
    * @param encryptedValue The value to decrypt.
    */
-  public synchronized String decrypt(String encryptedValue) throws CrypterException {
+  public String decrypt(String encryptedValue) throws CrypterException {
     if (encryptedValue == null || encryptedValue.isEmpty()) {
       throw new CrypterException("Value to decrypt cannot be null or empty.");
     }

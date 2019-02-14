@@ -13,6 +13,7 @@
  */
 package ddf.security.encryption.impl;
 
+import static ddf.security.encryption.impl.EncryptionServiceImpl.CRYPTER_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
@@ -23,6 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import ddf.security.SecurityConstants;
+import ddf.security.encryption.crypter.Crypter.CrypterException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,9 +57,13 @@ public class EncryptionServiceImplTest {
     System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = CrypterException.class)
   public void testBadSetup() throws Exception {
-    System.setProperty(SecurityConstants.KEYSET_DIR, "!@#$%^&*()");
+    try (OutputStream badKeysetOutputStream =
+        new FileOutputStream(
+            System.getProperty(SecurityConstants.KEYSET_DIR) + "/" + CRYPTER_NAME + ".json")) {
+      badKeysetOutputStream.write("BadKeyset".getBytes());
+    }
     new EncryptionServiceImpl();
   }
 

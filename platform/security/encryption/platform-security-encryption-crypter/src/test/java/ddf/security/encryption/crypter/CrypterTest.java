@@ -18,8 +18,8 @@ import static org.junit.Assert.fail;
 
 import ddf.security.SecurityConstants;
 import ddf.security.encryption.crypter.Crypter.CrypterException;
-import java.io.File;
-import java.nio.file.InvalidPathException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,34 +27,31 @@ import org.junit.rules.TemporaryFolder;
 
 public class CrypterTest {
   private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
-  private static File ddfHome;
 
   @Before
   public void setUp() throws Exception {
     TEMPORARY_FOLDER.create();
-    ddfHome = TEMPORARY_FOLDER.newFolder("encrypt");
-    System.setProperty("ddf.home", ddfHome.getAbsolutePath());
-    System.setProperty("ddf.etc", ddfHome.getAbsolutePath().concat("/etc"));
-    System.setProperty(
-        SecurityConstants.KEYSET_DIR, ddfHome.getAbsolutePath().concat("/etc").concat("/keysets"));
+    String keysetHome = TEMPORARY_FOLDER.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = TEMPORARY_FOLDER.newFolder("etc").getAbsolutePath();
+    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
     System.setProperty(
         SecurityConstants.ASSOCIATED_DATA_PATH,
-        ddfHome.getAbsolutePath().concat("/etc").concat("/associatedData.properties"));
-
-    new File(System.getProperty(SecurityConstants.KEYSET_DIR)).mkdirs();
-    new File(System.getProperty("ddf.etc").concat("/certs")).mkdirs();
+        associatedDataHome.concat("/associatedData.properties"));
   }
 
   @After
   public void cleanUp() throws Exception {
-    System.clearProperty("ddf.home");
-    System.clearProperty("ddf.etc");
+    TEMPORARY_FOLDER.delete();
+    System.clearProperty(SecurityConstants.KEYSET_DIR);
     System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
-  @Test(expected = InvalidPathException.class)
+  @Test(expected = CrypterException.class)
   public void testBadSetup() throws Exception {
-    System.setProperty(SecurityConstants.KEYSET_DIR, "!@#$%^&*()");
+    try (OutputStream badKeysetOutputStream =
+        new FileOutputStream(System.getProperty(SecurityConstants.KEYSET_DIR) + "/default.json")) {
+      badKeysetOutputStream.write("BadKeyset".getBytes());
+    }
     new Crypter();
   }
 

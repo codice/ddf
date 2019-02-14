@@ -30,7 +30,7 @@ public class EncryptionServiceImpl implements EncryptionService {
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
   private static final String ENC_TEMPLATE = "ENC(%s)";
-  private static final String CRYPTER_NAME = "encryption-service";
+  @VisibleForTesting static final String CRYPTER_NAME = "encryption-service";
 
   @VisibleForTesting Crypter crypter;
 
