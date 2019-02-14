@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,9 +39,10 @@ public class DmsCoordinateProcessor {
   private static final String DEGREES_LAT_REGEX_STRING = "90|[0-8]?[0-9]";
   private static final String DEGREES_LON_REGEX_STRING = "180|1[0-7][0-9]|0?[0-9]?[0-9]";
 
-  private static final String MINUTES_SECONDS_REGEX_STRING = "[0-5]?[0-9]";
+  private static final String MINUTES_REGEX_STRING = "[0-5]?[0-9]";
+  private static final String SECONDS_REGEX_STRING = "[0-5]?[0-9](?:\\.\\d*)?";
   private static final String DMS_MINUTES_SECONDS_REGEX_STRING =
-      "\\D*(" + MINUTES_SECONDS_REGEX_STRING + ")\\D*(" + MINUTES_SECONDS_REGEX_STRING + ")\\D*";
+      "\\D*(" + MINUTES_REGEX_STRING + ")\\D*(" + SECONDS_REGEX_STRING + ")\\D*";
 
   private static final String DMS_LAT_REGEX_STRING =
       "\\D*(" + DEGREES_LAT_REGEX_STRING + ")" + DMS_MINUTES_SECONDS_REGEX_STRING + "([NnSs])\\D*";
@@ -50,12 +53,12 @@ public class DmsCoordinateProcessor {
   private static final int DEGREES_LAT_GROUP = 1;
   private static final int MINUTES_LAT_GROUP = 2;
   private static final int SECONDS_LAT_GROUP = 3;
-  private static final char DIRECTION_LAT_GROUP = 4;
+  private static final int DIRECTION_LAT_GROUP = 4;
 
   private static final int DEGREES_LON_GROUP = 5;
   private static final int MINUTES_LON_GROUP = 6;
   private static final int SECONDS_LON_GROUP = 7;
-  private static final char DIRECTION_LON_GROUP = 8;
+  private static final int DIRECTION_LON_GROUP = 8;
 
   private static final Pattern PATTERN_DMS_COORDINATE =
       Pattern.compile(DMS_LAT_REGEX_STRING + DMS_LON_REGEX_STRING);
@@ -84,15 +87,15 @@ public class DmsCoordinateProcessor {
       if (matcher.matches()) {
         dmsLat.put("degrees", Integer.parseInt(matcher.group(DEGREES_LAT_GROUP)));
         dmsLat.put("minutes", Integer.parseInt(matcher.group(MINUTES_LAT_GROUP)));
-        dmsLat.put("seconds", Integer.parseInt(matcher.group(SECONDS_LAT_GROUP)));
+        dmsLat.put("seconds", Double.parseDouble(matcher.group(SECONDS_LAT_GROUP)));
         dmsLat.put("direction", matcher.group(DIRECTION_LAT_GROUP));
-        dmsLat.put("formattedDegrees", String.format("%02d", (int) dmsLat.get("degrees")));
+        dmsLat.put("degreeFormat", new DecimalFormat("00"));
 
         dmsLon.put("degrees", Integer.parseInt(matcher.group(DEGREES_LON_GROUP)));
         dmsLon.put("minutes", Integer.parseInt(matcher.group(MINUTES_LON_GROUP)));
-        dmsLon.put("seconds", Integer.parseInt(matcher.group(SECONDS_LON_GROUP)));
+        dmsLon.put("seconds", Double.parseDouble(matcher.group(SECONDS_LON_GROUP)));
         dmsLon.put("direction", matcher.group(DIRECTION_LON_GROUP));
-        dmsLon.put("formattedDegrees", String.format("%03d", (int) dmsLon.get("degrees")));
+        dmsLon.put("degreeFormat", new DecimalFormat("000"));
       }
     }
 
@@ -101,11 +104,15 @@ public class DmsCoordinateProcessor {
       Map<String, Object> dmsLon = new HashMap<String, Object>();
       parseDms(dmsLat, dmsLon, dmsString);
 
+      final NumberFormat minutesSecondsFormat = new DecimalFormat("00.###");
+
       final StringBuilder dmsBuilder = new StringBuilder();
       for (Map<String, Object> dmsPart : Arrays.asList(dmsLat, dmsLon)) {
-        final String degrees = dmsPart.get("formattedDegrees").toString();
-        final String minutes = String.format("%02d", (int) dmsPart.get("minutes"));
-        final String seconds = String.format("%02d", (int) dmsPart.get("seconds"));
+
+        final NumberFormat degreeFormat = (NumberFormat) dmsPart.get("degreeFormat");
+        final String degrees = degreeFormat.format((int) dmsPart.get("degrees"));
+        final String minutes = minutesSecondsFormat.format((int) dmsPart.get("minutes"));
+        final String seconds = minutesSecondsFormat.format((double) dmsPart.get("seconds"));
         final String direction = dmsPart.get("direction").toString().toUpperCase();
 
         dmsBuilder
@@ -135,7 +142,8 @@ public class DmsCoordinateProcessor {
     private static Double toDecimalDegrees(Map<String, Object> dms) {
       int degrees = (int) dms.get("degrees");
       int minutes = (int) dms.get("minutes");
-      int seconds = (int) dms.get("seconds");
+      double seconds = (double) dms.get("seconds");
+
       return degrees + minutes / 60.0 + seconds / 3600.0;
     }
   }

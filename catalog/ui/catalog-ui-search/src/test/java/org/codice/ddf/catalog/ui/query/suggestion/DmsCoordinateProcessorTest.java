@@ -39,6 +39,22 @@ public class DmsCoordinateProcessorTest {
   }
 
   @Test
+  public void testDmsStringPartialSeconds() {
+    assertSuggestion(
+        "28°56\'26.012\"N 117°38\'11.933\"W",
+        "DMS: [ 28°56'26.012\"N 117°38'11.933\"W ]",
+        ImmutableList.of(new LatLon(28.940559, -117.636648)));
+  }
+
+  @Test
+  public void testDmsStringLongPartialSeconds() {
+    assertSuggestion(
+        "28°56\'26.012222222222222222222222222222222222222222222222222222222\"N 117°38\'11.92222222222222222222222222222222222222222222222222222222\"W",
+        "DMS: [ 28°56'26.012\"N 117°38'11.922\"W ]",
+        ImmutableList.of(new LatLon(28.940559, -117.636648)));
+  }
+
+  @Test
   public void testDmsStringExtraneousSymbols() {
     assertSuggestion(
         "*28^&*56(*&26\\N 117°38s11:OW",
@@ -131,10 +147,10 @@ public class DmsCoordinateProcessorTest {
   @Test
   public void testDmsStringMultipleCoordinates() {
     assertSuggestion(
-        "28°56\'26\"N 117°38\'11\"W 28°56\'26\"S 117°38\'11\"W 28°56\'26\"N 117°38\'11\"E",
-        "DMS: [ 28°56'26\"N 117°38'11\"W ] [ 28°56'26\"S 117°38'11\"W ] [ 28°56'26\"N 117°38'11\"E ]",
+        "28°56\'26\"N 117°38\'11.64564\"W 28;56;26S 117°38\'11\"QQW%WWEQW@!!!!!! 28°56\'26\"N 117°38\'11\"E",
+        "DMS: [ 28°56'26\"N 117°38'11.646\"W ] [ 28°56'26\"S 117°38'11\"W ] [ 28°56'26\"N 117°38'11\"E ]",
         ImmutableList.of(
-            new LatLon(28.940555, -117.636388),
+            new LatLon(28.940555, -117.636568),
             new LatLon(-28.940555, -117.636388),
             new LatLon(28.940555, 117.636388)));
   }
