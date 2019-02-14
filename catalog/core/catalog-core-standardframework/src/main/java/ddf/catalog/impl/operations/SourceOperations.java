@@ -27,6 +27,7 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
+import ddf.catalog.util.Describable;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import java.util.Collection;
@@ -171,9 +172,19 @@ public class SourceOperations extends DescribableImpl {
   //
   public Set<String> getSourceIds(boolean fanoutEnabled) {
     Set<String> ids = new TreeSet<>();
+
     ids.add(getId());
     if (!fanoutEnabled) {
-      ids.addAll(frameworkProperties.getFederatedSources().keySet());
+      frameworkProperties
+          .getFederatedSources()
+          .stream()
+          .map(Describable::getId)
+          .forEach(
+              e -> {
+                if (!ids.add(e)) {
+                  LOGGER.debug("Multiple FederatedSources found for id: {}", e);
+                }
+              });
     }
     return ids;
   }
@@ -201,22 +212,30 @@ public class SourceOperations extends DescribableImpl {
       if (sourceInfoRequest.isEnterprise()) {
 
         sourceDescriptors =
-            getFederatedSourceDescriptors(frameworkProperties.getFederatedSources().values(), true);
+            getFederatedSourceDescriptors(frameworkProperties.getFederatedSources(), true);
         // If Ids are specified check if they are known sources
       } else if (requestedSourceIds != null) {
         LOGGER.debug("getSourceRequest contains requested source ids");
         Set<FederatedSource> discoveredSources = new HashSet<>();
-        boolean containsId = false;
 
         for (String requestedSourceId : requestedSourceIds) {
           // Check if the requestedSourceId can be found in the known federatedSources
 
-          if (frameworkProperties.getFederatedSources().containsKey(requestedSourceId)) {
-            containsId = true;
-            LOGGER.debug("Found federated source: {}", requestedSourceId);
-            discoveredSources.add(frameworkProperties.getFederatedSources().get(requestedSourceId));
-          }
-          if (!containsId) {
+          final List<FederatedSource> sources =
+              frameworkProperties
+                  .getFederatedSources()
+                  .stream()
+                  .filter(e -> e.getId().equals(requestedSourceId))
+                  .collect(Collectors.toList());
+
+          if (!sources.isEmpty()) {
+            String logMsg =
+                (sources.size() == 1)
+                    ? "Found federated source: {}"
+                    : "Multiple FederatedSources found for id: {}";
+            LOGGER.debug(logMsg, requestedSourceId);
+            discoveredSources.add(sources.get(0));
+          } else {
             LOGGER.debug("Unable to find source: {}", requestedSourceId);
 
             // Check for the local catalog provider, DDF sourceId represents this
@@ -227,7 +246,6 @@ public class SourceOperations extends DescribableImpl {
               addCatalogProviderDescriptor = true;
             }
           }
-          containsId = false;
         }
 
         sourceDescriptors =
@@ -330,7 +348,6 @@ public class SourceOperations extends DescribableImpl {
       Set<Source> availableSources =
           frameworkProperties
               .getFederatedSources()
-              .values()
               .stream()
               .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
               .filter(source -> source != null && source.isAvailable())
