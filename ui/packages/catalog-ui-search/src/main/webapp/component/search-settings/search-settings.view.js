@@ -64,19 +64,18 @@ module.exports = Marionette.LayoutView.extend({
       .get('preferences')
       .get('resultCount')
 
-    this.propertyResultCount.show(
-      new PropertyView({
-        model: new Property({
-          label: 'Number of Search Results',
-          value: [userResultCount],
-          min: 1,
-          max: properties.resultCount,
-          type: 'RANGE',
-        }),
-      })
-    )
+    const model = new Property({
+      label: 'Number of Search Results',
+      value: [userResultCount],
+      min: 1,
+      max: properties.resultCount,
+      type: 'RANGE',
+    })
+
+    this.propertyResultCount.show(new PropertyView({ model }))
 
     this.propertyResultCount.currentView.turnOnEditing()
+    this.listenTo(model, 'change:value', this.updateResultCountSettings)
   },
   updateSearchSettings: function() {
     user

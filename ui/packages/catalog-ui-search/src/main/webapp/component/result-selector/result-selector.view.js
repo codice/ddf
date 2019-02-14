@@ -14,11 +14,8 @@
  **/
 /*global define*/
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const resultSelectorTemplate = require('./result-selector.hbs')
 const CustomElements = require('../../js/CustomElements.js')
-const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
 const ResultItemCollectionView = require('../result-item/result-item.collection.view.js')
 const PagingView = require('../paging/paging.view.js')

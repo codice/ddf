@@ -14,8 +14,6 @@
  **/
 /*global define, alert*/
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const template = require('./paging.hbs')
 const _debounce = require('lodash/debounce')
@@ -25,6 +23,7 @@ module.exports = Marionette.ItemView.extend({
   template: template,
   initialize: function(options) {
     this.listenTo(this.model, 'reset', this.render)
+    this.listenTo(this.getQuery().get('result'), 'change', this.render)
     this.listenTo(
       this.model.fullCollection,
       'add remove update',
