@@ -42,9 +42,9 @@ import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import org.codice.ddf.catalog.resource.download.internal.DownloadManager;
 import org.osgi.framework.BundleContext;
@@ -57,7 +57,7 @@ public class FrameworkProperties {
 
   private List<CatalogProvider> catalogProviders = new ArrayList<>();
 
-  private Map<String, CatalogStore> catalogStoresMap = new HashMap<>();
+  private Collection<CatalogStore> catalogStores = Collections.emptyList();
 
   private BundleContext bundleContext;
 
@@ -81,7 +81,7 @@ public class FrameworkProperties {
 
   private List<ConnectedSource> connectedSources = new ArrayList<>();
 
-  private Map<String, FederatedSource> federatedSources = new HashMap<>();
+  private Collection<FederatedSource> federatedSources = Collections.emptyList();
 
   private List<ResourceReader> resourceReaders = new ArrayList<>();
 
@@ -215,11 +215,11 @@ public class FrameworkProperties {
     this.connectedSources = connectedSources;
   }
 
-  public Map<String, FederatedSource> getFederatedSources() {
+  public Collection<FederatedSource> getFederatedSources() {
     return federatedSources;
   }
 
-  public void setFederatedSources(Map<String, FederatedSource> federatedSources) {
+  public void setFederatedSources(Collection<FederatedSource> federatedSources) {
     this.federatedSources = federatedSources;
   }
 
@@ -281,12 +281,12 @@ public class FrameworkProperties {
     this.reliableResourceDownloadManager = reliableResourceDownloadManager;
   }
 
-  public Map<String, CatalogStore> getCatalogStoresMap() {
-    return catalogStoresMap;
+  public Collection<CatalogStore> getCatalogStores() {
+    return catalogStores;
   }
 
-  public void setCatalogStoresMap(Map<String, CatalogStore> catalogStoresMap) {
-    this.catalogStoresMap = catalogStoresMap;
+  public void setCatalogStores(Collection<CatalogStore> catalogStores) {
+    this.catalogStores = catalogStores;
   }
 
   public FilterBuilder getFilterBuilder() {
