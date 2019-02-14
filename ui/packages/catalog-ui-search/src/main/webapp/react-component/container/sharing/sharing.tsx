@@ -122,9 +122,6 @@ export class Sharing extends React.Component<Props, State> {
     fetch('/search/catalog/internal/metacard/' + this.props.id)
       .then(res => res.json())
       .then(data => {
-        // Only allow a user to save if the previous workspace state is the same as the latest workspace state
-        // so that changes made by other users are not clobbered.
-        // NOTE: This is a temporary workaround.
         if (
           JSON.stringify(data.metacards[0]) ===
           JSON.stringify(this.state.previousWorkspace)
