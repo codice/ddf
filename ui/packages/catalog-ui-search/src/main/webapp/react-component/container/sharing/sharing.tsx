@@ -123,8 +123,8 @@ export class Sharing extends React.Component<Props, State> {
       .then(res => res.json())
       .then(data => {
         if (
-          JSON.stringify(data.metacards[0]) ===
-          JSON.stringify(this.state.previousWorkspace)
+          data.metacards[0]['metacard.modified'] ===
+          this.state.previousWorkspace['metacard.modified']
         ) {
           this.doSave(attributes)
         } else {
