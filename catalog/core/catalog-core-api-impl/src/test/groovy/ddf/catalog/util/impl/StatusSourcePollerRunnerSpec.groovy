@@ -15,13 +15,10 @@ package ddf.catalog.util.impl
 
 import ddf.catalog.source.Source
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
-@Timeout(value = 2, unit = TimeUnit.SECONDS)
-class SourceStatusSourcePollerRunnerSpec extends Specification {
+class StatusSourcePollerRunnerSpec extends Specification {
 
     private final StatusSourcePollerRunner statusSourcePollerRunner = new StatusSourcePollerRunner(Mock(Poller), 1, Mock(ScheduledExecutorService), Mock(SourceRegistry))
 

@@ -21,7 +21,11 @@ import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
-import ddf.catalog.source.*;
+import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.Describable;
 import ddf.catalog.util.impl.DescribableImpl;
@@ -33,12 +37,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,6 +185,7 @@ public class SourceOperations extends DescribableImpl {
   //
   public Set<String> getSourceIds(boolean fanoutEnabled) {
     Set<String> ids = new TreeSet<>();
+
     ids.add(getId());
     if (!fanoutEnabled) {
       frameworkProperties
@@ -293,13 +296,24 @@ public class SourceOperations extends DescribableImpl {
       return false;
     }
 
-    // source is considered unavailable unless it was available the last time it was checked
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Checking if source \"{}\" is available...", source.getId());
+    }
+
+    // source is considered available unless we have checked and seen otherwise
     return sourceStatusCache
         .getCachedValueForSource(source)
-        .map(sourceStatus -> sourceStatus == SourceStatus.AVAILABLE)
+        .map(
+            sourceStatus -> {
+              final boolean available = sourceStatus == SourceStatus.AVAILABLE;
+              if (!available) {
+                LOGGER.debug("source \"{}\" is not available", source.getId());
+              }
+              return available;
+            })
         .orElseGet(
             () -> {
-              LOGGER.debug("Unknown source status for source id={}", source.getId());
+              LOGGER.debug("Unknown availability for source id={}", source.getId());
               return false;
             });
   }
@@ -344,25 +358,37 @@ public class SourceOperations extends DescribableImpl {
       // Fanout will only add one source descriptor with all the contents
       // Using a List here instead of a Set because we should not rely on how Sources are compared
       final List<Source> availableSources =
-          Stream.concat(
-                  frameworkProperties.getFederatedSources().stream(),
-                  Stream.of(catalog).filter(Objects::nonNull))
+          frameworkProperties
+              .getFederatedSources()
+              .stream()
               .filter(this::isSourceAvailable)
               .collect(Collectors.toList());
 
-      final Set<ContentType> contentTypes = new HashSet<>();
-      for (Source availableSource : availableSources) {
-        final Set<ContentType> contentTypesForSource =
-            contentTypesCache
-                .getCachedValueForSource(availableSource)
-                .orElseGet(
-                    () -> {
-                      LOGGER.debug(
-                          "Expected known cached ContentTypes in for source id={} because the source was last known to be available",
-                          availableSource.getId());
-                      return Collections.emptySet();
-                    });
-        contentTypes.addAll(contentTypesForSource);
+      final Set<ContentType> contentTypes =
+          availableSources
+              .stream()
+              .map(
+                  source ->
+                      contentTypesCache
+                          .getCachedValueForSource(source)
+                          .orElseGet(
+                              () -> {
+                                LOGGER.debug(
+                                    "Unknown content types for source id={}", source.getId());
+                                return Collections.emptySet();
+                              }))
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
+
+      if (isSourceAvailable(catalog)) {
+        availableSources.add(catalog);
+        final Optional<Set<ContentType>> catalogContentTypes =
+            contentTypesCache.getCachedValueForSource(catalog);
+        if (catalogContentTypes.isPresent()) {
+          contentTypes.addAll(catalogContentTypes.get());
+        } else {
+          LOGGER.debug("Unknown content types for the localSource");
+        }
       }
 
       List<Action> actions = getSourceActions(catalog);
@@ -404,18 +430,17 @@ public class SourceOperations extends DescribableImpl {
           String sourceId = source.getId();
           LOGGER.debug("adding sourceId: {}", sourceId);
 
-          final Set<ContentType> cachedContentTypes =
-              contentTypesCache
-                  .getCachedValueForSource(source)
-                  .orElseGet(
-                      () -> {
-                        LOGGER.debug("Unknown ContentTypes for source id={}", sourceId);
-                        return Collections.emptySet();
-                      });
-
           sourceDescriptor =
               new SourceDescriptorImpl(
-                  sourceId, cachedContentTypes, sourceActionRegistry.list(source));
+                  sourceId,
+                  contentTypesCache
+                      .getCachedValueForSource(source)
+                      .orElseGet(
+                          () -> {
+                            LOGGER.debug("Unknown content types for source id={}", source.getId());
+                            return Collections.emptySet();
+                          }),
+                  sourceActionRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
           sourceDescriptor.setAvailable(isSourceAvailable(source));
 
@@ -455,18 +480,17 @@ public class SourceOperations extends DescribableImpl {
     // local site info.
     if (descriptors != null) {
       if (catalog != null) {
-        final Set<ContentType> cachedContentTypes =
-            contentTypesCache
-                .getCachedValueForSource(catalog)
-                .orElseGet(
-                    () -> {
-                      LOGGER.debug("Unknown ContentTypes for the local catalog");
-                      return Collections.emptySet();
-                    });
-
-        SourceDescriptorImpl descriptor =
+        final SourceDescriptorImpl descriptor =
             new SourceDescriptorImpl(
-                this.getId(), cachedContentTypes, sourceActionRegistry.list(catalog));
+                this.getId(),
+                contentTypesCache
+                    .getCachedValueForSource(catalog)
+                    .orElseGet(
+                        () -> {
+                          LOGGER.debug("Unknown content types for the localSource");
+                          return Collections.emptySet();
+                        }),
+                sourceActionRegistry.list(catalog));
         if (this.getVersion() != null) {
           descriptor.setVersion(this.getVersion());
         }

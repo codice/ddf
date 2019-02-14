@@ -17,14 +17,11 @@ import ddf.catalog.data.ContentType
 import ddf.catalog.source.Source
 import org.hamcrest.Matchers
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 import static org.hamcrest.Matchers.empty
 
-@Timeout(value = 2, unit = TimeUnit.SECONDS)
 class ContentTypesSourcePollerRunnerSpec extends Specification {
 
     private final ContentTypesSourcePollerRunner contentTypesSourcePollerRunner = new ContentTypesSourcePollerRunner(Mock(Poller), 1, Mock(ScheduledExecutorService), Mock(SourceRegistry))

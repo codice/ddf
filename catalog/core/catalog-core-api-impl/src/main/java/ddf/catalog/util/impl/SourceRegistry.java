@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.Validate;
 
-/** This class maintains a list of all of the currently-registered {@link Source}s. */
+/** This class maintains lists of all of the currently-registered {@link Source}s. */
 public class SourceRegistry {
 
   private volatile List<ConnectedSource> connectedSources = Collections.emptyList();

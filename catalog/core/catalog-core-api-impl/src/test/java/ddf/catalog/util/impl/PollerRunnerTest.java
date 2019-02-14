@@ -18,10 +18,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -34,34 +36,22 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PollerRunnerTest {
 
-  @Mock private ScheduledExecutorService mockScheduledExecutorService;
-
-  @Mock private Poller mockPoller;
-
-  private PollerRunner pollerRunner;
-
-  @After
-  public void tearDown() {
-    // TODO verify that nothing else is scheduled
-    //    pollerRunner.destroy();
-  }
-
   @Test
   public void testPollingStarted() throws Exception {
     // given:
+    final ScheduledExecutorService mockScheduledExecutorService =
+        mock(ScheduledExecutorService.class);
     when(mockScheduledExecutorService.scheduleAtFixedRate(
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
@@ -70,11 +60,11 @@ public class PollerRunnerTest {
               return mock(ScheduledFuture.class);
             });
 
+    final Poller mockPoller = mock(Poller.class);
     final long pollIntervalMinutes = 1;
-
     final ImmutableMap itemsToPoll = mock(ImmutableMap.class);
 
-    pollerRunner =
+    final PollerRunner pollerRunner =
         new PollerRunner(mockPoller, pollIntervalMinutes, mockScheduledExecutorService) {
           @Override
           protected ImmutableMap getValueLoaders() {
@@ -85,19 +75,29 @@ public class PollerRunnerTest {
     // when:
     pollerRunner.init();
 
-    // then:
+    // then: 'the scheduled was started'
     verify(mockScheduledExecutorService)
         .scheduleAtFixedRate(
             any(Runnable.class), eq(0L), eq(pollIntervalMinutes), eq(TimeUnit.MINUTES));
+
+    // and: 'the current items were polled'
     verify(mockPoller).pollItems(pollIntervalMinutes, TimeUnit.MINUTES, itemsToPoll);
+
+    // and: 'nothing else was scheduled'
+    verify(mockScheduledExecutorService, atLeast(0)).isShutdown();
+    verifyNoMoreInteractions(mockScheduledExecutorService);
+
+    // cleanup:
+    pollerRunner.destroy();
   }
 
   @Test
   public void testSetPollIntervalMinutes() throws Exception {
     // given:
-    final ScheduledFuture mockFirstScheduledPollingFuture = mock(ScheduledFuture.class);
-
     // TODO verify called once
+    final ScheduledExecutorService mockScheduledExecutorService =
+        mock(ScheduledExecutorService.class);
+    final ScheduledFuture mockFirstScheduledPollingFuture = mock(ScheduledFuture.class);
     when(mockScheduledExecutorService.scheduleAtFixedRate(
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
@@ -106,44 +106,64 @@ public class PollerRunnerTest {
               return mockFirstScheduledPollingFuture;
             });
 
+    final Poller mockPoller = mock(Poller.class);
     final long initialPollIntervalMinutes = 1;
-
     final ImmutableMap itemsToPoll = mock(ImmutableMap.class);
 
-    pollerRunner =
+    final PollerRunner pollerRunner =
         new PollerRunner(mockPoller, initialPollIntervalMinutes, mockScheduledExecutorService) {
           @Override
           protected ImmutableMap getValueLoaders() {
             return itemsToPoll;
           }
         };
+
+    // and: 'the runner is initialized with an initial poll interval'
     pollerRunner.init();
+    // verify the pollItems interaction so that verifyNoMoreInteractions below works
+    verify(mockScheduledExecutorService)
+        .scheduleAtFixedRate(
+            any(Runnable.class), eq(0L), eq(initialPollIntervalMinutes), eq(TimeUnit.MINUTES));
 
     final long newPollIntervalMinutes = initialPollIntervalMinutes + 1;
 
-    // when:
+    // when: 'the poll interval is updated'
     pollerRunner.setPollIntervalMinutes(newPollIntervalMinutes);
 
-    // then
+    // then: 'the old schedule was cancelled'
     final InOrder inOrder =
         Mockito.inOrder(mockFirstScheduledPollingFuture, mockScheduledExecutorService);
     inOrder.verify(mockFirstScheduledPollingFuture).cancel(true);
+
+    // and: 'the new schedule was started'
     inOrder
         .verify(mockScheduledExecutorService)
         .scheduleAtFixedRate(
             any(Runnable.class), eq(0L), eq(newPollIntervalMinutes), eq(TimeUnit.MINUTES));
+
+    // and: 'the current items were polled with the new timeout'
     verify(mockPoller).pollItems(newPollIntervalMinutes, TimeUnit.MINUTES, itemsToPoll);
+
+    // and: 'nothing else was scheduled'
+    verify(mockScheduledExecutorService, atLeast(0)).isShutdown();
+    verifyNoMoreInteractions(mockScheduledExecutorService);
+
+    // cleanup:
+    pollerRunner.destroy();
   }
 
   @Rule public final ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testPollVirtualMachineError() throws Exception {
-    // then:
+    // then: 'the VirtualMachineError thrown by pollItems is not caught'
+    // Not sure why this needs to go at the beginning of the method
     final VirtualMachineError virtualMachineError = mock(VirtualMachineError.class);
     exception.expect(is(virtualMachineError));
 
     // given:
+    final ScheduledExecutorService mockScheduledExecutorService =
+        mock(ScheduledExecutorService.class);
     when(mockScheduledExecutorService.scheduleAtFixedRate(
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
         .thenAnswer(
@@ -152,15 +172,16 @@ public class PollerRunnerTest {
               return mock(ScheduledFuture.class);
             });
 
+    final Poller mockPoller = mock(Poller.class);
     final long pollIntervalMinutes = 1;
-
     final ImmutableMap itemsToPoll = mock(ImmutableMap.class);
 
+    // and: 'pollItems throws a VirtualMachineError'
     doThrow(virtualMachineError)
         .when(mockPoller)
         .pollItems(pollIntervalMinutes, TimeUnit.MINUTES, itemsToPoll);
 
-    pollerRunner =
+    final PollerRunner pollerRunner =
         new PollerRunner(mockPoller, pollIntervalMinutes, mockScheduledExecutorService) {
           @Override
           protected ImmutableMap getValueLoaders() {
@@ -170,11 +191,16 @@ public class PollerRunnerTest {
 
     // when:
     pollerRunner.init();
+
+    // cleanup:
+    pollerRunner.destroy();
   }
 
   @Test
   public void testInterruptedWhenPolling() throws Exception {
     // given:
+    final ScheduledExecutorService mockScheduledExecutorService =
+        mock(ScheduledExecutorService.class);
     final ScheduledFuture mockScheduledFuture = mock(ScheduledFuture.class);
     when(mockScheduledExecutorService.scheduleAtFixedRate(
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
@@ -184,14 +210,16 @@ public class PollerRunnerTest {
               return mockScheduledFuture;
             });
 
-    final long pollIntervalMinutes = 1;
+    final Poller mockPoller = mock(Poller.class);
+    final long pollIntervalMinutes = 10;
     final ImmutableMap itemsToPoll = mock(ImmutableMap.class);
 
+    // and: 'pollItems throws an InterruptedException'
     doThrow(InterruptedException.class)
         .when(mockPoller)
         .pollItems(pollIntervalMinutes, TimeUnit.MINUTES, itemsToPoll);
 
-    pollerRunner =
+    final PollerRunner pollerRunner =
         new PollerRunner(mockPoller, pollIntervalMinutes, mockScheduledExecutorService) {
           @Override
           protected ImmutableMap getValueLoaders() {
@@ -202,15 +230,24 @@ public class PollerRunnerTest {
     // when:
     pollerRunner.init();
 
-    // then:
+    // then: 'the ScheduledExecutorService is shutdown'
     verify(mockScheduledExecutorService, atLeastOnce()).shutdown();
+
+    // and: 'the InterruptedException is caught'
     // noExceptionThrown()
+
+    // and: 'the thread is interrupted'
     assertThat(Thread.interrupted(), is(true));
+
+    // cleanup:
+    pollerRunner.destroy();
   }
 
   @Test
   public void testPollerException() throws Exception {
     // given:
+    final ScheduledExecutorService mockScheduledExecutorService =
+        mock(ScheduledExecutorService.class);
     final ScheduledFuture mockScheduledFuture = mock(ScheduledFuture.class);
     when(mockScheduledExecutorService.scheduleAtFixedRate(
             any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
@@ -220,8 +257,10 @@ public class PollerRunnerTest {
               return mockScheduledFuture;
             });
 
+    final Poller mockPoller = mock(Poller.class);
     final long pollIntervalMinutes = 1;
 
+    // and: 'some of the current items will fail to be polled'
     final String key1 = "key1";
     final String key2 = "key2";
     final String key3 = "key3";
@@ -261,7 +300,7 @@ public class PollerRunnerTest {
         .when(mockPoller)
         .pollItems(pollIntervalMinutes, TimeUnit.MINUTES, itemsToPoll);
 
-    pollerRunner =
+    final PollerRunner pollerRunner =
         new PollerRunner(mockPoller, pollIntervalMinutes, mockScheduledExecutorService) {
           @Override
           protected ImmutableMap getValueLoaders() {
@@ -271,44 +310,22 @@ public class PollerRunnerTest {
 
     // when:
     pollerRunner.init();
+    // verify the pollItems interaction so that verifyNoMoreInteractions below works
+    verify(mockScheduledExecutorService)
+        .scheduleAtFixedRate(
+            any(Runnable.class), eq(0L), eq(pollIntervalMinutes), eq(TimeUnit.MINUTES));
 
     // then:
     verifyZeroInteractions(mockScheduledFuture);
+
+    // and: 'the exceptions thrown by pollItems are caught'
     // noExceptionThrown()
-  }
 
-  @Test
-  public void testThrowableWhenPolling() throws Exception {
-    // given:
-    final ScheduledFuture mockScheduledFuture = mock(ScheduledFuture.class);
-    when(mockScheduledExecutorService.scheduleAtFixedRate(
-            any(Runnable.class), eq(0L), anyLong(), any(TimeUnit.class)))
-        .thenAnswer(
-            invocation -> {
-              invocation.getArgumentAt(0, Runnable.class).run();
-              return mockScheduledFuture;
-            });
+    // and: 'nothing else was scheduled'
+    verify(mockScheduledExecutorService, atLeast(0)).isShutdown();
+    verifyNoMoreInteractions(mockScheduledExecutorService);
 
-    final long pollIntervalMinutes = 1;
-    final ImmutableMap itemsToPoll = mock(ImmutableMap.class);
-
-    doThrow(Throwable.class)
-        .when(mockPoller)
-        .pollItems(pollIntervalMinutes, TimeUnit.MINUTES, itemsToPoll);
-
-    pollerRunner =
-        new PollerRunner(mockPoller, pollIntervalMinutes, mockScheduledExecutorService) {
-          @Override
-          protected ImmutableMap getValueLoaders() {
-            return itemsToPoll;
-          }
-        };
-
-    // when:
-    pollerRunner.init();
-
-    // then:
-    verifyZeroInteractions(mockScheduledFuture);
-    // noExceptionThrown()
+    // cleanup:
+    pollerRunner.destroy();
   }
 }

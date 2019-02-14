@@ -14,12 +14,9 @@
 package ddf.catalog.util.impl
 
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.TimeUnit
 
-@Timeout(value = 2, unit = TimeUnit.SECONDS)
 class ContentTypesSourcePollerSpec extends Specification {
 
     def 'test handleTimeout'() {

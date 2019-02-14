@@ -15,7 +15,7 @@ package ddf.catalog.source;
 
 /**
  * The Interface {@link SourceMonitor} is used as a callback object when the availability of a
- * {@link Source} changes
+ * {@link Source} changes.
  */
 public interface SourceMonitor {
 

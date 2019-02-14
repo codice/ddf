@@ -16,12 +16,9 @@ package ddf.catalog.util.impl
 import ddf.catalog.source.Source
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
-@Timeout(value = 2, unit = TimeUnit.SECONDS)
 class SourcePollerRunnerSpec extends Specification {
 
     def 'test null SourceRegistry'() {

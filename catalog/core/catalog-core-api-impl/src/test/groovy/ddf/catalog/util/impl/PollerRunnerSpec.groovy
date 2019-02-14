@@ -16,13 +16,11 @@ package ddf.catalog.util.impl
 import com.google.common.collect.ImmutableMap
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-@Timeout(value = 2, unit = TimeUnit.SECONDS)
 class PollerRunnerSpec extends Specification {
 
     def 'test invalid constructor parameters'() {

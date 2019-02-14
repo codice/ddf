@@ -16,7 +16,6 @@ package ddf.catalog.util.impl
 import com.google.common.collect.ImmutableMap
 import com.google.common.util.concurrent.Futures
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
@@ -34,7 +33,6 @@ import static org.hamcrest.CoreMatchers.is
 import static org.hamcrest.collection.IsMapContaining.hasEntry
 import static spock.util.matcher.HamcrestSupport.expect
 
-@Timeout(value = 3, unit = TimeUnit.SECONDS)
 class PollerSpec extends Specification {
 
     def 'test destroy'() {
@@ -561,17 +559,4 @@ class PollerSpec extends Specification {
         cleanup:
         poller.destroy()
     }
-
-    // TODO
-//    def 'test try to commit all values even if there are some failures'() {
-//
-//    }
-
-//    def 'new values are committed when and in the order that they are loaded'() {
-//
-//    }
-
-//    def 'test pollItems while another pollItems is in progress'() {
-//
-//    }
 }

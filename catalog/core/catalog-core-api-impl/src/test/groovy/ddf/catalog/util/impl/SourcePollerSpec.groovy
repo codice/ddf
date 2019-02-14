@@ -15,12 +15,9 @@ package ddf.catalog.util.impl
 
 import ddf.catalog.source.Source
 import spock.lang.Specification
-import spock.lang.Timeout
 
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.TimeUnit
 
-@Timeout(value = 2, unit = TimeUnit.SECONDS)
 class SourcePollerSpec extends Specification {
 
     def 'test getCachedValueForSource'() {

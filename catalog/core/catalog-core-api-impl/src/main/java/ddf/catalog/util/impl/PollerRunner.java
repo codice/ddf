@@ -22,6 +22,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -52,6 +54,8 @@ abstract class PollerRunner<K, V> {
   @Nullable private volatile Future scheduledPollingFuture;
 
   private volatile long pollIntervalMinutes;
+
+  private final Lock startPollingLock = new ReentrantLock();
 
   /**
    * {@link #startPolling(long)} must be called to schedule the polling.
@@ -129,7 +133,23 @@ abstract class PollerRunner<K, V> {
   protected abstract ImmutableMap<K, Callable<V>> getValueLoaders();
 
   /** @throws IllegalStateException if unable to schedule polling */
-  private synchronized void startPolling(final long pollIntervalMinutes) {
+  private void startPolling(final long pollIntervalMinutes) {
+    if (!startPollingLock.tryLock()) {
+      final String message =
+          "Unable to start the schedule. Multiple threads may not start the schedule at the same time.";
+      LOGGER.warn("{} The Poller will not be periodically updated. Try restarting the system.");
+      throw new IllegalStateException(message);
+    }
+
+    try {
+      doStartPolling(pollIntervalMinutes);
+    } finally {
+      startPollingLock.unlock();
+    }
+  }
+
+  /** @throws IllegalStateException if unable to schedule polling */
+  private void doStartPolling(long pollIntervalMinutes) {
     if (scheduledPollingFuture != null) {
       scheduledPollingFuture.cancel(true);
       LOGGER.debug(

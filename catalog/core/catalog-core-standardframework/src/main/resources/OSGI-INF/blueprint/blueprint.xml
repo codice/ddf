@@ -72,13 +72,11 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
-
     <bean id="sourceRegistry" class="ddf.catalog.util.impl.SourceRegistry">
         <property name="connectedSources" ref="connectedSources"/>
         <property name="federatedSources" ref="federatedSources"/>
         <property name="catalogProviders" ref="catalog"/>
-        <property name="catalogStores" ref="catalogStore"/>
+        <property name="catalogStores" ref="catalogStores"/>
     </bean>
 
     <bean id="statusSourcePoller"
@@ -107,7 +105,7 @@
     <bean id="statusSourcePollerRunner" class="ddf.catalog.util.impl.StatusSourcePollerRunner"
           init-method="init" destroy-method="destroy">
         <argument ref="statusSourcePoller"/>
-        <argument value="1"/><!--initialPollIntervalMinutes-->
+        <argument value="1"/><!--pollIntervalMinutes-->
         <argument>
             <bean class="java.util.concurrent.Executors"
                   factory-method="newSingleThreadScheduledExecutor">
@@ -153,7 +151,7 @@
           class="ddf.catalog.util.impl.ContentTypesSourcePollerRunner" init-method="init"
           destroy-method="destroy">
         <argument ref="contentTypesSourcePoller"/>
-        <argument value="60"/><!--initialPollIntervalMinutes-->
+        <argument value="60"/><!--pollIntervalMinutes-->
         <argument>
             <bean class="java.util.concurrent.Executors"
                   factory-method="newSingleThreadScheduledExecutor">
@@ -167,6 +165,8 @@
         </argument>
         <argument ref="sourceRegistry"/>
     </bean>
+
+    <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
     <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
 

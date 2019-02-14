@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.Validate;
 
 /**
- * This abstract class is used to poll {@link Source}s periodically to provide a non-blocking way to
+ * This abstract class is used to poll {@link Source}s periodically to support a non-blocking way to
  * retrieve the last-known {@link V} for the {@link Source}. This class contains the logic of
  * retrieving the current {@link Source}s to poll.
  *
