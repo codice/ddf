@@ -536,14 +536,11 @@ public class DumpCommand extends CqlCommands {
   private void writeResourceToZip(
       ZipOutputStream zipOutputStream, String filename, Resource resource) {
 
-    try {
+    try (InputStream inputStream = resource.getInputStream()) {
       ZipEntry zipEntry = new ZipEntry(filename);
       zipOutputStream.putNextEntry(zipEntry);
 
-      InputStream inputStream = resource.getInputStream();
-
       IOUtils.copy(inputStream, zipOutputStream);
-      inputStream.close();
     } catch (IOException e) {
       LOGGER.debug("Failed to add resource with id {} to zip.", resource.getName(), e);
     }
