@@ -65,7 +65,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
     if (observer == null && fileName != null) {
 
-      observer = AsyncFileAlterationObserver.load(fileName, jsonSerializer);
+      observer = AsyncFileAlterationObserver.load(new File(fileName), jsonSerializer);
 
       //  Backwards Compatibility
       if (observer == null && isOldVersion(fileName)) {

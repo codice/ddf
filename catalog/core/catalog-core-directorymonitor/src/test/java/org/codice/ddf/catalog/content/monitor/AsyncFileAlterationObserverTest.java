@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -443,7 +444,7 @@ public class AsyncFileAlterationObserverTest {
 
     Stream.of(files).forEach(this::changeData);
 
-    initSemaphore(2);
+    initSemaphore(1);
 
     observer.checkAndNotify();
 
@@ -456,14 +457,15 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     artificialDelay.release(files.length);
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
+    initSemaphore(1);
 
     verify(fileListener, times(files.length))
         .onFileChange(any(File.class), any(Synchronization.class));
 
-    artificialDelay.release(files.length);
-
     observer.checkAndNotify();
 
+    artificialDelay.release(files.length);
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
@@ -480,7 +482,7 @@ public class AsyncFileAlterationObserverTest {
 
     File[] files = initFiles(1, monitoredDirectory, "file00");
 
-    initSemaphore(files.length * 2);
+    initSemaphore(files.length);
 
     observer.checkAndNotify();
 
@@ -492,13 +494,12 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     artificialDelay.release(files.length * 2);
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
 
     observer.checkAndNotify();
-
-    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
@@ -1074,6 +1075,71 @@ public class AsyncFileAlterationObserverTest {
     assertThat(artificialDelay.getQueueLength(), is(0));
   }
 
+  //  Implementation heavy test
+  @Test
+  public void testCreateDirectoryDeleteDirAndRecreate() throws Exception {
+    File childDir = new File(monitoredDirectory, "child001");
+    assertThat(childDir.mkdir(), is(true));
+
+    File[] childFiles = initFiles(4, childDir, "child-file00");
+
+    observer.checkAndNotify();
+
+    //  Set it up so 2 files are being processed and 2 files are available.
+    initSemaphore(4);
+    artificialDelay.release(2);
+    int failNo = 2;
+    timesToFail.set(failNo);
+
+    Stream.of(childFiles).forEach(this::fileDelete);
+    assertThat(childDir.delete(), is(true));
+    observer.checkAndNotify();
+
+    //  2 files will be waiting on being deleted an 2 files will be failed.
+    //  This will give us a state where we're in the middle of processing
+    verify(fileListener, times(childFiles.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(childFiles.length))
+        .onFileDelete(any(File.class), any(Synchronization.class));
+    assertThat(failures, is(failNo));
+
+    childFiles = initFiles(4, childDir, "child-file00");
+
+    //  When we initialize these files, we're half way through checking, The files that are blocked
+    // from
+    //  the first pass will still be blocked on the delete, the files that have not yet realized
+    // that the
+    //  files are getting deleted will not notice anything as they are back. Depending they may send
+    // update requests
+    observer.checkAndNotify();
+
+    verify(fileListener, times(childFiles.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, atMost(2)).onFileChange(any(), any());
+    verify(fileListener, times(childFiles.length))
+        .onFileDelete(any(File.class), any(Synchronization.class));
+    assertThat(failures, is(failNo));
+
+    artificialDelay.release(4);
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
+
+    removeDelay();
+
+    //  when we remove the delay and unblock, the two files waiting on deletes will delete and the
+    // next pass will
+    //  create the new files again.
+    observer.checkAndNotify();
+
+    verify(fileListener, times(childFiles.length + 2))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, atMost(2)).onFileChange(any(), any());
+    verify(fileListener, times(failNo + 2))
+        .onFileDelete(any(File.class), any(Synchronization.class));
+    assertThat(failures, is(failNo));
+
+    assertThat(artificialDelay.getQueueLength(), is(0));
+  }
+
   private String json;
 
   private Object setJson(InvocationOnMock invocationOnMock) {
@@ -1101,7 +1167,7 @@ public class AsyncFileAlterationObserverTest {
 
     observer.store(store);
 
-    AsyncFileAlterationObserver two = AsyncFileAlterationObserver.load("File01", store);
+    AsyncFileAlterationObserver two = AsyncFileAlterationObserver.load(new File("File01"), store);
 
     two.checkAndNotify();
 
@@ -1115,7 +1181,7 @@ public class AsyncFileAlterationObserverTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testloadNull() {
-    AsyncFileAlterationObserver.load("File", null);
+    AsyncFileAlterationObserver.load(new File("File"), null);
   }
 
   private void initNestedDirectory(int child, int grand, int topLevel, int gSibling)
@@ -1181,6 +1247,10 @@ public class AsyncFileAlterationObserverTest {
     doTestWrapper = this::delayFunc;
     artificialDelay = new Semaphore(0);
     delayLatch = new CountDownLatch(latchNo);
+  }
+
+  private void removeDelay() {
+    doTestWrapper = Runnable::run;
   }
 
   private void delayFunc(Runnable cb) {
