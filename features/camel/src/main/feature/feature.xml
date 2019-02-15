@@ -237,7 +237,7 @@
   <feature name="camel-quartz2" version="${camel.version}" start-level="50">
       <!-- Bundle wrap & deploy mchange's version of c3p0 0.9.5.3 to force quartz2's transitive
     dependency on 0.9.5.2 to use the newer version instead -->
-        <bundle dependency="true">wrap:mvn:com.mchange/c3p0/${c3p0-bundle-version}</bundle>
+        <bundle dependency="true">wrap:mvn:com.mchange/c3p0/${c3p0-bundle-version}$Bundle-Name=c3p0&amp;Bundle-SymbolicName=c3p0&amp;Bundle-Version=${c3p0-bundle-version}</bundle>
         <bundle dependency="true">mvn:com.zaxxer/HikariCP-java6/${hikaricp-version}</bundle>
         <bundle dependency="true">wrap:mvn:org.quartz-scheduler/quartz/${quartz2-version}$overwrite=merge&amp;DynamicImport-Package=org.apache.camel.component.quartz2</bundle>
         <feature version="${camel.version}">camel-core</feature>
