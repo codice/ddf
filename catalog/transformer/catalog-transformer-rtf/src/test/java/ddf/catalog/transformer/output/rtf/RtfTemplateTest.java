@@ -44,7 +44,7 @@ public class RtfTemplateTest extends BaseTestConfiguration {
         new RtfTemplate.Builder().withMetacard(mockMetacard).withCategories(mockCategories).build();
 
     assertThat("Template cannot be null", template, notNullValue());
-    assertThat("There should be 4 categories", mockCategories.get(0).getAttributes(), hasSize(4));
+    assertThat("There should be 5 categories", mockCategories.get(0).getAttributes(), hasSize(5));
 
     Rtf doc = Rtf.rtf();
 
