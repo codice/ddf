@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import * as router from '../../../component/router/router'
-import { MetacardInteractionProps } from '.'
+import { Props } from '.'
 import { hot } from 'react-hot-loader'
 const wreqr = require('wreqr')
 
-const ExpandMetacard = (props: MetacardInteractionProps) => {
+const ExpandMetacard = (props: Props) => {
   const isRouted = router && router.toJSON().name === 'openMetacard'
 
   if (isRouted || props.model.length > 1) {
@@ -24,7 +24,7 @@ const ExpandMetacard = (props: MetacardInteractionProps) => {
   )
 }
 
-const handleExpand = (props: MetacardInteractionProps) => {
+const handleExpand = (props: Props) => {
   props.onClose()
   let id = props.model
     .first()

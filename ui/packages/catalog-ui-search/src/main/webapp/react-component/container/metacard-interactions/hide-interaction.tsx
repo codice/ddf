@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
-import { MetacardInteractionProps, Result, Model } from '.'
+import { Props, Result, Model } from '.'
 import * as user from '../../../component/singletons/user-instance'
 import { hot } from 'react-hot-loader'
 
-const handleShow = (context: MetacardInteractionProps) => {
+const handleShow = (context: Props) => {
   context.onClose()
   const preferences = user.get('user').get('preferences')
   const getResult = (result: Result) =>
@@ -17,7 +17,7 @@ const handleShow = (context: MetacardInteractionProps) => {
   preferences.savePreferences()
 }
 
-const handleHide = (context: MetacardInteractionProps) => {
+const handleHide = (context: Props) => {
   context.onClose()
   const preferences = user.get('user').get('preferences')
   const getResult = (result: Result) => ({

@@ -24,7 +24,7 @@ import { Divider } from '../../presentation/metacard-interactions/metacard-inter
 
 const plugin = require('plugins/metacard-interactions')
 
-export type MetacardInteractionProps = {
+export type Props = {
   model: {} | any
   onClose: () => void
 } & WithBackboneProps
@@ -68,7 +68,7 @@ const interactions = plugin([
   ExportActions,
 ])
 
-const mapPropsToState = (props: MetacardInteractionProps) => {
+const mapPropsToState = (props: Props) => {
   return {
     model: props.model,
     blacklisted: isBlacklisted(props.model),
@@ -76,10 +76,10 @@ const mapPropsToState = (props: MetacardInteractionProps) => {
 }
 
 class MetacardInteractions extends React.Component<
-  MetacardInteractionProps,
+  Props,
   State
 > {
-  constructor(props: MetacardInteractionProps) {
+  constructor(props: Props) {
     super(props)
     this.state = mapPropsToState(props)
   }

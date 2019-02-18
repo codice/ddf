@@ -7,14 +7,14 @@ import { Geometry } from 'wkx'
 import * as store from '../../../js/store'
 
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
-import { MetacardInteractionProps, Model, Result } from './'
+import { Props, Model, Result } from './'
 import { hot } from 'react-hot-loader'
 
 const CqlUtils = require('../../../js/CQLUtils')
 const wreqr = require('wreqr')
 const Query = require('../../../js/model/Query')
 
-const handleCreateSearch = (context: MetacardInteractionProps) => {
+const handleCreateSearch = (context: Props) => {
   const locations = getGeoLocations(context.model)
 
   if (locations.length === 0) return
