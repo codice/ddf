@@ -1,5 +1,5 @@
 import * as React from 'react'
-import styled from '../../../react-component/styles/styled-components'
+import styled from '../../styles/styled-components'
 
 export const Divider = () => <div className="is-divider composed-menu" />
 
@@ -21,7 +21,7 @@ const Interaction = styled.div`
   line-height: ${props => props.theme.minimumButtonSize};
   height: ${props => props.theme.minimumButtonSize};
   white-space: nowrap;
-  padding: 0px 10px;
+  padding: ${props => `0px ${props.theme.minimumSpacing}`};
   cursor: pointer;
   overflow: hidden;
 `

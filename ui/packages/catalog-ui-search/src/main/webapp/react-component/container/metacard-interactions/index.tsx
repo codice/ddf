@@ -31,7 +31,10 @@ import * as store from '../../../js/store'
 import * as user from '../../../component/singletons/user-instance'
 
 import MarionetteRegionContainer from '../marionette-region-container'
-import { Divider, MetacardInteraction } from './common'
+import {
+  Divider,
+  MetacardInteraction,
+} from '../../presentation/metacard-interactions/metacard-interactions'
 
 const plugin = require('plugins/metacard-interactions')
 
@@ -372,13 +375,17 @@ const interactions = plugin([
   ExportActions,
 ])
 
+const mapPropsToState = (props: Props) => {
+  return {
+    model: props.model,
+    blacklisted: isBlacklisted(props.model),
+  }
+}
+
 class MetacardInteractions extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = {
-      model: null,
-      blacklisted: false,
-    }
+    this.state = mapPropsToState(props)
   }
   componentDidMount = () => {
     const setState = (model: Model) => this.setState({ model: model })
