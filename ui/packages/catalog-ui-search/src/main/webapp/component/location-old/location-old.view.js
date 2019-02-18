@@ -60,16 +60,18 @@ const minimumBuffer = 0.000001
 const filterToLocationOldModel = filter => {
   if (filter === '') return filter
 
+  if (typeof filter.geojson === 'object') {
+    return deserialize(filter.geojson)
+  }
+
   const filterValue =
-    typeof filter.geojson === 'object' ? filter.geojson : filter.value.value
+    typeof filter.value === 'object' ? filter.value.value : filter.value
 
   // for backwards compatability with wkt
   if (typeof filterValue === 'string') {
     const json = wkx.Geometry.parse(filterValue).toGeoJSON()
     return deserialize(json)
   }
-
-  return deserialize(filter.geojson)
 }
 
 module.exports = Marionette.LayoutView.extend({
