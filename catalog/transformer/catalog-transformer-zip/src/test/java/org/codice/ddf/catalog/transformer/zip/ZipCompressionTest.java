@@ -173,6 +173,23 @@ public class ZipCompressionTest {
     zipCompression.transform(sourceResponse, arguments);
   }
 
+  @Test
+  public void testCompressionSingleTransformationFails() throws Exception {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId("metacardId");
+    List<Result> results = Collections.singletonList(new ResultImpl(metacard));
+    SourceResponse sourceResponse = new SourceResponseImpl(null, results);
+
+    Map<String, Serializable> arguments =
+        new ImmutableMap.Builder<String, Serializable>().put("transformerId", "hello").build();
+
+    when(transformer.transform(any(), any())).thenThrow(CatalogTransformerException.class);
+
+    BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
+
+    assertZipContents(binaryContent, Collections.emptyList());
+  }
+
   private void assertZipContents(BinaryContent binaryContent, List<String> ids) throws IOException {
     ZipInputStream zipInputStream =
         new ZipInputStream(new ByteArrayInputStream(binaryContent.getByteArray()));

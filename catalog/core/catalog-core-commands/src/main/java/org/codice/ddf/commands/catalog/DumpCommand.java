@@ -58,6 +58,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
@@ -98,7 +99,7 @@ public class DumpCommand extends CqlCommands {
 
   private static final String CONTENT = "content";
 
-  private static final int BUFFER_SIZE = 4096;
+  private static final int BUFFER_SIZE = 10000000;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -221,6 +222,10 @@ public class DumpCommand extends CqlCommands {
       return null;
     }
 
+    if (StringUtils.isNotBlank(zipFileName) && !zipFileName.endsWith(".zip")) {
+      zipFileName = zipFileName + ".zip";
+    }
+
     SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
     CatalogFacade catalog = getCatalog();
@@ -256,11 +261,22 @@ public class DumpCommand extends CqlCommands {
       LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
     }
 
-    ResultIterable.resultIterable(catalog::query, queryRequest)
-        .stream()
-        .map(Collections::singletonList)
-        .map(result -> new SourceResponseImpl(queryRequest, result))
-        .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
+    List<Result> results =
+        ResultIterable.resultIterable(catalog::query, queryRequest)
+            .stream()
+            .collect(Collectors.toList());
+
+    if (StringUtils.isNotBlank(zipFileName)) {
+      SourceResponse sourceResponse = new SourceResponseImpl(queryRequest, results);
+      createZip(sourceResponse, dirPath + zipFileName);
+      resultCount.set(sourceResponse.getHits());
+    } else {
+      results
+          .stream()
+          .map(Collections::singletonList)
+          .map(result -> new SourceResponseImpl(queryRequest, result))
+          .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
+    }
 
     executorService.shutdown();
 
@@ -294,17 +310,8 @@ public class DumpCommand extends CqlCommands {
       File dumpDir,
       AtomicLong resultCount) {
     final List<Result> results = response.getResults();
-    if (StringUtils.isNotBlank(zipFileName)) {
-      try {
-        createZip(response, dirPath + zipFileName);
 
-        Long resultSize = (long) results.size();
-        printStatus(resultCount.addAndGet(resultSize));
-
-      } catch (CatalogTransformerException e) {
-        LOGGER.info("zipCompression transform failed");
-      }
-    } else if (multithreaded > 1) {
+    if (multithreaded > 1) {
       executorService.submit(() -> processResults(results, dumpDir, resultCount));
     } else {
       processResults(results, dumpDir, resultCount);
@@ -460,8 +467,11 @@ public class DumpCommand extends CqlCommands {
       LOGGER.debug("Failed to add metacard with id {}.", metacard.getId(), e);
     } finally {
       try {
-        inputStream.close();
-      } catch (IOException | NullPointerException ignore) {
+        if (inputStream != null) {
+          inputStream.close();
+        }
+      } catch (IOException e) {
+        LOGGER.debug("Failed to close input stream", e);
       }
     }
   }

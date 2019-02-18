@@ -15,7 +15,6 @@ package org.codice.ddf.commands.catalog;
 
 import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -29,10 +28,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.File;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.fusesource.jansi.Ansi;
 import org.junit.Rule;
@@ -206,32 +202,6 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
 
     // then
     assertThat(consoleOutput.getOutput(), containsString(" 0 file(s) dumped in "));
-  }
-
-  @Test
-  public void testNoZipFileDumpedWhenTransformFails() throws Exception {
-    // mock transformer to throw exception
-    MetacardTransformer transformer = mock(MetacardTransformer.class);
-    when(transformer.transform(any(), any())).thenThrow(CatalogTransformerException.class);
-    List<MetacardTransformer> transformers = new ArrayList<>();
-    transformers.add(transformer);
-
-    TestDumpCommand dumpCommand = new TestDumpCommand(transformers);
-    dumpCommand.catalogFramework = givenCatalogFramework(Collections.emptyList());
-    dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
-    File outputDirectory = testFolder.newFolder("somedirectory");
-    String outputDirectoryPath = outputDirectory.getAbsolutePath();
-    dumpCommand.dirPath = outputDirectoryPath;
-    dumpCommand.transformerId = "someOtherTransformer";
-    Path zipfilePath = Paths.get(outputDirectoryPath, "foo.zip");
-    dumpCommand.zipFileName = zipfilePath.toString();
-
-    // when
-    dumpCommand.executeWithSubject();
-
-    // then
-    assertThat(consoleOutput.getOutput(), containsString(" 0 file(s) dumped in "));
-    assertThat(zipfilePath.toFile().exists(), is(false));
   }
 
   private class TestDumpCommand extends DumpCommand {
