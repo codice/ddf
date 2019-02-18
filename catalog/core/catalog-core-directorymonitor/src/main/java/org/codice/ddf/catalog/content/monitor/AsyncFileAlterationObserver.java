@@ -17,8 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.CompletionSynchronization;
@@ -36,6 +35,9 @@ import org.slf4j.LoggerFactory;
  * directory being monitored, and call the {@link AsyncFileAlterationListener}'s corresponding
  * methods
  *
+ * <p>Additionally upon calling {@code checkAndNotify()} additional calls to {@code
+ * checkAndNotify()} will return until all files are finished processing
+ *
  * @see AsyncFileAlterationListener
  */
 public class AsyncFileAlterationObserver {
@@ -44,7 +46,7 @@ public class AsyncFileAlterationObserver {
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
-  private final Set<AsyncFileEntry> fileLocks = new ConcurrentSkipListSet<>();
+  private final AtomicLong processing = new AtomicLong(0);
   private final Object listenerLock = new Object();
 
   public AsyncFileAlterationObserver(File fileToObserve) {
@@ -117,7 +119,7 @@ public class AsyncFileAlterationObserver {
    * Called when the observer should compare the snapshot state to the actual state of the directory
    * being monitored.
    */
-  public synchronized void checkAndNotify() {
+  public void checkAndNotify() {
 
     //  You cannot change listeners in the middle of executions.
     //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
@@ -130,6 +132,14 @@ public class AsyncFileAlterationObserver {
       listenerCopy = listener;
     }
 
+    synchronized (this) {
+      if (processing.get() != 0) {
+        LOGGER.debug("{} files are still processing. Waiting until the list is empty");
+        return;
+      }
+      processing.incrementAndGet();
+    }
+
     /* fire directory/file events */
     if (rootFile.checkNetwork()) {
       checkAndNotify(rootFile, rootFile.getChildren(), listFiles(rootFile.getFile()), listenerCopy);
@@ -139,6 +149,9 @@ public class AsyncFileAlterationObserver {
           "The monitored file [{}] does not exist. No file fileLocks will be done through the CDM",
           rootFile.getName());
     }
+
+    processing.decrementAndGet();
+    onFinish();
   }
 
   /**
@@ -148,17 +161,7 @@ public class AsyncFileAlterationObserver {
    */
   private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
 
-    if (!getFileLock(entry)) {
-      //  Return if you cannot get the lock.
-      return;
-    }
-
-    //  Since we only get a lock on the child and not the parent, we need to make sure
-    //  that the parent hasn't been updated from the "previous" child.
-    if (entry.isChildOfParent()) {
-      removeFileLock(entry);
-      return;
-    }
+    processing.incrementAndGet();
     //  At this point this file is stable.
 
     if (!entry.getFile().isDirectory()) {
@@ -186,14 +189,16 @@ public class AsyncFileAlterationObserver {
    * @param entry The AsyncFileEntry wrapping the file being listened to.
    * @param success Boolean that shows if the task failed or completed successfully
    */
-  private synchronized void commitCreate(AsyncFileEntry entry, boolean success) {
+  private void commitCreate(AsyncFileEntry entry, boolean success) {
 
     LOGGER.debug("commitCreate({},{}): Starting...", entry.getName(), success);
     if (success) {
       entry.commit();
       entry.getParent().ifPresent(e -> e.addChild(entry));
     }
-    removeFileLock(entry);
+    processing.decrementAndGet();
+
+    onFinish();
   }
 
   /**
@@ -202,12 +207,10 @@ public class AsyncFileAlterationObserver {
    * @param entry The previous file system entry
    */
   private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-    if (!getFileLock(entry)) {
-      return;
-    }
+    processing.incrementAndGet();
 
     if (!entry.hasChanged()) {
-      removeFileLock(entry);
+      processing.decrementAndGet();
       return;
     }
 
@@ -234,7 +237,9 @@ public class AsyncFileAlterationObserver {
     if (success) {
       entry.commit();
     }
-    removeFileLock(entry);
+    processing.decrementAndGet();
+
+    onFinish();
   }
 
   /**
@@ -243,18 +248,7 @@ public class AsyncFileAlterationObserver {
    * @param entry The file entry
    */
   private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-    if (!getFileLock(entry)) {
-      //  Return if you cannot get the lock.
-      return;
-    }
-
-    //  Since we only get a lock on the child and not the parent, we need to make sure
-    //  that the parent hasn't been updated from the "previous" child.
-    if (!entry.isChildOfParent()) {
-      removeFileLock(entry);
-      return;
-    }
-    //  At this point this file is stable.
+    processing.incrementAndGet();
 
     if (!entry.isDirectory()) {
       LOGGER.trace("Sending Delete Request for {}...", entry.getName());
@@ -263,12 +257,12 @@ public class AsyncFileAlterationObserver {
     }
     //  Once there are no more children we can delete directories.
     //  Check that there are no children, and that no locked files have it as it's parent.
-    else if (!entry.hasChildren() && !checkLocks(entry)) {
+    else if (!entry.hasChildren()) {
       commitDelete(entry, true);
     } else {
       //  If there are still children, we're going to keep it within the tree until all the
       //  children are successfully deleted
-      removeFileLock(entry);
+      processing.decrementAndGet();
     }
   }
 
@@ -279,13 +273,15 @@ public class AsyncFileAlterationObserver {
    * @param entry The AsyncFileEntry wrapping the file being listened to.
    * @param success Boolean that shows if the task failed or completed successfully
    */
-  private synchronized void commitDelete(AsyncFileEntry entry, boolean success) {
+  private void commitDelete(AsyncFileEntry entry, boolean success) {
     LOGGER.debug("commitDelete({},{}): Starting...", entry.getName(), success);
     if (success) {
       entry.getParent().ifPresent(e -> e.removeChild(entry));
       entry.destroy();
     }
-    removeFileLock(entry);
+    processing.decrementAndGet();
+
+    onFinish();
   }
 
   /**
@@ -364,27 +360,29 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  /**
-   * A list of files that are currently being processed by the CDM
-   *
-   * <p>Holds all the synchronized tags within this file. Potentially should be another class?
-   */
-  private void removeFileLock(AsyncFileEntry entry) {
-    fileLocks.remove(entry);
-  }
+  private final Object onDoneLock = new Object();
 
-  private boolean getFileLock(AsyncFileEntry entry) {
-    return fileLocks.add(entry);
-  }
-
-  private boolean checkLocks(AsyncFileEntry entry) {
-    for (AsyncFileEntry locked : fileLocks) {
-      if (locked.getParent().isPresent()) {
-        if (locked.getParent().get().equals(entry)) {
-          return true;
-        }
+  private void onFinish() {
+    Runnable copy = null;
+    synchronized (onDoneLock) {
+      if (onDone != null && processing.get() == 0) {
+        copy = onDone;
       }
     }
-    return false;
+    if (copy != null) {
+      copy.run();
+    }
+  }
+
+  @Nullable private Runnable onDone = null;
+  /**
+   * Adds a function that gets called when there are no more processing items.
+   *
+   * @param f function to run
+   */
+  public void setOnDone(@Nullable Runnable f) {
+    synchronized (onDoneLock) {
+      onDone = f;
+    }
   }
 }

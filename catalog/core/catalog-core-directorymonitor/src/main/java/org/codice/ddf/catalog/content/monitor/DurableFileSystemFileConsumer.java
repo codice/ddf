@@ -47,7 +47,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       observer.setListener(listener);
       observer.checkAndNotify();
       observer.removeListener();
-      observer.store(jsonSerializer);
+      observer.setOnDone(() -> observer.store(jsonSerializer));
       return true;
     } else {
       return isMatched(null, null, null);
