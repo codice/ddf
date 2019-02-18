@@ -22,20 +22,6 @@ const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 require('../../../behaviors/dropdown.behavior')
 
-const MetacardInteractionsDropdown = Marionette.ItemView.extend({
-  template() {
-    const props = {
-      model: this.model,
-      onClose: () => {
-        this.$el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
-      },
-    }
-    return <MetacardInteractions {...props} />
-  },
-  tagName: CustomElements.register('metacard-interactions-dropdown'),
-  handleShare() {},
-})
-
 // TODO: Add onHover from the + button
 const Button = styled.button`
   display: 'inline-block';
@@ -96,6 +82,20 @@ const ContainerView = Marionette.ItemView.extend({
   handleModelUpdates: function() {
     this.render()
   },
+})
+
+const MetacardInteractionsDropdown = Marionette.ItemView.extend({
+  template() {
+    const props = {
+      model: this.model,
+      onClose: () => {
+        this.$el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
+      },
+    }
+    return <MetacardInteractions {...props} />
+  },
+  tagName: CustomElements.register('metacard-interactions-dropdown'),
+  handleShare() {},
 })
 
 const Component = ({ model }) => (
