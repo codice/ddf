@@ -20,7 +20,7 @@
 |attributeMap
 |String
 |Mapping of Metacard SECURITY attribute to user attribute. Users with this role will always receive metacards with errors and/or warnings.
-|invalid-state=data-manager
+|invalid-state=localhost-data-manager
 |false
 
 |Filter errors
