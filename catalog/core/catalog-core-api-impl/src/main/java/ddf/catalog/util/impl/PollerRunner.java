@@ -190,11 +190,7 @@ abstract class PollerRunner<K, V> {
       LOGGER.trace(
           "Successfully finished the process of polling the {} source(s)", currentItemsCount);
     } catch (InterruptedException e) {
-      LOGGER.warn(
-          "A scheduled poll was interrupted. Destroying the ScheduledExecutorService, which means that future polls will no longer be scheduled. Try restarting the system.",
-          pollIntervalMinutes,
-          e);
-      destroy();
+      LOGGER.debug("A scheduled poll was interrupted.", pollIntervalMinutes, e);
       Thread.currentThread().interrupt();
     } catch (final VirtualMachineError e) {
       final String message = "A scheduled poll failed";

@@ -17,10 +17,12 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.source.Source;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This abstract class is used to poll {@link Source}s periodically to support a non-blocking way to
@@ -30,6 +32,8 @@ import org.apache.commons.lang3.Validate;
  * @param <V> type of the value returned when a {@link Source} is polled
  */
 abstract class SourcePollerRunner<V> extends PollerRunner<SourceKey, V> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SourcePollerRunner.class);
 
   private final SourceRegistry sourceRegistry;
 
@@ -44,22 +48,22 @@ abstract class SourcePollerRunner<V> extends PollerRunner<SourceKey, V> {
   }
 
   /**
-   * @throws IllegalStateException if each of the current {@link Source} does not have a unique
-   *     {@link SourceKey}
    * @throws NullPointerException if {@link SourceRegistry#getCurrentSources()} contains a {@code
    *     null} {@link Source}
    */
   @Override
   protected ImmutableMap<SourceKey, Callable<V>> getValueLoaders() {
-    return sourceRegistry
-        .getCurrentSources()
-        .stream()
-        .peek(Validate::notNull)
-        .collect(
-            Collectors.collectingAndThen(
-                Collectors.toMap(
-                    SourceKey::new, source -> (Callable<V>) () -> getCurrentValueForSource(source)),
-                ImmutableMap::copyOf));
+    final Map<SourceKey, Callable<V>> map = new HashMap<>();
+    for (final Source source : sourceRegistry.getCurrentSources()) {
+      notNull(source);
+      final SourceKey sourceKey = new SourceKey(source);
+      if (map.put(sourceKey, () -> getCurrentValueForSource(source)) != null) {
+        LOGGER.warn(
+            "Duplicate key {}. The Pollers may not be reporting correct values for the matching Sources. Confirm that each Source has a unique id, and try restarting."
+                + sourceKey);
+      }
+    }
+    return ImmutableMap.copyOf(map);
   }
 
   /**

@@ -47,12 +47,9 @@ class SourcePollerRunnerSpec extends Specification {
             }]
         }])
 
-        when:
-        sourcePollerRunner.getValueLoaders()
-
-        then:
+        expect:
         // TODO DDF-4288
-        thrown IllegalStateException
+        sourcePollerRunner.getValueLoaders().size() == 1
     }
 
     def 'test null Source in SourceRegistry'() {
