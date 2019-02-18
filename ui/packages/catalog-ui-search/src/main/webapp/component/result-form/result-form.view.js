@@ -26,6 +26,7 @@ const _ = require('underscore')
 const announcement = require('../announcement/index.jsx')
 const ResultFormsCollection = require('../result-form/result-form-collection-instance.js')
 const Common = require('../../js/Common.js')
+const properties = require('../../js/properties.js')
 const ResultForm = require('../search-form/search-form.js')
 
 module.exports = Marionette.LayoutView.extend({
@@ -66,6 +67,9 @@ module.exports = Marionette.LayoutView.extend({
           ) {
             return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
           })
+            .filter(function(type) {
+              return !properties.isHidden(type.id)
+            })
             .filter(function(type) {
               return !excludedList.hasOwnProperty(type.id)
             })
