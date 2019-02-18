@@ -7,6 +7,8 @@
 
 == {title}
 
+* *{hardening-step}*
+
 Prevent certain users from seeing data with certain types of errors or warnings.
 Typically, this is used for security markings.
 If the *Metacard Validation Filter Plugin* is configured to *Filter errors* and/or *Filter warnings*, metacards with errors/warnings will be hidden from users without the specified user attributes.
@@ -20,7 +22,7 @@ If the *Metacard Validation Filter Plugin* is configured to *Filter errors* and/
 ... `invalid-state=<USER ROLE>`.
 ... Replace `<USER ROLE>` with the roles that should be allowed to view invalid metacards.
 [NOTE]
-To prevent other ${branding} systems from querying invalid data in the local catalog, it is
+To harden the system and prevent other ${branding} systems from querying invalid data in the local catalog, it is
 recommended to create and set user roles that are unique to the local system (ie. a user role
 that includes a UUID).
 . Select *Filter errors* to filter errors. Users without the `invalid-state` attribute will not see metacards with errors.

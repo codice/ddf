@@ -84,6 +84,8 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       "The unique name of this instance. This name will be provided via web services that ask for the name.";
   private static final String VERSION_TITLE = "Version";
   private static final String VERSION_DESCRIPTION = "The version of this instance.";
+  private static final String LOCALHOST_DATA_MANAGER = "localhost-data-manager";
+  private static final String DATA_MANAGER = "data-manager";
 
   private static final Gson GSON =
       new GsonBuilder()
@@ -222,10 +224,12 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
         String oldHostValue = usersDotProperties.getProperty(oldHostName);
 
         if (oldHostValue != null) {
+          String newInternalHost = System.getProperty(SystemBaseUrl.INTERNAL_HOST);
+          String newHostValue =
+              oldHostValue.replaceAll(
+                  LOCALHOST_DATA_MANAGER, String.format("%s-%s", newInternalHost, DATA_MANAGER));
           usersDotProperties.remove(oldHostName);
-          usersDotProperties.setProperty(
-              System.getProperty(SystemBaseUrl.INTERNAL_HOST), oldHostValue);
-
+          usersDotProperties.setProperty(newInternalHost, newHostValue);
           usersDotProperties.save();
         }
       }
