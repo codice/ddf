@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import com.google.gson.Gson;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import java.io.BufferedInputStream;
@@ -199,31 +198,6 @@ public class FileSystemPersistenceProvider
       keys.add(file.getName().replaceFirst(PERSISTED_FILE_SUFFIX_REGEX, ""));
     }
     return keys;
-  }
-
-  public void clear() {
-    File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-    if (files != null) {
-      for (File file : files) {
-        if (!file.delete()) {
-          LOGGER.debug("File was unable to be deleted: {}", file.getAbsolutePath());
-        }
-      }
-    }
-  }
-
-  public void storeJson(String key, Object value, Class<?> aClass) {
-    String jsonToWrite = new Gson().toJson(value, aClass);
-    store(key, jsonToWrite);
-  }
-
-  Object loadFromJson(String key, Class<?> theClass) {
-    Object json = loadFromPersistence(key);
-    if (!(json instanceof String)) {
-      return null;
-    }
-
-    return new Gson().fromJson((String) json, theClass);
   }
 
   @Override

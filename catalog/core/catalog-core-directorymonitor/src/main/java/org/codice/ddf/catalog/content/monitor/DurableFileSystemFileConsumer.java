@@ -47,7 +47,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       observer.setListener(listener);
       observer.checkAndNotify();
       observer.removeListener();
-      fileSystemPersistenceProvider.storeJson(sha1, observer, observer.getClass());
+      observer.store(jsonSerializer);
       return true;
     } else {
       return isMatched(null, null, null);
@@ -88,8 +88,9 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     FileAlterationObserver oldObserver =
         (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
 
-    boolean success = newObserver.initialize();
-    if (!success) {
+    try {
+      newObserver.initialize();
+    } catch (IllegalStateException e) {
       //  There was an IO error setting up the initial state of the observer
       LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");
       return null;

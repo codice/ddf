@@ -511,6 +511,41 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
+  public void testNestedCreateAndDeleteWithDelays() throws Exception {
+
+    File childDirectory = new File(monitoredDirectory, "child001");
+    assertThat(childDirectory.mkdir(), is(true));
+
+    File[] files = initFiles(1, childDirectory, "childFile00");
+
+    initSemaphore(files.length);
+
+    observer.checkAndNotify();
+
+    Stream.of(files).forEach(this::fileDelete);
+    fileDelete(childDirectory);
+
+    observer.checkAndNotify();
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+
+    artificialDelay.release(files.length * 2);
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
+
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+
+    observer.checkAndNotify();
+
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(files.length))
+        .onFileDelete(any(File.class), any(Synchronization.class));
+
+    assertThat(artificialDelay.getQueueLength(), is(0));
+  }
+
+  @Test
   public void testCreatesWithDelay() throws Exception {
     File[] files = new File[10];
 
@@ -651,7 +686,7 @@ public class AsyncFileAlterationObserverTest {
 
     observer = new AsyncFileAlterationObserver(monitoredDirectory);
     observer.setListener(fileListener);
-    assertThat(observer.initialize(), is(true));
+    observer.initialize();
     observer.checkAndNotify();
     verifyNoMoreInteractions(fileListener);
   }
@@ -997,23 +1032,27 @@ public class AsyncFileAlterationObserverTest {
     initNestedDirectory(16, 12, 6, 11);
 
     int toFail = 7;
-    initSemaphore(toFail + totalSize);
+    initSemaphore(0);
     timesToFail.set(toFail);
 
+    delayLatch = new CountDownLatch(totalSize);
+
     artificialDelay.release(totalSize);
-
     runThreads(observer::checkAndNotify, threads);
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
-    artificialDelay.release(failures);
+    delayLatch = new CountDownLatch(toFail);
+
+    artificialDelay.release(toFail);
     observer.checkAndNotify();
 
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
+    assertThat(failures, is(toFail));
     verify(fileListener, times(totalSize + failures))
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
-    assertThat(failures, is(toFail));
 
     init();
     initSemaphore(files.length * 2);
@@ -1030,6 +1069,7 @@ public class AsyncFileAlterationObserverTest {
 
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
+    assertThat(failures, is(files.length));
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(files.length + failures))
         .onFileChange(any(File.class), any(Synchronization.class));
@@ -1086,7 +1126,7 @@ public class AsyncFileAlterationObserverTest {
     observer.checkAndNotify();
 
     //  Set it up so 2 files are being processed and 2 files are available.
-    initSemaphore(4);
+    initSemaphore(2);
     artificialDelay.release(2);
     int failNo = 2;
     timesToFail.set(failNo);
@@ -1095,6 +1135,7 @@ public class AsyncFileAlterationObserverTest {
     assertThat(childDir.delete(), is(true));
     observer.checkAndNotify();
 
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
     //  2 files will be waiting on being deleted an 2 files will be failed.
     //  This will give us a state where we're in the middle of processing
     verify(fileListener, times(childFiles.length))
@@ -1102,6 +1143,8 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, times(childFiles.length))
         .onFileDelete(any(File.class), any(Synchronization.class));
     assertThat(failures, is(failNo));
+
+    delayLatch = new CountDownLatch(2);
 
     childFiles = initFiles(4, childDir, "child-file00");
 

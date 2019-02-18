@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.TreeSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -42,8 +42,8 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
   private boolean directory;
   private long length;
 
-  private final Set<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
-
+  private final Set<AsyncFileEntry> children = new TreeSet<>();
+  private final transient Set<AsyncFileEntry> potentialChildren = new TreeSet<>();
   //  Leaving transient to avoid loops
   @Nullable private transient AsyncFileEntry parent;
 
@@ -81,7 +81,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     length = snapLength();
   }
 
-  public synchronized boolean hasChanged() {
+  public boolean hasChanged() {
 
     //  Checks to see if the file has been changed
     return exists != snapExist()
@@ -234,5 +234,9 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
   private String snapName() {
     return contentFile.getName();
+  }
+
+  public boolean hasChildren() {
+    return !children.isEmpty();
   }
 }
