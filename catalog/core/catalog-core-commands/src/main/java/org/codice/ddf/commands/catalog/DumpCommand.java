@@ -189,8 +189,6 @@ public class DumpCommand extends CqlCommands {
   )
   String zipFileName;
 
-  private Map<String, Serializable> zipArgs;
-
   @Override
   protected Object executeWithSubject() throws Exception {
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
@@ -226,11 +224,6 @@ public class DumpCommand extends CqlCommands {
     SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
     CatalogFacade catalog = getCatalog();
-
-    if (StringUtils.isNotBlank(zipFileName)) {
-      zipArgs = new HashMap<>();
-      zipArgs.put(FILE_PATH, dirPath + zipFileName);
-    }
 
     SortBy sort = new SortByImpl(Core.ID, SortOrder.ASCENDING);
 
