@@ -187,6 +187,14 @@ public class SolrProviderQuery {
     response = provider.query(quickQuery(numericalFilter));
 
     assertEquals(0, response.getResults().size());
+
+    // NUMERICAL FORMAT DOUBLE
+    Filter doubleFilter =
+        getFilterBuilder().attribute("missingField").greaterThanOrEqualTo().number(23.0);
+
+    response = provider.query(quickQuery(doubleFilter));
+
+    assertEquals(0, response.getResults().size());
   }
 
   @Test

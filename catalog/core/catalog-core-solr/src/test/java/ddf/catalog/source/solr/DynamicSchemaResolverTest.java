@@ -272,35 +272,42 @@ public class DynamicSchemaResolverTest {
   }
 
   @Test
-  public void getFieldGeo() {
+  public void getField() {
     assertThat(
-        new DynamicSchemaResolver().getField("anyGeo", AttributeFormat.DOUBLE, false),
-        is("location_geo_index"));
-  }
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.GEOMETRY, false),
+        is("unknown_geo_index"));
 
-  @Test
-  public void getFieldMatchingNumerical() {
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.DOUBLE, false),
-        is("unknown_dbl"));
-    assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.LONG, false),
-        is("unknown_lng"));
-    assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.INTEGER, false),
-        is("unknown_int"));
-    assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.SHORT, false),
-        is("unknown_shr"));
-    assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.FLOAT, false),
-        is("unknown_flt"));
-  }
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.XML, false),
+        is("unknown_xml_tpt"));
 
-  @Test
-  public void getFieldNonNumerical() {
     assertThat(
         new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, false),
         is("unknown_txt_tokenized"));
+  }
+
+  @Test
+  public void getFieldExactValue() {
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.DOUBLE, true),
+        is("unknown_dbl"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.LONG, true),
+        is("unknown_lng"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.INTEGER, true),
+        is("unknown_int"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.SHORT, true),
+        is("unknown_shr"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.FLOAT, true),
+        is("unknown_flt"));
+    assertThat(
+        new DynamicSchemaResolver().getField("anyGeo", AttributeFormat.BINARY, true),
+        is("location_geo_index"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, true),
+        is("unknown_txt"));
   }
 }
