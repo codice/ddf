@@ -86,17 +86,23 @@ class ResultsExport extends React.Component<Props, State> {
   }
   getSelectedExportFormatId() {
     const selectedFormat = this.state.selectedFormat
-    let id = ''
-    this.state.exportFormats.forEach(function(format) {
-      if (format.displayName === selectedFormat) {
-        id = format.id
-      }
-    })
+    const format = this.state.exportFormats.find(
+      format => format.displayName === selectedFormat
+    )
 
-    return id
+    if (format !== undefined) {
+      return format.id
+    }
+
+    return undefined
   }
   async onDownloadClick() {
     const transformerId = this.getSelectedExportFormatId()
+
+    if (transformerId === undefined) {
+      return
+    }
+
     let response = null
 
     if (this.props.selectedResults.length > 1) {

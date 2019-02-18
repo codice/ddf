@@ -16,7 +16,7 @@ import styled from '../../styles/styled-components'
 const { Menu, MenuItem } = require('../../menu')
 const Dropdown = require('../../dropdown')
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   padding: 50px;
 
   button {
@@ -42,38 +42,36 @@ type Props = {
   handleExportOptionChange: () => void
 }
 
-type State = {}
+const render = (props: Props) => {
+  const {
+    selectedFormat,
+    exportFormats,
+    downloadDisabled,
+    onDownloadClick,
+    handleExportOptionChange,
+  } = props
 
-class ResultsExport extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-  }
-  render() {
-    return (
-      <Root>
-        <div className="export-option">
-          <p>Export Format:</p>
-          <Dropdown label={this.props.selectedFormat}>
-            <Menu
-              value={this.props.selectedFormat}
-              onChange={this.props.handleExportOptionChange}
-            >
-              {this.props.exportFormats.map(option => (
-                <MenuItem key={option.id} value={option.displayName} />
-              ))}
-            </Menu>
-          </Dropdown>
-        </div>
-        <Button
-          disabled={this.props.downloadDisabled}
-          buttonType={buttonTypeEnum.primary}
-          icon="fa fa-download"
-          text="Download"
-          onClick={this.props.onDownloadClick}
-        />
-      </Root>
-    )
-  }
+  return (
+    <Root>
+      <div className="export-option">
+        <p>Export Format:</p>
+        <Dropdown label={selectedFormat}>
+          <Menu value={selectedFormat} onChange={handleExportOptionChange}>
+            {exportFormats.map(option => (
+              <MenuItem key={option.id} value={option.displayName} />
+            ))}
+          </Menu>
+        </Dropdown>
+      </div>
+      <Button
+        disabled={downloadDisabled}
+        buttonType={buttonTypeEnum.primary}
+        icon="fa fa-download"
+        text="Download"
+        onClick={onDownloadClick}
+      />
+    </Root>
+  )
 }
 
-export default hot(module)(ResultsExport)
+export default hot(module)(render)
