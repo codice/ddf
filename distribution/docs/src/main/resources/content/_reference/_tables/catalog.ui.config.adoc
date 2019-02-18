@@ -23,6 +23,13 @@
 |250
 |true
 
+|Export Result Limit
+|exportResultLimit
+|Integer
+|Specifies the max number of results that can be exported.
+|1000
+|true
+
 |Imagery Providers
 |imageryProviders
 |String

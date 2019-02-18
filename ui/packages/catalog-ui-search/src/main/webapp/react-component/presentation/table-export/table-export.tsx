@@ -14,6 +14,7 @@ import * as React from 'react'
 import Enum from '../../container/enum'
 import { Button, buttonTypeEnum } from '../button'
 import styled from '../../styles/styled-components'
+const properties = require('../../../js/properties.js')
 
 const Root = styled<{}, 'div'>('div')`
   display: block;
@@ -29,6 +30,10 @@ const Root = styled<{}, 'div'>('div')`
   .warning {
     text-align: center;
   }
+
+  .exportNumber {
+    margin: ${props => props.theme.minimumSpacing};
+  }
 `
 
 type Option = {
@@ -41,10 +46,12 @@ type Props = {
   exportFormat: string
   handleExportSizeChange: (value: any) => void
   handleExportFormatChange: (value: any) => void
+  handleCustomExportCountChange: (value: any) => void
   exportSizeOptions: Option[]
   exportFormatOptions: Option[]
   onDownloadClick: () => void
   warning: string
+  customExportCount: number
 }
 
 export default hot(module)((props: Props) => {
@@ -55,8 +62,10 @@ export default hot(module)((props: Props) => {
     exportFormatOptions,
     handleExportFormatChange,
     handleExportSizeChange,
+    handleCustomExportCountChange,
     onDownloadClick,
     warning,
+    customExportCount,
   } = props
   return (
     <Root>
@@ -66,6 +75,17 @@ export default hot(module)((props: Props) => {
         label="Export"
         onChange={handleExportSizeChange}
       />
+      <div hidden={exportSize !== 'customExport'}>
+        <input
+          className="exportNumber"
+          type="text"
+          name="customExport"
+          value={customExportCount}
+          onChange={handleCustomExportCountChange}
+        />
+        {customExportCount > 1 ? 'records' : 'record'}
+      </div>
+
       <Enum
         options={exportFormatOptions}
         value={exportFormat}
@@ -82,6 +102,7 @@ export default hot(module)((props: Props) => {
         buttonType={buttonTypeEnum.primary}
         icon="fa fa-download"
         text="Download"
+        disabled={customExportCount > properties.exportResultLimit}
         onClick={onDownloadClick}
       />
     </Root>

@@ -42,9 +42,9 @@ const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
 
 function getCqlForSize(exportSize: string, selectionInterface: any) {
-  return exportSize === 'all'
-    ? allData(selectionInterface)
-    : visibleData(selectionInterface)
+  return exportSize === 'visible'
+    ? visibleData(selectionInterface)
+    : allData(selectionInterface)
 }
 
 function getSrcs(selectionInterface: any) {
@@ -72,7 +72,15 @@ function getHits(sources: Source[]): number {
     .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
 }
 
-function getExportCount(exportSize: string, selectionInterface: any): number {
+function getExportCount(
+  exportSize: string,
+  selectionInterface: any,
+  customExportCount: number
+): number {
+  if (exportSize === 'customExport') {
+    return customExportCount
+  }
+
   const result = selectionInterface.getCurrentQuery().get('result')
   return exportSize === 'all'
     ? getHits(result.get('status').toJSON())
@@ -83,19 +91,33 @@ function getSorts(selectionInterface: any) {
   return selectionInterface.getCurrentQuery().get('sorts')
 }
 
-function getQueryCount(selectionInterface: any): number {
-  return selectionInterface.getCurrentQuery().get('count')
-}
-
-function getWarning(exportSize: string, selectionInterface: any): string {
-  const exportCount = getExportCount(exportSize, selectionInterface)
-  if (exportCount > 100) {
-    const queryCount = getQueryCount(selectionInterface)
-    return `You are about to export ${exportCount} results. ${
-      exportCount > queryCount ? `Only ${queryCount} will be exported.` : ''
-    } This may take a long time.`
+function getWarning(
+  exportSize: string,
+  selectionInterface: any,
+  customExportCount: number
+): string {
+  const exportCount = getExportCount(
+    exportSize,
+    selectionInterface,
+    customExportCount
+  )
+  let warningMessage = ''
+  if (exportCount > properties.exportResultLimit) {
+    return `You cannot export more than the administrator configured limit of ${
+      properties.exportResultLimit
+    }`
   }
-  return ''
+
+  const result = selectionInterface.getCurrentQuery().get('result')
+  const totalHits = getHits(result.get('status').toJSON())
+
+  if (exportCount > totalHits) {
+    warningMessage = `You are trying to export ${exportCount} results but there are only ${totalHits}. Only ${totalHits} results will be exported.`
+  }
+  if (exportCount > 100) {
+    warningMessage += ` This may take a long time.`
+  }
+  return warningMessage
 }
 
 type Props = {
@@ -112,6 +134,7 @@ type State = {
   exportSizes: Option[]
   exportFormat: string
   exportSize: string
+  customExportCount: number
 }
 
 type Source = {
@@ -139,9 +162,14 @@ export default hot(module)(
             label: 'All',
             value: 'all',
           },
+          {
+            label: 'Exact Number',
+            value: 'customExport',
+          },
         ],
         exportSize: 'all',
         exportFormat: 'csv',
+        customExportCount: properties.exportResultLimit,
       }
     }
     transformUrl = './internal/cql/transform/'
@@ -170,17 +198,20 @@ export default hot(module)(
         ),
       })
     }
-    handleExportFormatChange(value: string) {
+    handleExportFormatChange = (value: string) => {
       this.setState({
         exportFormat: value,
       })
     }
-    handleExportSizeChange(value: string) {
+    handleExportSizeChange = (value: string) => {
       this.setState({
         exportSize: value,
       })
     }
-    async onDownloadClick() {
+    handleCustomExportCountChange = (e: any) => {
+      this.setState({ customExportCount: e.target.value })
+    }
+    onDownloadClick = async () => {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
       try {
         const hiddenFields = getHiddenFields()
@@ -193,8 +224,8 @@ export default hot(module)(
         const sources = getSrcs(this.props.selectionInterface)
         const sorts = getSorts(this.props.selectionInterface)
         const count = Math.min(
-          getExportCount(this.state.exportSize, this.props.selectionInterface),
-          getQueryCount(this.props.selectionInterface)
+          getExportCount(this.state.exportSize, this.props.selectionInterface, this.state.customExportCount),
+          properties.exportResultLimit
         )
         const args = {
           hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
@@ -242,15 +273,16 @@ export default hot(module)(
               exportFormat={this.state.exportFormat}
               exportSizeOptions={this.state.exportSizes}
               exportSize={this.state.exportSize}
-              handleExportFormatChange={this.handleExportFormatChange.bind(
-                this
-              )}
-              handleExportSizeChange={this.handleExportSizeChange.bind(this)}
-              onDownloadClick={this.onDownloadClick.bind(this)}
+              handleExportFormatChange={this.handleExportFormatChange}
+              handleExportSizeChange={this.handleExportSizeChange}
+              handleCustomExportCountChange={this.handleCustomExportCountChange}
+              onDownloadClick={this.onDownloadClick}
               warning={getWarning(
                 this.state.exportSize,
-                this.props.selectionInterface
+                this.props.selectionInterface,
+                this.state.customExportCount
               )}
+              customExportCount={this.state.customExportCount}
             />
           ) : null}
         </LoadingCompanion>
