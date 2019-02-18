@@ -13,34 +13,56 @@
  *
  **/
 /*global define*/
-const wreqr = require('../../js/wreqr.js')
+import * as React from 'react'
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
-const template = require('./metacard-title.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const IconHelper = require('../../js/IconHelper.js')
-const store = require('../../js/store.js')
 const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
+const Backbone = require('backbone')
+require('../../behaviors/dropdown.behavior.js')
 
-module.exports = Marionette.LayoutView.extend({
-  template: template,
-  tagName: CustomElements.register('metacard-title'),
-  regions: {
-    metacardInteractions: '.metacard-interactions',
-  },
-  onBeforeShow: function() {
-    this.metacardInteractions.show(
-      PopoutView.createSimpleDropdown({
-        componentToShow: MetacardInteractionsView,
-        dropdownCompanionBehaviors: {
-          navigation: {},
-        },
-        modelForComponent: this.model,
-        leftIcon: 'fa fa-ellipsis-v',
-      })
+module.exports = Marionette.ItemView.extend({
+  template({ title, icon }) {
+    return (
+      <React.Fragment>
+        <div
+          className="metacard-title"
+          data-help="This is the title of the result."
+        >
+          <span className={icon} />
+          {title}
+        </div>
+        <button
+          className="metacard-interactions is-button"
+          title="Provides a list of actions to take on the result."
+          data-help="Provides a list
+                        of actions to take on the result."
+        >
+          <span className="fa fa-ellipsis-v" />
+        </button>
+      </React.Fragment>
     )
+  },
+  tagName: CustomElements.register('metacard-title'),
+  behaviors() {
+    return {
+      dropdown: {
+        dropdowns: [
+          {
+            selector: '.metacard-interactions',
+            view: MetacardInteractionsView.extend({
+              behaviors: {
+                navigation: {},
+              },
+            }),
+            viewOptions: {
+              model: this.options.model,
+            },
+          },
+        ],
+      },
+    }
   },
   initialize: function() {
     if (this.model.length === 1) {
@@ -80,10 +102,6 @@ module.exports = Marionette.LayoutView.extend({
   checkTags: function() {
     var types = {}
     this.model.forEach(function(result) {
-      var tags = result
-        .get('metacard')
-        .get('properties')
-        .get('metacard-tags')
       if (result.isWorkspace()) {
         types.workspace = true
       } else if (result.isResource()) {

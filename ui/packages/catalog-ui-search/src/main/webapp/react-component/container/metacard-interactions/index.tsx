@@ -406,19 +406,21 @@ class MetacardInteractions extends React.Component<Props, State> {
     )
   }
 
-  render = () => (
-    <>
-      {interactions.map((Component: any, i: number) => {
-        return (
-          <Component
-            key={i}
-            {...this.props}
-            blacklisted={this.state.blacklisted}
-          />
-        )
-      })}
-    </>
-  )
+  render = () => {
+    return (
+      <>
+        {interactions.map((Component: any, i: number) => {
+          return (
+            <Component
+              key={i}
+              {...this.props}
+              blacklisted={this.state.blacklisted}
+            />
+          )
+        })}
+      </>
+    )
+  }
 }
 
 const Component = withListenTo(MetacardInteractions)

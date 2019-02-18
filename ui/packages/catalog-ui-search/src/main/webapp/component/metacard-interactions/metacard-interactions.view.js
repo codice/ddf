@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 
 import React from 'react'
-import InteractionsView from '../../react-component/container/metacard-interactions'
+import MetacardInteractions from '../../react-component/container/metacard-interactions'
 
 const MetacardInteractionsView = Marionette.ItemView.extend({
   template() {
@@ -27,7 +27,7 @@ const MetacardInteractionsView = Marionette.ItemView.extend({
         this.$el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
       },
     }
-    return <InteractionsView {...props} />
+    return <MetacardInteractions {...props} />
   },
   tagName: CustomElements.register('metacard-interactions'),
   handleShare() {},

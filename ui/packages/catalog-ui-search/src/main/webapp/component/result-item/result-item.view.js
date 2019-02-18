@@ -25,7 +25,6 @@ const DropdownModel = require('../dropdown/dropdown.js')
 const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
 const ResultIndicatorView = require('../result-indicator/result-indicator.view.js')
 const properties = require('../../js/properties.js')
-const router = require('../router/router.js')
 const user = require('../singletons/user-instance.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 const moment = require('moment')
@@ -226,10 +225,8 @@ const ResultItemView = Marionette.LayoutView.extend({
     'click .result-download': 'triggerDownload',
   },
   regions: {
-    resultActions: '.result-actions',
     resultIndicator: '.container-indicator',
     resultThumbnail: '.detail-thumbnail',
-    resultAdd: '.result-add',
     resultLink: '.result-link',
   },
   behaviors() {
