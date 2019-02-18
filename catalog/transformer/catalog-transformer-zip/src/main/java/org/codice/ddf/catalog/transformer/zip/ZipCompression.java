@@ -122,13 +122,18 @@ public class ZipCompression implements QueryResponseTransformer {
       for (Result result : sourceResponse.getResults()) {
         Metacard metacard = result.getMetacard();
 
-        BinaryContent binaryContent = transformer.transform(metacard, Collections.emptyMap());
+        BinaryContent binaryContent =
+            getTransformedMetacard(metacard, Collections.emptyMap(), transformer);
 
-        ZipEntry entry = new ZipEntry(METACARD_PATH + metacard.getId() + extension);
+        if (binaryContent != null) {
+          ZipEntry entry = new ZipEntry(METACARD_PATH + metacard.getId() + extension);
 
-        zipOutputStream.putNextEntry(entry);
-        zipOutputStream.write(binaryContent.getByteArray());
-        zipOutputStream.closeEntry();
+          zipOutputStream.putNextEntry(entry);
+          zipOutputStream.write(binaryContent.getByteArray());
+          zipOutputStream.closeEntry();
+        } else {
+          LOGGER.debug("Metacard with id [{}] was not added to zip file", metacard.getId());
+        }
       }
 
       return fileBackedOutputStream.asByteSource().openStream();
@@ -136,6 +141,16 @@ public class ZipCompression implements QueryResponseTransformer {
     } catch (IOException e) {
       throw new CatalogTransformerException(
           "An error occurred while initializing or closing output stream", e);
+    }
+  }
+
+  private BinaryContent getTransformedMetacard(
+      Metacard metacard, Map<String, Serializable> arguments, MetacardTransformer transformer) {
+    try {
+      return transformer.transform(metacard, arguments);
+    } catch (CatalogTransformerException e) {
+      LOGGER.debug("Failed to transform metacard with id [{}]", metacard.getId(), e);
+      return null;
     }
   }
 
