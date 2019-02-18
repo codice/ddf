@@ -97,11 +97,6 @@ describe('serialize/deserialize point', () => {
   it('properly tranlates filter tree JSON into location model representation', () => {
     expect(deserialize(serializedPoint)).to.deep.include(deserializedPoint)
   })
-
-  it('properly tranlates filter location model into filter tree json', () => {
-    console.log(serialize(deserializedPoint))
-    // assert(serialize(deserializedPoint) === serializedPoint, "serialization of point is successful")
-  })
 })
 
 describe('serialize/deserialize polygon', () => {
@@ -145,9 +140,13 @@ describe('serialize/deserialize polygon', () => {
   it('properly tranlates filter tree JSON into location model representation', () => {
     expect(deserialize(serializedPolygon)).to.deep.include(deserializedPolygon)
   })
+
+  it('properly tranlates filter location model into filter tree json', () => {
+    expect(serialize(deserializedPolygon)).to.deep.include(serializedPolygon)
+  })
 })
 
-describe('deserialize bbox', () => {
+describe('serialize/deserialize bbox', () => {
   const serializedBbox = {
     type: 'Feature',
     bbox: [-44.449923, -27.849887, -112.533338, -92.952499],
@@ -196,10 +195,16 @@ describe('deserialize bbox', () => {
     west: -112.533338,
   }
 
-  expect(deserialize(serializedBbox)).to.deep.include(deserializedBbox)
+  it('properly tranlates filter tree JSON into location model representation', () => {
+    expect(deserialize(serializedBbox)).to.deep.include(deserializedBbox)
+  })
+
+  it('properly tranlates filter location model into filter tree json', () => {
+    expect(serialize(deserializedBbox)).to.deep.include(serializedBbox)
+  })
 })
 
-describe('deserialize multipolygon', () => {
+describe('serialize/deserialize multipolygon', () => {
   const serializedPolygon = {
     type: 'Feature',
     geometry: {
@@ -237,7 +242,58 @@ describe('deserialize multipolygon', () => {
     polyType: 'polygon',
   }
 
-  expect(deserialize(serializedPolygon)).to.deep.include(deserializedPolygon)
+  it('properly tranlates filter tree JSON into location model representation', () => {
+    expect(deserialize(serializedPolygon)).to.deep.include(deserializedPolygon)
+  })
+
+  it('properly tranlates filter location model into filter tree json', () => {
+    expect(serialize(deserializedPolygon)).to.deep.include(serializedPolygon)
+  })
 })
 
-describe('deserialize keyword', () => {})
+describe('serialize/deserialize keyword', () => {
+  const serializedKeyword = {
+    mode: 'keyword',
+    keywordValue: 'Egra, IND',
+    polygon: [
+      [87.3879, 21.7495],
+      [87.6879, 21.7495],
+      [87.6879, 22.0495],
+      [87.3879, 22.0495],
+      [87.3879, 21.7495],
+    ],
+    polygonBufferWidth: 0,
+    polygonBufferUnits: 'meters',
+    polyType: 'polygon',
+  }
+
+  const deserializedKeyword = {
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [87.3879, 21.7495],
+        [87.6879, 21.7495],
+        [87.6879, 22.0495],
+        [87.3879, 22.0495],
+        [87.3879, 21.7495],
+      ],
+    },
+    properties: {
+      type: 'Keyword',
+      keywordValue: 'Egra, IND',
+      buffer: {
+        width: 0,
+        unit: 'meters',
+      },
+    },
+  }
+
+  it('properly tranlates filter tree JSON into location model representation', () => {
+    expect(deserialize(deserializedKeyword)).to.deep.include(serializedKeyword)
+  })
+
+  it('properly tranlates filter location model into filter tree json', () => {
+    expect(serialize(serializedKeyword)).to.deep.include(deserializedKeyword)
+  })
+})
