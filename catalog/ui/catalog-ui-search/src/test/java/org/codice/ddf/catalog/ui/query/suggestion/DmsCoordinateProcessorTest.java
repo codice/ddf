@@ -27,7 +27,7 @@ import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.junit.Test;
 
 public class DmsCoordinateProcessorTest {
-  DmsCoordinateProcessor processor = new DmsCoordinateProcessor();
+  private final DmsCoordinateProcessor processor = new DmsCoordinateProcessor();
 
   @Test
   public void testDmsStringSingleCoordinate() {
@@ -196,7 +196,7 @@ public class DmsCoordinateProcessorTest {
   @Test
   public void testDmsStringMultipleCoordinates() {
     assertSuggestion(
-        "28°56\'26\"S 117°38\'11.64564\"E28;56;26S 117°38\'11\"QQW%WWEQW@!!!!!! 28°56\'26\"N 117°38\'11\"E",
+        "28°56\'26\"S 117°38\'11.64564\"E28;56;26S 117°38\'11\"QQW%WWEQW@!!!!!! 28°56\'26\"N 117°38\'11\"e",
         "DMS: [ 28°56'26\"S 117°38'11.646\"E ] [ 28°56'26\"S 117°38'11\"W ] [ 28°56'26\"N 117°38'11\"E ]",
         ImmutableList.of(
             new LatLon(-28.940555, 117.636568),

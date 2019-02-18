@@ -72,6 +72,9 @@ public class DmsCoordinateProcessor {
   private static final Pattern PATTERN_DMS_COORDINATE =
       Pattern.compile(DMS_LAT_REGEX_STRING + DMS_LON_REGEX_STRING);
 
+  // This key tells the UI that the geo is on the suggestion itself
+  private static final String LITERAL_SUGGESTION_ID = "LITERAL-DMS";
+
   private static class CoordinateTranslator {
 
     /**
@@ -147,8 +150,8 @@ public class DmsCoordinateProcessor {
 
     private static LatLon toLatLon(
         final Map<String, Object> dmsLat, final Map<String, Object> dmsLon) {
-      final int latModifier = dmsLat.get("direction").toString().toUpperCase().equals("N") ? 1 : -1;
-      final int lonModifier = dmsLon.get("direction").toString().toUpperCase().equals("E") ? 1 : -1;
+      final int latModifier = dmsLat.get("direction").toString().equalsIgnoreCase("N") ? 1 : -1;
+      final int lonModifier = dmsLon.get("direction").toString().equalsIgnoreCase("E") ? 1 : -1;
       final Double lat = toDecimalDegrees(dmsLat) * latModifier;
       final Double lon = toDecimalDegrees(dmsLon) * lonModifier;
 
@@ -165,9 +168,6 @@ public class DmsCoordinateProcessor {
       return degrees + minutes / 60.0 + seconds / 3600.0;
     }
   }
-
-  // This key tells the UI that the geo is on the suggestion itself
-  private static final String LITERAL_SUGGESTION_ID = "LITERAL-DMS";
 
   /**
    * Given a list of {@link Suggestion}s and the query that yielded them, enhance the list with
