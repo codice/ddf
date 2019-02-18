@@ -17,10 +17,7 @@ import * as React from 'react'
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const IconHelper = require('../../js/IconHelper.js')
-const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
-const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
-const Backbone = require('backbone')
-require('../../behaviors/dropdown.behavior.js')
+import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/dropdown'
 
 module.exports = Marionette.ItemView.extend({
   template({ title, icon }) {
@@ -33,37 +30,11 @@ module.exports = Marionette.ItemView.extend({
           <span className={icon} />
           {title}
         </div>
-        <button
-          className="metacard-interactions is-button"
-          title="Provides a list of actions to take on the result."
-          data-help="Provides a list
-                        of actions to take on the result."
-        >
-          <span className="fa fa-ellipsis-v" />
-        </button>
+        <MetacardInteractionsDropdown model={this.model} />
       </React.Fragment>
     )
   },
   tagName: CustomElements.register('metacard-title'),
-  behaviors() {
-    return {
-      dropdown: {
-        dropdowns: [
-          {
-            selector: '.metacard-interactions',
-            view: MetacardInteractionsView.extend({
-              behaviors: {
-                navigation: {},
-              },
-            }),
-            viewOptions: {
-              model: this.options.model,
-            },
-          },
-        ],
-      },
-    }
-  },
   initialize: function() {
     if (this.model.length === 1) {
       this.listenTo(

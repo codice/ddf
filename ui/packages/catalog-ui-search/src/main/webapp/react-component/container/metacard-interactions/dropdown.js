@@ -14,27 +14,52 @@
  **/
 /*global define*/
 import * as React from 'react'
-import MarionetteRegionContainer from '../marionette-region-container/index.jsx'
+import MarionetteRegionContainer from '../marionette-region-container'
+import MetacardInteractions from '.'
 import { hot } from 'react-hot-loader'
+import styled from '../../styles/styled-components'
 const Marionette = require('marionette')
-const CustomElements = require('../../js/CustomElements.js')
-const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
-require('../../behaviors/dropdown.behavior.js')
+const CustomElements = require('../../../js/CustomElements.js')
+require('../../../behaviors/dropdown.behavior')
+
+const MetacardInteractionsView = Marionette.ItemView.extend({
+  template() {
+    const props = {
+      model: this.model,
+      onClose: () => {
+        this.$el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
+      },
+    }
+    return <MetacardInteractions {...props} />
+  },
+  tagName: CustomElements.register('metacard-interactions-dropdown'),
+  handleShare() {},
+})
+
+// TODO: Add onHover from the + button
+const Button = styled.button`
+  display: 'inline-block';
+  text-align: center;
+  vertical-align: top;
+  width: ${props => props.theme.minimumButtonSize};
+  height: ${props => props.theme.minimumButtonSize};
+  line-height: ${props => props.theme.minimumButtonSize};
+`
 
 const View = Marionette.ItemView.extend({
   template() {
     return (
-      <button
+      <Button
         className="metacard-interactions is-button"
         title="Provides a list of actions to take on the result."
         data-help="Provides a list
                         of actions to take on the result."
       >
         <span className="fa fa-ellipsis-v" />
-      </button>
+      </Button>
     )
   },
-  tagName: CustomElements.register('metacard-title'),
+  tagName: 'span',
   behaviors() {
     return {
       dropdown: {
@@ -73,7 +98,11 @@ const View = Marionette.ItemView.extend({
 })
 
 const Component = ({ model }) => (
-  <MarionetteRegionContainer view={View} viewOptions={{ model }} />
+  <MarionetteRegionContainer
+    view={View}
+    viewOptions={{ model }}
+    replaceElement
+  />
 )
 
 export default hot(module)(Component)
