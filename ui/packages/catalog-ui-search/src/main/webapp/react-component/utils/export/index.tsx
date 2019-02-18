@@ -14,4 +14,5 @@ export {
   exportResult,
   exportResultSet,
   Transformer,
+  ResultSet,
 } from './export'

@@ -202,14 +202,15 @@ export default hot(module)(
           columnAliasMap: properties.attributeAliases,
         }
 
-        const response = await exportResultSet(
-          exportFormat,
+        const body = {
           cql,
-          sources,
+          srcs: sources,
           count,
           sorts,
-          args
-        )
+          args,
+        }
+
+        const response = await exportResultSet(exportFormat, body)
         this.onDownloadSuccess(response)
       } catch (error) {
         console.error(error)

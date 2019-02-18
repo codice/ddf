@@ -109,9 +109,12 @@ class ResultsExport extends React.Component<Props, State> {
       const cql = getResultSetCql(
         this.props.selectedResults.map((result: Result) => result.id)
       )
-      const sources = Array.from(this.getResultSources())
+      const srcs = Array.from(this.getResultSources())
 
-      response = await exportResultSet(transformerId, cql, sources)
+      response = await exportResultSet(transformerId, {
+        cql,
+        srcs,
+      })
     } else {
       const source = this.props.selectedResults[0].source
       const metacardId = this.props.selectedResults[0].id

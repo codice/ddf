@@ -16,6 +16,14 @@ export enum Transformer {
   Query = 'query',
 }
 
+export type ResultSet = {
+  cql: string
+  srcs: string[]
+  count?: number
+  sorts?: Object[]
+  args?: Object
+}
+
 export const getExportOptions = async (type: Transformer) => {
   return await fetch(`./internal/transformers/${type}`)
 }
@@ -30,23 +38,10 @@ export const exportResult = async (
   )
 }
 
-export const exportResultSet = async (
-  transformer: string,
-  cql: string,
-  sources: string[],
-  count?: number,
-  sorts?: Object[],
-  args?: Object
-) => {
+export const exportResultSet = async (transformer: string, body: ResultSet) => {
   return await fetch(`./internal/cql/transform/${transformer}`, {
     method: 'POST',
-    body: JSON.stringify({
-      cql,
-      srcs: sources,
-      count,
-      sorts,
-      args,
-    }),
+    body: JSON.stringify(body),
     headers: {
       'Content-Type': 'application/json',
     },
