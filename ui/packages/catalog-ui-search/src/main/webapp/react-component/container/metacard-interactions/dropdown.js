@@ -22,7 +22,7 @@ const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 require('../../../behaviors/dropdown.behavior')
 
-const MetacardInteractionsView = Marionette.ItemView.extend({
+const MetacardInteractionsDropdown = Marionette.ItemView.extend({
   template() {
     const props = {
       model: this.model,
@@ -46,7 +46,7 @@ const Button = styled.button`
   line-height: ${props => props.theme.minimumButtonSize};
 `
 
-const View = Marionette.ItemView.extend({
+const ContainerView = Marionette.ItemView.extend({
   template() {
     return (
       <Button
@@ -66,7 +66,7 @@ const View = Marionette.ItemView.extend({
         dropdowns: [
           {
             selector: '.metacard-interactions',
-            view: MetacardInteractionsView.extend({
+            view: MetacardInteractionsDropdown.extend({
               behaviors: {
                 navigation: {},
               },
@@ -79,6 +79,8 @@ const View = Marionette.ItemView.extend({
       },
     }
   },
+
+  // TODO: Do I need this?
   initialize: function() {
     if (this.model.length === 1) {
       this.listenTo(
@@ -93,13 +95,12 @@ const View = Marionette.ItemView.extend({
   },
   handleModelUpdates: function() {
     this.render()
-    this.onBeforeShow()
   },
 })
 
 const Component = ({ model }) => (
   <MarionetteRegionContainer
-    view={View}
+    view={ContainerView}
     viewOptions={{ model }}
     replaceElement
   />

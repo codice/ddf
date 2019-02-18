@@ -28,7 +28,7 @@ module.exports = Marionette.ItemView.extend({
           data-help="This is the title of the result."
         >
           <span className={icon} />
-          {title}
+          <span>{title}</span>
         </div>
         <MetacardInteractionsDropdown model={this.model} />
       </React.Fragment>
