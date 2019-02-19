@@ -68,7 +68,6 @@ public class EncryptingPersistenceManagerTest {
 
   @Before
   public void setup() throws Exception {
-    temporaryFolder.create();
     String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
     String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
     System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
@@ -79,7 +78,6 @@ public class EncryptingPersistenceManagerTest {
 
   @After
   public void cleanup() throws Exception {
-    temporaryFolder.delete();
     System.clearProperty(SecurityConstants.KEYSET_DIR);
     System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }

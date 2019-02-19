@@ -13,6 +13,8 @@
  */
 package ddf.security.encryption.crypter;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.CleartextKeysetHandle;
@@ -98,7 +100,7 @@ public class Crypter {
    * @param plainTextValue The value to encrypt.
    */
   public String encrypt(String plainTextValue) throws CrypterException {
-    if (plainTextValue == null || plainTextValue.isEmpty()) {
+    if (isEmpty(plainTextValue)) {
       throw new CrypterException("Value to encrypt cannot be null or empty.");
     }
     if (associatedData == null) {
@@ -119,7 +121,7 @@ public class Crypter {
    * @param encryptedValue The value to decrypt.
    */
   public String decrypt(String encryptedValue) throws CrypterException {
-    if (encryptedValue == null || encryptedValue.isEmpty()) {
+    if (isEmpty(encryptedValue)) {
       throw new CrypterException("Value to decrypt cannot be null or empty.");
     }
     if (associatedData == null) {
@@ -208,11 +210,10 @@ public class Crypter {
 
   private Properties getAssociatedDataProperties() {
     try (InputStream inputStream = getAssociatedDataPropertiesInputStream()) {
-      if (inputStream == null) {
-        return new Properties();
-      }
       Properties properties = new Properties();
-      properties.load(inputStream);
+      if (inputStream != null) {
+        properties.load(inputStream);
+      }
       return properties;
     } catch (IOException e) {
       return new Properties();

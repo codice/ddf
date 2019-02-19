@@ -21,6 +21,7 @@ import ddf.security.encryption.impl.EncryptionServiceImpl;
 import java.lang.reflect.Field;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
@@ -29,13 +30,12 @@ import org.slf4j.LoggerFactory;
 public class EncryptCommandTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
 
-  private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
-    TEMPORARY_FOLDER.create();
-    String keysetHome = TEMPORARY_FOLDER.newFolder("keysets").getAbsolutePath();
-    String associatedDataHome = TEMPORARY_FOLDER.newFolder("etc").getAbsolutePath();
+    String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
     System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
     System.setProperty(
         SecurityConstants.ASSOCIATED_DATA_PATH,
@@ -44,7 +44,6 @@ public class EncryptCommandTest {
 
   @After
   public void cleanUp() throws Exception {
-    TEMPORARY_FOLDER.delete();
     System.clearProperty(SecurityConstants.KEYSET_DIR);
     System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
