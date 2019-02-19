@@ -38,6 +38,13 @@ import org.slf4j.LoggerFactory;
  * <p>Additionally upon calling {@code checkAndNotify()} additional calls to {@code
  * checkAndNotify()} will return until all files are finished processing
  *
+ * <p>Known Limitations:
+ *
+ * <ul>
+ *   <li>if a file becomes a directory then we need to delete the contents in the catalog
+ *   <li>if a directory becomes a file, we need to create the entry in the catalog
+ * </ul>
+ *
  * @see AsyncFileAlterationListener
  */
 public class AsyncFileAlterationObserver {
@@ -213,8 +220,6 @@ public class AsyncFileAlterationObserver {
       listenerCopy.onFileChange(
           entry.getFile(), new CompletionSynchronization(entry, this::commitMatch));
     } else {
-      //  If a file becomes a directory then we need to delete the contents in the catalog
-      //  if a directory becomes a file, we need to create the entry in the catalog
       commitMatch(entry, true);
     }
   }
