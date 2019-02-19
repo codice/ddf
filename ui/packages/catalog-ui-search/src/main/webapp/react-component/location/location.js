@@ -34,7 +34,17 @@ const inputs = plugin({
   },
   keyword: {
     label: 'Keyword',
-    Component: Keyword,
+    Component: ({ props, setState, keywordValue }) => {
+      return (
+        <Keyword
+          {...props}
+          value={keywordValue}
+          setState={({ value, ...data }) => {
+            setState({ keywordValue: value, ...data })
+          }}
+        />
+      )
+    },
   },
 })
 

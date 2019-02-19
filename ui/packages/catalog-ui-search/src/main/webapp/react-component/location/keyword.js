@@ -44,7 +44,7 @@ class Keyword extends React.Component {
             locationType: 'latlon',
             polygon: polygon,
             polyType: 'polygon',
-            keywordValue: this.state.value,
+            value: this.state.value,
           })
           break
         }
@@ -57,7 +57,7 @@ class Keyword extends React.Component {
             locationType: 'latlon',
             polygon: polygon,
             polyType: 'multipolygon',
-            keywordValue: this.state.value,
+            value: this.state.value,
           })
           break
         }

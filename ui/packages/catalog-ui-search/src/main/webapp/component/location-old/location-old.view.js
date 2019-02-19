@@ -51,9 +51,28 @@ const LocationOldModel = require('./location-old')
 const CQLUtils = require('../../js/CQLUtils.js')
 const ShapeUtils = require('../../js/ShapeUtils.js')
 const { Direction } = require('../location-new/utils/dms-utils.js')
+import { deserialize } from './location-serialization'
+const wkx = require('wkx')
 
 const minimumDifference = 0.0001
 const minimumBuffer = 0.000001
+
+const filterToLocationOldModel = filter => {
+  if (filter === '') return filter
+
+  if (typeof filter.geojson === 'object') {
+    return deserialize(filter.geojson)
+  }
+
+  const filterValue =
+    typeof filter.value === 'object' ? filter.value.value : filter.value
+
+  // for backwards compatability with wkt
+  if (typeof filterValue === 'string') {
+    const json = wkx.Geometry.parse(filterValue).toGeoJSON()
+    return deserialize(json)
+  }
+}
 
 module.exports = Marionette.LayoutView.extend({
   template: function() {
@@ -107,101 +126,40 @@ module.exports = Marionette.LayoutView.extend({
     this.model.setLatLon()
   },
   deserialize: function() {
-    if (this.propertyModel) {
-      var filter = this.propertyModel.get('value')
-      var filterValue =
-        typeof filter.value === 'object' ? filter.value.value : filter.value
-      switch (filter.type) {
-        // these cases are for when the model matches the filter model
-        case 'DWITHIN':
-          if (CQLUtils.isPointRadiusFilter(filter)) {
-            let pointText = filterValue.substring(6)
-            pointText = pointText.substring(0, pointText.length - 1)
-            var latLon = pointText.split(' ')
-            this.model.set({
-              mode: 'circle',
-              locationType: 'latlon',
-              lat: latLon[1],
-              lon: latLon[0],
-              radius: filter.distance,
-            })
-            wreqr.vent.trigger('search:circledisplay', this.model)
-          } else if (CQLUtils.isPolygonFilter(filter)) {
-            this.handlePolygonDeserialization(filter)
-          } else {
-            let pointText = filterValue.substring(11)
-            pointText = pointText.substring(0, pointText.length - 1)
-            this.model.set({
-              mode: 'line',
-              lineWidth: filter.distance,
-              line: pointText.split(',').map(function(coordinate) {
-                return coordinate.split(' ').map(function(value) {
-                  return Number(value)
-                })
-              }),
-            })
-            wreqr.vent.trigger('search:linedisplay', this.model)
-          }
-          break
-        case 'INTERSECTS':
-          if (!filterValue || typeof filterValue !== 'string') {
-            break
-          }
-          this.handlePolygonDeserialization({
-            polygon: CQLUtils.arrayFromPolygonWkt(filterValue),
-          })
-          break
-        // these cases are for when the model matches the location model
-        case 'BBOX':
-          this.model.set({
-            mode: 'bbox',
-            locationType: 'latlon',
-            north: filter.north,
-            south: filter.south,
-            east: filter.east,
-            west: filter.west,
-          })
-          wreqr.vent.trigger('search:bboxdisplay', this.model)
-          break
-        case 'MULTIPOLYGON':
-        case 'POLYGON':
-          this.handlePolygonDeserialization(filter)
-          break
-        case 'POINTRADIUS':
-          this.model.set({
-            mode: 'circle',
-            locationType: 'latlon',
-            lat: filter.lat,
-            lon: filter.lon,
-            radius: filter.radius,
-          })
-          wreqr.vent.trigger('search:circledisplay', this.model)
-          break
-        case 'LINE':
-          this.model.set({
-            mode: 'line',
-            line: filter.line,
-            lineWidth: filter.lineWidth,
-          })
-          wreqr.vent.trigger('search:linedisplay', this.model)
-          break
-      }
-    }
-  },
-  handlePolygonDeserialization(filter) {
-    const polygonArray =
-      (filter.value &&
-        filter.value.value &&
-        CQLUtils.arrayFromPolygonWkt(filter.value.value)) ||
-      []
-    const bufferWidth = filter.polygonBufferWidth || filter.distance
+    if (!this.propertyModel) return
 
-    this.model.set({
-      mode: 'poly',
-      polygon: filter.polygon || polygonArray,
-      ...(bufferWidth && { polygonBufferWidth: bufferWidth }),
-    })
-    wreqr.vent.trigger('search:polydisplay', this.model)
+    const filter = this.propertyModel.get('value')
+    this.model.set(filterToLocationOldModel(filter))
+
+    switch (filter.type) {
+      // these cases are for when the model matches the filter model
+      case 'DWITHIN':
+        if (CQLUtils.isPointRadiusFilter(filter)) {
+          wreqr.vent.trigger('search:circledisplay', this.model)
+        } else if (CQLUtils.isPolygonFilter(filter)) {
+          wreqr.vent.trigger('search:polydisplay', this.model)
+        } else {
+          wreqr.vent.trigger('search:linedisplay', this.model)
+        }
+        break
+      case 'INTERSECTS':
+        wreqr.vent.trigger('search:polydisplay', this.model)
+        break
+      // these cases are for when the model matches the location model
+      case 'BBOX':
+        wreqr.vent.trigger('search:bboxdisplay', this.model)
+        break
+      case 'MULTIPOLYGON':
+      case 'POLYGON':
+        wreqr.vent.trigger('search:polydisplay', this.model)
+        break
+      case 'POINTRADIUS':
+        wreqr.vent.trigger('search:circledisplay', this.model)
+        break
+      case 'LINE':
+        wreqr.vent.trigger('search:linedisplay', this.model)
+        break
+    }
   },
   clearLocation: function() {
     this.model.set({

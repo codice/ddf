@@ -13,6 +13,7 @@
 const $ = require('jquery')
 const cql = require('./cql.js')
 const DistanceUtils = require('./DistanceUtils.js')
+import { serialize } from '../component/location-old/location-serialization'
 
 function sanitizeForCql(text) {
   return text
@@ -223,7 +224,9 @@ function generateFilter(type, property, value, metacardDefinitions) {
   switch (metacardDefinitions.metacardTypes[property].type) {
     case 'LOCATION':
     case 'GEOMETRY':
-      return generateAnyGeoFilter(property, value)
+      const geo = generateAnyGeoFilter(property, value)
+      geo.geojson = serialize(value)
+      return geo
     default:
       const filter = {
         type,
