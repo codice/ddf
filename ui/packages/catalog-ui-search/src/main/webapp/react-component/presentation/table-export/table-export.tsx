@@ -75,7 +75,7 @@ export default hot(module)((props: Props) => {
         label="Export"
         onChange={handleExportSizeChange}
       />
-      <div hidden={exportSize !== 'customExport'}>
+      <div hidden={exportSize !== 'custom'}>
         <input
           className="exportNumber"
           type="text"
@@ -102,7 +102,10 @@ export default hot(module)((props: Props) => {
         buttonType={buttonTypeEnum.primary}
         icon="fa fa-download"
         text="Download"
-        disabled={customExportCount > properties.exportResultLimit}
+        disabled={
+          exportSize === 'custom' &&
+          customExportCount > properties.exportResultLimit
+        }
         onClick={onDownloadClick}
       />
     </Root>

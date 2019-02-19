@@ -77,7 +77,7 @@ function getExportCount(
   selectionInterface: any,
   customExportCount: number
 ): number {
-  if (exportSize === 'customExport') {
+  if (exportSize === 'custom') {
     return customExportCount
   }
 
@@ -101,7 +101,6 @@ function getWarning(
     selectionInterface,
     customExportCount
   )
-  let warningMessage = ''
   if (exportCount > properties.exportResultLimit) {
     return `You cannot export more than the administrator configured limit of ${
       properties.exportResultLimit
@@ -111,6 +110,7 @@ function getWarning(
   const result = selectionInterface.getCurrentQuery().get('result')
   const totalHits = getHits(result.get('status').toJSON())
 
+  let warningMessage = ''
   if (exportCount > totalHits) {
     warningMessage = `You are trying to export ${exportCount} results but there are only ${totalHits}. Only ${totalHits} results will be exported.`
   }
@@ -164,7 +164,7 @@ export default hot(module)(
           },
           {
             label: 'Exact Number',
-            value: 'customExport',
+            value: 'custom',
           },
         ],
         exportSize: 'all',
