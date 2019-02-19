@@ -14,8 +14,8 @@ const CqlUtils = require('../../../js/CQLUtils')
 const wreqr = require('wreqr')
 const Query = require('../../../js/model/Query')
 
-const handleCreateSearch = (context: Props) => {
-  const locations = getGeoLocations(context.model)
+const handleCreateSearch = (props: Props) => {
+  const locations = getGeoLocations(props.model)
 
   if (locations.length === 0) return
 
@@ -33,7 +33,7 @@ const handleCreateSearch = (context: Props) => {
     return
   }
 
-  context.listenTo(
+  props.listenTo(
     QueryConfirmationView.generateConfirmation({}),
     'change:choice',
     (confirmation: any) => {

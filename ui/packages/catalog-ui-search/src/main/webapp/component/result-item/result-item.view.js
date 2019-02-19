@@ -14,7 +14,7 @@
  **/
 /*global define*/
 import React from 'react'
-import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/dropdown'
+import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
 const _ = require('underscore')

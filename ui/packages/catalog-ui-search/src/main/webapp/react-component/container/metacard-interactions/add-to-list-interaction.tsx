@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as PopoutView from '../../../component/dropdown/popout/dropdown.popout.view'
 import * as ResultAddView from '../../../component/result-add/result-add.view'
-import { Model } from '.'
+import { Model, Props } from '.'
 import * as store from '../../../js/store'
 import MarionetteRegionContainer from '../marionette-region-container'
 import { hot } from 'react-hot-loader'
@@ -15,7 +15,7 @@ const createAddRemoveRegion = (model: Model) =>
     label: 'Add / Remove from List',
   })
 
-const AddToList = (props: any) => {
+const AddToList = ({ model }: Props) => {
   const currentWorkspace = store.getCurrentWorkspace()
   if (!currentWorkspace) {
     return null
@@ -25,8 +25,8 @@ const AddToList = (props: any) => {
     <MarionetteRegionContainer
       data-help="Add the result to a list."
       className="metacard-interaction interaction-add"
-      view={createAddRemoveRegion(props.model)}
-      viewOptions={{ model: props.model }}
+      view={createAddRemoveRegion(model)}
+      viewOptions={{ model }}
     />
   )
 }

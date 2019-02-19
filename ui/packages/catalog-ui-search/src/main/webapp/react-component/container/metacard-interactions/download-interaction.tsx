@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as sources from '../../../component/singletons/sources-instance'
-import { Model, Result } from '.'
+import { Model, Result, Props } from '.'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { hot } from 'react-hot-loader'
 
@@ -24,8 +24,8 @@ const handleDownload = (model: Model) => {
   model.forEach(openValidUrl)
 }
 
-const DownloadProduct = (props: any) => {
-  if (!isDownloadable(props.model)) {
+const DownloadProduct = ({ model }: Props) => {
+  if (!isDownloadable(model)) {
     return null
   }
   return (
@@ -33,9 +33,9 @@ const DownloadProduct = (props: any) => {
       text="Download"
       help="Downloads the result's associated product directly to your machine."
       icon="fa fa-download"
-      onClick={() => handleDownload(props.model)}
+      onClick={() => handleDownload(model)}
     >
-      {isRemoteResourceCached(props.model) && (
+      {isRemoteResourceCached(model) && (
         <span
           data-help="Displayed if the remote resource has been cached locally."
           className="download-cached"

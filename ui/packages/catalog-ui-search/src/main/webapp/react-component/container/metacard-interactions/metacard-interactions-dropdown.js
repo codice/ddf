@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
 import * as React from 'react'
 import MarionetteRegionContainer from '../marionette-region-container'
 import MetacardInteractions from '.'

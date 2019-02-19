@@ -4,8 +4,8 @@ import { Props, Result, Model } from '.'
 import * as user from '../../../component/singletons/user-instance'
 import { hot } from 'react-hot-loader'
 
-const handleShow = (context: Props) => {
-  context.onClose()
+const handleShow = (props: Props) => {
+  props.onClose()
   const preferences = user.get('user').get('preferences')
   const getResult = (result: Result) =>
     result
@@ -13,7 +13,7 @@ const handleShow = (context: Props) => {
       .get('properties')
       .get('id')
 
-  preferences.get('resultBlacklist').remove(context.model.map(getResult))
+  preferences.get('resultBlacklist').remove(props.model.map(getResult))
   preferences.savePreferences()
 }
 
