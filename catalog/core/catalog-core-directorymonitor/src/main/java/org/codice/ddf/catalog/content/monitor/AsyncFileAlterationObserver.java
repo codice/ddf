@@ -121,15 +121,22 @@ public class AsyncFileAlterationObserver {
    * Called when the observer should compare the snapshot state to the actual state of the directory
    * being monitored.
    */
+  private final Object processingLock = new Object();
+
+  private boolean isProcessing = false;
+
   public boolean checkAndNotify() {
 
-    synchronized (processing) {
+    synchronized (processingLock) {
       if (processing.get() != 0) {
-        LOGGER.debug("{} files are still processing. Waiting until the list is empty");
+        LOGGER.debug(
+            "{} files are still processing. Waiting until the list is empty", processing.get());
+        return false;
+      } else if (isProcessing) {
+        LOGGER.debug("Another thread is currently running, returning until next poll");
         return false;
       }
-      //  Increment immediately so other threads can't start processing
-      processing.incrementAndGet();
+      isProcessing = true;
     }
 
     //  You cannot change listeners in the middle of executions.
@@ -152,8 +159,7 @@ public class AsyncFileAlterationObserver {
           rootFile.getName());
     }
 
-    //  call onFinish in case there were not multiple threads.
-    onFinish();
+    isProcessing = false;
     return true;
   }
 
@@ -355,7 +361,7 @@ public class AsyncFileAlterationObserver {
   }
 
   private void onFinish() {
-    synchronized (processing) {
+    synchronized (processingLock) {
       processing.getAndDecrement();
       if (processing.get() == 0) {
         serializer.store(rootFile.getName(), rootFile);
