@@ -48,7 +48,7 @@ public class EncryptionServiceImpl implements EncryptionService {
     try {
       return crypter.encrypt(plainTextValue);
     } catch (CrypterException e) {
-      LOGGER.debug("Failed to encrypt string of value %s.", plainTextValue, e);
+      LOGGER.debug("Failed to encrypt string.", e);
       return plainTextValue;
     }
   }

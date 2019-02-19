@@ -82,7 +82,7 @@ public class Crypter {
           keysetHandle = readKeysetHandle(keysetFile);
         }
         aead = AeadFactory.getPrimitive(keysetHandle);
-        associatedData = getAssociatedData(keysetHandle);
+        associatedData = getAssociatedData();
       } catch (GeneralSecurityException | IOException e) {
         LOGGER.warn("Problem initializing keyset.");
         throw new CrypterException("Problem initializing keyset", e);
@@ -190,7 +190,7 @@ public class Crypter {
             });
   }
 
-  private byte[] getAssociatedData(KeysetHandle keysetHandle) throws CrypterException {
+  private byte[] getAssociatedData() throws CrypterException {
     String primaryKeyId = Integer.toString(keysetHandle.getKeysetInfo().getPrimaryKeyId());
 
     Properties properties = getAssociatedDataProperties();
@@ -202,7 +202,9 @@ public class Crypter {
         "Could not find key (%s) in properties file (%s).", primaryKeyId, associatedDataPath);
 
     try {
-      return generateAssociatedDataAndStoreToProperties(primaryKeyId, properties);
+      byte[] generatedAssociatedData = generateAssociatedData();
+      storeAssociatedDataToProperties(primaryKeyId, generatedAssociatedData, properties);
+      return generatedAssociatedData;
     } catch (IOException e) {
       throw new CrypterException("Problem getting associated data.", e);
     }
@@ -220,21 +222,22 @@ public class Crypter {
     }
   }
 
-  private byte[] generateAssociatedDataAndStoreToProperties(
-      String primaryKeyId, Properties properties) throws IOException {
+  private byte[] generateAssociatedData() {
+    SecureRandom secureRandom = new SecureRandom();
+    byte[] generatedAssociatedData = new byte[ASSOCIATED_DATA_BYTE_SIZE];
+    secureRandom.nextBytes(generatedAssociatedData);
+    return generatedAssociatedData;
+  }
+
+  private void storeAssociatedDataToProperties(
+      String primaryKeyId, byte[] associatedData, Properties properties) throws IOException {
     try (OutputStream outputStream = getAssociatedDataPropertiesOutputStream()) {
       if (outputStream == null) {
         throw new IOException("Problem initializing properties output stream.");
       }
-      SecureRandom secureRandom = new SecureRandom();
-      byte[] generatedAssociatedData = new byte[ASSOCIATED_DATA_BYTE_SIZE];
-      secureRandom.nextBytes(generatedAssociatedData);
 
-      properties.setProperty(
-          primaryKeyId, Base64.getEncoder().encodeToString(generatedAssociatedData));
+      properties.setProperty(primaryKeyId, Base64.getEncoder().encodeToString(associatedData));
       properties.store(outputStream, null);
-
-      return generatedAssociatedData;
     }
   }
 
