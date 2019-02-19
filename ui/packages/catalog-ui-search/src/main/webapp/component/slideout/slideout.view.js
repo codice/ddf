@@ -15,7 +15,6 @@
 /*global require, window, setTimeout*/
 import React from 'react'
 var Marionette = require('marionette')
-var template = require('./slideout.hbs')
 var CustomElements = require('../../js/CustomElements.js')
 var $ = require('jquery')
 var router = require('../router/router.js')
@@ -24,7 +23,7 @@ var Common = require('../../js/Common.js')
 var componentName = 'slideout'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = Marionette.ItemView.extend({
   template() {
     let ContentView = () => null
     if (this.contentView) {
@@ -46,9 +45,6 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     click: 'handleOutsideClick',
     keydown: 'handleSpecialKeys',
-  },
-  regions: {
-    slideoutContent: '.slideout-content',
   },
   initialize: function() {
     $('body').append(this.el)
@@ -85,7 +81,7 @@ module.exports = Marionette.LayoutView.extend({
   emptyContent: function() {
     setTimeout(
       function() {
-        this.slideoutContent.empty()
+        this.updateContent()
       }.bind(this),
       Common.coreTransitionTime * 1.1
     )
