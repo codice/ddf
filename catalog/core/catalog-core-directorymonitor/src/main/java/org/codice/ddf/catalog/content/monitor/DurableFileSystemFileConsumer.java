@@ -47,7 +47,6 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       observer.setListener(listener);
       observer.checkAndNotify();
       observer.removeListener();
-      observer.setOnDone(() -> observer.store(jsonSerializer));
       return true;
     } else {
       return isMatched(null, null, null);
@@ -71,7 +70,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       if (observer == null && isOldVersion(fileName)) {
         observer = backwardsCompatibility(fileName);
       } else {
-        observer = new AsyncFileAlterationObserver(new File(fileName));
+        observer = new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
       }
     }
   }
@@ -84,7 +83,8 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   private AsyncFileAlterationObserver backwardsCompatibility(String fileName) {
 
     String sha1 = DigestUtils.sha1Hex(fileName);
-    AsyncFileAlterationObserver newObserver = new AsyncFileAlterationObserver(new File(fileName));
+    AsyncFileAlterationObserver newObserver =
+        new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
     FileAlterationObserver oldObserver =
         (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
 

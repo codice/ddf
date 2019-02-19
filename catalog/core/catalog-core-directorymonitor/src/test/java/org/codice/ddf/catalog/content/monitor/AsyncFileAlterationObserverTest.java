@@ -93,14 +93,35 @@ public class AsyncFileAlterationObserverTest {
 
   private int totalSize;
 
+  private ObjectPersistentStore store;
+
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private String json;
+
+  private Object setJson(InvocationOnMock invocationOnMock) {
+    Gson gson = new Gson();
+    json = gson.toJson(invocationOnMock.getArguments()[1], AsyncFileEntry.class);
+    return null;
+  }
+
+  private Object loadJson(InvocationOnMock invocationOnMock) {
+    Gson gson = new Gson();
+    return gson.fromJson(json, AsyncFileEntry.class);
+  }
 
   @Before
   public void setup() throws IOException {
 
+    store = Mockito.mock(ObjectPersistentStore.class);
+
+    doAnswer(this::setJson).when(store).store(any(), any());
+
+    doAnswer(this::loadJson).when(store).load(any(), any());
+
     fileListener = Mockito.mock(AsyncFileAlterationListener.class);
     monitoredDirectory = temporaryFolder.newFolder("inbox");
-    observer = new AsyncFileAlterationObserver(monitoredDirectory);
+    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
     observer.setListener(fileListener);
 
     childDir = null;
@@ -143,7 +164,7 @@ public class AsyncFileAlterationObserverTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullRoot() {
-    observer = new AsyncFileAlterationObserver(null);
+    observer = new AsyncFileAlterationObserver(null, null);
   }
 
   @Test
@@ -336,6 +357,15 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
+  public void testSerializationAfterCreate() throws Exception {
+    initNestedDirectory(5, 7, 11, 2);
+
+    observer.checkAndNotify();
+
+    verify(store, times(1)).store(any(), any());
+  }
+
+  @Test
   public void testIOErrorReadingFilesNestedDirectory() throws Exception {
 
     //  Creation not tested.
@@ -389,50 +419,34 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testCreateThreadSafety() throws Exception {
+  public void testThreadSafety() throws Exception {
 
     File[] files = initFiles(1, monitoredDirectory, "file00");
 
-    runThreads(observer::checkAndNotify, 10);
+    delayLatch = new CountDownLatch(2);
+
+    Thread one =
+        new Thread(
+            () -> {
+              assertThat(observer.checkAndNotify(), is(true));
+              delayLatch.countDown();
+            });
+    Thread two =
+        new Thread(
+            () -> {
+              assertThat(observer.checkAndNotify(), is(false));
+              delayLatch.countDown();
+            });
+
+    one.start();
+    two.start();
+
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     verify(fileListener, times(files.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
-  }
-
-  @Test
-  public void testModifyThreadSafety() throws Exception {
-
-    File[] files = initFiles(1, monitoredDirectory, "file00");
-    observer.checkAndNotify();
-    init();
-
-    Stream.of(files).forEach(this::changeData);
-
-    runThreads(observer::checkAndNotify, 10);
-
-    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(files.length))
-        .onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
-  }
-
-  @Test
-  public void testDeleteThreadSafety() throws Exception {
-
-    File[] files = initFiles(1, monitoredDirectory, "file00");
-    observer.checkAndNotify();
-    init();
-
-    Stream.of(files).forEach(this::fileDelete);
-
-    runThreads(observer::checkAndNotify, 10);
-
-    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, times(files.length))
-        .onFileDelete(any(File.class), any(Synchronization.class));
   }
 
   @Test
@@ -549,22 +563,31 @@ public class AsyncFileAlterationObserverTest {
   public void testCreatesWithDelay() throws Exception {
     File[] files = new File[10];
 
-    initSemaphore(1);
+    initSemaphore(files.length / 2);
 
-    for (int i = 0; i < files.length; i++) {
+    for (int i = 0; i < files.length / 2; i++) {
       files[i] = new File(monitoredDirectory, "file00" + i);
       FileUtils.writeStringToFile(files[i], dummyData, Charset.defaultCharset());
-      observer.checkAndNotify();
     }
 
-    runThreads(observer::checkAndNotify, 3);
+    assertThat(observer.checkAndNotify(), is(true));
 
-    artificialDelay.release(files.length);
+    for (int i = files.length / 2; i < files.length; i++) {
+      files[i] = new File(monitoredDirectory, "file00" + i);
+      FileUtils.writeStringToFile(files[i], dummyData, Charset.defaultCharset());
+    }
 
+    artificialDelay.release(files.length / 2);
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
-    delayLatch = new CountDownLatch(files.length - 1);
+    delayLatch = new CountDownLatch(files.length / 2);
 
-    observer.checkAndNotify();
+    verify(fileListener, times(files.length / 2))
+        .onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
+
+    assertThat(observer.checkAndNotify(), is(true));
+    artificialDelay.release(files.length / 2);
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     verify(fileListener, times(files.length))
@@ -572,6 +595,7 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
+    assertThat(observer.getRootFile().getChildren().size(), is(files.length));
     assertThat(artificialDelay.getQueueLength(), is(0));
   }
 
@@ -598,6 +622,10 @@ public class AsyncFileAlterationObserverTest {
     artificialDelay.release(files.length);
 
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
+
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(1)).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     delayLatch = new CountDownLatch(files.length - 1);
 
@@ -635,6 +663,10 @@ public class AsyncFileAlterationObserverTest {
     artificialDelay.release(files.length);
 
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
+
+    verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
+    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
+    verify(fileListener, times(1)).onFileDelete(any(File.class), any(Synchronization.class));
 
     delayLatch = new CountDownLatch(files.length - 1);
 
@@ -706,7 +738,7 @@ public class AsyncFileAlterationObserverTest {
     //  Create the observer after the nested directory. Nothing should be added.
     initNestedDirectory(5, 3, 4, 2);
 
-    observer = new AsyncFileAlterationObserver(monitoredDirectory);
+    observer = new AsyncFileAlterationObserver(monitoredDirectory, store);
     observer.setListener(fileListener);
     observer.initialize();
     observer.checkAndNotify();
@@ -778,13 +810,13 @@ public class AsyncFileAlterationObserverTest {
     FileUtils.writeStringToFile(childFiles[1], changedData, Charset.defaultCharset());
     FileUtils.writeStringToFile(childFiles[3], changedData, Charset.defaultCharset());
 
-    runThreads(observer::checkAndNotify, 2);
+    observer.checkAndNotify();
 
     FileUtils.writeStringToFile(files[1], changedData, Charset.defaultCharset());
     FileUtils.writeStringToFile(files[3], changedData, Charset.defaultCharset());
     FileUtils.writeStringToFile(grandchildFiles[1], changedData, Charset.defaultCharset());
 
-    runThreads(observer::checkAndNotify, 3);
+    observer.checkAndNotify();
 
     artificialDelay.release(5);
 
@@ -807,14 +839,14 @@ public class AsyncFileAlterationObserverTest {
     Stream.of(grandchildFiles).forEach(this::fileDelete);
     fileDelete(grandchildDir);
 
-    runThreads(observer::checkAndNotify, 2);
+    observer.checkAndNotify();
 
     FileUtils.writeStringToFile(files[1], dummyData, Charset.defaultCharset());
     FileUtils.writeStringToFile(childFiles[3], dummyData, Charset.defaultCharset());
     FileUtils.writeStringToFile(
         new File(monitoredDirectory, "aBrandNewFile"), dummyData, Charset.defaultCharset());
 
-    runThreads(observer::checkAndNotify, 4);
+    observer.checkAndNotify();
 
     artificialDelay.release(3 + grandchildFiles.length);
 
@@ -844,18 +876,13 @@ public class AsyncFileAlterationObserverTest {
 
     File siblingDir = new File(monitoredDirectory, "child002");
 
-    observer.checkAndNotify();
+    assertThat(grandchildDir.renameTo(siblingDir), is(true));
 
-    Thread mover = new Thread(() -> assertThat(grandchildDir.renameTo(siblingDir), is(true)));
-    mover.start();
+    assertThat(observer.checkAndNotify(), is(true));
 
-    for (int i = 0; i < 4; i++) {
-      runThreads(observer::checkAndNotify, 2);
-      artificialDelay.release(totalSize / 4);
-    }
+    artificialDelay.release(totalSize);
 
-    artificialDelay.release(totalSize % 4);
-    observer.checkAndNotify();
+    assertThat(observer.checkAndNotify(), is(false));
 
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
@@ -869,7 +896,7 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testMovingDirectoryThreadSafety() throws Exception {
+  public void testMovingDirectory() throws Exception {
 
     initNestedDirectory(5, 8, 9, 0);
 
@@ -881,10 +908,9 @@ public class AsyncFileAlterationObserverTest {
 
     observer.checkAndNotify();
 
-    Thread mover = new Thread(() -> assertThat(grandchildDir.renameTo(siblingDir), is(true)));
-    mover.start();
+    assertThat(grandchildDir.renameTo(siblingDir), is(true));
 
-    runThreads(observer::checkAndNotify, 10);
+    observer.checkAndNotify();
 
     verify(fileListener, times(grandchildFiles.length))
         .onFileCreate(any(File.class), any(Synchronization.class));
@@ -911,12 +937,9 @@ public class AsyncFileAlterationObserverTest {
 
     assertThat(grandchildDir.renameTo(siblingDir), is(true));
 
-    for (int i = 0; i < 4; i++) {
-      runThreads(observer::checkAndNotify, 2);
-      artificialDelay.release((totalSize + toFail) / 4);
-    }
+    artificialDelay.release(totalSize + toFail);
 
-    artificialDelay.release((totalSize + toFail) % 4);
+    observer.checkAndNotify();
 
     observer.checkAndNotify();
 
@@ -939,20 +962,7 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testCreateNestedDirectoryThreadSafety() throws Exception {
-
-    initNestedDirectory(16, 12, 6, 11);
-
-    runThreads(observer::checkAndNotify, 10);
-
-    verify(fileListener, times(totalSize))
-        .onFileCreate(any(File.class), any(Synchronization.class));
-    verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
-    verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
-  }
-
-  @Test
-  public void testDeleteNestedDirectoryThreadSafety() throws Exception {
+  public void testDeleteNestedDirectory() throws Exception {
 
     initNestedDirectory(16, 12, 6, 11);
 
@@ -967,7 +977,7 @@ public class AsyncFileAlterationObserverTest {
     fileDelete(grandchildDir);
     fileDelete(childDir);
 
-    runThreads(observer::checkAndNotify, 10);
+    observer.checkAndNotify();
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
@@ -976,15 +986,18 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testCreateWithErrorsAndThreadSafety() throws Exception {
+  public void testCreateWithErrors() throws Exception {
 
     File[] files = initFiles(9, monitoredDirectory, "file00");
 
     timesToFail.set(files.length);
-    runThreads(observer::checkAndNotify, 10);
+    observer.checkAndNotify();
+
+    verify(fileListener, times(files.length))
+        .onFileCreate(any(File.class), any(Synchronization.class));
 
     //  Just in case there was a straggler who was unable to successfully finish
-    runThreads(observer::checkAndNotify, 1);
+    observer.checkAndNotify();
 
     verify(fileListener, times(files.length + failures))
         .onFileCreate(any(File.class), any(Synchronization.class));
@@ -994,7 +1007,7 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testDeleteWithErrorsAndThreadSafety() throws Exception {
+  public void testDeleteWithErrors() throws Exception {
 
     File[] files = initFiles(9, monitoredDirectory, "file00");
 
@@ -1006,10 +1019,13 @@ public class AsyncFileAlterationObserverTest {
 
     Stream.of(files).forEach(this::fileDelete);
 
-    runThreads(observer::checkAndNotify, 10);
+    observer.checkAndNotify();
+
+    verify(fileListener, times(files.length))
+        .onFileDelete(any(File.class), any(Synchronization.class));
 
     //  Just in case there was a straggler who was unable to successfully finish
-    runThreads(observer::checkAndNotify, 1);
+    observer.checkAndNotify();
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, never()).onFileChange(any(File.class), any(Synchronization.class));
@@ -1019,7 +1035,7 @@ public class AsyncFileAlterationObserverTest {
   }
 
   @Test
-  public void testModifyNestedDirectoryThreadSafety() throws Exception {
+  public void testModifyNestedDirectory() throws Exception {
 
     initNestedDirectory(16, 12, 6, 11);
 
@@ -1031,7 +1047,7 @@ public class AsyncFileAlterationObserverTest {
     Stream.of(childFiles).forEach(this::changeData);
     Stream.of(files).forEach(this::changeData);
 
-    runThreads(observer::checkAndNotify, 10);
+    observer.checkAndNotify();
 
     verify(fileListener, never()).onFileCreate(any(File.class), any(Synchronization.class));
     verify(fileListener, times(totalSize))
@@ -1077,7 +1093,7 @@ public class AsyncFileAlterationObserverTest {
     delayLatch = new CountDownLatch(totalSize);
 
     artificialDelay.release(totalSize);
-    runThreads(observer::checkAndNotify, threads);
+    observer.checkAndNotify();
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     delayLatch = new CountDownLatch(toFail);
@@ -1101,7 +1117,7 @@ public class AsyncFileAlterationObserverTest {
 
     Stream.of(files).forEach(this::changeData);
 
-    runThreads(observer::checkAndNotify, threads);
+    observer.checkAndNotify();
 
     artificialDelay.release((files.length * 2) - 5);
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
@@ -1122,7 +1138,7 @@ public class AsyncFileAlterationObserverTest {
 
     Stream.of(grandchildFiles).forEach(this::changeData);
 
-    runThreads(observer::checkAndNotify, threads);
+    observer.checkAndNotify();
 
     //  Implementation detail these should operate as a No-OP since the file will be "committed"
     // with these changes.
@@ -1134,7 +1150,7 @@ public class AsyncFileAlterationObserverTest {
     fileDelete(grandchildFiles[5]);
     fileDelete(grandchildFiles[8]);
 
-    runThreads(observer::checkAndNotify, threads);
+    observer.checkAndNotify();
 
     artificialDelay.release(grandchildFiles.length);
 
@@ -1143,7 +1159,7 @@ public class AsyncFileAlterationObserverTest {
     verify(fileListener, never()).onFileDelete(any(File.class), any(Synchronization.class));
 
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
-    runThreads(observer::checkAndNotify, threads);
+    observer.checkAndNotify();
     delayLatch = new CountDownLatch(5);
 
     artificialDelay.release(5);
@@ -1227,43 +1243,17 @@ public class AsyncFileAlterationObserverTest {
     assertThat(artificialDelay.getQueueLength(), is(0));
   }
 
-  private String json;
-
-  private Object setJson(InvocationOnMock invocationOnMock) {
-    Gson gson = new Gson();
-    json = gson.toJson(invocationOnMock.getArguments()[1], AsyncFileEntry.class);
-    return null;
-  }
-
-  private Object loadJson(InvocationOnMock invocationOnMock) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, AsyncFileEntry.class);
-  }
-
   @Test
   public void testJsonSerial() throws Exception {
 
-    ObjectPersistentStore store = Mockito.mock(ObjectPersistentStore.class);
-
-    doAnswer(this::setJson).when(store).store(any(), any());
-
-    doAnswer(this::loadJson).when(store).load(any(), any());
-
     initNestedDirectory(1, 1, 0, 0);
     observer.initialize();
-
-    observer.store(store);
 
     AsyncFileAlterationObserver two = AsyncFileAlterationObserver.load(new File("File01"), store);
 
     two.checkAndNotify();
 
     assertThat(two.getRootFile().getChildren().get(0).getParent().isPresent(), is(true));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testStoreWithNull() {
-    observer.store(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -1308,26 +1298,6 @@ public class AsyncFileAlterationObserverTest {
     }
 
     return files;
-  }
-
-  private void runThreads(Runnable runnable, int numberOfThreads) throws Exception {
-    CountDownLatch latch = new CountDownLatch(numberOfThreads);
-
-    Thread[] threads = new Thread[numberOfThreads];
-    for (int i = 0; i < threads.length; i++) {
-      threads[i] =
-          new Thread(
-              () -> {
-                runnable.run();
-                latch.countDown();
-              });
-    }
-
-    for (Thread i : threads) {
-      i.start();
-    }
-
-    latch.await(1000, TimeUnit.MILLISECONDS);
   }
 
   private void initSemaphore(int latchNo) {

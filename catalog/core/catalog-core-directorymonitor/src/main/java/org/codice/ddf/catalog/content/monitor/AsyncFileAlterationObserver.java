@@ -48,20 +48,23 @@ public class AsyncFileAlterationObserver {
   private AsyncFileAlterationListener listener = null;
   private final AtomicLong processing = new AtomicLong(0);
   private final Object listenerLock = new Object();
+  private final ObjectPersistentStore serializer;
 
-  public AsyncFileAlterationObserver(File fileToObserve) {
-    if (fileToObserve == null) {
+  public AsyncFileAlterationObserver(File fileToObserve, ObjectPersistentStore serializer) {
+    if (fileToObserve == null || serializer == null) {
       throw new IllegalArgumentException();
     }
+    this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
   }
 
-  private AsyncFileAlterationObserver(AsyncFileEntry entry) {
+  private AsyncFileAlterationObserver(AsyncFileEntry entry, ObjectPersistentStore serializer) {
     if (entry == null) {
       throw new IllegalArgumentException("entry can not be null");
     }
     rootFile = entry;
     rootFile.initialize();
+    this.serializer = serializer;
   }
 
   public static AsyncFileAlterationObserver load(File observedFile, ObjectPersistentStore store) {
@@ -72,15 +75,7 @@ public class AsyncFileAlterationObserver {
     if (temp == null) {
       return null;
     }
-    return new AsyncFileAlterationObserver(temp);
-  }
-
-  public void store(ObjectPersistentStore objectPersistentStore) {
-    if (objectPersistentStore == null) {
-      throw new IllegalArgumentException(
-          "Cannot store this object without an ObjectPersistentStore");
-    }
-    objectPersistentStore.store(rootFile.getName(), rootFile);
+    return new AsyncFileAlterationObserver(temp, store);
   }
 
   /**
@@ -91,6 +86,7 @@ public class AsyncFileAlterationObserver {
    */
   public void initialize() throws IllegalStateException {
     initChildEntries(rootFile);
+    serializer.store(rootFile.getName(), rootFile);
   }
 
   public void destroy() {
@@ -119,7 +115,15 @@ public class AsyncFileAlterationObserver {
    * Called when the observer should compare the snapshot state to the actual state of the directory
    * being monitored.
    */
-  public void checkAndNotify() {
+  public boolean checkAndNotify() {
+
+    synchronized (processing) {
+      if (processing.get() != 0) {
+        LOGGER.debug("{} files are still processing. Waiting until the list is empty");
+        return false;
+      }
+      processing.incrementAndGet();
+    }
 
     //  You cannot change listeners in the middle of executions.
     //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
@@ -127,17 +131,10 @@ public class AsyncFileAlterationObserver {
     AsyncFileAlterationListener listenerCopy;
     synchronized (listenerLock) {
       if (listener == null) {
-        return;
+        processing.decrementAndGet();
+        return false;
       }
       listenerCopy = listener;
-    }
-
-    synchronized (this) {
-      if (processing.get() != 0) {
-        LOGGER.debug("{} files are still processing. Waiting until the list is empty");
-        return;
-      }
-      processing.incrementAndGet();
     }
 
     /* fire directory/file events */
@@ -150,8 +147,8 @@ public class AsyncFileAlterationObserver {
           rootFile.getName());
     }
 
-    processing.decrementAndGet();
     onFinish();
+    return true;
   }
 
   /**
@@ -196,8 +193,6 @@ public class AsyncFileAlterationObserver {
       entry.commit();
       entry.getParent().ifPresent(e -> e.addChild(entry));
     }
-    processing.decrementAndGet();
-
     onFinish();
   }
 
@@ -237,8 +232,6 @@ public class AsyncFileAlterationObserver {
     if (success) {
       entry.commit();
     }
-    processing.decrementAndGet();
-
     onFinish();
   }
 
@@ -279,8 +272,6 @@ public class AsyncFileAlterationObserver {
       entry.getParent().ifPresent(e -> e.removeChild(entry));
       entry.destroy();
     }
-    processing.decrementAndGet();
-
     onFinish();
   }
 
@@ -360,29 +351,12 @@ public class AsyncFileAlterationObserver {
     }
   }
 
-  private final Object onDoneLock = new Object();
-
   private void onFinish() {
-    Runnable copy = null;
-    synchronized (onDoneLock) {
-      if (onDone != null && processing.get() == 0) {
-        copy = onDone;
+    synchronized (processing) {
+      processing.getAndDecrement();
+      if (processing.get() == 0) {
+        serializer.store(rootFile.getName(), rootFile);
       }
-    }
-    if (copy != null) {
-      copy.run();
-    }
-  }
-
-  @Nullable private Runnable onDone = null;
-  /**
-   * Adds a function that gets called when there are no more processing items.
-   *
-   * @param f function to run
-   */
-  public void setOnDone(@Nullable Runnable f) {
-    synchronized (onDoneLock) {
-      onDone = f;
     }
   }
 }
