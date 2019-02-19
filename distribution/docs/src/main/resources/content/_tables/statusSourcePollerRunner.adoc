@@ -23,7 +23,7 @@
 
 WARNING:
 There is a maximum delay of 2*`pollIntervalMinutes` for the Source Poller to be updated after the availability of a source changes or a source is created/modified/deleted.
-Currently the <<_standard_catalog_framework,Standard Catalog Framework>> and the <<_catalog_rest_endpoint,Catalog REST Endpoint>> use the Source Poller to get source availabilities.
+Currently the <<{developing-prefix}standard_catalog_framework,Standard Catalog Framework>> and the <<{integrating-prefix}catalog_rest_endpoint,Catalog REST Endpoint>> use the Source Poller to get source availabilities.
 The `pollIntervalMinutes` should not be set to value a which results in an unacceptable maximum delay.
 |1
 |true
