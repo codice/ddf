@@ -21,6 +21,16 @@ const router = require('../router/router.js')
 const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
 
+const sourceDataFromAlert = alert => {
+  const sources = alert.get('src')
+  const haveSources = sources && sources.length > 0
+
+  return {
+    federation: (haveSources && 'selected') || 'enterprise',
+    ...(haveSources && { src: sources }),
+  }
+}
+
 module.exports = new (Backbone.AssociatedModel.extend({
   relations: [
     {
@@ -80,6 +90,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
       if (!alert) {
         router.notFound()
       } else {
+        const sourceData = sourceDataFromAlert(alert)
         const queryForMetacards = new Query.Model({
           cql: cql.write({
             type: 'OR',
@@ -98,7 +109,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
                 property: '"id"',
               }),
           }),
-          federation: 'enterprise',
+          ...sourceData,
         })
         if (this.get('currentQuery')) {
           this.get('currentQuery').cancelCurrentSearches()
