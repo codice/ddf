@@ -78,7 +78,7 @@ export default hot(module)((props: Props) => {
       <div hidden={exportSize !== 'custom'}>
         <input
           className="exportNumber"
-          type="text"
+          type="number"
           name="customExport"
           value={customExportCount}
           onChange={handleCustomExportCountChange}
