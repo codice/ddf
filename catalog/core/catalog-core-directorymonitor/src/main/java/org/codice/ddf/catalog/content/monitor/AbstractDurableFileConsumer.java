@@ -34,7 +34,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableFileConsumer.class);
 
-  //  Implement these to serializing the observers states.
+  //  Implement these to serialize the observers states.
   protected FileSystemPersistenceProvider fileSystemPersistenceProvider;
 
   protected ObjectPersistentStore jsonSerializer;
