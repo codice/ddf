@@ -26,4 +26,27 @@ describe('<MarionetteRegionContainer />', () => {
       attachTo: div,
     })
   })
+
+  it('handles switching views quickly', done => {
+    const div = document.createElement('div')
+    document.body.appendChild(div)
+    const TestView = Marionette.ItemView.extend({
+      template: '<h1></h1>',
+      onRender() {
+        done()
+        div.remove()
+      },
+    })
+    const TestView2 = Marionette.ItemView.extend({
+      template: '<h1></h1>',
+      onRender() {
+        done()
+        div.remove()
+      },
+    })
+    const wrapper = mount(<MarionetteRegionContainer view={TestView} />, {
+      attachTo: div,
+    })
+    wrapper.setProps({ view: TestView2 })
+  })
 })
