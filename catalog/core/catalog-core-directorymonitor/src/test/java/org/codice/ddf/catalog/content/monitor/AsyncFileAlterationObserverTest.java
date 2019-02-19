@@ -328,7 +328,7 @@ public class AsyncFileAlterationObserverTest {
 
     observer.checkAndNotify();
 
-    verify(store, times(1)).store(any(), any());
+    verify(store, atLeast(1)).store(any(), any());
   }
 
   @Test
