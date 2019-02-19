@@ -105,7 +105,6 @@ public class AsyncFileAlterationObserver {
   }
 
   public void removeListener() {
-    //  You cannot remove the listener until the checkAndNotify method is done using it.
     synchronized (listenerLock) {
       this.listener = null;
     }
@@ -122,12 +121,11 @@ public class AsyncFileAlterationObserver {
         LOGGER.debug("{} files are still processing. Waiting until the list is empty");
         return false;
       }
+      //  Increment immediately so other threads can't start processing
       processing.incrementAndGet();
     }
 
     //  You cannot change listeners in the middle of executions.
-    //  Instead of just checking for nulls if a listener is removed mid execution we're going to use
-    //  the one we had when we started the method.
     AsyncFileAlterationListener listenerCopy;
     synchronized (listenerLock) {
       if (listener == null) {
@@ -147,6 +145,7 @@ public class AsyncFileAlterationObserver {
           rootFile.getName());
     }
 
+    //  call onFinish in case there were not multiple threads.
     onFinish();
     return true;
   }
@@ -159,7 +158,6 @@ public class AsyncFileAlterationObserver {
   private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
 
     processing.incrementAndGet();
-    //  At this point this file is stable.
 
     if (!entry.getFile().isDirectory()) {
 
@@ -306,7 +304,7 @@ public class AsyncFileAlterationObserver {
       } else {
         //  Do Delete
         if (!entry.checkNetwork()) {
-          //  The file MAY still exist but it's the network that's down.
+          //  The file may still exist but it's the network that's down.
           return;
         }
         checkAndNotify(entry, entry.getChildren(), FileUtils.EMPTY_FILE_ARRAY, listenerCopy);
