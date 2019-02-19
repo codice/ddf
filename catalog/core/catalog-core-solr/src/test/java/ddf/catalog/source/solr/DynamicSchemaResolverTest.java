@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
@@ -268,5 +269,45 @@ public class DynamicSchemaResolverTest {
 
   private MetacardType deserializeMetacardType(byte[] serializedMetacardType) throws IOException {
     return METACARD_TYPE_MAPPER.readValue(serializedMetacardType, MetacardType.class);
+  }
+
+  @Test
+  public void getField() {
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.GEOMETRY, false),
+        is("unknown_geo_index"));
+
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.XML, false),
+        is("unknown_xml_tpt"));
+
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, false),
+        is("unknown_txt_tokenized"));
+  }
+
+  @Test
+  public void getFieldExactValue() {
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.DOUBLE, true),
+        is("unknown_dbl"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.LONG, true),
+        is("unknown_lng"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.INTEGER, true),
+        is("unknown_int"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.SHORT, true),
+        is("unknown_shr"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.FLOAT, true),
+        is("unknown_flt"));
+    assertThat(
+        new DynamicSchemaResolver().getField("anyGeo", AttributeFormat.BINARY, true),
+        is("location_geo_index"));
+    assertThat(
+        new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, true),
+        is("unknown_txt"));
   }
 }
