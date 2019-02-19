@@ -13,7 +13,7 @@
  */
 package ddf.security.encryption.crypter;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.crypto.tink.Aead;
@@ -100,8 +100,8 @@ public class Crypter {
    * @param plainTextValue The value to encrypt.
    */
   public String encrypt(String plainTextValue) throws CrypterException {
-    if (isEmpty(plainTextValue)) {
-      throw new CrypterException("Value to encrypt cannot be null or empty.");
+    if (isBlank(plainTextValue)) {
+      throw new CrypterException("Value to encrypt cannot be null or blank.");
     }
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
@@ -116,13 +116,13 @@ public class Crypter {
   }
 
   /**
-   * Decrypts a plain text value using Tink
+   * Decrypts a plain text value using Tink.
    *
    * @param encryptedValue The value to decrypt.
    */
   public String decrypt(String encryptedValue) throws CrypterException {
-    if (isEmpty(encryptedValue)) {
-      throw new CrypterException("Value to decrypt cannot be null or empty.");
+    if (isBlank(encryptedValue)) {
+      throw new CrypterException("Value to decrypt cannot be null or blank.");
     }
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
