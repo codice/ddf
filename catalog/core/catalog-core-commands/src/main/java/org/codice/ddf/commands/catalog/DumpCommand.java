@@ -46,11 +46,13 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -61,6 +63,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -482,33 +485,8 @@ public class DumpCommand extends CqlCommands {
   }
 
   private Map<String, Resource> getAllMetacardContent(Metacard metacard) {
-    Map<String, Resource> resourceMap = new HashMap<>();
     Attribute attribute = metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI);
-
-    if (attribute != null) {
-      List<Serializable> serializables = attribute.getValues();
-      serializables.forEach(
-          serializable -> {
-            String fragment = CONTENT + File.separator;
-            URI uri = null;
-            try {
-              uri = new URI((String) serializable);
-              String derivedResourceFragment = uri.getFragment();
-              if (ContentItem.CONTENT_SCHEME.equals(uri.getScheme())
-                  && StringUtils.isNotBlank(derivedResourceFragment)) {
-                fragment += derivedResourceFragment + File.separator;
-                Resource resource = getResource(metacard);
-                if (resource != null) {
-                  resourceMap.put(
-                      fragment + uri.getSchemeSpecificPart() + "-" + resource.getName(), resource);
-                }
-              }
-            } catch (URISyntaxException e) {
-              LOGGER.debug(
-                  "Invalid Derived Resource URI Syntax for metacard : {}", metacard.getId(), e);
-            }
-          });
-    }
+    Map<String, Resource> resourceMap = getResourceMap(metacard, attribute);
 
     URI resourceUri = metacard.getResourceURI();
 
@@ -521,6 +499,53 @@ public class DumpCommand extends CqlCommands {
     }
 
     return resourceMap;
+  }
+
+  private Map<String, Resource> getResourceMap(Metacard metacard, Attribute attribute) {
+    if (attribute == null) {
+      return new HashMap<>();
+    }
+    return attribute
+        .getValues()
+        .stream()
+        .map(serializable -> getDerivedResources(metacard, serializable))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, next) -> first));
+  }
+
+  @Nullable
+  private Map.Entry<String, Resource> getDerivedResources(
+      Metacard metacard, Serializable serializable) {
+    if (!(serializable instanceof String)) {
+      LOGGER.debug(
+          "Input ({}) should have been a string but was a {}",
+          serializable,
+          serializable.getClass());
+      return null;
+    }
+
+    URI uri = null;
+    try {
+      uri = new URI((String) serializable);
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Invalid Derived Resource URI Syntax for metacard : {}", metacard.getId(), e);
+      return null;
+    }
+
+    String derivedResourceFragment = uri.getFragment();
+    if (!ContentItem.CONTENT_SCHEME.equals(uri.getScheme())
+        || StringUtils.isBlank(derivedResourceFragment)) {
+      return null;
+    }
+
+    String fragment = CONTENT + File.separator + derivedResourceFragment + File.separator;
+    Resource resource = getResource(metacard);
+    if (resource == null) {
+      return null;
+    }
+
+    return new SimpleEntry<>(
+        fragment + uri.getSchemeSpecificPart() + "-" + resource.getName(), resource);
   }
 
   private Resource getResource(Metacard metacard) {
