@@ -72,11 +72,11 @@ function getHits(sources: Source[]): number {
     .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
 }
 
-function getExportCount(
-  exportSize: string,
-  selectionInterface: any,
-  customExportCount: number
-): number {
+function getExportCount({
+  exportSize,
+  selectionInterface,
+  customExportCount,
+}: ExportCountInfo): number {
   if (exportSize === 'custom') {
     return customExportCount
   }
@@ -91,23 +91,17 @@ function getSorts(selectionInterface: any) {
   return selectionInterface.getCurrentQuery().get('sorts')
 }
 
-function getWarning(
-  exportSize: string,
-  selectionInterface: any,
-  customExportCount: number
-): string {
-  const exportCount = getExportCount(
-    exportSize,
-    selectionInterface,
-    customExportCount
-  )
+function getWarning(exportCountInfo: ExportCountInfo): string {
+  const exportCount = getExportCount(exportCountInfo)
   if (exportCount > properties.exportResultLimit) {
     return `You cannot export more than the administrator configured limit of ${
       properties.exportResultLimit
     }`
   }
 
-  const result = selectionInterface.getCurrentQuery().get('result')
+  const result = exportCountInfo.selectionInterface
+    .getCurrentQuery()
+    .get('result')
   const totalHits = getHits(result.get('status').toJSON())
 
   let warningMessage = ''
@@ -145,6 +139,12 @@ type Source = {
 type ExportResponse = {
   displayName: string
   id: string
+}
+
+interface ExportCountInfo {
+  exportSize: string
+  selectionInterface: any
+  customExportCount: number
 }
 
 export default hot(module)(
@@ -213,18 +213,20 @@ export default hot(module)(
     }
     onDownloadClick = async () => {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
+      const { exportSize, customExportCount } = this.state
+      const { selectionInterface } = this.props
       try {
         const hiddenFields = getHiddenFields()
         const columnOrder = getColumnOrder()
 
         const cql = getCqlForSize(
-          this.state.exportSize,
-          this.props.selectionInterface
+          exportSize,
+          selectionInterface
         )
-        const sources = getSrcs(this.props.selectionInterface)
-        const sorts = getSorts(this.props.selectionInterface)
+        const sources = getSrcs(selectionInterface)
+        const sorts = getSorts(selectionInterface)
         const count = Math.min(
-          getExportCount(this.state.exportSize, this.props.selectionInterface, this.state.customExportCount),
+          getExportCount(exportSize, selectionInterface, customExportCount),
           properties.exportResultLimit
         )
         const args = {
@@ -265,6 +267,8 @@ export default hot(module)(
       }
     }
     render() {
+      const { exportSize, customExportCount } = this.state
+      const { selectionInterface } = this.props
       return (
         <LoadingCompanion loading={this.state.exportFormats.length === 0}>
           {this.state.exportFormats.length > 0 ? (
@@ -277,11 +281,11 @@ export default hot(module)(
               handleExportSizeChange={this.handleExportSizeChange}
               handleCustomExportCountChange={this.handleCustomExportCountChange}
               onDownloadClick={this.onDownloadClick}
-              warning={getWarning(
-                this.state.exportSize,
-                this.props.selectionInterface,
-                this.state.customExportCount
-              )}
+              warning={getWarning({
+                exportSize,
+                selectionInterface,
+                customExportCount,
+              })}
               customExportCount={this.state.customExportCount}
             />
           ) : null}
