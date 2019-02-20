@@ -264,17 +264,10 @@ public class DumpCommand extends CqlCommands {
       LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
     }
 
-    List<Result> results =
-        ResultIterable.resultIterable(catalog::query, queryRequest)
-            .stream()
-            .collect(Collectors.toList());
-
     if (StringUtils.isNotBlank(zipFileName)) {
-      SourceResponse sourceResponse = new SourceResponseImpl(queryRequest, results);
-      createZip(sourceResponse, dirPath + zipFileName);
-      resultCount.set(sourceResponse.getHits());
+      createZip(catalog, queryRequest, dirPath + zipFileName, resultCount);
     } else {
-      results
+      ResultIterable.resultIterable(catalog::query, queryRequest)
           .stream()
           .map(Collections::singletonList)
           .map(result -> new SourceResponseImpl(queryRequest, result))
@@ -416,20 +409,16 @@ public class DumpCommand extends CqlCommands {
     return metacardTransformerList;
   }
 
-  private void createZip(SourceResponse upstreamResponse, String filePath)
+  private void createZip(
+      CatalogFacade catalog, QueryRequest queryRequest, String filePath, AtomicLong resultCount)
       throws CatalogTransformerException {
-    if (upstreamResponse.getResults() == null || upstreamResponse.getResults().isEmpty()) {
-      throw new CatalogTransformerException("Source response cannot be null or empty");
-    }
-
     try (FileOutputStream fileOutputStream = new FileOutputStream(filePath);
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
 
-      List<Result> resultList = upstreamResponse.getResults();
       Map<String, Resource> resourceMap = new HashMap<>();
 
       // write the metacards to the zip
-      resultList
+      ResultIterable.resultIterable(catalog::query, queryRequest)
           .stream()
           .map(Result::getMetacard)
           .forEach(
@@ -439,6 +428,8 @@ public class DumpCommand extends CqlCommands {
                 if (hasLocalResources(metacard)) {
                   resourceMap.putAll(getAllMetacardContent(metacard));
                 }
+
+                resultCount.incrementAndGet();
               });
 
       // write the resources to the zip
