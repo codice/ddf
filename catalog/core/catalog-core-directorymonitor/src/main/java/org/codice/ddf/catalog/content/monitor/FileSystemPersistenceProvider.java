@@ -200,17 +200,6 @@ public class FileSystemPersistenceProvider
     return keys;
   }
 
-  public void clear() {
-    File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-    if (files != null) {
-      for (File file : files) {
-        if (!file.delete()) {
-          LOGGER.debug("File was unable to be deleted: {}", file.getAbsolutePath());
-        }
-      }
-    }
-  }
-
   @Override
   public String toString() {
     return getMapStorePath();

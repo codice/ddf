@@ -18,12 +18,18 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileSystemFileConsumer.class);
+
   private DurableFileAlterationListener listener;
 
-  private FileAlterationObserver observer;
+  private AsyncFileAlterationObserver observer;
 
   DurableFileSystemFileConsumer(
       GenericFileEndpoint<File> endpoint,
@@ -38,36 +44,67 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
   @Override
   protected boolean doPoll(String sha1) {
     if (observer != null) {
-      observer.addListener(listener);
+      observer.setListener(listener);
       observer.checkAndNotify();
-      observer.removeListener(listener);
-      fileSystemPersistenceProvider.store(sha1, observer);
+      observer.removeListener();
       return true;
     } else {
-      return isMatched(null, null, null);
+      return false;
     }
   }
 
   @Override
-  protected void initialize(String fileName, String sha1) {
+  protected void initialize(String fileName) {
     if (fileSystemPersistenceProvider == null) {
       fileSystemPersistenceProvider = new FileSystemPersistenceProvider(getClass().getSimpleName());
     }
+    if (jsonSerializer == null) {
+      jsonSerializer = new JsonPersistantStore(getClass().getSimpleName());
+    }
+
     if (observer == null && fileName != null) {
-      if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
-        observer = (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
-      } else {
-        observer = new FileAlterationObserver(new File(fileName));
+
+      observer = AsyncFileAlterationObserver.load(new File(fileName), jsonSerializer);
+
+      //  Backwards Compatibility
+      if (observer == null && isOldVersion(fileName)) {
+        observer = backwardsCompatibility(fileName);
+      } else if (observer == null) {
+        observer = new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
       }
     }
+  }
+
+  private boolean isOldVersion(String fileName) {
+    String sha1 = DigestUtils.sha1Hex(fileName);
+    return fileSystemPersistenceProvider.loadAllKeys().contains(sha1);
+  }
+
+  private AsyncFileAlterationObserver backwardsCompatibility(String fileName) {
+
+    String sha1 = DigestUtils.sha1Hex(fileName);
+    AsyncFileAlterationObserver newObserver =
+        new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
+    FileAlterationObserver oldObserver =
+        (FileAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
+
+    try {
+      newObserver.initialize();
+    } catch (IllegalStateException e) {
+      //  There was an IO error setting up the initial state of the observer
+      LOGGER.info("Error initializing the new state of the CDM. retrying on next poll");
+      return null;
+    }
+    oldObserver.addListener(listener);
+    oldObserver.checkAndNotify();
+    oldObserver.removeListener(listener);
+
+    return newObserver;
   }
 
   @Override
   public void shutdown() throws Exception {
     super.shutdown();
-    if (observer != null) {
-      observer.destroy();
-    }
     listener.destroy();
   }
 }

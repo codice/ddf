@@ -19,19 +19,23 @@ import java.util.Collections;
 import javax.validation.constraints.NotNull;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFileEndpoint;
+import org.apache.camel.spi.Synchronization;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.content.monitor.AbstractDurableFileConsumer.ExchangeHelper;
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
 import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
+import org.codice.ddf.catalog.content.monitor.synchronizations.LoggingSynchronization;
 import org.codice.ddf.catalog.content.monitor.watcher.FileWatcher;
 import org.codice.ddf.catalog.content.monitor.watcher.FilesWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DurableFileAlterationListener extends FileAlterationListenerAdaptor {
+public class DurableFileAlterationListener
+    implements AsyncFileAlterationListener, FileAlterationListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileAlterationListener.class);
 
@@ -68,15 +72,16 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
   }
 
   @Override
-  public void onFileChange(File file) {
-    filesWatcher.watch(new FileWatcher(file, this::fileUpdate));
+  public void onFileChange(File file, Synchronization cb) {
+    filesWatcher.watch(new FileWatcher(file, (e) -> fileUpdate(e, cb)));
   }
 
-  private void fileUpdate(File file) {
+  private void fileUpdate(File file, Synchronization cb) {
     String fileUri = file.toURI().toASCIIString();
     String metacardId = getMetacardIdFromReference(fileUri, CATALOG_UPDATE, productToMetacardIdMap);
 
     if (StringUtils.isEmpty(metacardId)) {
+      cb.onComplete(null);
       return;
     }
 
@@ -88,17 +93,18 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
             .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
             .addSynchronization(
                 new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
+            .addSynchronization(cb)
             .getExchange();
 
     consumer.submitExchange(exchange);
   }
 
   @Override
-  public void onFileCreate(File file) {
-    filesWatcher.watch(new FileWatcher(file, this::fileCreate));
+  public void onFileCreate(File file, Synchronization cb) {
+    filesWatcher.watch(new FileWatcher(file, (e) -> fileCreate(e, cb)));
   }
 
-  private void fileCreate(File file) {
+  private void fileCreate(File file, Synchronization cb) {
     String fileUri = file.toURI().toASCIIString();
 
     Exchange exchange =
@@ -108,18 +114,20 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
             .addHeader(Core.RESOURCE_URI, fileUri)
             .addSynchronization(
                 new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
+            .addSynchronization(cb)
             .getExchange();
 
     consumer.submitExchange(exchange);
   }
 
   @Override
-  public void onFileDelete(File file) {
+  public void onFileDelete(File file, Synchronization cb) {
     String referenceKey = file.toURI().toASCIIString();
     String metacardId =
         getMetacardIdFromReference(referenceKey, CATALOG_DELETE, productToMetacardIdMap);
 
     if (StringUtils.isEmpty(metacardId)) {
+      cb.onComplete(null);
       return;
     }
 
@@ -128,6 +136,7 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
             .setBody(Collections.singletonList(metacardId))
             .addHeader(OPERATION_HEADER, CATALOG_DELETE)
             .addSynchronization(new DeletionSynchronization(referenceKey, productToMetacardIdMap))
+            .addSynchronization(cb)
             .getExchange();
 
     consumer.submitExchange(exchange);
@@ -151,5 +160,49 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
     }
 
     return (String) productToMetacardIdMap.loadFromPersistence(ref);
+  }
+
+  /**
+   * Backwards compatibility. In case we need to add this listener to an old version due to
+   * serializable concerns.
+   */
+  @Override
+  public void onStart(FileAlterationObserver observer) {
+    //  noop
+  }
+
+  @Override
+  public void onDirectoryCreate(File directory) {
+    //  noop
+  }
+
+  @Override
+  public void onDirectoryChange(File directory) {
+    //  noop
+  }
+
+  @Override
+  public void onDirectoryDelete(File directory) {
+    //  noop
+  }
+
+  @Override
+  public void onFileCreate(File file) {
+    onFileCreate(file, new LoggingSynchronization(file, "CREATE"));
+  }
+
+  @Override
+  public void onFileChange(File file) {
+    onFileChange(file, new LoggingSynchronization(file, "MODIFY"));
+  }
+
+  @Override
+  public void onFileDelete(File file) {
+    onFileChange(file, new LoggingSynchronization(file, "DELETE"));
+  }
+
+  @Override
+  public void onStop(FileAlterationObserver observer) {
+    //  noop
   }
 }
