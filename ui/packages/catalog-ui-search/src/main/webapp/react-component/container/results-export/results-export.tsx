@@ -76,6 +76,10 @@ class ResultsExport extends React.Component<Props, State> {
   componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.selectedResults !== this.state.selectedResults) {
       this.fetchExportOptions()
+      this.setState({
+        selectedFormat: 'Select an export option',
+        downloadDisabled: true,
+      })
     }
   }
   componentDidMount() {
