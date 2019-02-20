@@ -175,7 +175,7 @@ class OperationsStorageSupportSpec extends Specification {
         opsStorage.commitAndCleanup(request, contentPaths)
 
         then:
-        1 * storageProvider.commit(request) >> { throw new StorageException('exception')}
+        1 * storageProvider.commit(request) >> { throw new StorageException('exception') }
 
         then:
         1 * storageProvider.rollback(request)
@@ -199,10 +199,10 @@ class OperationsStorageSupportSpec extends Specification {
         opsStorage.commitAndCleanup(request, contentPaths)
 
         then:
-        1 * storageProvider.commit(request) >> { throw new StorageException('exception')}
+        1 * storageProvider.commit(request) >> { throw new StorageException('exception') }
 
         then:
-        1 * storageProvider.rollback(request) >> { throw new StorageException('exception')}
+        1 * storageProvider.rollback(request) >> { throw new StorageException('exception') }
 
         then:
         1 * path1.toFile() >> Mock(File)

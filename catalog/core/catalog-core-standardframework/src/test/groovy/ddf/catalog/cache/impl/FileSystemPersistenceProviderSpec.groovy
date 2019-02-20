@@ -17,7 +17,7 @@ class FileSystemPersistenceProviderSpec extends Specification {
     public TemporaryFolder temporaryFolder = new TemporaryFolder()
 
     def setup() {
-        temporaryFolder.create();
+        temporaryFolder.create()
         cachePath = temporaryFolder.newFolder("cache").toPath()
         provider = new FileSystemPersistenceProvider("cache", cachePath.toString())
     }

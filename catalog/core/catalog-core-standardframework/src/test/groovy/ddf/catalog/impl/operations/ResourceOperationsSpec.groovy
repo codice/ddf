@@ -21,7 +21,12 @@ import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.operation.QueryResponse
 import ddf.catalog.operation.ResourceRequest
 import ddf.catalog.operation.ResourceResponse
-import ddf.catalog.plugin.*
+import ddf.catalog.plugin.AccessPlugin
+import ddf.catalog.plugin.PolicyPlugin
+import ddf.catalog.plugin.PolicyResponse
+import ddf.catalog.plugin.PostResourcePlugin
+import ddf.catalog.plugin.PreResourcePlugin
+import ddf.catalog.plugin.StopProcessingException
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.ResourceNotSupportedException

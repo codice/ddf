@@ -45,11 +45,8 @@
         <AD description="Cache remote ingest results" name="Cache Remote Ingests"
             id="cacheRemoteIngests" required="true" type="Boolean" default="false"/>
 
-        <AD
-            description="Strategy for caching query results"
-            name="Query Result Cache Strategy" id="cacheStrategy" required="true"
-            type="String"
-            default="ALL">
+        <AD description="Strategy for caching query results" name="Query Result Cache Strategy" id="cacheStrategy"
+            required="true" type="String" default="ALL">
             <Option label="All" value="ALL"/>
             <Option label="Federated" value="FEDERATED"/>
             <Option label="None" value="NONE"/>

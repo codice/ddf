@@ -230,7 +230,7 @@ class ResultIterableSpec extends Specification {
         results == actualResults[64..69]
     }
 
-        def "next() properly pages when some results are filtered out"() {
+    def "next() properly pages when some results are filtered out"() {
         setup:
         List<Result> actualResults = (1..70).collect { new ResultImpl() }
         def totalResults = actualResults.size()

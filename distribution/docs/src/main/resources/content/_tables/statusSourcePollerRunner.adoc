@@ -1,0 +1,31 @@
+:title: Status Source Poller Runner
+:id: ddf.catalog.util.impl.StatusSourcePollerRunner
+:status: published
+:type: table
+:application: ${ddf-catalog}
+:summary: Source Poller configurations.
+
+.[[_ddf.catalog.util.impl.StatusSourcePollerRunner]]Status Source Poller Runner
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Poll Interval (minutes)
+|pollIntervalMinutes
+|Integer
+|The interval (in minutes) at which to recheck the availability of all sources. Must be at least 1 minute.
+
+WARNING:
+There is a maximum delay of 2*`pollIntervalMinutes` for the Source Poller to be updated after the availability of a source changes or a source is created/modified/deleted.
+Currently the <<{developing-prefix}standard_catalog_framework,Standard Catalog Framework>> and the <<{integrating-prefix}catalog_rest_endpoint,Catalog REST Endpoint>> use the Source Poller to get source availabilities.
+The `pollIntervalMinutes` should not be set to value a which results in an unacceptable maximum delay.
+|1
+|true
+
+|===

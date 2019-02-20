@@ -36,7 +36,6 @@
         <property name="federationStrategy" ref="federationStrategy"/>
         <property name="pool" ref="queryThreadPool"/>
         <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
-        <property name="sourcePoller" ref="sourcePoller"/>
         <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
         <property name="reliableResourceDownloadManager"
                   ref="reliableResourceDownloadManager"/>

@@ -38,7 +38,6 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
-import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.util.ArrayList;
@@ -90,8 +89,6 @@ public class FrameworkProperties {
   private QueryResponsePostProcessor queryResponsePostProcessor;
 
   private ExecutorService pool;
-
-  private SourcePoller sourcePoller;
 
   private DownloadsStatusEventPublisher downloadsStatusEventPublisher;
 
@@ -253,14 +250,6 @@ public class FrameworkProperties {
 
   public void setPool(ExecutorService pool) {
     this.pool = pool;
-  }
-
-  public SourcePoller getSourcePoller() {
-    return sourcePoller;
-  }
-
-  public void setSourcePoller(SourcePoller sourcePoller) {
-    this.sourcePoller = sourcePoller;
   }
 
   public DownloadsStatusEventPublisher getDownloadsStatusEventPublisher() {

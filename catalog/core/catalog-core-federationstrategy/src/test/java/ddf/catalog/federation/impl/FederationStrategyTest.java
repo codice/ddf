@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,7 +66,7 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.SourcePoller;
-import ddf.catalog.util.impl.SourcePollerRunner;
+import ddf.catalog.util.impl.SourceStatus;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +75,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -144,11 +146,6 @@ public class FederationStrategyTest {
             "Provider", "Provider", "v1.0", "DDF", new HashSet<ContentType>(), true, new Date());
     provider.setQueryDelayMillis(queryDelay);
 
-    // Mock register the provider in the container
-    SourcePollerRunner runner = new SourcePollerRunner();
-    SourcePoller poller = new SourcePoller(runner);
-    runner.bind(provider);
-
     // Must have more than one thread or sleeps will block the monitor
     SortedFederationStrategy fedStrategy =
         new SortedFederationStrategy(executor, new ArrayList<>(), new ArrayList<>());
@@ -156,7 +153,6 @@ public class FederationStrategyTest {
     FrameworkProperties props = new FrameworkProperties();
     props.setCatalogProviders(Collections.singletonList(provider));
     props.setFederationStrategy(fedStrategy);
-    props.setSourcePoller(poller);
     props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
     props.setFilterBuilder(new GeotoolsFilterBuilder());
     props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
@@ -169,7 +165,19 @@ public class FederationStrategyTest {
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
 
-    SourceOperations sourceOperations = new SourceOperations(props, sourceActionRegistry);
+    final SourcePoller<SourceStatus> mockSourceStatusSourcePoller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
+        .when(mockSourceStatusSourcePoller)
+        .getCachedValueForSource(any(Source.class));
+
+    SourceOperations sourceOperations =
+        new SourceOperations(
+            props, sourceActionRegistry, mockSourceStatusSourcePoller, mock(SourcePoller.class));
 
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);
