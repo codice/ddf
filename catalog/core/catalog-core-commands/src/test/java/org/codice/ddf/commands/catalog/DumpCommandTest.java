@@ -14,6 +14,8 @@
 package org.codice.ddf.commands.catalog;
 
 import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
@@ -21,15 +23,24 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.fusesource.jansi.Ansi;
 import org.junit.Rule;
 import org.junit.Test;
@@ -202,6 +213,53 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
 
     // then
     assertThat(consoleOutput.getOutput(), containsString(" 0 file(s) dumped in "));
+  }
+
+  @Test
+  public void testNormalOperationsAsCompressedFile() throws Exception {
+    File outputDirectory = testFolder.newFolder("somedirectory");
+    String outputDirectoryPath = outputDirectory.getAbsolutePath();
+    List<Result> results =
+        ImmutableList.of(
+            new ResultImpl(getMetacard("metacardId1")), new ResultImpl(getMetacard("metacardId2")));
+
+    TestDumpCommand dumpCommand = new TestDumpCommand(Collections.emptyList());
+    dumpCommand.catalogFramework = givenCatalogFramework(results);
+    dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
+    dumpCommand.dirPath = outputDirectoryPath;
+    dumpCommand.zipFileName = "foobar.zip";
+
+    dumpCommand.executeWithSubject();
+
+    FileInputStream inputStream =
+        new FileInputStream(outputDirectory + File.separator + "foobar.zip");
+    assertZipContents(
+        inputStream, ImmutableList.of("metacards/metacardId1", "metacards/metacardId2"));
+
+    String expectedPrintOut = " 2 file(s) dumped in ";
+    assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
+  }
+
+  private void assertZipContents(InputStream inputStream, List<String> ids) throws IOException {
+    ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+    List<String> entryNames = new ArrayList<>();
+
+    ZipEntry zipEntry = zipInputStream.getNextEntry();
+    while (zipEntry != null) {
+      entryNames.add(zipEntry.getName());
+      zipEntry = zipInputStream.getNextEntry();
+    }
+    assertThat(entryNames.size(), is(ids.size()));
+
+    for (String id : ids) {
+      assertThat(entryNames, hasItem(id));
+    }
+  }
+
+  private Metacard getMetacard(String id) {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId(id);
+    return metacard;
   }
 
   private class TestDumpCommand extends DumpCommand {
