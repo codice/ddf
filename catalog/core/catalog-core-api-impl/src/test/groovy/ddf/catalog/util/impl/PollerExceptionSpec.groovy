@@ -11,25 +11,30 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.util.impl;
+package ddf.catalog.util.impl
 
-import ddf.catalog.source.Source;
+import spock.lang.Specification
 
-/**
- * Describes a state of availability of a {@link Source}. {@link SourceStatus} includes more states
- * than a {@code boolean} for available/unavailable.
- */
-public enum SourceStatus {
+class PollerExceptionSpec extends Specification {
 
-  /** Indicates that {@link Source#isAvailable()} returned {@code true} */
-  AVAILABLE,
+    def 'test invalid causes'() {
+        when:
+        new PollerException(causes)
 
-  /** Indicates that {@link Source#isAvailable()} returned {@code false} */
-  UNAVAILABLE,
+        then:
+        thrown(expectedException)
 
-  /** Indicates that {@link Source#isAvailable()} threw an exception */
-  EXCEPTION,
+        where:
+        causes || expectedException
+        null   || NullPointerException
+        [:]    || IllegalArgumentException
+    }
 
-  /** Indicates that {@link Source#isAvailable()} timed out */
-  TIMEOUT
+    def 'test getCauses'() {
+        given:
+        final Map<?, Throwable> causes = Mock()
+
+        expect:
+        (new PollerException(causes)).getCauses() == causes
+    }
 }

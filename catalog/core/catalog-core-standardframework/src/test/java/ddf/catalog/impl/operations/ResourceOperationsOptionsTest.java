@@ -33,7 +33,6 @@ import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.mapper.MimeTypeMapperImpl;
@@ -49,8 +48,6 @@ public class ResourceOperationsOptionsTest {
   ResourceOperations resourceOperations;
 
   FrameworkProperties frameworkProperties;
-
-  SourcePoller mockPoller;
 
   FederationStrategy mockFederationStrategy;
 
@@ -101,7 +98,6 @@ public class ResourceOperationsOptionsTest {
     frameworkProperties = new FrameworkProperties();
     frameworkProperties.setAccessPlugins(new ArrayList<>());
     frameworkProperties.setPolicyPlugins(new ArrayList<>());
-    frameworkProperties.setSourcePoller(mockPoller);
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
     frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());

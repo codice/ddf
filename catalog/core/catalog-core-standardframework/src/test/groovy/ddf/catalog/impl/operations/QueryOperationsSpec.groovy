@@ -36,8 +36,6 @@ import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.ConnectedSource
 import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.UnsupportedQueryException
-import ddf.catalog.util.impl.SourcePoller
-import ddf.catalog.util.impl.SourcePollerRunner
 import ddf.security.SecurityConstants
 import ddf.security.Subject
 import org.apache.commons.collections.CollectionUtils
@@ -54,8 +52,6 @@ class QueryOperationsSpec extends Specification {
     private List<StorageProvider> storageProviders
     private Collection<FederatedSource> fedSources
     private List<ConnectedSource> connSources
-    private SourcePoller sourcePoller
-    private SourcePollerRunner pollerRunner
     private SourceOperations sourceOperations
     private OperationsSecuritySupport opsSecurity
     private OperationsMetacardSupport opsMetacard
@@ -68,8 +64,6 @@ class QueryOperationsSpec extends Specification {
         storageProviders = [Mock(StorageProvider)]
         fedSources = [mockFedSource('fed1'), mockFedSource('fed2')]
         connSources = ['conn1', 'conn2'].collect { mockConnectedSource(it) }
-        pollerRunner = new SourcePollerRunner()
-        sourcePoller = new SourcePoller(pollerRunner)
         filterAdapter = Mock(FilterAdapter)
 
         frameworkProperties.with {
@@ -77,7 +71,6 @@ class QueryOperationsSpec extends Specification {
             storageProviders = this.storageProviders
             federatedSources = fedSources
             connectedSources = connSources
-            sourcePoller = this.sourcePoller
             queryResponsePostProcessor = Mock(QueryResponsePostProcessor)
             federationStrategy = Mock(FederationStrategy)
         }

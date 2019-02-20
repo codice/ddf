@@ -13,23 +13,20 @@
  */
 package ddf.catalog.util.impl;
 
-import ddf.catalog.source.Source;
+import ddf.catalog.data.ContentType;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
- * Describes a state of availability of a {@link Source}. {@link SourceStatus} includes more states
- * than a {@code boolean} for available/unavailable.
+ * The {@link ContentTypesSourcePoller} is a non-blocking alternative to {@link
+ * ddf.catalog.source.Source#getContentTypes()}. Unlike the {@link StatusSourcePoller}, the cache is
+ * not updated when there are timeouts and {@link RuntimeException}s when calling {@link
+ * ddf.catalog.source.Source#getContentTypes()}.
  */
-public enum SourceStatus {
+public class ContentTypesSourcePoller extends SourcePoller<Set<ContentType>> {
 
-  /** Indicates that {@link Source#isAvailable()} returned {@code true} */
-  AVAILABLE,
-
-  /** Indicates that {@link Source#isAvailable()} returned {@code false} */
-  UNAVAILABLE,
-
-  /** Indicates that {@link Source#isAvailable()} threw an exception */
-  EXCEPTION,
-
-  /** Indicates that {@link Source#isAvailable()} timed out */
-  TIMEOUT
+  public ContentTypesSourcePoller(
+      final ExecutorService pollThreadPool, final ExecutorService pollTimeoutWatcherThreadPool) {
+    super(pollThreadPool, pollTimeoutWatcherThreadPool);
+  }
 }

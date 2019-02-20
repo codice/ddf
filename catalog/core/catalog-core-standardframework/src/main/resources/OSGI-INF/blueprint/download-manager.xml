@@ -28,7 +28,8 @@
         <argument value="downloadManagerThread"/>
     </bean>
 
-    <reference-list id="downloadManagers" interface="org.codice.ddf.catalog.resource.download.internal.DownloadManager"
+    <reference-list id="downloadManagers"
+                    interface="org.codice.ddf.catalog.resource.download.internal.DownloadManager"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="downloadManagerSortedList"/>
