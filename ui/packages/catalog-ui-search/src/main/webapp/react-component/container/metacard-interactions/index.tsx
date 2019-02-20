@@ -75,10 +75,7 @@ const mapPropsToState = (props: Props) => {
   }
 }
 
-class MetacardInteractions extends React.Component<
-  Props,
-  State
-> {
+class MetacardInteractions extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = mapPropsToState(props)
