@@ -13,8 +13,6 @@
  */
 package ddf.security.encryption.crypter;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.CleartextKeysetHandle;
@@ -263,6 +261,10 @@ public class Crypter {
                 return null;
               }
             });
+  }
+
+  private boolean isBlank(String string) {
+    return string == null || string.trim().isEmpty();
   }
 
   public static class CrypterException extends RuntimeException {

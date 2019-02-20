@@ -82,6 +82,13 @@ public class CrypterTest {
   }
 
   @Test(expected = CrypterException.class)
+  public void testEncryptBlank() {
+    final Crypter crypter = new Crypter();
+
+    crypter.encrypt(" ");
+  }
+
+  @Test(expected = CrypterException.class)
   public void testDecryptNull() throws Exception {
     final Crypter crypter = new Crypter();
 
