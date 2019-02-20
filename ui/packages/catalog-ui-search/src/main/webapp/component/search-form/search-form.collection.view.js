@@ -60,7 +60,6 @@ module.exports = Marionette.ItemView.extend({
       type: 'new-form',
       associatedFormModel: this.model,
     })
-    user.getQuerySettings().set('type', 'new-form')
     this.routeToSearchFormEditor('create')
   },
   doFilter(child) {

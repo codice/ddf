@@ -6,7 +6,7 @@ const glob = require('glob')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin')
 const WebpackBundleAnalyzerPlugin = require('webpack-bundle-analyzer')
@@ -237,23 +237,21 @@ const prod = (base, { main }) =>
       rules: [
         {
           test: /\.(css|less)$/,
-          loader: ExtractTextPlugin.extract({
-            fallback: nodeResolve('style-loader'),
-            use: [
-              {
-                loader: nodeResolve('css-loader'),
-                options: { sourceMap: true },
-              },
-              {
-                loader: nodeResolve('less-loader'),
-                options: { sourceMap: true },
-              },
-            ],
-          }),
+          loader: [
+            MiniCssExtractPlugin.loader,
+            {
+              loader: nodeResolve('css-loader'),
+              options: { sourceMap: true },
+            },
+            {
+              loader: nodeResolve('less-loader'),
+              options: { sourceMap: true },
+            },
+          ],
         },
       ],
     },
-    plugins: [new ExtractTextPlugin({ filename: 'styles.[hash].css' })],
+    plugins: [new MiniCssExtractPlugin({ filename: 'styles.[hash].css' })],
   })
 
 const devServer = ({ auth, target, publicPath }) => ({

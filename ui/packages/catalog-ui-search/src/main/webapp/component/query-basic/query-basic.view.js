@@ -170,6 +170,13 @@ function translateFilterToBasicMap(filter) {
   }
 }
 
+function getFilterTree(model) {
+  if (typeof model.get('filterTree') === 'object') {
+    return model.get('filterTree')
+  }
+  return cql.simplify(cql.read(model.get('cql')))
+}
+
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('query-basic'),
@@ -195,9 +202,8 @@ module.exports = Marionette.LayoutView.extend({
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
-    var translationToBasicMap = translateFilterToBasicMap(
-      cql.simplify(cql.read(this.model.get('cql')))
-    )
+    const filter = getFilterTree(this.model)
+    var translationToBasicMap = translateFilterToBasicMap(filter)
     this.filter = translationToBasicMap.propertyValueMap
     this.handleDownConversion(translationToBasicMap.downConversion)
     this.setupSettings()
@@ -440,6 +446,7 @@ module.exports = Marionette.LayoutView.extend({
     var filter = this.constructFilter()
     var generatedCQL = CQLUtils.transformFilterToCQL(filter)
     this.model.set({
+      filterTree: filter,
       cql: generatedCQL,
     })
   },

@@ -357,10 +357,10 @@ public class CatalogFrameworkImplTest {
         new MimeTypeMapperImpl(Collections.singletonList(mimeTypeResolver)));
     frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
 
-    Map<String, FederatedSource> federatedSourceMap = new HashMap<>();
+    List<FederatedSource> federatedSourceList = new ArrayList<>();
     if (federatedSources != null) {
       for (FederatedSource source : federatedSources) {
-        federatedSourceMap.put(source.getId(), source);
+        federatedSourceList.add(source);
       }
     }
     SourcePollerRunner runner = new SourcePollerRunner();
@@ -386,7 +386,7 @@ public class CatalogFrameworkImplTest {
       wait++;
     }
     frameworkProperties.setSourcePoller(poller);
-    frameworkProperties.setFederatedSources(federatedSourceMap);
+    frameworkProperties.setFederatedSources(federatedSourceList);
 
     defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl();
     frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
@@ -1754,9 +1754,9 @@ public class CatalogFrameworkImplTest {
     runner.bind(catalogProvider);
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(poller);
-    Map<String, FederatedSource> sources = new HashMap<>();
+    List<FederatedSource> sources = new ArrayList<>();
     for (FederatedSource federatedSource : federatedSources) {
-      sources.put(federatedSource.getId(), federatedSource);
+      sources.add(federatedSource);
     }
     frameworkProperties.setFederatedSources(sources);
     frameworkProperties.setCatalogProviders(Collections.singletonList(catalogProvider));
@@ -1803,9 +1803,9 @@ public class CatalogFrameworkImplTest {
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(mockPoller);
-    Map<String, FederatedSource> sources = new HashMap<>();
+    List<FederatedSource> sources = new ArrayList<>();
     for (FederatedSource federatedSource : expectedSources) {
-      sources.put(federatedSource.getId(), federatedSource);
+      sources.add(federatedSource);
     }
     frameworkProperties.setFederatedSources(sources);
     CatalogFrameworkImpl framework = createFramework(frameworkProperties);
@@ -1848,9 +1848,9 @@ public class CatalogFrameworkImplTest {
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setSourcePoller(mockPoller);
-    Map<String, FederatedSource> sources = new HashMap<>();
+    List<FederatedSource> sources = new ArrayList<>();
     for (FederatedSource federatedSource : federatedSources) {
-      sources.put(federatedSource.getId(), federatedSource);
+      sources.add(federatedSource);
     }
     frameworkProperties.setFederatedSources(sources);
     frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
@@ -2392,7 +2392,7 @@ public class CatalogFrameworkImplTest {
 
     FrameworkProperties props = new FrameworkProperties();
     props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
-    props.setFederatedSources(Collections.singletonMap(federatedSite1Name, federatedSource1));
+    props.setFederatedSources(Collections.singletonList(federatedSource1));
     props.setResourceReaders(resourceReaders);
     props.setFederationStrategy(strategy);
     props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
@@ -2438,10 +2438,10 @@ public class CatalogFrameworkImplTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
 
-    Map<String, CatalogStore> storeMap = new HashMap<>();
+    List<CatalogStore> storeMap = new ArrayList<>();
 
     MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true);
-    storeMap.put(store.getId(), store);
+    storeMap.add(store);
 
     CatalogFramework framework = createDummyCatalogFramework(provider, storeMap, null, eventAdmin);
 
@@ -2489,14 +2489,14 @@ public class CatalogFrameworkImplTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
 
-    Map<String, CatalogStore> storeMap = new HashMap<>();
-    Map<String, FederatedSource> sourceMap = new HashMap<>();
+    List<CatalogStore> storeList = new ArrayList<>();
+    List<FederatedSource> sourceList = new ArrayList<>();
     MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true);
-    storeMap.put(store.getId(), store);
-    sourceMap.put(store.getId(), store);
+    storeList.add(store);
+    sourceList.add(store);
 
     CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeMap, sourceMap, eventAdmin);
+        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
     FilterFactory filterFactory = new FilterFactoryImpl();
 
     Filter filter =
@@ -2546,14 +2546,14 @@ public class CatalogFrameworkImplTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
 
-    Map<String, CatalogStore> storeMap = new HashMap<>();
-    Map<String, FederatedSource> sourceMap = new HashMap<>();
+    List<CatalogStore> storeList = new ArrayList<>();
+    List<FederatedSource> sourceList = new ArrayList<>();
     MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true);
-    storeMap.put(store.getId(), store);
-    sourceMap.put(store.getId(), store);
+    storeList.add(store);
+    sourceList.add(store);
 
     CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeMap, sourceMap, eventAdmin);
+        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
     FilterFactory filterFactory = new FilterFactoryImpl();
 
     Filter filter =
@@ -2588,17 +2588,17 @@ public class CatalogFrameworkImplTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
 
-    Map<String, CatalogStore> storeMap = new HashMap<>();
-    Map<String, FederatedSource> sourceMap = new HashMap<>();
+    List<CatalogStore> storeList = new ArrayList<>();
+    List<FederatedSource> sourceList = new ArrayList<>();
 
     Map<String, Set<String>> securityAttributes = new HashMap<>();
     securityAttributes.put("role", Collections.singleton("myRole"));
     MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
-    storeMap.put(store.getId(), store);
-    sourceMap.put(store.getId(), store);
+    storeList.add(store);
+    sourceList.add(store);
 
     CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeMap, sourceMap, eventAdmin);
+        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
 
     FilterBuilder builder = new GeotoolsFilterBuilder();
 
@@ -2616,17 +2616,17 @@ public class CatalogFrameworkImplTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
 
-    Map<String, CatalogStore> storeMap = new HashMap<>();
-    Map<String, FederatedSource> sourceMap = new HashMap<>();
+    List<CatalogStore> storeList = new ArrayList<>();
+    List<FederatedSource> sourceList = new ArrayList<>();
 
     Map<String, Set<String>> securityAttributes = new HashMap<>();
     securityAttributes.put("role", Collections.singleton("myRole"));
     MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
-    storeMap.put(store.getId(), store);
-    sourceMap.put(store.getId(), store);
+    storeList.add(store);
+    sourceList.add(store);
 
     CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeMap, sourceMap, eventAdmin);
+        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
 
     FilterBuilder builder = new GeotoolsFilterBuilder();
     Subject subject = mock(Subject.class);
@@ -2648,17 +2648,17 @@ public class CatalogFrameworkImplTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<>(), true, new Date());
 
-    Map<String, CatalogStore> storeMap = new HashMap<>();
-    Map<String, FederatedSource> sourceMap = new HashMap<>();
+    List<CatalogStore> storeList = new ArrayList<>();
+    List<FederatedSource> sourceList = new ArrayList<>();
 
     Map<String, Set<String>> securityAttributes = new HashMap<>();
     securityAttributes.put("role", Collections.singleton("myRole"));
     MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
-    storeMap.put(store.getId(), store);
-    sourceMap.put(store.getId(), store);
+    storeList.add(store);
+    sourceList.add(store);
 
     CatalogFramework framework =
-        createDummyCatalogFramework(provider, storeMap, sourceMap, eventAdmin);
+        createDummyCatalogFramework(provider, storeList, sourceList, eventAdmin);
 
     List<Metacard> metacards = new ArrayList<>();
     MetacardImpl newCard = new MetacardImpl();
@@ -2831,8 +2831,8 @@ public class CatalogFrameworkImplTest {
 
   private CatalogFramework createDummyCatalogFramework(
       CatalogProvider provider,
-      Map<String, CatalogStore> stores,
-      Map<String, FederatedSource> sources,
+      List<CatalogStore> stores,
+      List<FederatedSource> sources,
       MockEventProcessor eventAdmin) {
 
     SourcePoller mockPoller = mock(SourcePoller.class);
@@ -2861,7 +2861,7 @@ public class CatalogFrameworkImplTest {
     FrameworkProperties frameworkProperties = new FrameworkProperties();
     frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
     frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
-    frameworkProperties.setCatalogStoresMap(stores);
+    frameworkProperties.setCatalogStores(stores);
     frameworkProperties.setSourcePoller(mockPoller);
     frameworkProperties.setPreIngest(new ArrayList<>());
     frameworkProperties.setPostIngest(postIngestPlugins);

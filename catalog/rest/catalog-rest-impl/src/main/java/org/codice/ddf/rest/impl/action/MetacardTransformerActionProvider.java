@@ -44,6 +44,10 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
   private String attributeName;
 
+  private String baseUrl;
+
+  private String context = null;
+
   /**
    * Constructor to instantiate this Metacard {@link ddf.action.ActionProvider}
    *
@@ -69,6 +73,8 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
         DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX);
     this.metacardTransformerId = metacardTransformerId;
     this.attributeName = attributeName;
+    initBaseUrl(SystemBaseUrl.EXTERNAL.getBaseUrl());
+    initContext(SystemBaseUrl.EXTERNAL.getRootContext(), SystemBaseUrl.INTERNAL.getRootContext());
   }
 
   @Override
@@ -93,14 +99,39 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
     return new ActionImpl(actionProviderId, title, description, url);
   }
 
+  private void initBaseUrl(String externalBaseUrl) {
+    if (externalBaseUrl.endsWith("/")) {
+      externalBaseUrl = externalBaseUrl.substring(0, externalBaseUrl.length() - 2);
+    }
+    this.baseUrl = externalBaseUrl;
+  }
+
+  private void initContext(String externalContext, String internalContext) {
+    StringBuilder context = new StringBuilder();
+    if (StringUtils.isNotEmpty(externalContext) && !externalContext.startsWith("/")) {
+      context.append("/");
+    }
+    context.append(externalContext);
+
+    if (!internalContext.startsWith("/")) {
+      context.append("/");
+    }
+    context.append(internalContext);
+    this.context = context.toString();
+  }
+
   private URL getActionUrl(String metacardSource, String metacardId)
       throws MalformedURLException, URISyntaxException {
-    return new URI(
-            SystemBaseUrl.EXTERNAL.constructUrl(
-                String.format(
-                    "%s%s/%s/%s?transform=%s",
-                    CONTEXT_ROOT, SOURCES_PATH, metacardSource, metacardId, metacardTransformerId),
-                true))
-        .toURL();
+    String actionUrl =
+        String.format(
+            "%s%s/%s%s/%s/%s?transform=%s",
+            baseUrl,
+            context,
+            CONTEXT_ROOT,
+            SOURCES_PATH,
+            metacardSource,
+            metacardId,
+            metacardTransformerId);
+    return new URI(actionUrl).toURL();
   }
 }

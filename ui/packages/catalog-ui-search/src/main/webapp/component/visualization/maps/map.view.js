@@ -14,6 +14,8 @@
  **/
 /*global require, setTimeout*/
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
+import * as React from 'react'
+import ZoomToHomeButton from '../../../react-component/button/split-button/zoomToHome.tsx'
 
 var wreqr = require('../../../js/wreqr.js')
 var template = require('./map.hbs')
@@ -36,7 +38,6 @@ var properties = require('../../../js/properties.js')
 var Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
 
-const React = require('react')
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/container/map-settings/map-settings'
@@ -143,8 +144,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   events: {
     'click .cluster-button': 'toggleClustering',
-    'click .zoomToHome': 'zoomToHome',
-    'click .saveAsHome': 'saveAsHome',
   },
   clusterCollection: undefined,
   clusterCollectionView: undefined,
@@ -272,13 +271,10 @@ module.exports = Marionette.LayoutView.extend({
     userPreferences.set('mapHome', boundingBox)
   },
   addPanZoom: function() {
-    const self = this
     const PanZoomView = Marionette.ItemView.extend({
-      template() {
-        return (
-          <Gazetteer setState={({ polygon }) => self.map.doPanZoom(polygon)} />
-        )
-      },
+      template: () => (
+        <Gazetteer setState={({ polygon }) => this.map.doPanZoom(polygon)} />
+      ),
     })
     this.$el
       .find('.cesium-viewer-toolbar')
@@ -287,18 +283,20 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarPanZoom.show(new PanZoomView())
   },
   addHome: function() {
-    // TODO combine home and save buttons into a "split button dropdown" once this is refactored to React: DDF-4327
+    const containerClass = 'zoomToHome-container'
+    const ZoomToHomeButtonView = Marionette.ItemView.extend({
+      template: () => (
+        <ZoomToHomeButton
+          goHome={() => this.zoomToHome()}
+          saveHome={() => this.saveAsHome()}
+        />
+      ),
+    })
     this.$el
       .find('.cesium-viewer-toolbar')
-      .append(
-        '<div class="is-button zoomToHome">' +
-          '<span>Home </span>' +
-          '<span class="fa fa-home"></span></div>' +
-          '<div class="is-button saveAsHome">' +
-          '<span title="Save Current View as Home Location">Set Home </span>' +
-          '<span class="cf cf-map-marker"/>' +
-          '</div>'
-      )
+      .append(`<div class="${containerClass}"></div>`)
+    this.addRegion('zoomToHomeButtonView', `.${containerClass}`)
+    this.zoomToHomeButtonView.show(new ZoomToHomeButtonView())
   },
   addClustering: function() {
     this.$el

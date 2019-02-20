@@ -159,19 +159,19 @@ public class QueryApplication implements SparkApplication, Function {
   @Override
   public Object apply(Object req) {
     if (!(req instanceof List)) {
-      return JsonRpc.invalidParams("params not list", req);
+      return JsonRpc.invalidParams("parameters not a list", req);
     }
 
     List params = (List) req;
 
     if (params.size() != 1) {
-      return JsonRpc.invalidParams("must pass exactly 1 param", params);
+      return JsonRpc.invalidParams("must pass exactly 1 parameter", params);
     }
 
     Object param = params.get(0);
 
     if (!(param instanceof String)) {
-      return JsonRpc.invalidParams("param not string", param);
+      return JsonRpc.invalidParams("parameter not a string", param);
     }
 
     CqlRequest cqlRequest;
@@ -179,7 +179,7 @@ public class QueryApplication implements SparkApplication, Function {
     try {
       cqlRequest = GSON.fromJson((String) param, CqlRequest.class);
     } catch (RuntimeException e) {
-      return JsonRpc.invalidParams("param not valid json", param);
+      return JsonRpc.invalidParams("parameter not valid json", param);
     }
 
     try {

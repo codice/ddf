@@ -19,6 +19,7 @@ To harden a new system, perform configuration as <<{managing-prefix}configuring,
 ** [ ] <<{managing-prefix}allowing_guest_user_access,Allow Guest User Access>> (if allowing Guest users)
 * [ ] <<{managing-prefix}configuring_guest_claim_attributes,Configure Guest Claim Attributes>> (if allowing Guest users)
 * [ ] <<{managing-prefix}configuring_guest_access,Configure Guest User Authentication>>
+* [ ] <<{managing-prefix}hiding_errors_and_warnings_from_users_based_on_role, Create unique user role>>
 * [ ] <<{managing-prefix}limiting_access_to_the_sts, Limit Access to the STS>>
 * [ ] <<{managing-prefix}restricting_access_to_admin_console, Restricting Access to ${admin-console}>>
 * [ ] <<{managing-prefix}restricting_feature_app_service_and_configuration_access, Restrict Feature, App, Service, and Configuration Access>>

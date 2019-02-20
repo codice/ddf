@@ -19,7 +19,6 @@
     <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
     <type-converters>
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
-        <bean id="mapConverter" class="ddf.catalog.util.impl.MapConverter"/>
     </type-converters>
 
     <ext:property-placeholder />

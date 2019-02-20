@@ -20,6 +20,7 @@ const $ = require('jquery')
 const childView = require('./select.view')
 const CustomElements = require('../../js/CustomElements.js')
 const Common = require('../../js/Common.js')
+import { matchesFilter, getAppropriateString } from './filterHelper'
 
 module.exports = Marionette.CollectionView.extend({
   emptyView: Marionette.ItemView.extend({
@@ -166,36 +167,33 @@ module.exports = Marionette.CollectionView.extend({
       }
     }
   },
-  getAppropriateString: function(str) {
-    str = str.toString()
-    return this.options.matchcase === true ? str : str.toLowerCase()
-  },
   filter: function(child) {
     var filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
-    filterValue = this.getAppropriateString(filterValue)
     if (
       child.get('filterChoice') === true &&
       this.collection.filter(model => {
         return (
-          this.getAppropriateString(model.get('value')) ===
-          this.getAppropriateString(child.get('value'))
+          getAppropriateString(model.get('value')) ===
+          getAppropriateString(child.get('value'))
         )
       }).length > 1
     ) {
       return false
     }
-    if (
-      child.get('label') !== undefined &&
-      this.getAppropriateString(child.get('label')).indexOf(filterValue) === -1
-    ) {
-      return false
+    if (child.get('label') !== undefined) {
+      return matchesFilter(
+        filterValue,
+        child.get('label'),
+        this.options.matchcase
+      )
     }
-    if (
-      child.get('label') === undefined &&
-      this.getAppropriateString(child.get('value')).indexOf(filterValue) === -1
-    ) {
-      return false
+    if (child.get('value') !== undefined) {
+      return matchesFilter(
+        filterValue,
+        child.get('value'),
+        this.options.matchcase
+      )
     }
     return true
   },

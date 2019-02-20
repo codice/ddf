@@ -88,11 +88,6 @@ const determineView = comparator => {
   return necessaryView
 }
 
-// strip extra quotes
-const stripQuotes = property => {
-  return property.replace(/^"(.+(?="$))"$/, '$1')
-}
-
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('filter'),
@@ -206,7 +201,7 @@ module.exports = Marionette.LayoutView.extend({
   // With the relative date comparator being the same as =, we need to try and differentiate them this way
   getComparatorForFilter(filter) {
     const propertyDefinition =
-      metacardDefinitions.metacardTypes[stripQuotes(filter.property)]
+      metacardDefinitions.metacardTypes[filter.property]
     if (
       propertyDefinition &&
       propertyDefinition.type === 'DATE' &&
@@ -380,7 +375,7 @@ module.exports = Marionette.LayoutView.extend({
           }
           this.model.set({
             value,
-            type: filter.property.split('"').join(''),
+            type: filter.property,
             comparator: this.getComparatorForFilter(filter),
           })
         }

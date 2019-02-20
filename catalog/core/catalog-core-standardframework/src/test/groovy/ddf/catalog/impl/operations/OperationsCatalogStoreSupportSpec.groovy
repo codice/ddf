@@ -20,7 +20,8 @@ import ddf.catalog.source.CatalogStore
 import spock.lang.Specification
 
 class OperationsCatalogStoreSupportSpec extends Specification {
-    private static final String SOURCE_ID = "test_source"
+
+    private static final String SOURCE_ID = 'test_source'
 
     private List<CatalogProvider> catalogProviders
     private FrameworkProperties frameworkProperties
@@ -31,7 +32,6 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
-            catalogStoresMap = [cat1: Mock(CatalogStore), cat2: Mock(CatalogStore)]
         }
 
         sourceOperations = Mock(SourceOperations)
@@ -142,16 +142,26 @@ class OperationsCatalogStoreSupportSpec extends Specification {
 
     def 'get stores for catalog stores including one unknown'() {
         setup:
-        def request = Mock(Request)
-        request.getStoreIds() >> { ['cat1', 'unknown2'] }
+        final String storeId = 'cat1'
+
+        final CatalogStore catalogStore = Mock() {
+            getId() >> storeId
+        }
+
+        frameworkProperties.setCatalogStores([catalogStore, Mock(CatalogStore) {
+            getId() >> "anotherId"
+        }])
+
         def opsCatalog = new OperationsCatalogStoreSupport(frameworkProperties, sourceOperations)
         def exceptions = [] as Set
 
         when:
-        def response = opsCatalog.getCatalogStoresForRequest(request, exceptions)
+        def response = opsCatalog.getCatalogStoresForRequest(Mock(Request) {
+            getStoreIds() >> [storeId, 'unknown2']
+        }, exceptions)
 
         then:
-        response == [frameworkProperties.catalogStoresMap.get('cat1')]
+        response == [catalogStore]
         exceptions.size() == 1
     }
 
@@ -161,3 +171,4 @@ class OperationsCatalogStoreSupportSpec extends Specification {
         return catProv
     }
 }
+

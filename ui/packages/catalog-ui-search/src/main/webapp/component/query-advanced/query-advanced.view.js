@@ -108,10 +108,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
 
-    if (
-      this.options.isForm === true &&
-      this.model.get('filterTree') !== undefined
-    ) {
+    if (this.model.get('filterTree') !== undefined) {
       this.queryAdvanced.currentView.deserialize(this.model.get('filterTree'))
     } else if (this.options.isAdd) {
       this.queryAdvanced.currentView.deserialize(cql.read("anyText ILIKE '%'"))

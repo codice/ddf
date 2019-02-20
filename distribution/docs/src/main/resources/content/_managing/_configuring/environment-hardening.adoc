@@ -102,4 +102,29 @@ a|Update the Session configuration to have no greater than a 10 minute Session T
  * Select the *Configuration* tab. +
  * Select `Session`. +
  * Set `Session Timeout (in minutes)` to `10` (or less). +
+
+|Shell Command Access
+|command injection
+a|By default, some shell commands are disabled in order to secure the system.
+${branding} includes a whitelist of allowed shell commands in
+`${home_directory}/etc/org.apache.karaf.command.acl.shell.cfg`.
+
+By default, this list includes commands that are whitelisted only to administrators:
+
+* `complete`
+* `echo`
+* `format`
+* `grep`
+* `if`
+* `keymap`
+* `less`
+* `set`
+* `setopt`
+* `sleep`
+* `tac`
+* `wc`
+* `while`
+* `.invoke`
+* `unsetopt`
+
 |===

@@ -36,7 +36,11 @@ define([
     initialize: function() {
       this.model = new Backbone.Model(window.idpState)
     },
-    onRender: function() {},
+    onRender: function() {
+      setTimeout(() => {
+        this.$el.find('#username').focus()
+      }, 0)
+    },
     logInEnter: function(e) {
       if (e.keyCode === 13) {
         this.logInUser()
