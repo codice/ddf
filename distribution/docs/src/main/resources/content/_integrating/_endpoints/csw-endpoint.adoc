@@ -3,43 +3,24 @@
 :status: published
 :operations: ingest, crud, query, pub-sub
 :link: _csw_endpoint
-:url: \${secure_url}/services/csw
 :summary: Searches collections of descriptive information (metadata) about geospatial data and services.
-:implements: http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard] {external-link}, http://xmlrpc.scripting.com/spec.html[XML-RPC] {external-link}, https://portal.opengeospatial.org/modules/admin/license_agreement.php?suppressHeaders=0&access_license_id=3&target=http://portal.opengeospatial.org/files/%3fartifact_id=12597[ISO 19115/ISO191119] {external-link}.
 
 == {title}
 
 The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.
 
-.CSW Endpoint Operations
-[cols="2,1m,2,5m", options="header"]
-|===
+The CSW endpoint supports metadata operations only.
 
-|Operation
-|HTTP Request Type
-|Details
-|Example URL
+For more information about the http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard] {external-link}.
 
-|ingest
-|
-|
-|{url}
+The CSW Endpoint can be used for one or more of these operations on an instance of ${branding}:
 
-|query
-|||{url}?
-
-|subscription
-|||{url}
-
-|Get Capabilities
-|||{url}
-
-
-|===
-
-'''
-
-=== CSW Endpoint Sample Operations
+* <<{integrating-prefix}csw_endpoint_create_examples,Ingest metadata into the ${branding} catalog.>>
+* <<{integrating-prefix}csw_endpoint_query_examples,Read metacards from the catalog.>>
+* <<{integrating-prefix}csw_endpoint_update_examples,Update metadata in the catalog.>>
+* <<{integrating-prefix}csw_endpoint_publication_subscription_examples,Publish and/or subscribe to catalog events.>>
+* <<{integrating-prefix}csw_endpoint_delete_examples,Delete metadata from the catalog.>>
+* <<{integrating-prefix}csw_endpoint_get_capabilities_examples,Get capabilities of the catalog and the URLs used to access.>>
 
 .Sample Responses May Not Match Actual Responses
 [NOTE]
@@ -48,970 +29,207 @@ Actual responses may vary from these samples, depending on your configuration.
 Send a GET or POST request to obtain an accurate response.
 ====
 
-`GetCapabilities` Operation:: The `GetCapabilities` operation is meant to describe the operations the catalog supports and the URLs used to access those operations. The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation. The response to either request will always be a `csw:Capabilities` XML document. This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema] {external-link}.
+=== CSW Endpoint Create Examples
 
-.`GetCapabilities` HTTP GET
-The `HTTP GET` form of `GetCapabilities` uses query parameters via the following URL:
+Metacards are ingested into the catalog via the `Insert` sub-operation.
 
-.`GetCapabilities` KVP (Key-Value Pairs) Encoding
+The schema of the record needs to conform to a schema of the information model that the catalog supports.
+
+Send a `POST` request to the CSW endpoint URL.
+
+.CSW Endpoint Ingest URL
+[source,http]
 ----
-${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
-----
-
-.`GetCapabilities` HTTP POST
-The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\${secure_url}/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema] {external-link}.
-
-.`GetCapabilities` XML Request
-[source,xml]
-----
-<?xml version="1.0" ?>
-<csw:GetCapabilities
-  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-  service="CSW"
-  version="2.0.2" >
-</csw:GetCapabilities>
+https://<FQDN>:<PORT>/services/csw
 ----
 
-.`GetCapabilities` Sample Response (`application/xml`)
+Include the metadata to ingest within a `csw:Insert` block in the body of the request.
+
+.Sample XML Transaction `Insert` Request
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Capabilities xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <ows:ServiceIdentification>
-        <ows:Title>Catalog Service for the Web</ows:Title>
-        <ows:Abstract>${branding} CSW Endpoint</ows:Abstract>
-        <ows:ServiceType>CSW</ows:ServiceType>
-        <ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
-    </ows:ServiceIdentification>
-    <ows:ServiceProvider>
-        <ows:ProviderName>${branding}</ows:ProviderName>
-        <ows:ProviderSite/>
-        <ows:ServiceContact/>
-    </ows:ServiceProvider>
-    <ows:OperationsMetadata>
-        <ows:Operation name="GetCapabilities">
-            <ows:DCP>
-                <ows:HTTP>
-                    <ows:Get ns2:href="${secure_url}/services/csw"/>
-                    <ows:Post ns2:href="${secure_url}/services/csw">
-                        <ows:Constraint name="PostEncoding">
-                            <ows:Value>XML</ows:Value>
-                        </ows:Constraint>
-                    </ows:Post>
-                </ows:HTTP>
-            </ows:DCP>
-            <ows:Parameter name="sections">
-                <ows:Value>ServiceIdentification</ows:Value>
-                <ows:Value>ServiceProvider</ows:Value>
-                <ows:Value>OperationsMetadata</ows:Value>
-                <ows:Value>Filter_Capabilities</ows:Value>
-            </ows:Parameter>
-        </ows:Operation>
-        <ows:Operation name="DescribeRecord">
-            <ows:DCP>
-                <ows:HTTP>
-                    <ows:Get ns2:href="${secure_url}/services/csw"/>
-                    <ows:Post ns2:href="${secure_url}/services/csw">
-                        <ows:Constraint name="PostEncoding">
-                            <ows:Value>XML</ows:Value>
-                        </ows:Constraint>
-                    </ows:Post>
-                </ows:HTTP>
-            </ows:DCP>
-            <ows:Parameter name="typeName">
-                <ows:Value>csw:Record</ows:Value>
-                <ows:Value>gmd:MD_Metadata</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="OutputFormat">
-                <ows:Value>application/xml</ows:Value>
-                <ows:Value>application/json</ows:Value>
-                <ows:Value>application/atom+xml</ows:Value>
-                <ows:Value>text/xml</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="schemaLanguage">
-                <ows:Value>http://www.w3.org/XMLSchema</ows:Value>
-                <ows:Value>http://www.w3.org/XML/Schema</ows:Value>
-                <ows:Value>http://www.w3.org/2001/XMLSchema</ows:Value>
-                <ows:Value>http://www.w3.org/TR/xmlschema-1/</ows:Value>
-            </ows:Parameter>
-        </ows:Operation>
-        <ows:Operation name="GetRecords">
-            <ows:DCP>
-                <ows:HTTP>
-                    <ows:Get ns2:href="${secure_url}/services/csw"/>
-                    <ows:Post ns2:href="${secure_url}/services/csw">
-                        <ows:Constraint name="PostEncoding">
-                            <ows:Value>XML</ows:Value>
-                        </ows:Constraint>
-                    </ows:Post>
-                </ows:HTTP>
-            </ows:DCP>
-            <ows:Parameter name="ResultType">
-                <ows:Value>hits</ows:Value>
-                <ows:Value>results</ows:Value>
-                <ows:Value>validate</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="OutputFormat">
-                <ows:Value>application/xml</ows:Value>
-                <ows:Value>application/json</ows:Value>
-                <ows:Value>application/atom+xml</ows:Value>
-                <ows:Value>text/xml</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="OutputSchema">
-                <ows:Value>urn:catalog:metacard</ows:Value>
-                <ows:Value>http://www.isotc211.org/2005/gmd</ows:Value>
-                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="typeNames">
-                <ows:Value>csw:Record</ows:Value>
-                <ows:Value>gmd:MD_Metadata</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="ConstraintLanguage">
-                <ows:Value>Filter</ows:Value>
-                <ows:Value>CQL_Text</ows:Value>
-            </ows:Parameter>
-            <ows:Constraint name="FederatedCatalogs">
-                <ows:Value>Source1</ows:Value>
-                <ows:Value>Source2</ows:Value>
-            </ows:Constraint>
-        </ows:Operation>
-        <ows:Operation name="GetRecordById">
-            <ows:DCP>
-                <ows:HTTP>
-                    <ows:Get ns2:href="${secure_url}/services/csw"/>
-                    <ows:Post ns2:href="${secure_url}/services/csw">
-                        <ows:Constraint name="PostEncoding">
-                            <ows:Value>XML</ows:Value>
-                        </ows:Constraint>
-                    </ows:Post>
-                </ows:HTTP>
-            </ows:DCP>
-            <ows:Parameter name="OutputSchema">
-                <ows:Value>urn:catalog:metacard</ows:Value>
-                <ows:Value>http://www.isotc211.org/2005/gmd</ows:Value>
-                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
-                <ows:Value>http://www.iana.org/assignments/media-types/application/octet-stream</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="OutputFormat">
-                <ows:Value>application/xml</ows:Value>
-                <ows:Value>application/json</ows:Value>
-                <ows:Value>application/atom+xml</ows:Value>
-                <ows:Value>text/xml</ows:Value>
-                <ows:Value>application/octet-stream</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="ResultType">
-                <ows:Value>hits</ows:Value>
-                <ows:Value>results</ows:Value>
-                <ows:Value>validate</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="ElementSetName">
-                <ows:Value>brief</ows:Value>
-                <ows:Value>summary</ows:Value>
-                <ows:Value>full</ows:Value>
-            </ows:Parameter>
-        </ows:Operation>
-        <ows:Operation name="Transaction">
-            <ows:DCP>
-                <ows:HTTP>
-                    <ows:Post ns2:href="${secure_url}/services/csw">
-                        <ows:Constraint name="PostEncoding">
-                            <ows:Value>XML</ows:Value>
-                        </ows:Constraint>
-                    </ows:Post>
-                </ows:HTTP>
-            </ows:DCP>
-            <ows:Parameter name="typeNames">
-                <ows:Value>xml</ows:Value>
-                <ows:Value>appxml</ows:Value>
-                <ows:Value>csw:Record</ows:Value>
-                <ows:Value>gmd:MD_Metadata</ows:Value>
-                <ows:Value>tika</ows:Value>
-            </ows:Parameter>
-            <ows:Parameter name="ConstraintLanguage">
-                <ows:Value>Filter</ows:Value>
-                <ows:Value>CQL_Text</ows:Value>
-            </ows:Parameter>
-        </ows:Operation>
-        <ows:Parameter name="service">
-            <ows:Value>CSW</ows:Value>
-        </ows:Parameter>
-        <ows:Parameter name="version">
-            <ows:Value>2.0.2</ows:Value>
-        </ows:Parameter>
-    </ows:OperationsMetadata>
-    <ogc:Filter_Capabilities>
-        <ogc:Spatial_Capabilities>
-            <ogc:GeometryOperands>
-                <ogc:GeometryOperand>gml:Point</ogc:GeometryOperand>
-                <ogc:GeometryOperand>gml:LineString</ogc:GeometryOperand>
-                <ogc:GeometryOperand>gml:Polygon</ogc:GeometryOperand>
-            </ogc:GeometryOperands>
-            <ogc:SpatialOperators>
-                <ogc:SpatialOperator name="BBOX"/>
-                <ogc:SpatialOperator name="Beyond"/>
-                <ogc:SpatialOperator name="Contains"/>
-                <ogc:SpatialOperator name="Crosses"/>
-                <ogc:SpatialOperator name="Disjoint"/>
-                <ogc:SpatialOperator name="DWithin"/>
-                <ogc:SpatialOperator name="Intersects"/>
-                <ogc:SpatialOperator name="Overlaps"/>
-                <ogc:SpatialOperator name="Touches"/>
-                <ogc:SpatialOperator name="Within"/>
-            </ogc:SpatialOperators>
-        </ogc:Spatial_Capabilities>
-        <ogc:Scalar_Capabilities>
-            <ogc:LogicalOperators/>
-            <ogc:ComparisonOperators>
-                <ogc:ComparisonOperator>Between</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>NullCheck</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>Like</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>GreaterThan</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>GreaterThanEqualTo</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>LessThan</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>LessThanEqualTo</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
-                <ogc:ComparisonOperator>NotEqualTo</ogc:ComparisonOperator>
-            </ogc:ComparisonOperators>
-        </ogc:Scalar_Capabilities>
-        <ogc:Id_Capabilities>
-            <ogc:EID/>
-        </ogc:Id_Capabilities>
-    </ogc:Filter_Capabilities>
-</csw:Capabilities>
-----
-
-.`DescribeRecord` Operation
-The `describeRecord` operation retrieves the type definition used by metadata of one or more registered resource types.
-There are two request types one for `GET` and one for `POST`.
-Each request has the following common data parameters:
-
-Namespace:: In `POST` operations, namespaces are defined in the xml. In `GET` operations, namespaces are defined in a comma separated list of the form: `xmlns([prefix=]namespace-url)(,xmlns([prefix=]namespace-url))*`
-Service:: The service being used, in this case it is fixed at CSW.
-Version:: The version of the service being used (2.0.2).
-OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-SchemaLanguage:: The schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
-
-.`DescribeRecord` HTTP GET
-The `HTTP GET` request differs from the `POST` request in that the typeName is a comma-separated list of namespace prefix qualified types as strings (e.g., csw:Record,xyz:MyType).
-These prefixes are then matched against the prefix qualified namespaces in the request.
-This is converted to a list of QName(s).
-In this way, it behaves exactly as the post request that uses a list of QName(s) in the first place.
-
-.`DescribeRecord` KVP (Key-Value Pairs) Encoding
-----
-${secure_url}/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&schemaLanguage=http://www.w3.org/XML/Schema
-----
-
-.`DescribeRecord` HTTP POST
-The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
-
-.`DescribeRecord` XML Request
-[source,xml]
-----
-<?xml version="1.0" ?>
-  <DescribeRecord
-    version="2.0.2"
+<csw:Transaction
     service="CSW"
-    outputFormat="application/xml"
-    schemaLanguage="http://www.w3.org/XML/Schema"
-    xmlns="http://www.opengis.net/cat/csw/2.0.2">
-  </DescribeRecord>
-----
-
-.`DescribeRecord` Sample Response (`application/xml`)
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:DescribeRecordResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <csw:SchemaComponent targetNamespace="http://www.opengis.net/cat/csw/2.0.2" schemaLanguage="http://www.w3.org/XML/Schema">
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" id="csw-record" targetNamespace="http://www.opengis.net/cat/csw/2.0.2" version="2.0.2">
-            <xsd:annotation>
-                <xsd:appinfo>
-                    <dc:identifier>http://schemas.opengis.net/csw/2.0.2/record.xsd</dc:identifier>
-
-                </xsd:appinfo>
-                <xsd:documentation xml:lang="en">
-         This schema defines the basic record types that must be supported
-         by all CSW implementations. These correspond to full, summary, and
-         brief views based on DCMI metadata terms.
-      </xsd:documentation>
-
-            </xsd:annotation>
-            <xsd:import namespace="http://purl.org/dc/terms/" schemaLocation="rec-dcterms.xsd"/>
-            <xsd:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="rec-dcmes.xsd"/>
-            <xsd:import namespace="http://www.opengis.net/ows" schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
-            <xsd:element abstract="true" id="AbstractRecord" name="AbstractRecord" type="csw:AbstractRecordType"/>
-            <xsd:complexType abstract="true" id="AbstractRecordType" name="AbstractRecordType"/>
-            <xsd:element name="DCMIRecord" substitutionGroup="csw:AbstractRecord" type="csw:DCMIRecordType"/>
-            <xsd:complexType name="DCMIRecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type encapsulates all of the standard DCMI metadata terms,
-            including the Dublin Core refinements; these terms may be mapped
-            to the profile-specific information model.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:AbstractRecordType">
-                        <xsd:sequence>
-                            <xsd:group ref="dct:DCMI-terms"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:element name="BriefRecord" substitutionGroup="csw:AbstractRecord" type="csw:BriefRecordType"/>
-            <xsd:complexType final="#all" name="BriefRecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type defines a brief representation of the common record
-            format.  It extends AbstractRecordType to include only the
-             dc:identifier and dc:type properties.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:AbstractRecordType">
-                        <xsd:sequence>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:identifier"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:title"/>
-                            <xsd:element minOccurs="0" ref="dc:type"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:element name="SummaryRecord" substitutionGroup="csw:AbstractRecord" type="csw:SummaryRecordType"/>
-            <xsd:complexType final="#all" name="SummaryRecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type defines a summary representation of the common record
-            format.  It extends AbstractRecordType to include the core
-            properties.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:AbstractRecordType">
-                        <xsd:sequence>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:identifier"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:title"/>
-                            <xsd:element minOccurs="0" ref="dc:type"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:subject"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:format"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:relation"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:modified"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:abstract"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:spatial"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:element name="Record" substitutionGroup="csw:AbstractRecord" type="csw:RecordType"/>
-            <xsd:complexType final="#all" name="RecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type extends DCMIRecordType to add ows:BoundingBox;
-            it may be used to specify a spatial envelope for the
-            catalogued resource.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:DCMIRecordType">
-                        <xsd:sequence>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" name="AnyText" type="csw:EmptyType"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:complexType name="EmptyType"/>
-        </xsd:schema>
-    </csw:SchemaComponent>
-    <csw:SchemaComponent targetNamespace="http://www.isotc211.org/2005/gmd" schemaLanguage="http://www.w3.org/XML/Schema">
-        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified" targetNamespace="http://www.isotc211.org/2005/gmd" version="2012-07-13">
-            <xs:annotation>
-                <xs:documentation>
-            Geographic MetaData (GMD) extensible markup language is a component of the XML Schema Implementation of Geographic Information Metadata documented in ISO/TS 19139:2007. GMD includes all the definitions of http://www.isotc211.org/2005/gmd namespace. The root document of this namespace is the file gmd.xsd. This identification.xsd schema implements the UML conceptual schema defined in A.2.2 of ISO 19115:2003. It contains the implementation of the following classes: MD_Identification, MD_BrowseGraphic, MD_DataIdentification, MD_ServiceIdentification, MD_RepresentativeFraction, MD_Usage, MD_Keywords, DS_Association, MD_AggregateInformation, MD_CharacterSetCode, MD_SpatialRepresentationTypeCode, MD_TopicCategoryCode, MD_ProgressCode, MD_KeywordTypeCode, DS_AssociationTypeCode, DS_InitiativeTypeCode, MD_ResolutionType.
-        </xs:documentation>
-
-            </xs:annotation>
-            <xs:import namespace="http://www.isotc211.org/2005/gco" schemaLocation="http://schemas.opengis.net/iso/19139/20070417/gco/gco.xsd"/>
-            <xs:include schemaLocation="gmd.xsd"/>
-            <xs:include schemaLocation="constraints.xsd"/>
-            <xs:include schemaLocation="distribution.xsd"/>
-            <xs:include schemaLocation="maintenance.xsd"/>
-            <xs:complexType abstract="true" name="AbstractMD_Identification_Type">
-                <xs:annotation>
-                    <xs:documentation>Basic information about data</xs:documentation>
-
-                </xs:annotation>
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence>
-                            <xs:element name="citation" type="gmd:CI_Citation_PropertyType"/>
-                            <xs:element name="abstract" type="gco:CharacterString_PropertyType"/>
-                            <xs:element minOccurs="0" name="purpose" type="gco:CharacterString_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="credit" type="gco:CharacterString_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="status" type="gmd:MD_ProgressCode_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="pointOfContact" type="gmd:CI_ResponsibleParty_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceMaintenance" type="gmd:MD_MaintenanceInformation_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="graphicOverview" type="gmd:MD_BrowseGraphic_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceFormat" type="gmd:MD_Format_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="descriptiveKeywords" type="gmd:MD_Keywords_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceSpecificUsage" type="gmd:MD_Usage_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceConstraints" type="gmd:MD_Constraints_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="aggregationInfo" type="gmd:MD_AggregateInformation_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element abstract="true" name="AbstractMD_Identification" type="gmd:AbstractMD_Identification_Type"/>
-            <xs:complexType name="MD_Identification_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:AbstractMD_Identification"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_BrowseGraphic_Type">
-                <xs:annotation>
-                    <xs:documentation>
-                Graphic that provides an illustration of the dataset (should include a legend for the graphic)
-            </xs:documentation>
-
-                </xs:annotation>
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence>
-                            <xs:element name="fileName" type="gco:CharacterString_PropertyType"/>
-                            <xs:element minOccurs="0" name="fileDescription" type="gco:CharacterString_PropertyType"/>
-                            <xs:element minOccurs="0" name="fileType" type="gco:CharacterString_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_BrowseGraphic" type="gmd:MD_BrowseGraphic_Type"/>
-            <xs:complexType name="MD_BrowseGraphic_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_BrowseGraphic"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_DataIdentification_Type">
-                <xs:complexContent>
-                    <xs:extension base="gmd:AbstractMD_Identification_Type">
-                        <xs:sequence>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="spatialRepresentationType" type="gmd:MD_SpatialRepresentationTypeCode_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="spatialResolution" type="gmd:MD_Resolution_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" name="language" type="gco:CharacterString_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="characterSet" type="gmd:MD_CharacterSetCode_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="topicCategory" type="gmd:MD_TopicCategoryCode_PropertyType"/>
-                            <xs:element minOccurs="0" name="environmentDescription" type="gco:CharacterString_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="extent" type="gmd:EX_Extent_PropertyType"/>
-                            <xs:element minOccurs="0" name="supplementalInformation" type="gco:CharacterString_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_DataIdentification" substitutionGroup="gmd:AbstractMD_Identification" type="gmd:MD_DataIdentification_Type"/>
-            <xs:complexType name="MD_DataIdentification_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_DataIdentification"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_ServiceIdentification_Type">
-                <xs:annotation>
-                    <xs:documentation>See 19119 for further info</xs:documentation>
-
-                </xs:annotation>
-                <xs:complexContent>
-                    <xs:extension base="gmd:AbstractMD_Identification_Type"/>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_ServiceIdentification" substitutionGroup="gmd:AbstractMD_Identification" type="gmd:MD_ServiceIdentification_Type"/>
-            <xs:complexType name="MD_ServiceIdentification_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_ServiceIdentification"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_RepresentativeFraction_Type">
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence>
-                            <xs:element name="denominator" type="gco:Integer_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_RepresentativeFraction" type="gmd:MD_RepresentativeFraction_Type"/>
-            <xs:complexType name="MD_RepresentativeFraction_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_RepresentativeFraction"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_Usage_Type">
-                <xs:annotation>
-                    <xs:documentation>
-                Brief description of ways in which the dataset is currently used.
-            </xs:documentation>
-
-                </xs:annotation>
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence>
-                            <xs:element name="specificUsage" type="gco:CharacterString_PropertyType"/>
-                            <xs:element minOccurs="0" name="usageDateTime" type="gco:DateTime_PropertyType"/>
-                            <xs:element minOccurs="0" name="userDeterminedLimitations" type="gco:CharacterString_PropertyType"/>
-                            <xs:element maxOccurs="unbounded" name="userContactInfo" type="gmd:CI_ResponsibleParty_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_Usage" type="gmd:MD_Usage_Type"/>
-            <xs:complexType name="MD_Usage_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_Usage"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_Keywords_Type">
-                <xs:annotation>
-                    <xs:documentation>Keywords, their type and reference source</xs:documentation>
-
-                </xs:annotation>
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence>
-                            <xs:element maxOccurs="unbounded" name="keyword" type="gco:CharacterString_PropertyType"/>
-                            <xs:element minOccurs="0" name="type" type="gmd:MD_KeywordTypeCode_PropertyType"/>
-                            <xs:element minOccurs="0" name="thesaurusName" type="gmd:CI_Citation_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_Keywords" type="gmd:MD_Keywords_Type"/>
-            <xs:complexType name="MD_Keywords_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_Keywords"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="DS_Association_Type">
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence/>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="DS_Association" type="gmd:DS_Association_Type"/>
-            <xs:complexType name="DS_Association_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:DS_Association"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_AggregateInformation_Type">
-                <xs:annotation>
-                    <xs:documentation>Encapsulates the dataset aggregation information</xs:documentation>
-
-                </xs:annotation>
-                <xs:complexContent>
-                    <xs:extension base="gco:AbstractObject_Type">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="aggregateDataSetName" type="gmd:CI_Citation_PropertyType"/>
-                            <xs:element minOccurs="0" name="aggregateDataSetIdentifier" type="gmd:MD_Identifier_PropertyType"/>
-                            <xs:element name="associationType" type="gmd:DS_AssociationTypeCode_PropertyType"/>
-                            <xs:element minOccurs="0" name="initiativeType" type="gmd:DS_InitiativeTypeCode_PropertyType"/>
-
-                        </xs:sequence>
-
-                    </xs:extension>
-
-                </xs:complexContent>
-
-            </xs:complexType>
-            <xs:element name="MD_AggregateInformation" type="gmd:MD_AggregateInformation_Type"/>
-            <xs:complexType name="MD_AggregateInformation_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_AggregateInformation"/>
-
-                </xs:sequence>
-                <xs:attributeGroup ref="gco:ObjectReference"/>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:complexType name="MD_Resolution_Type">
-                <xs:choice>
-                    <xs:element name="equivalentScale" type="gmd:MD_RepresentativeFraction_PropertyType"/>
-                    <xs:element name="distance" type="gco:Distance_PropertyType"/>
-
-                </xs:choice>
-
-            </xs:complexType>
-            <xs:element name="MD_Resolution" type="gmd:MD_Resolution_Type"/>
-            <xs:complexType name="MD_Resolution_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_Resolution"/>
-
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:simpleType name="MD_TopicCategoryCode_Type">
-                <xs:annotation>
-                    <xs:documentation>
-                High-level geospatial data thematic classification to assist in the grouping and search of available geospatial datasets
-            </xs:documentation>
-
-                </xs:annotation>
-                <xs:restriction base="xs:string">
-                    <xs:enumeration value="farming"/>
-                    <xs:enumeration value="biota"/>
-                    <xs:enumeration value="boundaries"/>
-                    <xs:enumeration value="climatologyMeteorologyAtmosphere"/>
-                    <xs:enumeration value="economy"/>
-                    <xs:enumeration value="elevation"/>
-                    <xs:enumeration value="environment"/>
-                    <xs:enumeration value="geoscientificInformation"/>
-                    <xs:enumeration value="health"/>
-                    <xs:enumeration value="imageryBaseMapsEarthCover"/>
-                    <xs:enumeration value="inlandWaters"/>
-                    <xs:enumeration value="intelligenceMilitary"/>
-                    <xs:enumeration value="location"/>
-                    <xs:enumeration value="oceans"/>
-                    <xs:enumeration value="planningCadastre"/>
-                    <xs:enumeration value="society"/>
-                    <xs:enumeration value="structure"/>
-                    <xs:enumeration value="transportation"/>
-                    <xs:enumeration value="utilitiesCommunication"/>
-
-                </xs:restriction>
-
-            </xs:simpleType>
-            <xs:element name="MD_TopicCategoryCode" substitutionGroup="gco:CharacterString" type="gmd:MD_TopicCategoryCode_Type"/>
-            <xs:complexType name="MD_TopicCategoryCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_TopicCategoryCode"/>
-
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:element name="MD_CharacterSetCode" substitutionGroup="gco:CharacterString" type="gco:CodeListValue_Type"/>
-            <xs:complexType name="MD_CharacterSetCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_CharacterSetCode"/>
-
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:element name="MD_SpatialRepresentationTypeCode" substitutionGroup="gco:CharacterString" type="gco:CodeListValue_Type"/>
-            <xs:complexType name="MD_SpatialRepresentationTypeCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_SpatialRepresentationTypeCode"/>
-
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:element name="MD_ProgressCode" substitutionGroup="gco:CharacterString" type="gco:CodeListValue_Type"/>
-            <xs:complexType name="MD_ProgressCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_ProgressCode"/>
-
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:element name="MD_KeywordTypeCode" substitutionGroup="gco:CharacterString" type="gco:CodeListValue_Type"/>
-            <xs:complexType name="MD_KeywordTypeCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:MD_KeywordTypeCode"/>
-
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-
-            </xs:complexType>
-            <xs:element name="DS_AssociationTypeCode" substitutionGroup="gco:CharacterString" type="gco:CodeListValue_Type"/>
-            <xs:complexType name="DS_AssociationTypeCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:DS_AssociationTypeCode"/>
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-            </xs:complexType>
-            <xs:element name="DS_InitiativeTypeCode" substitutionGroup="gco:CharacterString" type="gco:CodeListValue_Type"/>
-            <xs:complexType name="DS_InitiativeTypeCode_PropertyType">
-                <xs:sequence minOccurs="0">
-                    <xs:element ref="gmd:DS_InitiativeTypeCode"/>
-                </xs:sequence>
-                <xs:attribute ref="gco:nilReason"/>
-            </xs:complexType>
-        </xs:schema>
-    </csw:SchemaComponent>
-</csw:DescribeRecordResponse>
-----
-
-.`DescribeRecord` HTTP POST With TypeNames
-The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
-￼￼￼￼
-.`DescribeRecord` XML Request
-[source,xml]
-----
-<?xml version="1.0" ?>
-  <DescribeRecord
     version="2.0.2"
-    service="CSW"
-    schemaLanguage="http://www.w3.org/XML/Schema"
-    xmlns="http://www.opengis.net/cat/csw/2.0.2"
+    verboseResponse="true"
     xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-      <TypeName>csw:Record</TypeName>
-  </DescribeRecord>
+    <csw:Insert typeName="csw:Record">
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier></dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>${timestamp}</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Insert>
+</csw:Transaction>
 ----
 
-.`DescribeRecord` Sample Response (`application/xml`)
+To specify the document type being ingested and select the appropriate input transformer,
+use the `typeName` attribute in the `csw:Insert` element
+
+[source,xml]
+----
+<csw:Insert typeName="xml">
+----
+
+To receive a copy of the metacard in the response, specify `verboseResponse="true"` in the `csw:Transaction`.
+The `InsertResult` element of the response will hold the metacard information added to the catalog.
+
+[source,xml]
+----
+<csw:Transaction service="CSW" version="2.0.2" verboseResponse="true" [...]
+----
+
+.Sample XML Transformer Insert
+[source,xml,linenums]
+----
+<csw:Transaction service="CSW" version="2.0.2" verboseResponse="true" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+  <csw:Insert typeName="xml">
+    <metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml"
+          xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/"
+          xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
+        <type>ddf.metacard</type>
+        <string name="title">
+            <value>PlainXml near</value>
+        </string>
+    </metacard>
+  </csw:Insert>
+</csw:Transaction>
+----
+
+A successful ingest will return a status of `200 OK` and `csw:TransactionResponse`.
+
+.Sample XML Transaction `Insert` Response
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:DescribeRecordResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <csw:SchemaComponent targetNamespace="http://www.opengis.net/cat/csw/2.0.2" schemaLanguage="http://www.w3.org/XML/Schema">
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" id="csw-record" targetNamespace="http://www.opengis.net/cat/csw/2.0.2" version="2.0.2">
-            <xsd:annotation>
-                <xsd:appinfo>
-                    <dc:identifier>http://schemas.opengis.net/csw/2.0.2/record.xsd</dc:identifier>
-
-                </xsd:appinfo>
-                <xsd:documentation xml:lang="en">
-         This schema defines the basic record types that must be supported
-         by all CSW implementations. These correspond to full, summary, and
-         brief views based on DCMI metadata terms.
-      </xsd:documentation>
-
-            </xsd:annotation>
-            <xsd:import namespace="http://purl.org/dc/terms/" schemaLocation="rec-dcterms.xsd"/>
-            <xsd:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="rec-dcmes.xsd"/>
-            <xsd:import namespace="http://www.opengis.net/ows" schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
-            <xsd:element abstract="true" id="AbstractRecord" name="AbstractRecord" type="csw:AbstractRecordType"/>
-            <xsd:complexType abstract="true" id="AbstractRecordType" name="AbstractRecordType"/>
-            <xsd:element name="DCMIRecord" substitutionGroup="csw:AbstractRecord" type="csw:DCMIRecordType"/>
-            <xsd:complexType name="DCMIRecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type encapsulates all of the standard DCMI metadata terms,
-            including the Dublin Core refinements; these terms may be mapped
-            to the profile-specific information model.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:AbstractRecordType">
-                        <xsd:sequence>
-                            <xsd:group ref="dct:DCMI-terms"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:element name="BriefRecord" substitutionGroup="csw:AbstractRecord" type="csw:BriefRecordType"/>
-            <xsd:complexType final="#all" name="BriefRecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type defines a brief representation of the common record
-            format.  It extends AbstractRecordType to include only the
-             dc:identifier and dc:type properties.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:AbstractRecordType">
-                        <xsd:sequence>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:identifier"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:title"/>
-                            <xsd:element minOccurs="0" ref="dc:type"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:element name="SummaryRecord" substitutionGroup="csw:AbstractRecord" type="csw:SummaryRecordType"/>
-            <xsd:complexType final="#all" name="SummaryRecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type defines a summary representation of the common record
-            format.  It extends AbstractRecordType to include the core
-            properties.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:AbstractRecordType">
-                        <xsd:sequence>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:identifier"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:title"/>
-                            <xsd:element minOccurs="0" ref="dc:type"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:subject"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:format"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:relation"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:modified"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:abstract"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:spatial"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:element name="Record" substitutionGroup="csw:AbstractRecord" type="csw:RecordType"/>
-            <xsd:complexType final="#all" name="RecordType">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="en">
-            This type extends DCMIRecordType to add ows:BoundingBox;
-            it may be used to specify a spatial envelope for the
-            catalogued resource.
-         </xsd:documentation>
-
-                </xsd:annotation>
-                <xsd:complexContent>
-                    <xsd:extension base="csw:DCMIRecordType">
-                        <xsd:sequence>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" name="AnyText" type="csw:EmptyType"/>
-                            <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
-
-                        </xsd:sequence>
-
-                    </xsd:extension>
-
-                </xsd:complexContent>
-
-            </xsd:complexType>
-            <xsd:complexType name="EmptyType"/>
-        </xsd:schema>
-    </csw:SchemaComponent>
-</csw:DescribeRecordResponse>
+<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns3="http://www.w3.org/1999/xlink"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         version="2.0.2"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
+    <csw:TransactionSummary>
+        <csw:totalInserted>1</csw:totalInserted>
+        <csw:totalUpdated>0</csw:totalUpdated>
+        <csw:totalDeleted>0</csw:totalDeleted>
+    </csw:TransactionSummary>
+    <csw:InsertResult>
+        <csw:BriefRecord>
+            <dc:identifier><METACARD ID</dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <ows:BoundingBox crs="EPSG:4326">
+                <ows:LowerCorner>-6.171 44.792</ows:LowerCorner>
+                <ows:UpperCorner>-2.228 51.126</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:BriefRecord>
+    </csw:InsertResult>
+</csw:TransactionResponse>
 ----
 
-.`GetRecords` Operation
-The `GetRecords` operation is the principal means of searching the catalog.
-The matching entries may be included with the response.
-The client may assign a `requestId` (absolute URI).
-A distributed search is performed if the `DistributedSearch` element is present and the catalog is a member of a federation.
-Profiles may allow alternative query expressions.
-There are two types of request types: one for `GET` and one for `POST`.
-Each request has the following common data parameters:
+.Create Error Response Examples
+[cols="2,2,3" options="header"]
+|===
+|Status Code
+|Error Message
+|Possible Causes
 
-Namespace:: In POST operations, namespaces are defined in the XML. In GET operations, namespaces are defined in a comma-separated list of the form xmlns([prefix=]namespace-url)(,xmlns([pref::=]namespace-url))*.
-Service:: The service being used, in this case it is fixed at CSW.
-Version:: The version of the service being used (2.0.2).
-OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: The OutputSchema indicates which schema shall be used to generate the response to the GetRecords operation.  The supported output schemas are listed in the GetCapabilities response.
-ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
+.2+.^|400 Bad Request
+.2+.^|`ExceptionText` with description of error.
+|XML error. Check for formatting errors in record.
+|Schema error. Verify metadata is compliant with defined schema.
 
-[IMPORTANT]
-====
- The CSW Endpoint expects all geospatial filters using the EPSG:4326 CRS to use "longitude then latitude" coordinate ordering.  Similarly, unless the output schema explicitly states otherwise, the GetRecordsResponse will use the same coordinate ordering.
-====
+|===
 
-.`GetRecords` `HTTP GET`
-The `HTTP GET` request differs from the `POST` request in that it has the "typeNames" as a comma-separated list of namespace prefix qualified types as strings.
-For example `csw:Record,xyz:MyType`. These prefixes are then matched against the prefix qualified namespaces in the request.
-This is converted to a list QName(s).
-In this way, it behaves exactly as the post request that uses a list of QName(s) in the first place.
+=== CSW Endpoint Query Examples
 
-.`GetRecords` KVP (Key-Value Pairs) Encoding
+To query through the CSW Enpoint, send a `POST` request to the CSW endpoint.
+
+.CSW Endpoint Query URL
+[source,http]
 ----
-${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetRecords&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&ElementSetName=brief&ConstraintLanguage=CQL_TEXT&constraint=AnyText Like '%25'
+https://<FQDN>:<PORT>/services/csw
 ----
 
-.`GetRecords` HTTP POST
-The `HTTP POST` request GetRecords has the `typeNames` as a List of QName(s).
-The QNames are matched against the namespaces by prefix, if prefixes exist.
+Within the body of the request, include a `GetRecords` operation to define the query.
+Define the service and version to use (CSW, 2.0.2).
+The output format must be `application/xml`.
+Specify the output schema.
+(To get a list of supported schemas, send a <<{integrating-prefix}get_capabilities,Get Capabilities>> request to the CSW endpoint.)
 
-.`GetRecords` XML Request
+.GetRecords Syntax
+[source,xml,linenums]
+----
+<GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        service="CSW"
+        version="2.0.2"
+        maxRecords="4"
+        startPosition="1"
+        resultType="results"
+        outputFormat="application/xml"
+        outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+        xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+----
+
+Include the query within the `GetRecords` request.
+Optionally, set the `ElementSetName` to determine how much detail to return.
+
+* Brief: the least possible detail.
+* Summary: (Default)
+* Full:  All metadata elements for the record(s).
+
+Within the `Constraint` element, define the query as an OSG or CQL filter.
+
+[source,xml,linenums]
+----
+<Query typeNames="Record">
+    <ElementSetName>summary</ElementSetName>
+    <Constraint version="1.1.0">
+        <ogc:Filter>
+            <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+                <ogc:PropertyName>AnyText</ogc:PropertyName>
+                <ogc:Literal>%</ogc:Literal>
+            </ogc:PropertyIsLike>
+        </ogc:Filter>
+    </Constraint>
+</Query>
+----
+
+[source,xml,linenums]
+----
+<Query typeNames="Record">
+    <ElementSetName>summary</ElementSetName>
+    <Constraint version="2.0.0">
+        <ogc:CqlText>
+           "AnyText" = '%'
+        </ogc:CqlText>
+    </csw:Constraint>
+</Query>
+----
+
+.`GetRecords` XML Request Example
 [source,xml]
 ----
 <?xml version="1.0" ?>
@@ -1040,18 +258,53 @@ The QNames are matched against the namespaces by prefix, if prefixes exist.
 </GetRecords>
 ----
 
-.`GetRecords` `Specific Source`
-It is possible to query a `Specific Source` by specifying a query for that source-id.
-The valid ``source-id``'s will be listed in the `FederatedCatalogs` section of the `GetCapabilities` Response.
-The example below shows how to query for a specifc source.
+
+.`GetRecords` Sample Response (`application/xml`)
+[source,xml]
+----
+<?xml version='1.0' encoding='UTF-8'?>
+<csw:GetRecordsResponse xmlns:dct="http://purl.org/dc/terms/"
+                        xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                        xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                        xmlns:ows="http://www.opengis.net/ows"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0.2">
+  <csw:SearchStatus timestamp="${timestamp}"/>
+  <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="0" recordSchema="http://www.opengis.net/cat/csw/2.0.2" elementSet="summary">
+    <csw:Record xmlns:ows="http://www.opengis.net/ows"
+                xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:dct="http://purl.org/dc/terms/"
+                xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <dc:identifier/>
+        <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+        <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+        <dc:subject>Hydrography--Dictionaries</dc:subject>
+        <dc:format>application/pdf</dc:format>
+        <dc:date>${timestamp}</dc:date>
+        <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+            <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+            <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+        </ows:BoundingBox>
+    </csw:Record>
+  </csw:SearchResults>
+</csw:GetRecordsResponse>
+----
+
+.Querying a Specific Source with the CSW Endpoint
+To query a `Specific Source`, specify a query for a `source-id`.
+To find a valid `source-id` , send a <<{integrating-prefix}get_capabilities,Get Capabilities>> request.
+Configured sources will be listed in the `FederatedCatalogs` section of the response.
 
 [NOTE]
 ====
 The `DistributedSearch` element must be specific with a `hopCount` greater than 1 to identify it as a federated query, otherwise the ``source-id``'s will be ignored.
 ====
 
-.`GetRecords` XML Request
-[source,xml]
+.Querying a Specific Source Sample Request
+[source,xml,linenums]
 ----
 <?xml version="1.0" ?>
 <csw:GetRecords resultType="results"
@@ -1071,7 +324,7 @@ The `DistributedSearch` element must be specific with a `hopCount` greater than 
                 <ns2:PropertyIsEqualTo wildCard="*" singleChar="#" escapeChar="!">
                   <ns2:PropertyName>source-id</ns2:PropertyName>
                   <ns2:Literal>Source1</ns2:Literal>
-                </ns2:PropertyIsEqualTo>
+                </ns2:PropertyIsEqualTo>_
                 <ns2:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
                   <ns2:PropertyName>title</ns2:PropertyName>
                     <ns2:Literal>*</ns2:Literal>
@@ -1083,61 +336,11 @@ The `DistributedSearch` element must be specific with a `hopCount` greater than 
 </csw:GetRecords>
 ----
 
-.`GetRecords` Sample Response (`application/xml`)
-[source,xml]
-----
-<csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
-    <csw:SearchResults numberOfRecordsMatched="41" numberOfRecordsReturned="4" nextRecord="5" recordSchema="http://www.opengis.net/cat/csw/2.0.2" elementSet="summary">
-      <csw:SummaryRecord>
-        <dc:identifier>182fb33103414e5cbb06f8693b526239</dc:identifier>
-        <dc:title>Product10</dc:title>
-        <dc:type>pdf</dc:type>
-        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
-        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-          <ows:LowerCorner>20.0 10.0</ows:LowerCorner>
-          <ows:UpperCorner>20.0 10.0</ows:UpperCorner>
-        </ows:BoundingBox>
-      </csw:SummaryRecord>
-      <csw:SummaryRecord>
-        <dc:identifier>c607440db9b0407e92000d9260d35444</dc:identifier>
-        <dc:title>Product03</dc:title>
-        <dc:type>pdf</dc:type>
-        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
-        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-          <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
-          <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
-        </ows:BoundingBox>
-      </csw:SummaryRecord>
-      <csw:SummaryRecord>
-        <dc:identifier>034cc757abd645f0abe6acaccfe194de</dc:identifier>
-        <dc:title>Product03</dc:title>
-        <dc:type>pdf</dc:type>
-        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
-        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-          <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
-          <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
-        </ows:BoundingBox>
-      </csw:SummaryRecord>
-      <csw:SummaryRecord>
-        <dc:identifier>5d6e987bd6084bd4919d06b63b77a007</dc:identifier>
-        <dc:title>Product01</dc:title>
-        <dc:type>pdf</dc:type>
-        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
-        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-          <ows:LowerCorner>2.0 1.0</ows:LowerCorner>
-          <ows:UpperCorner>2.0 1.0</ows:UpperCorner>
-        </ows:BoundingBox>
-      </csw:SummaryRecord>
-    </csw:SearchResults>
-  </csw:GetRecordsResponse>
-----
+.Querying for GMD Output Schema
+To receive a response to a `GetRecords` query that conforms to the GMD specification, set the Namespace(xmlns),`outputschema`, and `typeName` elements for GML schema.
 
-.`GetRecords` GMD OutputSchema
-It is possible to receive a response to a `GetRecords` query that conforms to the GMD specification.
-
-.`GetRecords` XML Request
-[source,xml]
+.GML Output Schema Sample Request
+[source,xml,linenums,subs="verbatim,quotes"]
 ----
 <?xml version="1.0" ?>
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -1159,7 +362,7 @@ It is possible to receive a response to a `GetRecords` query that conforms to th
             <ogc:Filter>
                 <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
                     <ogc:PropertyName>apiso:Title</ogc:PropertyName>
-                    <ogc:Literal>prod%</ogc:Literal>
+                    <ogc:Literal>%</ogc:Literal>
                 </ogc:PropertyIsLike>
             </ogc:Filter>
         </Constraint>
@@ -1167,113 +370,19 @@ It is possible to receive a response to a `GetRecords` query that conforms to th
 </GetRecords>
 ----
 
-.`GetRecords` Sample Response (`application/xml`)
-[source,xml]
-----
-<?xml version='1.0' encoding='UTF-8'?>
-<csw:GetRecordsResponse xmlns:dct="http://purl.org/dc/terms/" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0.2">
-    <csw:SearchStatus timestamp="2016-03-23T11:31:34.531-06:00"/>
-    <csw:SearchResults numberOfRecordsMatched="7" numberOfRecordsReturned="1" nextRecord="2" recordSchema="http://www.isotc211.org/2005/gmd" elementSet="summary">
-        <MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
-            <fileIdentifier>
-                <gco:CharacterString>d5f6acd5ccf34d18af5192c38a276b12</gco:CharacterString>
-            </fileIdentifier>
-            <hierarchyLevel>
-                <MD_ScopeCode codeListValue="nitf" codeList="urn:catalog:metacard"/>
-            </hierarchyLevel>
-            <contact/>
-            <dateStamp>
-                <gco:DateTime>2015-03-04T17:23:42.332-07:00</gco:DateTime>
-            </dateStamp>
-            <identificationInfo>
-                <MD_DataIdentification>
-                    <citation>
-                        <CI_Citation>
-                            <title>
-                                <gco:CharacterString>product.ntf</gco:CharacterString>
-                            </title>
-                            <date>
-                                <CI_Date>
-                                    <date>
-                                        <gco:DateTime>2015-03-04T17:23:42.332-07:00</gco:DateTime>
-                                    </date>
-                                    <dateType>
-                                        <CI_DateTypeCode codeList="urn:catalog:metacard" codeListValue="created"/>
-                                    </dateType>
-                                </CI_Date>
-                            </date>
-                        </CI_Citation>
-                    </citation>
-                    <abstract>
-                        <gco:CharacterString></gco:CharacterString>
-                    </abstract>
-                    <pointOfContact>
-                        <CI_ResponsibleParty>
-                            <organisationName>
-                                <gco:CharacterString></gco:CharacterString>
-                            </organisationName>
-                            <role/>
-                        </CI_ResponsibleParty>
-                    </pointOfContact>
-                    <language>
-                        <gco:CharacterString>en</gco:CharacterString>
-                    </language>
-                    <extent>
-                        <EX_Extent>
-                            <geographicElement>
-                                <EX_GeographicBoundingBox>
-                                    <westBoundLongitude>
-                                        <gco:Decimal>32.975277</gco:Decimal>
-                                    </westBoundLongitude>
-                                    <eastBoundLongitude>
-                                        <gco:Decimal>32.996944</gco:Decimal>
-                                    </eastBoundLongitude>
-                                    <southBoundLatitude>
-                                        <gco:Decimal>32.305</gco:Decimal>
-                                    </southBoundLatitude>
-                                    <northBoundLatitude>
-                                        <gco:Decimal>32.323333</gco:Decimal>
-                                    </northBoundLatitude>
-                                </EX_GeographicBoundingBox>
-                            </geographicElement>
-                        </EX_Extent>
-                    </extent>
-                </MD_DataIdentification>
-            </identificationInfo>
-            <distributionInfo>
-                <MD_Distribution>
-                    <distributor>
-                        <MD_Distributor>
-                            <distributorContact/>
-                            <distributorTransferOptions>
-                                <MD_DigitalTransferOptions>
-                                    <onLine>
-                                        <CI_OnlineResource>
-                                            <linkage>
-                                                <URL>http://example.com</URL>
-                                            </linkage>
-                                        </CI_OnlineResource>
-                                    </onLine>
-                                </MD_DigitalTransferOptions>
-                            </distributorTransferOptions>
-                        </MD_Distributor>
-                    </distributor>
-                </MD_Distribution>
-            </distributionInfo>
-        </MD_Metadata>
-    </csw:SearchResults>
-</csw:GetRecordsResponse>
-----
 
-.`GetRecords` XML Request using UTM Coordinates
+.Querying by UTM Coordinates
 UTM coordinates can be used when making a CSW GetRecords request using an `ogc:Filter`.
-UTM coordinates should use EPSG:326XX as the srsName where XX is the zone within the northern hemisphere.
-UTM coordinates should use EPSG:327XX as the srsName where XX is the zone within the southern hemisphere.
+UTM coordinates should use `EPSG:326XX`as the `srsName` where `XX` is the zone within the northern hemisphere.
+UTM coordinates should use `EPSG:327XX` as the `srsName` where `XX` is the zone within the southern hemisphere.
 
-Note: UTM coordinates are only supported with requests providing an `ogc:Filter`, but not with CQL
-as there isn't a way to specify the UTM srsName in CQL.
+[NOTE]
+====
+UTM coordinates are only supported with requests providing an `ogc:Filter`, but not with CQL
+as there isn't a way to specify the UTM `srsName` in CQL.
+====
 
-.`GetRecords` XML Request - UTM Northern Hemisphere Zone 36
+.UTM Northern Hemisphere Zone 36 Sample Request
 [source,xml]
 ----
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -1305,37 +414,11 @@ as there isn't a way to specify the UTM srsName in CQL.
 </GetRecords>
 ----
 
-.`GetRecordById` Operation
-The `GetRecordById` operation request retrieves the default representation of catalog records using their identifier.
-This operation presumes that a previous query has been performed in order to obtain the identifiers that may be used with this operation.
-For example, records returned by a `GetRecords` operation may contain references to other records in the catalog that may be retrieved using the `GetRecordById` operation.
-This operation is also a subset of the `GetRecords` operation and is included as a convenient short form for retrieving and linking to records in a catalog.
+.Querying by Metacard ID
+To locate a record by Metacard ID, send a `POST` request with a `GetRecordById` element specifying the ID.
 
-Clients can also retrieve products from the catalog using the `GetRecordById` operation.
-The client sets the output schema to `http://www.iana.org/assignments/media-types/application/octet-stream` and the output format to `application/octet-stream` within the request.
-The endpoint will do the following: check that only one Id is provided, otherwise an error will occur as multiple products cannot be retrieved.
-If both output format and output schema are set to values mentioned above, the catalog framework will retrieve the resource for that Id.
-The HTTP content type is then set to the resource's MIME type and the data is sent out.
-The endpoint also supports the resumption of partial downloads. This would typically occur at the request of a browser when a download was prematurely terminated.
-
-There are two request types: one for `GET` and one for `POST`.
-Each request has the following common data parameters:
-
-Namespace:: In POST operations, namespaces are defined in the XML. In GET operations namespaces are defined in a comma separated list of the form: xmlns([prefix=]namespace-url)(,xmlns([prefix=]namespace-url))*.
-Service:: The service being used, in this case it is fixed at "CSW".
-Version:: The version of the service being used (2.0.2).
-OutputFormat:: The requester wants the response to be in this intended output. Currently, two output formats are supported: `application/xml` for retrieving records, and `application/octet-stream` for retrieving a product. If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: The OutputSchema indicates which schema shall be used to generate the response to the GetRecordById operation.  The supported output schemas are listed in the GetCapabilities response.
-ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
-Id:: The Id parameter is a comma-separated list of record identifiers for the records that CSW returns to the client. In the XML encoding, one or more <Id> elements may be used to specify the record identifier to be retrieved.
-
-.`GetRecordById` HTTP GET KVP (Key-Value Pairs) Encoding
-----
-${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
-----
-
-.`GetRecordById` HTTP POST
-[source,xml]
+.`GetRecordById` Request Example
+[source,xml,linenums,subs="verbatim,quotes"]
 ----
 <GetRecordById xmlns="http://www.opengis.net/cat/csw/2.0.2"
   xmlns:ogc="http://www.opengis.net/ogc"
@@ -1347,59 +430,10 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMES
   xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2
 ../../../csw/2.0.2/CSW-discovery.xsd">
  <ElementSetName>full</ElementSetName>
- <Id>182fb33103414e5cbb06f8693b526239</Id>
- <Id>c607440db9b0407e92000d9260d35444</Id>
+ <Id>_<METACARD-ID>_</Id>
 </GetRecordById>
 ----
 
-.`GetRecordByIdResponse` Sample Response (`application/xml`)
-[source,xml]
-----
-<csw:GetRecordByIdResponse xmlns:dc="http://purl.org/dc/elements/1.1/"
-xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows"
-xmlns:xs="http://www.w3.org/2001/XMLSchema"
-xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <csw:Record>
-      <dc:identifier>182fb33103414e5cbb06f8693b526239</dc:identifier>
-<dct:bibliographicCitation>182fb33103414e5cbb06f8693b526239</dct:bibliographicCitation>
-      <dc:title>Product10</dc:title>
-      <dct:alternative>Product10</dct:alternative>
-      <dc:type>pdf</dc:type>
-      <dc:date>2014-02-19T15:22:51.563-05:00</dc:date>
-      <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
-      <dct:created>2014-02-19T15:22:51.563-05:00</dct:created>
-      <dct:dateAccepted>2014-02-19T15:22:51.563-05:00</dct:dateAccepted>
-      <dct:dateCopyrighted>2014-02-19T15:22:51.563-05:00</dct:dateCopyrighted>
-      <dct:dateSubmitted>2014-02-19T15:22:51.563-05:00</dct:dateSubmitted>
-      <dct:issued>2014-02-19T15:22:51.563-05:00</dct:issued>
-      <dc:source>${ddf-branding-lowercase}.distribution</dc:source>
-      <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-         <ows:LowerCorner>20.0 10.0</ows:LowerCorner>
-         <ows:UpperCorner>20.0 10.0</ows:UpperCorner>
-      </ows:BoundingBox>
-   </csw:Record>
-   <csw:Record>
-      <dc:identifier>c607440db9b0407e92000d9260d35444</dc:identifier>
-<dct:bibliographicCitation>c607440db9b0407e92000d9260d35444</dct:bibliographicCitation>
-      <dc:title>Product03</dc:title>
-      <dct:alternative>Product03</dct:alternative>
-      <dc:type>pdf</dc:type>
-      <dc:date>2014-02-19T15:22:51.563-05:00</dc:date>
-      <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
-      <dct:created>2014-02-19T15:22:51.563-05:00</dct:created>
-      <dct:dateAccepted>2014-02-19T15:22:51.563-05:00</dct:dateAccepted>
-      <dct:dateCopyrighted>2014-02-19T15:22:51.563-05:00</dct:dateCopyrighted>
-      <dct:dateSubmitted>2014-02-19T15:22:51.563-05:00</dct:dateSubmitted>
-      <dct:issued>2014-02-19T15:22:51.563-05:00</dct:issued>
-      <dc:source>${ddf-branding-lowercase}.distribution</dc:source>
-      <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-         <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
-         <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
-      </ows:BoundingBox>
-   </csw:Record>
-</csw:GetRecordByIdResponse>
-----
 
 .CSW Record to Metacard Mapping
 [cols="2m,1m,1,1,1" options="header"]
@@ -1728,127 +762,116 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 |===
 
-=== Transaction Operations
+.Query Error Response Examples
+[cols="2,2,3" options="header"]
+|===
+|Status Code
+|Error Message
+|Possible Causes
 
-Transactions define the operations for creating, modifying, and deleting catalog records.
-The supported sub-operations for the Transaction operation are Insert, Update, and Delete.
+|`400 Bad Request`
+|`<ows:ExceptionText>ddf.catalog.util.impl.CatalogQueryException: ddf.catalog.federation.FederationException: SiteNames could not be resolved due to invalid site names, none of the sites were available, or the current subject doesn't have permission to access the sites.</ows:ExceptionText>`
+|A query to a specific source has specified a source that is unavailable.
 
-The CSW Transactions endpoint only supports `HTTP POST` requests since there are no KVP (Key-Value Pairs) operations.
+|200 OK
+|`<csw:SearchResults numberOfRecordsMatched="0" numberOfRecordsReturned="0" nextRecord="0"`
+|No results found for query. Verify input.
+|===
 
-=== Transaction Insert Sub-Operation `HTTP POST`
+=== CSW Endpoint Update Examples
 
-The Insert sub-operation is a method for one or more records to be inserted into the catalog.
-The schema of the record needs to conform to the schema of the information model that the catalog supports as described using the `DescribeRecord` operation.
+The CSW Endpoint can edit the metadata attributes of a metacard.
 
-The following example shows a request for a record to be inserted.
+Send a `POST` request to the CSW Endpoint URL:
 
-.Sample XML Transaction `Insert` Request
-[source,xml]
+.CSW Endpoint Update URL
+[source,https]
+----
+https://<FDQN>:<PORT>/services/csw
+----
+
+Replace the `<METACARD-ID>` value with the metacard id being updated, and edit any properties within the `csw:Record`.
+
+.CSW Update Record Example
+[source,xml,linenums]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction
     service="CSW"
     version="2.0.2"
-    verboseResponse="true"
     xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-    <csw:Insert typeName="csw:Record">
+    <csw:Update>
         <csw:Record
             xmlns:ows="http://www.opengis.net/ows"
             xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
             xmlns:dc="http://purl.org/dc/elements/1.1/"
             xmlns:dct="http://purl.org/dc/terms/"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <dc:identifier></dc:identifier>
+            <dc:identifier><METACARD-ID></dc:identifier>
             <dc:title>Aliquam fermentum purus quis arcu</dc:title>
             <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
             <dc:subject>Hydrography--Dictionaries</dc:subject>
             <dc:format>application/pdf</dc:format>
-            <dc:date>2006-05-12</dc:date>
+            <dc:date>${timestamp}</dc:date>
             <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
             <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
                 <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
                 <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
             </ows:BoundingBox>
         </csw:Record>
-    </csw:Insert>
+    </csw:Update>
 </csw:Transaction>
 ----
 
-[NOTE]
-====
-The `typeName` attribute in the `csw:Insert` element can be used to specify the
-document type that's being inserted and to select the appropriate input
-transformer.
-====
-
-.Sample XML transformer insert
-[source,xml]
-----
-<csw:Transaction service="CSW" version="2.0.2" verboseResponse="true" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-  <csw:Insert typeName="xml">
-    <metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml"
-          xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/"
-          xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
-        <type>ddf.metacard</type>
-        <string name="title">
-            <value>PlainXml near</value>
-        </string>
-    </metacard>
-  </csw:Insert>
-</csw:Transaction>
-----
-
-=== Transaction Insert Response
-
-The following is an example of an `application/xml` response to the Transaction Insert sub-operation:
-
-Note that you will only receive the `InsertResult` element if you specify `verboseResponse="true"`.
-
-.Sample XML Transaction `Insert` Response
-[source,xml]
+.CSW Update Record Sample Response
+[source,xml,linenums]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+<csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:ns2="http://www.w3.org/1999/xlink"
+                         xmlns:ogc="http://www.opengis.net/ogc"
                          xmlns:gml="http://www.opengis.net/gml"
-                         xmlns:ns3="http://www.w3.org/1999/xlink"
                          xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:ns6="http://www.w3.org/2001/SMIL20/"
                          xmlns:dc="http://purl.org/dc/elements/1.1/"
-                         xmlns:ows="http://www.opengis.net/ows"
                          xmlns:dct="http://purl.org/dc/terms/"
                          xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
-                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
-                         version="2.0.2"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2"
                          ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
     <csw:TransactionSummary>
-        <csw:totalInserted>1</csw:totalInserted>
-        <csw:totalUpdated>0</csw:totalUpdated>
+        <csw:totalInserted>0</csw:totalInserted>
+        <csw:totalUpdated>1</csw:totalUpdated>
         <csw:totalDeleted>0</csw:totalDeleted>
     </csw:TransactionSummary>
-    <csw:InsertResult>
-        <csw:BriefRecord>
-            <dc:identifier>2dbcfba3f3e24e3e8f68c50f5a98a4d1</dc:identifier>
-            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
-            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
-            <ows:BoundingBox crs="EPSG:4326">
-                <ows:LowerCorner>-6.171 44.792</ows:LowerCorner>
-                <ows:UpperCorner>-2.228 51.126</ows:UpperCorner>
-            </ows:BoundingBox>
-        </csw:BriefRecord>
-    </csw:InsertResult>
 </csw:TransactionResponse>
 ----
 
-=== Transaction Update Sub-Operation `HTTP POST`
+.Updating Individual Attributes
+Within the `csw:Transaction` element, use the `csw:RecordProperty` to update individual metacard attributes.
 
-The Update sub-operation is a method to specify values used to change existing information in the catalog.
-If individual record property values are specified in the `Update` element, using the `RecordProperty` element, then those individual property values of a catalog record are replaced.
-The `RecordProperty` contains a `Name` and `Value` element.
-The `Name` element is used to specify the name of the record property to be updated.
-The `Value` element contains the value that will be used to update the record in the catalog.
+Use the `Name` element to specify the name of the record property to be updated and set
+the `Value` element to the value to update in the record.
 The values in the `Update` will completely replace those that are already in the record.
 
-Some properties are given default `Value`s if no `Value` is provided.
+[source,xml,linenums]
+----
+<csw:RecordProperty>
+    <csw:Name>title</csw:Name>
+    <csw:Value>Updated Title</csw:Value>
+</csw:RecordProperty>
+----
+
+.Removing Attributes
+To remove a non-required attribute, send the `csw:Name` without a `csw:Value`.
+
+[source,xml,linenums]
+----
+<csw:RecordProperty>
+    <csw:Name>title</csw:Name>
+</csw:RecordProperty>
+----
+
+Required attributes are set to a default value if no `Value` element is provided.
 
 .`RecordProperty` Default Values
 [cols="1m,1" options="header"]
@@ -1889,47 +912,36 @@ Some properties are given default `Value`s if no `Value` is provided.
 
 |===
 
-Other properties are removed if the `RecordProperty` contains a `Name` but not a `Value`.
+Use a `csw:Constraint` to specify the metacard ID.
+The constraint can be an OGC Filter or a CQL query.
 
-The number of records affected by an Update operation is determined by the contents of the `Constraint` element, which contains a filter for limiting the update to a specific record or group of records.
-
-The following example shows how the newly inserted record could be updated to modify the date field.
-If your update request contains a `<csw:Record>` rather than a set of `<RecordProperty>` elements plus a `<Constraint>` , the existing record with the same ID will be replaced with the new record.
-
-.Sample XML Transaction `Update` Request
-[source,xml]
+[source,xml,linenums]
 ----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction
-    service="CSW"
-    version="2.0.2"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-    <csw:Update>
-        <csw:Record
-            xmlns:ows="http://www.opengis.net/ows"
-            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:dct="http://purl.org/dc/terms/"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <dc:identifier>2dbcfba3f3e24e3e8f68c50f5a98a4d1</dc:identifier>
-            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
-            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
-            <dc:subject>Hydrography--Dictionaries</dc:subject>
-            <dc:format>application/pdf</dc:format>
-            <dc:date>2008-08-10</dc:date>
-            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
-            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
-                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
-            </ows:BoundingBox>
-        </csw:Record>
-    </csw:Update>
-</csw:Transaction>
+<csw:Constraint version="2.0.0">
+    <ogc:Filter>
+        <ogc:PropertyIsEqualTo>
+            <ogc:PropertyName>id</ogc:PropertyName>
+            <ogc:Literal><METACARD-ID></ogc:Literal>
+        </ogc:PropertyIsEqualTo>
+    </ogc:Filter>
+</csw:Constraint>
 ----
 
-The following example shows how the newly inserted record could be updated to modify the date field while using a filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
+[source,xml,linenums]
+----
+<csw:Constraint version="2.0.0">
+    <ogc:CqlText>
+        "id" = '<METACARD-ID>'
+    </ogc:CqlText>
+</csw:Constraint>
+----
 
-.Sample XML Transaction `Update` Request with filter constraint
+[WARNING]
+====
+These filters can search on any arbitrary query criteria, but take care to only affect desired records.
+====
+
+.Sample XML Transaction `Update` Request with OGC filter constraint
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1943,27 +955,17 @@ The following example shows how the newly inserted record could be updated to mo
             <csw:Name>title</csw:Name>
             <csw:Value>Updated Title</csw:Value>
         </csw:RecordProperty>
-        <csw:RecordProperty>
-            <csw:Name>date</csw:Name>
-            <csw:Value>2015-08-25</csw:Value>
-        </csw:RecordProperty>
-        <csw:RecordProperty>
-            <csw:Name>format</csw:Name>
-            <csw:Value></csw:Value>
-        </csw:RecordProperty>
-        <csw:Constraint version="2.0.0">
-            <ogc:Filter>
-                <ogc:PropertyIsEqualTo>
-                    <ogc:PropertyName>title</ogc:PropertyName>
-                    <ogc:Literal>Aliquam fermentum purus quis arcu</ogc:Literal>
-                </ogc:PropertyIsEqualTo>
-            </ogc:Filter>
-        </csw:Constraint>
+            <csw:Constraint version="2.0.0">
+                <ogc:Filter>
+                    <ogc:PropertyIsEqualTo>
+                        <ogc:PropertyName>id</ogc:PropertyName>
+                        <ogc:Literal><METACARD-ID></ogc:Literal>
+                    </ogc:PropertyIsEqualTo>
+                </ogc:Filter>
+            </csw:Constraint>
     </csw:Update>
 </csw:Transaction>
 ----
-
-The following example shows how the newly inserted record could be updated to modify the date field while using a CQL filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
 
 .Sample XML Transaction `Update` Request with CQL filter constraint
 [source,xml]
@@ -1980,16 +982,10 @@ The following example shows how the newly inserted record could be updated to mo
             <csw:Value>Updated Title</csw:Value>
         </csw:RecordProperty>
         <csw:RecordProperty>
-            <csw:Name>date</csw:Name>
-            <csw:Value>2015-08-25</csw:Value>
-        </csw:RecordProperty>
-        <csw:RecordProperty>
-            <csw:Name>format</csw:Name>
-            <csw:Value></csw:Value>
         </csw:RecordProperty>
         <csw:Constraint version="2.0.0">
             <ogc:CqlText>
-                title = 'Aliquam fermentum purus quis arcu'
+                "id" = '<METACARD-ID>'
             </ogc:CqlText>
         </csw:Constraint>
     </csw:Update>
@@ -2020,89 +1016,48 @@ The following example shows how the newly inserted record could be updated to mo
 </csw:TransactionResponse>
 ----
 
-==== Transaction `Delete` Sub-Operation `HTTP POST`
 
-The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
+.Update Error Response Examples
+[cols="2,2,3" options="header"]
+|===
+|Status Code
+|Error Message
+|Possible Causes
 
-The following example shows a delete request for all records with a SpatialReferenceSystem name equal to `WGS-84`.
+|400 Bad Request
+|`<ows:ExceptionText>Unable to update record(s).</ows:ExceptionText>`
+|XML or CSW schema error. Verify input.
 
-.Sample XML Transaction `Delete` Request with filter constraint
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction service="CSW" version="2.0.2"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-    xmlns:gml="http://www.opengis.net/gml"
-    xmlns:ogc="http://www.opengis.net/ogc">
-    <csw:Delete typeName="csw:Record" handle="something">
-        <csw:Constraint version="2.0.0">
-            <ogc:Filter>
-                <ogc:PropertyIsEqualTo>
-                   <ogc:PropertyName>SpatialReferenceSystem</ogc:PropertyName>
-                   <ogc:Literal>WGS-84</ogc:Literal>
-                </ogc:PropertyIsEqualTo>
-            </ogc:Filter>
-        </csw:Constraint>
-    </csw:Delete>
-</csw:Transaction>
-----
+|200 OK
+|`<csw:totalUpdated>0</csw:totalUpdated>`
+|No records were updated. Verify metacard id or search parameters.
+|===
 
-The following example shows a delete operation specifying a CQL constraint to delete all records with a title equal to `Aliquam fermentum purus quis arcu`
+=== CSW Endpoint Publication/Subscription Examples
 
-.Sample XML Transaction `Delete` Request with CQL filter constraint
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction service="CSW" version="2.0.2"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-    xmlns:gml="http://www.opengis.net/gml"
-    xmlns:ogc="http://www.opengis.net/ogc">
-    <csw:Delete typeName="csw:Record" handle="something">
-        <csw:Constraint version="2.0.0">
-            <ogc:CqlText>
-                 title = 'Aliquam fermentum purus quis arcu'
-            </ogc:CqlText>
-        </csw:Constraint>
-    </csw:Delete>
-</csw:Transaction>
-----
+The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog
+but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching
+the `GetRecords` request used in the subscription.
+The `ResponseHandler` must use the https protocol and receive a HEAD request to poll for availability and
+POST/PUT/DELETE requests for creation, updates, and deletions.
+The response to a `GetRecords` request on the subscription url will be an acknowledgement containing the original
+`GetRecords` request and a `requestId`.
+The client will be assigned a `requestId` (URN).
 
-.Sample XML Transaction Delete Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:TransactionResponse
-                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
-                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"
-                         version="2.0.2">
-    <csw:TransactionSummary>
-        <csw:totalInserted>0</csw:totalInserted>
-        <csw:totalUpdated>0</csw:totalUpdated>
-        <csw:totalDeleted>1</csw:totalDeleted>
-    </csw:TransactionSummary>
-</csw:TransactionResponse>
-----
-
-==== Subscription `GetRecords` Operation
-
-The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching the GetRecords request used in the subscription.
-The `ResponseHandler` must use the https protocol and receive a HEAD request to poll for availability and POST/PUT/DELETE requests for creation, updates, and deletions.
-The response to a `GetRecords` request on the subscription url will be an acknowledgement containing the original GetRecords request and a requestId
-The client will be assigned a requestId (URN).
 A Subscription listens for events from federated sources if the `DistributedSearch` element is present and the catalog is a member of a federation.
 
-==== Subscription `GetRecords` HTTP GET
+.Adding a Subscription
+Send a `POST` request to the CSW endpoint.
 
-.`GetRecords` KVP (Key-Value Pairs) Encoding
+.CSW Add Subscription Sample URL
+[source,https]
 ----
-${secure_url}/services/csw/subscription?service=CSW&version=2.0.2&request=GetRecords&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&ElementSetName=brief&ResponseHandler=https%3A%2F%2Fsome.ddf%2Fservices%2Fcsw%2Fsubscription%2Fevent&ConstraintLanguage=CQL_TEXT&constraint=Text Like '%25'
+https://<FQDN>:<PORT>/services/csw/subscription
 ----
 
-==== Subscription `GetRecords` HTTP POST
 
 .Subscription `GetRecords` XML Request
-[source,xml]
+[source,xml,linenums]
 ----
 <?xml version="1.0" ?>
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -2131,11 +1086,11 @@ ${secure_url}/services/csw/subscription?service=CSW&version=2.0.2&request=GetRec
 </GetRecords>
 ----
 
-==== Subscription `GetRecords` HTTP PUT
+.Updating a Subscription
+To update an existing subscription, send a `PUT` request with the `requestid` URN appended to the url.
 
-The `HTTP PUT` request `GetRecords` is used to update an existing subscription. It is the same as the ``POST``, except the `requestid` URN is appended to the url.
-
-.Subscription `GetRecords` XML Request
+CSW Endpoint Subscription Update URL
+[source,https]
 ----
 ${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
 ----
@@ -2144,7 +1099,7 @@ ${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021
 [source,xml]
 ----
 <?xml version="1.0" ?>
-<Acknowledgement timeStamp="2008-09-28T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
+<Acknowledgement timeStamp="${timestamp}T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
 xmlns:ogc="http://www.opengis.net/ogc"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
@@ -2174,20 +1129,17 @@ xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-
   </EchoedRequest>
   <RequestId>urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f</ns:RequestId>
 </Acknowledgement>
-
 ----
 
-.Subscription `GetRecords` event Response
-The following is an example of an `application/xml` event sent to a subscribers `ResponseHandler` using an `HTTP POST` for a create, `HTTP PUT` for an update, and `HTTP DELETE` for a delete using the default `outputSchema` of `http://www.opengis.net/cat/csw/2.0.2` if you specified another supported schema format in the subscription it will be returned in that format.
 
-.Subscription `GetRecords` event XML Response
+.Subscription `GetRecords` Event Sample Response
 [source,xml]
 ----
 <csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
     <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="5" recordSchema="http://www.opengis.net/cat/csw/2.0.2" elementSet="summary">
       <csw:SummaryRecord>
-        <dc:identifier>182fb33103414e5cbb06f8693b526239</dc:identifier>
+        <dc:identifier>f45415884c11409497e22db8303fe8c6</dc:identifier>
         <dc:title>Product10</dc:title>
         <dc:type>pdf</dc:type>
         <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
@@ -2200,23 +1152,19 @@ The following is an example of an `application/xml` event sent to a subscribers 
   </csw:GetRecordsResponse>
 ----
 
-==== Subscription HTTP GET or HTTP DELETE Request
+.Retrieving an Active Subscription
+To retrieve an active subscription, send a `GET` request with the `requestid` URN appended to the url.
 
-The following is an example `HTTP GET` Request to retrieve an active subscription
-
-.Subscription `HTTP GET` or `HTTP DELETE`
+.Retrieve.
 ----
-${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
+https://<FQDN>:<PORT>/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
 ----
 
-==== Subscription `HTTP GET` or `HTTP DELETE` Response
-The following is an example `HTTP GET` Response retrieving an active subscription
-
-.Subscription `HTTP GET` or `HTTP DELETE` XML Response
+.Subscription `HTTP GET` Sample Response
 [source,xml]
 ----
 <?xml version="1.0" ?>
-<Acknowledgement timeStamp="2008-09-28T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
+<Acknowledgement timeStamp="${timestamp}T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
                                                  xmlns:ogc="http://www.opengis.net/ogc"
                                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                                  xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
@@ -2248,268 +1196,347 @@ The following is an example `HTTP GET` Response retrieving an active subscriptio
 </Acknowledgement>
 ----
 
-==== Example Responses for CSW Endpoint Error Conditions
-The following are example data and expected errors responses that will be returned for each error condition.
+.Deleting a Subscription
+To delete a subscription, send a `DELETE` request with the `requestid` URN appended to the url.
 
-HTTP error codes are also returned. https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors
+.Delete Subscription Sample URL
+----
+https://<FQDN>:<PORT>/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
+----
 
-.No Transaction Contents
-This will not generate an error, but the response will tell you that nothing was processed as part of the transaction.
-For security purposes the `ows:ExceptionText` on invalid data is generic.
-The log file should be consulted for more information.
+=== CSW Endpoint Delete Examples
 
-.Example CSW Request with no payload
-[source,xml]
+To delete metacards via the CSW Endpoint, send a `POST` request with a `csw:Delete` to the CSW Endpoint URL.
+
+[source,http]
+----
+https://<FQDN>:<PORT>/services/csw
+----
+
+Define the records to delete with the `csw:Constraint` field.
+The constraint can be either an OGC or CQL filter.
+
+.Sample XML Transaction `Delete` Request with OGC filter constraint
+[source,xml,linenums,subs="verbatim,quotes"]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction service="CSW" verboseResponse="true" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsEqualTo>
+                   <ogc:PropertyName>id</ogc:PropertyName>
+                   <ogc:Literal>_<METACARD-ID>_</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Delete>
 </csw:Transaction>
 ----
 
-.No Payload CSW Response
-[source,xml]
+.Sample XML Transaction `Delete` Request with CQL filter constraint
+[source,xml,linenums,subs="verbatim,quotes"]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:CqlText>
+                 "id" = '_<METACARD-ID>_'
+            </ogc:CqlText>
+        </csw:Constraint>
+    </csw:Delete>
+</csw:Transaction>
+----
+
+.Sample XML Transaction Delete Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:ns2="http://www.w3.org/1999/xlink"
+                         xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns8="http://www.w3.org/2001/SMIL20/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
     <csw:TransactionSummary>
         <csw:totalInserted>0</csw:totalInserted>
         <csw:totalUpdated>0</csw:totalUpdated>
-        <csw:totalDeleted>0</csw:totalDeleted>
+        <csw:totalDeleted>1</csw:totalDeleted>
     </csw:TransactionSummary>
 </csw:TransactionResponse>
 ----
 
-.Malformed XML
-The follow example sends malformed XML to the CSW Endpoint.
+.Delete Error Response Examples
+[cols="2,2,3" options="header"]
+|===
+|Status Code
+|Error Message
+|Possible Causes
 
-.Example Malformed XML request
+|`200 OK`
+|`<csw:totalDeleted>0</csw:totalDeleted>`
+|No records matched filter criteria. Verify metacard ID.
+
+|`400 Bad Request
+|`<ows:Exception>` with details of error.
+|XML or CSW formatting error. Verify request.
+
+|===
+
+=== CSW Endpoint Get Capabilities Examples
+
+The `GetCapabilities` operation describes the operations the catalog supports and the URLs used to access those operations.
+The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation.
+The response to either request will always be a `csw:Capabilities` XML document.
+This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema] {external-link}.
+
+.CSW Endpoint `GetCapabilities` URL for GET request
+[source,https]
+----
+https://<FQDN>:<PORT>/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
+----
+
+Alternatively, send a `POST` request to the root CSW endpoint URL.
+
+.CSW Endpoint `GetCapabilities` URL for GET request
+[source,https]
+----
+$https://<FQDN>:<PORT>/services/csw
+----
+
+Include an XML message body with a `GetCapabilities` element.
+
+.`GetCapabilities` Sample Request
+[source,xml]
+----
+<?xml version="1.0" ?>
+<csw:GetCapabilities
+  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+  service="CSW"
+  version="2.0.2" >
+</csw:GetCapabilities>
+----
+
+.`GetCapabilities` Sample Response (`application/xml`)
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction
-    service="CSW"
-    version="2.0.2"
-    verboseResponse="true"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-    <csw:Insert typeName="csw:Record">
-        <csw:Record
-            xmlns:ows="http://www.opengis.net/ows"
-            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:dct="http://purl.org/dc/terms/"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <dc:identifier></dc:identifier>
-            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
-            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
-            <dc:subject>Hydrography--Dictionaries</dc:subject>
-            <dc:format>application/pdf</dc:format>
-            <dc:date>2006-05-12</dc:date>
-            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
-            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
-                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
-            </ows:BoundingBox>
-        </csw:Record>
-    </csw:Update>
-</csw:Transaction>
-----
-An HTTP 400 Bad request response is returned.
-The error is logged in the log file and the following response body is returned.
-
-.Malformed XML CSW Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <ows:Exception exceptionCode="MissingParameterValue">
-        <ows:ExceptionText>Error parsing the request.  XML parameters may be missing or invalid.</ows:ExceptionText>
-    </ows:Exception>
-</ows:ExceptionReport>
-----
-
-.Non-CSW Request
-The following example sends a non-CSW request to the CSW endpoint.
-
-.Example Non-CSW request
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<document>
-	<title>boucle dampish caulkers</title>
-	<id>abc123</id>
-</document>
-----
-
-An HTTP 400 Bad request response is returned, and the following response body is returned.
-
-.Non-CSW Data Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <ows:Exception exceptionCode="InvalidParameterValue" locator="service">
-        <ows:ExceptionText>Unknown Service</ows:ExceptionText>
-    </ows:Exception>
-</ows:ExceptionReport>
-----
-
-.Request with Unknown Schema
-This type of request will succeed and attribute names that match the expected names for the typeName (e.g. csw:Record) will get mapped into the metacard.
-In the example, the `title` attribute will get mapped to the metacard `title` attribute since it's the same attribute name as `<dc:title>` that `csw:Record` is configured to parse.
-
-.Example Unknown Schema
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction service="CSW" verboseResponse="true" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-    <csw:Insert typeName="csw:Record">
-        <csw:Record
-            xmlns:ows="http://www.opengis.net/ows"
-            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:dct="http://purl.org/dc/terms/"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:unk="http://example.com/unknown">
-            <unk:id>123</unk:id>
-            <unk:title>Aliquam fermentum purus quis arcu</unk:title>
-        </csw:Record>
-    </csw:Insert>
-</csw:Transaction>
-----
-
-Metacard is created successfully.
-
-.Example Successful Unknown Schema Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <csw:TransactionSummary>
-        <csw:totalInserted>1</csw:totalInserted>
-        <csw:totalUpdated>0</csw:totalUpdated>
-        <csw:totalDeleted>0</csw:totalDeleted>
-    </csw:TransactionSummary>
-    <csw:InsertResult>
-        <csw:BriefRecord>
-            <dc:identifier>4ec3ec03f75344a7b4404773f97e5a03</dc:identifier>
-            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
-            <dc:type/>
-        </csw:BriefRecord>
-    </csw:InsertResult>
-</csw:TransactionResponse>
-----
-
-.Well-formed, but Invalid TypeName
-The `typeName` on the `csw:Insert` specifies the transformer to use when parsing the data.
-If the name specified is not configured, an error response is returned.
-
-.Example Invalid `typeName`
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:Transaction service="CSW" verboseResponse="true" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-	<csw:Insert typeName="invalid-data">
-		<root>
-			<id>abcd16df29413796b388b02ee017a315</id>
-		</document>
-	</csw:Insert>
-</csw:Transaction>
-----
-
-An HTTP 400 Bad request response is returned.
-The error is logged in the log file and the following response body is returned.
-
-.Invalid typeName Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <ows:Exception exceptionCode="MissingParameterValue">
-        <ows:ExceptionText>Error parsing the request.  XML parameters may be missing or invalid.</ows:ExceptionText>
-    </ows:Exception>
-</ows:ExceptionReport>
-----
-
-.Request with Missing XML Prologue
-The following example sends XML data to the CSW Endpoint without the XML prologue.
-
-.Example Missing XML Tag
-[source,xml]
-----
-<csw:Transaction
-    service="CSW"
-    version="2.0.2"
-    verboseResponse="true"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
-    <csw:Insert typeName="csw:Record">
-        <csw:Record
-            xmlns:ows="http://www.opengis.net/ows"
-            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:dct="http://purl.org/dc/terms/"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <dc:identifier></dc:identifier>
-            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
-            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
-            <dc:subject>Hydrography--Dictionaries</dc:subject>
-            <dc:format>application/pdf</dc:format>
-            <dc:date>2006-05-12</dc:date>
-            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
-            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
-                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
-            </ows:BoundingBox>
-        </csw:Record>
-    </csw:Insert>
-</csw:Transaction>
-----
-
-Metacard is created successfully.
-
-.Example Missing XML Tag Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <csw:TransactionSummary>
-        <csw:totalInserted>1</csw:totalInserted>
-        <csw:totalUpdated>0</csw:totalUpdated>
-        <csw:totalDeleted>0</csw:totalDeleted>
-    </csw:TransactionSummary>
-    <csw:InsertResult>
-        <csw:BriefRecord>
-            <dc:identifier>c318d32e9c9a4bb5b1cd00bc1aafd704</dc:identifier>
-            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
-            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
-            <ows:BoundingBox crs="EPSG:4326">
-                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
-                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
-            </ows:BoundingBox>
-        </csw:BriefRecord>
-    </csw:InsertResult>
-</csw:TransactionResponse>
-----
-
-.Request with Non-XML Data
-The following is a non-XML request sent to the CSW Endpoint.
-
-.Non-XML data Example
-[source,text]
-----
-title: Non-XML title
-id: abc123
+<csw:Capabilities xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
+    <ows:ServiceIdentification>
+        <ows:Title>Catalog Service for the Web</ows:Title>
+        <ows:Abstract>${branding} CSW Endpoint</ows:Abstract>
+        <ows:ServiceType>CSW</ows:ServiceType>
+        <ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
+    </ows:ServiceIdentification>
+    <ows:ServiceProvider>
+        <ows:ProviderName>${branding}</ows:ProviderName>
+        <ows:ProviderSite/>
+        <ows:ServiceContact/>
+    </ows:ServiceProvider>
+    <ows:OperationsMetadata>
+        <ows:Operation name="GetCapabilities">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="https://<FQDN>:<PORT>/services/csw"/>
+                    <ows:Post ns2:href="https://<FQDN>:<PORT>/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="sections">
+                <ows:Value>ServiceIdentification</ows:Value>
+                <ows:Value>ServiceProvider</ows:Value>
+                <ows:Value>OperationsMetadata</ows:Value>
+                <ows:Value>Filter_Capabilities</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="DescribeRecord">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="https://<FQDN>:<PORT>/services/csw"/>
+                    <ows:Post ns2:href="https://<FQDN>:<PORT>/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="typeName">
+                <ows:Value>csw:Record</ows:Value>
+                <ows:Value>gmd:MD_Metadata</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="schemaLanguage">
+                <ows:Value>http://www.w3.org/XMLSchema</ows:Value>
+                <ows:Value>http://www.w3.org/XML/Schema</ows:Value>
+                <ows:Value>http://www.w3.org/2001/XMLSchema</ows:Value>
+                <ows:Value>http://www.w3.org/TR/xmlschema-1/</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="GetRecords">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="https://<FQDN>:<PORT>/services/csw"/>
+                    <ows:Post ns2:href="https://<FQDN>:<PORT>/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="ResultType">
+                <ows:Value>hits</ows:Value>
+                <ows:Value>results</ows:Value>
+                <ows:Value>validate</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputSchema">
+                <ows:Value>urn:catalog:metacard</ows:Value>
+                <ows:Value>http://www.isotc211.org/2005/gmd</ows:Value>
+                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="typeNames">
+                <ows:Value>csw:Record</ows:Value>
+                <ows:Value>gmd:MD_Metadata</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ConstraintLanguage">
+                <ows:Value>Filter</ows:Value>
+                <ows:Value>CQL_Text</ows:Value>
+            </ows:Parameter>
+            <ows:Constraint name="FederatedCatalogs">
+                <ows:Value>Source1</ows:Value>
+                <ows:Value>Source2</ows:Value>
+            </ows:Constraint>
+        </ows:Operation>
+        <ows:Operation name="GetRecordById">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="https://<FQDN>:<PORT>/services/csw"/>
+                    <ows:Post ns2:href="https://<FQDN>:<PORT>/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="OutputSchema">
+                <ows:Value>urn:catalog:metacard</ows:Value>
+                <ows:Value>http://www.isotc211.org/2005/gmd</ows:Value>
+                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+                <ows:Value>http://www.iana.org/assignments/media-types/application/octet-stream</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/octet-stream</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ResultType">
+                <ows:Value>hits</ows:Value>
+                <ows:Value>results</ows:Value>
+                <ows:Value>validate</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ElementSetName">
+                <ows:Value>brief</ows:Value>
+                <ows:Value>summary</ows:Value>
+                <ows:Value>full</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="Transaction">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Post ns2:href="https://<FQDN>:<PORT>/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="typeNames">
+                <ows:Value>xml</ows:Value>
+                <ows:Value>appxml</ows:Value>
+                <ows:Value>csw:Record</ows:Value>
+                <ows:Value>gmd:MD_Metadata</ows:Value>
+                <ows:Value>tika</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ConstraintLanguage">
+                <ows:Value>Filter</ows:Value>
+                <ows:Value>CQL_Text</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Parameter name="service">
+            <ows:Value>CSW</ows:Value>
+        </ows:Parameter>
+        <ows:Parameter name="version">
+            <ows:Value>2.0.2</ows:Value>
+        </ows:Parameter>
+    </ows:OperationsMetadata>
+    <ogc:Filter_Capabilities>
+        <ogc:Spatial_Capabilities>
+            <ogc:GeometryOperands>
+                <ogc:GeometryOperand>gml:Point</ogc:GeometryOperand>
+                <ogc:GeometryOperand>gml:LineString</ogc:GeometryOperand>
+                <ogc:GeometryOperand>gml:Polygon</ogc:GeometryOperand>
+            </ogc:GeometryOperands>
+            <ogc:SpatialOperators>
+                <ogc:SpatialOperator name="BBOX"/>
+                <ogc:SpatialOperator name="Beyond"/>
+                <ogc:SpatialOperator name="Contains"/>
+                <ogc:SpatialOperator name="Crosses"/>
+                <ogc:SpatialOperator name="Disjoint"/>
+                <ogc:SpatialOperator name="DWithin"/>
+                <ogc:SpatialOperator name="Intersects"/>
+                <ogc:SpatialOperator name="Overlaps"/>
+                <ogc:SpatialOperator name="Touches"/>
+                <ogc:SpatialOperator name="Within"/>
+            </ogc:SpatialOperators>
+        </ogc:Spatial_Capabilities>
+        <ogc:Scalar_Capabilities>
+            <ogc:LogicalOperators/>
+            <ogc:ComparisonOperators>
+                <ogc:ComparisonOperator>Between</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>NullCheck</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>Like</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>GreaterThan</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>GreaterThanEqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>LessThan</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>LessThanEqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>NotEqualTo</ogc:ComparisonOperator>
+            </ogc:ComparisonOperators>
+        </ogc:Scalar_Capabilities>
+        <ogc:Id_Capabilities>
+            <ogc:EID/>
+        </ogc:Id_Capabilities>
+    </ogc:Filter_Capabilities>
+</csw:Capabilities>
 ----
 
-An HTTP 400 Bad request response is returned.
-The error is logged in the log file and the following response body is returned.
 
-.Non-XML Response
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
-    <ows:Exception exceptionCode="MissingParameterValue">
-        <ows:ExceptionText>Error parsing the request.  XML parameters may be missing or invalid.</ows:ExceptionText>
-    </ows:Exception>
-</ows:ExceptionReport>
-----
+

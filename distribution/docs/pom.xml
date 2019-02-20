@@ -24,7 +24,7 @@
     <properties>
         <ddf.version>${project.version}</ddf.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss:SS</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
         <packaging>pom</packaging>
         <module>docs</module>
     </properties>
