@@ -1,26 +1,45 @@
 :title: CSW Endpoint
 :type: endpoint
 :status: published
+:operations: ingest, crud, query, pub-sub
 :link: _csw_endpoint
+:url: \${secure_url}/services/csw
 :summary: Searches collections of descriptive information (metadata) about geospatial data and services.
 :implements: http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard] {external-link}, http://xmlrpc.scripting.com/spec.html[XML-RPC] {external-link}, https://portal.opengeospatial.org/modules/admin/license_agreement.php?suppressHeaders=0&access_license_id=3&target=http://portal.opengeospatial.org/files/%3fartifact_id=12597[ISO 19115/ISO191119] {external-link}.
 
+== {title}
+
 The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.
 
-===== Installing CSW Endpoint
+.CSW Endpoint Operations
+[cols="2,1m,2,5m", options="header"]
+|===
 
-The CSW Endpoint is installed by default with a standard installation in the ${ddf-spatial} application.
+|Operation
+|HTTP Request Type
+|Details
+|Example URL
 
-===== Configuring CSW Endpoint
+|ingest
+|
+|
+|{url}
 
-The CSW endpoint has no configurable properties.
-It can only be installed or uninstalled.
+|query
+|||{url}?
 
-===== CSW Endpoint URL
+|subscription
+|||{url}
 
-The CSW endpoint is accessible from \${secure_url}/services/csw.
+|Get Capabilities
+|||{url}
 
-====== CSW Endpoint Operations
+
+|===
+
+'''
+
+=== CSW Endpoint Sample Operations
 
 .Sample Responses May Not Match Actual Responses
 [NOTE]
@@ -1709,14 +1728,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 |===
 
-====== Transaction Operations
+=== Transaction Operations
 
 Transactions define the operations for creating, modifying, and deleting catalog records.
 The supported sub-operations for the Transaction operation are Insert, Update, and Delete.
 
 The CSW Transactions endpoint only supports `HTTP POST` requests since there are no KVP (Key-Value Pairs) operations.
 
-====== Transaction Insert Sub-Operation `HTTP POST`
+=== Transaction Insert Sub-Operation `HTTP POST`
 
 The Insert sub-operation is a method for one or more records to be inserted into the catalog.
 The schema of the record needs to conform to the schema of the information model that the catalog supports as described using the `DescribeRecord` operation.
@@ -1779,7 +1798,7 @@ transformer.
 </csw:Transaction>
 ----
 
-====== Transaction Insert Response
+=== Transaction Insert Response
 
 The following is an example of an `application/xml` response to the Transaction Insert sub-operation:
 
@@ -1820,7 +1839,7 @@ Note that you will only receive the `InsertResult` element if you specify `verbo
 </csw:TransactionResponse>
 ----
 
-====== Transaction Update Sub-Operation `HTTP POST`
+=== Transaction Update Sub-Operation `HTTP POST`
 
 The Update sub-operation is a method to specify values used to change existing information in the catalog.
 If individual record property values are specified in the `Update` element, using the `RecordProperty` element, then those individual property values of a catalog record are replaced.
@@ -2001,7 +2020,7 @@ The following example shows how the newly inserted record could be updated to mo
 </csw:TransactionResponse>
 ----
 
-====== Transaction `Delete` Sub-Operation `HTTP POST`
+==== Transaction `Delete` Sub-Operation `HTTP POST`
 
 The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
 
@@ -2065,7 +2084,7 @@ The following example shows a delete operation specifying a CQL constraint to de
 </csw:TransactionResponse>
 ----
 
-====== Subscription `GetRecords` Operation
+==== Subscription `GetRecords` Operation
 
 The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching the GetRecords request used in the subscription.
 The `ResponseHandler` must use the https protocol and receive a HEAD request to poll for availability and POST/PUT/DELETE requests for creation, updates, and deletions.
@@ -2073,14 +2092,14 @@ The response to a `GetRecords` request on the subscription url will be an acknow
 The client will be assigned a requestId (URN).
 A Subscription listens for events from federated sources if the `DistributedSearch` element is present and the catalog is a member of a federation.
 
-====== Subscription `GetRecords` HTTP GET
+==== Subscription `GetRecords` HTTP GET
 
 .`GetRecords` KVP (Key-Value Pairs) Encoding
 ----
 ${secure_url}/services/csw/subscription?service=CSW&version=2.0.2&request=GetRecords&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&ElementSetName=brief&ResponseHandler=https%3A%2F%2Fsome.ddf%2Fservices%2Fcsw%2Fsubscription%2Fevent&ConstraintLanguage=CQL_TEXT&constraint=Text Like '%25'
 ----
 
-====== Subscription `GetRecords` HTTP POST
+==== Subscription `GetRecords` HTTP POST
 
 .Subscription `GetRecords` XML Request
 [source,xml]
@@ -2112,7 +2131,7 @@ ${secure_url}/services/csw/subscription?service=CSW&version=2.0.2&request=GetRec
 </GetRecords>
 ----
 
-====== Subscription `GetRecords` HTTP PUT
+==== Subscription `GetRecords` HTTP PUT
 
 The `HTTP PUT` request `GetRecords` is used to update an existing subscription. It is the same as the ``POST``, except the `requestid` URN is appended to the url.
 
@@ -2181,7 +2200,7 @@ The following is an example of an `application/xml` event sent to a subscribers 
   </csw:GetRecordsResponse>
 ----
 
-====== Subscription HTTP GET or HTTP DELETE Request
+==== Subscription HTTP GET or HTTP DELETE Request
 
 The following is an example `HTTP GET` Request to retrieve an active subscription
 
@@ -2190,7 +2209,7 @@ The following is an example `HTTP GET` Request to retrieve an active subscriptio
 ${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
 ----
 
-====== Subscription `HTTP GET` or `HTTP DELETE` Response
+==== Subscription `HTTP GET` or `HTTP DELETE` Response
 The following is an example `HTTP GET` Response retrieving an active subscription
 
 .Subscription `HTTP GET` or `HTTP DELETE` XML Response
@@ -2229,7 +2248,7 @@ The following is an example `HTTP GET` Response retrieving an active subscriptio
 </Acknowledgement>
 ----
 
-====== Example Responses for CSW Endpoint Error Conditions
+==== Example Responses for CSW Endpoint Error Conditions
 The following are example data and expected errors responses that will be returned for each error condition.
 
 HTTP error codes are also returned. https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors

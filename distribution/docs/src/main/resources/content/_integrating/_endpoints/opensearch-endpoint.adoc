@@ -1,46 +1,42 @@
 :title: OpenSearch Endpoint
 :type: endpoint
 :status: published
+:operations: query
+:url: \${secure_url}/services/catalog/query
 :link: _opensearch_endpoint
 :summary: Sends query parameters and receives search results.
 :implements: https://jax-rs-spec.java.net/[JAX-RS] {external-link}
 
-The OpenSearch Endpoint enables a client to send query parameters and receive search results. This endpoint uses the input query parameters to create an OpenSearch query. The client does not need to specify all of the query parameters, only the query parameters of interest.
+== {title}
 
-===== Installing the OpenSearch Endpoint
-
-The OpenSearch Endpoint is installed by default with a standard installation in the ${ddf-catalog} application.
-
-===== Configuring the OpenSearch Endpoint
-
-The OpenSearch Endpoint has no configurable properties.
-It can only be installed or uninstalled.
-
-===== OpenSearch URL
-
-----
-${secure_url}/services/catalog/query
-----
-
-====== From Code:
+The OpenSearch Endpoint enables a client to send query parameters and receive search results.
+This endpoint uses the input query parameters to create an OpenSearch query.
+The client does not need to specify all of the query parameters, only the query parameters of interest.
 
 The OpenSearch specification defines a file format to describe an OpenSearch endpoint.
 This file is XML-based and is used to programatically retrieve a site's endpoint, as well as the different parameter options a site holds.
 The parameters are defined via the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] and https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR IPT] Specifications.
 
-====== From a Web Browser:
-
 Many modern web browsers currently act as OpenSearch clients.
 The request call is an HTTP GET with the query options being parameters that are passed.
 
-.Example of an OpenSearch request:
-----
-${public_url}/services/catalog/query?q=Predator
-----
+.OpenSearch Endpoint Operations
+[cols="2,1m,2,5m", options="header"]
+|===
 
-This request performs a full-text search for the phrase 'Predator' on the ${branding} providers and provides the results as Atom-formatted XML for the web browser to render.
+|Operation
+|FTP Request Type
+|Details
+|Example URL
 
-====== Parameter List
+|query
+|GET
+|This request performs a full-text search for the phrase 'Predator' on the ${branding} providers and provides the results as Atom-formatted XML for the web browser to render.
+|{url}?q=Predator
+
+|===
+
+=== Parameter List
 
 .Main OpenSearch Standard
 [cols="4*", options="header"]
@@ -254,7 +250,7 @@ default: `300000` (5 minutes)
 
 |===
 
-====== Supported Complex Contextual Query Format
+==== Supported Complex Contextual Query Format
 
 The OpenSearch Endpoint supports the following operators: `AND`, `OR`, and `NOT`.
 These operators are case sensitive.

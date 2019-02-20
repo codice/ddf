@@ -1,0 +1,10 @@
+:title: Configuring Endpoints
+:type: configuration
+:status: published
+:parent: Configuring Federation
+:order: 049
+:summary: Configuring endpoints.
+
+== {title}
+
+Configure endpoints to enable external systems to send and receive content and metadata from ${branding}.

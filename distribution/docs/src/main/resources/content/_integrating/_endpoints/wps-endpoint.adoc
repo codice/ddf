@@ -1,9 +1,13 @@
 :title: WPS Endpoint
 :type: endpoint
 :status: published
+:operations: other
 :link: _wps_endpoint
+:url: \${secure_url}/services/WPS
 :summary: Execute and monitor long running processes.
 :implements: http://www.opengeospatial.org/standards/wps[Web Processing Service (WPS) standard.
+
+== {title}
 
 [NOTE]
 ====
@@ -12,27 +16,6 @@ EXPERIMENTAL
 
 The WPS endpoint enables a client to execute and monitor long running processes.
 
-===== Installing WPS Endpoint
-
-The WPS Endpoint is not installed by default with a standard installation.
-
-To install:
-
-. Navigate to the *${admin-console}*.
-. Select the *System* tab.
-. Select the *Features* tab.
-. Install the *spatial-wps* feature.
-
-===== Configuring WPS Endpoint
-
-The WPS endpoint has no configurable properties.
-It can only be installed or uninstalled.
-
-===== WPS Endpoint URL
-
-The WPS endpoint is accessible from ${secure_url}/services/WPS.
-
-==== WPS Endpoint Operations
 For a typical sequence of WPS requests, a client would first issue a GetCapabilities request to the server to obtain an up-to-date listing of available processes.
 Then, it may issue a DescribeProcess request to find out more details about the particular processes offered, including the supported data formats.
 To run a process with the desired input data, a client will issue an Execute request.
@@ -40,6 +23,22 @@ The operations GetStatus and GetResult are used in conjunction with asynchronous
 
 For brevity the examples below use GET Key-value pair requests but POST is also supported.
 See the OGC WPS 2.0 Interface Standard for more details.
+
+.WPS Endpoint Operations
+[cols="2,1m,2,5m", options="header"]
+|===
+
+|Operation
+|HTTP Request Type
+|Details
+|Example URL
+
+|
+|
+|
+|{url}
+
+|===
 
 .`GetCapabilities` Operation
 This operation allows a client to request information about the server’s capabilities and processes offered.
