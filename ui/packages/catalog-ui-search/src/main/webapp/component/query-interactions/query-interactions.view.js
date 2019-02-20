@@ -105,7 +105,7 @@ module.exports = Marionette.ItemView.extend({
         <div
           className="query-interaction interaction-feedback"
           title="Submit Feedback"
-          data-help="Brings up a form to submit comments about your current search and it's results."
+          data-help="Brings up a form to submit comments about your current search and its results."
         >
           <div className="interaction-text">Submit Feedback</div>
         </div>
@@ -115,7 +115,7 @@ module.exports = Marionette.ItemView.extend({
             disabledExport ? 'is-disabled' : ''
           }`}
           title="Export Selected"
-          data-help="Brings up a form to export the selected search results."
+          data-help="Opens a form to export the selected search results."
         >
           <div className={`interaction-text ${exportClass}`}>
             Export Selected

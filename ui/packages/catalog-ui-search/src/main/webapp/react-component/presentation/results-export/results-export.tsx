@@ -42,7 +42,7 @@ type Props = {
   handleExportOptionChange: () => void
 }
 
-const render = (props: Props) => {
+const ResultsExport = (props: Props) => {
   const {
     selectedFormat,
     exportFormats,
@@ -74,4 +74,4 @@ const render = (props: Props) => {
   )
 }
 
-export default hot(module)(render)
+export default hot(module)(ResultsExport)
