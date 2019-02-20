@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.codice.ddf.configuration.AbsolutePathResolver;
@@ -31,6 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JsonPersistantStore implements ObjectPersistentStore {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JsonPersistantStore.class);
+
+  private static final String PERSISTED_FILE_SUFFIX = ".json";
 
   private Gson gson = new Gson();
 
@@ -44,16 +49,12 @@ public class JsonPersistantStore implements ObjectPersistentStore {
     this.mapName = mapName;
   }
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(JsonPersistantStore.class);
-
-  private static final String PERSISTED_FILE_SUFFIX = ".json";
-
   private String getShaFor(String key) {
     return DigestUtils.sha1Hex(key);
   }
 
-  private String getPath() {
-    return Paths.get(getPersistencePath(), mapName).toString() + File.separator;
+  private Path getPath() {
+    return Paths.get(getPersistencePath(), mapName);
   }
 
   private String getPersistencePath() {
@@ -62,12 +63,13 @@ public class JsonPersistantStore implements ObjectPersistentStore {
 
   @Override
   public void store(String key, Object toStore) {
-    File dir = new File(getPath());
+    File dir = getPath().toFile();
     if (!dir.exists() && !dir.mkdir()) {
       LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
     }
     String shaKey = getShaFor(key);
-    try (OutputStream file = new FileOutputStream(getPath() + shaKey + PERSISTED_FILE_SUFFIX);
+    try (OutputStream file =
+            new FileOutputStream(getPath().resolve(shaKey + PERSISTED_FILE_SUFFIX).toFile());
         OutputStream buffer = new BufferedOutputStream(file);
         OutputStreamWriter output = new OutputStreamWriter(buffer)) {
       gson.toJson(toStore, output);
@@ -79,7 +81,7 @@ public class JsonPersistantStore implements ObjectPersistentStore {
   @Override
   public <T> T load(String key, Class<T> objectClass) {
     String shaKey = getShaFor(key);
-    File file = new File(getPath() + shaKey + PERSISTED_FILE_SUFFIX);
+    File file = getPath().resolve(shaKey + PERSISTED_FILE_SUFFIX).toFile();
     if (!file.exists()) {
       return null;
     }

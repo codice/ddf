@@ -49,7 +49,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       observer.removeListener();
       return true;
     } else {
-      return isMatched(null, null, null);
+      return false;
     }
   }
 
@@ -69,7 +69,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       //  Backwards Compatibility
       if (observer == null && isOldVersion(fileName)) {
         observer = backwardsCompatibility(fileName);
-      } else {
+      } else if (observer == null) {
         observer = new AsyncFileAlterationObserver(new File(fileName), jsonSerializer);
       }
     }

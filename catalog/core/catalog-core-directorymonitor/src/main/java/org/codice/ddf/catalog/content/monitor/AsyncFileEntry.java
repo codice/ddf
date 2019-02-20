@@ -18,13 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
  * The core of this file is based upon {@link org.apache.commons.io.monitor.FileEntry}, modified to
  * update only on successful async operations.
+ *
+ * <p>This class is not entirely thread safe. Getting the children and parents are thread safe,
+ * However, {@link #commit()} and {@link #hasChanged()} are not thread safe.
  *
  * <p>A wrapper class for a Java {@link File} object. This essentially keeps meta-snapshots taken
  * when ${@link AsyncFileEntry#commit()} is called. ${@link AsyncFileEntry#hasChanged()} will
@@ -42,8 +45,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
   private boolean directory;
   private long length;
 
-  private final Set<AsyncFileEntry> children = new TreeSet<>();
-  private final transient Set<AsyncFileEntry> potentialChildren = new TreeSet<>();
+  private final Set<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
   //  Leaving transient to avoid loops
   @Nullable private transient AsyncFileEntry parent;
 
@@ -59,26 +61,18 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     refresh();
   }
 
+  //  For GSON serialization
+  private AsyncFileEntry() {
+    contentFile = null;
+  }
+
   /**
    * Must be called when a {@link AsyncFileEntry} is loaded from a json file.
    *
    * @throws IllegalStateException if a {@link File} is null
    */
   public void initialize() {
-    initializeHelper(this);
-  }
-
-  //  For GSON serialization
-  private AsyncFileEntry() {
-    contentFile = null;
-  }
-
-  private void refresh() {
-    name = snapName();
-    exists = snapExist();
-    lastModified = snapLastModified();
-    directory = snapDirectory();
-    length = snapLength();
+    initializeFileEntryHelper(this);
   }
 
   public boolean hasChanged() {
@@ -112,16 +106,18 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
    *
    * <ol>
    *   <li>The root directory will NOT be deleted
-   *   <li>There will NOT be a semlink to another NFS
+   *   <li>There will NOT be a symlink to another NFS
    * </ol>
    */
   public boolean checkNetwork() {
     AsyncFileEntry rootParent = parent;
-    while (rootParent != null && rootParent.getParent().isPresent()) {
-      rootParent = rootParent.getParent().get();
-    }
+
     if (rootParent == null) {
       return snapExist();
+    }
+
+    while (rootParent.getParent().isPresent()) {
+      rootParent = rootParent.getParent().get();
     }
 
     return rootParent.getFile().exists();
@@ -182,18 +178,6 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     children.clear();
   }
 
-  /**
-   * if the child still exists wtihin the parent
-   *
-   * @return the entry from the parent or null.
-   */
-  public boolean isChildOfParent() {
-    if (parent != null) {
-      return parent.hasChild(this);
-    }
-    return false;
-  }
-
   //  Serializing to JSON doesn't allow infinite loops. Thus we
   //  Make the parent null and allow users to re-initialize after loading
   //  from a json.
@@ -201,14 +185,14 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     parent = parentalUnit;
   }
 
-  private void initializeHelper(AsyncFileEntry toInit) {
+  private void initializeFileEntryHelper(AsyncFileEntry toInit) {
     for (AsyncFileEntry child : toInit.getChildren()) {
       if (child.getFile() == null) {
         throw new IllegalStateException(
             "File cannot be null. There was a problem initializing the File entries from JSON");
       }
       child.setParent(toInit);
-      initializeHelper(child);
+      initializeFileEntryHelper(child);
     }
   }
 
@@ -238,5 +222,13 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
 
   public boolean hasChildren() {
     return !children.isEmpty();
+  }
+
+  private void refresh() {
+    name = snapName();
+    exists = snapExist();
+    lastModified = snapLastModified();
+    directory = snapDirectory();
+    length = snapLength();
   }
 }

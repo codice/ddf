@@ -30,19 +30,19 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This implementation only works with one AsyncFileAlterationListener.
  *
- * <p>Every time the AsyncFileAlterationObserver is polled by calling {@code checkAndNotify()}, the
- * observer will check all the {@link File}'s and {@link AsyncFileEntry}'s that are under the
- * directory being monitored, and call the {@link AsyncFileAlterationListener}'s corresponding
- * methods
+ * <p>Every time the AsyncFileAlterationObserver is polled by calling {@code checkAndNotify()}, if
+ * there are no files currently being processed, the observer will check all the {@link File}'s and
+ * {@link AsyncFileEntry}'s that are under the directory being monitored, and call the {@link
+ * AsyncFileAlterationListener}'s corresponding methods
  *
- * <p>Additionally upon calling {@code checkAndNotify()} additional calls to {@code
- * checkAndNotify()} will return until all files are finished processing
+ * <p>if there are files being processed or a thread already inside {@code checkAndNotify()}, check
+ * and notify will immediately return false
  *
  * <p>Known Limitations:
  *
  * <ul>
- *   <li>if a file becomes a directory then we need to delete the contents in the catalog
- *   <li>if a directory becomes a file, we need to create the entry in the catalog
+ *   <li>if a file becomes a directory then it's contents will not be deleted from the catalog
+ *   <li>if a directory becomes a file, then it's contents will not be created in the catalog
  * </ul>
  *
  * @see AsyncFileAlterationListener
@@ -56,10 +56,13 @@ public class AsyncFileAlterationObserver {
   private final AtomicLong processing = new AtomicLong(0);
   private final Object listenerLock = new Object();
   private final ObjectPersistentStore serializer;
+  private final Object processingLock = new Object();
+
+  private boolean isProcessing = false;
 
   public AsyncFileAlterationObserver(File fileToObserve, ObjectPersistentStore serializer) {
     if (fileToObserve == null || serializer == null) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Arguments can not be null");
     }
     this.serializer = serializer;
     rootFile = new AsyncFileEntry(fileToObserve);
@@ -67,14 +70,21 @@ public class AsyncFileAlterationObserver {
 
   private AsyncFileAlterationObserver(AsyncFileEntry entry, ObjectPersistentStore serializer) {
     if (entry == null) {
-      throw new IllegalArgumentException("entry can not be null");
+      throw new IllegalArgumentException("Arguments can not be null");
     }
     rootFile = entry;
     rootFile.initialize();
     this.serializer = serializer;
   }
 
-  public static AsyncFileAlterationObserver load(File observedFile, ObjectPersistentStore store) {
+  /**
+   * @param observedFile
+   * @param store
+   * @return returns a AsyncFileAlterationObserver if there was one serialized by an {@link
+   *     ObjectPersistentStore} Otherwise returns {@code null}
+   */
+  public static @Nullable AsyncFileAlterationObserver load(
+      File observedFile, ObjectPersistentStore store) {
     if (observedFile == null || store == null) {
       throw new IllegalArgumentException("Arguments can not be null");
     }
@@ -100,11 +110,6 @@ public class AsyncFileAlterationObserver {
     rootFile.destroy();
   }
 
-  @VisibleForTesting
-  AsyncFileEntry getRootFile() {
-    return rootFile;
-  }
-
   public void setListener(final AsyncFileAlterationListener listener) {
     synchronized (listenerLock) {
       this.listener = listener;
@@ -121,10 +126,6 @@ public class AsyncFileAlterationObserver {
    * Called when the observer should compare the snapshot state to the actual state of the directory
    * being monitored.
    */
-  private final Object processingLock = new Object();
-
-  private boolean isProcessing = false;
-
   public boolean checkAndNotify() {
 
     synchronized (processingLock) {
@@ -143,7 +144,7 @@ public class AsyncFileAlterationObserver {
     AsyncFileAlterationListener listenerCopy;
     synchronized (listenerLock) {
       if (listener == null) {
-        processing.decrementAndGet();
+        isProcessing = false;
         return false;
       }
       listenerCopy = listener;
@@ -161,6 +162,11 @@ public class AsyncFileAlterationObserver {
 
     isProcessing = false;
     return true;
+  }
+
+  @VisibleForTesting
+  AsyncFileEntry getRootFile() {
+    return rootFile;
   }
 
   /**
@@ -213,12 +219,12 @@ public class AsyncFileAlterationObserver {
    * @param entry The previous file system entry
    */
   private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-    processing.incrementAndGet();
 
     if (!entry.hasChanged()) {
-      processing.decrementAndGet();
       return;
     }
+
+    processing.incrementAndGet();
 
     LOGGER.trace("{} has changed", entry.getName());
     if (!entry.getFile().isDirectory()) {
@@ -250,9 +256,8 @@ public class AsyncFileAlterationObserver {
    * @param entry The file entry
    */
   private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-    processing.incrementAndGet();
-
     if (!entry.isDirectory()) {
+      processing.incrementAndGet();
       LOGGER.trace("Sending Delete Request for {}...", entry.getName());
       listenerCopy.onFileDelete(
           entry.getFile(), new CompletionSynchronization(entry, this::commitDelete));
@@ -260,12 +265,11 @@ public class AsyncFileAlterationObserver {
     //  Once there are no more children we can delete directories.
     //  Check that there are no children, and that no locked files have it as it's parent.
     else if (!entry.hasChildren()) {
+      processing.incrementAndGet();
       commitDelete(entry, true);
-    } else {
-      //  If there are still children, we're going to keep it within the tree until all the
-      //  children are successfully deleted
-      processing.decrementAndGet();
     }
+    //  If there are still children, we're going to keep it within the tree until all the
+    //  children are successfully deleted
   }
 
   /**
@@ -362,9 +366,9 @@ public class AsyncFileAlterationObserver {
 
   private void onFinish() {
     synchronized (processingLock) {
-      processing.getAndDecrement();
-      if (processing.get() == 0) {
+      if (processing.decrementAndGet() == 0) {
         serializer.store(rootFile.getName(), rootFile);
+        isProcessing = false;
       }
     }
   }

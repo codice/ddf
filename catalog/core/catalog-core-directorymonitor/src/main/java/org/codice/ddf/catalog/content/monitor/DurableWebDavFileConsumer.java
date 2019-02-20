@@ -68,12 +68,12 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
   }
 
   @Override
-  protected boolean doPoll(String remaining) {
+  protected boolean doPoll(String fileName) {
     if (observer != null) {
       observer.addListener(listener);
       observer.checkAndNotify(sardine);
       observer.removeListener(listener);
-      String sha1 = DigestUtils.sha1Hex(remaining);
+      String sha1 = DigestUtils.sha1Hex(fileName);
       fileSystemPersistenceProvider.store(sha1, observer);
       return true;
     } else {
