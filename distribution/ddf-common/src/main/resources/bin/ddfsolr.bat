@@ -32,6 +32,12 @@ IF "!solr.http.protocol!"=="https" (
     CALL SET SOLR_SSL_TRUST_STORE_TYPE=!javax.net.ssl.trustStoreType!
 )
 
+
+REM Set stop key
+ECHO CALL "MAKEKEY" >> STOPKEY
+CALL SET %STOP_KEY%
+
+
 IF "%COMMAND%"=="" ECHO Missing command. Use start, restart, stop.
 
 IF "%COMMAND%"=="start" (
