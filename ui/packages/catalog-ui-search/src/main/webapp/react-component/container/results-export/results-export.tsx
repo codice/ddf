@@ -16,6 +16,7 @@ import ResultsExportComponent from '../../presentation/results-export'
 import { exportResult, exportResultSet } from '../../utils/export'
 import { getResultSetCql } from '../../utils/cql'
 import saveFile from '../../utils/save-file'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 const contentDisposition = require('content-disposition')
 
@@ -30,13 +31,14 @@ type ExportFormat = {
 }
 
 type Props = {
-  selectedResults: Result[]
-}
+  store: any
+} & WithBackboneProps
 
 type State = {
   downloadDisabled: boolean
   selectedFormat: string
   exportFormats: ExportFormat[]
+  selectedResults: Result[]
 }
 
 class ResultsExport extends React.Component<Props, State> {
@@ -46,21 +48,49 @@ class ResultsExport extends React.Component<Props, State> {
       selectedFormat: 'Select an export option',
       exportFormats: [],
       downloadDisabled: true,
+      ...this.mapSelectionToState(),
+    }
+    this.props.listenTo(
+      this.props.store.getSelectedResults(),
+      'update add remove reset',
+      this.handleSelectionChange
+    )
+  }
+  handleSelectionChange = () => {
+    this.setState(this.mapSelectionToState())
+  }
+  mapSelectionToState = () => {
+    const selectedResults = this.props.store
+      .getSelectedResults()
+      .toJSON()
+      .map((result: any) => {
+        return {
+          id: result['metacard']['id'],
+          source: result['metacard']['properties']['source-id'],
+        }
+      })
+    return {
+      selectedResults,
+    }
+  }
+  componentDidUpdate(_prevProps: Props, prevState: State) {
+    if (prevState.selectedResults !== this.state.selectedResults) {
+      this.fetchExportOptions()
     }
   }
   componentDidMount() {
     this.fetchExportOptions()
   }
-  fetchExportOptions() {
+  fetchExportOptions = () => {
     let transformerType = 'metacard'
 
-    if (this.props.selectedResults.length > 1) {
+    if (this.state.selectedResults.length > 1) {
       transformerType = 'query'
     }
 
     fetch(`./internal/transformers/${transformerType}`)
       .then(response => response.json())
-      .then(exportFormats => {
+      .then((exportFormats: ExportFormat[]) => {
         return exportFormats.sort(
           (format1: ExportFormat, format2: ExportFormat) => {
             if (format1.displayName > format2.displayName) {
@@ -82,7 +112,7 @@ class ResultsExport extends React.Component<Props, State> {
       )
   }
   getResultSources() {
-    return new Set(this.props.selectedResults.map(result => result.source))
+    return new Set(this.state.selectedResults.map(result => result.source))
   }
   getSelectedExportFormatId() {
     const selectedFormat = this.state.selectedFormat
@@ -105,9 +135,9 @@ class ResultsExport extends React.Component<Props, State> {
 
     let response = null
 
-    if (this.props.selectedResults.length > 1) {
+    if (this.state.selectedResults.length > 1) {
       const cql = getResultSetCql(
-        this.props.selectedResults.map((result: Result) => result.id)
+        this.state.selectedResults.map((result: Result) => result.id)
       )
       const srcs = Array.from(this.getResultSources())
 
@@ -116,8 +146,8 @@ class ResultsExport extends React.Component<Props, State> {
         srcs,
       })
     } else {
-      const source = this.props.selectedResults[0].source
-      const metacardId = this.props.selectedResults[0].id
+      const source = this.state.selectedResults[0].source
+      const metacardId = this.state.selectedResults[0].id
 
       response = await exportResult(source, metacardId, transformerId)
     }
@@ -151,4 +181,4 @@ class ResultsExport extends React.Component<Props, State> {
   }
 }
 
-export default hot(module)(ResultsExport)
+export default hot(module)(withListenTo(ResultsExport))

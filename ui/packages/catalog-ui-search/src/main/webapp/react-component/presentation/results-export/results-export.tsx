@@ -17,7 +17,7 @@ const { Menu, MenuItem } = require('../../menu')
 const Dropdown = require('../../dropdown')
 
 const Root = styled.div`
-  padding: 50px;
+  padding: ${props => props.theme.largeSpacing};
 
   button {
     margin-top: ${props => props.theme.minimumSpacing};
@@ -25,7 +25,7 @@ const Root = styled.div`
   }
 
   .export-option {
-    margin-bottom: 50px;
+    margin-bottom: ${props => props.theme.largeSpacing};
   }
 `
 
