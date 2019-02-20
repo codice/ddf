@@ -415,8 +415,6 @@ public class DumpCommand extends CqlCommands {
     try (FileOutputStream fileOutputStream = new FileOutputStream(filePath);
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
 
-      Map<String, Resource> resourceMap = new HashMap<>();
-
       // write the metacards to the zip
       ResultIterable.resultIterable(catalog::query, queryRequest)
           .stream()
@@ -426,16 +424,15 @@ public class DumpCommand extends CqlCommands {
                 writeMetacardToZip(zipOutputStream, metacard);
 
                 if (hasLocalResources(metacard)) {
-                  resourceMap.putAll(getAllMetacardContent(metacard));
+                  // write the resources to the zip
+                  Map<String, Resource> resourceMap = getAllMetacardContent(metacard);
+                  resourceMap.forEach(
+                      (filename, resource) ->
+                          writeResourceToZip(zipOutputStream, filename, resource));
                 }
 
                 resultCount.incrementAndGet();
               });
-
-      // write the resources to the zip
-      resourceMap.forEach(
-          (filename, resource) -> writeResourceToZip(zipOutputStream, filename, resource));
-
     } catch (IOException e) {
       throw new CatalogTransformerException(
           String.format(
