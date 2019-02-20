@@ -102,7 +102,7 @@ public class DumpCommand extends CqlCommands {
 
   private static final String CONTENT = "content";
 
-  private static final int BUFFER_SIZE = 10000000;
+  private static final int BUFFER_SIZE = 10_000_000;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
