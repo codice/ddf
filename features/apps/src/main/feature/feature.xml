@@ -44,7 +44,7 @@
         <feature>ddf-branding</feature>
         <feature>platform-app</feature>
         <feature>admin-app</feature>
-		<feature>fabric8-karaf-checks</feature>
+	<feature>fabric8-karaf-checks</feature>
     </feature>
 
     <feature name="platform-app" version="${project.version}"
