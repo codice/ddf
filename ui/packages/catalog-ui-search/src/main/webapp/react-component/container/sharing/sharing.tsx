@@ -128,7 +128,6 @@ export class Sharing extends React.Component<Props, State> {
         data.metacards[0]['metacard.modified'] ===
         this.state.previousWorkspace['metacard.modified']
       ) {
-        debugger
         this.doSave(attributes)
       } else {
         announcement.announce(
