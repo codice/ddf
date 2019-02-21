@@ -118,41 +118,43 @@ export class Sharing extends React.Component<Props, State> {
     this.attemptSave(attributes)
   }
 
-  attemptSave = (attributes: any) => {
-    fetch('/search/catalog/internal/metacard/' + this.props.id)
-      .then(res => res.json())
-      .then(data => {
-        if (
-          data.metacards[0]['metacard.modified'] ===
-          this.state.previousWorkspace['metacard.modified']
-        ) {
-          this.doSave(attributes)
-        } else {
-          announcement.announce(
-            {
-              title: 'The workspace settings could not be updated',
-              message:
-                'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
-              type: 'error',
-            },
-            1500
-          )
-        }
-      })
-      .catch(function() {
+  attemptSave = async (attributes: any) => {
+    try {
+      const res = await fetch(
+        '/search/catalog/internal/metacard/' + this.props.id
+      )
+      const data = await res.json()
+      if (
+        data.metacards[0]['metacard.modified'] ===
+        this.state.previousWorkspace['metacard.modified']
+      ) {
+        debugger
+        this.doSave(attributes)
+      } else {
         announcement.announce(
           {
-            title: 'Error',
-            message: 'Save failed',
+            title: 'The workspace settings could not be updated',
+            message:
+              'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
             type: 'error',
           },
           1500
         )
-      })
+      }
+    } catch (err) {
+      announcement.announce(
+        {
+          title: 'Error',
+          message: 'Save failed',
+          type: 'error',
+        },
+        1500
+      )
+    }
   }
 
-  doSave = (attributes: any) => {
-    fetch(`/search/catalog/internal/metacards`, {
+  doSave = async (attributes: any) => {
+    const res = await fetch(`/search/catalog/internal/workspaces`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify([
@@ -162,37 +164,24 @@ export class Sharing extends React.Component<Props, State> {
         },
       ]),
     })
-      .then(res => {
-        if (res.status !== 200) {
-          throw new Error()
-        }
-        return res.json()
-      })
-      .then(() => {
-        if (this.props.onUpdate) {
-          this.props.onUpdate(attributes)
-        }
 
-        this.props.lightbox.close()
-        announcement.announce(
-          {
-            title: 'Success!',
-            message: 'Sharing saved',
-            type: 'success',
-          },
-          1500
-        )
-      })
-      .catch(function() {
-        announcement.announce(
-          {
-            title: 'Error',
-            message: 'Save failed',
-            type: 'error',
-          },
-          1500
-        )
-      })
+    if (res.status !== 200) {
+      throw new Error()
+    }
+    await res.json()
+
+    if (this.props.onUpdate) {
+      this.props.onUpdate(attributes)
+    }
+    this.props.lightbox.close()
+    announcement.announce(
+      {
+        title: 'Success!',
+        message: 'Sharing saved',
+        type: 'success',
+      },
+      1500
+    )
   }
 
   add = () => {
