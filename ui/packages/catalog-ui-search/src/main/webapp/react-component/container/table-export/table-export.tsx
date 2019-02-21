@@ -11,17 +11,20 @@
  **/
 import * as React from 'react'
 import TableExportComponent from '../../presentation/table-export'
-import { retrieveExportOptions, exportDataAs } from '../../utils/export'
+import {
+  exportResultSet,
+  getExportOptions,
+  Transformer,
+} from '../../utils/export'
 import LoadingCompanion from '../loading-companion'
-import saveFile, {
-  getFilenameFromContentDisposition,
-} from '../../utils/save-file'
+import saveFile from '../../utils/save-file'
 import { hot } from 'react-hot-loader'
 const _ = require('underscore')
 const user = require('../../../component/singletons/user-instance.js')
 const properties = require('../../../js/properties.js')
 const announcement = require('../../../component/announcement/index.jsx')
 const Sources = require('../../../component/singletons/sources-instance.js')
+const contentDisposition = require('content-disposition')
 
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {
@@ -143,7 +146,7 @@ export default hot(module)(
     }
     transformUrl = './internal/cql/transform/'
     async componentDidMount() {
-      const response = await retrieveExportOptions()
+      const response = await getExportOptions(Transformer.Query)
       const exportFormats = await response.json()
       const sortedExportFormats = exportFormats.sort(
         (format1: ExportResponse, format2: ExportResponse) => {
@@ -180,64 +183,54 @@ export default hot(module)(
     async onDownloadClick() {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
       try {
-        const url = `${this.transformUrl}${exportFormat}`
         const hiddenFields = getHiddenFields()
         const columnOrder = getColumnOrder()
-        const payload = {
-          arguments: {
-            hiddenFields: hiddenFields.length > 0 ? hiddenFields : {},
-            columnOrder: columnOrder.length > 0 ? columnOrder : {},
-            columnAliasMap: properties.attributeAliases,
-          },
-          cql: getCqlForSize(
-            this.state.exportSize,
-            this.props.selectionInterface
-          ),
-          count: Math.min(
-            getExportCount(
-              this.state.exportSize,
-              this.props.selectionInterface
-            ),
-            getQueryCount(this.props.selectionInterface)
-          ),
-          sorts: getSorts(this.props.selectionInterface),
-          srcs: getSrcs(this.props.selectionInterface),
-        }
-        const response = await exportDataAs(url, payload, 'application/json')
 
+        const cql = getCqlForSize(
+          this.state.exportSize,
+          this.props.selectionInterface
+        )
+        const sources = getSrcs(this.props.selectionInterface)
+        const sorts = getSorts(this.props.selectionInterface)
+        const count = Math.min(
+          getExportCount(this.state.exportSize, this.props.selectionInterface),
+          getQueryCount(this.props.selectionInterface)
+        )
+        const args = {
+          hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
+          columnOrder: columnOrder.length > 0 ? columnOrder : {},
+          columnAliasMap: properties.attributeAliases,
+        }
+
+        const body = {
+          cql,
+          srcs: sources,
+          count,
+          sorts,
+          args,
+        }
+
+        const response = await exportResultSet(exportFormat, body)
         this.onDownloadSuccess(response)
       } catch (error) {
         console.error(error)
       }
     }
     async onDownloadSuccess(response: Response) {
-      const data = await response.text()
-      const status = response.status
-      const contentType = response.headers.get('content-type') || undefined
-      const contentDisposition =
-        response.headers.get('content-disposition') || undefined
-      this.saveExport(data, status, contentType, contentDisposition)
-    }
-    saveExport(
-      data: any,
-      status: number,
-      contentType?: string,
-      contentDisposition?: string
-    ) {
-      if (status === 200) {
-        if (contentDisposition) {
-          let filename = getFilenameFromContentDisposition(contentDisposition)
-          if (filename === null) {
-            filename = 'export' + Date.now()
-          }
-          saveFile(filename, 'data:' + contentType, data)
-        } else {
-          announcement.announce({
-            title: 'Error',
-            message: 'Could not export results.',
-            type: 'error',
-          })
-        }
+      if (response.status === 200) {
+        const data = await response.text()
+        const contentType = response.headers.get('content-type')
+        const filename = contentDisposition.parse(
+          response.headers.get('content-disposition')
+        ).parameters.filename
+
+        saveFile(filename, 'data:' + contentType, data)
+      } else {
+        announcement.announce({
+          title: 'Error',
+          message: 'Could not export results.',
+          type: 'error',
+        })
       }
     }
     render() {

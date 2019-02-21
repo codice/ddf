@@ -17,7 +17,7 @@ const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const template = require('./query-interactions.hbs')
+import * as React from 'react'
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
@@ -26,6 +26,7 @@ const QueryConfirmationView = require('../confirmation/query/confirmation.query.
 const LoadingView = require('../loading/loading.view.js')
 const QueryAnnotationsView = require('../query-annotations/query-annotations.view.js')
 const properties = require('../../js/properties.js')
+import ResultsExport from '../../react-component/container/results-export'
 
 const NOT_CLONEABLE_ATTRIBUTES = ['id', 'result', 'hasBeenSaved']
 
@@ -35,7 +36,94 @@ const createDuplicateQuery = attributes => {
 }
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template() {
+    const disabledExport = store.getSelectedResults().length < 1
+    const exportClass = disabledExport ? 'composed-menu' : ''
+    return (
+      <React.Fragment>
+        <div
+          className="query-interaction interaction-run"
+          title="Run"
+          data-help="Executes the search."
+        >
+          <div className="interaction-text">Run</div>
+        </div>
+        <div
+          className="query-interaction interaction-stop"
+          title="Stop"
+          data-help="Stops a search in the progress of executing.  If results have already returned from some sources, you won't lose them."
+        >
+          <div className="interaction-text">Stop</div>
+        </div>
+        <div
+          className="query-interaction interaction-delete"
+          title="Delete"
+          data-help="Deletes the search."
+        >
+          <div className="interaction-text">Delete</div>
+        </div>
+        <div
+          className="query-interaction interaction-duplicate"
+          title="Duplicate"
+          data-help="Create a new search based off this one."
+        >
+          <div className="interaction-text">Duplicate</div>
+        </div>
+        <div className="is-divider composed-menu" />
+        <div
+          className="query-interaction interaction-refresh-result-count"
+          title="Refresh Result Count"
+          data-help="Executes the search, returning only the result count."
+        >
+          <div className="interaction-text">Refresh Result Count</div>
+        </div>
+        <div className="is-divider composed-menu" />
+        <div className="interaction-versioning composed-menu">
+          <div
+            className="query-interaction interaction-deleted interaction-search-archived"
+            title="Search Archived"
+            data-help="Executes the search, but specifically looks for archived results."
+          >
+            <div className="interaction-text">Search Archived</div>
+          </div>
+          <div
+            className="query-interaction interaction-historic interaction-search-historical"
+            title="Search Historical"
+            data-help="Executes the search, but specifically looks for historical data."
+          >
+            <div className="interaction-text">Search Historical</div>
+          </div>
+        </div>
+        <div className="is-divider composed-menu" />
+        <div
+          className="query-interaction interaction-annotations"
+          title="View Notes"
+          data-help="View notes on the search."
+        >
+          <div className="interaction-text">View Notes</div>
+        </div>
+        <div
+          className="query-interaction interaction-feedback"
+          title="Submit Feedback"
+          data-help="Brings up a form to submit comments about your current search and its results."
+        >
+          <div className="interaction-text">Submit Feedback</div>
+        </div>
+        <div className="is-divider composed-menu" />
+        <div
+          className={`query-interaction interaction-export ${exportClass} ${
+            disabledExport ? 'is-disabled' : ''
+          }`}
+          title="Export Selected"
+          data-help="Opens a form to export the selected search results."
+        >
+          <div className={`interaction-text ${exportClass}`}>
+            Export Selected
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('query-interactions'),
   className: 'composed-menu',
   modelEvents: {},
@@ -49,6 +137,7 @@ module.exports = Marionette.ItemView.extend({
     'click .interaction-historic': 'handleHistoric',
     'click .interaction-feedback': 'handleFeedback',
     'click .interaction-annotations': 'handleAnnotations',
+    'click .interaction-export': 'handleExport',
     click: 'handleClick',
   },
   ui: {},
@@ -68,6 +157,11 @@ module.exports = Marionette.ItemView.extend({
     this.$el.toggleClass(
       'is-versioning-enabled',
       !properties.isVersioningEnabled
+    )
+    this.listenTo(
+      store.getSelectedResults(),
+      'update add remove reset',
+      this.render
     )
   },
   onRender: function() {
@@ -156,6 +250,11 @@ module.exports = Marionette.ItemView.extend({
         model: this.model,
       })
     )
+  },
+  handleExport: function() {
+    lightboxInstance.model.updateTitle('Export Results')
+    lightboxInstance.model.open()
+    lightboxInstance.showContent(<ResultsExport store={store} />)
   },
   handleResult: function() {
     this.$el.toggleClass('has-results', this.model.get('result') !== undefined)
