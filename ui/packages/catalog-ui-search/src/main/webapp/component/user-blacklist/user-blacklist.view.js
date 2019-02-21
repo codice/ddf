@@ -13,11 +13,23 @@
  *
  **/
 /*global require*/
+import React from 'react'
+
 var Marionette = require('marionette')
-var template = require('./user-blacklist.hbs')
 var CustomElements = require('../../js/CustomElements.js')
 var BlacklistItemCollection = require('../blacklist-item/blacklist-item.collection.view.js')
 var user = require('../singletons/user-instance.js')
+
+import UserBlacklist from '../../../react-component/container/user-blacklist'
+
+const UserBlacklistView = Marionette.LayoutView.extend({
+  template() {
+    return <UserBlacklist />
+  }
+})
+
+
+
 
 function getBlacklist() {
   return user
@@ -27,8 +39,8 @@ function getBlacklist() {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
   tagName: CustomElements.register('user-blacklist'),
+  componentToShow: UserBlacklistView,
   regions: {
     blacklistResults: '.blacklist-results',
   },
