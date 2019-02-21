@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.core</groupId>
         <artifactId>catalog-core-impl</artifactId>
-        <version>2.13.6</version>
+        <version>2.13.7-SNAPSHOT</version>
     </parent>
     <artifactId>filter-proxy</artifactId>
     <name>DDF :: Catalog :: Core :: Impl :: Filter Proxy</name>
