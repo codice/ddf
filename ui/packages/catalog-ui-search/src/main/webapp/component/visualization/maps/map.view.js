@@ -370,8 +370,8 @@ module.exports = Marionette.LayoutView.extend({
   setupMapInfo: function() {
     const MapInfoView = Marionette.ItemView.extend({
       template() {
-        return <MapInfo />
-      }
+        return <MapInfo map={this.mapModel}/>
+      },
     })
 
     this.mapInfo.show(new MapInfoView())

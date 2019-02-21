@@ -11,52 +11,71 @@
  **/
 import * as React from 'react'
 // import styled from '../../styles/styled-components'
+
+const user = require('../../../component/singletons/user-instance.js')
+
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import MapInfoPresentation from '../../presentation/map-info'
 import { hot } from 'react-hot-loader'
 
-const exampleLat = '14.94',
-  exampleLon = '-11.875'
-const examples: { [index: string]: string } = {
-  decimal: `${exampleLat} ${exampleLon}`,
-  mgrs: '4Q FL 23009 12331',
-  utm: '14 1925mE 1513mN',
-}
-
-
-
-// const Span = styled.span`
-//   padding-right: 5px;
-// `
 type State = {
-  selected: string
+  lat: number
+  lon: number
+  format: string
+}
+type Props = {
+  map: Backbone.Model
+} & WithBackboneProps
+
+const mapPropsToState = (props: Props) => {
+  const { map } = props
+  return {
+    lat: map.get('mouseLat'),
+    lon: map.get('mouseLon'),
+    format: getCoordinateFormat(),
+  }
 }
 
-class MapInfo extends React.Component<{}, State> {
-  constructor(props: {}) {
+const getCoordinateFormat = () =>
+  user
+    .get('user')
+    .get('preferences')
+    .get('coordinateFormat')
+
+class MapInfo extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props)
-    this.state = {
-      selected: `34°26′56″N 083°42′15″W`
-    }
+    // this.state = {
+    //   selected: `34°26′56″N 083°42′15″W`
+    // }
+    this.state = mapPropsToState(props)
+    this.listenToMap()
   }
 
-  update(newFormat: string) {
-    this.setState({ selected: newFormat })
+  listenToMap = () => {
+    const { listenTo, map } = this.props
+    listenTo(
+      map,
+      'change:mouseLat change:mouseLon change:target',
+      this.handleChange
+    )
+    listenTo(
+      user.get('user').get('preferences'),
+      'change:coordinateFormat',
+      this.handleChange
+    )
   }
+  handleChange = () => {
+    this.setState(mapPropsToState(this.props))
+  }
+
+  // update(newFormat: string) {
+  //   this.setState({ selected: newFormat })
+  // }
 
   render() {
-    const { selected } = this.state
-
-    const example = examples[selected]
-    if (typeof example === 'undefined') {
-      console.warn(`Unrecognized coordinate format value [${selected}]`)
-    }
-
-    const mapSettingsProps = {
-      selected
-    }
-
-    return (<MapInfoPresentation {...mapSettingsProps}/>)
+    return <MapInfoPresentation {...this.state} />
   }
 }
 
-export default hot(module)(MapInfo)
+export default hot(module)(withListenTo(MapInfo))
