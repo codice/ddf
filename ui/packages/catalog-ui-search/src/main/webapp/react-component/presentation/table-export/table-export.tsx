@@ -14,6 +14,7 @@ import * as React from 'react'
 import Enum from '../../container/enum'
 import { Button, buttonTypeEnum } from '../button'
 import styled from '../../styles/styled-components'
+import Number from '../../container/input-wrappers/number'
 const properties = require('../../../js/properties.js')
 
 const Root = styled<{}, 'div'>('div')`
@@ -29,10 +30,6 @@ const Root = styled<{}, 'div'>('div')`
 
   .warning {
     text-align: center;
-  }
-
-  .exportNumber {
-    margin: ${props => props.theme.minimumSpacing};
   }
 `
 
@@ -75,17 +72,19 @@ export default hot(module)((props: Props) => {
         label="Export"
         onChange={handleExportSizeChange}
       />
-      <div hidden={exportSize !== 'custom'}>
-        <input
-          className="exportNumber"
-          type="number"
-          name="customExport"
-          value={customExportCount}
-          onChange={handleCustomExportCountChange}
-        />
-        {customExportCount > 1 ? 'records' : 'record'}
-      </div>
-
+      {exportSize === 'custom' ? (
+        <div>
+          <Number
+            label=""
+            showLabel={false}
+            name="customExport"
+            value={customExportCount.toString()}
+            onChange={handleCustomExportCountChange}
+          />
+        </div>
+      ) : (
+        <div />
+      )}
       <Enum
         options={exportFormatOptions}
         value={exportFormat}

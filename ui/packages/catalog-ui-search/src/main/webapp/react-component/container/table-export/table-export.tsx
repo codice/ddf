@@ -208,8 +208,8 @@ export default hot(module)(
         exportSize: value,
       })
     }
-    handleCustomExportCountChange = (e: any) => {
-      this.setState({ customExportCount: e.target.value })
+    handleCustomExportCountChange = (value: number) => {
+      this.setState({ customExportCount: value })
     }
     onDownloadClick = async () => {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
