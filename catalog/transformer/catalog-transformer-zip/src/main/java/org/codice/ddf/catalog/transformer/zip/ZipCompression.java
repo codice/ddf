@@ -13,63 +13,60 @@
  */
 package org.codice.ddf.catalog.transformer.zip;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.data.Attribute;
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.ResourceRequestById;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.SystemBaseUrl;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZipCompression implements QueryResponseTransformer {
 
-  public static final String METACARD_PATH = "metacards" + File.separator;
-
   private static final Logger LOGGER = LoggerFactory.getLogger(ZipCompression.class);
 
-  private CatalogFramework catalogFramework;
+  private static final String METACARD_PATH = "metacards" + File.separator;
 
-  private JarSigner jarSigner;
+  private static final String TRANSFORMER_ID = "transformerId";
 
-  public ZipCompression(JarSigner jarSigner) {
-    this.jarSigner = jarSigner;
+  private static final int BUFFER_SIZE = 4096;
+
+  private List<ServiceReference> metacardTransformers;
+
+  private BundleContext bundleContext;
+
+  private static MimeType mimeType;
+
+  static {
+    try {
+      mimeType = new MimeType("application/zip");
+    } catch (MimeTypeParseException e) {
+      LOGGER.warn("Failed to apply mimetype application/zip");
+    }
+  }
+
+  public ZipCompression(BundleContext bundleContext, List<ServiceReference> metacardTransformers) {
+    this.bundleContext = bundleContext;
+    this.metacardTransformers = metacardTransformers;
   }
 
   /**
@@ -77,197 +74,113 @@ public class ZipCompression implements QueryResponseTransformer {
    * with an {@link InputStream}. This transformation expects a key-value pair
    * "fileName"-zipFileName to be present.
    *
-   * @param upstreamResponse - a SourceResponse with a list of {@link Metacard}s to compress
+   * @param sourceResponse - a SourceResponse with a list of {@link Metacard}s to compress
    * @param arguments - a map of arguments to use for processing. This method expects "fileName" to
    *     be set
    * @return - a {@link BinaryContent} item with the {@link InputStream} for the Zip file
    * @throws CatalogTransformerException when the transformation fails
    */
   @Override
-  public BinaryContent transform(
-      SourceResponse upstreamResponse, Map<String, Serializable> arguments)
+  public BinaryContent transform(SourceResponse sourceResponse, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
 
-    checkArguments(upstreamResponse, arguments);
-
-    String filePath = (String) arguments.get(ZipDecompression.FILE_PATH);
-    createZip(upstreamResponse, filePath);
-
-    return getBinaryContentFromZip(filePath);
-  }
-
-  private void checkArguments(SourceResponse upstreamResponse, Map<String, Serializable> arguments)
-      throws CatalogTransformerException {
-    if (upstreamResponse == null || CollectionUtils.isEmpty(upstreamResponse.getResults())) {
-      throw new CatalogTransformerException("No Metacards were found to transform.");
+    if (sourceResponse == null || CollectionUtils.isEmpty(sourceResponse.getResults())) {
+      throw new CatalogTransformerException(
+          "The source response does not contain any metacards to transform.");
     }
 
-    if (MapUtils.isEmpty(arguments) || !arguments.containsKey(ZipDecompression.FILE_PATH)) {
-      throw new CatalogTransformerException("No 'filePath' argument found in arguments map.");
+    if (arguments.get(TRANSFORMER_ID) == null) {
+      throw new CatalogTransformerException("Transformer ID cannot be null");
     }
+
+    String transformerId = arguments.getOrDefault(TRANSFORMER_ID, "").toString();
+
+    if (StringUtils.isBlank(transformerId)) {
+      throw new CatalogTransformerException("A valid transformer ID must be provided.");
+    }
+
+    InputStream inputStream = createZip(sourceResponse, transformerId);
+
+    return new BinaryContentImpl(inputStream, mimeType);
   }
 
-  private void createZip(SourceResponse upstreamResponse, String filePath)
+  private InputStream createZip(SourceResponse sourceResponse, String transformerId)
       throws CatalogTransformerException {
-    try (FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+    ServiceReference<MetacardTransformer> serviceRef =
+        getTransformerServiceReference(transformerId);
+    MetacardTransformer transformer = bundleContext.getService(serviceRef);
 
-      List<Result> resultList = upstreamResponse.getResults();
-      Map<String, Resource> resourceMap = new HashMap<>();
+    String extension = getFileExtensionFromService(serviceRef);
 
-      // write the metacards to the zip
-      resultList
-          .stream()
-          .map(Result::getMetacard)
-          .forEach(
-              metacard -> {
-                writeMetacardToZip(zipOutputStream, metacard);
+    if (StringUtils.isNotBlank(extension)) {
+      extension = "." + extension;
+    }
 
-                if (hasLocalResources(metacard)) {
-                  resourceMap.putAll(getAllMetacardContent(metacard));
-                }
-              });
+    try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(BUFFER_SIZE);
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileBackedOutputStream)) {
 
-      // write the resources to the zip
-      resourceMap.forEach(
-          (filename, resource) -> writeResourceToZip(zipOutputStream, filename, resource));
+      for (Result result : sourceResponse.getResults()) {
+        Metacard metacard = result.getMetacard();
+
+        BinaryContent binaryContent =
+            getTransformedMetacard(metacard, Collections.emptyMap(), transformer);
+
+        if (binaryContent != null) {
+          ZipEntry entry = new ZipEntry(METACARD_PATH + metacard.getId() + extension);
+
+          zipOutputStream.putNextEntry(entry);
+          zipOutputStream.write(binaryContent.getByteArray());
+          zipOutputStream.closeEntry();
+        } else {
+          LOGGER.debug("Metacard with id [{}] was not added to zip file", metacard.getId());
+        }
+      }
+
+      return fileBackedOutputStream.asByteSource().openStream();
 
     } catch (IOException e) {
       throw new CatalogTransformerException(
-          String.format(
-              "Error occurred when initializing/closing ZipOutputStream with path %s.", filePath),
-          e);
+          "An error occurred while initializing or closing output stream", e);
     }
   }
 
-  private void writeMetacardToZip(ZipOutputStream zipOutputStream, Metacard metacard) {
-
-    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-
-      ZipEntry zipEntry = new ZipEntry(METACARD_PATH + metacard.getId());
-      zipOutputStream.putNextEntry(zipEntry);
-
-      objectOutputStream.writeObject(new MetacardImpl(metacard));
-      InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-
-      IOUtils.copy(inputStream, zipOutputStream);
-      inputStream.close();
-    } catch (IOException e) {
-      LOGGER.debug("Failed to add metacard with id {}.", metacard.getId(), e);
+  private BinaryContent getTransformedMetacard(
+      Metacard metacard, Map<String, Serializable> arguments, MetacardTransformer transformer) {
+    try {
+      return transformer.transform(metacard, arguments);
+    } catch (CatalogTransformerException e) {
+      LOGGER.debug("Failed to transform metacard with id [{}]", metacard.getId(), e);
+      return null;
     }
   }
 
-  private boolean hasLocalResources(Metacard metacard) {
-    URI uri = metacard.getResourceURI();
-    return (uri != null && ContentItem.CONTENT_SCHEME.equals(uri.getScheme()));
-  }
+  private String getFileExtensionFromService(ServiceReference<MetacardTransformer> serviceRef) {
+    Object mimeTypeProperty = serviceRef.getProperty("mime-type");
 
-  private Map<String, Resource> getAllMetacardContent(Metacard metacard) {
-    Map<String, Resource> resourceMap = new HashMap<>();
-    Attribute attribute = metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI);
-
-    if (attribute != null) {
-      List<Serializable> serializables = attribute.getValues();
-      serializables.forEach(
-          serializable -> {
-            String fragment = ZipDecompression.CONTENT + File.separator;
-            URI uri = null;
-            try {
-              uri = new URI((String) serializable);
-              String derivedResourceFragment = uri.getFragment();
-              if (ContentItem.CONTENT_SCHEME.equals(uri.getScheme())
-                  && StringUtils.isNotBlank(derivedResourceFragment)) {
-                fragment += derivedResourceFragment + File.separator;
-                Resource resource = getResource(metacard);
-                if (resource != null) {
-                  resourceMap.put(
-                      fragment + uri.getSchemeSpecificPart() + "-" + resource.getName(), resource);
-                }
-              }
-            } catch (URISyntaxException e) {
-              LOGGER.debug(
-                  "Invalid Derived Resource URI Syntax for metacard : {}", metacard.getId(), e);
-            }
-          });
+    if (mimeTypeProperty == null) {
+      return "";
     }
 
-    URI resourceUri = metacard.getResourceURI();
-
-    Resource resource = getResource(metacard);
-
-    if (resource != null) {
-      resourceMap.put(
-          ZipDecompression.CONTENT
-              + File.separator
-              + resourceUri.getSchemeSpecificPart()
-              + "-"
-              + resource.getName(),
-          resource);
-    }
-
-    return resourceMap;
-  }
-
-  private Resource getResource(Metacard metacard) {
-    Resource resource = null;
+    String mimeTypeStr = mimeTypeProperty.toString();
 
     try {
-      ResourceRequest resourceRequest = new ResourceRequestById(metacard.getId());
-      ResourceResponse resourceResponse = catalogFramework.getLocalResource(resourceRequest);
-      resource = resourceResponse.getResource();
-    } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
-      LOGGER.debug("Unable to retrieve content from metacard : {}", metacard.getId(), e);
-    }
-    return resource;
-  }
-
-  private void writeResourceToZip(
-      ZipOutputStream zipOutputStream, String filename, Resource resource) {
-
-    try {
-      ZipEntry zipEntry = new ZipEntry(filename);
-      zipOutputStream.putNextEntry(zipEntry);
-
-      InputStream inputStream = resource.getInputStream();
-
-      IOUtils.copy(inputStream, zipOutputStream);
-      inputStream.close();
-    } catch (IOException e) {
-      LOGGER.debug("Failed to add resource with id {} to zip.", resource.getName(), e);
+      MimeType exportMimeType = new MimeType(mimeTypeStr);
+      return exportMimeType.getSubType();
+    } catch (MimeTypeParseException e) {
+      LOGGER.debug("Failed to parse mime type {}", mimeTypeStr, e);
+      return "";
     }
   }
 
-  private BinaryContent getBinaryContentFromZip(String filePath)
+  private ServiceReference getTransformerServiceReference(String transformerId)
       throws CatalogTransformerException {
-    BinaryContent binaryContent;
-    InputStream fileInputStream;
-    File zipFile = new File(filePath);
-    try {
-      fileInputStream = new ZipInputStream(new FileInputStream(zipFile));
-      binaryContent = new BinaryContentImpl(fileInputStream);
-    } catch (FileNotFoundException e) {
-      throw new CatalogTransformerException("Unable to get ZIP file from ZipInputStream.", e);
-    }
-
-    jarSigner.signJar(
-        zipFile,
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST)),
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore")),
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")));
-    return binaryContent;
-  }
-
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalogFramework = catalogFramework;
-  }
-
-  public CatalogFramework getCatalogFramework() {
-    return catalogFramework;
+    return metacardTransformers
+        .stream()
+        .filter(serviceRef -> transformerId.equals(serviceRef.getProperty("id")))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new CatalogTransformerException(
+                    "The metacard transformer with ID " + transformerId + " could not be found."));
   }
 }
