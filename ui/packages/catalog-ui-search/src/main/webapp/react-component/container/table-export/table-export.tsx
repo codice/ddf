@@ -108,7 +108,7 @@ function getWarning(exportCountInfo: ExportCountInfo): string {
   if (exportCount > totalHits) {
     warningMessage = `You are trying to export ${exportCount} results but there are only ${totalHits}. Only ${totalHits} results will be exported.`
   }
-  if (exportCount > 100) {
+  if (totalHits > 100 && exportCount > 100) {
     warningMessage += ` This may take a long time.`
   }
   return warningMessage
