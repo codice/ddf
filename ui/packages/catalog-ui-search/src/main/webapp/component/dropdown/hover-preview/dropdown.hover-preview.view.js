@@ -21,6 +21,7 @@ const Common = require('../../../js/Common.js')
 const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
+  events: {}, // remove base events
   template() {
     const metadataThumbnail = this.modelForComponent
       .get('metacard')
