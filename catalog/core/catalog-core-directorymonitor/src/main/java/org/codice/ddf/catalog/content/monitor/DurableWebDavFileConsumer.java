@@ -25,6 +25,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.component.file.GenericFileProcessStrategy;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
@@ -67,11 +68,12 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
   }
 
   @Override
-  protected boolean doPoll(String sha1) {
+  protected boolean doPoll(String fileName) {
     if (observer != null) {
       observer.addListener(listener);
       observer.checkAndNotify(sardine);
       observer.removeListener(listener);
+      String sha1 = DigestUtils.sha1Hex(fileName);
       fileSystemPersistenceProvider.store(sha1, observer);
       return true;
     } else {
@@ -80,11 +82,12 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
   }
 
   @Override
-  protected void initialize(String fileName, String sha1) {
+  protected void initialize(String fileName) {
     if (fileSystemPersistenceProvider == null) {
       fileSystemPersistenceProvider = new FileSystemPersistenceProvider(getClass().getSimpleName());
     }
     if (observer == null && fileName != null) {
+      String sha1 = DigestUtils.sha1Hex(fileName);
       if (fileSystemPersistenceProvider.loadAllKeys().contains(sha1)) {
         observer = (DavAlterationObserver) fileSystemPersistenceProvider.loadFromPersistence(sha1);
       } else {

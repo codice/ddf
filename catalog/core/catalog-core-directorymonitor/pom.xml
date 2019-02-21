@@ -143,6 +143,11 @@
             <artifactId>bootflag-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
         <!-- Component test dependencies -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -449,12 +454,12 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.45</minimum>
+                                            <minimum>.54</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.42</minimum>
+                                            <minimum>.49</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -490,5 +495,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
