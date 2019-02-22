@@ -638,34 +638,6 @@ module.exports = function OpenlayersMap(
 
       return this.createVectorLayer(locationModel, feature)
     },
-    showMultiPolygonShape: function(locationModel) {
-      let lineObject = locationModel
-        .get('polygon')
-        .map(poly =>
-          poly.map(coordinateSet =>
-            coordinateSet.map(pair => convertPointCoordinate(pair))
-          )
-        )
-
-      let feature = new Openlayers.Feature({
-        geometry: new Openlayers.geom.MultiPolygon(lineObject),
-      })
-
-      feature.setId(locationModel.cid)
-
-      const styles = [
-        new Openlayers.style.Style({
-          stroke: new Openlayers.style.Stroke({
-            color: locationModel.get('color') || defaultColor,
-            width: 4,
-          }),
-        }),
-      ]
-
-      feature.setStyle(styles)
-
-      return this.createVectorLayer(locationModel, feature)
-    },
     createVectorLayer: function(locationModel, feature) {
       let vectorSource = new Openlayers.source.Vector({
         features: [feature],
