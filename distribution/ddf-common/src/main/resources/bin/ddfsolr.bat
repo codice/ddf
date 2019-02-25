@@ -1,11 +1,14 @@
 @ECHO OFF
 SETLOCAL enabledelayedexpansion
+
 SET COMMAND=%1
 SET DIRNAME=%~dp0%
 PUSHD %DIRNAME%..
 SET DDF_HOME=%CD%
 SET GET_PROPERTY=%DIRNAME%get_property.bat
+SET MAKE_KEY=%DIRNAME%makekey.bat
 SET SOLR_EXEC=%DDF_HOME%\solr\bin\solr.cmd
+SET STOPKEY_FILE=%DIRNAME%STOPKEY
 CALL %GET_PROPERTY% solr.http.port
 CALL %GET_PROPERTY% solr.http.protocol
 CALL %GET_PROPERTY% solr.mem 2g
@@ -32,26 +35,32 @@ IF "!solr.http.protocol!"=="https" (
     CALL SET SOLR_SSL_TRUST_STORE_TYPE=!javax.net.ssl.trustStoreType!
 )
 
-
-REM Set stop key
-ECHO CALL "MAKEKEY" >> STOPKEY
-CALL SET %STOP_KEY%
-
-
 IF "%COMMAND%"=="" ECHO Missing command. Use start, restart, stop.
 
 IF "%COMMAND%"=="start" (
+    CALL :GEN_STOPKEY
     IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
     CALL %SOLR_EXEC% start -p !solr.http.port! -m !solr.mem!
 )
 
 IF "%COMMAND%"=="restart" (
+    SET /P key key=<STOPKEY
     IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
     CALL %SOLR_EXEC% restart -p !solr.http.port! -m !solr.mem!
 )
 
-IF "%COMMAND%"=="stop" CALL %SOLR_EXEC% stop -p !solr.http.port!
+IF "%COMMAND%"=="stop" (
+    SET /P STOP_KEY=<%STOPKEY_FILE%
+    CALL %SOLR_EXEC% stop -p !solr.http.port!
+    DEL %STOPKEY_FILE%
+)
 
+EXIT /B
+
+:GEN_STOPKEY
+REM Generate a random stop key for Solr and write it to a file
+FOR /F %%i IN ('\sandbox\dib-4.6.6-SNAPSHOT\bin\makekey.bat') DO SET STOP_KEY=%%i
+ECHO !STOP_KEY! > %STOPKEY_FILE%
 EXIT /B
 
 ENDLOCAL

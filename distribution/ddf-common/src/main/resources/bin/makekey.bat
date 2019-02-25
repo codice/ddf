@@ -1,18 +1,26 @@
-@echo Off
-setlocal enabledelayedexpansion
+@ECHO OFF
+SETLOCAL ENABLEDELAYEDEXPANSION
 
-set /A desiredLength=8
-Set Alphanumeric=abcdefghjklmnopqrstuvwxyz0123456789
-rem "Length" is the string length of %alphanumeric%
-Set Length=31
-set count=0
-rem "RndAlphaNum" is the output
-SET RndAlphaNum=
+REM NUMBER OF SYMBOLS IN THE GENERATED STRING
+SET /A DESIREDLENGTH=8
 
-:loop
-Set /A count+=1
-Set /A RND=%Random% %% %Length%
-SET RndAlphaNum=!RndAlphaNum!!Alphanumeric:~%RND%,1!
-if !count! lss %desiredLength% goto loop
+REM THE SYMBOLS ALLOWED IN THE GENERATED STRING (no i or l)
+SET ALPHANUMERIC=abcdefghjkmnopqrstuvwxyz0123456789
 
-echo !RndAlphaNum!
+REM "LENGTH" IS THE LENGTH OF %ALPHANUMERIC%
+SET LENGTH=30
+
+REM INITIALIZE VARIABLE. "RAND_STR" IS THE OUTPUT.
+SET RAND_STR=
+
+REM SET LOOP COUNTER
+SET COUNT=0
+
+REM GENERATE THE STRING
+:LOOP
+SET /A COUNT+=1
+SET /A RND=%RANDOM% %% %LENGTH%
+SET RAND_STR=!RAND_STR!!ALPHANUMERIC:~%RND%,1!
+IF %COUNT% LSS %DESIREDLENGTH% GOTO LOOP
+
+ECHO %RAND_STR%
