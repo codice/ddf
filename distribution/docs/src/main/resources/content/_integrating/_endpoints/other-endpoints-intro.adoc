@@ -1,9 +1,0 @@
-:type: endpointIntro
-:status: published
-:title: Other Endpoints
-:operations: other
-:order: 06
-
-== {title}
-
-${branding} also includes specialized endpoints for specific purposes.
