@@ -243,7 +243,6 @@
         <jts.version>1.14.0</jts.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <karaf.version>4.2.2</karaf.version>
-        <keyczar.version>0.66</keyczar.version>
         <la4j.version>0.6.0</la4j.version>
         <log4j.version>1.2.17</log4j.version>
         <logback.classic.version>1.2.3</logback.classic.version>
@@ -274,7 +273,7 @@
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <poi.version>3.17</poi.version>
-        <protobuf.version>3.5.1</protobuf.version>
+        <protobuf.version>3.6.1</protobuf.version>
         <proton.version>0.27.1</proton.version>
         <qpid-jms.version>0.33.0</qpid-jms.version>
         <require-css.version>0.1.10</require-css.version>
