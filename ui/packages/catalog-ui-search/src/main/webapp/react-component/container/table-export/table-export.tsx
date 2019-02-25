@@ -93,7 +93,10 @@ function getSorts(selectionInterface: any) {
 
 function getWarning(exportCountInfo: ExportCountInfo): string {
   const exportCount = getExportCount(exportCountInfo)
-  if (exportCount > properties.exportResultLimit) {
+  if (
+    exportCountInfo.exportSize === 'custom' &&
+    exportCount > properties.exportResultLimit
+  ) {
     return `You cannot export more than the administrator configured limit of ${
       properties.exportResultLimit
     }`
