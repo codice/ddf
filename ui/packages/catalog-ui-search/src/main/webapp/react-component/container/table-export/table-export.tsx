@@ -106,7 +106,11 @@ function getWarning(exportCountInfo: ExportCountInfo): string {
 
   let warningMessage = ''
   if (exportCount > totalHits) {
-    warningMessage = `You are trying to export ${exportCount} results but there are only ${totalHits}. Only ${totalHits} results will be exported.`
+    warningMessage = `You are trying to export ${exportCount} results but there ${
+      totalHits === 1 ? `is` : `are`
+    } only ${totalHits}.  Only ${totalHits} ${
+      totalHits === 1 ? `result` : `results`
+    } will be exported.`
   }
   if (totalHits > 100 && exportCount > 100) {
     warningMessage += ` This may take a long time.`
@@ -223,7 +227,7 @@ export default hot(module)(
         const sources = getSrcs(selectionInterface)
         const sorts = getSorts(selectionInterface)
         const count = Math.min(
-          getExportCount(exportSize, selectionInterface, customExportCount),
+          getExportCount({ exportSize, selectionInterface, customExportCount }),
           properties.exportResultLimit
         )
         const args = {
