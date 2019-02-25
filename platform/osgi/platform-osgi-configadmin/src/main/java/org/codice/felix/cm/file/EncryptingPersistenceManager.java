@@ -18,12 +18,13 @@ import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
-import java.io.File;
+import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.crypter.Crypter;
+import ddf.security.encryption.crypter.Crypter.CrypterException;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -31,9 +32,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import org.apache.felix.cm.PersistenceManager;
-import org.keyczar.Crypter;
-import org.keyczar.KeyczarTool;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +56,8 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
   private static final String AUDIT_MESSAGE_INIT =
       "The system did not initialize encryption keys correctly and is insecure.";
 
+  private static final String CRYPTER_NAME = "encryption-persistence-manager";
+
   private static final Set<String> EXCLUDED_PROPERTIES = new HashSet<>();
 
   static {
@@ -66,33 +66,13 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
     EXCLUDED_PROPERTIES.add(FELIX_FILENAME);
   }
 
-  private class InitOperation implements PrivilegedAction<EncryptionAgent> {
-    private final String passwordDirectory;
-
-    InitOperation(String passwordDirectory) {
-      this.passwordDirectory = passwordDirectory;
-    }
-
-    @Override
-    public EncryptionAgent run() {
-      return new EncryptionAgent(passwordDirectory);
-    }
-  }
-
-  private final EncryptionAgent agent;
+  @VisibleForTesting final EncryptionAgent agent;
 
   public EncryptingPersistenceManager(PersistenceManager persistenceManager) {
-    this(
-        persistenceManager,
-        FrameworkUtil.getBundle(EncryptingPersistenceManager.class)
-            .getDataFile("")
-            .getAbsolutePath());
-  }
-
-  public EncryptingPersistenceManager(
-      PersistenceManager persistenceManager, String passwordDirectory) {
     super(persistenceManager);
-    this.agent = AccessController.doPrivileged(new InitOperation(passwordDirectory));
+    this.agent =
+        AccessController.doPrivileged(
+            (PrivilegedAction<EncryptionAgent>) () -> new EncryptionAgent(CRYPTER_NAME));
   }
 
   @Override
@@ -161,52 +141,20 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
    * PAX Logging might not be fully configured and ready if there is a failure in the agent's
    * constructor. To remedy this, we will cache failure data to later throw back.
    */
-  private class EncryptionAgent {
+  @VisibleForTesting
+  class EncryptionAgent {
     private String initFailureMessage = null;
 
     private Exception initException = null;
 
-    private Crypter crypter;
+    Crypter crypter;
 
-    EncryptionAgent(String pwDirString) {
-      File pwDir = new File(pwDirString);
-      if (!pwDir.mkdirs() && !pwDir.exists()) {
-        initFailureMessage =
-            "Cannot create required directory for encryption ["
-                + pwDir.getAbsolutePath()
-                + "]. This might be a permissions issue. Check "
-                + "OS settings, file permissions, and the active user account. Then unzip a "
-                + "new instance and try again";
-        throw new IllegalStateException(initFailureMessage);
-      }
-
-      String[] children = pwDir.list();
-      if (children == null) {
-        initFailureMessage =
-            "Expected directory ["
-                + pwDir.getAbsolutePath()
-                + "] to "
-                + "exist and be accessible. Check OS settings, file permissions, and the "
-                + "active user account. Then unzip a new instance and try again";
-        throw new IllegalStateException(initFailureMessage);
-      }
-
-      synchronized (EncryptionAgent.class) {
-        if (!Arrays.asList(children).contains("meta")) {
-          KeyczarTool.main(
-              new String[] {
-                "create", "--location=" + pwDirString, "--purpose=crypt", "--name=Password"
-              });
-          KeyczarTool.main(
-              new String[] {"addkey", "--location=" + pwDirString, "--status=primary"});
-        }
-        try {
-          this.crypter = new Crypter(pwDirString);
-        } catch (Exception e) {
-          initFailureMessage = "Could not setup encryption. ";
-          initException = e;
-          throw new IllegalStateException(initFailureMessage, initException);
-        }
+    EncryptionAgent(String crypterName) {
+      try {
+        crypter = new Crypter(crypterName);
+      } catch (CrypterException e) {
+        initFailureMessage = "Problem initializing encryption agent.";
+        initException = e;
       }
     }
 
@@ -216,8 +164,8 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
       }
       try {
         return crypter.encrypt(plainTextValue);
-      } catch (Exception e) {
-        LOGGER.error("Failed to encrypt to bundle cache. {}", e);
+      } catch (CrypterException e) {
+        LOGGER.warn(String.format("Failed to encrypt to bundle cache. %s", e.getCause()));
         AUDIT_LOG.warn(AUDIT_MESSAGE);
         return plainTextValue;
       }
@@ -229,8 +177,8 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
       }
       try {
         return crypter.decrypt(encryptedValue);
-      } catch (Exception e) {
-        LOGGER.error("Failed to decrypt from bundle cache. {}", e);
+      } catch (CrypterException e) {
+        LOGGER.warn(String.format("Failed to decrypt from bundle cache. %s", e.getCause()));
         return encryptedValue;
       }
     }

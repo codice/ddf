@@ -9,4 +9,4 @@
 The ${ddf-security} Encryption application offers an encryption framework and service implementation for other applications to use.
 This service is commonly used to encrypt and decrypt default passwords that are located within the metatype and ${admin-console}.
 
-The encryption service and encryption command, which are based on https://github.com/google/keyczar/wiki[Keyczar] {external-link}, provide an easy way for developers to add encryption capabilities to ${branding}.
+The encryption service and encryption command, which are based on https://github.com/google/tink#tink[Tink] {external-link}, provide an easy way for developers to add encryption capabilities to ${branding}.
