@@ -44,18 +44,17 @@ export default hot(module)(
     }
 
     getOverlayActions = () => {
-      var modelOverlayActions = this.getActions().filter(function(action: any) {
+      let modelOverlayActions = this.getActions().filter(function(action: any) {
         return (
           action.get('id').indexOf('catalog.data.metacard.map.overlay.') === 0
         )
       })
 
-      var _this = this
-      return _.map(modelOverlayActions, function(modelOverlayAction: any) {
+      return _.map(modelOverlayActions, (modelOverlayAction: any) => {
         return {
           description: modelOverlayAction.get('description'),
           url: modelOverlayAction.get('url'),
-          overlayText: _this.getOverlayText(modelOverlayAction.get('url')),
+          overlayText: this.getOverlayText(modelOverlayAction.get('url')),
         }
       })
     }
@@ -66,7 +65,7 @@ export default hot(module)(
         overlayTransformerPrefix
       )
       if (overlayTransformerIndex >= 0) {
-        var overlayName = actionUrl.substr(
+        let overlayName = actionUrl.substr(
           overlayTransformerIndex + overlayTransformerPrefix.length
         )
         return 'Overlay ' + overlayName + ' on the map'

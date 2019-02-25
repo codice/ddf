@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 const _ = require('lodash')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
-import * as React from 'react'
+import React from 'react'
 import MapActions from '../../react-component/container/map-actions'
 
 module.exports = Marionette.LayoutView.extend({
