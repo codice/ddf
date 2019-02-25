@@ -796,22 +796,29 @@ public class QueryOperations extends DescribableImpl {
           for (String id : sourceIds) {
             LOGGER.debug("Looking up source ID = {}", id);
 
-            final List<FederatedSource> fedSources =
+            List<FederatedSource> sources = new ArrayList<>();
+            sources.addAll(
                 frameworkProperties
                     .getFederatedSources()
                     .stream()
                     .filter(e -> e.getId().equals(id))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
+            sources.addAll(
+                frameworkProperties
+                    .getCatalogStores()
+                    .stream()
+                    .filter(e -> e.getId().equals(id))
+                    .collect(Collectors.toList()));
 
-            if (fedSources.isEmpty()) {
+            if (sources.isEmpty()) {
               exceptions.add(
                   new ProcessingDetailsImpl(
                       id, new SourceUnavailableException("Source id is not found")));
             } else {
-              if (fedSources.size() != 1) {
+              if (sources.size() != 1) {
                 LOGGER.debug("Multiple sources found for id: {}", id);
               }
-              FederatedSource source = fedSources.get(0);
+              FederatedSource source = sources.get(0);
 
               boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
               if (!canAccessSource) {
