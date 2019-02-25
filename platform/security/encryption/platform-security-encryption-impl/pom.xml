@@ -28,6 +28,11 @@
             <artifactId>security-encryption-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-crypter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -55,11 +60,56 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            keyczar,
+                            security-encryption-crypter,
                             gson
                         </Embed-Dependency>
+                        <Import-Package>
+                            <!-- Omit unnecessary transient crypter dependencies -->
+                            !com.amazonaws.*,
+                            !com.google.api.*,
+                            !org.joda.time.*,
+                            !sun.misc.*,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.79</minimum>
+                                        </limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.91</minimum>
+                                        </limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.92</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

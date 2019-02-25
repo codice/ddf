@@ -176,6 +176,31 @@
                                         javax.annotation-api-${javax.annotation-api.version}.jar
                                     </destFileName>
                                 </artifactItem>
+                                <!-- Crypter dependencies -->
+                                <artifactItem>
+                                    <groupId>com.google.crypto.tink</groupId>
+                                    <artifactId>tink</artifactId>
+                                    <version>${tink.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>tink-${tink.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.google.protobuf</groupId>
+                                    <artifactId>protobuf-java</artifactId>
+                                    <version>${protobuf.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>
+                                        protobuf-java-${protobuf.version}.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.json</groupId>
+                                    <artifactId>json</artifactId>
+                                    <version>${org.json.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>json-${org.json.version}.jar</destFileName>
+                                </artifactItem>
+                                <!-- End crypter dependencies -->
                                 <artifactItem>
                                     <groupId>ddf.platform.osgi</groupId>
                                     <artifactId>platform-osgi-condpermadmin</artifactId>
@@ -406,6 +431,21 @@
             <version>${project.version}</version>
             <classifier>assembly</classifier>
             <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>${tink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.version}</version>
         </dependency>
     </dependencies>
 </project>

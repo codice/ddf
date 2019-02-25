@@ -26,9 +26,11 @@ import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
+import ddf.security.SecurityConstants;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.apache.felix.cm.PersistenceManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,16 +66,26 @@ public class EncryptingPersistenceManagerTest {
 
   @Mock private PersistenceManager mockManager;
 
-  private EncryptingPersistenceManager persistenceManager;
-
   @Before
   public void setup() throws Exception {
-    String pwDirectory = temporaryFolder.newFolder().getAbsolutePath();
-    persistenceManager = new EncryptingPersistenceManager(mockManager, pwDirectory);
+    String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
+    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
+    System.setProperty(
+        SecurityConstants.ASSOCIATED_DATA_PATH,
+        associatedDataHome.concat("/associatedData.properties"));
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    System.clearProperty(SecurityConstants.KEYSET_DIR);
+    System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
   @Test
   public void testPropertyEncryptionRoundTrip() throws Exception {
+    EncryptingPersistenceManager persistenceManager = new EncryptingPersistenceManager(mockManager);
+
     ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
     persistenceManager.store(PID, TEST_PROPS);
     verify(mockManager).store(eq(PID), captor.capture());

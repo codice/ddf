@@ -41,5 +41,6 @@
         <module>platform-security-encryption-api</module>
         <module>platform-security-encryption-impl</module>
         <module>platform-security-encryption-commands</module>
+        <module>platform-security-encryption-crypter</module>
     </modules>
 </project>

@@ -41,11 +41,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                         <Export-Package>
-                            ddf.security.encryption;version=1.0.0
+                            ddf.security.encryption;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>

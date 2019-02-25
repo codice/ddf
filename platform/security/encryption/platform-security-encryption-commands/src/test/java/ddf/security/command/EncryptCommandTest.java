@@ -16,34 +16,36 @@ package ddf.security.command;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import ddf.security.SecurityConstants;
 import ddf.security.encryption.impl.EncryptionServiceImpl;
-import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EncryptCommandTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
 
-  private static File ddfHome;
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
-    ddfHome = Files.createTempDirectory("encrypt").toFile();
-    System.setProperty("ddf.home", ddfHome.toString());
-    System.setProperty("ddf.etc", ddfHome.getAbsolutePath().concat("/etc"));
-    String path = new File(System.getProperty("ddf.etc").concat("/certs")).getCanonicalPath();
-    new File(path).mkdirs();
+    String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
+    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
+    System.setProperty(
+        SecurityConstants.ASSOCIATED_DATA_PATH,
+        associatedDataHome.concat("/associatedData.properties"));
   }
 
   @After
   public void cleanUp() throws Exception {
-    FileUtils.deleteDirectory(ddfHome);
+    System.clearProperty(SecurityConstants.KEYSET_DIR);
+    System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
   @Test

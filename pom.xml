@@ -314,6 +314,8 @@
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.27.1</fabric8.docker.plugin.version>
+        <tink.version>1.2.2</tink.version>
+        <org.json.version>20170516</org.json.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
