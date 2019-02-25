@@ -20,15 +20,11 @@ const template = require('./filter-comparator.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
-import {
-  geometryComparators,
-  geometryComparatorsAnyGeo,
-  dateComparators,
-  stringComparators,
-  stringComparatorsAnyText,
-  numberComparators,
-  booleanComparators,
-} from '../filter/comparators'
+var geometryComparators = ['INTERSECTS']
+var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN']
+var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
+var numberComparators = ['>', '<', '=', '>=', '<=']
+var booleanComparators = ['=']
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -57,18 +53,13 @@ module.exports = Marionette.ItemView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   serializeData: function() {
-    let comparators
     switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
       case 'LOCATION':
       case 'GEOMETRY':
-        comparators =
-          this.model.get('type') === 'anyGeo'
-            ? geometryComparatorsAnyGeo
-            : geometryComparators
-        if (comparators.indexOf(this.model.get('comparator')) === -1) {
-          this.model.set('comparator', comparators[0])
+        if (geometryComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', geometryComparators[0])
         }
-        return comparators
+        return geometryComparators
       case 'DATE':
         if (dateComparators.indexOf(this.model.get('comparator')) === -1) {
           this.model.set('comparator', dateComparators[0])
@@ -89,22 +80,18 @@ module.exports = Marionette.ItemView.extend({
         }
         return numberComparators
       default:
-        comparators =
-          this.model.get('type') === 'anyText'
-            ? stringComparatorsAnyText
-            : stringComparators
-        if (comparators.indexOf(this.model.get('comparator')) === -1) {
-          this.model.set('comparator', comparators[0])
+        if (stringComparators.indexOf(this.model.get('comparator')) === -1) {
+          this.model.set('comparator', stringComparators[0])
         }
         if (this.model.get('isResultFilter')) {
           // if this view is being used as an ad hoc search results filter
           // (as opposed to a filter saved on a search), don't include
           // complex comparators like NEAR
-          comparators = comparators.filter(function(comparator) {
+          return stringComparators.filter(function(comparator) {
             return comparator !== 'NEAR'
           })
         }
-        return comparators
+        return stringComparators
     }
   },
 })
