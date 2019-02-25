@@ -60,8 +60,8 @@ export default hot(module)(
     }
 
     getOverlayText = (actionUrl: String) => {
-      var overlayTransformerPrefix = 'overlay.'
-      var overlayTransformerIndex = actionUrl.lastIndexOf(
+      const overlayTransformerPrefix = 'overlay.'
+      const overlayTransformerIndex = actionUrl.lastIndexOf(
         overlayTransformerPrefix
       )
       if (overlayTransformerIndex >= 0) {
@@ -75,8 +75,8 @@ export default hot(module)(
     }
 
     overlayImage = (event: any) => {
-      var clickedOverlayUrl = event.target.getAttribute('data-url')
-      var removeOverlay = clickedOverlayUrl === this.state.currentOverlayUrl
+      const clickedOverlayUrl = event.target.getAttribute('data-url')
+      const removeOverlay = clickedOverlayUrl === this.state.currentOverlayUrl
 
       if (removeOverlay) {
         this.props.model.unset('currentOverlayUrl', { silent: true })
