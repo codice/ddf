@@ -219,10 +219,7 @@ export default hot(module)(
         const hiddenFields = getHiddenFields()
         const columnOrder = getColumnOrder()
 
-        const cql = getCqlForSize(
-          exportSize,
-          selectionInterface
-        )
+        const cql = getCqlForSize(exportSize, selectionInterface)
         const sources = getSrcs(selectionInterface)
         const sorts = getSorts(selectionInterface)
         const count = Math.min(
