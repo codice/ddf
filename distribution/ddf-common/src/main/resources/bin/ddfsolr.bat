@@ -44,7 +44,6 @@ IF "%COMMAND%"=="start" (
 )
 
 IF "%COMMAND%"=="restart" (
-    SET /P key key=<STOPKEY
     IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
     CALL %SOLR_EXEC% restart -p !solr.http.port! -m !solr.mem!
 )
