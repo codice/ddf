@@ -19,6 +19,10 @@ the `package.json` file. Those dependencies can be from an npm registry or
 local packages in the `packages` directory. Package specific help may be
 provided in the package's `README.md`.
 
+To add the maven versions of `node` and `yarn` to your $PATH, do:
+
+    source path.sh # you must have run `mvn install` before this
+
 To install all dependencies for all packages, do:
 
     yarn install
