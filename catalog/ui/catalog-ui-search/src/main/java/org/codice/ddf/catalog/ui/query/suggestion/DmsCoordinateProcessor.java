@@ -17,9 +17,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -69,105 +67,11 @@ public class DmsCoordinateProcessor {
   private static final int SECONDS_LON_GROUP = 7;
   private static final int DIRECTION_LON_GROUP = 8;
 
-  private static final Pattern PATTERN_DMS_COORDINATE =
+  private static final Pattern PATTERN_DMS_COORDINATES =
       Pattern.compile(DMS_LAT_REGEX_STRING + DMS_LON_REGEX_STRING);
 
   // This key tells the UI that the geo is on the suggestion itself
   private static final String LITERAL_SUGGESTION_ID = "LITERAL-DMS";
-
-  private static class CoordinateTranslator {
-
-    /**
-     * Deserialize a DMS string.
-     *
-     * @param dmsString the DMS string to deserialize.
-     * @return [dmsLat, dmsLon] The two deserialized parts of the DMS string.
-     */
-    private static List<Map<String, Object>> parseDms(final String dmsString) {
-      final Matcher matcher = PATTERN_DMS_COORDINATE.matcher(dmsString);
-      final Map<String, Object> dmsLat = new HashMap<String, Object>();
-      final Map<String, Object> dmsLon = new HashMap<String, Object>();
-
-      if (matcher.matches()) {
-        dmsLat.put("degrees", Integer.parseInt(matcher.group(DEGREES_LAT_GROUP)));
-        dmsLat.put("minutes", Integer.parseInt(matcher.group(MINUTES_LAT_GROUP)));
-        dmsLat.put("seconds", Double.parseDouble(matcher.group(SECONDS_LAT_GROUP)));
-        dmsLat.put("direction", matcher.group(DIRECTION_LAT_GROUP));
-        dmsLat.put("degreeFormat", new DecimalFormat("00"));
-
-        dmsLon.put("degrees", Integer.parseInt(matcher.group(DEGREES_LON_GROUP)));
-        dmsLon.put("minutes", Integer.parseInt(matcher.group(MINUTES_LON_GROUP)));
-        dmsLon.put("seconds", Double.parseDouble(matcher.group(SECONDS_LON_GROUP)));
-        dmsLon.put("direction", matcher.group(DIRECTION_LON_GROUP));
-        dmsLon.put("degreeFormat", new DecimalFormat("000"));
-      }
-      return Arrays.asList(dmsLat, dmsLon);
-    }
-
-    private static String normalizedDmsString(final String dmsString) {
-
-      final List<Map<String, Object>> dmsCoordinate = parseDms(dmsString);
-
-      final NumberFormat minutesSecondsFormat = new DecimalFormat("00.###");
-
-      final StringBuilder dmsBuilder = new StringBuilder();
-      for (Map<String, Object> dmsPart : dmsCoordinate) {
-
-        final NumberFormat degreeFormat = (NumberFormat) dmsPart.get("degreeFormat");
-        final String degrees = degreeFormat.format((int) dmsPart.get("degrees"));
-        final String minutes = minutesSecondsFormat.format((int) dmsPart.get("minutes"));
-        final String seconds = minutesSecondsFormat.format((double) dmsPart.get("seconds"));
-        final String direction = dmsPart.get("direction").toString().toUpperCase();
-
-        dmsBuilder
-            .append(degrees)
-            .append("\u00B0")
-            .append(minutes)
-            .append("\'")
-            .append(seconds)
-            .append("\"")
-            .append(direction)
-            .append(" ");
-      }
-      return dmsBuilder.toString().trim();
-    }
-
-    private static LatLon dmsToLatLon(final String dmsString) {
-      final List<Map<String, Object>> dmsCoordinate = parseDms(dmsString);
-      final Map<String, Object> dmsLat = dmsCoordinate.get(0);
-      final Map<String, Object> dmsLon = dmsCoordinate.get(1);
-
-      final boolean dmsLatExists =
-          dmsLat.containsKey("degrees")
-              && dmsLat.containsKey("minutes")
-              && dmsLat.containsKey("seconds");
-      final boolean dmsLonExists =
-          dmsLon.containsKey("degrees")
-              && dmsLon.containsKey("minutes")
-              && dmsLon.containsKey("seconds");
-      return (dmsLatExists && dmsLonExists) ? toLatLon(dmsLat, dmsLon) : null;
-    }
-
-    private static LatLon toLatLon(
-        final Map<String, Object> dmsLat, final Map<String, Object> dmsLon) {
-      final int latModifier = dmsLat.get("direction").toString().equalsIgnoreCase("N") ? 1 : -1;
-      final int lonModifier = dmsLon.get("direction").toString().equalsIgnoreCase("E") ? 1 : -1;
-      final Double lat = toDecimalDegrees(dmsLat) * latModifier;
-      final Double lon = toDecimalDegrees(dmsLon) * lonModifier;
-
-      return (LatLon.isValidLatitude(lat) && LatLon.isValidLongitude(lon))
-          ? new LatLon(lat, lon)
-          : null;
-    }
-
-    private static Double toDecimalDegrees(final Map<String, Object> dms) {
-      final int degrees = (int) dms.get("degrees");
-      final int minutes = (int) dms.get("minutes");
-      final double seconds = (double) dms.get("seconds");
-
-      return degrees + minutes / 60.0 + seconds / 3600.0;
-    }
-  }
 
   /**
    * Given a list of {@link Suggestion}s and the query that yielded them, enhance the list with
@@ -187,22 +91,39 @@ public class DmsCoordinateProcessor {
   }
 
   @Nullable
+  private static LatLon dmsToLatLon(final String dmsString) {
+    final DMSCoordinates dmsCoordinates = DMSCoordinates.parseDms(dmsString);
+    if (dmsCoordinates == null) {
+      return null;
+    }
+
+    final DMSComponent dmsLat = dmsCoordinates.lat;
+    final DMSComponent dmsLon = dmsCoordinates.lon;
+    final int latModifier = dmsLat.direction.equalsIgnoreCase("N") ? 1 : -1;
+    final int lonModifier = dmsLon.direction.equalsIgnoreCase("E") ? 1 : -1;
+    final Double lat = dmsLat.toDecimalDegrees() * latModifier;
+    final Double lon = dmsLon.toDecimalDegrees() * lonModifier;
+
+    return LatLon.createIfValid(lat, lon);
+  }
+
+  @Nullable
   private LiteralSuggestion getDmsSuggestion(final String query) {
     final List<LatLon> dmsCoordinates = new ArrayList<>();
-    final Matcher matcher = PATTERN_DMS_COORDINATE.matcher(query);
+    final Matcher matcher = PATTERN_DMS_COORDINATES.matcher(query);
     final StringBuilder nameBuilder = new StringBuilder("DMS:");
 
     int start = 0;
     while (matcher.find()) {
-      final String group = query.substring(start, matcher.end());
-      final LatLon parsedDms = CoordinateTranslator.dmsToLatLon(group);
+      final String dmsString = query.substring(start, matcher.end());
+      final LatLon latLon = dmsToLatLon(dmsString);
       start = matcher.end();
-      if (parsedDms != null) {
+      if (latLon != null) {
         LOGGER.trace("Match found [{}]", matcher.group());
-        dmsCoordinates.add(parsedDms);
+        dmsCoordinates.add(latLon);
         nameBuilder
             .append(" [ ")
-            .append(CoordinateTranslator.normalizedDmsString(group))
+            .append(DMSCoordinates.normalizedDmsString(dmsString))
             .append(" ]");
       }
     }
@@ -211,5 +132,90 @@ public class DmsCoordinateProcessor {
       return null;
     }
     return new LiteralSuggestion(LITERAL_SUGGESTION_ID, nameBuilder.toString(), dmsCoordinates);
+  }
+
+  private static class DMSComponent {
+    private final int degrees;
+    private final int minutes;
+    private final double seconds;
+    private final String direction;
+    private final DecimalFormat degreeFormat;
+
+    private DMSComponent(
+        String degrees,
+        String minutes,
+        String seconds,
+        String direction,
+        DecimalFormat degreeFormat) {
+      this.degrees = Integer.parseInt(degrees);
+      this.minutes = Integer.parseInt(minutes);
+      this.seconds = Double.parseDouble(seconds);
+      this.direction = direction;
+      this.degreeFormat = degreeFormat;
+    }
+
+    private Double toDecimalDegrees() {
+      return degrees + minutes / 60.0 + seconds / 3600.0;
+    }
+  }
+
+  private static class DMSCoordinates {
+    private DMSComponent lat;
+    private DMSComponent lon;
+
+    private DMSCoordinates(DMSComponent lat, DMSComponent lon) {
+      this.lat = lat;
+      this.lon = lon;
+    }
+
+    /**
+     * Deserialize a DMS string.
+     *
+     * @param dmsString the DMS string to deserialize.
+     * @return [dmsLat, dmsLon] The two deserialized parts of the DMS string.
+     */
+    @Nullable
+    private static DMSCoordinates parseDms(final String dmsString) {
+      final Matcher matcher = PATTERN_DMS_COORDINATES.matcher(dmsString);
+
+      if (matcher.matches()) {
+        final DMSComponent lat =
+            new DMSComponent(
+                matcher.group(DEGREES_LAT_GROUP),
+                matcher.group(MINUTES_LAT_GROUP),
+                matcher.group(SECONDS_LAT_GROUP),
+                matcher.group(DIRECTION_LAT_GROUP),
+                new DecimalFormat("00"));
+        final DMSComponent lon =
+            new DMSComponent(
+                matcher.group(DEGREES_LON_GROUP),
+                matcher.group(MINUTES_LON_GROUP),
+                matcher.group(SECONDS_LON_GROUP),
+                matcher.group(DIRECTION_LON_GROUP),
+                new DecimalFormat("000"));
+        return new DMSCoordinates(lat, lon);
+      }
+      return null;
+    }
+
+    private static String normalizedDmsString(final String dmsString) {
+      final DMSCoordinates dmsCoordinates = parseDms(dmsString);
+      final List<DMSComponent> dmsParts = Arrays.asList(dmsCoordinates.lat, dmsCoordinates.lon);
+      final NumberFormat minutesSecondsFormat = new DecimalFormat("00.###");
+
+      final StringBuilder dmsBuilder = new StringBuilder();
+      for (DMSComponent dmsPart : dmsParts) {
+        dmsBuilder
+            .append(dmsPart.degreeFormat.format(dmsPart.degrees))
+            .append("\u00B0")
+            .append(minutesSecondsFormat.format(dmsPart.minutes))
+            .append("\'")
+            .append(minutesSecondsFormat.format(dmsPart.seconds))
+            .append("\"")
+            .append(dmsPart.direction.toUpperCase())
+            .append(" ");
+      }
+      return dmsBuilder.toString().trim();
+    }
   }
 }
