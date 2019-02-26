@@ -50,10 +50,10 @@ type Props = {
 //   }`
 // }
 
-const formatCoordinate = ({ lat, lon, format }: Props): any => {
+const formatCoordinates = ({ lat, lon, format }: Props): any => {
   const withFormat = {
     degrees: () => `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`,
-    decimal: () => `${lat} ${lon}`,
+    decimal: () => decimalComponent({lat, lon}),
     mgrs: () =>
       lat > 84 || lat < -80
         ? 'In UPS Space'
@@ -63,11 +63,18 @@ const formatCoordinate = ({ lat, lon, format }: Props): any => {
   if (!(format in withFormat)) {
     throw `Unrecognized coordinate format value [${format}]`
   }
-  if (typeof lat === 'undefined' || typeof lon === 'undefined') {
-    throw `formatCoordinate: invalid lat/lon`
-  }
+  
+  return validCoordinates({lat, lon}) ? (withFormat as any)[format]() : undefined
+}
 
-  return (withFormat as any)[format]()
+const decimalComponent = ({lat, lon}: Coordinates) => {
+  const numPlaces = 6
+  const latPadding = numPlaces + 4
+  const lonPadding = numPlaces + 5
+  console.log(`${lat.toFixed(numPlaces).toString().padStart(latPadding, "O")} ${lon.toFixed(numPlaces).toString().padStart(lonPadding, "O")}`)
+  return `${lat.toFixed(numPlaces).toString().padStart(latPadding, " ")} ${lon.toFixed(numPlaces).toString().padStart(lonPadding, " ")}`
+  
+
 }
 
 // decimalComponent(lat, lon) {
@@ -107,10 +114,11 @@ const formatCoordinate = ({ lat, lon, format }: Props): any => {
 //   }
 //   throw 'Unrecognized coordinate format value [' + coordinateFormat + ']'
 // },
-const Root = styled.div`
+const validCoordinates = ({lat, lon} : Coordinates) => typeof lat !== "undefined" && typeof lon !== "undefined"
+const Root = styled<Props, 'div'>('div')`
   font-family: 'Inconsolata', 'Lucida Console', monospace;
   background: ${props => props.theme.backgroundModal};
-  display: block;
+  display: ${props => {return validCoordinates(props) ? `block`: `none`}};
   width: auto;
   height: auto;
   font-size: ${props => props.theme.minimumFontSize};
@@ -122,8 +130,8 @@ const Root = styled.div`
   max-width: 50%;
 
   &.info-coordinates {
-    display: inline-block;
     white-space: pre;
+    display: inline-block;
   }
   &.info-feature {
     white-space: nowrap;
@@ -134,11 +142,11 @@ const Root = styled.div`
 `
 
 const render = (props: Props) => {
-  const coordinate = formatCoordinate(props)
+  const coordinates = formatCoordinates(props)
   return (
-    <Root>
+    <Root {...props}>
       <div className="info-coordinates">
-        <span>{coordinate}</span>
+        <span>{coordinates}</span>
       </div>
     </Root>
   )

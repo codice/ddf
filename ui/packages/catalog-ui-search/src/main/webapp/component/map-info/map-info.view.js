@@ -61,19 +61,19 @@ module.exports = Marionette.LayoutView.extend({
   },
   regions: {},
   ui: {},
-  initialize: function() {
-    this.listenTo(
-      this.model,
-      'change:mouseLat change:mouseLon change:target',
-      this.render
-    )
-    this.listenTo(this.model, 'change:target', this.handleTarget)
-    this.listenTo(
-      user.get('user').get('preferences'),
-      'change:coordinateFormat',
-      this.render
-    )
-  },
+  // initialize: function() {
+  //   this.listenTo(
+  //     this.model,
+  //     'change:mouseLat change:mouseLon change:target',
+  //     this.render
+  //   )
+  //   this.listenTo(this.model, 'change:target', this.handleTarget)
+  //   this.listenTo(
+  //     user.get('user').get('preferences'),
+  //     'change:coordinateFormat',
+  //     this.render
+  //   )
+  // },
   onBeforeShow: function() {},
   handleBack: function() {},
   handleTarget: function() {
