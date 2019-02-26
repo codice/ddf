@@ -29,7 +29,7 @@
 
 @REM ******************************************************
 @REM *****          DDF SECURITY MANAGER              *****
-set "SEC_MAN_ARGS=-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.policy==../security/solr-default.policy -Dsolr.ssl.keystore=%SOLR_SSL_KEY_STORE% -Dsolr.ssl.truststore=%SOLR_SSL_TRUST_STORE% -classpath ../security/pro-grade-1.1.3.jar;start.jar org.eclipse.jetty.start.Main"
+set "SEC_MAN_ARGS=-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.policy==../security/solr-default.policy -Dsolr.ssl.keystore=%SOLR_SSL_KEY_STORE% -Dsolr.ssl.truststore=%SOLR_SSL_TRUST_STORE% -Djdk.io.permissionsUseCanonicalPath=true -classpath ../security/pro-grade-1.1.3.jar;start.jar org.eclipse.jetty.start.Main"
 @REM ******************************************************
 
 IF "%OS%"=="Windows_NT" setlocal enabledelayedexpansion enableextensions

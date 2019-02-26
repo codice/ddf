@@ -47,7 +47,7 @@
 
 # ******************************************************
 # *****          DDF SECURITY MANAGER              *****
-SEC_MAN_ARGS="-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.policy==../security/solr-default.policy -Dsolr.ssl.keystore=${SOLR_SSL_KEY_STORE} -Dsolr.ssl.truststore=${SOLR_SSL_TRUST_STORE} -classpath ../security/pro-grade-1.1.3.jar:start.jar org.eclipse.jetty.start.Main"
+SEC_MAN_ARGS="-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.policy==../security/solr-default.policy -Dsolr.ssl.keystore=${SOLR_SSL_KEY_STORE} -Dsolr.ssl.truststore=${SOLR_SSL_TRUST_STORE} -Djdk.io.permissionsUseCanonicalPath=true -classpath ../security/pro-grade-1.1.3.jar:start.jar org.eclipse.jetty.start.Main"
 JAVA_EXT_DIRS="-Djava.ext.dirs=${JAVA_HOME}/jre/lib/ext:${JAVA_HOME}/lib/ext"
 # ******************************************************
 
@@ -2122,12 +2122,12 @@ function launch_solr() {
   esac
 
   if [ "$run_in_foreground" == "true" ]; then
-    exec "$JAVA" "${SOLR_START_OPTS[@]}" $SOLR_ADDL_ARGS $JAVA_EXT_DIRS $SEC_MAN_ARGS "${SOLR_JETTY_CONFIG[@]}" $SOLR_JETTY_ADDL_CONFIG
+    exec "$JAVA" "${SOLR_START_OPTS[@]}" $SOLR_ADDL_ARGS $SEC_MAN_ARGS "${SOLR_JETTY_CONFIG[@]}" $SOLR_JETTY_ADDL_CONFIG
   else
     # run Solr in the background
     nohup "$JAVA" "${SOLR_START_OPTS[@]}" $SOLR_ADDL_ARGS -Dsolr.log.muteconsole \
 	"-XX:OnOutOfMemoryError=$SOLR_TIP/bin/oom_solr.sh $SOLR_PORT $SOLR_LOGS_DIR" \
-        $JAVA_EXT_DIRS $SEC_MAN_ARGS "${SOLR_JETTY_CONFIG[@]}" $SOLR_JETTY_ADDL_CONFIG \
+        $SEC_MAN_ARGS "${SOLR_JETTY_CONFIG[@]}" $SOLR_JETTY_ADDL_CONFIG \
 	1>"$SOLR_LOGS_DIR/solr-$SOLR_PORT-console.log" 2>&1 & echo $! > "$SOLR_PID_DIR/solr-$SOLR_PORT.pid"
 
     # check if /proc/sys/kernel/random/entropy_avail exists then check output of cat /proc/sys/kernel/random/entropy_avail to see if less than 300
