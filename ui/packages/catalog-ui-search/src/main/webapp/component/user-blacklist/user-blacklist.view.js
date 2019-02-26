@@ -25,11 +25,8 @@ import UserBlacklist from '../../../react-component/container/user-blacklist'
 const UserBlacklistView = Marionette.LayoutView.extend({
   template() {
     return <UserBlacklist />
-  }
+  },
 })
-
-
-
 
 function getBlacklist() {
   return user

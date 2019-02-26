@@ -163,9 +163,7 @@ class UserSettings extends React.Component<Props, State> {
             text="Hidden"
             icon="fa fa-eye-slash"
             onClick={() => {
-              this.updateComponent(
-                <HiddenSettings />
-              )
+              this.updateComponent(<HiddenSettings />)
             }}
             disabled={Boolean(component)}
           />
