@@ -116,44 +116,36 @@ export class Sharing extends React.Component<Props, State> {
       },
     ]
     this.attemptSave(attributes)
+      .then(() => {
+        this.showSaveSuccessful()
+        this.props.lightbox.close()
+      })
+      .catch(err => {
+        if (err.message === 'Need to refresh') {
+          this.showNeedToRefresh()
+        } else {
+          this.showSaveFailed()
+        }
+      })
   }
 
   attemptSave = async (attributes: any) => {
-    try {
-      const res = await fetch(
-        '/search/catalog/internal/metacard/' + this.props.id
-      )
-      const data = await res.json()
-      if (
-        data.metacards[0]['metacard.modified'] ===
-        this.state.previousWorkspace['metacard.modified']
-      ) {
-        this.doSave(attributes)
-      } else {
-        announcement.announce(
-          {
-            title: 'The workspace settings could not be updated',
-            message:
-              'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
-            type: 'error',
-          },
-          1500
-        )
-      }
-    } catch (err) {
-      announcement.announce(
-        {
-          title: 'Error',
-          message: 'Save failed',
-          type: 'error',
-        },
-        1500
-      )
+    const res = await fetch(
+      '/search/catalog/internal/metacard/' + this.props.id
+    )
+    const data = await res.json()
+    if (
+      data.metacards[0]['metacard.modified'] ===
+      this.state.previousWorkspace['metacard.modified']
+    ) {
+      await this.doSave(attributes)
+    } else {
+      throw new Error('Need to refresh')
     }
   }
 
   doSave = async (attributes: any) => {
-    const res = await fetch(`/search/catalog/internal/workspaces`, {
+    const res = await fetch(`/search/catalog/internal/metacards`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify([
@@ -167,12 +159,36 @@ export class Sharing extends React.Component<Props, State> {
     if (res.status !== 200) {
       throw new Error()
     }
-    await res.json()
 
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)
     }
-    this.props.lightbox.close()
+  }
+
+  showSaveFailed() {
+    announcement.announce(
+      {
+        title: 'Error',
+        message: 'Save failed',
+        type: 'error',
+      },
+      1500
+    )
+  }
+
+  showNeedToRefresh() {
+    announcement.announce(
+      {
+        title: 'The workspace settings could not be updated',
+        message:
+          'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
+        type: 'error',
+      },
+      1500
+    )
+  }
+
+  showSaveSuccessful() {
     announcement.announce(
       {
         title: 'Success!',
