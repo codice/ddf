@@ -29,11 +29,8 @@ const Button = styled.button`
   margin-right: ${props => props.theme.mediumSpacing};
 `
 const Icon = styled.div`
-  /* color: white; */
   display: inline-block;
   background-color: inherit;
-  /* width: ${props => props.theme.minimumButtonSize}; */
-  /* height: ${props => props.theme.minimumButtonSize}; */
   margin-left: ${props => props.theme.minimumSpacing};
   line-height: ${props => `${props.theme.minimumLineSize} !important`};
   text-align: center;
