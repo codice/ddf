@@ -41,6 +41,7 @@ const Menu = styled.div`
   padding-top: ${props => props.theme.minimumSpacing};
   padding-bottom: ${props => props.theme.minimumSpacing};
   margin: 0;
+  width: 100%;
   overflow: auto;
   z-index: ${props => props.theme.zIndexDropdown};
   background-color: ${props => props.theme.backgroundDropdown};
