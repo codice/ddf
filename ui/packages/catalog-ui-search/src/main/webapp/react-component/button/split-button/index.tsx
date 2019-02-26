@@ -33,13 +33,7 @@ const Root = styled.div`
   overflow: none;
   margin: 0;
   white-space: nowrap;
-  /* display: flex; */
   background-color: ${props => props.theme.primaryColor};
-  /* opacity: ${props => props.theme.minimumOpacity};
-
-  &:hover {
-    opacity: 1;
-  } */
 `
 const Menu = styled.div`
   position: absolute;
@@ -47,7 +41,6 @@ const Menu = styled.div`
   padding-top: ${props => props.theme.minimumSpacing};
   padding-bottom: ${props => props.theme.minimumSpacing};
   margin: 0;
-  /* width: 100%; */
   overflow: auto;
   z-index: ${props => props.theme.zIndexDropdown};
   background-color: ${props => props.theme.backgroundDropdown};
@@ -56,7 +49,6 @@ const Menu = styled.div`
 `
 
 const DefaultButton = styled.button`
-  /* flex: 1; */
   padding-right: ${props => props.theme.largeSpacing};
   padding-left: ${props => props.theme.largeSpacing};
   margin-left: 0 !important;
@@ -65,9 +57,7 @@ const DefaultButton = styled.button`
 
 const Icon = styled.button`
   display: inline-block;
-  /* background-color: ${props => props.theme.backgroundDropdown}; */
   width: ${props => props.theme.minimumButtonSize};
-  /* height: ${props => props.theme.minimumButtonSize}; */
   line-height: ${props => props.theme.minimumLineSize};
   text-align: center;
   font-size: ${props => props.theme.minimumFontSize};
