@@ -51,15 +51,28 @@ set_security_properties() {
       export SOLR_SSL_TRUST_STORE_TYPE=$($GET javax.net.ssl.trustStoreType)
 }
 
+generate_stopkey() {
+    export STOP_KEY=`head /dev/random | tr -c -d "a-z0-9" | cut -c1-8`
+	echo $STOP_KEY > STOPKEY
+}
+
+
 start_solr() {
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties
     fi
 
+    generate_stopkey
     $SOLR_EXEC $1 -force -p $SOLR_PORT -m $SOLR_MEM
     local rc=$?
     print_messages $rc
     return $rc
+}
+
+stop_solr() {
+    export STOP_KEY=`cat STOPKEY`
+    $SOLR_EXEC stop -p $SOLR_PORT
+    rm STOPKEY
 }
 
 print_messages() {
@@ -72,9 +85,8 @@ print_messages() {
     fi
 }
 
-
 if [ "$COMMAND" = "stop" ]; then
-    $SOLR_EXEC stop -p $SOLR_PORT
+	stop_solr
 else
     # Read protocol from properties file
     SOLR_PROTOCOL=$($GET "solr.http.protocol")
