@@ -7,7 +7,7 @@
 :order: 06
 
 Custom endpoints can be created, if necessary.
-See <<{integrating-prefix}available_endpoints,Available Endpoints>> for descriptions of provided endpoints.
+See <<{integrating-prefix}endpoint_details,Endpoints>> for descriptions of provided endpoints.
 
 Complete the following procedure to create an endpoint. 
 

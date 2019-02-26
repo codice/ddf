@@ -1,94 +1,272 @@
 :title: Catalog REST Endpoint
 :type: endpoint
 :status: published
+:operations: ingest, retrieval, crud
 :link: _catalog_rest_endpoint
-:summary: Allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP.
+:url: \${public_url}/services/catalog
+:summary: Allows clients to perform operations on the Catalog using REST, a simple architectural style that performs communication using HTTP.
 :implements: https://www.w3.org/2001/sw/wiki/REST[REST specification] {external-link}.
 
-The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
+== {title}
 
-===== Installing the Catalog REST Endpoint
+The Catalog REST Endpoint allows clients to perform operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
 
-The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
+.Catalog REST Endpoint Operations
+The Catalog REST Endpoint provides the capability to query, create, update, and delete metacards and associated resources in the catalog provider.
 
-The URL exposing the REST functionality is located at \${secure_url}/services/catalog.
+Any web browser can be used to perform a REST read.
+Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.)
 
-===== Installing the Catalog REST Endpoint
+Bulk operations are not supported: for all RESTful CRUD commands, only one metacard ID is supported in the URL.
 
-The Catalog REST Endpoint is installed by default with a standard installation in the ${ddf-catalog} application.
+Operations on the REST endpoint can be performed as follows:
 
-===== Configuring the Catalog REST Endpoint
-
-The RESTful CRUD Endpoint has no configurable properties.
-It can only be installed or uninstalled.
-
-===== Using the Catalog REST Endpoint
-
-The Catalog REST Endpoint provides the capability to query, create, update, and delete metacards and associated resource in the catalog provider as follows:
-
-[cols="2m,1,2,5", options="header"]
+.Catalog REST Endpoint Operations
+[cols="2,1m,2,5m", options="header"]
 |===
 
 |Operation
-|HTTP Request
+|HTTP Request Type
 |Details
 |Example URL
 
-|create
-|HTTP POST
+|<<{integrating-prefix}catalog_rest_create_example,create>>
+|POST
 |HTTP request body contains the input to be ingested.
 
 `<input transformer>` is the name of the transformer to use when parsing metadata (optional).
 
-|\${public_url}/services/catalog?transform=<input transformer>
+|{url}?transform=<input transformer>
 
-|update
-|HTTP PUT
+a|update
+// add a link: https://github.com/codice/ddf/issues/4374
+|PUT
 |The ID of the Metacard to be updated is appended to the end of the URL.
 The updated metadata is contained in the HTTP body.
 
 `<metacardId>` is the `Metacard.ID` of the metacard to be updated and `<input transformer>` is the name of the transformer to use when parsing an override metadata attribute (optional).
 
-|\${public_url}/services/catalog/<metacardId>?transform=<input transformer>
+|{url}<metacardId>?transform=<input transformer>
 
 |delete
-|HTTP DELETE
+// add a link: https://github.com/codice/ddf/issues/4374
+|DELETE
 |The ID of the Metacard to be deleted is appended to the end of the URL.
 
 `<metacardId>` is the `Metacard.ID` of the metacard to be deleted.
 
-|\${public_url}/services/catalog/<metacardId>
+|{url}<metacardId>
 
-|read
-|HTTP GET
+|<<{integrating-prefix}catalog_rest_read_example,read>>
+// add a link: https://github.com/codice/ddf/issues/4374
+|GET
 |The ID of the Metacard to be retrieved is appended to the end of the URL.
 
 By default, the response body will include the XML representation of the Metacard.
 
 `<metacardId>` is the `Metacard.ID` of the metacard to be retrieved.
 
-|\${public_url}/services/catalog/<metacardId>
+|{url}<metacardId>
 
 |federated read
-|HTTP GET
+// add a link: https://github.com/codice/ddf/issues/4374
+|GET
 |The SOURCE ID of a federated source is appended to the URL before the ID of the Metacard to be retrieved is appended to the end.
 
 `<sourceId>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metacard.ID` of the Metacard to be retrieved.
 
-|\${public_url}/services/catalog/sources/&lt;sourceId&gt;/&lt;metacardId&gt;
+|{url}/sources/&lt;sourceId&gt;/&lt;metacardId&gt;
 
-|sources
-|HTTP GET
+
+|<<{integrating-prefix}catalog_rest_sources_example,sources>>
+|GET
 |Retrieves information about federated sources, including `sourceId`, `availability`, `contentTypes`,and `version`.
 
-|\${public_url}/services/catalog/sources/
+|{url}/sources/
 
 |===
 
+=== Catalog REST Endpoint Sample Operations
 
-====== Sources Operation Example
+.[[_catalog_rest_create_example]]Create Operation Examples
+The REST endpoint can be used to upload resources as attachments.
+The `create` and `update` methods both support the multipart mime format.
+If only a single attachment exists, it will be interpreted as a resource to be parsed, which will result in a metacard and resource being stored in the system.
 
+If multiple attachments exist, then the REST endpoint will assume that 1 attachment is the actual resource (attachment should be named `parse.resource`) and the other attachments are overrides of metacard attributes (attachment names should follow metacard attribute names).
+In the case of the metadata attribute, it is possible to also have the system transform that metadata and use the results of that to override the metacard that would be generated from the resource (attachment should be named `parse.metadata`).
+
+.Create Request Example
+[source,http,linenums]
+----
+POST /services/catalog?transform=xml HTTP/1.1
+Host: <FQDN>:<PORT>
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Cache-Control: no-cache
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="parse.resource"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="parse.metadata"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+----
+
+.Example Metacard
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
+  <type>ddf.metacard</type>
+  <string name="title">
+    <value>Test REST Metacard</value>
+  </string>
+  <string name="description">
+    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
+  </string>
+</metacard>
+----
+// https://github.com/codice/ddf/issues/4374
+//.Create Success Response Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+
+.Create Error Response Examples
+If content or metadata is not ingested successfully, check for these error messages.
+
+.Malformed XML Response
+If the XML being ingested is not well-formed, an HTTP 400 is returned and the following response body is returned and
+the specific error is logged in the error log.
+
+[source,html]
+----
+<pre>Error while storing entry in catalog: </pre>
+----
+
+.Request with Unknown Schema
+If ingest is attempted with a schema that is unknown, unsupported, or not configured by the endpoint,
+${branding} creates a generic resource metacard with the provided XML as content for the `metadata` XML field in the metacard.
+
+.Request with Missing XML Prologue
+If a request with a missing XML prologue is sent to the Catalog ReST endpoint,
+the metacard is created successfully.
+
+.Request with Non-XML Data
+If a request with non-XML data sent to the Catalog ReST endpoint, the metacard will be created and the content will stored in the `metadata` field.
+
+'''
+
+//https://github.com/codice/ddf/issues/4374
+//.[[_catalog_rest_update_example]]Update Operation Examples
+//notes
+//
+//.Update Request Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+//
+//.Update Response Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+//'''
+//.[[_catalog_rest_delete_example]]Delete Operation Examples
+//notes
+//
+//.Delete Request Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+//
+//.Delete Response Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+
+.[[_catalog_rest_read_example]]Read Operation Examples
+
+The `read` operation can be used to retrieve metadata in different formats.
+
+. Make a read request to the REST URL specifying the catalog id.
+. Add a transform query parameter to the end of the URL specifying the shortname of the transformer to be used (e.g., `transform=kml`).
+
+[NOTE]
+====
+Not all installations will have all transformers installed. Contact ${branding} administrator for available transformers.
+====
+
+.Read Request Example
+[source,javascript,linenums]
+----
+${public_url}/services/catalog/<metacardId>
+----
+
+//https://github.com/codice/ddf/issues/4374
+//.Read Success Response Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+
+.Metacard Transform Request Example
+[source,http]
+----
+${public_url}/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
+----
+
+[TIP]
+====
+Transforms also work on read operations for metacards in federated sources.
+\${secure_url}/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
+====
+
+See <<{architecture-prefix}available_metacard_transformers,Metacard Transformers>> for details on metacard transformers.
+
+.Read Error Response Examples
+
+.Request with Invalid Transform
+If a request specifies a transformer that is invalid, unsupported, or not configured,
+${branding} will return an HTTP 400 and the following response body.
+[source,html]
+----
+<pre>Error while storing entry in catalog: </pre>
+----
+'''
+//https://github.com/codice/ddf/issues/4374
+//.[[_catalog_rest_federated_read_example]]Federated Read Operation Examples
+//notes
+//
+//.Federated Read Request Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+//
+//.Federated Read Response Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
+
+.[[_catalog_rest_sources_example]]Sources Operation Example
 In the example below there is the local ${branding} distribution and a ${branding} OpenSearch federated source with id "${ddf-branding}-OS".
+//https://github.com/codice/ddf/issues/4374
+//.Sources Request Example
+//[source,javascript,linenums]
+//----
+//tbd
+//----
 
 .Sources Response Example
 [source,javascript,linenums]
@@ -113,180 +291,3 @@ In the example below there is the local ${branding} distribution and a ${brandin
 ]
 ----
 
-Note that for all RESTful CRUD commands only one metacard ID is supported in the URL, i.e., bulk operations are not supported.
-
-===== Interacting with the REST CRUD Endpoint
-
-Any web browser can be used to perform a REST read.
-Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.)
-
-The REST endpoint can be used to upload resources as attachments.
-The `create` and `update` methods both support the multipart mime format.
-If only a single attachment exists, it will be interpreted as a resource to be parsed, which will result in a metacard and resource being stored in the system.
-
-If multiple attachments exist, then the REST endpoint will assume that 1 attachment is the actual resource (attachment should be named `parse.resource`) and the other attachments are overrides of metacard attributes (attachment names should follow metacard attribute names). In the case of the metadata attribute, it is possible to also have the system transform that metadata and use the results of that to override the metacard that would be generated from the resource (attachment should be named `parse.metadata`).
-
-For example:
-[source,http]
-----
-POST /services/catalog?transform=xml HTTP/1.1
-Host: <FQDN>:<PORT>
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-Cache-Control: no-cache
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="parse.resource"; filename=""
-Content-Type:
-
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="parse.metadata"; filename=""
-Content-Type:
-
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-----
-
-===== Metacard Transforms with the REST CRUD Endpoint
-
-The `read` operation can be used to retrieve metadata in different formats.
-
-. Install the appropriate feature for the desired transformer. If desired transformer is already installed such as those that come out of the box (`xml,html,etc`), then skip this step.
-. Make a read request to the REST URL specifying the catalog id.
-. Add a transform query parameter to the end of the URL specifying the shortname of the transformer to be used (e.g., `transform=kml`).
-
-.Example Metacard Transform
-[source,http]
-----
-${public_url}/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
-----
-
-[TIP]
-====
-Transforms also work on read operations for metacards in federated sources.
-\${secure_url}/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
-====
-
-See <<{architecture-prefix}available_metacard_transformers,Metacard Transformers>> for details on metacard transformers.
-
-====== POST Metadata
-The following is a successful post of well-formed XML data sent to the Catalog ReST endpoint.
-
-.Example Metacard
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
-  <type>ddf.metacard</type>
-  <string name="title">
-    <value>Test REST Metacard</value>
-  </string>
-  <string name="description">
-    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
-  </string>
-</metacard>
-----
-
-
-====== Example Responses for ReST Endpoint Error Conditions
-The following are example data and expected errors responses that will be returned for each error condition.
-
-HTTP error codes are also returned. https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors
-
-.Malformed XML
-The following request with malformed XML data sent to the Catalog ReST endpoint.
-
-.Malformed XML Example
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
-  <type>ddf.metacard</type>
-  <string name="title">
-    <value>Test REST Metacard</value>
-  </string>
-  <string name="description">
-    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
-  </string>
-</document>
-----
-
-A HTTP 400 is returned and the following response body is returned.
-The specific error is logged in the error log.
-
-.Malformed XML Response
-----
-<pre>Error while storing entry in catalog: </pre>
-----
-
-
-.Request with Unknown Schema
-The following is a malformed XML document sent to the Catalog ReST endpoint.
-
-.Malformed XML Example
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<mydoc xmlns="http://example.com/unknown" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
-  <type>ddf.metacard</type>
-  <string name="title">
-    <value>Test REST Metacard</value>
-  </string>
-  <string name="description">
-    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
-  </string>
-</mydoc>
-----
-
-Creates a generic resource metacard with the provided XML as content for the `metadata` XML field in the metacard.
-
-.Request with Missing XML Prologue
-The following is an example request with a missing XML prologue sent to the Catalog ReST endpoint.
-
-.Missing XML Tag Example
-----
-<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
-  <type>ddf.metacard</type>
-  <string name="title">
-    <value>Test REST Metacard</value>
-  </string>
-  <string name="description">
-    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
-  </string>
-</metacard>
-----
-
-Metacard is created successfully
-
-.Request with Non-XML Data
-The following is an example request with non-XML data sent to the Catalog ReST endpoint.
-
-.Non-XML data Example
-----
-title: Non-XML title
-id: abc123
-----
-
-Metacard will be created and the content will stored in the `metadata` field.
-
-.Request with Invalid Transform
-Testing valid data with an invalid `transform=invalid` appended to the POST URL: `{public_url}/services/catalog?transform=blah`
-
-.Valid data with an invalid `?transform=invalid`
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
-  <type>ddf.metacard</type>
-  <string name="title">
-    <value>Test REST Metacard</value>
-  </string>
-  <string name="description">
-    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
-  </string>
-</metacard>
-----
-
-A HTTP 400 is returned and the following response body is returned.
-The specific error is logged in the error log.
-
-.Malformed XML Response
-----
-<pre>Error while storing entry in catalog: </pre>
-----

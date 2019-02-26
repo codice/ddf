@@ -11,20 +11,39 @@
  **/
 import fetch from '../fetch'
 
-export const exportDataAs = async (
-  url: string,
-  data: Object,
-  contentType: string
-) => {
-  return await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': contentType,
-    },
-  })
+export enum Transformer {
+  Metacard = 'metacard',
+  Query = 'query',
 }
 
-export const retrieveExportOptions: () => Promise<Response> = async () => {
-  return await fetch('./internal/transformers/query')
+export type ResultSet = {
+  cql: string
+  srcs: string[]
+  count?: number
+  sorts?: Object[]
+  args?: Object
+}
+
+export const getExportOptions = async (type: Transformer) => {
+  return await fetch(`./internal/transformers/${type}`)
+}
+
+export const exportResult = async (
+  source: string,
+  id: number,
+  transformer: string
+) => {
+  return await fetch(
+    `/services/catalog/sources/${source}/${id}?transform=${transformer}`
+  )
+}
+
+export const exportResultSet = async (transformer: string, body: ResultSet) => {
+  return await fetch(`./internal/cql/transform/${transformer}`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 }

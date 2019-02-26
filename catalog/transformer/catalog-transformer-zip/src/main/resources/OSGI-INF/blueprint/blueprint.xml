@@ -18,18 +18,21 @@
 
     <ext:property-placeholder/>
 
-    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
-
-    <bean id="jarSigner" class="org.codice.ddf.catalog.transformer.zip.JarSigner"/>
-
     <bean id="zipValidation" class="org.codice.ddf.catalog.transformer.zip.ZipValidator" init-method="init">
         <property name="signaturePropertiesPath"
                   value="${ddf.etc}/ws-security/server/signature.properties"/>
     </bean>
 
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList" member-type="service-reference"
+      interface="ddf.catalog.transform.MetacardTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+          ref="metacardTransformers"/>
+    </reference-list>
+
     <bean id="zipCompression" class="org.codice.ddf.catalog.transformer.zip.ZipCompression">
-        <argument ref="jarSigner" />
-        <property name="catalogFramework" ref="catalogFramework"/>
+        <argument ref="metacardTransformers"/>
+        <argument ref="blueprintBundleContext"/>
     </bean>
 
     <bean id="zipDecompression" class="org.codice.ddf.catalog.transformer.zip.ZipDecompression">
@@ -43,6 +46,7 @@
             <entry key="mime-type" value="application/zip"/>
             <entry key="schema" value="urn:catalog:metacard"/>
             <entry key="displayName" value="Signed ZIP"/>
+            <entry key="export-resultset" value="true"/>
         </service-properties>
     </service>
 

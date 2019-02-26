@@ -1,9 +1,13 @@
 :title: KML Endpoint
 :type: endpoint
 :status: published
+:operations: other
+:url: \${secure_url}/services/catalog/kml
 :link: _kml_endpoint
 :summary: Generates a view-based KML Query Results Network Link.
 :implements: https://developers.google.com/kml/documentation/kmlreference[Keyhole Markup Language] {external-link}
+
+== {title}
 
 Keyhole Markup Language (_KML_) is an XML notation for describing geographic annotation and visualization for 2- and 3- dimensional maps.
 
@@ -15,29 +19,24 @@ The root network link will refresh every 12 hours or can be forced to refresh.
 As a user changes their current view, the query will be re-executed with the bounding box of the new view.
 (This query gets re-executed two seconds after the user stops moving the view.)
 
-===== Installing the KML Endpoint
-
-The KML Network Link Endpoint is installed by default with a standard installation as part of the ${ddf-spatial} application.
-
-===== Configuring the KML Endpoint
-
-This KML Network Link endpoint has the ability to serve up custom KML style documents and Icons to be used within that document.
-The KML style document must be a valid XML document containing a KML style.
-The KML Icons should be placed in a single level directory and must be an image type (png, jpg, tif, etc.).
-The Description will be displayed as a pop-up from the root network link on Google Earth.
-This may contain the general purpose of the network and URLs to external resources.￼￼￼
-
-See <<{reference-prefix}org.codice.ddf.spatial.kml.endpoint.KmlEndpoint,KML Endpoint configurations>> for all possible configurations.
-
-===== Using the KML Endpoint
-
-Once installed, the KML Network Link endpoint can be accessed at:
-----
-${secure_url}/services/catalog/kml
-----
-
 After the above request is sent, a KML Network Link document is returned as a response to download or open.
 This KML Network Link can then be opened in Google Earth.
+
+.KML Endpoint Operations
+[cols="2,1m,2,5m", options="header"]
+|===
+
+|Operation
+|HTTP Request Type
+|Details
+|Example URL
+
+|
+|
+|
+|
+
+|===
 
 .Example Output from KML Endpoint
 [source,xml,linenums]
@@ -60,8 +59,6 @@ This KML Network Link can then be opened in Google Earth.
   </NetworkLink>
 </kml>
 ----
-
-
 
 The KML endpoint can also serve up Icons to be used in conjunction with the KML style document.
 The request below shows the format to return an icon.

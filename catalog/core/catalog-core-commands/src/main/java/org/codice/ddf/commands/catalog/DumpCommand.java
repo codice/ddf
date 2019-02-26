@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.Constants;
+import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -22,26 +24,35 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -49,6 +60,10 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -81,11 +96,13 @@ public class DumpCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DumpCommand.class);
 
-  private static final String ZIP_COMPRESSION = "zipCompression";
-
   private List<MetacardTransformer> transformers = null;
 
-  @VisibleForTesting volatile Optional<QueryResponseTransformer> zipCompression = Optional.empty();
+  private static final String METACARD_PATH = "metacards" + File.separator;
+
+  private static final String CONTENT = "content";
+
+  private static final int BUFFER_SIZE = 10_000_000;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -176,8 +193,6 @@ public class DumpCommand extends CqlCommands {
   )
   String zipFileName;
 
-  private Map<String, Serializable> zipArgs;
-
   @Override
   protected Object executeWithSubject() throws Exception {
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
@@ -210,14 +225,13 @@ public class DumpCommand extends CqlCommands {
       return null;
     }
 
+    if (StringUtils.isNotBlank(zipFileName) && !zipFileName.endsWith(".zip")) {
+      zipFileName = zipFileName + ".zip";
+    }
+
     SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
     CatalogFacade catalog = getCatalog();
-
-    if (StringUtils.isNotBlank(zipFileName)) {
-      zipArgs = new HashMap<>();
-      zipArgs.put(FILE_PATH, dirPath + zipFileName);
-    }
 
     SortBy sort = new SortByImpl(Core.ID, SortOrder.ASCENDING);
 
@@ -250,11 +264,15 @@ public class DumpCommand extends CqlCommands {
       LOGGER.debug("Hits for Search: {}", catalog.query(queryRequest).getHits());
     }
 
-    ResultIterable.resultIterable(catalog::query, queryRequest)
-        .stream()
-        .map(Collections::singletonList)
-        .map(result -> new SourceResponseImpl(queryRequest, result))
-        .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
+    if (StringUtils.isNotBlank(zipFileName)) {
+      createZip(catalog, queryRequest, dirPath + zipFileName, resultCount);
+    } else {
+      ResultIterable.resultIterable(catalog::query, queryRequest)
+          .stream()
+          .map(Collections::singletonList)
+          .map(result -> new SourceResponseImpl(queryRequest, result))
+          .forEach(response -> handleResult(response, executorService, dumpDir, resultCount));
+    }
 
     executorService.shutdown();
 
@@ -288,24 +306,8 @@ public class DumpCommand extends CqlCommands {
       File dumpDir,
       AtomicLong resultCount) {
     final List<Result> results = response.getResults();
-    if (StringUtils.isNotBlank(zipFileName)) {
-      try {
-        Optional<QueryResponseTransformer> zipCompressionTransformer = getZipCompression();
-        if (zipCompressionTransformer.isPresent()) {
-          BinaryContent binaryContent =
-              zipCompressionTransformer.get().transform(response, zipArgs);
-          if (binaryContent != null) {
-            IOUtils.closeQuietly(binaryContent.getInputStream());
-          }
-          Long resultSize = (long) results.size();
-          printStatus(resultCount.addAndGet(resultSize));
-        }
-      } catch (InvalidSyntaxException e) {
-        LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
-      } catch (CatalogTransformerException e) {
-        LOGGER.info("zipCompression transform failed");
-      }
-    } else if (multithreaded > 1) {
+
+    if (multithreaded > 1) {
       executorService.submit(() -> processResults(results, dumpDir, resultCount));
     } else {
       processResults(results, dumpDir, resultCount);
@@ -407,13 +409,156 @@ public class DumpCommand extends CqlCommands {
     return metacardTransformerList;
   }
 
-  private Optional<QueryResponseTransformer> getZipCompression() throws InvalidSyntaxException {
-    if (!zipCompression.isPresent()) {
-      zipCompression =
-          getServiceByFilter(
-              QueryResponseTransformer.class,
-              "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
+  private void createZip(
+      CatalogFacade catalog, QueryRequest queryRequest, String filePath, AtomicLong resultCount)
+      throws CatalogTransformerException {
+    try (FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+
+      // write the metacards to the zip
+      ResultIterable.resultIterable(catalog::query, queryRequest)
+          .stream()
+          .map(Result::getMetacard)
+          .forEach(
+              metacard -> {
+                writeMetacardToZip(zipOutputStream, metacard);
+
+                if (hasLocalResources(metacard)) {
+                  // write the resources to the zip
+                  Map<String, Resource> resourceMap = getAllMetacardContent(metacard);
+                  resourceMap.forEach(
+                      (filename, resource) ->
+                          writeResourceToZip(zipOutputStream, filename, resource));
+                }
+
+                resultCount.incrementAndGet();
+              });
+    } catch (IOException e) {
+      throw new CatalogTransformerException(
+          String.format(
+              "Error occurred when initializing/closing ZipOutputStream with path %s.", filePath),
+          e);
     }
-    return zipCompression;
+  }
+
+  private void writeMetacardToZip(ZipOutputStream zipOutputStream, Metacard metacard) {
+    InputStream inputStream = null;
+
+    try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(BUFFER_SIZE);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileBackedOutputStream)) {
+
+      ZipEntry zipEntry = new ZipEntry(METACARD_PATH + metacard.getId());
+      zipOutputStream.putNextEntry(zipEntry);
+
+      objectOutputStream.writeObject(new MetacardImpl(metacard));
+      inputStream = fileBackedOutputStream.asByteSource().openStream();
+
+      IOUtils.copy(inputStream, zipOutputStream);
+    } catch (IOException e) {
+      LOGGER.debug("Failed to add metacard with id {}.", metacard.getId(), e);
+    } finally {
+      try {
+        if (inputStream != null) {
+          inputStream.close();
+        }
+      } catch (IOException e) {
+        LOGGER.debug("Failed to close input stream", e);
+      }
+    }
+  }
+
+  private boolean hasLocalResources(Metacard metacard) {
+    URI uri = metacard.getResourceURI();
+    return (uri != null && ContentItem.CONTENT_SCHEME.equals(uri.getScheme()));
+  }
+
+  private Map<String, Resource> getAllMetacardContent(Metacard metacard) {
+    Attribute attribute = metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI);
+    Map<String, Resource> resourceMap = getResourceMap(metacard, attribute);
+
+    URI resourceUri = metacard.getResourceURI();
+
+    Resource resource = getResource(metacard);
+
+    if (resource != null) {
+      resourceMap.put(
+          CONTENT + File.separator + resourceUri.getSchemeSpecificPart() + "-" + resource.getName(),
+          resource);
+    }
+
+    return resourceMap;
+  }
+
+  private Map<String, Resource> getResourceMap(Metacard metacard, Attribute attribute) {
+    if (attribute == null) {
+      return new HashMap<>();
+    }
+    return attribute
+        .getValues()
+        .stream()
+        .map(serializable -> getDerivedResources(metacard, serializable))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, next) -> first));
+  }
+
+  @Nullable
+  private Map.Entry<String, Resource> getDerivedResources(
+      Metacard metacard, Serializable serializable) {
+    if (!(serializable instanceof String)) {
+      LOGGER.debug(
+          "Input ({}) should have been a string but was a {}",
+          serializable,
+          serializable.getClass());
+      return null;
+    }
+
+    URI uri = null;
+    try {
+      uri = new URI((String) serializable);
+    } catch (URISyntaxException e) {
+      LOGGER.debug("Invalid Derived Resource URI Syntax for metacard : {}", metacard.getId(), e);
+      return null;
+    }
+
+    String derivedResourceFragment = uri.getFragment();
+    if (!ContentItem.CONTENT_SCHEME.equals(uri.getScheme())
+        || StringUtils.isBlank(derivedResourceFragment)) {
+      return null;
+    }
+
+    String fragment = CONTENT + File.separator + derivedResourceFragment + File.separator;
+    Resource resource = getResource(metacard);
+    if (resource == null) {
+      return null;
+    }
+
+    return new SimpleEntry<>(
+        fragment + uri.getSchemeSpecificPart() + "-" + resource.getName(), resource);
+  }
+
+  private Resource getResource(Metacard metacard) {
+    Resource resource = null;
+
+    try {
+      ResourceRequest resourceRequest = new ResourceRequestById(metacard.getId());
+      ResourceResponse resourceResponse = catalogFramework.getLocalResource(resourceRequest);
+      resource = resourceResponse.getResource();
+    } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
+      LOGGER.debug("Unable to retrieve content from metacard : {}", metacard.getId(), e);
+    }
+    return resource;
+  }
+
+  private void writeResourceToZip(
+      ZipOutputStream zipOutputStream, String filename, Resource resource) {
+
+    try (InputStream inputStream = resource.getInputStream()) {
+      ZipEntry zipEntry = new ZipEntry(filename);
+      zipOutputStream.putNextEntry(zipEntry);
+
+      IOUtils.copy(inputStream, zipOutputStream);
+    } catch (IOException e) {
+      LOGGER.debug("Failed to add resource with id {} to zip.", resource.getName(), e);
+    }
   }
 }

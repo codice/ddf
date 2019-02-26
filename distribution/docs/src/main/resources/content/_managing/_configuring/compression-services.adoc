@@ -1,9 +1,11 @@
 :title: Compression Services
-:type: endpointService
+:type: subConfiguration
 :status: published
-:link: _compression_services
+:parent: Configuring Endpoints
 :summary: Supports compression of outgoing and incoming messages.
-:implements:
+:order: 06
+
+== {title}
 
 ${branding} supports compression of outgoing and incoming messages through the Compression Services.
 These compression services are based on http://cxf.apache.org/[CXF] message encoding.
@@ -14,11 +16,7 @@ gzip:: Adds GZip compression to messages through CXF components. Code comes with
 
 exi:: Adds http://www.w3.org/XML/EXI/[Efficient XML Interchange (EXI)] {external-link} support to outgoing responses. EXI is an W3C standard for XML encoding that shrinks xml to a smaller size than normal GZip compression.
 
-===== Installing a Compression Service
-
-The compression services are not installed by default with a standard installation.
-
-To Install:
+To Install a compression service:
 
 * Navigate to the *${admin-console}*.
 * Select the *System* tab.
@@ -32,26 +30,5 @@ To Install:
 The compression services either need to be installed BEFORE the desired CXF service is started or the CXF service needs to be refreshed / restarted after the compression service is installed.
 ====
 
-===== Configuring Compression Services
-
-None.
-
-.Compression Imported Services
-None.
-
-.Compression Exported Services
-[cols="2,3,2,1" options="header"]
-|===
-|Registered Interface
-|Implemented Class(es)
-|Service Property
-|Value
-
-|`org.apache.cxf.feature.Feature`
-|`ddf.compression.exi.EXIFeature`
-
-`org.apache.cxf.transport.common.gzip.GZIPFeature`
-|N/A
-|N/A
-
-|===
+Compression services have no configurable properties.
+They can only be installed or uninstalled.

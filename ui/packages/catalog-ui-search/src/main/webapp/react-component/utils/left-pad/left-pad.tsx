@@ -9,10 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export {
-  getExportOptions,
-  exportResult,
-  exportResultSet,
-  Transformer,
-  ResultSet,
-} from './export'
+
+export default function leftPad(numToPad: number, size: number) {
+  var sign = Math.sign(numToPad) === -1 ? '-' : ''
+  var numNoDecimal = Math.floor(Math.abs(numToPad))
+  return new Array(sign === '-' ? size - 1 : size)
+    .concat([Math.sign(numToPad) * numNoDecimal])
+    .join(' ')
+    .slice(-size)
+}

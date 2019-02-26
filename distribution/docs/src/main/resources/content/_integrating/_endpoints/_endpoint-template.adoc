@@ -1,6 +1,7 @@
 :title: {endpoint name}
 :type: endpoint
 :status: draft //change to published
+:operations: tbd
 :filename: {endpoint name}-contents.adoc
 :link: _{endpoint name}
 :projectpath: {adoc-include}

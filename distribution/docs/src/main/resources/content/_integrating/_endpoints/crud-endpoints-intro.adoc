@@ -1,0 +1,10 @@
+:type: endpointIntro
+:status: published
+:title: CRUD Endpoints
+:operations: crud
+:order: 02
+
+== {title}
+
+To perform CRUD (Create, Read, Update, Delete) operations on data or metadata in the catalog, work with one of these endpoints.
+

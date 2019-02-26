@@ -1,0 +1,10 @@
+:type: endpointIntro
+:status: published
+:title: Pub-Sub Endpoints
+:operations: pub-sub
+:order: 05
+
+== {title}
+
+These endpoints provide publication and subscription services to allow notifications when certain events happen within ${branding}.
+

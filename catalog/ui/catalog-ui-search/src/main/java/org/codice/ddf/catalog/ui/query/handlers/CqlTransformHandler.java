@@ -195,7 +195,7 @@ public class CqlTransformHandler implements Route {
 
     response.type(mimeType);
     String attachment =
-        String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
+        String.format("attachment;filename=\"export-%s%s\"", Instant.now().toString(), fileExt);
     response.header(HttpHeaders.CONTENT_DISPOSITION, attachment);
   }
 

@@ -1,0 +1,9 @@
+:type: endpointIntro
+:status: published
+:title: Query Endpoints
+:operations: query
+:order: 03
+
+== {title}
+
+Query data or metadata stored within an instance of ${branding} using one of these endpoints.

@@ -14,6 +14,7 @@
  **/
 /*global require*/
 import React from 'react'
+import leftPad from '../../react-component/utils/left-pad'
 
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
@@ -34,14 +35,6 @@ function getCoordinateFormat() {
     .get('user')
     .get('preferences')
     .get('coordinateFormat')
-}
-
-function leftPad(numToPad, size) {
-  var sign = Math.sign(numToPad) === -1 ? '-' : ''
-  return new Array(sign === '-' ? size - 1 : size)
-    .concat([numToPad])
-    .join(' ')
-    .slice(-size)
 }
 
 function formatAttribute(attributeName, attributeValue) {
@@ -113,10 +106,10 @@ module.exports = Marionette.LayoutView.extend({
   decimalComponent(lat, lon) {
     return (
       <span>
-        {`${leftPad(Math.floor(lat), 3, ' ')}.${Math.abs(lat % 1)
+        {`${leftPad(lat, 3)}.${Math.abs(lat % 1)
           .toFixed(6)
           .toString()
-          .slice(2)} ${leftPad(Math.floor(lon), 4, ' ')}.${Math.abs(lon % 1)
+          .slice(2)} ${leftPad(lon, 4)}.${Math.abs(lon % 1)
           .toFixed(6)
           .toString()
           .slice(2)}`}
