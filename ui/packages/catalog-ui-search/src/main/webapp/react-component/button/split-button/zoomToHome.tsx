@@ -25,16 +25,19 @@ type Props = {
 }
 const Button = styled.button`
   flex: 1;
+  margin-left: ${props => props.theme.mediumSpacing};
+  margin-right: ${props => props.theme.mediumSpacing};
 `
 const Icon = styled.div`
-  color: white;
+  /* color: white; */
   display: inline-block;
-  background-color: ${props => props.theme.backgroundDropdown};
-  width: ${props => props.theme.minimumButtonSize};
-  height: ${props => props.theme.minimumButtonSize};
-  line-height: ${props => `${props.theme.minimumButtonSize} !important`};
+  background-color: inherit;
+  /* width: ${props => props.theme.minimumButtonSize}; */
+  /* height: ${props => props.theme.minimumButtonSize}; */
+  margin-left: ${props => props.theme.minimumSpacing};
+  line-height: ${props => `${props.theme.minimumLineSize} !important`};
   text-align: center;
-  font-size: ${props => props.theme.largeFontSize};
+  font-size: ${props => props.theme.mediumFontSize};
 `
 
 const renderMenu = (onSelect: voidFunc) => {
@@ -52,10 +55,12 @@ const ZoomToHome = (props: Props) => {
   const { saveHome, goHome } = props
   return (
     <SplitButton
+      className="is-button"
       title="Return To Home Location"
       onSelect={goHome}
       style={{
-        width: '160px',
+        color: 'white',
+        
       }}
     >
       {{

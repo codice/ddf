@@ -42,7 +42,7 @@
     padding: @minimumSpacing;
     max-width: ~'calc(100% - 2*@{minimumSpacing})';
     background: inherit;
-    line-height: @minimumButtonSize;
+    // line-height: 0;
     .is-medium-font;
     &,
     button,
@@ -76,13 +76,27 @@
     .is-split-button button,
     .is-button {
       height: @minimumButtonSize;
-      line-height: @minimumButtonSize;
+      // line-height: 0;
       display: inline-block;
-      margin-left: @mediumSpacing;
+      // margin-left: @mediumSpacing;
+      text-align: middle;
     }
+
+    .is-button {
+      span {
+        line-height: @minimumButtonSize;
+      }
+    }
+
+    .is-button:not(:first-of-type) {
+      margin-left: @largeSpacing;
+    }
+
     .zoomToHome-container {
       display: inline-block;
+      margin-left: 0;
     }
+
     .toolbar-panzoom.is-button {
       display: block;
     }
@@ -104,8 +118,9 @@
   }
 
   .toolbar-panzoom {
-    min-width: 450px;
+    // min-width: 450px;
     margin-left: 0 !important;
+    margin-bottom: @minimumSpacing;
   }
 
   .is-clustering {
