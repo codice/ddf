@@ -51,10 +51,7 @@ const renderMenu = (onSelect: voidFunc) => {
 const ZoomToHome = (props: Props) => {
   const { saveHome, goHome } = props
   return (
-    <SplitButton
-      title="Return To Home Location"
-      onSelect={goHome}
-    >
+    <SplitButton title="Return To Home Location" onSelect={goHome}>
       {{
         label: (
           <span>
