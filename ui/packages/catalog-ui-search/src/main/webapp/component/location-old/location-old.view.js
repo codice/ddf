@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   deserialize: function() {
     if (this.propertyModel) {
-      var filter = this.propertyModel.get('value')
+      const filter = this.propertyModel.get('value')
       if (this.isFilterUndefinedOrNull(filter)) {
         return
       }
@@ -127,9 +127,9 @@ module.exports = Marionette.LayoutView.extend({
         // these cases are for when the model matches the filter model
         case 'DWITHIN':
           if (CQLUtils.isPointRadiusFilter(filter)) {
-            let pointText = filterValue.substring(6)
+            const pointText = filterValue.substring(6)
             pointText = pointText.substring(0, pointText.length - 1)
-            var latLon = pointText.split(' ')
+            let latLon = pointText.split(' ')
             this.model.set({
               mode: 'circle',
               locationType: 'latlon',
