@@ -60,7 +60,6 @@ const Icon = styled.button`
   display: inline-block;
   width: ${props => props.theme.minimumButtonSize};
   line-height: ${props => props.theme.minimumLineSize};
-  text-align: center;
   font-size: ${props => props.theme.minimumFontSize};
   padding: 0;
   margin: 0;
