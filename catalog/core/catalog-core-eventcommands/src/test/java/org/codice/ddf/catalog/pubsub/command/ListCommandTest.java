@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -136,7 +137,7 @@ public class ListCommandTest {
 
     ServiceReference[] refs =
         new ServiceReference[] {sourceSubscriptionReference, enterpriseSubscriptionReference};
-    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
+    when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), isNull()))
         .thenReturn(refs);
 
     PrintStream realSystemOut = System.out;

@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -46,7 +45,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RestoreCommandTest extends SolrCommandTest {
@@ -349,8 +348,6 @@ public class RestoreCommandTest extends SolrCommandTest {
       throws Exception {
 
     SolrClient mockSolrClient = mock(SolrClient.class);
-    UpdateResponse optimizationResponse = getMockOptimizationResponse(optimizationStatusCode);
-    when(mockSolrClient.optimize(eq(collection))).thenReturn(optimizationResponse);
 
     NamedList<Object> responseHeader = getResponseHeader(restoreStatusCode);
 
@@ -362,9 +359,6 @@ public class RestoreCommandTest extends SolrCommandTest {
       mockResponse.add("success", new Object());
     }
 
-    if (collection != null) {
-      when(mockSolrClient.request(any(SolrRequest.class), eq(collection))).thenReturn(mockResponse);
-    }
     return mockSolrClient;
   }
 

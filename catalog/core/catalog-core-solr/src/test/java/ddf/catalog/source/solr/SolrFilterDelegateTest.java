@@ -502,8 +502,8 @@ public class SolrFilterDelegateTest {
 
   @Test
   public void testPropertyIsDivisibleBy() {
-    stub(mockResolver.getAnonymousField(Core.RESOURCE_SIZE))
-        .toReturn(Collections.singletonList("resource-size_lng"));
+    when(mockResolver.getAnonymousField(Core.RESOURCE_SIZE))
+        .thenReturn(Collections.singletonList("resource-size_lng"));
 
     long divisibleBy = 2L;
     String expectedQuery = "_val_:\"{!frange l=0 u=0}mod(field(resource-size_lng,min),2)\"";

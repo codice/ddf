@@ -148,7 +148,7 @@ public class MetacardApplicationTest {
   }
 
   private static Instant doParseDate(InvocationOnMock in) {
-    Serializable arg = in.getArgumentAt(0, Serializable.class);
+    Serializable arg = in.getArgument(0);
     if (!(arg instanceof String)) {
       fail("Only testing with string inputs but got something else, " + arg);
     }

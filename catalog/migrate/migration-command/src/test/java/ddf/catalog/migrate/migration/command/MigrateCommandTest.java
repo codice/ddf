@@ -15,7 +15,7 @@ package ddf.catalog.migrate.migration.command;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.Collections;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -82,7 +81,7 @@ public class MigrateCommandTest {
     ServiceReference<DataMigratable> serviceRef = getMockServiceReference(null, "name", "desc");
     Collection<ServiceReference<DataMigratable>> mockServices = ImmutableList.of(serviceRef);
 
-    when(bundleContext.getServiceReferences(eq(DataMigratable.class), anyString()))
+    when(bundleContext.getServiceReferences(eq(DataMigratable.class), isNull()))
         .thenReturn(mockServices);
 
     migrateCommand.executeWithSubject();
@@ -103,7 +102,7 @@ public class MigrateCommandTest {
         getMockServiceReference("serviceId", "service", null);
     Collection<ServiceReference<DataMigratable>> services = ImmutableList.of(serviceRef);
 
-    when(bundleContext.getServiceReferences(eq(DataMigratable.class), anyString()))
+    when(bundleContext.getServiceReferences(eq(DataMigratable.class), isNull()))
         .thenReturn(services);
 
     DataMigratable dataMigratable = mock(DataMigratable.class);
@@ -130,7 +129,7 @@ public class MigrateCommandTest {
     when(bundleContext.getService(serviceRef1)).thenReturn(dataMigratable1);
     when(bundleContext.getService(serviceRef2)).thenReturn(dataMigratable2);
 
-    when(bundleContext.getServiceReferences(eq(DataMigratable.class), anyString()))
+    when(bundleContext.getServiceReferences(eq(DataMigratable.class), isNull()))
         .thenReturn(ImmutableList.of(serviceRef1, serviceRef2));
 
     migrateCommand.executeWithSubject();
@@ -143,9 +142,6 @@ public class MigrateCommandTest {
   public void testMigrationTaskNotFound() throws Exception {
     migrateCommand.setAllMigrationTasks(false);
     migrateCommand.setListMigrationTasks(false);
-
-    when(bundleContext.getServiceReferences(eq(DataMigratable.class), anyString()))
-        .thenReturn(Collections.emptyList());
 
     migrateCommand.executeWithSubject();
   }
