@@ -29,13 +29,6 @@ const ValueModel = require('../value/value.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
-import {
-  geometryComparators,
-  dateComparators,
-  stringComparators,
-  numberComparators,
-  booleanComparators,
-} from './comparators'
 
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
@@ -183,7 +176,6 @@ module.exports = Marionette.LayoutView.extend({
       CONTAINS: 'ILIKE',
       MATCHCASE: 'LIKE',
       EQUALS: '=',
-      'IS EMPTY': 'IS NULL',
       '>': '>',
       '<': '<',
       '=': '=',
@@ -213,14 +205,9 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   updateTypeDropdown: function() {
-    const attribute = this.model.get('type')
-    if (attribute === 'anyGeo') {
-      this.model.set('comparator', [geometryComparators[1]])
-    }
-    if (attribute === 'anyText') {
-      this.model.set('comparator', [stringComparators[1]])
-    }
-    this.filterAttribute.currentView.model.set('value', [attribute])
+    this.filterAttribute.currentView.model.set('value', [
+      this.model.get('type'),
+    ])
   },
   handleAttributeUpdate: function() {
     this.model.set(
@@ -243,19 +230,23 @@ module.exports = Marionette.LayoutView.extend({
     var currentComparator = this.model.get('comparator')
     switch (propertyJSON.type) {
       case 'LOCATION':
-        if (geometryComparators.indexOf(currentComparator) === -1) {
+        if (['INTERSECTS'].indexOf(currentComparator) === -1) {
           this.model.set('comparator', 'INTERSECTS')
         }
-        this.toggleLocationClass(currentComparator === 'IS EMPTY')
+        this.toggleLocationClass(true)
         break
       case 'DATE':
-        if (dateComparators.indexOf(currentComparator) === -1) {
+        if (
+          ['BEFORE', 'AFTER', 'RELATIVE', 'BETWEEN'].indexOf(
+            currentComparator
+          ) === -1
+        ) {
           this.model.set('comparator', 'BEFORE')
         }
         this.toggleDateClass(true)
         break
       case 'BOOLEAN':
-        if (booleanComparators.indexOf(currentComparator) === -1) {
+        if (['='].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '=')
         }
         break
@@ -264,12 +255,15 @@ module.exports = Marionette.LayoutView.extend({
       case 'FLOAT':
       case 'INTEGER':
       case 'SHORT':
-        if (numberComparators.indexOf(currentComparator) === -1) {
+        if (['>', '<', '=', '>=', '<='].indexOf(currentComparator) === -1) {
           this.model.set('comparator', '>')
         }
         break
       default:
-        if (numberComparators.indexOf(currentComparator) === -1) {
+        if (
+          ['CONTAINS', 'MATCHCASE', '=', 'NEAR'].indexOf(currentComparator) ===
+          -1
+        ) {
           this.model.set('comparator', 'CONTAINS')
         }
         break
@@ -291,9 +285,11 @@ module.exports = Marionette.LayoutView.extend({
     let value = Common.duplicate(this.model.get('value'))
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
-    let type = this.model.get('type')
-
-    const propertyJSON = generatePropertyJSON(value, type, currentComparator)
+    const propertyJSON = generatePropertyJSON(
+      value,
+      this.model.get('type'),
+      currentComparator
+    )
     const ViewToUse = determineView(currentComparator)
     this.filterInput.show(
       new ViewToUse({
@@ -307,10 +303,6 @@ module.exports = Marionette.LayoutView.extend({
     } else {
       this.turnOffEditing()
     }
-    this.$el.toggleClass(
-      'is-empty',
-      this.model.get('comparator') === 'IS EMPTY'
-    )
     this.setDefaultComparator(propertyJSON)
   },
   getValue: function() {
@@ -322,10 +314,9 @@ module.exports = Marionette.LayoutView.extend({
     return text
   },
   getFilters: function() {
-    const property = this.model.get('type')
-    const comparator = this.model.get('comparator')
-    const value = this.filterInput.currentView.model.getValue()[0]
-    const type = this.comparatorToCQL()[comparator]
+    var property = this.model.get('type')
+    var comparator = this.model.get('comparator')
+    var value = this.filterInput.currentView.model.getValue()[0]
 
     if (comparator === 'NEAR') {
       return CQLUtils.generateFilterForFilterFunction('proximity', [
@@ -333,9 +324,9 @@ module.exports = Marionette.LayoutView.extend({
         value.distance,
         value.value,
       ])
-    } else if (comparator === 'IS EMPTY') {
-      return CQLUtils.generateIsEmptyFilter(property)
     }
+
+    var type = this.comparatorToCQL()[comparator]
     if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
       return {
         type: 'AND',
@@ -350,9 +341,6 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   deleteInvalidFilters: function() {
-    if (this.model.attributes.comparator === 'IS EMPTY') {
-      return
-    }
     if (!this.filterInput.currentView.isValid()) {
       this.delete()
     }
