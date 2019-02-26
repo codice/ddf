@@ -29,7 +29,7 @@
             ${project.build.directory}/solr/bin/
         </solr.script.dir>
         <solr.port>9784</solr.port>
-        <acdebugger.enabled>true</acdebugger.enabled>
+        <acdebugger.enabled>false</acdebugger.enabled>
         <acdebugger.port>5505</acdebugger.port>
     </properties>
     <dependencies>
@@ -397,7 +397,7 @@
                                 <argument>-p</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
-                            <async>true</async>
+                            <async>false</async>
                             <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                             <successCodes>
                                 <successCode>0</successCode>
@@ -423,7 +423,7 @@
                                 <argument>512m</argument>
                                 <argument>${solr.force}</argument>
                             </arguments>
-                            <async>true</async>
+                            <async>false</async>
                             <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
@@ -440,7 +440,7 @@
                                 <argument>-p</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
-                            <async>true</async>
+                            <async>false</async>
                             <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
@@ -502,7 +502,7 @@
                     <includes>
                         <include>**/*Suite.java</include>
                     </includes>
-                    <argLine>-Dddf.version=${project.version} -Djava.awt.headless=true -noverify
+                    <argLine>-Dddf.version=${project.version} -Djava.awt.headless=true -noverify -Djdk.io.permissionsUseCanonicalPath=true
                     </argLine>
                     <systemPropertyVariables>
                         <acdebuggerEnabled>${acdebugger.enabled}</acdebuggerEnabled>

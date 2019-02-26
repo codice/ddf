@@ -38,12 +38,16 @@
 
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
+        <!--<bundle>mvn:jakarta.xml.ws/jakarta.xml.ws-api/2.3.2</bundle>-->
+        <bundle>mvn:jakarta.xml.soap/jakarta.xml.soap-api/1.4.1</bundle>
+        <bundle>mvn:jakarta.jws/jakarta.jws-api/1.1.1</bundle>
         <feature>kernel</feature>
         <feature>platform-paxweb-jettyconfig</feature>
         <feature>security-services-app</feature>
-        <feature>ddf-branding</feature>
-        <feature>platform-app</feature>
-        <feature>admin-app</feature>
+        <!-- TODO uncomment these after the above features are loading -->
+        <!--<feature>ddf-branding</feature>-->
+        <!--<feature>platform-app</feature>-->
+        <!--<feature>admin-app</feature>-->
     </feature>
 
     <feature name="platform-app" version="${project.version}"

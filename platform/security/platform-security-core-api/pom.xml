@@ -157,11 +157,26 @@
 
         <!-- Java 11 -->
         <!-- JAX-WS (Includes SOAP) -->
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-ri</artifactId>
-            <type>pom</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.sun.xml.ws</groupId>-->
+            <!--<artifactId>jaxws-ri</artifactId>-->
+            <!--<type>pom</type>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>javax.xml.soap</groupId>-->
+            <!--<artifactId>javax.xml.soap-api</artifactId>-->
+            <!--<version>1.4.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>javax.jws</groupId>-->
+            <!--<artifactId>javax.jws-api</artifactId>-->
+            <!--<version>1.1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.cxf</groupId>-->
+            <!--<artifactId>cxf-rt-bindings-soap</artifactId>-->
+            <!--<version>3.2.6</version>-->
+        <!--</dependency>-->
 
     </dependencies>
     <dependencyManagement>
@@ -212,7 +227,10 @@
                             httpcore,
                             google-http-client,
                             opensaml-soap-impl,
-                            alerts
+                            alerts,
+                            javax.xml.soap-api,
+                            javax.jws-api,
+                            cxf-rt-bindings-soap
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.security*;version=${project.version},

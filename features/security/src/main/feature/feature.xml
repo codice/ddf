@@ -49,6 +49,8 @@
         <feature>spring</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}
         </bundle>
+        <bundle>mvn:jakarta.xml.soap/jakarta.xml.soap-api/1.4.1</bundle>
+        <bundle>mvn:jakarta.jws/jakarta.jws-api/1.1.1</bundle>
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-clientapi/${project.version}</bundle>
         <bundle>
@@ -151,6 +153,8 @@
 
     <feature name="security-core" version="${project.version}"
              description="Security Core">
+        <bundle dependency="true">mvn:jakarta.xml.soap/jakarta.xml.soap-api/1.4.1</bundle>
+        <bundle dependency="true">mvn:jakarta.xml.ws/jakarta.xml.ws-api/2.3.2</bundle>
         <feature>security-core-api</feature>
         <feature>security-handler-api</feature>
         <feature>security-encryption</feature>
@@ -258,10 +262,13 @@
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
         <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/2.3.2.RELEASE</bundle>
+        <bundle>mvn:jakarta.xml.ws/jakarta.xml.ws-api/2.3.2</bundle>
     </feature>
 
     <feature name="security-sts-server" version="${project.version}"
              description="Security STS.">
+        <bundle dependency="true">mvn:jakarta.xml.soap/jakarta.xml.soap-api/1.4.1</bundle>
+        <bundle dependency="true">mvn:jakarta.xml.ws/jakarta.xml.ws-api/2.3.2</bundle>
         <feature>sts-prereqs</feature>
         <feature>guava</feature>
         <configfile finalname="${ddf.etc}/ws-security/attributeMap.properties">
@@ -552,6 +559,8 @@
         <feature>util-uuidgenerator</feature>
         <feature>security-handler-basic</feature>
         <feature>security-idp-plugin</feature>
+        <bundle dependency="true">mvn:jakarta.xml.soap/jakarta.xml.soap-api/1.4.1</bundle>
+        <bundle dependency="true">mvn:jakarta.xml.ws/jakarta.xml.ws-api/2.3.2</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
