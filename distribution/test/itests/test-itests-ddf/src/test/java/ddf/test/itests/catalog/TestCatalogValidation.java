@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.not;
 
 import com.jayway.restassured.response.ValidatableResponse;
 import ddf.catalog.data.types.Validation;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -41,6 +42,7 @@ import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,6 +90,13 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   @Before
   public void setup() {
     clearCatalogAndWait();
+  }
+
+  @After
+  public void tearDown() throws IOException {
+    configureValidationMarkerPlugin(Collections.singletonList(""), false, false, getAdminConfig());
+    configureMetacardValidityFilterPlugin(
+        Collections.singletonList("invalid-state=guest"), false, false, getAdminConfig());
   }
 
   /* ***************** TEST ENFORCE VALIDATION ON INGEST ***************** */
