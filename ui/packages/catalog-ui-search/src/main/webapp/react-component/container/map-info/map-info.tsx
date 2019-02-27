@@ -10,19 +10,26 @@
  *
  **/
 import * as React from 'react'
-// import styled from '../../styles/styled-components'
-
-const user = require('../../../component/singletons/user-instance.js')
-
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import MapInfoPresentation from '../../presentation/map-info'
 import { hot } from 'react-hot-loader'
 
-type State = {
+const user = require('../../../component/singletons/user-instance.js')
+const properties = require('properties')
+const metacardDefinitions = require('component/singletons/metacard-definitions')
+
+export interface Attribute {
+  name: string
+  value: string
+}
+
+interface State {
   lat: number
   lon: number
   format: string
+  attributes: Attribute[]
 }
+
 type Props = {
   map: Backbone.Model
 } & WithBackboneProps
@@ -33,7 +40,29 @@ const mapPropsToState = (props: Props) => {
     lat: map.get('mouseLat'),
     lon: map.get('mouseLon'),
     format: getCoordinateFormat(),
+    attributes: getAttributes(props),
   }
+}
+
+const getAttributes = ({ map }: Props) => {
+  if (map.get('targetMetacard') === undefined) {
+    return []
+  }
+  return properties.summaryShow
+    .map((attribute: string) => {
+      const definition = metacardDefinitions.metacardTypes[attribute]
+      const attributeName =
+        typeof definition !== 'undefined'
+          ? definition.alias || definition.id
+          : attribute
+      const attributeValue = map
+        .get('targetMetacard')
+        .get('metacard')
+        .get('properties')
+        .get(attributeName)
+      return { name: attributeName, value: attributeValue }
+    })
+    .filter(({ value }: Attribute) => typeof value !== 'undefined')
 }
 
 const getCoordinateFormat = () =>
@@ -45,9 +74,6 @@ const getCoordinateFormat = () =>
 class MapInfo extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    // this.state = {
-    //   selected: `34°26′56″N 083°42′15″W`
-    // }
     this.state = mapPropsToState(props)
     this.listenToMap()
   }
@@ -65,13 +91,10 @@ class MapInfo extends React.Component<Props, State> {
       this.handleChange
     )
   }
+
   handleChange = () => {
     this.setState(mapPropsToState(this.props))
   }
-
-  // update(newFormat: string) {
-  //   this.setState({ selected: newFormat })
-  // }
 
   render() {
     return <MapInfoPresentation {...this.state} />
