@@ -20,6 +20,8 @@
 
     <ext:property-placeholder/>
 
+    <reference id="ocspService" interface="org.codice.ddf.security.OcspService"/>
+
     <bean id="tokenFactory"
           class="org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory"
           init-method="init">
@@ -29,6 +31,7 @@
 
     <bean id="handler" class="org.codice.ddf.security.handler.pki.PKIHandler">
         <property name="tokenFactory" ref="tokenFactory"/>
+        <property name="ocspService" ref="ocspService"/>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
@@ -37,6 +40,7 @@
 
     <bean id="wsshandler" class="org.codice.ddf.security.handler.pki.WssPKIHandler">
         <property name="tokenFactory" ref="tokenFactory"/>
+        <property name="ocspService" ref="ocspService"/>
     </bean>
 
     <service ref="wsshandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

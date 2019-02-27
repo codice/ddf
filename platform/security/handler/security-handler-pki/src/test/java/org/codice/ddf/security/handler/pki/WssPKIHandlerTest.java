@@ -32,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.junit.Test;
@@ -77,6 +78,10 @@ public class WssPKIHandlerTest {
     tokenFactory.setSignaturePropertiesPath(signatureProperties);
     tokenFactory.init();
     handler.setTokenFactory(tokenFactory);
+
+    OcspService ocspService = mock(OcspService.class);
+    when(ocspService.passesOcspCheck(any())).thenReturn(returnedValue);
+    handler.setOcspService(ocspService);
 
     CrlChecker crlChecker = mock(CrlChecker.class);
     when(crlChecker.passesCrlCheck(any())).thenReturn(returnedValue);

@@ -62,6 +62,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.codice.ddf.itests.common.XmlSearch;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -249,6 +250,8 @@ public class IdpEndpointTest {
     pkiAuthenticationTokenFactory.setSignaturePropertiesPath(signatureFile.getAbsolutePath());
     pkiAuthenticationTokenFactory.init();
     idpEndpoint.setTokenFactory(pkiAuthenticationTokenFactory);
+    OcspService ocspService = mock(OcspService.class);
+    idpEndpoint.setOcspService(ocspService);
     idpEndpoint.cookieCache.cacheSamlAssertion("1", readDocument("/saml.xml").getDocumentElement());
     idpEndpoint.setExpirationTime(30);
 

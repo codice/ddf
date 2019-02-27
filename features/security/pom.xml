@@ -282,6 +282,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.certificate</groupId>
+            <artifactId>security-ocsp-checker</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>session-management-service</artifactId>
             <version>${project.version}</version>
