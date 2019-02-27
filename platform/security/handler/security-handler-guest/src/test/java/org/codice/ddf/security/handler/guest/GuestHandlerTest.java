@@ -31,6 +31,7 @@ import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.pki.OcspService;
 import org.junit.Test;
 
 public class GuestHandlerTest {
@@ -41,6 +42,8 @@ public class GuestHandlerTest {
     GuestHandler handler = new GuestHandler();
     PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
     handler.setTokenFactory(tokenFactory);
+    OcspService ocspService = mock(OcspService.class);
+    handler.setOcspService(ocspService);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);

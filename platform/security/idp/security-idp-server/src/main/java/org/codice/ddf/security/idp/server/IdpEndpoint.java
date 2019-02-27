@@ -130,6 +130,7 @@ import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
+import org.codice.ddf.security.handler.pki.OcspService;
 import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.codice.ddf.security.idp.binding.api.Binding;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
@@ -191,6 +192,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
   private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
   private PKIAuthenticationTokenFactory tokenFactory;
+  private OcspService ocspService;
   private SecurityManager securityManager;
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
       new AtomicReference<>();
@@ -919,6 +921,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       LOGGER.debug("Logging user in via PKI.");
       PKIHandler pkiHandler = new PKIHandler();
       pkiHandler.setTokenFactory(tokenFactory);
+      pkiHandler.setOcspService(ocspService);
       HandlerResult handlerResult = pkiHandler.getNormalizedToken(request, null, null, false);
       if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
         token = handlerResult.getToken();
@@ -1549,6 +1552,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
   public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
+  }
+
+  public void setOcspService(OcspService ocspService) {
+    this.ocspService = ocspService;
   }
 
   public void setSpMetadata(List<String> spMetadata) {

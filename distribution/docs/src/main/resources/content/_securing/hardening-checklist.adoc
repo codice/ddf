@@ -13,7 +13,7 @@ The following list enumerates the required mitigations needed for hardening:
 * [ ] <<{managing-prefix}setting_directory_permissions, Set Directory Permissions>>
 * [ ] <<{managing-prefix}managing_keystores_and_certificates,Configure Keystore and Certificates>>
 * [ ] <<{managing-prefix}disallowing_login_without_certificates,Disallow Login Without Certificates>>
-* [ ] <<{managing-prefix}managing_certificate_revocation_list_crl,Configure Certificate Revocation List>>
+* [ ] <<{managing-prefix}managing_certificate_revocation,Configure Certificate Revocation>>
 ** [ ] <<{managing-prefix}denying_guest_user_access,Deny Guest User Access>> (if denying Guest users)
 ** [ ] <<{managing-prefix}allowing_guest_user_access,Allow Guest User Access>> (if allowing Guest users)
 * [ ] <<{managing-prefix}configuring_guest_claim_attributes,Configure Guest Claim Attributes>> (if allowing Guest users)
