@@ -7,7 +7,7 @@
 == Java Requirements
 For a runtime system:
 
-* https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html[JRE 8 x64] {external-link} must be installed.
+* https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html[JRE 8 x64] {external-link} or https://openjdk.java.net/install[OpenJDK 8 JRE] {external-link} must be installed.
 * The `JRE_HOME` environment variable must be set to the locations where the JRE is installed
 
 For a development system:
