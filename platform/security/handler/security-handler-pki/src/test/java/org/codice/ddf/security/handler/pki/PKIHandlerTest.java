@@ -181,6 +181,10 @@ public class PKIHandlerTest {
     tokenFactory.init();
     handler.setTokenFactory(tokenFactory);
 
+    OcspService ocspService = mock(OcspService.class);
+    when(ocspService.passesOcspChecker(any())).thenReturn(returnedValue);
+    handler.setOcspService(ocspService);
+
     CrlChecker crlChecker = mock(CrlChecker.class);
     when(crlChecker.passesCrlCheck(any())).thenReturn(returnedValue);
     handler.crlChecker = crlChecker;

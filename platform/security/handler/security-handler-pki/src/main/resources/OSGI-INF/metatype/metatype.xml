@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+    <OCD name="Online Certificate Status Protocol (OCSP)"
+         id="org.codice.ddf.security.handler.pki.OcspChecker">
+        <AD name="Enable validating a certificate against an OCSP server"
+            id="ocspEnabled"
+            description="Enables validating a certificate against an Online Certificate Status Protocol (OCSP) server."
+            required="true"
+            type="Boolean"
+            default="false"/>
+        <AD name="OCSP server URL"
+            id="ocspServerUrl"
+            required="true"
+            type="String"
+            default=""
+            description="Sets the Online Certificate Status Protocol (OCSP) server address."/>
+    </OCD>
+    <Designate pid="org.codice.ddf.security.handler.pki.OcspChecker">
+        <Object ocdref="org.codice.ddf.security.handler.pki.OcspChecker"/>
+    </Designate>
+</metatype:MetaData>

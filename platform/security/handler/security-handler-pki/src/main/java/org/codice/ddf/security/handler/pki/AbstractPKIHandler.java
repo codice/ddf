@@ -37,6 +37,8 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
   protected CrlChecker crlChecker;
 
+  protected OcspService ocspService;
+
   public AbstractPKIHandler() {
     crlChecker = new CrlChecker();
   }
@@ -93,7 +95,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
     // CRL was specified, check against CRL and return the result or throw a ServletException to the
     // WebSSOFilter
-    if (crlChecker.passesCrlCheck(certs)) {
+    if (crlChecker.passesCrlCheck(certs) && ocspService.passesOcspChecker(certs)) {
       handlerResult.setToken(token);
       handlerResult.setStatus(HandlerResult.Status.COMPLETED);
     } else {
@@ -132,5 +134,9 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
   public void setTokenFactory(PKIAuthenticationTokenFactory factory) {
     tokenFactory = factory;
+  }
+
+  public void setOcspService(OcspService ocspService) {
+    this.ocspService = ocspService;
   }
 }
