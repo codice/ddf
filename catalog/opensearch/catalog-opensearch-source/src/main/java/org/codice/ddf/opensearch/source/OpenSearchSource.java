@@ -861,7 +861,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   public void setPollInterval(Integer interval) {
-    this.pollInterval = interval;
+    this.pollInterval = Math.max(1, interval);
     updateScheduler();
   }
 
