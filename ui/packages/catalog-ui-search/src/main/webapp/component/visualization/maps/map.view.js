@@ -371,16 +371,11 @@ module.exports = Marionette.LayoutView.extend({
     const map = this.mapModel
     const MapInfoView = Marionette.ItemView.extend({
       template() {
-        return <MapInfo map = {map}/>
+        return <MapInfo map={map} />
       },
     })
 
     this.mapInfo.show(new MapInfoView())
-    // this.mapInfo.show(
-    //   new MapInfoView({
-    //     model: this.mapModel,
-    //   })
-    // )
   },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and
