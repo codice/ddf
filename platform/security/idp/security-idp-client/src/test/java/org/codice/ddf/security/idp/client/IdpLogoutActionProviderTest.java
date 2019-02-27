@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.action.Action;
 import ddf.security.encryption.EncryptionService;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import junit.framework.Assert;
 import org.apache.shiro.subject.Subject;
@@ -49,7 +50,8 @@ public class IdpLogoutActionProviderTest {
     map.put("idp", subject);
     Action action = idpLogoutActionProvider.getAction(map);
     Assert.assertTrue(
-        "Expected the encrypted nameId and time", action.getUrl().getQuery().contains(nameIdTime));
+        "Expected the encrypted nameId and time",
+        action.getUrl().getQuery().contains(URLEncoder.encode(nameIdTime)));
   }
 
   @Test
