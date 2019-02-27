@@ -20,7 +20,7 @@ type State = {
   blacklist: Backbone.Collection<Backbone.Model>
 }
 
-class UserBlacklist extends React.Component<WithBackboneProps, State> {
+class UserBlacklistContainer extends React.Component<WithBackboneProps, State> {
   constructor(props: WithBackboneProps) {
     super(props)
     this.state = {
@@ -64,4 +64,4 @@ class UserBlacklist extends React.Component<WithBackboneProps, State> {
   }
 }
 
-export default hot(module)(withListenTo(UserBlacklist))
+export default hot(module)(withListenTo(UserBlacklistContainer))

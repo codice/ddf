@@ -31,29 +31,30 @@ const Root = styled<Props, 'div'>('div')`
   margin-bottom: ${props => props.theme.minimumSpacing};
   cursor: pointer;
 
-  .item-details {
-    vertical-align: top;
-    padding: 0px ${props => props.theme.minimumSpacing};
-    text-align: center;
-    width: calc(100% - 2 * ${props => props.theme.minimumButtonSize});
-    height: ${props => props.theme.minimumButtonSize};
-    line-height: ${props => props.theme.minimumButtonSize};
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    display: inline-block;
-  }
   .button-remove {
     float: right;
   }
 `
 
-const render = (props: Props) => {
+const ItemDetails = styled<Props, 'div'>('div')`
+  vertical-align: top;
+  padding: 0px ${props => props.theme.minimumSpacing};
+  text-align: center;
+  width: calc(100% - 2 * ${props => props.theme.minimumButtonSize});
+  height: ${props => props.theme.minimumButtonSize};
+  line-height: ${props => props.theme.minimumButtonSize};
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+`
+
+const BlacklistItemPresentation = (props: Props) => {
   return (
     <Root {...props}>
-      <div className="item-details" onClick={props.navigate}>
+      <ItemDetails {...props}>
         {props.itemTitle}
-      </div>
+      </ItemDetails>
       <Button
         className="button-remove"
         icon="fa fa-eye"
@@ -63,4 +64,4 @@ const render = (props: Props) => {
     </Root>
   )
 }
-export default hot(module)(render)
+export default hot(module)(BlacklistItemPresentation)

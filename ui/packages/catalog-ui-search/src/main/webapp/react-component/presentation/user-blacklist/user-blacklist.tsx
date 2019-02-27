@@ -22,11 +22,13 @@ const Root = styled<Props, 'div'>('div')`
   > button {
     width: 100%;
   }
-  .blacklist-empty {
-    white-space: normal;
-    padding: ${props => props.theme.minimumSpacing};
-    text-align: center;
-  }
+`
+
+const EmptyText = styled<Props, 'div'>('div')`
+  white-space: normal;
+  padding: ${props => props.theme.minimumSpacing};
+  text-align: center;
+  font-size: ${props => props.theme.largeFontSize};
 `
 
 type Props = {
@@ -34,7 +36,7 @@ type Props = {
   blacklist: Backbone.Collection<Backbone.Model>
 }
 
-const render = (props: Props) => {
+const UserBlacklistPresentation = (props: Props) => {
   return (
     <Root {...props}>
       {props.blacklist.length !== 0 ? (
@@ -52,10 +54,10 @@ const render = (props: Props) => {
           </div>,
         ]
       ) : (
-        <div className="blacklist-empty is-large-font">Nothing hidden.</div>
+        <EmptyText {...props}>Nothing hidden.</EmptyText>
       )}
     </Root>
   )
 }
 
-export default hot(module)(render)
+export default hot(module)(UserBlacklistPresentation)

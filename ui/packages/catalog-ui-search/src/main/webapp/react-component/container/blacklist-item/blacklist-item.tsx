@@ -38,7 +38,7 @@ const navigateToItem = (id: string) => {
   })
 }
 
-const render = (props: Props) => {
+const BlacklistItemContainer = (props: Props) => {
   return (
     <BlacklistItemPresentation
       navigate={() => navigateToItem(props.item.id)}
@@ -48,4 +48,4 @@ const render = (props: Props) => {
   )
 }
 
-export default hot(module)(render)
+export default hot(module)(BlacklistItemContainer)
