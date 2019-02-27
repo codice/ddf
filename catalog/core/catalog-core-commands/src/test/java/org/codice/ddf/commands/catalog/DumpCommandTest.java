@@ -234,7 +234,10 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     FileInputStream inputStream =
         new FileInputStream(outputDirectory + File.separator + "foobar.zip");
     assertZipContents(
-        inputStream, ImmutableList.of("metacards/metacardId1", "metacards/metacardId2"));
+        inputStream,
+        ImmutableList.of(
+            "metacards" + File.separator + "metacardId1",
+            "metacards" + File.separator + "metacardId2"));
 
     String expectedPrintOut = " 2 file(s) dumped in ";
     assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
