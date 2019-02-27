@@ -33,13 +33,17 @@
 
     <bean id="kmlMarshaller" class="org.codice.ddf.spatial.kml.util.KmlMarshaller"/>
 
-    <bean id="kmlTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KMLTransformerImpl">
+    <bean id="kmlTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KmlTransformerImpl">
         <argument ref="blueprintBundleContext"/>
         <argument value="kml-styling/defaultStyling.kml"/>
         <!-- Path for default base Styling file -->
         <argument ref="kmlStyleMap"/>
         <argument ref="resourceActionProvider"/>
         <argument ref="kmlMarshaller"/>
+    </bean>
+
+    <bean id="kmzTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KmzTransformerImpl">
+        <argument ref="kmlTransformerImpl"/>
     </bean>
 
     <service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
@@ -50,6 +54,7 @@
             <entry key="description"
                    value="Transforms a Metacard to KML for use with Google Earth and other visualization tools."/>
             <entry key="displayName" value="KML"/>
+            <entry key="generateActionProvider" value="false"/>
         </service-properties>
     </service>
 
@@ -64,6 +69,28 @@
         </service-properties>
     </service>
 
+    <service ref="kmzTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
+        <service-properties>
+            <entry key="id" value="kmz"/>
+            <entry key="shortname" value="kml"/>
+            <entry key="title" value="View as KMZ..."/>
+            <entry key="description"
+                   value="Transforms a Metacard to KMZ for use with Google Earth and other visualization tools."/>
+            <entry key="displayName" value="KMZ"/>
+            <entry key="generateActionProvider" value="false"/>
+        </service-properties>
+    </service>
+
+    <service ref="kmzTransformerImpl" interface="ddf.catalog.transform.QueryResponseTransformer">
+        <service-properties>
+            <entry key="id" value="kmz"/>
+            <entry key="shortname" value="kmz"/>
+            <entry key="title" value="View Results as KMZ..."/>
+            <entry key="description"
+                   value="Transforms a Metacard to KMZ for use with Google Earth and other visualization tools."/>
+            <entry key="displayName" value="KMZ"/>
+        </service-properties>
+    </service>
 
     <cm:managed-service-factory id="KmlStyleMappingFactory"
                                 factory-pid="org.codice.ddf.spatial.kml.style"
@@ -127,6 +154,30 @@
                     <value>application/vnd.google-earth.kmz</value>
                 </list>
             </entry>
+        </service-properties>
+    </service>
+
+    <bean id="kmlActionProvider"
+          class="org.codice.ddf.spatial.kml.actions.KmlActionProvider">
+        <argument value="catalog.data.metacard.kml"/>
+        <argument value="kml"/>
+    </bean>
+
+    <bean id="kmzActionProvider"
+          class="org.codice.ddf.spatial.kml.actions.KmlActionProvider">
+        <argument value="catalog.data.metacard.kmz"/>
+        <argument value="kmz"/>
+    </bean>
+
+    <service ref="kmlActionProvider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.metacard.kml"/>
+        </service-properties>
+    </service>
+
+    <service ref="kmzActionProvider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.metacard.kmz"/>
         </service-properties>
     </service>
 

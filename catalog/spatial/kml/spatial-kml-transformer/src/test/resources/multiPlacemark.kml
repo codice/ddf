@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Portions of this page are reproduced from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License.
+ *
+ **/
+-->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document id="1234">
+    <name>Results2</name>
+    <open>0</open>
+    <Placemark>
+        <name>Placemark 1</name>
+        <description>Attached to the ground. Intelligently places itself at the
+            height of the underlying terrain.
+        </description>
+        <Point>
+            <coordinates>-122.0822035425683,37.42228990140251,0</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+            <name>Placemark 2</name>
+            <description>Unattached and not so intelligent.</description>
+            <Point>
+                <coordinates>-121.0822035425683,36.42228990140251,0</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

@@ -69,7 +69,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
-public class KMLTransformerImplTest {
+public class KmlTransformerImplTest {
 
   private static final String DEFAULT_STYLE_LOCATION = "/kml-styling/defaultStyling.kml";
 
@@ -117,7 +117,7 @@ public class KMLTransformerImplTest {
 
   private static Bundle mockBundle = mock(Bundle.class);
 
-  private static KMLTransformerImpl kmlTransformer;
+  private static KmlTransformerImpl kmlTransformer;
 
   private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -129,7 +129,7 @@ public class KMLTransformerImplTest {
                 + Calendar.getInstance().getTimeZone().getOffset(metacardDate.getTime()));
 
     when(mockContext.getBundle()).thenReturn(mockBundle);
-    URL url = KMLTransformerImplTest.class.getResource(DEFAULT_STYLE_LOCATION);
+    URL url = KmlTransformerImplTest.class.getResource(DEFAULT_STYLE_LOCATION);
     when(mockBundle.getResource(any(String.class))).thenReturn(url);
 
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -138,7 +138,7 @@ public class KMLTransformerImplTest {
     when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
     when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
     kmlTransformer =
-        new KMLTransformerImpl(
+        new KmlTransformerImpl(
             mockContext,
             DEFAULT_STYLE_LOCATION,
             new KmlStyleMap(),
@@ -373,7 +373,7 @@ public class KMLTransformerImplTest {
     MetacardImpl metacard = createMockMetacard();
     metacard.setLocation(POINT_WKT);
     BinaryContent content = kmlTransformer.transform(metacard, null);
-    assertThat(content.getMimeTypeValue(), is(KMLTransformerImpl.KML_MIMETYPE.toString()));
+    assertThat(content.getMimeTypeValue(), is(KmlTransformerImpl.KML_MIMETYPE.toString()));
     IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
   }
 
@@ -388,7 +388,7 @@ public class KMLTransformerImplTest {
 
     SourceResponseImpl sourceResponse = new SourceResponseImpl(null, singletonList(result));
     BinaryContent content = kmlTransformer.transform(sourceResponse, emptyMap());
-    assertThat(content.getMimeTypeValue(), is(KMLTransformerImpl.KML_MIMETYPE.toString()));
+    assertThat(content.getMimeTypeValue(), is(KmlTransformerImpl.KML_MIMETYPE.toString()));
     final String kmlString = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
 
     assertXpathEvaluatesTo("Results (1)", "/m:kml/m:Document/m:name", kmlString);

@@ -82,7 +82,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Ashraf Barakat, Ian Barnett, Keith C Wire
  */
-public class KMLTransformerImpl implements KMLTransformer {
+public class KmlTransformerImpl implements KmlTransformer {
 
   private static final String KML_RESPONSE_QUEUE_PREFIX = "Results (";
 
@@ -94,7 +94,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private static final String DESCRIPTION_TEMPLATE = "description";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(KMLTransformerImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(KmlTransformerImpl.class);
 
   private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
@@ -123,7 +123,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private DateTimeFormatter formatter;
 
-  public KMLTransformerImpl(
+  public KmlTransformerImpl(
       BundleContext bundleContext,
       String defaultStylingName,
       KmlStyleMap mapper,
