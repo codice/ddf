@@ -58,10 +58,9 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
   componentDidMount = () => {
-    fetch(`/search/catalog/internal/metacard/${this.props.id}`)
-      .then(response => response.json())
+    this.fetchWorkspace(this.props.id)
       .then(data => {
-        const metacard = data.metacards[0]
+        const metacard = data
         const res = Restrictions.from(metacard)
         const security = new Security(res)
         const individuals = security.getIndividuals().map((e: Entry) => {
@@ -139,15 +138,17 @@ export class Sharing extends React.Component<Props, State> {
   // and should be removed when support for optimistic concurrency is added
   // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any) => {
-    const res = await fetch(
-      '/search/catalog/internal/metacard/' + this.props.id
-    )
-    const data = await res.json()
+    const currWorkspace = await this.fetchWorkspace(this.props.id)
     if (
-      data.metacards[0]['metacard.modified'] ===
+      currWorkspace['metacard.modified'] ===
       this.state.previousWorkspace['metacard.modified']
     ) {
       await this.doSave(attributes)
+      const newWorkspace = await this.fetchWorkspace(this.props.id)
+      this.setState({
+        items: [...this.state.items],
+        previousWorkspace: newWorkspace,
+      })
     } else {
       throw new Error('Need to refresh')
     }
@@ -172,6 +173,15 @@ export class Sharing extends React.Component<Props, State> {
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)
     }
+    return await res.json()
+  }
+
+  fetchWorkspace = async (id: number) => {
+    const res = await fetch(
+      '/search/catalog/internal/metacard/' + id
+    )
+    const workspace = await res.json()
+    return workspace.metacards[0]
   }
 
   showSaveFailed() {
