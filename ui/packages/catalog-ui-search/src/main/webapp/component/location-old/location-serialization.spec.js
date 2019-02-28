@@ -74,7 +74,7 @@ describe('serialize/deserialize point', () => {
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-111.131821, 31.964569],
+      coordinates: [31.964569, -111.131821],
     },
     properties: {
       type: 'Point',
