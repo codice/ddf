@@ -53,8 +53,7 @@ const BlacklistToggle = (props: any) => {
     return (
       <MetacardInteraction
         text="Unhide from Future Searches"
-        help="Removes from the
-                list of results that are hidden from future searches."
+        help="Removes from the list of results that are hidden from future searches."
         icon="fa fa-eye"
         onClick={() => handleShow(props)}
       />
@@ -63,9 +62,9 @@ const BlacklistToggle = (props: any) => {
     return (
       <MetacardInteraction
         text="Hide from Future Searches"
-        help="Adds to a list
+        help={`Adds to a list
                 of results that will be hidden from future searches.  To clear this list,
-                click the Settings icon, select Hidden, then choose to unhide the record."
+                click the Settings icon, select Hidden, then choose to unhide the record.`}
         icon="fa fa-eye-slash"
         onClick={() => handleHide(props)}
       />

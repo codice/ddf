@@ -13,7 +13,7 @@
  *
  **/
 /*global define*/
-import * as React from 'react'
+import React from 'react'
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const IconHelper = require('../../js/IconHelper.js')

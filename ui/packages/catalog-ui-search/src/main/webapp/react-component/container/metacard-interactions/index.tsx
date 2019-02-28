@@ -103,9 +103,11 @@ class MetacardInteractions extends React.Component<Props, State> {
     return (
       <>
         {interactions.map((Component: any, i: number) => {
+          const componentName = Component.toString()
+          const key = componentName + '-' + i
           return (
             <Component
-              key={i}
+              key={key}
               {...this.props}
               blacklisted={this.state.blacklisted}
             />

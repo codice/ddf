@@ -15,9 +15,9 @@ const ExpandMetacard = (props: Props) => {
   return (
     <MetacardInteraction
       text="Expand Metacard View"
-      help="Takes you to a
-              view that only focuses on this particular result.  Bookmarking it will allow
-              you to come back to this result directly."
+      help={`Takes you to a
+              view that only focuses on this particular result. Bookmarking it will allow
+              you to come back to this result directly.`}
       icon="fa fa-expand"
       onClick={() => handleExpand(props)}
     />
