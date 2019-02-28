@@ -19,7 +19,7 @@
     "ace": "*"
   },
   "dependencies": {
-    "lodash": "4.17.5",
+    "lodash": "4.17.4",
     "backbone-relational": "0.8.8",
     "iframe-resizer": "3.6.3",
     "js-cookie": "2.2.0",

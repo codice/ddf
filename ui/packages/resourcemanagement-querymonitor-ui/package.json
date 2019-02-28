@@ -37,7 +37,7 @@
     "ace": "*"
   },
   "dependencies": {
-    "lodash": "4.17.5",
+    "lodash": "4.17.4",
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
     "path": "0.4.9",
