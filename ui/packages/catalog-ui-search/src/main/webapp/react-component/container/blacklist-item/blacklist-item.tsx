@@ -20,32 +20,47 @@ type Props = {
   item: Backbone.Model
 }
 
-const removeFromBlacklist = (id: string) => {
-  user
-    .get('user')
-    .get('preferences')
-    .get('resultBlacklist')
-    .remove(id)
-  user.savePreferences()
+type State = {
+  clearing: boolean
 }
 
-const navigateToItem = (id: string) => {
-  wreqr.vent.trigger('router:navigate', {
-    fragment: 'metacards/' + id,
-    options: {
-      trigger: true,
-    },
-  })
-}
-
-const BlacklistItemContainer = (props: Props) => {
-  return (
-    <BlacklistItemPresentation
-      navigate={() => navigateToItem(props.item.id)}
-      remove={() => removeFromBlacklist(props.item.id)}
-      itemTitle={props.item.get('title')}
-    />
-  )
+class BlacklistItemContainer extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      clearing: false,
+    }
+  }
+  navigateToItem = () => {
+    wreqr.vent.trigger('router:navigate', {
+      fragment: 'metacards/' + this.props.item.id,
+      options: {
+        trigger: true,
+      },
+    })
+  }
+  removeFromBlacklist = () => {
+    this.setState({ clearing: true })
+    setTimeout(() => {
+      user
+        .get('user')
+        .get('preferences')
+        .get('resultBlacklist')
+        .remove(this.props.item.id)
+      user.savePreferences()
+      this.setState({ clearing: false })
+    }, 250)
+  }
+  render() {
+    return (
+      <BlacklistItemPresentation
+        navigate={this.navigateToItem}
+        remove={this.removeFromBlacklist}
+        itemTitle={this.props.item.get('title')}
+        clearing={this.state.clearing}
+      />
+    )
+  }
 }
 
 export default hot(module)(BlacklistItemContainer)

@@ -18,6 +18,7 @@ import withListenTo, { WithBackboneProps } from '../backbone-container'
 const user = require('../../../component/singletons/user-instance.js')
 type State = {
   blacklist: Backbone.Collection<Backbone.Model>
+  clearing: boolean
 }
 
 class UserBlacklistContainer extends React.Component<WithBackboneProps, State> {
@@ -25,6 +26,7 @@ class UserBlacklistContainer extends React.Component<WithBackboneProps, State> {
     super(props)
     this.state = {
       blacklist: this.getBlacklist(),
+      clearing: false,
     }
   }
 
@@ -50,8 +52,12 @@ class UserBlacklistContainer extends React.Component<WithBackboneProps, State> {
   }
 
   clearBlacklist = () => {
-    this.getBlacklist().reset()
-    user.savePreferences()
+    this.setState({ clearing: true })
+    setTimeout(() => {
+      this.getBlacklist().reset()
+      user.savePreferences()
+      this.setState({ clearing: false })
+    }, 250)
   }
 
   render() {
@@ -59,6 +65,7 @@ class UserBlacklistContainer extends React.Component<WithBackboneProps, State> {
       <UserBlackListPresentation
         clearBlacklist={this.clearBlacklist}
         blacklist={this.state.blacklist}
+        clearing={this.state.clearing}
       />
     )
   }

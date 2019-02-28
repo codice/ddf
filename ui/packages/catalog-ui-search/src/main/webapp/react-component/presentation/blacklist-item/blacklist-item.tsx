@@ -12,6 +12,7 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
+import { keyframes } from '../../styles/styled-components'
 import styled from '../../styles/styled-components'
 import { buttonTypeEnum, Button } from '../button'
 
@@ -19,9 +20,17 @@ type Props = {
   remove: () => void
   navigate: () => void
   itemTitle: string
+  clearing: boolean
 }
 
-/* TODO: Add back in css transitions */
+const collapseAnimation = keyframes`
+from {
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    transform: translateY(-50%) scaleY(0);
+  }
+`
 
 const Root = styled<Props, 'div'>('div')`
   display: block;
@@ -30,6 +39,20 @@ const Root = styled<Props, 'div'>('div')`
   text-align: center;
   margin-bottom: ${props => props.theme.minimumSpacing};
   cursor: pointer;
+  overflow: hidden;
+  ${props => {
+    if (props.clearing) {
+      return (
+        'animation: ' +
+        collapseAnimation +
+        ' ' +
+        props.theme.coreTransitionTime +
+        ' linear;'
+      )
+    } else {
+      return ''
+    }
+  }};
 
   .button-remove {
     float: right;
@@ -52,9 +75,7 @@ const ItemDetails = styled<Props, 'div'>('div')`
 const BlacklistItemPresentation = (props: Props) => {
   return (
     <Root {...props}>
-      <ItemDetails {...props}>
-        {props.itemTitle}
-      </ItemDetails>
+      <ItemDetails {...props}>{props.itemTitle}</ItemDetails>
       <Button
         className="button-remove"
         icon="fa fa-eye"
