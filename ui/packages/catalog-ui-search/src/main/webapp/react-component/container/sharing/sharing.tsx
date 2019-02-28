@@ -58,33 +58,32 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
   componentDidMount = () => {
-    this.fetchWorkspace(this.props.id)
-      .then(data => {
-        const metacard = data
-        const res = Restrictions.from(metacard)
-        const security = new Security(res)
-        const individuals = security.getIndividuals().map((e: Entry) => {
-          return {
-            ...e,
-            id: common.generateUUID(),
-            category: Category.User,
-            visible: e.value !== res.owner, // hide owner
-          } as Item
-        })
-        const groups = security.getGroups(user.getRoles()).map((e: Entry) => {
-          return {
-            ...e,
-            id: common.generateUUID(),
-            category: Category.Group,
-            visible: user.getRoles().indexOf(e.value) > -1, // only display the groups the current user has
-          } as Item
-        })
-        this.setState({
-          items: groups.concat(individuals),
-          previousWorkspace: metacard,
-        })
-        this.add()
+    this.fetchWorkspace(this.props.id).then(data => {
+      const metacard = data
+      const res = Restrictions.from(metacard)
+      const security = new Security(res)
+      const individuals = security.getIndividuals().map((e: Entry) => {
+        return {
+          ...e,
+          id: common.generateUUID(),
+          category: Category.User,
+          visible: e.value !== res.owner, // hide owner
+        } as Item
       })
+      const groups = security.getGroups(user.getRoles()).map((e: Entry) => {
+        return {
+          ...e,
+          id: common.generateUUID(),
+          category: Category.Group,
+          visible: user.getRoles().indexOf(e.value) > -1, // only display the groups the current user has
+        } as Item
+      })
+      this.setState({
+        items: groups.concat(individuals),
+        previousWorkspace: metacard,
+      })
+      this.add()
+    })
   }
 
   save = () => {
@@ -177,9 +176,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   fetchWorkspace = async (id: number) => {
-    const res = await fetch(
-      '/search/catalog/internal/metacard/' + id
-    )
+    const res = await fetch('/search/catalog/internal/metacard/' + id)
     const workspace = await res.json()
     return workspace.metacards[0]
   }
