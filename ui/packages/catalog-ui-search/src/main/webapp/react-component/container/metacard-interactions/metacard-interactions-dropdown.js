@@ -21,7 +21,6 @@ const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 require('../../../behaviors/dropdown.behavior')
 
-// TODO: Add onHover from the + button
 const Button = styled.button`
   display: 'inline-block';
   text-align: center;
@@ -37,8 +36,7 @@ const ContainerView = Marionette.ItemView.extend({
       <Button
         className="metacard-interactions is-button"
         title="Provides a list of actions to take on the result."
-        data-help="Provides a list
-                        of actions to take on the result."
+        data-help="Provides a list of actions to take on the result."
       >
         <span className="fa fa-ellipsis-v" />
       </Button>
@@ -65,7 +63,6 @@ const ContainerView = Marionette.ItemView.extend({
     }
   },
 
-  // TODO: Do I need this?
   initialize: function() {
     if (this.model.length === 1) {
       this.listenTo(
