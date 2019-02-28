@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.codice.usng4j.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,13 @@ class LatLon {
     LOGGER.trace("Creating LatLon ({}, {})", lat, lon);
     this.lat = lat;
     this.lon = lon;
+  }
+
+  @Nullable
+  public static LatLon createIfValid(Double lat, Double lon) {
+    return (LatLon.isValidLatitude(lat) && LatLon.isValidLongitude(lon))
+        ? new LatLon(lat, lon)
+        : null;
   }
 
   Double getLat() {
