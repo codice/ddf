@@ -17,12 +17,6 @@ import { keyframes } from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import BlacklistItemContainer from '../../container/blacklist-item'
 
-const Root = styled<Props, 'div'>('div')`
-  > button {
-    width: 100%;
-  }
-`
-
 const expandAnimation = keyframes`
   from {
       transform: scale(0)
@@ -30,15 +24,6 @@ const expandAnimation = keyframes`
   to {
       transform: scale(1)
   }
-`
-const EmptyText = styled<Props, 'div'>('div')`
-  white-space: normal;
-  padding: ${props => props.theme.minimumSpacing};
-  text-align: center;
-  font-size: ${props => props.theme.largeFontSize};
-  overflow: hidden;
-  animation: ${expandAnimation} ${props => props.theme.coreTransitionTime}
-    linear;
 `
 
 const collapseAnimation = keyframes`
@@ -50,7 +35,23 @@ from {
   }
 `
 
-const AnimationWrapper = styled<Props, 'div'>('div')`
+const Root = styled<Props, 'div'>('div')`
+  > button {
+    width: 100%;
+  }
+`
+
+const EmptyText = styled<Props, 'div'>('div')`
+  white-space: normal;
+  padding: ${props => props.theme.minimumSpacing};
+  text-align: center;
+  font-size: ${props => props.theme.largeFontSize};
+  overflow: hidden;
+  animation: ${expandAnimation} ${props => props.theme.coreTransitionTime}
+    linear;
+`
+
+const ItemWrapper = styled<Props, 'div'>('div')`
   ${props => {
     if (props.clearing) {
       return (
@@ -84,13 +85,13 @@ const UserBlacklistPresentation = (props: Props) => {
             onClick={props.clearBlacklist}
             text="Unhide All"
           />,
-          <AnimationWrapper {...props}>
+          <ItemWrapper {...props}>
             <div className="is-list has-list-highlighting">
               {props.blacklist.map(item => {
                 return <BlacklistItemContainer key={item.id} item={item} />
               })}
             </div>
-          </AnimationWrapper>,
+          </ItemWrapper>,
         ]
       ) : (
         <EmptyText {...props}>Nothing hidden.</EmptyText>
