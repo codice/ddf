@@ -17,6 +17,7 @@ import { Restrictions, Access, Security, Entry } from '../../utils/security'
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
 const announcement = require('component/announcement')
+const LoadingView = require('../../../component/loading/loading.view')
 
 type Attribute = {
   attribute: string
@@ -115,6 +116,8 @@ export class Sharing extends React.Component<Props, State> {
         values: users.filter(e => e.access === Access.Share).map(e => e.value),
       },
     ]
+
+    const loadingView = new LoadingView()
     this.attemptSave(attributes)
       .then(() => {
         this.showSaveSuccessful()
@@ -127,8 +130,14 @@ export class Sharing extends React.Component<Props, State> {
           this.showSaveFailed()
         }
       })
+      .then(() => {
+        loadingView.remove()
+      })
   }
 
+  // NOTE: Fetching the latest workspace and checking the modified dates is a temporary solution
+  // and should be removed when support for optimistic concurrency is added
+  // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any) => {
     const res = await fetch(
       '/search/catalog/internal/metacard/' + this.props.id
