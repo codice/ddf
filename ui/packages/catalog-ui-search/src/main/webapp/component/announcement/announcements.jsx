@@ -65,7 +65,6 @@ var Announcments = function (props) {
                 onDismiss={dismiss(announcment.id)} />
         );
     });
-
     return <div>{list}</div>;
 };
 

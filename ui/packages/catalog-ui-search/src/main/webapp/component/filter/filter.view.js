@@ -342,8 +342,7 @@ module.exports = Marionette.LayoutView.extend({
     const type = this.comparatorToCQL()[comparator]
 
     if (comparator === 'NEAR') {
-      return CQLUtils.generateFilterForFilterFunctio
-      \n('proximity', [
+      return CQLUtils.generateFilterForFilterFunction('proximity', [
         property,
         value.distance,
         value.value,
