@@ -291,14 +291,29 @@ module.exports = Marionette.LayoutView.extend({
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
     const type = this.model.get('type')
-
-    const propertyJSON = generatePropertyJSON(value, type, currentComparator)
-    const ViewToUse = determineView(currentComparator)
-    this.filterInput.show(
-      new ViewToUse({
-        model: new PropertyModel(propertyJSON),
-      })
+    const propertyJSON = generatePropertyJSON(
+      value,
+      this.model.get('type'),
+      currentComparator
     )
+
+    if (this.options.suggester && propertyJSON.enum === undefined) {
+      this.options.suggester(propertyJSON).then(suggestions => {
+        if (suggestions.length > 0) {
+          propertyJSON.enum = suggestions.map(label => ({
+            label,
+            value: label,
+          }))
+          const ViewToUse = determineView(currentComparator)
+          this.filterInput.show(
+            new ViewToUse({
+              model: new PropertyModel(propertyJSON),
+            })
+          )
+          this.turnOnEditing()
+        }
+      })
+    }
 
     var isEditing = this.$el.hasClass('is-editing')
     if (isEditing) {
@@ -327,7 +342,8 @@ module.exports = Marionette.LayoutView.extend({
     const type = this.comparatorToCQL()[comparator]
 
     if (comparator === 'NEAR') {
-      return CQLUtils.generateFilterForFilterFunction('proximity', [
+      return CQLUtils.generateFilterForFilterFunctio
+      \n('proximity', [
         property,
         value.distance,
         value.value,

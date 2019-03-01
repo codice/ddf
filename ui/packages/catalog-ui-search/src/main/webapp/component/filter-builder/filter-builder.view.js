@@ -94,6 +94,7 @@ module.exports = Marionette.LayoutView.extend({
         'filter-builder': this,
         isForm: this.options.isForm || false,
         isFormBuilder: this.options.isFormBuilder || false,
+        suggester: this.options.suggester,
       })
     )
   },

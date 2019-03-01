@@ -14,7 +14,7 @@
  **/
 /*global define, setTimeout*/
 const Marionette = require('marionette')
-const _ = require('underscore')
+const memoize = require('lodash/memoize')
 const $ = require('jquery')
 const template = require('./query-advanced.hbs')
 const CustomElements = require('../../js/CustomElements.js')
@@ -24,6 +24,40 @@ const cql = require('../../js/cql.js')
 const store = require('../../js/store.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const user = require('../singletons/user-instance.js')
+const properties = require('../../js/properties.js')
+
+import query from '../../react-component/utils/query'
+
+const fetchSuggestions = memoize(async attr => {
+  const json = await query({
+    count: 0,
+    cql: "anyText ILIKE ''",
+    facets: [attr],
+  })
+
+  const suggestions = json.facets[attr]
+
+  if (suggestions === undefined) {
+    return []
+  }
+
+  suggestions.sort((a, b) => b.count - a.count)
+
+  return suggestions.map(({ value }) => value)
+})
+
+const isValidFacetAttribute = (id, type) => {
+  if (!['STRING', 'INTEGER', 'FLOAT'].includes(type)) {
+    return false
+  }
+  if (id === 'anyText') {
+    return false
+  }
+  if (!properties.facetWhitelist.includes(id)) {
+    return false
+  }
+  return true
+}
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -103,6 +137,13 @@ module.exports = Marionette.LayoutView.extend({
     this.queryAdvanced.show(
       new FilterBuilderView({
         model: new FilterBuilderModel(),
+        suggester: async ({ id, type }) => {
+          if (!isValidFacetAttribute(id, type)) {
+            return []
+          }
+
+          return fetchSuggestions(id)
+        },
         isForm: this.options.isForm || false,
         isFormBuilder: this.options.isFormBuilder || false,
       })
@@ -146,6 +187,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   cancel: function() {
+    fetchSuggestions.cache.clear()
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
     if (typeof this.options.onCancel === 'function') {
@@ -153,6 +195,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   save: function() {
+    fetchSuggestions.cache.clear()
     if (!this.options.isSearchFormEditor) {
       this.$el.removeClass('is-editing')
     }
