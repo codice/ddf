@@ -33,20 +33,20 @@ type Props = {
 const Root = styled<Props, 'div'>('div')`
   display: block;
   padding: ${props => props.theme.minimumSpacing};
+`
 
-  .editor-footer {
-    padding-top: 30px;
-    white-space: nowrap;
+const EditorFooter = styled<Props, 'div'>('div')`
+  padding-top: 30px;
+  white-space: nowrap;
 
-    button {
-      display: inline-block;
-      width: ${props => (props.hasFilter && '49%') || '100%'};
-      ${props => props.hasFilter && 'margin-right: 1%;'};
-    }
+  button {
+    display: inline-block;
+    width: ${props => (props.hasFilter && '49%') || '100%'};
+    ${props => props.hasFilter && 'margin-right: 1%;'};
+  }
 
-    .footer-remove {
-      display: ${props => (props.hasFilter && 'inline-block') || 'none'};
-    }
+  .footer-remove {
+    display: ${props => (props.hasFilter && 'inline-block') || 'none'};
   }
 `
 
@@ -92,7 +92,7 @@ class View extends React.Component<Props, { filterCqlCallback: () => any }> {
             }}
           />
         </div>
-        <div className="editor-footer">
+        <EditorFooter {...this.props}>
           <Button
             className="footer-remove"
             buttonType={buttonTypeEnum.negative}
@@ -105,7 +105,7 @@ class View extends React.Component<Props, { filterCqlCallback: () => any }> {
             text="Save Filter"
             onClick={this.onSave.bind(this)}
           />
-        </div>
+        </EditorFooter>
       </Root>
     )
   }
