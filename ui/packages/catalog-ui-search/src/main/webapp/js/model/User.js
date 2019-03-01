@@ -213,7 +213,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
   },
   savePreferences: function() {
     const currentPrefs = this.toJSON()
-    if (_.isEqual(currentPrefs, this.lastSaved)) {
+    if (_.isEqual(Common.duplicate(currentPrefs), this.lastSaved)) {
       return
     }
     if (this.parents[0].isGuestUser()) {
