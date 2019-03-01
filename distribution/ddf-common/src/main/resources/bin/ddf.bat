@@ -10,9 +10,9 @@ POPD
 SET GET_PROPERTY=%DIRNAME%get_property.bat
 SET SOLR_EXEC=%DDF_HOME%\bin\ddfsolr.bat
 
-REM Exit if JAVA_HOME not set
-IF "%JAVA_HOME%" == "" (
-    ECHO JAVA_HOME not set. Set JAVA_HOME to proceed - exiting.
+REM Exit if JAVA_HOME or JRE_HOME is not set
+IF "%JAVA_HOME%" == "" IF "%JRE_HOME%" == ""  (
+    ECHO JAVA_HOME nor JRE_HOME is set. Set JAVA_HOME or JRE_HOME to proceed - exiting.
     EXIT /B
 )
 

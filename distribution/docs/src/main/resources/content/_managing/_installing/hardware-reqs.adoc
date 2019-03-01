@@ -36,7 +36,7 @@
 |WebGL capable GPU
 
 |Additional Software
-|JDK 8 x64
+|JRE 8 x64
 |JDK 8 x64
 
 |===
