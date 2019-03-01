@@ -13,7 +13,7 @@
  *
  **/
 /*global define*/
-define(['marionette', 'js/models/InstallProfile', 'q'], function(
+define(['backbone.marionette', 'js/models/InstallProfile', 'q'], function(
   Marionette,
   InstallProfile,
   Q

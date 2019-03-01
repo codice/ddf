@@ -15,7 +15,7 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   './configuration-field.hbs',
   'js/CustomElements',
 ], function(Marionette, template, CustomElements) {

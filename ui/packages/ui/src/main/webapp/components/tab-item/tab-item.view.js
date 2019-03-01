@@ -14,7 +14,7 @@
  **/
 /* global define */
 define([
-  'marionette',
+  'backbone.marionette',
   './tab-item.hbs',
   'js/CustomElements',
   'js/wreqr.js',

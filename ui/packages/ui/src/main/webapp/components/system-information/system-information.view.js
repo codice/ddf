@@ -14,7 +14,7 @@
  **/
 /*global define*/
 define([
-  'marionette',
+  'backbone.marionette',
   'underscore',
   'jquery',
   'moment',

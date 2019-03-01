@@ -10,12 +10,19 @@
  *
  **/
 /*global define*/
-define(['icanhaz', 'underscore', 'ace/handlebars'], function(
-  ich,
+define(['underscore', 'ace/handlebars', 'ace/handlebars/runtime'], function(
   _,
-  Handlebars
+  Handlebars,
+  HandlebarsRuntime
 ) {
   'use strict'
+
+  const addHelper = (name, func) => {
+    if (HandlebarsRuntime.helpers[name]) throw 'Helper " + name + " exists'
+    if (typeof func === 'function') {
+      HandlebarsRuntime.registerHelper(name, func)
+    }
+  }
 
   // The module to be exported
   var helper,
@@ -154,7 +161,7 @@ define(['icanhaz', 'underscore', 'ace/handlebars'], function(
   // Export helpers
   for (helper in helpers) {
     if (helpers.hasOwnProperty(helper)) {
-      ich.addHelper(helper, helpers[helper])
+      addHelper(helper, helpers[helper])
     }
   }
 })

@@ -13,17 +13,14 @@
  *
  **/
 /*global define*/
-define(['marionette', 'templates/emptyView.handlebars', 'icanhaz'], function(
+define(['backbone.marionette', 'templates/emptyView.handlebars'], function(
   Marionette,
-  emptyViewTemplate,
-  ich
+  emptyViewTemplate
 ) {
-  ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
-
   var EmptyView = {}
 
   EmptyView.view = Marionette.ItemView.extend({
-    template: 'emptyViewTemplate',
+    template: emptyViewTemplate,
     initialize: function(options) {
       this.message = options.message
     },
@@ -33,7 +30,7 @@ define(['marionette', 'templates/emptyView.handlebars', 'icanhaz'], function(
   })
 
   EmptyView.services = Marionette.ItemView.extend({
-    template: 'emptyViewTemplate',
+    template: emptyViewTemplate,
     serializeData: function() {
       return { message: 'There are no services currently configured.' }
     },

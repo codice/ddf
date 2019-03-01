@@ -1,6 +1,7 @@
 const wkx = require('wkx')
 const DistanceUtils = require('../../js/DistanceUtils')
 const Turf = require('@turf/turf')
+const plugin = require('plugins/location-serialization')
 
 const is3DArray = array =>
   Array.isArray(array) && Array.isArray(array[0]) && Array.isArray(array[0][0])
@@ -64,13 +65,15 @@ const MultiLineString = {
 
 const Point = {
   'json->location': ({
-    geometry: { coordinates } = [lat, lon],
+    geometry: {
+      coordinates: [lon, lat],
+    },
     properties: { buffer } = {},
   }) => ({
     mode: 'circle',
     locationType: 'latlon',
-    lat: coordinates[0],
-    lon: coordinates[1],
+    lat,
+    lon,
     radius: buffer.width,
     radiusUnits: buffer.unit,
   }),
@@ -235,7 +238,7 @@ const Keyword = {
   }),
 }
 
-const Serializers = {
+const Serializers = plugin.Serializers({
   line: LineString,
   multiline: MultiLineString,
   circle: Point,
@@ -243,9 +246,9 @@ const Serializers = {
   multipolygon: MultiPolygon,
   keyword: Keyword,
   bbox: BoundingBox,
-}
+})
 
-const Deserializers = {
+const Deserializers = plugin.Deserializers({
   Point,
   Polygon,
   MultiPolygon,
@@ -253,7 +256,7 @@ const Deserializers = {
   MultiLineString,
   BoundingBox,
   Keyword,
-}
+})
 
 export const serialize = location => {
   const mode = location.mode

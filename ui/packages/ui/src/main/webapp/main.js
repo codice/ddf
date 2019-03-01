@@ -18,15 +18,16 @@
   require([
     'jquery',
     'backbone',
-    'marionette',
+    'backbone.marionette',
     'js/application',
     'js/views/Module.view',
     'js/models/Alerts.js',
     'js/views/Alerts.view',
     'properties',
+    'templates/header.handlebars',
+    'templates/footer.handlebars',
     'js/models/SessionTimeout',
     'js/util/SessionRefresherUtil',
-    'icanhaz',
     'js/HandlebarsHelpers',
     'modelbinder',
     'bootstrap',
@@ -38,7 +39,9 @@
     ModuleView,
     AlertsModel,
     AlertsView,
-    Properties
+    Properties,
+    headerLayout,
+    footerLayout
   ) {
     var app = Application.App
 
@@ -64,7 +67,7 @@
       }
       Application.App.headerRegion.show(
         new Marionette.ItemView({
-          template: 'headerLayout',
+          template: headerLayout,
           className: 'header-layout',
           model: Application.AppModel,
         })
@@ -110,7 +113,7 @@
       }
       Application.App.footerRegion.show(
         new Marionette.ItemView({
-          template: 'footerLayout',
+          template: footerLayout,
           className: 'footer-layout',
           model: Application.AppModel,
         })

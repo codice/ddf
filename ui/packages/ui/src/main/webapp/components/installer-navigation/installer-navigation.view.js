@@ -15,8 +15,7 @@
 /*global define, alert*/
 /** Main view page for add. */
 define([
-  'marionette',
-  'icanhaz',
+  'backbone.marionette',
   './installer-navigation.hbs',
   './installer-navigation-buttons.hbs',
   'backbone',
@@ -24,17 +23,13 @@ define([
   'modelbinder',
 ], function(
   Marionette,
-  ich,
   navigationTemplate,
   navButtons,
   Backbone,
   CustomElements
 ) {
-  ich.addTemplate('navigationTemplate', navigationTemplate)
-  ich.addTemplate('navButtons', navButtons)
-
   var WelcomeView = Marionette.ItemView.extend({
-    template: 'navigationTemplate',
+    template: navigationTemplate,
     tagName: CustomElements.register('installer-navigation'),
     events: {
       'click .previous': 'previous',
@@ -61,7 +56,7 @@ define([
         100 * (this.model.get('stepNumber') / this.model.get('totalSteps')) +
         '%'
       this.$('.progress-bar').animate({ width: percentComplete }, 0, 'swing')
-      this.$('.pager').html(ich.navButtons(this.model.toJSON()))
+      this.$('.pager').html(navButtons(this.model.toJSON()))
       this.$('.progress-text').show()
     },
     previous: function() {

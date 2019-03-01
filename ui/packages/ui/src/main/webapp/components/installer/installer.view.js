@@ -15,14 +15,13 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   'js/views/installer/Welcome.view',
   'components/installer-navigation/installer-navigation.view.js',
   'js/views/installer/Configuration.view.js',
   'js/views/installer/GuestClaims.view.js',
   'js/views/installer/Finish.view.js',
   'js/views/installer/Profile.view.js',
-  'icanhaz',
   './installer.hbs',
   'js/application',
   'js/CustomElements',
@@ -36,15 +35,12 @@ define([
   GuestClaimsView,
   FinishView,
   ProfileView,
-  ich,
   mainTemplate,
   Application,
   CustomElements,
   Service,
   ConfigurationModel
 ) {
-  ich.addTemplate('mainTemplate', mainTemplate)
-
   var serviceModelResponse = new Service.Response()
   serviceModelResponse.fetch({
     url:
@@ -55,7 +51,7 @@ define([
   systemPropertiesWrapped.fetch()
 
   var InstallerMainView = Marionette.Layout.extend({
-    template: 'mainTemplate',
+    template: mainTemplate,
     tagName: CustomElements.register('installer'),
     className: 'container well well-main',
     regions: {

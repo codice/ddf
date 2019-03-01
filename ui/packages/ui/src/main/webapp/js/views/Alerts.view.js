@@ -14,21 +14,18 @@
  **/
 /*global define*/
 define([
-  'marionette',
+  'backbone.marionette',
   'templates/alerts.handlebars',
-  'icanhaz',
   'jquery',
   'underscore',
-], function(Marionette, alertsTemplate, ich, $, _) {
-  ich.addTemplate('alertsTemplate', alertsTemplate)
-
+], function(Marionette, alertsTemplate, $, _) {
   var AlertsView = {}
 
   var dismissUrl =
     './jolokia/exec/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/dismissAlert'
 
   AlertsView.View = Marionette.ItemView.extend({
-    template: 'alertsTemplate',
+    template: alertsTemplate,
     events: {
       'shown.bs.collapse': 'toggleDetailsMsg',
       'hidden.bs.collapse': 'toggleDetailsMsg',

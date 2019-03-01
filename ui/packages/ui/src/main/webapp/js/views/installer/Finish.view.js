@@ -15,14 +15,11 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
-  'icanhaz',
+  'backbone.marionette',
   'templates/installer/finish.handlebars',
-], function(Marionette, ich, finishTemplate) {
-  ich.addTemplate('finishTemplate', finishTemplate)
-
+], function(Marionette, finishTemplate) {
   var ConfigurationView = Marionette.ItemView.extend({
-    template: 'finishTemplate',
+    template: finishTemplate,
     tagName: 'div',
     className: 'full-height',
     initialize: function(options) {

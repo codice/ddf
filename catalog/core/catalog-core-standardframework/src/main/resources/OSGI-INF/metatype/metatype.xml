@@ -58,7 +58,8 @@
         <AD name="Source ID" id="sourceId" type="String"/>
         <AD name="Title" id="title" type="String"/>
         <AD name="Description" id="description" type="String"/>
-        <AD name="URL" id="url" type="String"/>
+        <AD name="URL" id="url" type="String"
+            description="Warning: When the embedded document has the same origin as the embedding page, it will have full access to internal apis. Make sure you trust the page." />
     </OCD>
 
     <Designate pid="ddf.catalog.impl.action.SourceActionProviderImpl">

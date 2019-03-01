@@ -14,10 +14,11 @@
  **/
 /*global define*/
 /** Main view page for add. **/
+import * as React from 'react'
 define([
   'require',
   'backbone',
-  'marionette',
+  'backbone.marionette',
   'underscore',
   'jquery',
   'components/application-item/application-item.collection.view',
@@ -40,6 +41,9 @@ define([
   var Model = {}
 
   var NewApplicationView = Marionette.Layout.extend({
+    template() {
+      return <React.Fragment />
+    },
     modelEvents: {
       change: 'modelChanged',
     },

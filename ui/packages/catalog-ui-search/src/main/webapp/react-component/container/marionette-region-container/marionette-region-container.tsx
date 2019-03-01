@@ -64,7 +64,7 @@ export default hot(module)(
     }
     // we might need to update this to account for more scenarios later
     componentDidUpdate(prevProps: Props) {
-      if (this.props.view !== prevProps.view) {
+      if (this.region && this.props.view !== prevProps.view) {
         this.handleViewChange()
       }
     }

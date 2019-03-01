@@ -15,18 +15,6 @@
 
 import { render } from 'react-dom'
 import React from 'react'
+import Main from './main'
 
-import store from './store'
-import { fetchLoop } from './actions'
-import LogPanel from './components/log-panel/log-panel'
-import { Provider } from 'react-redux'
-import { getLogs } from './backend'
-
-render(
-  <Provider store={store}>
-    <LogPanel />
-  </Provider>,
-  document.getElementById('root')
-)
-
-store.dispatch(fetchLoop(getLogs))
+render(<Main />, document.getElementById('root'))

@@ -15,16 +15,13 @@
 /*global define*/
 /** Main view page for add. */
 define([
-  'marionette',
+  'backbone.marionette',
   'backbone',
-  'icanhaz',
   'templates/installer/profile.handlebars',
   'jquery',
-], function(Marionette, Backbone, ich, finishTemplate, $) {
-  ich.addTemplate('profileTemplate', finishTemplate)
-
+], function(Marionette, Backbone, profileTemplate, $) {
   var ProfileView = Marionette.ItemView.extend({
-    template: 'profileTemplate',
+    template: profileTemplate,
     tagName: 'div',
     className: 'full-height',
     events: {

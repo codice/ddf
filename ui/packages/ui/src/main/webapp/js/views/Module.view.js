@@ -10,24 +10,29 @@
  *
  **/
 /*global require,define,setTimeout*/
+import * as React from 'react'
 import { iframeResizer } from 'iframe-resizer'
 define([
-  'marionette',
+  'backbone.marionette',
   'jquery',
   'js/application',
   'js/modules/Application.module.js',
   'js/modules/Configuration.module.js',
   'js/modules/Installer.module.js',
+  'templates/tabs.handlebars',
+  'templates/moduleTab.handlebars',
 ], function(
   Marionette,
   $,
   Application,
   ApplicationModule,
   ConfigurationModule,
-  InstallerModule
+  InstallerModule,
+  tabs,
+  moduleTab
 ) {
   var ModuleView = Marionette.Layout.extend({
-    template: 'tabs',
+    template: tabs,
     className: 'relative full-height',
     regions: {
       tabs: '#tabs',
@@ -56,7 +61,7 @@ define([
           collection: this.model.get('value'),
           itemView: Marionette.ItemView.extend({
             tagName: 'li',
-            template: 'moduleTab',
+            template: moduleTab,
             events: {
               click: 'setHeader',
             },
@@ -79,16 +84,13 @@ define([
           className: 'tab-content full-height',
           collection: this.model.get('value'),
           itemView: Marionette.ItemView.extend({
+            template() {
+              return <React.Fragment />
+            },
             tagName: 'div',
             className: 'tab-pane',
             initialize: function() {
-              if (
-                this.model.get('iframeLocation') &&
-                this.model.get('iframeLocation') !== ''
-              ) {
-                // todo fix this
-                this.listenTo(this.model, 'change:active', this.render)
-              }
+              this.listenTo(this.model, 'change:active', this.onRender)
             },
             attachIframeResizer: function() {
               setTimeout(

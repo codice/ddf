@@ -21,6 +21,12 @@
             type="Integer"
             default="250"/>
 
+        <AD id="exportResultLimit"
+          name="Export Result Limit"
+          description="Specifies the max number of results that can be exported."
+          type="Integer"
+          default="1000"/>
+
         <AD id="imageryProviders"
             name="Imagery Providers"
             description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}.'

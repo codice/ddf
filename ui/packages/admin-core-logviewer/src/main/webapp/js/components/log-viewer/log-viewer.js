@@ -16,8 +16,6 @@
 import React from 'react'
 import VisibilitySensor from 'react-visibility-sensor'
 
-import './log-viewer.less'
-
 import LevelSelector from '../level-selector/level-selector'
 import TextFilter from '../text-filter/text-filter'
 import LogEntry from '../log-entry/log-entry'
@@ -98,7 +96,7 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
               <td className="header" width={175}>
                 Time
               </td>
-              <td className="header" width={75}>
+              <td className="header" width={90}>
                 Level
               </td>
               <td className="header">Message</td>

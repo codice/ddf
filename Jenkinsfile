@@ -1,5 +1,8 @@
 //"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
 //More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
+
+@Library('github.com/connexta/cx-pipeline-library@master') _
+
 pipeline {
     agent {
         node {
@@ -32,6 +35,7 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
+                dockerd {}
                 slackSend color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
             }
         }

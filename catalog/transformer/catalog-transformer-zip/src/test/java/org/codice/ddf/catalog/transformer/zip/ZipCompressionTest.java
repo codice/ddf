@@ -33,6 +33,7 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -95,7 +96,8 @@ public class ZipCompressionTest {
 
     BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
 
-    assertZipContents(binaryContent, Collections.singletonList("metacards/metacardId.html"));
+    assertZipContents(
+        binaryContent, Collections.singletonList("metacards" + File.separator + "metacardId.html"));
   }
 
   @Test
@@ -110,7 +112,8 @@ public class ZipCompressionTest {
 
     BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
 
-    assertZipContents(binaryContent, Collections.singletonList("metacards/metacardId"));
+    assertZipContents(
+        binaryContent, Collections.singletonList("metacards" + File.separator + "metacardId"));
   }
 
   @Test
@@ -125,7 +128,8 @@ public class ZipCompressionTest {
 
     BinaryContent binaryContent = zipCompression.transform(sourceResponse, arguments);
 
-    assertZipContents(binaryContent, Collections.singletonList("metacards/metacardId"));
+    assertZipContents(
+        binaryContent, Collections.singletonList("metacards" + File.separator + "metacardId"));
   }
 
   @Test(expected = CatalogTransformerException.class)

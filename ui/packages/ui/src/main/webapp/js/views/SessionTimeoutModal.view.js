@@ -12,7 +12,6 @@
 /* global define */
 define([
   'jquery',
-  'icanhaz',
   'backbone',
   'js/wreqr',
   'js/views/Modal',
@@ -21,7 +20,6 @@ define([
   'templates/sessionTimeoutModal.handlebars',
 ], function(
   $,
-  ich,
   Backbone,
   wreqr,
   Modal,
@@ -29,10 +27,8 @@ define([
   properties,
   sessionTimeoutModalTemplate
 ) {
-  ich.addTemplate('sessionTimeoutModalTemplate', sessionTimeoutModalTemplate)
-
   return Modal.extend({
-    template: 'sessionTimeoutModalTemplate',
+    template: sessionTimeoutModalTemplate,
     model: null,
 
     events: {

@@ -15,17 +15,14 @@
 /*global define*/
 define([
   'backbone',
-  'marionette',
-  'icanhaz',
+  'backbone.marionette',
   'js/wreqr',
   'templates/module/ModuleDetail.layout.handlebars',
-], function(Backbone, Marionette, ich, wreqr, moduleDetailLayout) {
+], function(Backbone, Marionette, wreqr, moduleDetailLayout) {
   'use strict'
 
-  ich.addTemplate('moduleDetailLayout', moduleDetailLayout)
-
   var ModuleDetailLayout = Marionette.Layout.extend({
-    template: 'moduleDetailLayout',
+    template: moduleDetailLayout,
     regions: {
       content: '.content',
       tabs: '.tab-container',

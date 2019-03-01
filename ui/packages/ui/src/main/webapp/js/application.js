@@ -12,65 +12,44 @@
 /*global define, encodeURI*/
 /* jslint browser:true */
 // #Main Application
+import Theme from '../components/container/theme'
+import { patchListenTo } from '@connexta/atlas/extensions/backbone'
+import {
+  addOnFirstRender,
+  switchRenderToReact,
+} from '@connexta/atlas/extensions/marionette'
+patchListenTo()
+addOnFirstRender()
+switchRenderToReact({ aggressive: false, Provider: Theme })
+
 define([
   'underscore',
   'backbone',
-  'marionette',
-  'icanhaz',
+  'backbone.marionette',
   'ace/handlebars',
   'jquery',
   'poller',
   'js/wreqr',
   'js/models/Module',
-  'templates/tabs.handlebars',
   'templates/appHeader.handlebars',
-  'templates/header.handlebars',
-  'templates/footer.handlebars',
   'js/controllers/Modal.controller',
   'js/controllers/SystemUsage.controller',
-  'templates/moduleTab.handlebars',
   'properties',
 ], function(
   _,
   Backbone,
   Marionette,
-  ich,
   hbs,
   $,
   poller,
   wreqr,
   Module,
-  tabs,
   appHeader,
-  header,
-  footer,
   ModalController,
   SystemUsageController,
-  moduleTab,
   Properties
 ) {
   var Application = {}
-
-  var cachedTemplates = {} // as good as ich with less work
-  // This was moved from the main.js file into here.
-  // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
-  Marionette.Renderer.render = function(template, data) {
-    if (!template) {
-      return ''
-    }
-    if (typeof ich[template] === 'function') {
-      return ich[template](data)
-    } else {
-      return template(data)
-    }
-  }
-
-  // Setup initial templates that we know we'll need
-  ich.addTemplate('tabs', tabs)
-  ich.addTemplate('appHeader', appHeader)
-  ich.addTemplate('headerLayout', header)
-  ich.addTemplate('footerLayout', footer)
-  ich.addTemplate('moduleTab', moduleTab)
 
   Application.App = new Marionette.Application()
 
@@ -115,7 +94,7 @@ define([
   Application.AppModel = new Backbone.Model(Properties)
   Application.App.appHeader.show(
     new (Backbone.Marionette.ItemView.extend({
-      template: 'appHeader',
+      template: appHeader,
       className: 'app-header',
       tagName: 'div',
       model: Application.AppModel,

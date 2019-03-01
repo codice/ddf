@@ -42,9 +42,9 @@ const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
 
 function getCqlForSize(exportSize: string, selectionInterface: any) {
-  return exportSize === 'all'
-    ? allData(selectionInterface)
-    : visibleData(selectionInterface)
+  return exportSize === 'visible'
+    ? visibleData(selectionInterface)
+    : allData(selectionInterface)
 }
 
 function getSrcs(selectionInterface: any) {
@@ -72,7 +72,15 @@ function getHits(sources: Source[]): number {
     .reduce((hits, source) => (source.hits ? hits + source.hits : hits), 0)
 }
 
-function getExportCount(exportSize: string, selectionInterface: any): number {
+function getExportCount({
+  exportSize,
+  selectionInterface,
+  customExportCount,
+}: ExportCountInfo): number {
+  if (exportSize === 'custom') {
+    return customExportCount
+  }
+
   const result = selectionInterface.getCurrentQuery().get('result')
   return exportSize === 'all'
     ? getHits(result.get('status').toJSON())
@@ -83,19 +91,34 @@ function getSorts(selectionInterface: any) {
   return selectionInterface.getCurrentQuery().get('sorts')
 }
 
-function getQueryCount(selectionInterface: any): number {
-  return selectionInterface.getCurrentQuery().get('count')
-}
-
-function getWarning(exportSize: string, selectionInterface: any): string {
-  const exportCount = getExportCount(exportSize, selectionInterface)
-  if (exportCount > 100) {
-    const queryCount = getQueryCount(selectionInterface)
-    return `You are about to export ${exportCount} results. ${
-      exportCount > queryCount ? `Only ${queryCount} will be exported.` : ''
-    } This may take a long time.`
+function getWarning(exportCountInfo: ExportCountInfo): string {
+  const exportCount = getExportCount(exportCountInfo)
+  if (
+    exportCountInfo.exportSize === 'custom' &&
+    exportCount > properties.exportResultLimit
+  ) {
+    return `You cannot export more than the administrator configured limit of ${
+      properties.exportResultLimit
+    }`
   }
-  return ''
+
+  const result = exportCountInfo.selectionInterface
+    .getCurrentQuery()
+    .get('result')
+  const totalHits = getHits(result.get('status').toJSON())
+
+  let warningMessage = ''
+  if (exportCount > totalHits) {
+    warningMessage = `You are trying to export ${exportCount} results but there ${
+      totalHits === 1 ? `is` : `are`
+    } only ${totalHits}.  Only ${totalHits} ${
+      totalHits === 1 ? `result` : `results`
+    } will be exported.`
+  }
+  if (totalHits > 100 && exportCount > 100) {
+    warningMessage += ` This may take a long time.`
+  }
+  return warningMessage
 }
 
 type Props = {
@@ -112,6 +135,7 @@ type State = {
   exportSizes: Option[]
   exportFormat: string
   exportSize: string
+  customExportCount: number
 }
 
 type Source = {
@@ -122,6 +146,12 @@ type Source = {
 type ExportResponse = {
   displayName: string
   id: string
+}
+
+interface ExportCountInfo {
+  exportSize: string
+  selectionInterface: any
+  customExportCount: number
 }
 
 export default hot(module)(
@@ -139,9 +169,14 @@ export default hot(module)(
             label: 'All',
             value: 'all',
           },
+          {
+            label: 'Exact Number',
+            value: 'custom',
+          },
         ],
         exportSize: 'all',
         exportFormat: 'csv',
+        customExportCount: properties.exportResultLimit,
       }
     }
     transformUrl = './internal/cql/transform/'
@@ -170,31 +205,33 @@ export default hot(module)(
         ),
       })
     }
-    handleExportFormatChange(value: string) {
+    handleExportFormatChange = (value: string) => {
       this.setState({
         exportFormat: value,
       })
     }
-    handleExportSizeChange(value: string) {
+    handleExportSizeChange = (value: string) => {
       this.setState({
         exportSize: value,
       })
     }
-    async onDownloadClick() {
+    handleCustomExportCountChange = (value: number) => {
+      this.setState({ customExportCount: value })
+    }
+    onDownloadClick = async () => {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
+      const { exportSize, customExportCount } = this.state
+      const { selectionInterface } = this.props
       try {
         const hiddenFields = getHiddenFields()
         const columnOrder = getColumnOrder()
 
-        const cql = getCqlForSize(
-          this.state.exportSize,
-          this.props.selectionInterface
-        )
-        const sources = getSrcs(this.props.selectionInterface)
-        const sorts = getSorts(this.props.selectionInterface)
+        const cql = getCqlForSize(exportSize, selectionInterface)
+        const sources = getSrcs(selectionInterface)
+        const sorts = getSorts(selectionInterface)
         const count = Math.min(
-          getExportCount(this.state.exportSize, this.props.selectionInterface),
-          getQueryCount(this.props.selectionInterface)
+          getExportCount({ exportSize, selectionInterface, customExportCount }),
+          properties.exportResultLimit
         )
         const args = {
           hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
@@ -234,6 +271,8 @@ export default hot(module)(
       }
     }
     render() {
+      const { exportSize, customExportCount } = this.state
+      const { selectionInterface } = this.props
       return (
         <LoadingCompanion loading={this.state.exportFormats.length === 0}>
           {this.state.exportFormats.length > 0 ? (
@@ -242,15 +281,16 @@ export default hot(module)(
               exportFormat={this.state.exportFormat}
               exportSizeOptions={this.state.exportSizes}
               exportSize={this.state.exportSize}
-              handleExportFormatChange={this.handleExportFormatChange.bind(
-                this
-              )}
-              handleExportSizeChange={this.handleExportSizeChange.bind(this)}
-              onDownloadClick={this.onDownloadClick.bind(this)}
-              warning={getWarning(
-                this.state.exportSize,
-                this.props.selectionInterface
-              )}
+              handleExportFormatChange={this.handleExportFormatChange}
+              handleExportSizeChange={this.handleExportSizeChange}
+              handleCustomExportCountChange={this.handleCustomExportCountChange}
+              onDownloadClick={this.onDownloadClick}
+              warning={getWarning({
+                exportSize,
+                selectionInterface,
+                customExportCount,
+              })}
+              customExportCount={this.state.customExportCount}
             />
           ) : null}
         </LoadingCompanion>
