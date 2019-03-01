@@ -35,13 +35,7 @@ from {
   }
 `
 
-const Root = styled<Props, 'div'>('div')`
-  > button {
-    width: 100%;
-  }
-`
-
-const EmptyText = styled<Props, 'div'>('div')`
+const EmptyBlacklist = styled<Props, 'div'>('div')`
   white-space: normal;
   padding: ${props => props.theme.minimumSpacing};
   text-align: center;
@@ -59,7 +53,7 @@ const ItemWrapper = styled<Props, 'div'>('div')`
         collapseAnimation +
         ' ' +
         props.theme.coreTransitionTime +
-        ' linear;'
+        ' linear forwards;'
       )
     } else {
       return ''
@@ -74,29 +68,36 @@ type Props = {
   clearing: boolean
 }
 
+const Blacklist = (props: Props) => {
+  return (
+    <div>
+      <Button
+        icon="fa fa-eye"
+        buttonType={buttonTypeEnum.neutral}
+        onClick={props.clearBlacklist}
+        style={{ width: '100%' }}
+        text="Unhide All"
+      />
+      <ItemWrapper {...props}>
+        <div className="is-list has-list-highlighting">
+          {props.blacklist.map(item => {
+            return <BlacklistItemContainer key={item.id} item={item} />
+          })}
+        </div>
+      </ItemWrapper>
+    </div>
+  )
+}
+
 const UserBlacklistPresentation = (props: Props) => {
   return (
-    <Root {...props}>
+    <div>
       {props.blacklist.length !== 0 ? (
-        [
-          <Button
-            icon="fa fa-eye"
-            buttonType={buttonTypeEnum.neutral}
-            onClick={props.clearBlacklist}
-            text="Unhide All"
-          />,
-          <ItemWrapper {...props}>
-            <div className="is-list has-list-highlighting">
-              {props.blacklist.map(item => {
-                return <BlacklistItemContainer key={item.id} item={item} />
-              })}
-            </div>
-          </ItemWrapper>,
-        ]
+        <Blacklist {...props} />
       ) : (
-        <EmptyText {...props}>Nothing hidden.</EmptyText>
+        <EmptyBlacklist {...props}>Nothing hidden.</EmptyBlacklist>
       )}
-    </Root>
+    </div>
   )
 }
 

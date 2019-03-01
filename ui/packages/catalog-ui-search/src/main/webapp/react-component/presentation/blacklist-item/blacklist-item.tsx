@@ -23,40 +23,37 @@ type Props = {
   clearing: boolean
 }
 
-const collapseAnimation = keyframes`
-from {
-    transform: translateY(0) scaleY(1);
-  }
-  to {
-    transform: translateY(-50%) scaleY(0);
-  }
-`
+const collapseAnimation = (initialHeight: string) => {
+  return keyframes`
+    from {
+      height: ${initialHeight};
+    }
+    to {
+      height: 0px;
+    }
+  `
+}
 
 const Root = styled<Props, 'div'>('div')`
   display: block;
-  height: ${props =>
-    props.theme.minimumButtonSize + props.theme.minimumSpacing};
   text-align: center;
   margin-bottom: ${props => props.theme.minimumSpacing};
   cursor: pointer;
+  height: ${props => props.theme.minimumButtonSize};
   overflow: hidden;
   ${props => {
     if (props.clearing) {
       return (
         'animation: ' +
-        collapseAnimation +
+        collapseAnimation(props.theme.minimumButtonSize) +
         ' ' +
         props.theme.coreTransitionTime +
-        ' linear;'
+        ' linear forwards;'
       )
     } else {
       return ''
     }
   }};
-
-  .button-remove {
-    float: right;
-  }
 `
 
 const ItemDetails = styled<Props, 'div'>('div')`
@@ -77,7 +74,7 @@ const BlacklistItemPresentation = (props: Props) => {
     <Root {...props}>
       <ItemDetails {...props}>{props.itemTitle}</ItemDetails>
       <Button
-        className="button-remove"
+        style={{ float: 'right' }}
         icon="fa fa-eye"
         buttonType={buttonTypeEnum.neutral}
         onClick={props.remove}
