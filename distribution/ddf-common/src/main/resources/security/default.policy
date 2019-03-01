@@ -237,8 +237,12 @@ grant codeBase "file:/catalog-rest-impl/catalog-transformer-resource/ftp/org.apa
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/security-encryption-impl" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}certs${/}-", "read,write";
+grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl" {
+    permission java.io.FilePermission "${ddf.home.perm}etc", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets${/}*", "read,write";
+    permission java.lang.RuntimePermission "getClassLoader";
 }
 
 grant codeBase "file:/security-handler-pki/security-sts-pkivalidator/security-sts-x509validator/security-handler-guest" {

@@ -13,13 +13,15 @@
  */
 package ddf.security.encryption.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.encryption.EncryptionService;
-import java.io.File;
+import ddf.security.encryption.crypter.Crypter;
+import ddf.security.encryption.crypter.Crypter.CrypterException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.keyczar.Crypter;
-import org.keyczar.KeyczarTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,55 +30,39 @@ public class EncryptionServiceImpl implements EncryptionService {
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
   private static final String ENC_TEMPLATE = "ENC(%s)";
+  @VisibleForTesting static final String CRYPTER_NAME = "encryption-service";
 
-  private final Crypter crypter;
+  @VisibleForTesting Crypter crypter;
 
   public EncryptionServiceImpl() {
-    String passwordDirectory = System.getProperty("ddf.etc").concat("/certs");
-
-    synchronized (EncryptionServiceImpl.class) {
-      if (!new File(passwordDirectory.concat("/meta")).exists()) {
-        KeyczarTool.main(
-            new String[] {
-              "create", "--location=" + passwordDirectory, "--purpose=crypt", "--name=Password"
-            });
-        KeyczarTool.main(
-            new String[] {"addkey", "--location=" + passwordDirectory, "--status=primary"});
-      }
-      Crypter crypter = null;
-      try {
-        crypter = new Crypter(passwordDirectory);
-      } catch (Exception e) {
-        LOGGER.debug(e.getMessage());
-      }
-      this.crypter = crypter;
-    }
+    crypter =
+        AccessController.doPrivileged((PrivilegedAction<Crypter>) () -> new Crypter(CRYPTER_NAME));
   }
 
   /**
-   * Encrypts a plain text value using Keyczar.
+   * Encrypts a plain text value. Returns no-op in the case of a problem.
    *
    * @param plainTextValue The value to encrypt.
    */
   public synchronized String encrypt(String plainTextValue) {
     try {
       return crypter.encrypt(plainTextValue);
-    } catch (Exception e) {
-      LOGGER.debug("Key and encryption service failed to set up. Failed to encrypt.", e);
+    } catch (CrypterException e) {
+      LOGGER.debug("Failed to encrypt string.", e);
       return plainTextValue;
     }
   }
 
   /**
-   * Decrypts a plain text value using Keyczar
+   * Decrypts a plain text value. Returns no-op in the case of a problem.
    *
    * @param encryptedValue The value to decrypt.
    */
   public synchronized String decrypt(String encryptedValue) {
     try {
       return crypter.decrypt(encryptedValue);
-    } catch (Exception e) {
-      LOGGER.debug("Key and encryption service failed to set up. Failed to decrypt.", e);
+    } catch (CrypterException e) {
+      LOGGER.debug("Failed to decrypt string of value %s.", encryptedValue, e);
       return encryptedValue;
     }
   }
@@ -97,6 +83,15 @@ public class EncryptionServiceImpl implements EncryptionService {
    */
   // @formatter:on
   @Override
+  public String encryptValue(String unwrappedPlaintext) {
+    if (StringUtils.isEmpty(unwrappedPlaintext)) {
+      return unwrappedPlaintext;
+    }
+
+    return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));
+  }
+
+  @Override
   public String decryptValue(String wrappedEncryptedValue) {
     if (StringUtils.isEmpty(wrappedEncryptedValue)) {
       return wrappedEncryptedValue;
@@ -109,17 +104,7 @@ public class EncryptionServiceImpl implements EncryptionService {
     if (wrappedEncryptedValue.equals(encryptedValue)) {
       return wrappedEncryptedValue;
     }
-    LOGGER.debug("Unwrapped encrypted password is now being decrypted");
     return decrypt(encryptedValue);
-  }
-
-  @Override
-  public String encryptValue(String unwrappedPlaintext) {
-    if (StringUtils.isEmpty(unwrappedPlaintext)) {
-      return unwrappedPlaintext;
-    }
-
-    return String.format(ENC_TEMPLATE, encrypt(unwrappedPlaintext));
   }
 
   /**
@@ -129,7 +114,7 @@ public class EncryptionServiceImpl implements EncryptionService {
    * This method is meant to remove the wrapping notation for encrypted values, typically passwords.
    *
    * <p>If the input is a password and is not in the form ENC(my-encrypted-password), we assume the
-   * password is not encrypted.
+   * password is not encrypted. Returns a no-op in the case of a problem.
    *
    * @param wrappedEncryptedValue The wrapped encrypted value, in the form
    *     'ENC(my-encrypted-value)'.

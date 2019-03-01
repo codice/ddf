@@ -53,14 +53,29 @@
             <version>${osgi.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.keyczar</groupId>
-            <artifactId>keyczar</artifactId>
-            <version>${keyczar.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-crypter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>${tink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.version}</version>
         </dependency>
     </dependencies>
 
@@ -78,15 +93,48 @@
                             org.codice.felix.cm.file.Activator
                         </Bundle-Activator>
                         <Embed-Dependency>
-                            keyczar,
                             gson,
-                            org.osgi.core;inline=org/osgi/util/tracker/ServiceTracker*|org/osgi/util/tracker/AbstractTracked.class
+                            org.osgi.core;inline=org/osgi/util/tracker/ServiceTracker*|org/osgi/util/tracker/AbstractTracked.class,
+                            security-encryption-crypter,
+                            <!-- Crypter dependencies must be embedded in this bundle -->
+                            json,
+                            protobuf-java,
+                            tink
                         </Embed-Dependency>
+                        <Import-Package>
+                            <!-- Omit unnecessary transient crypter dependencies -->
+                            !com.amazonaws.*,
+                            !com.google.api.*,
+                            !org.joda.time.*,
+                            !sun.misc.*,
+                            *
+                        </Import-Package>
                         <Private-Package>
-                          org.apache.felix.cm.file
+                            org.apache.felix.cm.file
                         </Private-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-artifact-size</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <ArtifactSizeEnforcerRule
+                                  implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                    <maxArtifactSize>2.5_MB</maxArtifactSize>
+                                </ArtifactSizeEnforcerRule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -110,7 +158,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.77</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
