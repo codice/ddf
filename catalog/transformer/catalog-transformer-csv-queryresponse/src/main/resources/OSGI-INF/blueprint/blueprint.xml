@@ -18,6 +18,9 @@
           class="ddf.catalog.transformer.csv.CsvQueryResponseTransformer">
     </bean>
 
+    <bean id="csvMetacardTransformer" class="ddf.catalog.transformer.csv.CsvMetacardTransformer">
+    </bean>
+
     <service ref="CsvQueryResponseTransformer"
              interface="ddf.catalog.transform.QueryResponseTransformer">
         <service-properties>
@@ -30,5 +33,15 @@
             <entry key="displayName" value="CSV"/>
         </service-properties>
     </service>
+
+    <service ref="csvMetacardTransformer" interface="ddf.catalog.transform.MetacardTransformer">
+        <service-properties>
+            <entry key="id" value="csv"/>
+            <entry key="mime-type" value="text/csv"/>
+            <entry key="title" value="View as CSV..."/>
+            <entry key="displayName" value="CSV"/>
+        </service-properties>
+    </service>
+
 
 </blueprint>
