@@ -13,6 +13,18 @@
  *
  **/
 
+/*
+import React from 'react'
+import View from '../../react-component/container/result-filter'
+import Marionette from 'marionette'
+
+module.exports = Marionette.LayoutView.extend({
+  template() {
+    return <View {...this} />
+  },
+})
+*/
+
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')

@@ -13,23 +13,34 @@
  *
  **/
 
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var ResultFilter = require('../result-filter.view')
-var CustomElements = require('../../../js/CustomElements.js')
+import React from 'react'
+import View from '../../../react-component/container/result-filter'
+import Marionette from 'marionette'
+import CustomElements from '../../../js/CustomElements'
 
-module.exports = ResultFilter.extend({
-  className: 'is-list',
-  getResultFilter: function() {
-    return this.model.get('value')
-  },
-  removeFilter: function() {
-    this.model.set('value', '')
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-  },
-  saveFilter: function() {
-    this.model.set('value', this.getFilter())
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+const closeDropdown = el => () =>
+  el.trigger(`closeDropdown.${CustomElements.getNamespace()}`)
+
+const removeFilter = (model, closeAction) => () => {
+  model.set('value', '')
+  closeAction()
+}
+const saveFilter = (model, closeAction) => transformedCql => {
+  model.set('value', transformedCql)
+  closeAction()
+}
+
+module.exports = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <View
+        removeFilter={removeFilter(this.model, closeDropdown(this.$el))}
+        saveFilter={saveFilter(this.model, closeDropdown(this.$el))}
+        hasFilter={!!this.model.get('value')}
+        resultFilter={this.model.get('value')}
+        isList={true}
+        {...this}
+      />
+    )
   },
 })
