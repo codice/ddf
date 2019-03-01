@@ -160,7 +160,7 @@ module.exports = Marionette.LayoutView.extend({
         this.options.isFormBuilder !== true
           ? this.queryAdvanced.currentView.transformToCql()
           : '',
-      filterTree: this.queryAdvanced.currentView.getFilters(),
+      filterTree: cql.simplify(this.queryAdvanced.currentView.getFilters()),
     })
     if (typeof this.options.onSave === 'function') {
       this.options.onSave()

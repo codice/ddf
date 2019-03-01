@@ -65,13 +65,15 @@ const MultiLineString = {
 
 const Point = {
   'json->location': ({
-    geometry: { coordinates } = [lat, lon],
+    geometry: {
+      coordinates: [lon, lat],
+    },
     properties: { buffer } = {},
   }) => ({
     mode: 'circle',
     locationType: 'latlon',
-    lat: coordinates[0],
-    lon: coordinates[1],
+    lat,
+    lon,
     radius: buffer.width,
     radiusUnits: buffer.unit,
   }),

@@ -327,18 +327,7 @@ module.exports = Marionette.LayoutView.extend({
     }
 
     var type = this.comparatorToCQL()[comparator]
-    if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued) {
-      return {
-        type: 'AND',
-        filters: this.filterInput.currentView.model
-          .getValue()
-          .map(function(currentValue) {
-            return CQLUtils.generateFilter(type, property, currentValue)
-          }),
-      }
-    } else {
-      return CQLUtils.generateFilter(type, property, value)
-    }
+    return CQLUtils.generateFilter(type, property, value)
   },
   deleteInvalidFilters: function() {
     if (!this.filterInput.currentView.isValid()) {
