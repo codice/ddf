@@ -34,7 +34,7 @@ const inputs = plugin({
   },
   keyword: {
     label: 'Keyword',
-    Component: ({ props, setState, keywordValue }) => {
+    Component: ({ setState, keywordValue, ...props }) => {
       return (
         <Keyword
           {...props}
