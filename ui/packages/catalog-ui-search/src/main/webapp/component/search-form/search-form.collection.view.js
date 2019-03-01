@@ -31,7 +31,7 @@ module.exports = Marionette.ItemView.extend({
   },
   template() {
     return (
-      <React.Fragment>
+      <React.Fragment key="search-form-collection.view">
         {this.options.showNewForm ? (
           <NewForm
             label="New Search Form"

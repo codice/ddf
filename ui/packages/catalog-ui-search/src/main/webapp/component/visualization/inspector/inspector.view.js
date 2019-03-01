@@ -13,16 +13,46 @@
  *
  **/
 /*global require*/
-const template = require('./inspector.hbs')
+import * as React from 'react'
+import styled from '../../../react-component/styles/styled-components'
+
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 const MetacardView = require('../../tabs/metacard/tabs-metacard.view.js')
 const MetacardsView = require('../../tabs/metacards/tabs-metacards.view.js')
 const MetacardTitleView = require('../../metacard-title/metacard-title.view.js')
 
+const Empty = styled.div`
+  text-align: center;
+  display: none;
+  padding: 20px;
+`
+const Title = styled.div`
+  opacity: 1;
+  transition: opacity ${props => props.theme.coreTransitionTime} linear;
+  transform: translateX(0%);
+  text-align: center;
+  padding: 0px ${props => props.theme.minimumSpacing};
+`
+const Content = styled.div`
+  opacity: 1;
+  transition: opacity ${props => props.theme.coreTransitionTime} linear;
+  transform: translateX(0%);
+  display: block;
+  height: calc(100% - ${props => props.theme.minimumButtonSize});
+`
+
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('inspector'),
-  template: template,
+  template: () => (
+    <React.Fragment key="inspector.view">
+      <Empty className="inspector-empty">
+        <h3>Please select result(s) to display in the inspector.</h3>
+      </Empty>
+      <Title className="inspector-title" />
+      <Content className="inspector-content" />
+    </React.Fragment>
+  ),
   events: {},
   regions: {
     inspector: {

@@ -16,7 +16,7 @@ module.exports = BaseGuideView.extend({
   },
   template() {
     return (
-      <React.Fragment>
+      <React.Fragment key="jsx-guide.view">
         {' '}
         {/* surround with multiple child roots with this to avoid wrapper divs */}
         <div className="section">

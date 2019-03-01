@@ -22,7 +22,7 @@ import MetacardInteractionsDropdown from '../../react-component/container/metaca
 module.exports = Marionette.ItemView.extend({
   template({ title, icon }) {
     return (
-      <React.Fragment>
+      <React.Fragment key="metacard-title.view">
         <div
           className="metacard-title"
           data-help="This is the title of the result."

@@ -24,7 +24,7 @@ require('eonasdan-bootstrap-datetimepicker')
 module.exports = InputView.extend({
   template(data) {
     return (
-      <React.Fragment>
+      <React.Fragment key="input-time.view">
         <div className="if-editing">
           <div className="input-group time">
             <input type="text" placeholder={data.property.placeholder} />

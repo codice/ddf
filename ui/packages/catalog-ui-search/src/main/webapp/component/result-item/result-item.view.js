@@ -76,7 +76,7 @@ const ResultItemView = Marionette.LayoutView.extend({
       .get('associations.external')
 
     return (
-      <React.Fragment>
+      <React.Fragment key="result-item.view.0">
         <div
           className="result-container"
           data-metacard-id={data.id}
@@ -176,12 +176,12 @@ const ResultItemView = Marionette.LayoutView.extend({
                   data-help={HandleBarsHelpers.getAlias('source-id')}
                 >
                   {data.local ? (
-                    <React.Fragment>
+                    <React.Fragment key="result-item.view.1">
                       <span className="fa source-icon fa-home" />
                       <span>local</span>
                     </React.Fragment>
                   ) : (
-                    <React.Fragment>
+                    <React.Fragment key="result-item.view.2">
                       <span className="fa source-icon fa-cloud" />
                       <span>{data.metacard.properties['source-id']}</span>
                     </React.Fragment>

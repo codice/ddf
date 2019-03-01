@@ -21,9 +21,9 @@ Marionette.ItemView.prototype.attachElContent = function(rendering) {
   this.triggerMethod('before:react:attach', rendering)
   render(
     <ThemeContainer>
-      <React.Fragment>
+      <React.Fragment key="marionette.ItemView.attachElContent.0">
         <IntlProvider locale={navigator.language} messages={properties.i18n}>
-          <React.Fragment>
+          <React.Fragment key="marionette.ItemView.attachElContent.1">
             {React.isValidElement(rendering) ? rendering : Parser(rendering)}
           </React.Fragment>
         </IntlProvider>

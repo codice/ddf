@@ -29,6 +29,17 @@ type Props = {
   closeParent: () => void
 }
 
+const Label = styled.div`
+  display: inline-box;
+  margin-left: ${props => props.theme.minimumSpacing};
+`
+const Icon = styled.div`
+  margin-left: ${props => props.theme.minimumSpacing};
+  display: inline-block;
+  text-align: center;
+  width: ${props => props.theme.mediumSpacing};
+`
+
 const CustomDropdown = styled(Dropdown)`
   width: 100%;
 `
@@ -155,10 +166,10 @@ const render = (props: Props) => {
     >
       <div className="metacard-interaction interaction-copy-coordinates">
         <div className="interaction-icon fa fa-clipboard" />
-        <div className="interaction-text">
+        <Label className="interaction-text">
           Copy Coordinates as
-          <span className="fa fa-chevron-down fa-chevron-withmargin" />
-        </div>
+          <Icon className="fa fa-chevron-down fa-chevron-withmargin" />
+        </Label>
       </div>
     </CustomDropdown>
   )

@@ -26,9 +26,7 @@ class Menu extends React.Component {
   chooseActive() {
     const selection = this.props.value
     const active = this.state ? this.state.active : undefined
-    const itemNames = React.Children.toArray(this.props.children).map(
-      child => child.props.value
-    )
+    const itemNames = this.getChildren().map(child => child.props.value)
     if (itemNames.includes(active)) {
       return active
     } else if (itemNames.includes(selection)) {
@@ -42,11 +40,14 @@ class Menu extends React.Component {
   onHover(active) {
     this.setState({ active })
   }
+  getChildren() {
+    return this.getChildrenFrom(this.props.children)
+  }
+  getChildrenFrom(children: any) {
+    return React.Children.toArray(children).filter(o => o)
+  }
   onShift(offset) {
-    const values = React.Children.map(
-      this.props.children,
-      ({ props }) => props.value
-    )
+    const values = this.getChildren().map(({ props }) => props.value)
     const index = values.findIndex(value => value === this.state.active)
     const next = mod(index + offset, values.length)
     this.onHover(values[next])
@@ -96,7 +97,7 @@ class Menu extends React.Component {
   render() {
     const { multi, value, children } = this.props
 
-    const childrenWithProps = React.Children.map(children, (child, i) => {
+    const childrenWithProps = this.getChildrenFrom(children).map((child, i) => {
       return React.cloneElement(child, {
         selected: multi
           ? value.indexOf(child.props.value) !== -1

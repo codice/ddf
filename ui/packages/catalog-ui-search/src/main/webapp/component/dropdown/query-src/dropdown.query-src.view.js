@@ -24,7 +24,7 @@ import * as React from 'react'
 import { FormattedMessage } from 'react-intl'
 
 const renderSourceLocal = source => (
-  <React.Fragment>
+  <React.Fragment key="Local.dropdown.query-src.view">
     {source.local ? (
       <i class="fa source-icon fa-home" />
     ) : (
@@ -34,7 +34,7 @@ const renderSourceLocal = source => (
 )
 
 const renderSourceAvailable = source => (
-  <React.Fragment>
+  <React.Fragment key="Available.dropdown.query-src.view">
     <span className={'text-src ' + (source.available ? 'is-available' : '')}>
       {!source.available ? (
         <i class="fa fa-exclamation-triangle src-availability" />

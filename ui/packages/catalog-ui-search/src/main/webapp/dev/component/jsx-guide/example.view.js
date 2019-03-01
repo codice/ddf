@@ -35,7 +35,7 @@ const List = props => {
       )
     })
   return (
-    <React.Fragment>
+    <React.Fragment key="example.view.0">
       {' '}
       {/* surround with multiple child roots with this to avoid wrapper divs */}
       <div className="class1" /> {/* use className instead of class */}
@@ -46,7 +46,7 @@ const List = props => {
 
 const Template = props => {
   return (
-    <React.Fragment>
+    <React.Fragment key="example.view.1">
       {' '}
       {/* surround with multiple child roots with this to avoid wrapper divs */}
       <h1> List of some Data</h1>

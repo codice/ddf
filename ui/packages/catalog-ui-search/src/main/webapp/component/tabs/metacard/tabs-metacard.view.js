@@ -105,11 +105,13 @@ module.exports = TabsView.extend({
       this.model.set('activeTab', 'Summary')
     }
     var activeTab = this.model.getActiveView()
-    this.tabsContent.show(
-      new activeTab({
-        selectionInterface: this.selectionInterface,
-      })
-    )
+    if (activeTab) {
+      this.tabsContent.show(
+        new activeTab({
+          selectionInterface: this.selectionInterface,
+        })
+      )
+    }
   },
   determineContent: function() {
     if (this.selectionInterface.getSelectedResults().length === 1) {

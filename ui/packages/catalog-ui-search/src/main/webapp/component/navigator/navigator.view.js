@@ -39,7 +39,7 @@ module.exports = plugin(
   Marionette.LayoutView.extend({
     template(props) {
       return (
-        <React.Fragment>
+        <React.Fragment key="navigator.view.0">
           <button
             className="navigation-choice is-neutral choice-product is-button"
             data-fragment="workspaces"
@@ -92,7 +92,7 @@ module.exports = plugin(
             <div className="navigation-extensions" />
           </div>
           {props.recent && (
-            <React.Fragment>
+            <React.Fragment key="navigator.view.1">
               <div className="is-divider" />
               <div className="navigation-links">
                 {props.workspace && (

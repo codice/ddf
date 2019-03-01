@@ -32,7 +32,7 @@ module.exports = Marionette.ItemView.extend({
         : this.contentView
     }
     return (
-      <React.Fragment>
+      <React.Fragment key="slideout.view">
         <div className="slideout-cover" />
         <div className="slideout-content">
           <ContentView />
