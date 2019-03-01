@@ -147,6 +147,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer resultCount = 250;
 
+  private Integer exportResultLimit = 1000;
+
   private Integer resultPageSize = 25;
 
   private String projection = "EPSG:4326";
@@ -499,6 +501,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("format", format);
     config.put("timeout", timeout);
     config.put("resultCount", resultCount);
+    config.put("exportResultLimit", exportResultLimit);
     config.put("resultPageSize", resultPageSize);
     config.put("typeNameMapping", typeNameMapping);
     config.put("terrainProvider", proxiedTerrainProvider);
@@ -834,6 +837,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setResultCount(Integer resultCount) {
     this.resultCount = resultCount;
+  }
+
+  public Integer getExportResultLimit() {
+    return exportResultLimit;
+  }
+
+  public void setExportResultLimit(Integer exportResultLimit) {
+    this.exportResultLimit = exportResultLimit;
   }
 
   public Integer getResultPageSize() {

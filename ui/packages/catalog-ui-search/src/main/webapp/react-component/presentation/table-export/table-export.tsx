@@ -14,6 +14,8 @@ import * as React from 'react'
 import Enum from '../../container/enum'
 import { Button, buttonTypeEnum } from '../button'
 import styled from '../../styles/styled-components'
+import Number from '../../container/input-wrappers/number'
+const properties = require('../../../js/properties.js')
 
 const Root = styled<{}, 'div'>('div')`
   display: block;
@@ -41,10 +43,12 @@ type Props = {
   exportFormat: string
   handleExportSizeChange: (value: any) => void
   handleExportFormatChange: (value: any) => void
+  handleCustomExportCountChange: (value: any) => void
   exportSizeOptions: Option[]
   exportFormatOptions: Option[]
   onDownloadClick: () => void
   warning: string
+  customExportCount: number
 }
 
 export default hot(module)((props: Props) => {
@@ -55,8 +59,10 @@ export default hot(module)((props: Props) => {
     exportFormatOptions,
     handleExportFormatChange,
     handleExportSizeChange,
+    handleCustomExportCountChange,
     onDownloadClick,
     warning,
+    customExportCount,
   } = props
   return (
     <Root>
@@ -66,6 +72,19 @@ export default hot(module)((props: Props) => {
         label="Export"
         onChange={handleExportSizeChange}
       />
+      {exportSize === 'custom' ? (
+        <div>
+          <Number
+            label=""
+            showLabel={false}
+            name="customExport"
+            value={customExportCount.toString()}
+            onChange={handleCustomExportCountChange}
+          />
+        </div>
+      ) : (
+        <div />
+      )}
       <Enum
         options={exportFormatOptions}
         value={exportFormat}
@@ -82,6 +101,10 @@ export default hot(module)((props: Props) => {
         buttonType={buttonTypeEnum.primary}
         icon="fa fa-download"
         text="Download"
+        disabled={
+          exportSize === 'custom' &&
+          customExportCount > properties.exportResultLimit
+        }
         onClick={onDownloadClick}
       />
     </Root>
