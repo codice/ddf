@@ -46,11 +46,12 @@ const EmptyBlacklist = styled<Props, 'div'>('div')`
 `
 
 const ItemsWrapper = styled<Props, 'div'>('div')`
+  overflow: hidden;
   ${props =>
     props.clearing
       ? `animation: ${collapseAnimation} 
       ${props.theme.coreTransitionTime} linear forwards;`
-      : ''} overflow: hidden;
+      : ''};
 `
 
 type Props = {
