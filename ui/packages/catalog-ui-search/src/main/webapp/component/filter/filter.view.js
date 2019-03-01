@@ -351,7 +351,6 @@ module.exports = Marionette.LayoutView.extend({
       return CQLUtils.generateIsEmptyFilter(property)
     }
 
-    var type = this.comparatorToCQL()[comparator]
     return CQLUtils.generateFilter(type, property, value)
   },
   deleteInvalidFilters: function() {
