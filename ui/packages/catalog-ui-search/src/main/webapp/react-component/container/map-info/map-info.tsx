@@ -40,29 +40,27 @@ const mapPropsToState = (props: Props) => {
     lat: map.get('mouseLat'),
     lon: map.get('mouseLon'),
     format: getCoordinateFormat(),
-    attributes: getAttributes(props),
+    attributes: getAttributes(map),
   }
 }
 
-const getAttributes = ({ map }: Props) => {
+const getAttributes = (map: Backbone.Model) => {
   if (map.get('targetMetacard') === undefined) {
     return []
   }
   return properties.summaryShow
     .map((attribute: string) => {
       const definition = metacardDefinitions.metacardTypes[attribute]
-      const attributeName =
-        typeof definition !== 'undefined'
-          ? definition.alias || definition.id
-          : attribute
-      const attributeValue = map
+      const name =
+        definition !== undefined ? definition.alias || definition.id : attribute
+      const value = map
         .get('targetMetacard')
         .get('metacard')
         .get('properties')
-        .get(attributeName)
-      return { name: attributeName, value: attributeValue }
+        .get(name)
+      return { name, value }
     })
-    .filter(({ value }: Attribute) => typeof value !== 'undefined')
+    .filter(({ value }: Attribute) => value !== undefined)
 }
 
 const getCoordinateFormat = () =>

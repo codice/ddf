@@ -16,7 +16,7 @@ import { Attribute, Coordinates, Props } from '.'
 import { formatAttribute, formatCoordinates } from './formatting'
 
 export const validCoordinates = ({ lat, lon }: Coordinates) =>
-  typeof lat !== 'undefined' && typeof lon !== 'undefined'
+  lat !== undefined && lon !== undefined
 
 const Root = styled<Props, 'div'>('div')`
   font-family: 'Inconsolata', 'Lucida Console', monospace;
