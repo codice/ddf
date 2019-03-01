@@ -22,7 +22,9 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.JAXBException;
@@ -47,7 +49,17 @@ public class SearchFormsLoaderTest {
   private static final URL LOADER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/loader");
 
-  private static final String ROOT = LOADER_RESOURCES_DIR.getPath();
+  private static final String ROOT;
+
+  static {
+    String filePath;
+    try {
+      filePath = Paths.get(LOADER_RESOURCES_DIR.toURI()).toFile().toString();
+    } catch (URISyntaxException e) {
+      filePath = "";
+    }
+    ROOT = filePath;
+  }
 
   private TemplateTransformer transformer;
 

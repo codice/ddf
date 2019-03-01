@@ -55,6 +55,9 @@ module.exports = Marionette.LayoutView.extend({
     this.values.currentView.addNewValue(this.model)
   },
   isValid: function() {
+    if (this.model.get('enumCustom')) {
+      return true
+    }
     return this.values.currentView.children.every(function(valueView) {
       const inputView = valueView.input.currentView
       return inputView.isValid()

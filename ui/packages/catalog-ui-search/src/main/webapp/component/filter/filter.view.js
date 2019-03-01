@@ -290,6 +290,25 @@ module.exports = Marionette.LayoutView.extend({
       this.model.get('type'),
       currentComparator
     )
+    let type = this.model.get('type')
+
+    if (this.options.suggester && propertyJSON.enum === undefined) {
+      this.options.suggester(propertyJSON).then(suggestions => {
+        if (suggestions.length > 0) {
+          propertyJSON.enum = suggestions.map(label => ({
+            label,
+            value: label,
+          }))
+          const ViewToUse = determineView(currentComparator)
+          this.filterInput.show(
+            new ViewToUse({
+              model: new PropertyModel(propertyJSON),
+            })
+          )
+          this.turnOnEditing()
+        }
+      })
+    }
     const ViewToUse = determineView(currentComparator)
     this.filterInput.show(
       new ViewToUse({
