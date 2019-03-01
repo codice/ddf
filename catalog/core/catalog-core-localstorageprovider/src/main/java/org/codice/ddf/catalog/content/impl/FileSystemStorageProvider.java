@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.catalog.content.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteSource;
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
@@ -37,6 +39,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
+import ddf.security.encryption.crypter.Crypter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -50,6 +53,8 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +64,7 @@ import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +84,8 @@ public class FileSystemStorageProvider implements StorageProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemStorageProvider.class);
 
+  @VisibleForTesting static final String CRYPTER_NAME = "file-system";
+
   public static final String REF_EXT = "external-reference";
 
   /** Mapper for file extensions-to-mime types (and vice versa) */
@@ -92,9 +100,13 @@ public class FileSystemStorageProvider implements StorageProvider {
 
   private Map<String, Set<String>> updateMap = new ConcurrentHashMap<>();
 
+  private Crypter crypter;
+
   /** Default constructor, invoked by blueprint. */
   public FileSystemStorageProvider() {
     LOGGER.debug("File System Provider initializing...");
+    crypter =
+        AccessController.doPrivileged((PrivilegedAction<Crypter>) () -> new Crypter(CRYPTER_NAME));
   }
 
   @Override
@@ -398,12 +410,15 @@ public class FileSystemStorageProvider implements StorageProvider {
     String filename = file.getFileName().toString();
     String extension = FilenameUtils.getExtension(filename);
     URI reference = null;
+
     // if the file is an external reference, remove the reference extension
     // so we can get the real extension
     if (REF_EXT.equals(extension)) {
       extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(filename));
       try {
-        reference = new URI(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
+        String decryptedReference =
+            crypter.decrypt(new String(Files.readAllBytes(file), Charset.defaultCharset()));
+        reference = new URI(decryptedReference);
 
         if (reference.getScheme() == null) {
           file = Paths.get(reference.toASCIIString());
@@ -421,27 +436,41 @@ public class FileSystemStorageProvider implements StorageProvider {
       throw new StorageException("Cannot read " + uri + ".");
     }
 
-    String mimeType = DEFAULT_MIME_TYPE;
     long size = 0;
+    String mimeType = DEFAULT_MIME_TYPE;
     ByteSource byteSource;
+    FileBackedOutputStream decryptedOutputStream = new FileBackedOutputStream(128);
 
     try (InputStream fileInputStream =
-        file != null ? Files.newInputStream(file) : reference.toURL().openStream()) {
-      mimeType = mimeTypeMapper.guessMimeType(fileInputStream, extension);
-    } catch (MimeTypeResolutionException e) {
-      LOGGER.debug(
-          "Could not determine mime type for file extension = {}; defaulting to {}",
-          extension,
-          DEFAULT_MIME_TYPE);
+            file != null ? Files.newInputStream(file) : reference.toURL().openStream();
+        InputStream decryptedInputStream = crypter.decrypt(fileInputStream)) {
+
+      mimeType = mimeTypeMapper.guessMimeType(decryptedInputStream, extension);
+      IOUtils.copy(decryptedInputStream, decryptedOutputStream);
+
     } catch (IOException ie) {
       LOGGER.debug(
           "Error opening stream to external reference {}. Failing StorageProvider read.",
           reference,
           ie);
       throw new StorageException("Cannot read " + reference + ".");
+    } catch (MimeTypeResolutionException e) {
+      LOGGER.debug(
+          "Could not determine mime type for file extension = {}; defaulting to {}",
+          extension,
+          DEFAULT_MIME_TYPE);
     }
 
-    if (file != null) {
+    if (file == null) { // if store reference
+      final URI finalReference = reference;
+      byteSource =
+          new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+              return finalReference.toURL().openStream();
+            }
+          };
+    } else { // if resource
       if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
         try {
           mimeType = Files.probeContentType(file);
@@ -452,20 +481,11 @@ public class FileSystemStorageProvider implements StorageProvider {
 
       LOGGER.debug("mimeType = {}", mimeType);
       try {
-        size = Files.size(file);
+        size = decryptedOutputStream.asByteSource().size();
       } catch (IOException e) {
         LOGGER.info("Unable to retrieve size of file: {}", file.toAbsolutePath().toString(), e);
       }
-      byteSource = com.google.common.io.Files.asByteSource(file.toFile());
-    } else {
-      URI finalReference = reference;
-      byteSource =
-          new ByteSource() {
-            @Override
-            public InputStream openStream() throws IOException {
-              return finalReference.toURL().openStream();
-            }
-          };
+      byteSource = decryptedOutputStream.asByteSource();
     }
 
     return new ContentItemImpl(
@@ -562,17 +582,17 @@ public class FileSystemStorageProvider implements StorageProvider {
       Files.createDirectories(contentDirectory);
     }
 
+    long copySize;
     Path contentItemPath =
         Paths.get(contentDirectory.toAbsolutePath().toString(), item.getFilename());
     ByteSource byteSource;
 
-    long copy;
-
     if (storeReference != null) {
-      copy = item.getSize();
+      copySize = item.getSize();
+      String encryptedReference = crypter.encrypt(storeReference);
       Files.write(
           Paths.get(contentItemPath.toString() + "." + REF_EXT),
-          storeReference.getBytes(Charset.forName("UTF-8")));
+          encryptedReference.getBytes(Charset.defaultCharset()));
       byteSource =
           new ByteSource() {
             @Override
@@ -581,17 +601,18 @@ public class FileSystemStorageProvider implements StorageProvider {
             }
           };
     } else {
-      try (InputStream inputStream = item.getInputStream()) {
-        copy = Files.copy(inputStream, contentItemPath);
+      try (InputStream plainInputStream = item.getInputStream();
+          InputStream encryptedInputStream = crypter.encrypt(plainInputStream)) {
+        copySize = Files.copy(encryptedInputStream, contentItemPath);
       }
       byteSource = com.google.common.io.Files.asByteSource(contentItemPath.toFile());
 
-      if (copy != item.getSize() && LOGGER.isWarnEnabled()) {
+      if (copySize < item.getSize() && LOGGER.isWarnEnabled()) {
         LOGGER.warn(
-            "Created content item {} size {} does not match expected size {} {}. "
+            "Created content item {} encrypted size {} is not greater than plain size {}.{}"
                 + "Verify filesystem and/or network integrity.",
             item.getId(),
-            copy,
+            copySize,
             item.getSize(),
             System.lineSeparator());
       }
@@ -604,7 +625,7 @@ public class FileSystemStorageProvider implements StorageProvider {
             byteSource,
             item.getMimeType().toString(),
             contentItemPath.getFileName().toString(),
-            copy,
+            copySize,
             item.getMetacard());
 
     LOGGER.trace("EXITING: generateContentFile");

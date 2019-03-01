@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.impl;
 
+import static org.codice.ddf.catalog.content.impl.FileSystemStorageProvider.CRYPTER_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -53,6 +54,9 @@ import ddf.catalog.data.Metacard;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
+import ddf.security.SecurityConstants;
+import ddf.security.encryption.crypter.Crypter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,7 +88,7 @@ import org.slf4j.LoggerFactory;
 
 public class FileSystemStorageProviderTest {
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private String baseDir;
 
@@ -104,10 +108,16 @@ public class FileSystemStorageProviderTest {
 
   @Before
   public void setUp() throws IOException {
-    tempFolder.create();
-    baseDir = tempFolder.getRoot().getAbsolutePath();
+    baseDir = temporaryFolder.getRoot().getAbsolutePath();
+    baseTmpDir = temporaryFolder.newFolder(FileSystemStorageProvider.DEFAULT_TMP).getAbsolutePath();
 
-    baseTmpDir = baseDir + File.separator + FileSystemStorageProvider.DEFAULT_TMP;
+    String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
+    System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
+    System.setProperty(
+        SecurityConstants.ASSOCIATED_DATA_PATH,
+        associatedDataHome.concat("/associatedData.properties"));
+
     MimeTypeResolver resolver = new MockMimeTypeResolver();
     MimeTypeMapper mapper = new MimeTypeMapperImpl(Collections.singletonList(resolver));
 
@@ -122,7 +132,8 @@ public class FileSystemStorageProviderTest {
 
   @After
   public void clean() {
-    tempFolder.delete();
+    System.clearProperty(SecurityConstants.KEYSET_DIR);
+    System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
 
   @Test
@@ -609,7 +620,10 @@ public class FileSystemStorageProviderTest {
   public void testCreateAndReadReference() throws Exception {
     String path = baseTmpDir + File.separator + TEST_INPUT_FILENAME;
     File file = new File(path);
-    FileUtils.writeStringToFile(file, TEST_INPUT_CONTENTS);
+    Crypter crypter = new Crypter(CRYPTER_NAME);
+    InputStream encryptedStream =
+        crypter.encrypt(new ByteArrayInputStream(TEST_INPUT_CONTENTS.getBytes()));
+    Files.copy(encryptedStream, file.toPath());
 
     Map<String, Serializable> properties = new HashMap<>();
     properties.put(Constants.STORE_REFERENCE_KEY, file.toURI().toASCIIString());

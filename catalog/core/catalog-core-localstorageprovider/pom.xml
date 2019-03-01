@@ -63,6 +63,11 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+      <dependency>
+        <groupId>ddf.security.encryption</groupId>
+        <artifactId>security-encryption-crypter</artifactId>
+        <version>2.13.7-SNAPSHOT</version>
+      </dependency>
         <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-impl</artifactId>
@@ -81,7 +86,8 @@
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util
+                            platform-util,
+                            security-encryption-crypter
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
