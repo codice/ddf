@@ -27,7 +27,7 @@ const expandAnimation = keyframes`
 `
 
 const collapseAnimation = keyframes`
-from {
+  from {
     transform: translateY(0) scaleY(1);
   }
   to {
@@ -45,21 +45,12 @@ const EmptyBlacklist = styled<Props, 'div'>('div')`
     linear;
 `
 
-const ItemWrapper = styled<Props, 'div'>('div')`
-  ${props => {
-    if (props.clearing) {
-      return (
-        'animation: ' +
-        collapseAnimation +
-        ' ' +
-        props.theme.coreTransitionTime +
-        ' linear forwards;'
-      )
-    } else {
-      return ''
-    }
-  }};
-  overflow: hidden;
+const ItemsWrapper = styled<Props, 'div'>('div')`
+  ${props =>
+    props.clearing
+      ? `animation: ${collapseAnimation} 
+      ${props.theme.coreTransitionTime} linear forwards;`
+      : ''} overflow: hidden;
 `
 
 type Props = {
@@ -78,13 +69,13 @@ const Blacklist = (props: Props) => {
         style={{ width: '100%' }}
         text="Unhide All"
       />
-      <ItemWrapper {...props}>
+      <ItemsWrapper {...props}>
         <div className="is-list has-list-highlighting">
           {props.blacklist.map(item => {
             return <BlacklistItemContainer key={item.id} item={item} />
           })}
         </div>
-      </ItemWrapper>
+      </ItemsWrapper>
     </div>
   )
 }

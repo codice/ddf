@@ -41,19 +41,11 @@ const Root = styled<Props, 'div'>('div')`
   cursor: pointer;
   height: ${props => props.theme.minimumButtonSize};
   overflow: hidden;
-  ${props => {
-    if (props.clearing) {
-      return (
-        'animation: ' +
-        collapseAnimation(props.theme.minimumButtonSize) +
-        ' ' +
-        props.theme.coreTransitionTime +
-        ' linear forwards;'
-      )
-    } else {
-      return ''
-    }
-  }};
+  ${props =>
+    props.clearing
+      ? `animation: ${collapseAnimation(props.theme.minimumButtonSize)} 
+      ${props.theme.coreTransitionTime} linear forwards;`
+      : ''};
 `
 
 const ItemDetails = styled<Props, 'div'>('div')`
@@ -72,7 +64,9 @@ const ItemDetails = styled<Props, 'div'>('div')`
 const BlacklistItemPresentation = (props: Props) => {
   return (
     <Root {...props}>
-      <ItemDetails {...props}>{props.itemTitle}</ItemDetails>
+      <ItemDetails {...props} onClick={props.navigate}>
+        {props.itemTitle}
+      </ItemDetails>
       <Button
         style={{ float: 'right' }}
         icon="fa fa-eye"
