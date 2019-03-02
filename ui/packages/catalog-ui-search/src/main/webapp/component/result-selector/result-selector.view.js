@@ -160,6 +160,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     }
   },
   onBeforeShow: function() {
+    console.log('onBeforeShow')
     var resultFilter = user
       .get('user')
       .get('preferences')

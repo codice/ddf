@@ -269,9 +269,7 @@ Query.Model = PartialAssociatedModel.extend({
       result.setQueryId(this.getId())
       result.set('selectedResultTemplate', this.get('detail-level'))
       result.set('merged', true)
-      result.get('queuedResults').fullCollection.reset()
       result.get('queuedResults').reset()
-      result.get('results').fullCollection.reset(options.results || [])
       result.get('results').reset(options.results || [])
       result
         .get('status')
@@ -292,10 +290,7 @@ Query.Model = PartialAssociatedModel.extend({
 
     result.set('initiated', Date.now())
     result.set('resultCountOnly', options.resultCountOnly)
-    ResultSort.sortResults(
-      this.get('sorts'),
-      result.get('results').fullCollection
-    )
+    ResultSort.sortResults(this.get('sorts'), result.get('results'))
 
     if (!properties.isCacheDisabled) {
       sources.unshift('cache')
@@ -347,7 +342,7 @@ Query.Model = PartialAssociatedModel.extend({
           success: function(model, response, options) {
             response.options = options
             if (options.resort === true) {
-              model.get('results').fullCollection.sort()
+              model.get('results').sort()
             }
           },
           error: function(model, response, options) {
@@ -476,8 +471,16 @@ Query.Model = PartialAssociatedModel.extend({
       this.get('result').resetResultCountsBySource()
     }
   },
+  lengthWithDuplicates(resultsCollection) {
+    const lengthWithoutDuplicates = resultsCollection.length
+    const numberOfDuplicates = resultsCollection.reduce((count, result) => {
+      count += result.duplicates ? result.duplicates.length : 0
+      return count
+    }, 0)
+    return lengthWithoutDuplicates + numberOfDuplicates
+  },
   getResultsRangeLabel: function(resultsCollection) {
-    var results = resultsCollection.fullCollection.length
+    var results = resultsCollection.length
     var hits = _.filter(
       this.get('result')
         .get('status')
@@ -491,13 +494,10 @@ Query.Model = PartialAssociatedModel.extend({
       return results + ' results'
     }
 
-    var clientState =
-      resultsCollection.state || this.get('result').get('results').state
     var serverPageSize = user.get('user>preferences>resultCount')
-    var startingIndex =
-      this.get('serverPageIndex') * serverPageSize +
-      (clientState.currentPage - 1) * clientState.pageSize
-    var endingIndex = startingIndex + resultsCollection.length
+    var startingIndex = this.get('serverPageIndex') * serverPageSize
+    var endingIndex =
+      startingIndex + this.lengthWithDuplicates(resultsCollection)
 
     return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
   },

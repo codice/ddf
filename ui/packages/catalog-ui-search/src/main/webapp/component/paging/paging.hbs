@@ -17,36 +17,22 @@
 
 <div class="buttons-container">
 
-<div class="buttons-left">
-{{#if showPreviousServerPage}}
-    <button class="server-previous is-primary">
-        <span class="fa fa-angle-double-left"></span>
-        <span>Back</span>
-    </button>
-{{else}}
-    <button class="first is-primary" {{#unless hasPreviousPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-double-left" aria-hidden="true"></i>
-    </button>
-    <button class="previous is-primary" {{#unless hasPreviousPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-left" aria-hidden="true"></i>
-    </button>
-{{/if}}
-</div>
+    <div class="buttons-left">
+        {{#if showPreviousServerPage}}
+        <button class="server-previous is-primary">
+            <span class="fa fa-angle-double-left"></span>
+            <span>Back</span>
+        </button>
+        {{/if}}
+    </div>
 
-<div class="buttons-right">
-{{#if showNextServerPage}}
-    <button class="server-next is-primary">
-        <span>More</span>
-        <span class="fa fa-angle-double-right"></span>
-    </button>
-{{else}}
-    <button class="next is-primary" {{#unless hasNextPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-right" aria-hidden="true"></i>
-    </button>
-    <button class="last is-primary" {{#unless hasNextPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-    </button>
-{{/if}}
-</div>
+    <div class="buttons-right">
+        {{#if showNextServerPage}}
+        <button class="server-next is-primary">
+            <span>More</span>
+            <span class="fa fa-angle-double-right"></span>
+        </button>
+        {{/if}}
+    </div>
 
 </div>

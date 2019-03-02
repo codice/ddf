@@ -47,7 +47,7 @@ module.exports = Marionette.ItemView.extend({
     if (currentWorkspace) {
       currentWorkspace.get('queries').forEach(function(query) {
         if (!self.isDestroyed && query.get('result')) {
-          var results = query.get('result').get('results').fullCollection
+          var results = query.get('result').get('results')
           for (var i = 0; i <= results.length - 1; i++) {
             if (
               results.models[i]
