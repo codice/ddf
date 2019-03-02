@@ -14,6 +14,7 @@
  **/
 /*global define*/
 import React from 'react'
+import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
 const _ = require('underscore')
@@ -22,10 +23,8 @@ const IconHelper = require('../../js/IconHelper.js')
 const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
 const DropdownModel = require('../dropdown/dropdown.js')
-const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
 const ResultIndicatorView = require('../result-indicator/result-indicator.view.js')
 const properties = require('../../js/properties.js')
-const router = require('../router/router.js')
 const user = require('../singletons/user-instance.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 const moment = require('moment')
@@ -195,14 +194,9 @@ const ResultItemView = Marionette.LayoutView.extend({
               >
                 <span className="fa fa-plus" />
               </button>
-              <button
-                className="result-actions is-button"
-                title="Provides a list of actions to take on the result."
-                data-help="Provides a list
-                        of actions to take on the result."
-              >
-                <span className="fa fa-ellipsis-v" />
-              </button>
+              <MetacardInteractionsDropdown
+                model={new Backbone.Collection([this.options.model])}
+              />
             </div>
           </div>
         </div>
@@ -226,10 +220,8 @@ const ResultItemView = Marionette.LayoutView.extend({
     'click .result-download': 'triggerDownload',
   },
   regions: {
-    resultActions: '.result-actions',
     resultIndicator: '.container-indicator',
     resultThumbnail: '.detail-thumbnail',
-    resultAdd: '.result-add',
     resultLink: '.result-link',
   },
   behaviors() {
@@ -237,17 +229,6 @@ const ResultItemView = Marionette.LayoutView.extend({
       button: {},
       dropdown: {
         dropdowns: [
-          {
-            selector: '.result-actions',
-            view: MetacardInteractionsView.extend({
-              behaviors: {
-                navigation: {},
-              },
-            }),
-            viewOptions: {
-              model: new Backbone.Collection([this.options.model]),
-            },
-          },
           {
             selector: '.result-add',
             view: ResultAddView,

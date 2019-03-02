@@ -1,36 +1,4 @@
-@{customElementNamespace}metacard-interactions {
-  .metacard-interaction,
-  .interaction-icon,
-  .interaction-text {
-    line-height: @minimumButtonSize;
-    height: @minimumButtonSize;
-  }
-
-  .metacard-interaction {
-    white-space: nowrap;
-    padding: 0px 10px;
-    cursor: pointer;
-    overflow: hidden;
-  }
-
-  .interaction-icon {
-    text-align: center;
-    width: @minimumButtonSize;
-  }
-
-  .interaction-icon,
-  .interaction-text {
-    display: inline-block;
-  }
-
-  .interaction-add,
-  .interaction-show,
-  .interaction-share,
-  .interaction-create-search,
-  .interaction-download {
-    display: none;
-  }
-
+@{customElementNamespace}metacard-interactions-dropdown {
   .download-cached {
     background: @positive-color;
     border-radius: @border-radius;
@@ -38,12 +6,16 @@
     padding: 5px;
     margin-left: 15px;
   }
-
   .interaction-add,
   .interaction-actions-export {
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+    white-space: nowrap;
+    cursor: pointer;
+    overflow: hidden;
     padding: 0px 0px;
     > @{customElementNamespace}dropdown {
-      padding: 0px 10px;
+      padding: 0px @minimumSpacing;
       text-align: left;
       span:first-of-type {
         text-align: center;
@@ -53,45 +25,8 @@
   }
 }
 
-@{customElementNamespace}metacard-interactions.in-workspace {
+@{customElementNamespace}metacard-interactions-dropdown.in-workspace {
   .interaction-add {
     display: block;
-  }
-}
-
-@{customElementNamespace}metacard-interactions.is-multiple {
-  .interaction-expand,
-  .interaction-share {
-    display: none;
-  }
-}
-
-@{customElementNamespace}metacard-interactions.is-routed {
-  .interaction-expand {
-    display: none;
-  }
-}
-
-@{customElementNamespace}metacard-interactions.is-blacklisted {
-  .interaction-show {
-    display: block;
-  }
-
-  .interaction-hide {
-    display: none;
-  }
-}
-
-@{customElementNamespace}metacard-interactions.is-downloadable {
-  .interaction-download {
-    display: block;
-  }
-}
-
-[data-route='openWorkspace'] {
-  @{customElementNamespace}metacard-interactions.has-location {
-    .interaction-create-search {
-      display: block;
-    }
   }
 }

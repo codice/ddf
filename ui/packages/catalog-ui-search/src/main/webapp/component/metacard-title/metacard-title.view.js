@@ -13,35 +13,28 @@
  *
  **/
 /*global define*/
-const wreqr = require('../../js/wreqr.js')
+import React from 'react'
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
-const template = require('./metacard-title.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const IconHelper = require('../../js/IconHelper.js')
-const store = require('../../js/store.js')
-const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
-const MetacardInteractionsView = require('../metacard-interactions/metacard-interactions.view.js')
+import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 
-module.exports = Marionette.LayoutView.extend({
-  template: template,
-  tagName: CustomElements.register('metacard-title'),
-  regions: {
-    metacardInteractions: '.metacard-interactions',
-  },
-  onBeforeShow: function() {
-    this.metacardInteractions.show(
-      PopoutView.createSimpleDropdown({
-        componentToShow: MetacardInteractionsView,
-        dropdownCompanionBehaviors: {
-          navigation: {},
-        },
-        modelForComponent: this.model,
-        leftIcon: 'fa fa-ellipsis-v',
-      })
+module.exports = Marionette.ItemView.extend({
+  template({ title, icon }) {
+    return (
+      <React.Fragment>
+        <div
+          className="metacard-title"
+          data-help="This is the title of the result."
+        >
+          <span className={icon} />
+          <span>{title}</span>
+        </div>
+        <MetacardInteractionsDropdown model={this.model} />
+      </React.Fragment>
     )
   },
+  tagName: CustomElements.register('metacard-title'),
   initialize: function() {
     if (this.model.length === 1) {
       this.listenTo(
@@ -80,10 +73,6 @@ module.exports = Marionette.LayoutView.extend({
   checkTags: function() {
     var types = {}
     this.model.forEach(function(result) {
-      var tags = result
-        .get('metacard')
-        .get('properties')
-        .get('metacard-tags')
       if (result.isWorkspace()) {
         types.workspace = true
       } else if (result.isResource()) {
