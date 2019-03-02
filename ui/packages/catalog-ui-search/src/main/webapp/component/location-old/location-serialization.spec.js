@@ -125,12 +125,10 @@ describe('serialize/deserialize polygon', () => {
   const deserializedPolygon = {
     mode: 'poly',
     polygon: [
-      [
-        [-125.180588, 48.603515],
-        [-130.42847, 38.872222],
-        [-117.556532, 41.896131],
-        [-125.180588, 48.603515],
-      ],
+      [-125.180588, 48.603515],
+      [-130.42847, 38.872222],
+      [-117.556532, 41.896131],
+      [-125.180588, 48.603515],
     ],
     polygonBufferWidth: 0,
     polygonBufferUnits: 'meters',
@@ -147,52 +145,43 @@ describe('serialize/deserialize polygon', () => {
 })
 
 describe('serialize/deserialize bbox', () => {
-  const serializedBbox = {
-    type: 'Feature',
-    bbox: [-44.449923, -27.849887, -112.533338, -92.952499],
-    geometry: {
-      type: 'Polygon',
-      coordinates: {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'Polygon',
-          coordinates: [
-            [
-              [-44.449923, -27.849887],
-              [-112.533338, -27.849887],
-              [-112.533338, -92.952499],
-              [-44.449923, -92.952499],
-              [-44.449923, -27.849887],
-            ],
-          ],
-        },
-      },
-    },
-    properties: {
-      type: 'BoundingBox',
-      north: -27.849887,
-      east: -92.952499,
-      south: -44.449923,
-      west: -112.533338,
-    },
-  }
-
   const deserializedBbox = {
     mode: 'bbox',
     polygon: [
-      [
-        [-112.533338, -27.849887],
-        [-92.952499, -27.849887],
-        [-92.952499, -44.449923],
-        [-112.533338, -44.449923],
-        [-112.533338, -27.849887],
-      ],
+      [-122.144963, 51.08591],
+      [-108.169324, 51.08591],
+      [-108.169324, 12.374553],
+      [-122.144963, 12.374553],
+      [-122.144963, 51.08591],
     ],
-    north: -27.849887,
-    east: -92.952499,
-    south: -44.449923,
-    west: -112.533338,
+    north: 51.08591,
+    east: -108.169324,
+    south: 12.374553,
+    west: -122.144963,
+  }
+
+  const serializedBbox = {
+    type: 'Feature',
+    bbox: [12.374553, 51.08591, -122.144963, -108.169324],
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-122.144963, 51.08591],
+          [-108.169324, 51.08591],
+          [-108.169324, 12.374553],
+          [-122.144963, 12.374553],
+          [-122.144963, 51.08591],
+        ],
+      ],
+    },
+    properties: {
+      type: 'BoundingBox',
+      north: 51.08591,
+      east: -108.169324,
+      south: 12.374553,
+      west: -122.144963,
+    },
   }
 
   it('properly tranlates filter tree JSON into location model representation', () => {
@@ -208,18 +197,20 @@ describe('serialize/deserialize multipolygon', () => {
   const serializedPolygon = {
     type: 'Feature',
     geometry: {
-      type: 'Polygon',
+      type: 'MultiPolygon',
       coordinates: [
         [
-          [-125.180588, 48.603515],
-          [-130.42847, 38.872222],
-          [-117.556532, 41.896131],
-          [-125.180588, 48.603515],
+          [
+            [-125.180588, 48.603515],
+            [-130.42847, 38.872222],
+            [-117.556532, 41.896131],
+            [-125.180588, 48.603515],
+          ],
         ],
       ],
     },
     properties: {
-      type: 'Polygon',
+      type: 'MultiPolygon',
       buffer: {
         width: 0,
         unit: 'meters',
@@ -239,7 +230,7 @@ describe('serialize/deserialize multipolygon', () => {
     ],
     polygonBufferWidth: 0,
     polygonBufferUnits: 'meters',
-    polyType: 'polygon',
+    polyType: 'multipolygon',
   }
 
   it('properly tranlates filter tree JSON into location model representation', () => {
@@ -272,11 +263,13 @@ describe('serialize/deserialize keyword', () => {
     geometry: {
       type: 'Polygon',
       coordinates: [
-        [87.3879, 21.7495],
-        [87.6879, 21.7495],
-        [87.6879, 22.0495],
-        [87.3879, 22.0495],
-        [87.3879, 21.7495],
+        [
+          [87.3879, 21.7495],
+          [87.6879, 21.7495],
+          [87.6879, 22.0495],
+          [87.3879, 22.0495],
+          [87.3879, 21.7495],
+        ],
       ],
     },
     properties: {
