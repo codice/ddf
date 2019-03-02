@@ -50,23 +50,6 @@ module.exports = Marionette.ItemView.extend({
       200,
       { leading: true, trailing: true }
     )
-    this.updateSelectionInterfaceComplete = _debounce(
-      this.updateSelectionInterfaceComplete,
-      200,
-      { leading: true, trailing: true }
-    )
-    this.updateSelectionInterfaceComplete()
-  },
-  updateSelectionInterfaceComplete: function() {
-    this.options.selectionInterface.setCompleteActiveSearchResults(
-      this.model.reduce(function(results, result) {
-        results.push(result)
-        if (result.duplicates) {
-          results = results.concat(result.duplicates)
-        }
-        return results
-      }, [])
-    )
   },
   updateSelectionInterface: function() {
     this.options.selectionInterface.setActiveSearchResults(

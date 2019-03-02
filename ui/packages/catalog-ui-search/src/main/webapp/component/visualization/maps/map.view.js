@@ -320,7 +320,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   onMapHover: function(event, mapEvent) {
     var metacard = this.options.selectionInterface
-      .getCompleteActiveSearchResults()
+      .getActiveSearchResults()
       .get(mapEvent.mapTarget)
     this.updateTarget(metacard)
     this.$el.toggleClass(

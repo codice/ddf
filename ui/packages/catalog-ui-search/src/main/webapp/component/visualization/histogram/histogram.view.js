@@ -264,8 +264,7 @@ module.exports = Marionette.LayoutView.extend({
   showHistogram: function() {
     if (
       this.histogramAttribute.currentView.model.getValue()[0] &&
-      this.options.selectionInterface.getCompleteActiveSearchResults()
-        .length !== 0
+      this.options.selectionInterface.getActiveSearchResults().length !== 0
     ) {
       this.defaultValue = this.histogramAttribute.currentView.model.getValue()
       var histogramElement = this.el.querySelector('.histogram-container')
@@ -302,8 +301,7 @@ module.exports = Marionette.LayoutView.extend({
       histogramElement !== null &&
       histogramElement.children.length !== 0 &&
       this.histogramAttribute.currentView.model.getValue()[0] &&
-      this.options.selectionInterface.getCompleteActiveSearchResults()
-        .length !== 0
+      this.options.selectionInterface.getActiveSearchResults().length !== 0
     ) {
       Plotly.deleteTraces(histogramElement, 1)
       Plotly.addTraces(
@@ -323,8 +321,7 @@ module.exports = Marionette.LayoutView.extend({
     if (
       histogramElement.children.length !== 0 &&
       this.histogramAttribute.currentView.model.getValue()[0] &&
-      this.options.selectionInterface.getCompleteActiveSearchResults()
-        .length !== 0
+      this.options.selectionInterface.getActiveSearchResults().length !== 0
     ) {
       var theme = getTheme(e.get('spacingMode'))
       histogramElement.layout.margin = theme.margin
@@ -335,8 +332,7 @@ module.exports = Marionette.LayoutView.extend({
     if (
       histogramElement.children.length !== 0 &&
       this.histogramAttribute.currentView.model.getValue()[0] &&
-      this.options.selectionInterface.getCompleteActiveSearchResults()
-        .length !== 0
+      this.options.selectionInterface.getActiveSearchResults().length !== 0
     ) {
       histogramElement.layout.font.size = e.get('fontSize')
     }
@@ -350,7 +346,7 @@ module.exports = Marionette.LayoutView.extend({
           showValidationIssues: false,
           enumFiltering: true,
           enum: calculateAvailableAttributes(
-            this.options.selectionInterface.getCompleteActiveSearchResults()
+            this.options.selectionInterface.getActiveSearchResults()
           ),
           value: defaultValue,
           id: 'Group by',
@@ -370,7 +366,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleEmpty()
   },
   determineInitialData: function() {
-    var activeResults = this.options.selectionInterface.getCompleteActiveSearchResults()
+    var activeResults = this.options.selectionInterface.getActiveSearchResults()
     return [
       {
         x: calculateAttributeArray(
@@ -391,7 +387,7 @@ module.exports = Marionette.LayoutView.extend({
     ]
   },
   determineData: function(plot) {
-    var activeResults = this.options.selectionInterface.getCompleteActiveSearchResults()
+    var activeResults = this.options.selectionInterface.getActiveSearchResults()
     var selectedResults = this.options.selectionInterface.getSelectedResults()
     var xbins = Common.duplicate(plot._fullData[0].xbins)
     if (xbins.size.constructor !== String) {
@@ -441,8 +437,7 @@ module.exports = Marionette.LayoutView.extend({
   handleEmpty: function() {
     this.$el.toggleClass(
       'is-empty',
-      this.options.selectionInterface.getCompleteActiveSearchResults()
-        .length === 0
+      this.options.selectionInterface.getActiveSearchResults().length === 0
     )
   },
   handleResize: function() {
@@ -535,7 +530,7 @@ module.exports = Marionette.LayoutView.extend({
     if (alreadySelected) {
       this.options.selectionInterface.removeSelectedResult(
         findMatchesForAttributeValues(
-          this.options.selectionInterface.getCompleteActiveSearchResults(),
+          this.options.selectionInterface.getActiveSearchResults(),
           attributeToCheck,
           getValueFromClick(data, categories)
         )
@@ -547,7 +542,7 @@ module.exports = Marionette.LayoutView.extend({
     } else {
       this.options.selectionInterface.addSelectedResult(
         findMatchesForAttributeValues(
-          this.options.selectionInterface.getCompleteActiveSearchResults(),
+          this.options.selectionInterface.getActiveSearchResults(),
           attributeToCheck,
           getValueFromClick(data, categories)
         )
@@ -589,7 +584,7 @@ module.exports = Marionette.LayoutView.extend({
     var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0]
     var categories = this.retrieveCategoriesFromPlotly()
     var validCategories = categories.slice(firstIndex, lastIndex)
-    var activeSearchResults = this.options.selectionInterface.getCompleteActiveSearchResults()
+    var activeSearchResults = this.options.selectionInterface.getActiveSearchResults()
     this.options.selectionInterface.addSelectedResult(
       validCategories.reduce(function(results, category) {
         results = results.concat(

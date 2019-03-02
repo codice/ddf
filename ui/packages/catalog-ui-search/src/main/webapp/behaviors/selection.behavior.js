@@ -18,7 +18,7 @@ const Marionette = require('marionette')
 
 function getMaxIndex(selectionInterface) {
   const selectedResults = selectionInterface.getSelectedResults()
-  const completeResults = selectionInterface.getCompleteActiveSearchResults()
+  const completeResults = selectionInterface.getActiveSearchResults()
   return selectedResults.reduce(function(maxIndex, result) {
     return Math.max(maxIndex, completeResults.indexOf(result))
   }, -1)
@@ -26,7 +26,7 @@ function getMaxIndex(selectionInterface) {
 
 function getMinIndex(selectionInterface) {
   const selectedResults = selectionInterface.getSelectedResults()
-  const completeResults = selectionInterface.getCompleteActiveSearchResults()
+  const completeResults = selectionInterface.getActiveSearchResults()
   return selectedResults.reduce(function(minIndex, result) {
     return Math.min(minIndex, completeResults.indexOf(result))
   }, completeResults.length)
@@ -79,7 +79,7 @@ Behaviors.addBehavior(
     handleShiftClick: function(resultid, alreadySelected) {
       const selectedResults = this.options.selectionInterface.getSelectedResults()
       const indexClicked = this.options.selectionInterface
-        .getCompleteActiveSearchResults()
+        .getActiveSearchResults()
         .indexOfId(resultid)
       const firstIndex = getMinIndex(this.options.selectionInterface)
       const lastIndex = getMaxIndex(this.options.selectionInterface)
@@ -96,22 +96,18 @@ Behaviors.addBehavior(
     selectBetween: function(startIndex, endIndex) {
       this.options.selectionInterface.addSelectedResult(
         this.options.selectionInterface
-          .getCompleteActiveSearchResults()
+          .getActiveSearchResults()
           .slice(startIndex, endIndex)
       )
     },
     handleControlClick: function(resultid, alreadySelected) {
       if (alreadySelected) {
         this.options.selectionInterface.removeSelectedResult(
-          this.options.selectionInterface
-            .getCompleteActiveSearchResults()
-            .get(resultid)
+          this.options.selectionInterface.getActiveSearchResults().get(resultid)
         )
       } else {
         this.options.selectionInterface.addSelectedResult(
-          this.options.selectionInterface
-            .getCompleteActiveSearchResults()
-            .get(resultid)
+          this.options.selectionInterface.getActiveSearchResults().get(resultid)
         )
       }
     },
