@@ -13,14 +13,10 @@
  *
  **/
 /*global define*/
+import * as React from 'react'
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
-const resultSelectorTemplate = require('./result-selector.hbs')
 const CustomElements = require('../../js/CustomElements.js')
-const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
-const ResultItemCollectionView = require('../result-item/result-item.collection.view.js')
 const PagingView = require('../paging/paging.view.js')
 const DropdownView = require('../dropdown/result-display/dropdown.result-display.view.js')
 const ResultFilterDropdownView = require('../dropdown/result-filter/dropdown.result-filter.view.js')
@@ -30,6 +26,8 @@ const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
 require('../../behaviors/selection.behavior.js')
+import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import ResultItemCollection from '../result-item/result-item.collection'
 
 function mixinBlackListCQL(originalCQL) {
   var blackListCQL = {
@@ -58,7 +56,74 @@ function mixinBlackListCQL(originalCQL) {
 }
 
 var ResultSelector = Marionette.LayoutView.extend({
-  template: resultSelectorTemplate,
+  template() {
+    var resultFilter = user
+      .get('user')
+      .get('preferences')
+      .get('resultFilter')
+    if (resultFilter) {
+      resultFilter = cql.simplify(cql.read(resultFilter))
+    }
+    resultFilter = mixinBlackListCQL(resultFilter)
+    var filteredResults = this.model
+      .get('result')
+      .get('results')
+      .generateFilteredVersion(resultFilter)
+    var collapsedResults = filteredResults.collapseDuplicates()
+    collapsedResults.updateSorting(
+      user
+        .get('user')
+        .get('preferences')
+        .get('resultSort')
+    )
+    this.handleFiltering(collapsedResults)
+    return (
+      <React.Fragment>
+        <div className="resultSelector-menu">
+          <div className="resultSelector-menu-action menu-resultFilter" />
+          <div className="resultSelector-menu-action menu-resultSort" />
+          <div className="resultSelector-menu-action menu-resultDisplay" />
+        </div>
+        <MarionetteRegionContainer
+          className="resultSelector-status"
+          view={ResultStatusView}
+          key={Math.random()}
+          viewOptions={{ model: collapsedResults }}
+        />
+        <div className="resultSelector-status" />
+        <div className="resultSelector-new">
+          <button className="is-positive merge">
+            <span>Update with new data?</span>
+          </button>
+          <button className="is-negative ignore">
+            <span className="fa fa-times" />
+          </button>
+        </div>
+        <div className="resultSelector-searching is-critical-animation">
+          <div className="searching-bit is-critical-animation" />
+          <div className="searching-bit" />
+          <div className="searching-bit" />
+          <div className="searching-bit" />
+          <div className="searching-bit" />
+        </div>
+        <ResultItemCollection
+          className="resultSelector-list"
+          key={Math.random()}
+          results={collapsedResults}
+          selectionInterface={this.options.selectionInterface}
+        />
+        <MarionetteRegionContainer
+          key={Math.random()}
+          className="resultSelector-paging"
+          view={PagingView}
+          viewOptions={{
+            model: collapsedResults,
+            selectionInterface: this.options.selectionInterface,
+          }}
+        />
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('result-selector'),
   events: {
     'click > .resultSelector-new .merge': 'mergeNewResults',
@@ -73,9 +138,6 @@ var ResultSelector = Marionette.LayoutView.extend({
     }
   },
   regions: {
-    resultStatus: '.resultSelector-status',
-    resultList: '.resultSelector-list',
-    resultPaging: '.resultSelector-paging',
     resultDisplay: '.menu-resultDisplay',
     resultFilter: '.menu-resultFilter',
     resultSort: '.menu-resultSort',
@@ -126,24 +188,24 @@ var ResultSelector = Marionette.LayoutView.extend({
         .get('preferences')
         .get('resultBlacklist'),
       'add remove update reset',
-      this.onBeforeShow
+      this.render
     )
   },
   startListeningToResult: function() {
-    this.listenTo(this.model.get('result'), 'reset:results', this.onBeforeShow)
+    this.listenTo(this.model.get('result'), 'reset:results', this.render)
   },
   startListeningToFilter: function() {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:resultFilter',
-      this.onBeforeShow
+      this.render
     )
   },
   startListeningToSort: function() {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:resultSort',
-      this.onBeforeShow
+      this.render
     )
   },
   scrollIntoView: function(metacard) {
@@ -159,33 +221,10 @@ var ResultSelector = Marionette.LayoutView.extend({
       //result[0].scrollIntoView();
     }
   },
-  onBeforeShow: function() {
-    var resultFilter = user
-      .get('user')
-      .get('preferences')
-      .get('resultFilter')
-    if (resultFilter) {
-      resultFilter = cql.simplify(cql.read(resultFilter))
-    }
-    resultFilter = mixinBlackListCQL(resultFilter)
-    var filteredResults = this.model
-      .get('result')
-      .get('results')
-      .generateFilteredVersion(resultFilter)
-    var collapsedResults = filteredResults.collapseDuplicates()
-    collapsedResults.updateSorting(
-      user
-        .get('user')
-        .get('preferences')
-        .get('resultSort')
-    )
-    this.showResultPaging(collapsedResults)
-    this.showResultList(collapsedResults)
-    this.showResultStatus(collapsedResults)
+  onRender() {
     this.showResultDisplayDropdown()
     this.showResultFilterDropdown()
     this.showResultSortDropdown()
-    this.handleFiltering(collapsedResults)
     this.handleMerged()
     this.handleStatus()
     let resultCountOnly =
@@ -196,29 +235,6 @@ var ResultSelector = Marionette.LayoutView.extend({
   },
   handleFiltering: function(resultCollection) {
     this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0)
-  },
-  showResultStatus: function(resultCollection) {
-    this.resultStatus.show(
-      new ResultStatusView({
-        model: resultCollection,
-      })
-    )
-  },
-  showResultPaging: function(resultCollection) {
-    this.resultPaging.show(
-      new PagingView({
-        model: resultCollection,
-        selectionInterface: this.options.selectionInterface,
-      })
-    )
-  },
-  showResultList: function(resultCollection) {
-    this.resultList.show(
-      new ResultItemCollectionView({
-        collection: resultCollection,
-        selectionInterface: this.options.selectionInterface,
-      })
-    )
   },
   showResultFilterDropdown: function() {
     this.resultFilter.show(
