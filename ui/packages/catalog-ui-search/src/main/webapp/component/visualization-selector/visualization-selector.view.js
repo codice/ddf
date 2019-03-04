@@ -13,11 +13,45 @@
  *
  **/
 /*global require*/
+import React from 'react'
+import styled from '../../react-component/styles/styled-components'
 var Marionette = require('marionette')
-var _ = require('underscore')
-var template = require('./visualization-selector.hbs')
 var CustomElements = require('../../js/CustomElements.js')
+var _ = require('underscore')
 var user = require('../singletons/user-instance.js')
+
+const CustomElement = styled.div`
+  height: 100%;
+  width: 100%;
+  display: block;
+`
+const Visualization = styled.div`
+  .visualization-choice {
+    white-space: nowrap;
+    padding: ${props => props.theme.largeSpacing}
+    cursor: move;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+  }
+  .visualization-icon {
+    text-align: center;
+    width: ${props => props.theme.minimumButtonSize}
+  }
+
+  .visualization-icon,
+  .visualization-text {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .visualization-text {
+    width: ~'calc(100% - ${props => props.theme.minimumButtonSize})';
+    font-size: ${props => props.theme.mediumFontSize};
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`
 
 var configs = {
   openlayers: {
@@ -66,13 +100,32 @@ function unMaximize(contentItem) {
 }
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
-  tagName: CustomElements.register('visualization-selector'),
-  events: {
-    'click .visualization-choice': 'handleChoice',
-    'mousedown .visualization-choice': 'handleMouseDown',
-    'mouseup .visualization-choice': 'handleMouseUp',
-  },
+  template() {
+    return (
+      <CustomElement onMouseDown={this.handleMouseDown.bind(this)} onMouseUp={this.handleMouseUp.bind(this)} onClick={this.handleChoice.bind(this)}>
+        <Visualization className="choice-2dmap is-button" data-choice="openlayers">
+          <div className="visualization-icon fa fa-map" />
+          <div className="visualization-text">2D Map</div>
+        </Visualization>
+        <Visualization className="choice-3dmap is-button" data-choice="cesium">
+          <div className="visualization-icon fa fa-globe" />
+          <div className="visualization-text">3D Map</div>
+        </Visualization>
+        <Visualization className="choice-inspector is-button" data-choice="inspector">
+          <div className="visualization-icon fa fa-info" />
+          <div className="visualization-text">Inspector</div>
+        </Visualization>
+        <Visualization className="choice-histogram is-button" data-choice="histogram">
+          <div className="visualization-icon fa fa-bar-chart" />
+          <div className="visualization-text">Histogram</div> 
+        </Visualization>
+        <Visualization className="choice-table is-button" data-choice="table">
+          <div className="visualization-icon fa fa-table" />
+          <div className="visualization-text">Table</div>
+        </Visualization>
+      </CustomElement>
+    )
+  } ,
   dragSources: [],
   onRender: function() {
     this.dragSources = []
