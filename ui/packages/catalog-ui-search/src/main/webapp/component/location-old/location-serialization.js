@@ -2,9 +2,6 @@ const wkx = require('wkx')
 const DistanceUtils = require('../../js/DistanceUtils')
 const plugin = require('plugins/location-serialization')
 
-const is3DArray = array =>
-  Array.isArray(array) && Array.isArray(array[0]) && Array.isArray(array[0][0])
-
 const LineString = {
   'json->location': json => {
     const {
@@ -126,10 +123,6 @@ const Polygon = {
     const [polygon] = coordinates
     const { width = 0, unit = 'meters' } = buffer
 
-    if (is3DArray(polygon)) {
-      return MultiPolygon['json->location'](location)
-    }
-
     return {
       mode: 'poly',
       polygon,
@@ -143,9 +136,10 @@ const Polygon = {
       polygon = [],
       polygonBufferWidth = 0,
       polygonBufferUnits = 'meters',
+      polyType = 'polygon',
     } = location
 
-    if (is3DArray(polygon)) {
+    if (polyType === 'multipolygon') {
       return MultiPolygon['location->json'](location)
     }
 
