@@ -70,6 +70,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
@@ -504,6 +505,12 @@ public abstract class AbstractIntegrationTest {
             SYSTEM_PROPERTIES_REL_PATH, HTTPS_PORT.getSystemProperty(), HTTPS_PORT.getPort()),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, DEFAULT_PORT.getSystemProperty(), DEFAULT_PORT.getPort()),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH, SystemBaseUrl.EXTERNAL_HTTP_PORT, HTTP_PORT.getPort()),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH, SystemBaseUrl.EXTERNAL_HTTPS_PORT, HTTPS_PORT.getPort()),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH, SystemBaseUrl.EXTERNAL_PORT, DEFAULT_PORT.getPort()),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, BASE_PORT.getSystemProperty(), BASE_PORT.getPort()),
 
