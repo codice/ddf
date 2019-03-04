@@ -293,10 +293,9 @@ module.exports = Marionette.LayoutView.extend({
     const type = this.model.get('type')
     const propertyJSON = generatePropertyJSON(
       value,
-      this.model.get('type'),
+      type,
       currentComparator
     )
-
     if (this.options.suggester && propertyJSON.enum === undefined) {
       this.options.suggester(propertyJSON).then(suggestions => {
         if (suggestions.length > 0) {
@@ -314,6 +313,12 @@ module.exports = Marionette.LayoutView.extend({
         }
       })
     }
+    const ViewToUse = determineView(currentComparator)
+    this.filterInput.show(
+      new ViewToUse({
+        model: new PropertyModel(propertyJSON),
+      })
+    )
 
     var isEditing = this.$el.hasClass('is-editing')
     if (isEditing) {
