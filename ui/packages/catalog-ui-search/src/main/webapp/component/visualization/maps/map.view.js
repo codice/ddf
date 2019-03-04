@@ -37,6 +37,7 @@ var MapInfoView = require('../../map-info/map-info.view.js')
 var properties = require('../../../js/properties.js')
 var Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
+const _ = require('underscore')
 
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
@@ -260,15 +261,17 @@ module.exports = Marionette.LayoutView.extend({
   saveAsHome: function() {
     const boundingBox = this.map.getBoundingBox()
     const userPreferences = user.get('user').get('preferences')
-    userPreferences.once('sync', () =>
-      announcement.announce({
-        title: 'Success!',
-        message: 'New map home location set.',
-        type: 'success',
-      })
-    )
+    if (!_.isEqual(boundingBox, userPreferences.get('mapHome'))) {
+      userPreferences.once('sync', () =>
+        announcement.announce({
+          title: 'Success!',
+          message: 'New map home location set.',
+          type: 'success',
+        })
+      )
 
-    userPreferences.set('mapHome', boundingBox)
+      userPreferences.set('mapHome', boundingBox)
+    }
   },
   addPanZoom: function() {
     const PanZoomView = Marionette.ItemView.extend({
