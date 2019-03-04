@@ -114,5 +114,6 @@
         <module>catalog-transformer-csv-queryresponse</module>
         <module>catalog-transformer-html</module>
         <module>catalog-transformer-rtf</module>
+        <module>catalog-transformer-bootflag</module>
     </modules>
 </project>

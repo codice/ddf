@@ -16,21 +16,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>platform</artifactId>
+        <artifactId>osgi</artifactId>
         <groupId>ddf.platform</groupId>
         <version>2.14.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
 
-    <name>DDF :: Platform :: OSGi</name>
-    <artifactId>osgi</artifactId>
+    <description>An API for publishing services which indicate a system boot condition is satisfied.</description>
+    <name>DDF :: Platform :: Boot Flag :: API</name>
+    <artifactId>bootflag-api</artifactId>
+    <packaging>bundle</packaging>
 
-    <modules>
-        <module>platform-osgi-conditions</module>
-        <module>platform-osgi-configadmin</module>
-        <module>platform-osgi-condpermadmin</module>
-        <module>platform-osgi-internal-api</module>
-        <module>bootflag-api</module>
-    </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package/>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

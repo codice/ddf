@@ -20,13 +20,13 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileDeletionSynchonization implements Synchronization {
+public class FileDeletionSynchronization implements Synchronization {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileDeletionSynchonization.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileDeletionSynchronization.class);
 
   private final File file;
 
-  public FileDeletionSynchonization(final File file) {
+  public FileDeletionSynchronization(final File file) {
     this.file = file;
   }
 

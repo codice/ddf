@@ -226,8 +226,4 @@
             <entry key="name" value="fallback.powerpoint"/>
         </service-properties>
     </service>
-
-    <!-- Register the Transformers -->
-    <service auto-export="interfaces" ref="tikaTransformer"/>
-
 </blueprint>

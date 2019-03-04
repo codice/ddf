@@ -431,12 +431,12 @@
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>3.2.1</version>
+                <version>${hazelcast.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>3.2.1</version>
+                <version>${hazelcast.version}</version>
                 <type>jar</type>
                 <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
                 See: https://issues.apache.org/jira/browse/MDEP-587 -->

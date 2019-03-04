@@ -116,6 +116,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
+            <version>${hazelcast.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.lookfirst</groupId>
@@ -124,13 +125,24 @@
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>${httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
+            <artifactId>httpcore-osgi</artifactId>
+            <version>${httpcore.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>bootflag-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Component test dependencies -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -153,6 +165,18 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>test-common</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-bootflag</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -361,12 +385,7 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
-                            failsafe,
-                            hazelcast,
-                            sardine,
-                            httpclient,
-                            httpcore,
-                            commons-lang3
+                            sardine
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,
@@ -425,17 +444,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.37</minimum>
+                                            <minimum>0.47</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.37</minimum>
+                                            <minimum>0.45</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.33</minimum>
+                                            <minimum>0.42</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
