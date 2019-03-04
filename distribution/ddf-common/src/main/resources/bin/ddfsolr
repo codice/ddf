@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Capture start|stop|restart command
-# Set a default value in the event no arguments are provided
 COMMAND=$1
 shift
 
@@ -52,8 +51,8 @@ set_security_properties() {
 }
 
 generate_stopkey() {
-    export STOP_KEY=`head /dev/random | tr -c -d "a-z0-9" | cut -c1-8`
-	echo $STOP_KEY > STOPKEY
+    export STOP_KEY=`head /dev/urandom | tr -c -d "a-z0-9" | cut -c1-8`
+	echo $STOP_KEY >& STOPKEY
 }
 
 
@@ -61,7 +60,6 @@ start_solr() {
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties
     fi
-
     generate_stopkey
     $SOLR_EXEC $1 -force -p $SOLR_PORT -m $SOLR_MEM
     local rc=$?
@@ -72,7 +70,7 @@ start_solr() {
 stop_solr() {
     export STOP_KEY=`cat STOPKEY`
     $SOLR_EXEC stop -p $SOLR_PORT
-    rm STOPKEY
+    [ -f STOPKEY ] && rm STOPKEY
 }
 
 print_messages() {
