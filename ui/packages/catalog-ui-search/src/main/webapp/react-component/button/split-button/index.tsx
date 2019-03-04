@@ -31,54 +31,39 @@ type State = {
 const Root = styled.div`
   position: relative;
   overflow: none;
-  padding: 0;
   margin: 0;
-  display: flex;
+  white-space: nowrap;
+  background-color: ${props => props.theme.primaryColor};
 `
 const Menu = styled.div`
   position: absolute;
   top: ${props => props.theme.minimumButtonSize};
-  padding: 0;
+  padding-top: ${props => props.theme.minimumSpacing};
+  padding-bottom: ${props => props.theme.minimumSpacing};
   margin: 0;
   width: 100%;
   overflow: auto;
   z-index: ${props => props.theme.zIndexDropdown};
   background-color: ${props => props.theme.backgroundDropdown};
+  opacity: 1 !important;
+  border: 1px solid ${props => props.theme.backgroundModal};
 `
 
 const DefaultButton = styled.button`
-  flex: 1;
+  padding-right: ${props => props.theme.largeSpacing};
+  padding-left: ${props => props.theme.largeSpacing};
   margin-left: 0 !important;
+  border-right: 1px solid black;
 `
 
 const Icon = styled.button`
-  color: white;
   display: inline-block;
-  background-color: ${props => props.theme.backgroundDropdown};
   width: ${props => props.theme.minimumButtonSize};
-  height: ${props => props.theme.minimumButtonSize};
-  line-height: ${props => props.theme.minimumButtonSize};
-  text-align: center;
-  font-size: ${props => props.theme.largeFontSize};
+  line-height: ${props => props.theme.minimumLineSize};
+  font-size: ${props => props.theme.minimumFontSize};
   padding: 0;
   margin: 0;
   margin-left: 0 !important;
-`
-const Divider = styled.div`
-  position: absolute;
-  top: ${props => props.theme.minimumSpacing};
-  right: ${props => props.theme.minimumButtonSize};
-  width: 1px;
-  height: ${props =>
-    `calc(${props.theme.minimumButtonSize} - ${
-      props.theme.minimumSpacing
-    } * 2)`};
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  color: white;
-  background-color: white;
-  opacity: 0.6;
 `
 
 class SplitButton extends React.Component<Props, State> {
@@ -119,7 +104,6 @@ class SplitButton extends React.Component<Props, State> {
         <DefaultButton title={title} type="button" onClick={onSelect}>
           {label}
         </DefaultButton>
-        <Divider>&nbsp;</Divider>
         <Icon
           className="fa fa-chevron-down toggle"
           onClick={e => this.onToggle(e)}
