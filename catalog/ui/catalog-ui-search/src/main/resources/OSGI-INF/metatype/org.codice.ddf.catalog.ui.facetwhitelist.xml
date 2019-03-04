@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Attribute Suggestion Whitelist"
+    <OCD name="Catalog UI Search Attribute Suggestion Whitelist"
          id="org.codice.ddf.catalog.ui.facetwhitelist">
 
         <AD id="facetAttributeWhitelist"
