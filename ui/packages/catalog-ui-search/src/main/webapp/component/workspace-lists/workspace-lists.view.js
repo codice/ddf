@@ -13,6 +13,7 @@
  *
  **/
 /*global define, setTimeout*/
+import ListCreate from '../list-create/list-create.js'
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 var template = require('./workspace-lists.hbs')
@@ -21,7 +22,6 @@ var ListSelectorView = require('../dropdown/list-select/dropdown.list-select.vie
 var DropdownModel = require('../dropdown/dropdown.js')
 var ResultSelectorView = require('../result-selector/result-selector.view.js')
 var $ = require('jquery')
-var ListCreateView = require('../list-create/list-create.view.js')
 var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 
 var selectedListId
@@ -57,7 +57,7 @@ module.exports = Marionette.LayoutView.extend({
   setupQuickCreateList: function() {
     this.listQuickCreate.show(
       PopoutView.createSimpleDropdown({
-        componentToShow: ListCreateView,
+        componentToShow: ListCreate,
         modelForComponent: this.model,
         label: 'new list',
         options: {

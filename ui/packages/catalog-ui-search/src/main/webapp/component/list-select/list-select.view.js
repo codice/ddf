@@ -13,13 +13,13 @@
  *
  **/
 /*global define, alert*/
+import ListCreate from '../list-create/list-create.js'
 var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')
 var CustomElements = require('../../js/CustomElements.js')
 var ListItemCollectionView = require('../list-item/list-item.collection.view.js')
 var template = require('./list-select.hbs')
-var ListCreateView = require('../list-create/list-create.view.js')
 var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 
 var eventsHash = {
@@ -68,7 +68,7 @@ module.exports = Marionette.LayoutView.extend({
   setupCreateList: function() {
     this.listCreate.show(
       PopoutView.createSimpleDropdown({
-        componentToShow: ListCreateView,
+        componentToShow: ListCreate,
         modelForComponent: this.model,
         leftIcon: 'fa fa-plus',
         label: 'Create New List',
