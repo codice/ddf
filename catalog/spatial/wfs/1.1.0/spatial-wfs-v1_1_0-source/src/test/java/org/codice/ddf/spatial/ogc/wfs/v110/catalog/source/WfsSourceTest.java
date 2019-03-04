@@ -23,10 +23,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -49,6 +54,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
@@ -78,6 +84,7 @@ import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
@@ -222,6 +229,8 @@ public class WfsSourceTest {
 
   private WfsMetacardTypeRegistry mockWfsMetacardTypeRegistry = mock(WfsMetacardTypeRegistry.class);
 
+  private ClientFactoryFactory mockClientFactoryFactory = mock(ClientFactoryFactory.class);
+
   public void setUp(
       final String schema,
       final List<String> supportedGeos,
@@ -233,18 +242,17 @@ public class WfsSourceTest {
     SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
 
-    ClientFactoryFactory mockClientFactory = mock(ClientFactoryFactory.class);
-    when(mockClientFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
-    when(mockClientFactory.getSecureCxfClientFactory(
+    when(mockClientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
+    when(mockClientFactoryFactory.getSecureCxfClientFactory(
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(mockFactory);
-    when(mockClientFactory.getSecureCxfClientFactory(
+    when(mockClientFactoryFactory.getSecureCxfClientFactory(
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
         .thenReturn(mockFactory);
-    when(mockClientFactory.getSecureCxfClientFactory(
+    when(mockClientFactoryFactory.getSecureCxfClientFactory(
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
         .thenReturn(mockFactory);
-    when(mockClientFactory.getSecureCxfClientFactory(
+    when(mockClientFactoryFactory.getSecureCxfClientFactory(
             anyString(),
             any(),
             any(),
@@ -256,7 +264,7 @@ public class WfsSourceTest {
             anyString(),
             anyString()))
         .thenReturn(mockFactory);
-    when(mockClientFactory.getSecureCxfClientFactory(
+    when(mockClientFactoryFactory.getSecureCxfClientFactory(
             anyString(),
             any(),
             any(),
@@ -366,7 +374,7 @@ public class WfsSourceTest {
             new GeotoolsFilterAdapterImpl(),
             mockContext,
             mockAvailabilityTask,
-            mockClientFactory,
+            mockClientFactoryFactory,
             encryptionService,
             mockWfsMetacardTypeRegistry,
             Collections.emptyList());
@@ -1152,6 +1160,180 @@ public class WfsSourceTest {
 
     assertThat(source.getConnectionTimeout(), is(10000));
     assertThat(source.getReceiveTimeout(), is(10000));
+  }
+
+  @Test
+  public void testClientFactoryIsCreatedCorrectlyWhenUsernameAndPasswordAreConfigured()
+      throws SecurityServiceException, WfsException {
+    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+
+    final String wfsUrl = "http://localhost/wfs";
+    final String username = "test_user";
+    final String password = "encrypted_password";
+    final Boolean disableCnCheck = false;
+    final Boolean allowRedirects = true;
+    final Integer connectionTimeout = 10000;
+    final Integer receiveTimeout = 20000;
+
+    source.setPollInterval(1);
+
+    doReturn("unencrypted_password").when(encryptionService).decryptValue(password);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("username", username)
+            .put("password", password)
+            .put("disableCnCheck", disableCnCheck)
+            .put("allowRedirects", allowRedirects)
+            .put("connectionTimeout", connectionTimeout)
+            .put("receiveTimeout", receiveTimeout)
+            .put("pollInterval", 1)
+            .build();
+    source.refresh(configuration);
+
+    verify(mockClientFactoryFactory)
+        .getSecureCxfClientFactory(
+            eq(wfsUrl),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            eq(disableCnCheck),
+            eq(allowRedirects),
+            eq(connectionTimeout),
+            eq(receiveTimeout),
+            eq(username),
+            eq("unencrypted_password"));
+  }
+
+  @Test
+  public void testClientFactoryIsCreatedCorrectlyWhenCertAliasAndKeystorePathAreConfigured()
+      throws SecurityServiceException, WfsException {
+    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+
+    final String wfsUrl = "http://localhost/wfs";
+    final Boolean disableCnCheck = false;
+    final Boolean allowRedirects = true;
+    final Integer connectionTimeout = 10000;
+    final Integer receiveTimeout = 20000;
+    final String certAlias = "mycert";
+    final String keystorePath = "/path/to/keystore";
+    final String sslProtocol = "TLSv1.2";
+
+    source.setCertAlias(certAlias);
+    source.setKeystorePath(keystorePath);
+    source.setSslProtocol(sslProtocol);
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("disableCnCheck", disableCnCheck)
+            .put("allowRedirects", allowRedirects)
+            .put("connectionTimeout", connectionTimeout)
+            .put("receiveTimeout", receiveTimeout)
+            .put("pollInterval", 1)
+            .build();
+    source.refresh(configuration);
+
+    verify(mockClientFactoryFactory)
+        .getSecureCxfClientFactory(
+            eq(wfsUrl),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            eq(disableCnCheck),
+            eq(allowRedirects),
+            eq(connectionTimeout),
+            eq(receiveTimeout),
+            eq(certAlias),
+            eq(keystorePath),
+            eq(sslProtocol));
+  }
+
+  @Test
+  public void testClientFactoryIsCreatedCorrectlyWhenNoAuthIsConfigured()
+      throws SecurityServiceException, WfsException {
+    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+
+    final String wfsUrl = "http://localhost/wfs";
+    final Boolean disableCnCheck = false;
+    final Boolean allowRedirects = true;
+    final Integer connectionTimeout = 10000;
+    final Integer receiveTimeout = 20000;
+
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("disableCnCheck", disableCnCheck)
+            .put("allowRedirects", allowRedirects)
+            .put("connectionTimeout", connectionTimeout)
+            .put("receiveTimeout", receiveTimeout)
+            .put("pollInterval", 1)
+            .build();
+    source.refresh(configuration);
+
+    verify(mockClientFactoryFactory)
+        .getSecureCxfClientFactory(
+            eq(wfsUrl),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            eq(disableCnCheck),
+            eq(allowRedirects),
+            eq(connectionTimeout),
+            eq(receiveTimeout));
+  }
+
+  @Test
+  public void testNoWfsClientRefreshWhenConfigurationDoesNotChange()
+      throws SecurityServiceException, WfsException {
+    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+
+    verify(mockClientFactoryFactory)
+        .getSecureCxfClientFactory(
+            anyString(),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt());
+
+    verify(mockWfs).getCapabilities(any(GetCapabilitiesRequest.class));
+    verify(mockWfs).describeFeatureType(any(DescribeFeatureTypeRequest.class));
+
+    final String wfsUrl = "http://localhost/wfs";
+    final Boolean disableCnCheck = false;
+    final Boolean allowRedirects = true;
+    final Integer initialConnectionTimeout = 10000;
+    final Integer initialReceiveTimeout = 20000;
+
+    source.setWfsUrl(wfsUrl);
+    source.setDisableCnCheck(disableCnCheck);
+    source.setAllowRedirects(allowRedirects);
+    source.setConnectionTimeout(initialConnectionTimeout);
+    source.setReceiveTimeout(initialReceiveTimeout);
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("disableCnCheck", disableCnCheck)
+            .put("allowRedirects", allowRedirects)
+            .put("connectionTimeout", initialConnectionTimeout)
+            .put("receiveTimeout", initialReceiveTimeout)
+            .put("pollInterval", 1)
+            .build();
+    source.refresh(configuration);
+
+    verifyNoMoreInteractions(mockClientFactoryFactory);
+
+    verify(mockWfs).getCapabilities(any(GetCapabilitiesRequest.class));
+    verify(mockWfs).describeFeatureType(any(DescribeFeatureTypeRequest.class));
   }
 
   private SourceResponse executeQuery(int startIndex, int pageSize)
