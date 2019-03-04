@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -279,13 +280,12 @@ public class WfsSource extends AbstractWfsSource {
     String username = (String) configuration.get(USERNAME_PROPERTY);
     Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_PROPERTY);
     String id = (String) configuration.get(ID_PROPERTY);
+    Integer connectionTimeout = (Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY);
+    Integer receiveTimeout = (Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY);
     if (hasSourceIdChanged(id)) {
       super.setId(id);
       configureWfsFeatures();
     }
-
-    setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
-    setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
 
     String[] nonQueryableProperties = (String[]) configuration.get(NON_QUERYABLE_PROPS_PROPERTY);
 
@@ -293,11 +293,16 @@ public class WfsSource extends AbstractWfsSource {
 
     Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
 
-    if (hasWfsUrlChanged(wfsUrl) || hasDisableCnCheck(disableCnCheckProp)) {
+    if (hasWfsUrlChanged(wfsUrl)
+        || hasDisableCnCheck(disableCnCheckProp)
+        || hasConnectionTimeoutChanged(connectionTimeout)
+        || hasReceiveTimeoutChanged(receiveTimeout)) {
       this.wfsUrl = wfsUrl;
       this.password = encryptionService.decryptValue(password);
       this.username = username;
       this.disableCnCheck = disableCnCheckProp;
+      setConnectionTimeout(connectionTimeout);
+      setReceiveTimeout(receiveTimeout);
       createClientFactory();
       configureWfsFeatures();
     } else {
@@ -335,8 +340,8 @@ public class WfsSource extends AbstractWfsSource {
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
               false,
-              null,
-              null,
+              connectionTimeout,
+              receiveTimeout,
               username,
               password);
     } else if (StringUtils.isNotBlank(getCertAlias())
@@ -349,8 +354,8 @@ public class WfsSource extends AbstractWfsSource {
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
               false,
-              null,
-              null,
+              connectionTimeout,
+              receiveTimeout,
               getCertAlias(),
               getKeystorePath(),
               getSslProtocol());
@@ -362,7 +367,9 @@ public class WfsSource extends AbstractWfsSource {
               initProviders(),
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
-              false);
+              false,
+              connectionTimeout,
+              receiveTimeout);
     }
   }
 
@@ -398,6 +405,14 @@ public class WfsSource extends AbstractWfsSource {
 
   private boolean hasDisableCnCheck(Boolean disableCnCheck) {
     return this.disableCnCheck != disableCnCheck;
+  }
+
+  private boolean hasConnectionTimeoutChanged(Integer connectionTimeout) {
+    return !Objects.equals(this.connectionTimeout, connectionTimeout);
+  }
+
+  private boolean hasReceiveTimeoutChanged(Integer receiveTimeout) {
+    return !Objects.equals(this.receiveTimeout, receiveTimeout);
   }
 
   private void setupAvailabilityPoll() {

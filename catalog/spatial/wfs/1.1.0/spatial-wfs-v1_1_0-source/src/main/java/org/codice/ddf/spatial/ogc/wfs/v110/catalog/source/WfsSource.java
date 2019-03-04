@@ -53,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -325,13 +326,13 @@ public class WfsSource extends AbstractWfsSource {
     Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_KEY);
     String id = (String) configuration.get(ID_KEY);
     Boolean allowRedirects = (Boolean) configuration.get(ALLOW_REDIRECTS_KEY);
+    Integer connectionTimeout = (Integer) configuration.get(CONNECTION_TIMEOUT_KEY);
+    Integer receiveTimeout = (Integer) configuration.get(RECEIVE_TIMEOUT_KEY);
     if (hasSourceIdChanged(id)) {
       setId(id);
       configureWfsFeatures();
     }
 
-    setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_KEY));
-    setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_KEY));
     setSrsName((String) configuration.get(SRS_NAME_KEY));
 
     this.nonQueryableProperties = (String[]) configuration.get(NON_QUERYABLE_PROPS_KEY);
@@ -342,13 +343,17 @@ public class WfsSource extends AbstractWfsSource {
         || hasDisableCnCheckChanged(disableCnCheckProp)
         || hasUsernameChanged(usernameValue)
         || hasPasswordChanged(passwordValue)
-        || hasAllowRedirectsChanged(allowRedirects)) {
+        || hasAllowRedirectsChanged(allowRedirects)
+        || hasConnectionTimeoutChanged(connectionTimeout)
+        || hasReceiveTimeoutChanged(receiveTimeout)) {
       this.wfsUrl = url;
       this.password = encryptionService.decryptValue(passwordValue);
       this.username = usernameValue;
       this.disableCnCheck = disableCnCheckProp;
       this.coordinateOrder = coordOrder;
       this.allowRedirects = allowRedirects;
+      setConnectionTimeout(connectionTimeout);
+      setReceiveTimeout(receiveTimeout);
       createClientFactory();
       configureWfsFeatures();
     } else {
@@ -380,7 +385,6 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   /** This method should only be called after all properties have been set. */
-  @SuppressWarnings("unchecked")
   private void createClientFactory() {
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
       factory =
@@ -391,8 +395,8 @@ public class WfsSource extends AbstractWfsSource {
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
               this.allowRedirects,
-              null,
-              null,
+              connectionTimeout,
+              receiveTimeout,
               username,
               password);
     } else if (StringUtils.isNotBlank(getCertAlias())
@@ -405,8 +409,8 @@ public class WfsSource extends AbstractWfsSource {
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
               this.allowRedirects,
-              null,
-              null,
+              connectionTimeout,
+              receiveTimeout,
               getCertAlias(),
               getKeystorePath(),
               getSslProtocol());
@@ -418,7 +422,9 @@ public class WfsSource extends AbstractWfsSource {
               initProviders(),
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
-              this.allowRedirects);
+              this.allowRedirects,
+              connectionTimeout,
+              receiveTimeout);
     }
   }
 
@@ -1153,6 +1159,14 @@ public class WfsSource extends AbstractWfsSource {
 
   private boolean hasDisableCnCheckChanged(Boolean disableCnCheck) {
     return this.disableCnCheck != disableCnCheck;
+  }
+
+  private boolean hasConnectionTimeoutChanged(Integer connectionTimeout) {
+    return !Objects.equals(this.connectionTimeout, connectionTimeout);
+  }
+
+  private boolean hasReceiveTimeoutChanged(Integer receiveTimeout) {
+    return !Objects.equals(this.receiveTimeout, receiveTimeout);
   }
 
   @Override

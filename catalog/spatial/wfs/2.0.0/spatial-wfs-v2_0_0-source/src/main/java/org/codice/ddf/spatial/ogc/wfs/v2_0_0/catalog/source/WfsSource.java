@@ -369,8 +369,8 @@ public class WfsSource extends AbstractWfsSource {
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
               false,
-              null,
-              null,
+              connectionTimeout,
+              receiveTimeout,
               username,
               password);
     } else if (StringUtils.isNotBlank(getCertAlias())
@@ -383,8 +383,8 @@ public class WfsSource extends AbstractWfsSource {
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
               false,
-              null,
-              null,
+              connectionTimeout,
+              receiveTimeout,
               getCertAlias(),
               getKeystorePath(),
               getSslProtocol());
@@ -396,7 +396,9 @@ public class WfsSource extends AbstractWfsSource {
               initProviders(),
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
-              false);
+              false,
+              connectionTimeout,
+              receiveTimeout);
     }
   }
 
