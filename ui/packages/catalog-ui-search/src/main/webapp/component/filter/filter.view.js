@@ -241,7 +241,7 @@ module.exports = Marionette.LayoutView.extend({
             currentComparator
           ) === -1
         ) {
-          this.model.set('comparator', 'BEFORE')
+          this.model.set('comparator', 'AFTER')
         }
         this.toggleDateClass(true)
         break
