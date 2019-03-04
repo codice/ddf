@@ -291,11 +291,7 @@ module.exports = Marionette.LayoutView.extend({
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
     const type = this.model.get('type')
-    const propertyJSON = generatePropertyJSON(
-      value,
-      type,
-      currentComparator
-    )
+    const propertyJSON = generatePropertyJSON(value, type, currentComparator)
     if (this.options.suggester && propertyJSON.enum === undefined) {
       this.options.suggester(propertyJSON).then(suggestions => {
         if (suggestions.length > 0) {
