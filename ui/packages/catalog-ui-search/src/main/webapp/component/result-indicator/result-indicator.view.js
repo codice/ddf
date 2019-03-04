@@ -13,17 +13,16 @@
  *
  **/
 /*global define*/
-const Backbone = require('backbone')
+import * as React from 'react'
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
-const template = require('./result-indicator.hbs')
-const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
+import ResultIndicator from './result-indicator'
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
-  tagName: CustomElements.register('result-indicator'),
+  template({ colors }) {
+    return <ResultIndicator colors={colors} />
+  },
+  className: 'customElement',
   initialize: function() {
     this.debouncedRender = _.debounce(function() {
       if (!this.isDestroyed) {
@@ -37,9 +36,6 @@ module.exports = Marionette.ItemView.extend({
       colors: this.colors,
     }
   },
-  checkCollection: function() {},
-  checkResult: function() {},
-  checkQueries: function() {},
   calculateColors: function() {
     var self = this
     self.colors = []
