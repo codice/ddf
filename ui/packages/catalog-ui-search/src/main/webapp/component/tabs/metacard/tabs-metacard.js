@@ -20,11 +20,20 @@ const MetacardQualityView = require('../../metacard-quality/metacard-quality.vie
 const MetacardActionsView = require('../../metacard-actions/metacard-actions.view.js')
 const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
 const MetacardPreviewView = require('../../metacard-preview/metacard-preview.view.js')
-import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
 import React from 'react'
+import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
+import MetacardArchive from '../../../react-component/container/metacard-archive'
 
 const MetacardOverwriteView = Marionette.LayoutView.extend({
   template: () => <MetacardOverwrite />,
+})
+
+const MetacardArchiveView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardArchive selectionInterface={this.options.selectionInterface} />
+    )
+  },
 })
 
 module.exports = Tabs.extend({
