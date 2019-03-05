@@ -19,8 +19,8 @@
 |Attribute Suggestion Whitelist
 |facetAttributeWhitelist
 |String
-|List of attributes that will query the backend and provide a list of suggestions that gets populated in the dropdown in a query form.
-Caution: These attributes will not be run through security.
+|List of attributes that should provide autocomplete suggestions. Suggestions are typically popular values for the attribute in data storage.
+Caution: Suggestion values are not protected by any security. Only choose attributes whose values will be safe for all users to view.
 |
 |false
 
