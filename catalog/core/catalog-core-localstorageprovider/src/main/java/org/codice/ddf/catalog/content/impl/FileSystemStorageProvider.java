@@ -417,7 +417,7 @@ public class FileSystemStorageProvider implements StorageProvider {
       extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(filename));
       try {
         String decryptedReference =
-            crypter.decrypt(new String(Files.readAllBytes(file), Charset.defaultCharset()));
+            crypter.decrypt(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
         reference = new URI(decryptedReference);
 
         if (reference.getScheme() == null) {
@@ -592,7 +592,7 @@ public class FileSystemStorageProvider implements StorageProvider {
       String encryptedReference = crypter.encrypt(storeReference);
       Files.write(
           Paths.get(contentItemPath.toString() + "." + REF_EXT),
-          encryptedReference.getBytes(Charset.defaultCharset()));
+          encryptedReference.getBytes(Charset.forName("UTF-8")));
       byteSource =
           new ByteSource() {
             @Override
