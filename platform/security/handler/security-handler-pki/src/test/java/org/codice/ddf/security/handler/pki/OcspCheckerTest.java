@@ -114,7 +114,7 @@ public class OcspCheckerTest {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
 
     OCSPResp resp = mockOcspResponse(new UnknownStatus());
-    boolean response = ocspChecker.validateOCSPResponse(resp);
+    boolean response = ocspChecker.isOCSPResponseValid(resp);
     assertFalse(response);
   }
 
@@ -123,7 +123,7 @@ public class OcspCheckerTest {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
 
     OCSPResp resp = mockOcspResponse(new RevokedStatus(new Date(), 0));
-    boolean response = ocspChecker.validateOCSPResponse(resp);
+    boolean response = ocspChecker.isOCSPResponseValid(resp);
     assertFalse(response);
   }
 
@@ -134,7 +134,7 @@ public class OcspCheckerTest {
     OCSPResp resp = mock(OCSPResp.class);
     when(resp.getResponseObject()).thenReturn(null);
 
-    boolean response = ocspChecker.validateOCSPResponse(resp);
+    boolean response = ocspChecker.isOCSPResponseValid(resp);
     assertFalse(response);
   }
 
@@ -147,7 +147,7 @@ public class OcspCheckerTest {
     when(basicOCSPResp.getResponses()).thenReturn(null);
     when(resp.getResponseObject()).thenReturn(basicOCSPResp);
 
-    boolean response = ocspChecker.validateOCSPResponse(resp);
+    boolean response = ocspChecker.isOCSPResponseValid(resp);
     assertFalse(response);
   }
 
@@ -156,7 +156,7 @@ public class OcspCheckerTest {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
 
     OCSPResp resp = mockOcspResponse(null);
-    boolean response = ocspChecker.validateOCSPResponse(resp);
+    boolean response = ocspChecker.isOCSPResponseValid(resp);
     assertTrue(response);
   }
 
