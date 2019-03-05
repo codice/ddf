@@ -68,11 +68,6 @@
                                     <classifier>features</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/org.codice.ddf.ui.searchui.filter.RedirectServlet.config</file>
-                                    <type>config</type>
-                                    <classifier>redirect</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>src/main/resources/etc/org.codice.ddf.catalog.ui.config
                                     </file>
                                     <type>properties</type>
