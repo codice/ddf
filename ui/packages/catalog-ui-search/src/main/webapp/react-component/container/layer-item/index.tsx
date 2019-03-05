@@ -9,4 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default } from './layer-item'
+export { default, Order, Visibility, Actions } from './layer-item'

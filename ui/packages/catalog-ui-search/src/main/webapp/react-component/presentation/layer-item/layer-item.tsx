@@ -13,10 +13,13 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import { GrabCursor, IsButton, HighlightBehavior } from '../../styles/mixins'
+import { Order, Visibility, Actions } from '../../container/layer-item'
 
 type Props = {
-  selected: string
-  update: (selected: string) => void
+  name: string
+  order: Order
+  visibility: Visibility
+  actions: Actions
 }
 
 const Root = styled.div`
@@ -118,9 +121,7 @@ const Faeyeslash = styled(LayerShowIcon)`
 `
 
 const render = (props: Props) => {
-  const { selected, update } = props
-  console.log(selected)
-  console.log(update)
+  const { name } = props
   return (
     <Root>
       <RearrangeUp>
@@ -134,7 +135,7 @@ const render = (props: Props) => {
       </DragButton>
 
       <LayerPropertiesRoot>
-        <LayerName title="layerName">Layer</LayerName>
+        <LayerName title={name}>Layer</LayerName>
 
         <div className="layer-visibility">
           <LayerAlpha min="0" max="1" step="0.01" type="range" />
