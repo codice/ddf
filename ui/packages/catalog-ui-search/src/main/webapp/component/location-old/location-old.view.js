@@ -125,8 +125,23 @@ module.exports = Marionette.LayoutView.extend({
   updateMaxAndMin: function() {
     this.model.setLatLon()
   },
+  isFilterUndefinedOrNull: function(filter) {
+    if (
+      filter === null ||
+      filter.value === undefined ||
+      filter.value === null
+    ) {
+      return true
+    }
+    return false
+  },
   deserialize: function() {
-    if (!this.propertyModel) return
+    if (this.propertyModel) {
+      const filter = this.propertyModel.get('value')
+      if (this.isFilterUndefinedOrNull(filter)) {
+        return
+      }
+    }
 
     const filter = this.propertyModel.get('value')
     this.model.set(filterToLocationOldModel(filter))

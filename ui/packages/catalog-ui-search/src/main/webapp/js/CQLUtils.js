@@ -71,6 +71,14 @@ function bboxToCQLPolygon(model) {
 }
 
 function generateAnyGeoFilter(property, model) {
+  if (model === null) {
+    return {
+      type: 'IS NULL',
+      property,
+      value: null,
+    }
+  }
+
   switch (model.type) {
     case 'LINE':
       return {
@@ -215,6 +223,14 @@ function getProperty(filter) {
     return null
   }
   return filter.property.split('"').join('')
+}
+
+function generateIsEmptyFilter(property) {
+  return {
+    type: 'IS NULL',
+    property,
+    value: null,
+  }
 }
 
 function generateFilter(type, property, value, metacardDefinitions) {
@@ -362,6 +378,7 @@ function arrayFromPolygonWkt(wkt) {
 module.exports = {
   sanitizeGeometryCql,
   getProperty,
+  generateIsEmptyFilter,
   generateFilter,
   generateFilterForFilterFunction,
   isGeoFilter,
