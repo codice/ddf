@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.6.1">
+<meta name="author" content="Version 2.13.6. Copyright (c) Codice Foundation">
+<title>Distributed Data Framework: Quick Start Guide</title>
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Remove comment around @import statement below when using as a custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+[hidden],template{display:none}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*:before,*:after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.spread{width:100%}
+p.lead,.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{font-size:1.21875em;line-height:1.6}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite:before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media only screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7;font-weight:bold}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix:before,.clearfix:after,.float-group:before,.float-group:after{content:" ";display:table}
+.clearfix:after,.float-group:after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button:before,b.button:after{position:relative;top:-1px;font-weight:400}
+b.button:before{content:"[";padding:0 3px 0 2px}
+b.button:after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header:before,#header:after,#content:before,#content:after,#footnotes:before,#footnotes:after,#footer:before,#footer:after{content:" ";display:table}
+#header:after,#content:after,#footnotes:after,#footer:after{clear:both}
+#content{margin-top:1.25em}
+#content:before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
+#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span:before{content:"\00a0\2013\00a0"}
+#header .details br+span.author:before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark:before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber:after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media only screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}
+@media only screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+.sect1{padding-bottom:.625em}
+@media only screen and (min-width:768px){.sect1{padding-bottom:1.25em}}
+.sect1+.sect1{border-top:1px solid #efefed}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor:before,h2>a.anchor:before,h3>a.anchor:before,#toctitle>a.anchor:before,.sidebarblock>.content>.title>a.anchor:before,h4>a.anchor:before,h5>a.anchor:before,h6>a.anchor:before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock>caption.title{white-space:nowrap;overflow:visible;max-width:0}
+.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>.paragraph:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:initial}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+@media only screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media only screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]:before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]:before{display:block}
+.listingblock.terminal pre .command:before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt]):before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote:before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
+.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
+.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
+.quoteblock .quoteblock blockquote:before{display:none}
+.verseblock{margin:0 1em 1.25em 1em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract{margin:0 0 1.25em 0;display:block}
+.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{text-align:left;word-spacing:0}
+.quoteblock.abstract blockquote:before,.quoteblock.abstract blockquote p:first-of-type:before{display:none}
+table.tableblock{max-width:100%;border-collapse:separate}
+table.tableblock td>.paragraph:last-child p>p:last-child,table.tableblock th>p:last-child,table.tableblock td>p:last-child{margin-bottom:0}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px 0}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot{border-width:1px 0}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{margin:0 auto .625em auto;margin-left:-1.375em;margin-right:0;padding:0;list-style:none;overflow:hidden}
+ul.inline>li{list-style:none;float:left;margin-left:1.375em;display:block}
+ul.inline>li>*{display:block}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist>table tr>td:first-of-type{padding:.4em .75em 0 .75em;line-height:1;vertical-align:top}
+.colist>table tr>td:first-of-type img{max-width:initial}
+.colist>table tr>td:last-of-type{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
+.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em 0;border-width:1px 0 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;text-indent:-1.05em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]:after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@media print{@page{margin:1.25cm .75cm}
+*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare):after,a[href^="https:"]:not(.bare):after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]:after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
+.sect1{padding-bottom:0!important}
+.sect1+.sect1{border:0!important}
+#header>h1:first-child{margin-top:1.25rem}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em 0}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span:before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]:before{display:block}
+#footer{background:none!important;padding:0 .9375em}
+#footer-text{color:rgba(0,0,0,.6)!important;font-size:.9em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+</style>
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{color:rgba(0,0,0,.4)}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top;line-height:1.45}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>Distributed Data Framework: Quick Start Guide</h1>
+<div class="details">
+<span id="author" class="author">Version 2.13.6. Copyright (c) Codice Foundation</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_quick_start_tutorial">1. Quick Start Tutorial</a>
+<ul class="sectlevel2">
+<li><a href="#_installing_quick_start">1.1. Installing (Quick Start)</a>
+<ul class="sectlevel3">
+<li><a href="#_quick_install_prerequisites">1.1.1. Quick Install Prerequisites</a></li>
+<li><a href="#_quick_install_of_ddf">1.1.2. Quick Install of DDF</a></li>
+<li><a href="#_quick_install_of_ddf_on_a_remote_headless_server">1.1.3. Quick Install of DDF on a remote headless server</a></li>
+</ul>
+</li>
+<li><a href="#_certificates_quick_start">1.2. Certificates (Quick Start)</a>
+<ul class="sectlevel3">
+<li><a href="#_demo_certificate_authority_ca">1.2.1. Demo Certificate Authority (CA)</a>
+<ul class="sectlevel4">
+<li><a href="#_creating_new_server_keystore_entry_with_the_certnew_scripts">1.2.1.1. Creating New Server Keystore Entry with the CertNew Scripts</a></li>
+<li><a href="#_dealing_with_lack_of_dns">1.2.1.2. Dealing with Lack of DNS</a></li>
+</ul>
+</li>
+<li><a href="#_creating_self_signed_certificates">1.2.2. Creating Self-Signed Certificates</a>
+<ul class="sectlevel4">
+<li><a href="#_creating_a_custom_ca_key_and_certificate">1.2.2.1. Creating a custom CA Key and Certificate</a></li>
+<li><a href="#_sign_certificates_using_the_custom_ca">1.2.2.2. Sign Certificates Using the custom CA</a></li>
+</ul>
+</li>
+<li><a href="#_updating_settings_after_changing_certificates">1.2.3. Updating Settings After Changing Certificates</a></li>
+</ul>
+</li>
+<li><a href="#_configuring_quick_start">1.3. Configuring (Quick Start)</a></li>
+<li><a href="#_ingesting_quick_start">1.4. Ingesting (Quick Start)</a>
+<ul class="sectlevel3">
+<li><a href="#_ingesting_sample_data">1.4.1. Ingesting Sample Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_quick_start_tutorial"><a class="anchor" href="#_quick_start_tutorial"></a><a class="link" href="#_quick_start_tutorial">1. Quick Start Tutorial</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This quick tutorial will enable install, configuring and using a basic instance of DDF.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This tutorial is intended for setting up a test, demonstration, or trial installation of DDF.
+For complete installation and configuration steps, see <a href="managing.html#_installing">Installing</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>These steps will demonstrate:</p>
+</div>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p>&#10003; <a href="#_quick_install_prerequisites">Prerequisites</a>.</p>
+</li>
+<li>
+<p>&#10003; <a href="#_quick_install_of_ddf">Quick Install of DDF</a>.</p>
+</li>
+<li>
+<p>&#10003; <a href="#_ingesting_sample_data">Ingesting Data</a>.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_installing_quick_start"><a class="anchor" href="#_installing_quick_start"></a><a class="link" href="#_installing_quick_start">1.1. Installing (Quick Start)</a></h3>
+<div class="paragraph">
+<p>These are the basic requirements to set up the environment to run a DDF.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For security reasons, DDF cannot be started from a user&#8217;s home directory. If attempted, the system will automatically shut down.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_quick_install_prerequisites"><a class="anchor" href="#_quick_install_prerequisites"></a><a class="link" href="#_quick_install_prerequisites">1.1.1. Quick Install Prerequisites</a></h4>
+<div class="ulist">
+<div class="title">Hardware Requirements (Quick Install)</div>
+<ul>
+<li>
+<p>At least 4096MB of memory for DDF.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>This amount can be increased to support memory-intensive applications. See <a href="managing.html#_jvm_memory_configuration">Memory Considerations</a>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Java Requirements (Quick Install)</div>
+<p>Set up Java to run DDF.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install/Upgrade to Java 8 x64 <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">J2SE 8 SDK</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Installing (Quick Start)"></span></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The recommended version is <a href="http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html">8u60</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Installing (Quick Start)"></span> or later.</p>
+</li>
+<li>
+<p>Java Version and Build numbers must contain only number values.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Microsoft Windows and Linux are supported. For more information about supported versions, see <a href="managing.html#_installation_prerequisites">Installation Prerequisites</a></p>
+</li>
+<li>
+<p><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">JDK8x64</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Installing (Quick Start)"></span> must be installed.</p>
+</li>
+<li>
+<p>The <code>JAVA_HOME</code> environment variable must be set to the location where the JDK is installed.</p>
+</li>
+</ul>
+</div>
+<div class="exampleblock">
+<div class="title"> 1. Setting JAVA_HOME variable (Replace <code>&lt;JAVA_VERSION&gt;</code> with the version and build number installed.)</div>
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Determine Java Installation Directory (This varies between operating system versions).</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="title">Find Java Path in Windows</div>
+<div class="content">
+<pre>for %i in (java.exe) do @echo. %~$PATH:i</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Find Java Path in *nix</div>
+<div class="content">
+<pre>which java</pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Copy path to Java installation. (example: <code>/usr/java/&lt;JAVA_VERSION&gt;</code>)</p>
+</li>
+<li>
+<p>Set <code>JAVA_HOME</code> by replacing &lt;PATH_TO_JAVA&gt; with the copied path in this command:</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="title">Setting <code>JAVA_HOME</code> on Windows</div>
+<div class="content">
+<pre>set JAVA_HOME=&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Adding <code>JAVA_HOME</code> to <code>PATH</code> Environment Variable on Windows</div>
+<div class="content">
+<pre>setx PATH "%PATH%;%JAVA_HOME%\bin"</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Setting <code>JAVA_HOME</code> on *nix</div>
+<div class="content">
+<pre>JAVA_HOME=&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;
+export JAVA_HOME</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="title">*nix</div>
+<div class="paragraph">
+<p>Unlink <code>JAVA_HOME</code> if it is already linked to a previous version of the JRE:
+<code>unlink JAVA_HOME</code></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="title">Verify that the <code>JAVA_HOME</code> was set correctly.</div>
+<div class="listingblock">
+<div class="title">Windows</div>
+<div class="content">
+<pre>echo %JAVA_HOME%</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">*nix</div>
+<div class="content">
+<pre>echo $JAVA_HOME</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">File Descriptor Limit on Linux</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For Linux systems, increase the file descriptor limit by editing <code>/etc/sysctl.conf</code> to include:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>fs.file-max = 6815744</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>(This file may need permissions changed to allow write access).</p>
+</li>
+<li>
+<p>For the change to take effect, a restart is required.</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>*nix Restart Command</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>init 6</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="title">Check System Time</div>
+<div class="paragraph">
+<p>Prior to installing DDF, ensure the system time is accurate to prevent federation issues.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_quick_install_of_ddf"><a class="anchor" href="#_quick_install_of_ddf"></a><a class="link" href="#_quick_install_of_ddf">1.1.2. Quick Install of DDF</a></h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download the DDF <a href="https://github.com/codice/ddf/releases">zip file</a>.</p>
+</li>
+<li>
+<p>Install DDF by unzipping the zip file.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="title">Windows Zip Utility Warning</div>
+<div class="paragraph">
+<p>The Windows Zip implementation, which is invoked when a user double-clicks on a zip file in the Windows Explorer, creates a corrupted installation.
+This is a consequence of its inability to process long file paths.
+Instead, use the java jar command line utility to unzip the distribution (see example below) or use a third party utility such as 7-Zip.</p>
+</div>
+<div class="listingblock">
+<div class="title">Use Java to Unzip in Windows(Replace <code>&lt;PATH_TO_JAVA&gt;</code> with correct path <code>and &lt;JAVA_VERSION&gt;</code> with current version.)</div>
+<div class="content">
+<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.13.6.zip</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>This will create an installation directory, which is typically created with the name and version of the application.
+This installation directory will be referred to as <code>&lt;DDF_HOME&gt;</code>.
+(Substitute the actual directory name.)</p>
+</li>
+<li>
+<p>Start DDF by running the <code>&lt;DDF_HOME&gt;/bin/ddf</code> script (or <code>ddf.bat</code> on Windows).</p>
+</li>
+<li>
+<p>Startup may take a few minutes.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Optionally, a <code>system:wait-for-ready</code> command (aliased to <code>wfr</code>) can be used to wait for startup to complete.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>The Command Console will display.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="title">Command Console Prompt</div>
+<div class="content">
+<pre>ddf@local&gt;</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_quick_install_of_ddf_on_a_remote_headless_server"><a class="anchor" href="#_quick_install_of_ddf_on_a_remote_headless_server"></a><a class="link" href="#_quick_install_of_ddf_on_a_remote_headless_server">1.1.3. Quick Install of DDF on a remote headless server</a></h4>
+<div class="paragraph">
+<p>If DDF is being installed on a remote server that has no user interface some additional steps must be taken prior to starting the system.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Update any references to localhost in the following files. These references to localhost should be updated to match either the hostname or IP of the system.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&lt;DDF_HOME&gt;/etc/custom.system.properties</code></p>
+</li>
+<li>
+<p><code>&lt;DDF_HOME&gt;/etc/users.properties</code></p>
+</li>
+<li>
+<p><code>&lt;DDF_HOME&gt;/etc/users.attributes</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>From the console go to &lt;DDF_HOME&gt;/etc/certs.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>If using a hostname run: <code>sh CertNew.sh -cn &lt;hostname&gt; -san "DNS:&lt;hostname&gt;"</code> (or <code>CertNew -cn &lt;hostname&gt; -san "DNS:&lt;hostname&gt;"</code> on windows).</p>
+</li>
+<li>
+<p>If using an IP address run: <code>sh CertNew.sh -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code> (or <code>CertNew -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code> on windows).</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Proceed with starting the system and continue as usual.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_certificates_quick_start"><a class="anchor" href="#_certificates_quick_start"></a><a class="link" href="#_certificates_quick_start">1.2. Certificates (Quick Start)</a></h3>
+<div class="paragraph">
+<p>DDF comes with a default keystore that contains certificates.
+This allows the distribution to be unzipped and run immediately.
+If these certificates are sufficient for testing purposes, proceed to <a href="#_configuring_quick_start">Configuring (Quick Start)</a>.</p>
+</div>
+<div class="paragraph">
+<p>To test federation using 2-way TLS, the default keystore certificates will need to be replaced, using either the included <a href="#_demo_certificate_authority_ca">Demo Certificate Authority</a> or by <a href="#_creating_self_signed_certificates">Creating Self-signed Certificates</a>.</p>
+</div>
+<div class="paragraph">
+<p>If the installer was used to install the DDF and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.</p>
+</div>
+<div class="paragraph">
+<p>If the hostname is <code>localhost</code> or, if the hostname was changed <em>after</em> installation, the default certificates will not allow access to the DDF instance from another machine over HTTPS (now the default for many services).
+The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the DDF instance.</p>
+</div>
+<div class="sect3">
+<h4 id="_demo_certificate_authority_ca"><a class="anchor" href="#_demo_certificate_authority_ca"></a><a class="link" href="#_demo_certificate_authority_ca">1.2.1. Demo Certificate Authority (CA)</a></h4>
+<div class="paragraph">
+<p>DDF comes with a populated truststore containing entries for many public certificate authorities, such as Go Daddy and Verisign.
+It also includes an entry for the DDF Demo Root CA.
+This entry is a self-signed certificate used for testing.
+It enables DDF to run immediately after unzipping the distribution.
+The keys and certificates for the DDF Demo Root CA are included as part of the DDF distribution.
+This entry must be removed from the truststore before DDF can operate securely.</p>
+</div>
+<div class="sect4">
+<h5 id="_creating_new_server_keystore_entry_with_the_certnew_scripts"><a class="anchor" href="#_creating_new_server_keystore_entry_with_the_certnew_scripts"></a><a class="link" href="#_creating_new_server_keystore_entry_with_the_certnew_scripts">1.2.1.1. Creating New Server Keystore Entry with the CertNew Scripts</a></h5>
+<div class="paragraph">
+<p>To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
+To use the scripts, run them out of the <code>&lt;DDF_HOME&gt;/etc/certs</code> directory.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">*NIX Demo CA Script</div>
+<div class="paragraph">
+<p>For *NIX, use the <code>CertNew.sh</code> script.</p>
+</div>
+<div class="paragraph">
+<p><code>sh CertNew.sh [-cn &lt;cn&gt;|-dn &lt;dn&gt;] [-san &lt;tag:name,tag:name,&#8230;&#8203;&gt;]</code></p>
+</div>
+<div class="paragraph">
+<p>where:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&lt;cn&gt;</code> represents a fully qualified common name (e.g. "&lt;FQDN&gt;", where &lt;FQDN&gt; could be something like cluster.yoyo.com)</p>
+</li>
+<li>
+<p><code>&lt;dn&gt;</code> represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=&lt;FQDN&gt;")</p>
+</li>
+<li>
+<p><code>&lt;tag:name,tag:name,&#8230;&#8203;&gt;</code> represents optional subject alternative names to be added to the generated certificate (e.g. "DNS:&lt;FQDN&gt;,DNS:node1.&lt;FQDN&gt;,DNS:node2.&lt;FQDN&gt;"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>email</code> - email subject</p>
+</li>
+<li>
+<p><code>URI</code> - uniformed resource identifier</p>
+</li>
+<li>
+<p><code>RID</code> - registered id</p>
+</li>
+<li>
+<p><code>DNS</code> - hostname</p>
+</li>
+<li>
+<p><code>IP</code> - ip address (V4 or V6)</p>
+</li>
+<li>
+<p><code>dirName</code> - directory name</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If no arguments specified on the command line, <code>hostname -f</code> is used as the common-name for the certificate.</p>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Windows Demo CA Script</div>
+<div class="paragraph">
+<p>For Windows, use the <code>CertNew.cmd</code> script.</p>
+</div>
+<div class="paragraph">
+<p><code>CertNew (-cn &lt;cn&gt;|-dn &lt;dn&gt;) [-san "&lt;tag:name,tag:name,&#8230;&#8203;&gt;"]</code></p>
+</div>
+<div class="paragraph">
+<p>where:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&lt;cn&gt;</code> represents a fully qualified common name (e.g. "&lt;FQDN&gt;", where &lt;FQDN&gt; could be something like cluster.yoyo.com)</p>
+</li>
+<li>
+<p><code>&lt;dn&gt;</code> represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=&lt;FQDN&gt;")</p>
+</li>
+<li>
+<p><code>&lt;tag:name,tag:name,&#8230;&#8203;&gt;</code> represents optional subject alternative names to be added to the generated certificate (e.g. "DNS:&lt;FQDN&gt;,DNS:node1.&lt;FQDN&gt;,DNS:node2.&lt;FQDN&gt;"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>email</code> - email subject</p>
+</li>
+<li>
+<p><code>URI</code> - uniformed resource identifier</p>
+</li>
+<li>
+<p><code>RID</code> - registered id</p>
+</li>
+<li>
+<p><code>DNS</code> - hostname</p>
+</li>
+<li>
+<p><code>IP</code> - ip address (V4 or V6)</p>
+</li>
+<li>
+<p><code>dirName</code> - directory name</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>CertNew</code> scripts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a new entry in the server keystore.</p>
+</li>
+<li>
+<p>Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.</p>
+</li>
+<li>
+<p>Adds the specified subject alternative names if any.</p>
+</li>
+<li>
+<p>Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To install a certificate signed by a different Certificate Authority, see <a href="managing.html#_managing_keystores">Managing Keystores</a>.</p>
+</div>
+<div class="paragraph">
+<p>After this proceed to <a href="#_updating_settings_after_changing_certificates">Updating Settings After Changing Certificates</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the server&#8217;s fully qualified domain name is not recognized, the name may need to be added to the network&#8217;s DNS server.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_dealing_with_lack_of_dns"><a class="anchor" href="#_dealing_with_lack_of_dns"></a><a class="link" href="#_dealing_with_lack_of_dns">1.2.1.2. Dealing with Lack of DNS</a></h5>
+<div class="paragraph">
+<p>In some cases DNS may not be available and the system will need to be configured to work with IP addresses.</p>
+</div>
+<div class="paragraph">
+<p>Options can be given to the CertNew Scripts to generate certs that will work in this scenario.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">*NIX</div>
+<div class="paragraph">
+<p>From &lt;DDF_HOME&gt;/etc/certs/ run:</p>
+</div>
+<div class="paragraph">
+<p><code>sh CertNew.sh -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code></p>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Windows</div>
+<div class="paragraph">
+<p>From &lt;DDF_HOME&gt;/etc/certs/ run:</p>
+</div>
+<div class="paragraph">
+<p><code>CertNew -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code></p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>After this proceed to <a href="#_updating_settings_after_changing_certificates">Updating Settings After Changing Certificates</a>, and be sure to use the IP address instead of the FQDN.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_creating_self_signed_certificates"><a class="anchor" href="#_creating_self_signed_certificates"></a><a class="link" href="#_creating_self_signed_certificates">1.2.2. Creating Self-Signed Certificates</a></h4>
+<div class="paragraph">
+<p>If using the Demo CA is not desired, DDF supports creating self-signed certificates with a self-signed certificate authority.
+This is considered an advanced configuration.</p>
+</div>
+<div class="paragraph">
+<p>Creating self-signed certificates involves creating and configuring the files that contain the certificates.
+In DDF, these files are generally Java Keystores (<code>jks</code>) and Certificate Revocation Lists (<code>crl</code>).
+This includes commands and tools that can be used to perform these operations.</p>
+</div>
+<div class="paragraph">
+<p>For this example, the following tools are used:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>openssl</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Windows users can use: <a href="https://code.google.com/p/openssl-for-windows/downloads/detail?name=openssl-0.9.8k_X64.zip&amp;can=2&amp;q=">openssl</a> for windows.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The standard Java <a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html">keytool</a> certificate management utility.</p>
+</li>
+<li>
+<p><a href="http://portecle.sourceforge.net/">Portecle</a> can be used for <strong>keytool</strong> operations if a GUI if preferred over a command line interface.</p>
+</li>
+</ul>
+</div>
+<div class="sect4">
+<h5 id="_creating_a_custom_ca_key_and_certificate"><a class="anchor" href="#_creating_a_custom_ca_key_and_certificate"></a><a class="link" href="#_creating_a_custom_ca_key_and_certificate">1.2.2.1. Creating a custom CA Key and Certificate</a></h5>
+<div class="paragraph">
+<p>The following steps demonstrate creating a root CA to sign certificates.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a key pair.<br>
+<code>$&gt; openssl genrsa -aes128 -out root-ca.key 1024</code><br></p>
+</li>
+<li>
+<p>Use the key to sign the CA certificate.<br>
+<code>$&gt; openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_sign_certificates_using_the_custom_ca"><a class="anchor" href="#_sign_certificates_using_the_custom_ca"></a><a class="link" href="#_sign_certificates_using_the_custom_ca">1.2.2.2. Sign Certificates Using the custom CA</a></h5>
+<div class="paragraph">
+<p>The following steps demonstrate signing a certificate for the <code>tokenissuer</code> user by a CA.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Generate a private key and a Certificate Signing Request (CSR).<br>
+<code>$&gt; openssl req -newkey rsa:1024 -keyout tokenissuer.key -out tokenissuer.req</code></p>
+</li>
+<li>
+<p>Sign the certificate by the CA.<br>
+<code>$&gt; openssl ca -out tokenissuer.crt -infiles tokenissuer.req</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>These certificates will be used during system configuration to replace the default certificates.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_updating_settings_after_changing_certificates"><a class="anchor" href="#_updating_settings_after_changing_certificates"></a><a class="link" href="#_updating_settings_after_changing_certificates">1.2.3. Updating Settings After Changing Certificates</a></h4>
+<div class="paragraph">
+<p>After changing the certificates it will be necessary to update the system user and the <code>org.codice.ddf.system.hostname</code> property with the value of either the FQDN or the IP.</p>
+</div>
+<div class="paragraph">
+<p>FQDNs should be used wherever possible. In the absence of DNS, however, IP addresses can be used.</p>
+</div>
+<div class="paragraph">
+<p>Replace <code>localhost</code> with the FQDN or the IP in <code>&lt;DDF_HOME&gt;/etc/users.properties</code>, <code>&lt;DDF_HOME&gt;/etc/users.attributes</code>, and <code>&lt;DDF_HOME&gt;/etc/custom.system.properties</code>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>On linux this can be accomplished with a single command:
+<code>sed -i 's/localhost/&lt;FQDN|IP&gt;/g' &lt;DDF_HOME&gt;/etc/users.* &lt;DDF_HOME&gt;/etc/custom.system.properties</code></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Finally, restart the DDF instance. Navigate to the Admin Console to test changes.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_quick_start"><a class="anchor" href="#_configuring_quick_start"></a><a class="link" href="#_configuring_quick_start">1.3. Configuring (Quick Start)</a></h3>
+<div class="paragraph">
+<p>Set the configurations needed to run DDF.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In a browser, navigate to the Admin Console at https://{FQDN}:{PORT}/admin.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>The Admin Console may take a few minutes to start up.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Enter the default username of <code>admin</code> and the password of <code>admin</code>.</p>
+</li>
+<li>
+<p>Follow the installer prompts for a standard installation.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Click start to begin the setup process.</p>
+</li>
+<li>
+<p>Configure <a href="managing.html#_guest_interceptor">guest claims attributes</a> or use defaults.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>See <a href="managing.html#_configuring_guest_access">Configuring Guest Access</a> for more information about the Guest user.</p>
+</li>
+<li>
+<p><strong>All users will be automatically granted these permissions.</strong></p>
+</li>
+<li>
+<p><strong>Guest users will not be able to ingest data with more restrictive markings than the guest claims.</strong></p>
+</li>
+<li>
+<p><strong>Any data ingested that has more restrictive markings than these guest claims will not be visible to Guest users.</strong></p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Select <strong>Standard Installation</strong>.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>This step may take several minutes to complete.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>See <a href="#_certificates_quick_start">Certificates (Quick Start)</a> for more details.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Click <strong>Next</strong></p>
+</li>
+<li>
+<p>Click <strong>Finish</strong></p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ingesting_quick_start"><a class="anchor" href="#_ingesting_quick_start"></a><a class="link" href="#_ingesting_quick_start">1.4. Ingesting (Quick Start)</a></h3>
+<div class="paragraph">
+<p>Now that DDF has been configured, ingest some sample data to demonstrate search capabilities.</p>
+</div>
+<div class="paragraph">
+<p>This is one way to ingest into the catalog, for a complete list of the different methods, see <a href="managing.html#_ingesting_data">Ingesting Data</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="_ingesting_sample_data"><a class="anchor" href="#_ingesting_sample_data"></a><a class="link" href="#_ingesting_sample_data">1.4.1. Ingesting Sample Data</a></h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download a sample valid <a href="https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&amp;modificationDate=1368249436010&amp;api=v2">GeoJson file here</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Ingesting (Quick Start)"></span>.</p>
+</li>
+<li>
+<p>Navigate in the browser to Intrigue at https://{FQDN}:{PORT}/search.</p>
+</li>
+<li>
+<p>Select the Menu icon (<span class="image"><img src="data:image/png;base64,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" alt="navigator icon" title="Ingesting (Quick Start)"></span>) in the upper left corner</p>
+</li>
+<li>
+<p>Select <strong>Upload</strong>.</p>
+</li>
+<li>
+<p>Drag and drop the sample file or click to navigate to it.</p>
+</li>
+<li>
+<p>Select <strong>Start</strong> to begin upload.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>XML metadata for text searching is not automatically generated from GeoJson fields.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Querying from the Search UI (https://{FQDN}:{PORT}/search) will return the record for the file ingested:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Select the Menu icon (<span class="image"><img src="data:image/png;base64,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" alt="navigator icon" title="Ingesting (Quick Start)"></span>)and return to <strong>Workspaces</strong>.</p>
+</li>
+<li>
+<p>Search for the ingested data.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The sample data was selected as an example of well-formed metadata.
+Other data can and should be used to test other usage scenarios.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<script type="text/javascript" src="../../webjars/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
+<script type="text/javascript" >
+"use strict";
+
+function makeTocExpandable() {
+	var level = 1;
+
+	while (level < 6) {
+	const tocHeading = document.querySelectorAll(".sectlevel" + level + ">li");
+		for (var i = tocHeading.length - 1; i >= 0; i--) {
+			const childLevels = tocHeading[i].querySelector("ul li");
+			if (childLevels) {
+				tocHeading[i].innerHTML ='<a class="expandable">+ </a>' + tocHeading[i].innerHTML + '';
+			}
+		}
+		const levelUp = level + 1
+		const higherlevels = document.querySelectorAll(".sectlevel" + levelUp );
+
+		for (var i = higherlevels.length - 1; i >= 0; i--) {
+			higherlevels[i].classList.add("collapsed");
+		}
+		level++;
+	}
+
+}
+
+function expandList(section) {
+	const currentSection = section.target.parentNode;
+
+	currentSection.querySelector("ul").classList.remove("collapsed");
+	currentSection.querySelector(".expandable").innerHTML = "- ";
+	currentSection.querySelector(".expandable").removeEventListener("click", expandList);
+	currentSection.querySelector(".expandable").classList.add("expanded");
+	currentSection.querySelector(".expanded").classList.remove("expandable");
+	currentSection.querySelector(".expanded").addEventListener("click", collapseList);
+}
+
+function collapseList(section) {
+	const currentSection = section.target.parentNode;
+
+	currentSection.querySelector("ul").classList.add("collapsed");
+	currentSection.querySelector(".expanded").innerHTML = "+ ";
+	currentSection.querySelector(".expanded").removeEventListener("click", collapseList);
+	currentSection.querySelector(".expanded").classList.add("expandable");
+	currentSection.querySelector(".expandable").classList.remove("expanded");
+	currentSection.querySelector(".expandable").addEventListener("click", expandList);
+}
+
+function addTocListeners() {
+	const expandableSections = document.querySelectorAll(".expandable")
+	const expandedSections = document.querySelectorAll(".expanded")
+
+	for (var i = expandableSections.length - 1; i >= 0; i--) {
+		expandableSections[i].addEventListener("click", expandList);
+	}
+	for (var i = expandedSections.length - 1; i >= 0; i--) {
+		expandedSections[i].addEventListener("click", collapseList);
+	}
+}
+
+function wrapScrollElements(selector) {
+  document.querySelectorAll( selector ).forEach( elem => {
+    const div = document.createElement( 'div' );
+    div.className = "scroll-wrapper";
+    elem.parentElement.insertBefore(div, elem);
+    div.appendChild(elem);
+  });
+}
+
+document.onreadystatechange = () => {
+	if (document.readyState === 'complete') {
+	  // The page is fully loaded
+		makeTocExpandable();
+		addTocListeners();
+	    wrapScrollElements('table.tableblock');
+	    wrapScrollElements('.CodeRay');
+	    wrapScrollElements('.admonitionblock');
+	}
+};
+</script>
+<style>
+.collapsed {display: none;}
+.scroll-wrapper {overflow-x: auto;}
+</style>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-02-21 01:18:40 UTC
+</div>
+</div>
+</body>
+</html>
