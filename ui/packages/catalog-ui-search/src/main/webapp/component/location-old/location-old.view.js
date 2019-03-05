@@ -69,8 +69,18 @@ const filterToLocationOldModel = filter => {
 
   // for backwards compatability with wkt
   if (filterValue && typeof filterValue === 'string') {
-    const json = wkx.Geometry.parse(filterValue).toGeoJSON()
-    return deserialize(json)
+    const geometry = wkx.Geometry.parse(filterValue).toGeoJSON()
+    return deserialize({
+      type: 'Feature',
+      geometry,
+      properties: {
+        type: geometry.type,
+        buffer: {
+          width: filter.distance,
+          unit: 'meters',
+        },
+      },
+    })
   }
 }
 

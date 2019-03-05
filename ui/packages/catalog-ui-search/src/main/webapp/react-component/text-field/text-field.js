@@ -17,7 +17,7 @@ const TextField = props => {
           </span>
         ) : null}
         <input
-          value={value || ''}
+          value={value !== undefined ? value : ''}
           type={type}
           onChange={e => {
             onChange(e.target.value)

@@ -1,162 +1,199 @@
 const wkx = require('wkx')
 const DistanceUtils = require('../../js/DistanceUtils')
-const Turf = require('@turf/turf')
 const plugin = require('plugins/location-serialization')
 
-const is3DArray = array =>
-  Array.isArray(array) && Array.isArray(array[0]) && Array.isArray(array[0][0])
-const is4DArray = array => is3DArray(array) && Array.isArray(array[0][0][0])
-
 const LineString = {
-  'json->location': ({
-    geometry: { coordinates },
-    properties: { buffer } = {},
-  }) => ({
-    mode: 'line',
-    line: coordinates,
-    lineWidth: buffer.width,
-    lineUnits: buffer.unit,
-  }),
-  'location->json': ({ line = [], lineWidth = 1, lineUnits = 'meters' }) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'LineString',
-      coordinates: line,
-    },
-    properties: {
-      type: 'LineString',
-      buffer: {
-        width: lineWidth,
-        unit: lineUnits,
+  'json->location': json => {
+    const {
+      geometry: { coordinates },
+      properties: { buffer } = {},
+    } = json
+
+    const { width = 1, unit = 'meters' } = buffer
+
+    return {
+      mode: 'line',
+      line: coordinates,
+      lineWidth: width,
+      lineUnits: unit,
+    }
+  },
+  'location->json': location => {
+    const { line = [], lineWidth = 1, lineUnits = 'meters' } = location
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: line,
       },
-    },
-  }),
+      properties: {
+        type: 'LineString',
+        buffer: {
+          width: lineWidth,
+          unit: lineUnits,
+        },
+      },
+    }
+  },
 }
 
 const MultiLineString = {
-  'json->location': ({
-    geometry: { coordinates },
-    properties: { buffer } = {},
-  }) => ({
-    mode: 'multiline',
-    multiline: coordinates,
-    lineWidth: buffer.width,
-    lineUnits: buffer.unit,
-  }),
-  'location->json': ({
-    multiline = [],
-    lineWidth = 1,
-    lineUnits = 'meters',
-  }) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'MultiLineString',
-      coordinates: multiline,
-    },
-    properties: {
-      type: 'MultiLineString',
-      buffer: {
-        width: lineWidth,
-        unit: lineUnits,
+  'json->location': json => {
+    const {
+      geometry: { coordinates },
+      properties: { buffer } = {},
+    } = json
+
+    const { width = 1, unit = 'meters' } = buffer
+
+    return {
+      mode: 'multiline',
+      multiline: coordinates,
+      lineWidth: width,
+      lineUnits: unit,
+    }
+  },
+  'location->json': location => {
+    const { multiline = [], lineWidth = 1, lineUnits = 'meters' } = location
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'MultiLineString',
+        coordinates: multiline,
       },
-    },
-  }),
+      properties: {
+        type: 'MultiLineString',
+        buffer: {
+          width: lineWidth,
+          unit: lineUnits,
+        },
+      },
+    }
+  },
 }
 
 const Point = {
-  'json->location': ({
-    geometry: {
-      coordinates: [lon, lat],
-    },
-    properties: { buffer } = {},
-  }) => ({
-    mode: 'circle',
-    locationType: 'latlon',
-    lat,
-    lon,
-    radius: buffer.width,
-    radiusUnits: buffer.unit,
-  }),
-  'location->json': ({
-    lat = 0,
-    lon = 0,
-    radius = 1,
-    radiusUnits = 'meters',
-  }) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [lon, lat],
-    },
-    properties: {
-      type: 'Point',
-      buffer: {
-        width: radius,
-        unit: radiusUnits,
+  'json->location': json => {
+    const {
+      geometry: { coordinates },
+      properties: { buffer } = {},
+    } = json
+
+    const [lon = 0, lat = 0] = coordinates
+    const { width = 1, unit = 'meters' } = buffer
+
+    return {
+      mode: 'circle',
+      locationType: 'latlon',
+      lat,
+      lon,
+      radius: width,
+      radiusUnits: unit,
+    }
+  },
+  'location->json': location => {
+    const { lat = 0, lon = 0, radius = 1, radiusUnits = 'meters' } = location
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [lon, lat],
       },
-    },
-  }),
+      properties: {
+        type: 'Point',
+        buffer: {
+          width: radius,
+          unit: radiusUnits,
+        },
+      },
+    }
+  },
 }
 
 const Polygon = {
-  'json->location': ({
-    geometry: { coordinates },
-    properties: { buffer } = {},
-  }) => ({
-    mode: 'poly',
-    polygon: coordinates,
-    polygonBufferWidth: buffer.width,
-    polygonBufferUnits: buffer.unit,
-    polyType: 'polygon',
-  }),
-  'location->json': ({
-    polygon = [],
-    polygonBufferWidth = 0,
-    polygonBufferUnits = 'meters',
-  }) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'Polygon',
-      coordinates: is3DArray(polygon) ? polygon : [polygon],
-    },
-    properties: {
-      type: 'Polygon',
-      buffer: {
-        width: polygonBufferWidth,
-        unit: polygonBufferUnits,
+  'json->location': json => {
+    const {
+      geometry: { coordinates },
+      properties: { buffer } = {},
+    } = json
+
+    const [polygon] = coordinates
+    const { width = 0, unit = 'meters' } = buffer
+
+    return {
+      mode: 'poly',
+      polygon,
+      polygonBufferWidth: width,
+      polygonBufferUnits: unit,
+      polyType: 'polygon',
+    }
+  },
+  'location->json': location => {
+    const {
+      polygon = [],
+      polygonBufferWidth = 0,
+      polygonBufferUnits = 'meters',
+      polyType = 'polygon',
+    } = location
+
+    if (polyType === 'multipolygon') {
+      return MultiPolygon['location->json'](location)
+    }
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [polygon],
       },
-    },
-  }),
+      properties: {
+        type: 'Polygon',
+        buffer: {
+          width: polygonBufferWidth,
+          unit: polygonBufferUnits,
+        },
+      },
+    }
+  },
 }
 
 const BoundingBox = {
-  'json->location': ({ properties: { north, east, south, west } }) => {
-    const coordinates = [
-      [
-        [west, north],
-        [east, north],
-        [east, south],
-        [west, south],
-        [west, north],
-      ],
-    ]
+  'json->location': json => {
+    const {
+      geometry: { coordinates },
+      properties: { north, east, south, west },
+    } = json
+
+    const [polygon] = coordinates
 
     return {
       mode: 'bbox',
-      polygon: coordinates,
+      polygon,
       north,
       east,
       south,
       west,
     }
   },
-  'location->json': ({ north, east, south, west }) => {
+  'location->json': location => {
+    const { north, east, south, west } = location
     return {
       type: 'Feature',
       bbox: [south, north, west, east],
       geometry: {
         type: 'Polygon',
-        coordinates: Turf.bboxPolygon([south, north, west, east]),
+        coordinates: [
+          [
+            [west, north],
+            [east, north],
+            [east, south],
+            [west, south],
+            [west, north],
+          ],
+        ],
       },
       properties: {
         type: 'BoundingBox',
@@ -170,72 +207,100 @@ const BoundingBox = {
 }
 
 const MultiPolygon = {
-  'json->location': ({
-    geometry: { coordinates },
-    properties: { buffer } = {},
-  }) => ({
-    mode: 'multipolygon',
-    polygon: coordinates,
-    polygonBufferWidth,
-    polygonBufferUnits,
-    polyType: 'multipolygon',
-  }),
-  'location->json': ({
-    polygon = [],
-    polygonBufferWidth,
-    polygonBufferUnits,
-  }) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'MultiPolygon',
-      coordinates: is3DArray(polygon) ? [polygon] : polygon,
-    },
-    properties: {
-      type: 'MultiPolygon',
-      buffer: {
-        width: polygonBufferWidth,
-        unit: polygonBufferUnits,
+  'json->location': json => {
+    const {
+      geometry: { coordinates },
+      properties: { buffer } = {},
+    } = json
+
+    const { width = 0, unit = 'meters' } = buffer
+
+    const polygon = coordinates.map(([child]) => child)
+
+    return {
+      mode: 'poly',
+      polygon,
+      polygonBufferWidth: width,
+      polygonBufferUnits: unit,
+      polyType: 'multipolygon',
+    }
+  },
+  'location->json': location => {
+    const {
+      polygon = [],
+      polygonBufferWidth = 0,
+      polygonBufferUnits = 'meters',
+    } = location
+
+    const coordinates = polygon.map(child => [child])
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'MultiPolygon',
+        coordinates,
       },
-    },
-  }),
+      properties: {
+        type: 'MultiPolygon',
+        buffer: {
+          width: polygonBufferWidth,
+          unit: polygonBufferUnits,
+        },
+      },
+    }
+  },
 }
 
 const Keyword = {
-  'json->location': ({
-    properties: { keywordValue, buffer },
-    geometry = {},
-  }) => {
-    const { type, coordinates } = geometry
+  'json->location': json => {
+    const {
+      properties: { keywordValue, buffer },
+      geometry = {},
+    } = json
+
+    const { type, coordinates = [] } = geometry
+    const { width = 0, unit = 'meters' } = buffer
+
+    const [polygon] =
+      type === 'Polygon' ? coordinates : [coordinates.map(([child]) => child)]
+
     return {
       mode: 'keyword',
       keywordValue,
-      polygon: coordinates,
-      polygonBufferWidth: buffer.width,
-      polygonBufferUnits: buffer.unit,
-      polyType: type === 'MultiPolygon' ? 'multipolygon' : 'polygon',
+      polygon,
+      polygonBufferWidth: width,
+      polygonBufferUnits: unit,
+      polyType: type === 'Polygon' ? 'polygon' : 'multipolygon',
     }
   },
-  'location->json': ({
-    polygon = [],
-    polyType,
-    keywordValue,
-    polygonBufferWidth,
-    polygonBufferUnits,
-  }) => ({
-    type: 'Feature',
-    geometry: {
-      type: polyType === 'polygon' ? 'Polygon' : 'MultiPolygon',
-      coordinates: polygon,
-    },
-    properties: {
-      type: 'Keyword',
+  'location->json': location => {
+    const {
+      polygon = [],
+      polyType,
       keywordValue,
-      buffer: {
-        width: polygonBufferWidth,
-        unit: polygonBufferUnits,
+      polygonBufferWidth = 0,
+      polygonBufferUnits = 'meters',
+    } = location
+
+    const coordinates =
+      polyType === 'polygon' ? [polygon] : polygon.map(child => [child])
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: polyType === 'polygon' ? 'Polygon' : 'MultiPolygon',
+        coordinates,
       },
-    },
-  }),
+      properties: {
+        type: 'Keyword',
+        keywordValue,
+        buffer: {
+          width: polygonBufferWidth,
+          unit: polygonBufferUnits,
+        },
+      },
+    }
+  },
 }
 
 const Serializers = plugin.Serializers({
@@ -243,7 +308,6 @@ const Serializers = plugin.Serializers({
   multiline: MultiLineString,
   circle: Point,
   poly: Polygon,
-  multipolygon: MultiPolygon,
   keyword: Keyword,
   bbox: BoundingBox,
 })
