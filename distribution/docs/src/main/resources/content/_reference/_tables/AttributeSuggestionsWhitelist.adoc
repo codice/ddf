@@ -1,0 +1,27 @@
+:title: Catalog UI Search Attribute Suggestion Whitelist
+:id: org.codice.ddf.catalog.ui.security.facetwhitelist
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Catalog UI Search Attribute Suggestion Whitelist
+
+.[[_org.codice.ddf.catalog.ui.security.facetwhitelist]]Catalog UI Search Attribute Suggestion Whitelist
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Attribute Suggestion Whitelist
+|facetAttributeWhitelist
+|String
+|List of attributes that will query the backend and provide a list of suggestions that gets populated in the dropdown in a query form.
+Caution: These attributes will not be run through security.
+|
+|false
+
+|===
