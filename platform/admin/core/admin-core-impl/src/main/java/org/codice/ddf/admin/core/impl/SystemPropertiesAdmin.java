@@ -185,13 +185,11 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       Properties systemDotProperties = new Properties(systemPropertiesFile);
 
       updateProperty(SystemBaseUrl.EXTERNAL_HOST, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
       updateProperty(
           SystemBaseUrl.EXTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
       updateProperty(
           SystemBaseUrl.EXTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.INTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
       updateProperty(
           SystemBaseUrl.INTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
       updateProperty(
