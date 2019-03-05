@@ -87,14 +87,13 @@ public class OcspChecker implements OcspService {
         OCSPReq ocspRequest = generateOcspRequest(certificate);
         Response response = sendOcspRequest(ocspRequest);
         OCSPResp ocspResponse = createOcspResponse(response);
-        boolean certIsRevoked = validateOCSPResponse(ocspResponse);
-        if (certIsRevoked) {
+        boolean certIsValid = isOCSPResponseValid(ocspResponse);
+        if (!certIsValid) {
           SecurityLogger.audit(
               "Certificate {} has been revoked by the OCSP server {}.", cert, ocspServerUrl);
           LOGGER.debug("Certificate has been revoked by the OCSP server.");
+          return false;
         }
-
-        return certIsRevoked;
       } catch (IOException e) {
         // ignore
       }
@@ -193,16 +192,16 @@ public class OcspChecker implements OcspService {
    */
   @VisibleForTesting
   OCSPResp createOcspResponse(Response response) throws IOException {
-    try {
-      Object entity = response.getEntity();
+    Object entity = response.getEntity();
 
-      if (!(entity instanceof InputStream)) {
-        throw new IOException("Unable to get a response from the OCSP server.");
-      }
+    if (!(entity instanceof InputStream)) {
+      postErrorEvent(
+          "Unable to send OCSP request. The certificate status could not be verified. Unable to get a response from the OCSP server.");
+      throw new IOException();
+    }
 
-      try (InputStream inputStream = (InputStream) entity) {
-        return new OCSPResp(inputStream);
-      }
+    try (InputStream inputStream = (InputStream) entity) {
+      return new OCSPResp(inputStream);
     } catch (IOException e) {
       postErrorEvent(
           "Unable to send OCSP request. The certificate status could not be verified. "
@@ -218,7 +217,7 @@ public class OcspChecker implements OcspService {
    * @return true if the status is not revoked or unknown, false otherwise
    */
   @VisibleForTesting
-  boolean validateOCSPResponse(OCSPResp ocspResponse) {
+  boolean isOCSPResponseValid(OCSPResp ocspResponse) {
     try {
       BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
 
