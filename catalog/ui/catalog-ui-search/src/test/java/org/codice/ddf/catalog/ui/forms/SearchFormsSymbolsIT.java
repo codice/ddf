@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.ui.forms;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -50,14 +49,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.SocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,13 +101,10 @@ public class SearchFormsSymbolsIT {
    * Set of symbols upon which to parameterize the tests; defined as they appear in a JSON document.
    */
   @Parameterized.Parameters(name = "Verify search form REST I/O for symbol: {0}")
-  public static Iterable<Object[]> data() {
+  public static Iterable<?> data() {
     return Arrays.asList(
-        new Object[][] {
-          {"'"}, {"\\\""}, {"\\\\"}, {">"}, {"<"}, {"&"}, {"{"}, {"}"}, {"["}, {"]"}, {":"}, {";"},
-          {","}, {"."}, {"?"}, {"/"}, {"|"}, {"-"}, {"_"}, {"+"}, {"="}, {"*"}, {"^"}, {"%"}, {"$"},
-          {"#"}, {"@"}, {"!"}, {"~"}, {"`"}, {"("}, {")"}
-        });
+        "'", "\\\"", "\\\\", ">", "<", "&", "{", "}", "[", "]", ":", ";", ",", ".", "?", "/", "|",
+        "-", "_", "+", "=", "*", "^", "%", "$", "#", "@", "!", "~", "`", "(", ")");
   }
 
   /**
@@ -127,19 +119,18 @@ public class SearchFormsSymbolsIT {
           "<", "&lt;",
           "&", "&amp;");
 
-  private static final URL FILTER_RESOURCES_DIR =
-      SearchFormsLoaderTest.class.getResource("/forms/app");
-
   private static final Header CONTENT_IS_JSON = new Header("Content-Type", "application/json");
 
   private static final String TEMPLATE_FORM_METACARD_JSON_SIMPLE =
-      getContentsOfFile("form-simple.json");
+      getContentsOfFile("/forms/app/form-simple.json");
 
   private static final String TEMPLATE_FORM_METACARD_JSON_SIMPLE_RESPONSE =
-      removePrettyPrintingOnJson(getContentsOfFile("form-simple-response.json"));
+      removePrettyPrintingOnJson(getContentsOfFile("/forms/app/form-simple-response.json"));
 
   private static final String TEMPLATE_FORM_FILTER_XML_SIMPLE =
-      removePrettyPrintingOnXml(getContentsOfFile("form-filter-simple.xml"));
+      removePrettyPrintingOnXml(getContentsOfFile("/forms/app/form-filter-simple.xml"));
+
+  private static final String MSG_COULD_NOT_LOAD = "Could not load test resource";
 
   private static final String CANNED_TITLE = "MY_TITLE";
 
@@ -149,7 +140,7 @@ public class SearchFormsSymbolsIT {
 
   private static final String CANNED_ISO_DATE = "2018-12-10T13:09:40Z";
 
-  private static final FilterBuilder MOCK_BUILDER = new GeotoolsFilterBuilder();
+  private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
   private static final CatalogFramework MOCK_FRAMEWORK = mock(CatalogFramework.class);
 
@@ -164,7 +155,7 @@ public class SearchFormsSymbolsIT {
       new EndpointUtil(
           null, // No interaction
           MOCK_FRAMEWORK,
-          MOCK_BUILDER,
+          FILTER_BUILDER,
           null, // No interaction
           null, // No interaction
           null, // No interaction
@@ -173,7 +164,7 @@ public class SearchFormsSymbolsIT {
 
   private static final SearchFormsApplication APPLICATION =
       new SearchFormsApplication(
-          MOCK_FRAMEWORK, MOCK_BUILDER, TRANSFORMER, UTIL, () -> MOCK_SUBJECT);
+          MOCK_FRAMEWORK, FILTER_BUILDER, TRANSFORMER, UTIL, () -> MOCK_SUBJECT);
 
   // Will be initialized by setUpClass() when the port is known
   private static String localhostFormsUrl = null;
@@ -207,8 +198,7 @@ public class SearchFormsSymbolsIT {
 
   @BeforeClass
   public static void setUpClass() {
-    // Scan from Spark's default port to some arbitrarily higher port
-    Spark.port(getFirstAvailablePortBetween(4567, 9999));
+    Spark.port(getAvailablePort());
     APPLICATION.init();
     Spark.awaitInitialization();
     localhostFormsUrl = format("http://localhost:%d/forms/query", Spark.port());
@@ -304,7 +294,7 @@ public class SearchFormsSymbolsIT {
   private static String removePrettyPrintingOnXml(String xml) {
     try {
       TransformerFactory factory = TransformerFactory.newInstance();
-      Source xslt = new StreamSource(getResourceFile("inline-xml.xslt"));
+      Source xslt = new StreamSource(getResourceFile("/forms/app/inline-xml.xslt"));
       Transformer transformer = factory.newTransformer(xslt);
 
       Source text = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
@@ -337,33 +327,19 @@ public class SearchFormsSymbolsIT {
     return registry;
   }
 
-  private static File getResourceFile(String... resourceRoute) {
+  private static File getResourceFile(String resourceRoute) {
     try {
-      File dir = new File(FILTER_RESOURCES_DIR.toURI());
-      if (!dir.exists()) {
-        fail(
-            format(
-                "Invalid setup parameter '%s', the directory does not exist",
-                FILTER_RESOURCES_DIR.toString()));
+      URL url = SearchFormsSymbolsIT.class.getResource(resourceRoute);
+      if (url == null) {
+        throw new AssertionError(MSG_COULD_NOT_LOAD + ", the URL came back null");
       }
-
-      Path route = Arrays.stream(resourceRoute).map(Paths::get).reduce(Path::resolve).orElse(null);
-      if (route == null) {
-        fail("Could not reduce resource route to a single path");
-      }
-
-      File resourceFile = dir.toPath().resolve(route).toFile();
-      if (!resourceFile.exists()) {
-        fail("File was not found " + resourceFile.getAbsolutePath());
-      }
-
-      return resourceFile;
+      return new File(url.toURI());
     } catch (URISyntaxException e) {
-      throw new AssertionError("Could not complete test setup due to exception", e);
+      throw new AssertionError(MSG_COULD_NOT_LOAD + ", URI syntax not valid", e);
     }
   }
 
-  private static String getContentsOfFile(String... resourceRoute) {
+  private static String getContentsOfFile(String resourceRoute) {
     File resourceFile = getResourceFile(resourceRoute);
     try (FileInputStream fis = new FileInputStream(resourceFile)) {
       return IOUtils.toString(fis, StandardCharsets.UTF_8);
@@ -373,66 +349,36 @@ public class SearchFormsSymbolsIT {
   }
 
   /**
-   * Given a port range, this function returns the first port within the range that it's able to
-   * bind to. The range is inclusive on both sides.
+   * Return an available port number after binding and releasing it.
    *
    * <p>The discovered port should be available for another client to bind to by the time this
    * function has returned. Given this detail, running unit tests on environments that are in the
    * process of being provisioned or are otherwise in a state of flux may cause erroneous failures
    * due to port binding race conditions.
    *
-   * @param min the lowest port to consider.
-   * @param max the highest port to consider.
    * @return a port number the caller can <b>reasonably</b> assume is available to bind to.
-   * @throws AssertionError if the specified range was not valid or no port was available.
+   * @throws AssertionError if no port was available to bind to or the binding operation failed.
    */
-  private static int getFirstAvailablePortBetween(int min, int max) {
-    if (min > max) {
-      throw new AssertionError(min + " - " + max + " is not a valid port range");
-    }
-    int port = min;
-    while (!portIsAvailable(port)) {
-      if (port > max) {
-        throw new AssertionError("No available port within specified range");
-      }
-      port++;
-    }
-    return port;
-  }
-
-  /**
-   * Test a port number's availability.
-   *
-   * <p>Attempt a full bind and close operation on the given port number.
-   *
-   * @param port the port number to test.
-   * @return false if the port number is already bound, true otherwise.
-   * @throws AssertionError if the available port could not be closed after we successfully bound to
-   *     it.
-   */
-  private static boolean portIsAvailable(int port) {
-    boolean portAvailable = true;
+  private static int getAvailablePort() {
     ServerSocket socket = null;
     try {
-      SocketAddress address = new InetSocketAddress("localhost", port);
-      socket = new ServerSocket();
-      socket.bind(address);
+      socket = new ServerSocket(0);
+      return socket.getLocalPort();
     } catch (IOException e) {
-      portAvailable = false;
+      throw new AssertionError("Could not autobind to available port", e);
     } finally {
-      tryCloseSocket(socket, port);
+      tryCloseSocket(socket);
     }
-    return portAvailable;
   }
 
-  private static void tryCloseSocket(@Nullable ServerSocket socket, int port) {
+  private static void tryCloseSocket(@Nullable ServerSocket socket) {
     try {
       if (socket != null) {
         socket.close();
       }
     } catch (IOException e) {
       throw new AssertionError(
-          "Problem while enumerating ports (specifically, port " + port + ")", e);
+          "Problem while enumerating ports (specifically, port " + socket.getLocalPort() + ")", e);
     }
   }
 }
