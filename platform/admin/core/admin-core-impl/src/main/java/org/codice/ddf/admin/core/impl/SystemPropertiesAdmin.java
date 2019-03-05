@@ -184,6 +184,14 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     try {
       Properties systemDotProperties = new Properties(systemPropertiesFile);
 
+      /* Clears out the property value before setting it
+      * We have to do this because when we read in the properties, the values are expanded
+      * which can lead to a state where the value is erroneously not updated after being checked
+      * */
+      clearPropertyValue(SystemBaseUrl.EXTERNAL_HOST, systemDotProperties);
+      clearPropertyValue(SystemBaseUrl.EXTERNAL_HTTP_PORT, systemDotProperties);
+      clearPropertyValue(SystemBaseUrl.EXTERNAL_HTTPS_PORT, systemDotProperties);
+
       updateProperty(SystemBaseUrl.EXTERNAL_HOST, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
       updateProperty(
@@ -313,6 +321,10 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       String key, String title, String description, List<String> options) {
     String property = System.getProperty(key, "");
     return new SystemPropertyDetailsImpl(title, description, options, key, property);
+  }
+
+  private void clearPropertyValue(String key, Properties systemDotProperties) {
+    systemDotProperties.put(key, "");
   }
 
   private void updateProperty(
