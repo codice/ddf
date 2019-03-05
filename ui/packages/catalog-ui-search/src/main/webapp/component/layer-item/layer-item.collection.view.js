@@ -14,13 +14,19 @@
  **/
 /* global require*/
 const _ = require('underscore')
+const React = require('react')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
-const LayerItemView = require('./layer-item.view')
+import LayerItem from '../../react-component/container/layer-item'
 
+const LayerItemView = Marionette.ItemView.extend({
+  template() {
+    return <LayerItem />
+  },
+})
 module.exports = Marionette.CollectionView.extend({
   childView: LayerItemView,
   tagName: CustomElements.register('layer-item-collection'),

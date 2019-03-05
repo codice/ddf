@@ -9,9 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { CustomElement } from './custom-element'
-export { ChangeBackground } from './change-background'
-export { Dropshadow, DropshadowLight } from './dropshadow'
-export { GrabCursor } from './grab-cursor'
-export { IsButton } from './is-button'
-export { HighlightBehavior } from './highlight-behavior'
+import { css } from '../styled-components'
+
+export const HighlightBehavior = ({ initialOpacity }) => css`
+  opacity: ${initialOpacity};
+
+  &:active,
+  &:focus,
+  &:hover {
+    opacity: 1;
+  }
+`

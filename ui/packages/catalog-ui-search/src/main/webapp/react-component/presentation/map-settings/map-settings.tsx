@@ -22,8 +22,7 @@ type Props = {
 
 const Root = styled.div`
   overflow: auto;
-  padding: ${props => props.theme.minimumSpacing}
-    ${props => props.theme.minimumSpacing};
+  padding: ${props => props.theme.minimumSpacing};
 `
 
 const render = (props: Props) => {
