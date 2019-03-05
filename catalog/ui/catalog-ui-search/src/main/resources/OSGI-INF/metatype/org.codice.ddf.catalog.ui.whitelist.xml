@@ -15,10 +15,9 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Catalog UI Search Metacard Type Whitelist" id="org.codice.ddf.catalog.ui.whitelist">
-
         <AD id="whiteListedMetacardTypes"
             name="Metacard Type Whitelist"
-            description="List of metacard types that are whitelisted and not filtered. NOTE: This will directly filter out metacard types rendered from metacard application. An empty list will whitelist everything"
+            description="List of metacard types that are whitelisted and not filtered. NOTE: This will directly filter out metacard types rendered from metacard application. An empty list will whitelist everything."
             type="String"
             cardinality="1000"
             required="false"/>

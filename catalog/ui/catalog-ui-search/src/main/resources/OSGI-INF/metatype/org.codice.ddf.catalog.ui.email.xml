@@ -15,22 +15,18 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Email Notifier"
-         name="Email Notifier"
-         id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
-
+    <OCD name="Catalog UI Search Email Notifier" id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
         <AD description="Set the subject line template."
-            name="Subject" id="subjectTemplate" required="true" type="String"
+            name="Subject" id="subjectTemplate" type="String"
             default="Workspace '%[attribute=title]' notification"/>
 
         <AD description="Set the body template."
-            name="Body" id="bodyTemplate" required="true" type="String"
-            default="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
+            name="Body" id="bodyTemplate" type="String"
+            default="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results \${secure_url}/search/catalog/#workspaces/%[attribute=id]."/>
 
         <AD description="Set the 'from' email address."
-            name="From Address" id="fromEmail" required="true" type="String"
+            name="From Address" id="fromEmail" type="String"
             default="donotreply@example.com"/>
-
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">

@@ -1,0 +1,126 @@
+:title: Catalog UI Search Theme
+:id: org.codice.ddf.catalog.ui.theme
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Catalog UI Search Theme.
+
+.[[_org.codice.ddf.catalog.ui.theme]]{title}
+[cols="1,1m,1,3,1m,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Theme
+|theme
+|String
+a|Specifies the default theme:
+
+* `Dark`
+* `Light`
+* `Sea`
+* `Custom`, which consists of the colors below
+|Dark
+|true
+
+|Primary Color
+|customPrimaryColor
+|String
+|
+|#3c6dd5
+|true
+
+|Positive Color
+|customPositiveColor
+|String
+|
+|#428442
+|true
+
+|Negative Color
+|customNegativeColor
+|String
+|
+|#8a423c
+|true
+
+|Warning Color
+|customWarningColor
+|String
+|
+|#c89600
+|true
+
+|Favorite Color
+|customFavoriteColor
+|String
+|
+|#d1d179
+|true
+
+|Background Navigation Color
+|customBackgroundNavigation
+|String
+|
+|#252529
+|true
+
+|Background Accent Content Color
+|customBackgroundAccentContent
+|String
+|
+|#2A2A2E
+|true
+
+|Background Dropdown Color
+|customBackgroundDropdown
+|String
+|
+|#35353a
+|true
+
+|Background Content Color
+|customBackgroundContent
+|String
+|
+|#35353a
+|true
+
+|Background Modal Color
+|customBackgroundModal
+|String
+|
+|#252529
+|true
+
+|Background Slideout Color
+|customBackgroundSlideout
+|String
+|
+|#252529
+|true
+
+|Theme Spacing Mode
+|spacingMode
+|String
+a|Specifies the default theme spacing mode:
+
+* `Comfortable`
+* `Cozy`
+* `Compact`
+|Comfortable
+|true
+
+|Theme Zoom
+|zoomPercentage
+|Integer
+|Specifies the default theme zoom percentage.
+|100
+|true
+
+|===

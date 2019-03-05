@@ -1,0 +1,26 @@
+:title: Catalog UI Search Workspace Service
+:id: org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Catalog UI Search Workspace Service.
+
+.[[_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl]]Catalog UI Search Workspace Service
+[cols="1,1m,1,3,1m,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Maximum Subscriptions
+|maxSubscriptions
+|Integer
+|Specifies the maximum number of workspace subscriptions that may be queried for email notifications.
+|100
+|true
+
+|===
