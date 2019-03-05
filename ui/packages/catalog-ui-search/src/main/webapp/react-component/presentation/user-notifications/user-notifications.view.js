@@ -16,12 +16,12 @@ import React from 'react'
 import styled from '../../styles/styled-components'
 import withListenTo from '../../container/backbone-container'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
-var Backbone = require('backbone')
-var CustomElements = require('../../../js/CustomElements.js')
-var NotificationGroupView = require('../../../component/notification-group/notification-group.view.js')
-var user = require('../../../component/singletons/user-instance.js')
-var moment = require('moment')
-var userNotifications = require('../../../component/singletons/user-notifications.js')
+const Backbone = require('backbone')
+const CustomElements = require('../../../js/CustomElements.js')
+const NotificationGroupView = require('../../../component/notification-group/notification-group.view.js')
+const user = require('../../../component/singletons/user-instance.js')
+const moment = require('moment')
+const userNotifications = require('../../../component/singletons/user-notifications.js')
 
 const Empty = styled.div`
   transition: transform ${props => props.theme.coreTransitionTime} linear;
@@ -42,143 +42,62 @@ class UserNotifications extends React.Component {
   constructor(props) {
     super(props)
     this.state = userNotifications
-    this.props.listenTo(
-      userNotifications,
-      'add remove update',
-      this.updateState.bind(this)
+    this.props.listenTo(userNotifications, 'add remove update', () =>
+      this.setState(userNotifications)
     )
   }
   render() {
+    let notificationsList = []
+    for (let i = 0; i <= 8; i++) {
+      notificationsList.push(
+        <MarionetteRegionContainer
+          key={i.toString()}
+          view={this.listPreviousDays(i)}
+          viewOptions={{ replaceElement: true }}
+        />
+      )
+    }
     return userNotifications.isEmpty() ? (
       <Empty>
-        <div className="notifications-empty">No Notifications</div>
+        <div>No Notifications</div>
       </Empty>
     ) : (
-      <Notifications>
-        <MarionetteRegionContainer
-          classname="list-today"
-          view={this.listToday()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-one"
-          view={this.listPreviousOne()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-two"
-          view={this.listPreviousTwo()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-three"
-          view={this.listPreviousThree()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-four"
-          view={this.listPreviousFour()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-five"
-          view={this.listPreviousFive()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-six"
-          view={this.listPreviousSix()}
-          viewOptions={this.replaceElement()}
-        />
-        <MarionetteRegionContainer
-          classname="list-older"
-          view={this.listOlder()}
-          viewOptions={this.replaceElement()}
-        />
-      </Notifications>
+      <Notifications>{notificationsList}</Notifications>
     )
   }
-  updateState() {
-    this.setState(userNotifications)
+  listPreviousDays(numDays) {
+    if (numDays < 7) {
+      return new NotificationGroupView({
+        filter: model => {
+          return moment().diff(model.get('sentAt'), 'days') === numDays
+        },
+        date: this.informalName(numDays),
+      })
+    } else {
+      return new NotificationGroupView({
+        filter: model => {
+          return moment().diff(model.get('sentAt'), 'days') >= 7
+        },
+        date: 'Older',
+      })
+    }
   }
-  listToday() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 0
-      },
-      date: 'Today',
-    })
+  informalName(daysAgo) {
+    switch (daysAgo) {
+      case 0:
+        return 'Today'
+        break
+      case 1:
+        return 'Yesterday'
+        break
+      default:
+        return moment()
+          .subtract(daysAgo, 'days')
+          .format('dddd')
+        break
+    }
   }
-  listPreviousOne() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 1
-      },
-      date: 'Yesterday',
-    })
-  }
-  listPreviousTwo() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 2
-      },
-      date: moment()
-        .subtract(2, 'days')
-        .format('dddd'),
-    })
-  }
-  listPreviousThree() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 3
-      },
-      date: moment()
-        .subtract(3, 'days')
-        .format('dddd'),
-    })
-  }
-  listPreviousFour() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 4
-      },
-      date: moment()
-        .subtract(4, 'days')
-        .format('dddd'),
-    })
-  }
-  listPreviousFive() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 5
-      },
-      date: moment()
-        .subtract(5, 'days')
-        .format('dddd'),
-    })
-  }
-  listPreviousSix() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') === 6
-      },
-      date: moment()
-        .subtract(6, 'days')
-        .format('dddd'),
-    })
-  }
-  listOlder() {
-    return new NotificationGroupView({
-      filter: function(model) {
-        return moment().diff(model.get('sentAt'), 'days') >= 7
-      },
-      date: 'Older',
-    })
-  }
-  replaceElement() {
-    return { replaceElement: true }
-  }
-  onDestroy() {
+  componentWillUnmount() {
     userNotifications.setSeen()
     user
       .get('user')
