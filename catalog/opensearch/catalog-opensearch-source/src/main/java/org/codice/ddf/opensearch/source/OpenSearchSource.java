@@ -245,11 +245,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private void updateScheduler() {
     LOGGER.debug(
-        "Setting Availability poll task for {} minute(s) on Source {}", pollInterval, getId());
+        "Setting availability poll task for {} minute(s) on Source {}", pollInterval, getId());
 
     isAvailable = false;
 
     if (scheduler != null) {
+      LOGGER.debug("Cancelling availability poll task on Source {}", getId());
       scheduler.shutdownNow();
     }
 
@@ -278,12 +279,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           }
         },
         1,
-        pollInterval.longValue()*60L,
+        pollInterval.longValue() * 60L,
         TimeUnit.SECONDS);
   }
 
   public void destroy(int code) {
     if (scheduler != null) {
+      LOGGER.debug("Cancelling availability poll task on Source {}", getId());
       scheduler.shutdownNow();
     }
   }
