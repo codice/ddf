@@ -198,7 +198,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.VERSION, updatedSystemProperties, systemDotProperties);
-      updatePortProperty(systemDotProperties);
 
       systemDotProperties.save();
 
@@ -331,18 +330,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       systemDotProperties.put(key, value);
       System.setProperty(key, value);
     }
-  }
-
-  private void updatePortProperty(Properties systemDotProperties) {
-    String protocol = SystemBaseUrl.EXTERNAL.getProtocol();
-
-    String port = SystemBaseUrl.EXTERNAL.getHttpsPort();
-    if (protocol != null && protocol.equalsIgnoreCase(HTTP_PROTOCOL)) {
-      port = SystemBaseUrl.EXTERNAL.getHttpPort();
-    }
-
-    systemDotProperties.put(SystemBaseUrl.EXTERNAL_PORT, port);
-    System.setProperty(SystemBaseUrl.EXTERNAL_PORT, port);
   }
 
   private void configureMBean() {
