@@ -101,7 +101,7 @@ import spark.Spark;
  * objective of this test suite is to ensure serialization can handle any special character.
  */
 @RunWith(Parameterized.class)
-public class SearchFormsApplicationTest {
+public class SearchFormsSymbolsIT {
   /**
    * Set of symbols upon which to parameterize the tests; defined as they appear in a JSON document.
    */
@@ -187,7 +187,7 @@ public class SearchFormsApplicationTest {
   private final String formResponseJson;
 
   // Ctor necessary for parameterization
-  public SearchFormsApplicationTest(String symbolUnderTest) {
+  public SearchFormsSymbolsIT(String symbolUnderTest) {
     this.requestCaptor = ArgumentCaptor.forClass(CreateRequest.class);
     StrSubstitutor substitutor =
         new StrSubstitutor(ImmutableMap.of("value", "hello" + symbolUnderTest));

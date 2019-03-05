@@ -487,6 +487,18 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.pax-exam-compatible.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <pax.exam.karaf.version>${karaf.version}</pax.exam.karaf.version>
+                        <component.artifactId>${project.artifactId}</component.artifactId>
+                        <component.version>${project.version}</component.version>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
