@@ -33,7 +33,7 @@ function getMinIndex(selectionInterface) {
 }
 
 const doubleClickTime = 500 // how soon a user has to click for it to be a double click
-const textSelectionTime = 200 // how long a user has to hold down mousebutton for us to recognize it as wanting to do text selection
+const textSelectionTime = 500 // how long a user has to hold down mousebutton for us to recognize it as wanting to do text selection
 
 Behaviors.addBehavior(
   'selection',
