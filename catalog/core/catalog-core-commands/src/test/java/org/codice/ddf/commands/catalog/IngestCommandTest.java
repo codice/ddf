@@ -17,14 +17,18 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeFalse;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.transform.InputTransformer;
+import java.io.InputStream;
 import java.util.ArrayList;
 import org.apache.commons.lang3.SystemUtils;
+import org.codice.ddf.commands.util.DigitalSignature;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,9 +44,20 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
 
   IngestCommand ingestCommand;
 
+  private DigitalSignature verifier;
+
   @Before
   public void setup() throws Exception {
-    ingestCommand = new IngestCommand();
+    this.verifier = mock(DigitalSignature.class);
+
+    when(verifier.createDigitalSignature(
+            any(InputStream.class), any(String.class), any(String.class)))
+        .thenReturn(new byte[0]);
+    doReturn(true)
+        .when(verifier)
+        .verifyDigitalSignature(any(InputStream.class), any(InputStream.class), any(String.class));
+
+    ingestCommand = new IngestCommand(verifier);
     ingestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
 
     BundleContext bundleContext = mock(BundleContext.class);

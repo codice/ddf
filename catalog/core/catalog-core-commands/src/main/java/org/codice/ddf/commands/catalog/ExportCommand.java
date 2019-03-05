@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -24,6 +25,7 @@ import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
@@ -37,6 +39,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,8 +47,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -62,7 +63,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -74,14 +74,15 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
+import org.codice.ddf.commands.util.DigitalSignature;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,11 +104,11 @@ public class ExportCommand extends CqlCommands {
   private static final DateTimeFormatter FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
-  private static final Supplier<String> FILE_NAMER =
-      () ->
+  private static final Function<String, String> FILE_NAMER =
+      ext ->
           String.format(
-              "export-%s.zip",
-              LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).format(FORMATTER));
+              "export-%s.%s",
+              LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).format(FORMATTER), ext);
 
   private static final int PAGE_SIZE = 64;
 
@@ -119,8 +120,6 @@ public class ExportCommand extends CqlCommands {
 
   private Filter revisionFilter;
 
-  private JarSigner jarSigner = new JarSigner();
-
   private static final String SECURITY_AUDIT_DELIMITER = ", ";
 
   //  Number of bytes that can be sent is 65,507 (due to udp constraints). This gives a
@@ -128,6 +127,8 @@ public class ExportCommand extends CqlCommands {
   private static final int LOG4J_MAX_BUF_SIZE = 63505;
 
   @Reference protected StorageProvider storageProvider;
+
+  private DigitalSignature signer;
 
   @Option(
     name = "--output",
@@ -137,7 +138,7 @@ public class ExportCommand extends CqlCommands {
     required = false,
     aliases = {"-o"}
   )
-  String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.get()).toString();
+  String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.apply("zip")).toString();
 
   @Option(
     name = "--delete",
@@ -173,6 +174,21 @@ public class ExportCommand extends CqlCommands {
         "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security."
   )
   boolean unsafe = false;
+
+  public ExportCommand() {
+    this.signer = new DigitalSignature();
+  }
+
+  public ExportCommand(
+      FilterBuilder filterBuilder,
+      BundleContext bundleContext,
+      CatalogFramework catalogFramework,
+      DigitalSignature signer) {
+    this.filterBuilder = filterBuilder;
+    this.bundleContext = bundleContext;
+    this.catalogFramework = catalogFramework;
+    this.signer = signer;
+  }
 
   @Override
   protected Object executeWithSubject() throws Exception {
@@ -219,7 +235,7 @@ public class ExportCommand extends CqlCommands {
     File initialOutputFile = new File(output);
     if (initialOutputFile.isDirectory()) {
       // If directory was specified, auto generate file name
-      resolvedOutput = Paths.get(initialOutputFile.getPath(), FILE_NAMER.get()).toString();
+      resolvedOutput = Paths.get(initialOutputFile.getPath(), FILE_NAMER.apply("zip")).toString();
     } else {
       resolvedOutput = output;
     }
@@ -295,18 +311,28 @@ public class ExportCommand extends CqlCommands {
     SecurityLogger.audit("Signing exported data. file: [{}]", outputFile.getName());
     console.println("Signing zip file...");
     Instant start = Instant.now();
-    jarSigner.signJar(
-        outputFile,
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST)),
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")),
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStore")),
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("javax.net.ssl.keyStorePassword")));
 
-    console.println("zip file signed in: " + getFormattedDuration(start));
+    try {
+      String alias = System.getProperty(SystemBaseUrl.EXTERNAL_HOST);
+      String password = System.getProperty("javax.net.ssl.keyStorePassword");
+
+      byte[] signature =
+          signer.createDigitalSignature(new FileInputStream(outputFile), alias, password);
+
+      if (signature != null) {
+        String signatureFilepath =
+            Paths.get(System.getProperty("ddf.home"), FILE_NAMER.apply("sig")).toString();
+        FileUtils.writeByteArrayToFile(new File(signatureFilepath), signature);
+
+        console.println("zip file signed in: " + getFormattedDuration(start));
+      } else {
+        console.println("An error occurred while signing export");
+      }
+    } catch (CatalogCommandRuntimeException | IOException e) {
+      String message = "Unable to sign export of data";
+      LOGGER.debug(message, e);
+      console.println(message);
+    }
   }
 
   private void auditRecords(List<ExportItem> exportedItems) {

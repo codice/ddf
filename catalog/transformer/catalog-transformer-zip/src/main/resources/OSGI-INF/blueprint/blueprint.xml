@@ -35,9 +35,7 @@
         <argument ref="blueprintBundleContext"/>
     </bean>
 
-    <bean id="zipDecompression" class="org.codice.ddf.catalog.transformer.zip.ZipDecompression">
-        <property name="zipValidator" ref="zipValidation" />
-    </bean>
+    <bean id="zipDecompression" class="org.codice.ddf.catalog.transformer.zip.ZipDecompression"/>
 
     <service interface="ddf.catalog.transform.QueryResponseTransformer" ref="zipCompression">
         <service-properties>
