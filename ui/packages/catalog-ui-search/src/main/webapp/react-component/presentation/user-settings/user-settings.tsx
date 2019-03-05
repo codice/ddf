@@ -10,7 +10,7 @@
  *
  **/
 import * as React from 'react'
-const ThemeSettings = require('../../../component/theme-settings/theme-settings.view.js')
+import ThemeSettings from '../../container/theme-settings'
 import AlertSettings from '../../container/alert-settings'
 const MapSettings = require('../../../component/layers/layers.view.js')
 const SearchSettings = require('../../../component/search-settings/search-settings.view.js')
@@ -112,9 +112,7 @@ class UserSettings extends React.Component<Props, State> {
             text="Theme"
             icon="fa fa-paint-brush"
             onClick={() => {
-              this.updateComponent(
-                <MarionetteRegionContainer view={ThemeSettings} />
-              )
+              this.updateComponent(<ThemeSettings />)
             }}
             disabled={Boolean(component)}
           />
