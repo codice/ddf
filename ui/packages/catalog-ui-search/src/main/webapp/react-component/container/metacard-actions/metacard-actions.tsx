@@ -20,45 +20,36 @@ type Props = {
   selectionInterface: any
 }
 
-type State = {
-  model: Backbone.Model
-  exportActions: any
-  otherActions: any
-}
-
-class MetacardActions extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-
-    let model
-    if (props.selectionInterface) {
-      model = props.selectionInterface.getSelectedResults().first()
-    } else {
-      model = store.getSelectedResults().first()
-    }
-
-    this.state = {
-      model: model,
-      exportActions: _.sortBy(
-        model.getExportActions().map((action: any) => ({
-          url: action.get('url'),
-          title: action.getExportType(),
-        })),
-        (action: any) => action.title.toLowerCase()
-      ),
-      otherActions: _.sortBy(
-        model.getOtherActions().map((action: any) => ({
-          url: action.get('url'),
-          title: action.get('title'),
-        })),
-        (action: any) => action.title.toLowerCase()
-      ),
-    }
+const MetacardActions = (props: Props) => {
+  let model
+  if (props.selectionInterface) {
+    model = props.selectionInterface.getSelectedResults().first()
+  } else {
+    model = store.getSelectedResults().first()
   }
 
-  render() {
-    return <MetacardActionsPresentation {...this.state} />
-  }
+  const exportActions = _.sortBy(
+    model.getExportActions().map((action: any) => ({
+      url: action.get('url'),
+      title: action.getExportType(),
+    })),
+    (action: any) => action.title.toLowerCase()
+  )
+  const otherActions = _.sortBy(
+    model.getOtherActions().map((action: any) => ({
+      url: action.get('url'),
+      title: action.get('title'),
+    })),
+    (action: any) => action.title.toLowerCase()
+  )
+
+  return (
+    <MetacardActionsPresentation
+      model={model}
+      exportActions={exportActions}
+      otherActions={otherActions}
+    />
+  )
 }
 
 export default hot(module)(MetacardActions)

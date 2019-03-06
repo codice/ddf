@@ -13,7 +13,6 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled from '../../styles/styled-components'
-import { has } from 'openlayers'
 
 type Props = {
   overlayActions: any
