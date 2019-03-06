@@ -15,22 +15,8 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import View from '../../presentation/result-filter'
-import * as user from '../../../component/singletons/user-instance'
-import * as cql from '../../../js/cql'
 
-const RESULT_FITLER_PROPERTY = 'resultFilter'
-
-type UserPreferences = {
-  get: (key: string) => any
-  set: (key: string, value: any) => void
-  savePreferences: () => void
-}
-
-const getUserPreferences = (): UserPreferences =>
-  user.get('user').get('preferences')
-
-const getResultFilter = (): Boolean =>
-  getUserPreferences().get(RESULT_FITLER_PROPERTY)
+const cql = require('../../../js/cql')
 
 const getDeserializableFilter = (resultFilter: any) => {
   if (!!resultFilter) return cql.simplify(cql.read(resultFilter))
@@ -42,32 +28,19 @@ const getDeserializableFilter = (resultFilter: any) => {
   }
 }
 
-const onSaveFilter = (transformedCql: {}) => {
-  getUserPreferences().set(RESULT_FITLER_PROPERTY, transformedCql)
-  getUserPreferences().savePreferences()
-}
-
-const onRemoveFilter = () => {
-  getUserPreferences().set(RESULT_FITLER_PROPERTY, undefined)
-  getUserPreferences().savePreferences()
-}
-
 export default hot(module)((props: any) => {
   const {
-    saveFilter = onSaveFilter,
-    removeFilter = onRemoveFilter,
-    hasFilter = !!getResultFilter(),
+    saveFilter,
+    removeFilter,
+    hasFilter = false,
     resultFilter,
     isList = false,
     ...rest
   } = props
-  const formattedResultFilter = !!resultFilter
-    ? getDeserializableFilter(resultFilter)
-    : getDeserializableFilter(getResultFilter())
   return (
     <View
       hasFilter={hasFilter}
-      resultFilter={formattedResultFilter}
+      resultFilter={getDeserializableFilter(resultFilter)}
       saveFilter={saveFilter}
       removeFilter={removeFilter}
       isList={isList}

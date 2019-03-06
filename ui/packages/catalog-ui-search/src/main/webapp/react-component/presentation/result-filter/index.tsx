@@ -18,9 +18,9 @@ import styled from '../../styles/styled-components'
 
 import { Button, buttonTypeEnum } from '../button'
 
-import MarionetteRegionContainer from '../../container/marionette-region-container'
-import * as FilterBuilderView from '../../../component/filter-builder/filter-builder.view'
-import * as FilterBuilderModel from '../../../component/filter-builder/filter-builder'
+import { MarionetteRegionContainer } from '../../container/marionette-region-container'
+
+const FilterBuilderView = require('../../../component/filter-builder/filter-builder.view')
 
 type Props = {
   removeFilter: () => void
@@ -30,85 +30,107 @@ type Props = {
   isList?: Boolean
 }
 
-const Root = styled<Props, 'div'>('div')`
+type State = {
+  filterCqlCallback: () => any
+  resultFilter?: {}
+}
+
+type BuilderView = {
+  turnOnEditing: () => void
+  turnOffNesting: () => void
+  transformToCql: () => string
+}
+
+const Root = styled.div`
   display: block;
   padding: ${props => props.theme.minimumSpacing};
 `
 
-const EditorFooter = styled<Props, 'div'>('div')`
+const EditorFooter = styled.div`
   padding-top: 30px;
   white-space: nowrap;
-
-  button {
-    display: inline-block;
-    width: ${props => (props.hasFilter && '49%') || '100%'};
-    ${props => props.hasFilter && 'margin-right: 1%;'};
-  }
-
-  .footer-remove {
-    display: ${props => (props.hasFilter && 'inline-block') || 'none'};
-  }
 `
 
-class View extends React.Component<Props, { filterCqlCallback: () => any }> {
-  view: any
+const SaveButtonStyle = (props: Props) =>
+  ({
+    display: 'inline-block',
+    width: (props.hasFilter && '50%') || '100%',
+  } as React.CSSProperties)
+
+const RemoveButtonStyle = {
+  display: 'inline-block',
+  width: '49%',
+  marginRight: '1%',
+} as React.CSSProperties
+
+class BuilderViewRegionContainer extends MarionetteRegionContainer {
+  onceInDOM(callback: () => void) {
+    const view = this.props.view
+
+    super.onceInDOM(() => {
+      callback()
+      view.turnOnEditing()
+      view.turnOffNesting()
+    })
+  }
+}
+
+class View extends React.Component<Props, State> {
+  view: BuilderView
   constructor(props: Props) {
     super(props)
     this.state = {
       filterCqlCallback: () => {},
+      resultFilter: props.resultFilter,
     }
   }
 
-  onViewBind = (view: any) => {
-    this.view = view
+  getOrCreateFilterBuilderView = () => {
+    if (!this.view)
+      this.view = new FilterBuilderView({
+        filter: this.state.resultFilter,
+        isResultFilter: true,
+      })
 
-    this.view.turnOnEditing()
-    this.view.turnOffNesting()
-    this.props.resultFilter && this.view.deserialize(this.props.resultFilter)
-
-    this.setState({
-      filterCqlCallback: this.view.transformToCql.bind(this.view),
-    })
+    return this.view
   }
+
+  componentDidMount = async () =>
+    this.setState({
+      filterCqlCallback: this.getOrCreateFilterBuilderView().transformToCql.bind(
+        this.getOrCreateFilterBuilderView()
+      ),
+    })
 
   onSave = () => {
     this.props.saveFilter(this.state.filterCqlCallback())
   }
 
-  render = () => {
-    return (
-      <Root
-        {...this.props}
-        className={`result-filter ${this.props.hasFilter && 'has-filter'} ${this
-          .props.isList && 'is-list'}`}
-      >
-        <div className="editor-properties">
-          <MarionetteRegionContainer
-            className="editor-properties"
-            view={FilterBuilderView}
-            bindView={this.onViewBind.bind(this)}
-            viewOptions={{
-              model: new FilterBuilderModel({ isResultFilter: true }),
-            }}
-          />
-        </div>
-        <EditorFooter {...this.props}>
+  render = () => (
+    <Root
+      {...this.props}
+      className={`result-filter ${this.props.hasFilter && 'has-filter'} ${this
+        .props.isList && 'is-list'}`}
+    >
+      <BuilderViewRegionContainer view={this.getOrCreateFilterBuilderView()} />
+      <EditorFooter>
+        {this.props.hasFilter && (
           <Button
-            className="footer-remove"
+            rootStyle={RemoveButtonStyle}
             buttonType={buttonTypeEnum.negative}
             text="Remove Filter"
             onClick={this.props.removeFilter}
           />
-          <Button
-            className="footer-save"
-            buttonType={buttonTypeEnum.positive}
-            text="Save Filter"
-            onClick={this.onSave.bind(this)}
-          />
-        </EditorFooter>
-      </Root>
-    )
-  }
+        )}
+        <Button
+          rootStyle={SaveButtonStyle(this.props)}
+          buttonType={buttonTypeEnum.positive}
+          text="Save Filter"
+          onClick={this.onSave.bind(this)}
+        />
+      </EditorFooter>
+    </Root>
+  )
 }
 
 export default hot(module)(View)

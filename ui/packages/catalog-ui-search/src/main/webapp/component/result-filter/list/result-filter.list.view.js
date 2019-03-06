@@ -14,7 +14,7 @@
  **/
 
 import React from 'react'
-import View from '../../../react-component/container/result-filter'
+import ResultFilterView from '../../../react-component/container/result-filter'
 import Marionette from 'marionette'
 import CustomElements from '../../../js/CustomElements'
 
@@ -33,13 +33,12 @@ const saveFilter = (model, closeAction) => transformedCql => {
 module.exports = Marionette.LayoutView.extend({
   template() {
     return (
-      <View
+      <ResultFilterView
         removeFilter={removeFilter(this.model, closeDropdown(this.$el))}
         saveFilter={saveFilter(this.model, closeDropdown(this.$el))}
         hasFilter={!!this.model.get('value')}
         resultFilter={this.model.get('value')}
         isList={true}
-        {...this}
       />
     )
   },

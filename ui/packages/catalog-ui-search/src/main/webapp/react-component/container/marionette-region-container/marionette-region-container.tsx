@@ -21,7 +21,6 @@ type Props = {
   replaceElement?: boolean
   className?: string
   style?: React.CSSProperties
-  bindView?: (view: any) => void
 } & React.HTMLProps<HTMLDivElement> &
   JSX.IntrinsicAttributes
 
@@ -29,81 +28,75 @@ const RegionContainer = styled.div`
   width: 100%;
   height: 100%;
 `
-export default hot(module)(
-  class MarionetteRegionContainer extends React.Component<Props, {}> {
-    constructor(props: Props) {
-      super(props)
-    }
-    checkForElement: number
-    region: any
-    regionRef = React.createRef()
-    showComponentInRegion() {
-      if (this.props.view._isMarionetteView) {
-        this.region.show(this.props.view, {
-          replaceElement: this.props.replaceElement,
-        })
-        this.props.bindView && this.props.bindView(this.props.view)
-      } else {
-        const viewInstance = new this.props.view(this.props.viewOptions)
-        this.region.show(viewInstance, {
-          replaceElement: this.props.replaceElement,
-        })
-        this.props.bindView && this.props.bindView(viewInstance)
-      }
-    }
-    onceInDOM(callback: () => void) {
-      clearInterval(this.checkForElement)
-      this.checkForElement = window.setInterval(() => {
-        if (document.body.contains(this.regionRef.current as Node)) {
-          clearInterval(this.checkForElement)
-          callback()
-        }
-      }, intervalToCheck)
-    }
-    handleViewChange() {
-      this.resetRegion()
-      this.onceInDOM(() => {
-        this.showComponentInRegion()
+export class MarionetteRegionContainer extends React.Component<Props, {}> {
+  constructor(props: Props) {
+    super(props)
+  }
+  checkForElement: number
+  region: any
+  regionRef = React.createRef()
+  showComponentInRegion() {
+    if (this.props.view._isMarionetteView) {
+      this.region.show(this.props.view, {
+        replaceElement: this.props.replaceElement,
       })
-    }
-    // we might need to update this to account for more scenarios later
-    componentDidUpdate(prevProps: Props) {
-      if (this.region && this.props.view !== prevProps.view) {
-        this.handleViewChange()
-      }
-    }
-    componentDidMount() {
-      this.onceInDOM(() => {
-        this.region = new Marionette.Region({
-          el: this.regionRef.current,
-        })
-        this.showComponentInRegion()
+    } else {
+      this.region.show(new this.props.view(this.props.viewOptions), {
+        replaceElement: this.props.replaceElement,
       })
-    }
-    resetRegion() {
-      if (this.region) {
-        this.region.empty()
-      }
-    }
-    componentWillUnmount() {
-      clearInterval(this.checkForElement)
-      if (this.region) {
-        this.region.empty()
-        this.region.destroy()
-      }
-    }
-    render() {
-      const { className, style, ...otherProps } = this.props
-      return (
-        <RegionContainer
-          className={`marionette-region-container ${
-            className ? className : ''
-          }`}
-          innerRef={this.regionRef as any}
-          style={style as any}
-          {...otherProps as JSX.IntrinsicAttributes}
-        />
-      )
     }
   }
-)
+  onceInDOM(callback: () => void) {
+    clearInterval(this.checkForElement)
+    this.checkForElement = window.setInterval(() => {
+      if (document.body.contains(this.regionRef.current as Node)) {
+        clearInterval(this.checkForElement)
+        callback()
+      }
+    }, intervalToCheck)
+  }
+  handleViewChange() {
+    this.resetRegion()
+    this.onceInDOM(() => {
+      this.showComponentInRegion()
+    })
+  }
+  // we might need to update this to account for more scenarios later
+  componentDidUpdate(prevProps: Props) {
+    if (this.region && this.props.view !== prevProps.view) {
+      this.handleViewChange()
+    }
+  }
+  componentDidMount() {
+    this.onceInDOM(() => {
+      this.region = new Marionette.Region({
+        el: this.regionRef.current,
+      })
+      this.showComponentInRegion()
+    })
+  }
+  resetRegion() {
+    if (this.region) {
+      this.region.empty()
+    }
+  }
+  componentWillUnmount() {
+    clearInterval(this.checkForElement)
+    if (this.region) {
+      this.region.empty()
+      this.region.destroy()
+    }
+  }
+  render() {
+    const { className, style, ...otherProps } = this.props
+    return (
+      <RegionContainer
+        className={`marionette-region-container ${className ? className : ''}`}
+        innerRef={this.regionRef as any}
+        style={style as any}
+        {...otherProps as JSX.IntrinsicAttributes}
+      />
+    )
+  }
+}
+export default hot(module)(MarionetteRegionContainer)

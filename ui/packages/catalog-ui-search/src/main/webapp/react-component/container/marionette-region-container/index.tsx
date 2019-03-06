@@ -1,1 +1,4 @@
-export { default } from './marionette-region-container'
+export {
+  default,
+  MarionetteRegionContainer,
+} from './marionette-region-container'
