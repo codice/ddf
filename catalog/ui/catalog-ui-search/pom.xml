@@ -367,6 +367,12 @@
             <artifactId>catalog-core-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.thirdparty</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -479,6 +485,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.pax-exam-compatible.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <pax.exam.karaf.version>${karaf.version}</pax.exam.karaf.version>
+                        <component.artifactId>${project.artifactId}</component.artifactId>
+                        <component.version>${project.version}</component.version>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
