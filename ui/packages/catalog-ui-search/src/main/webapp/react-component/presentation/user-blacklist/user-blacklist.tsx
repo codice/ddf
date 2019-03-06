@@ -35,7 +35,7 @@ const collapseAnimation = keyframes`
   }
 `
 
-const EmptyBlacklist = styled<Props, 'div'>('div')`
+const EmptyBlacklist = styled.div`
   white-space: normal;
   padding: ${props => props.theme.minimumSpacing};
   text-align: center;
@@ -46,6 +46,16 @@ const EmptyBlacklist = styled<Props, 'div'>('div')`
 `
 
 const ItemsWrapper = styled<Props, 'div'>('div')`
+  > *,
+  > * > td {
+    border-top: 1px solid rgba(255, 255, 255, 10%);
+    border-bottom: 1px solid rgba(255, 255, 255, 10%);
+  }
+  > *:hover,
+  > *:hover > td {
+    border-top: 1px solid rgba(255, 255, 255, 20%);
+    border-bottom: 1px solid rgba(255, 255, 255, 20%);
+  }
   overflow: hidden;
   ${props =>
     props.clearing
@@ -62,7 +72,7 @@ type Props = {
 
 const Blacklist = (props: Props) => {
   return (
-    <div>
+    <React.Fragment>
       <Button
         icon="fa fa-eye"
         buttonType={buttonTypeEnum.neutral}
@@ -71,25 +81,23 @@ const Blacklist = (props: Props) => {
         text="Unhide All"
       />
       <ItemsWrapper {...props}>
-        <div className="is-list has-list-highlighting">
-          {props.blacklist.map(item => {
-            return <BlacklistItemContainer key={item.id} item={item} />
-          })}
-        </div>
+        {props.blacklist.map(item => {
+          return <BlacklistItemContainer key={item.id} item={item} />
+        })}
       </ItemsWrapper>
-    </div>
+    </React.Fragment>
   )
 }
 
 const UserBlacklistPresentation = (props: Props) => {
   return (
-    <div>
+    <React.Fragment>
       {props.blacklist.length !== 0 ? (
         <Blacklist {...props} />
       ) : (
-        <EmptyBlacklist {...props}>Nothing hidden.</EmptyBlacklist>
+        <EmptyBlacklist>Nothing hidden.</EmptyBlacklist>
       )}
-    </div>
+    </React.Fragment>
   )
 }
 

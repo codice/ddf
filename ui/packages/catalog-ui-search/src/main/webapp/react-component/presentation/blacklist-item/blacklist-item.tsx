@@ -48,7 +48,7 @@ const Root = styled<Props, 'div'>('div')`
       : ''};
 `
 
-const ItemDetails = styled<Props, 'div'>('div')`
+const ItemDetails = styled.div`
   vertical-align: top;
   padding: 0px ${props => props.theme.minimumSpacing};
   text-align: center;
@@ -64,9 +64,7 @@ const ItemDetails = styled<Props, 'div'>('div')`
 const BlacklistItemPresentation = (props: Props) => {
   return (
     <Root {...props}>
-      <ItemDetails {...props} onClick={props.navigate}>
-        {props.itemTitle}
-      </ItemDetails>
+      <ItemDetails onClick={props.navigate}>{props.itemTitle}</ItemDetails>
       <Button
         style={{ float: 'right' }}
         icon="fa fa-eye"

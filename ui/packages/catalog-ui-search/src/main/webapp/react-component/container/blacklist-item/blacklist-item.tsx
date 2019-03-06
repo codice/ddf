@@ -54,8 +54,8 @@ class BlacklistItemContainer extends React.Component<Props, State> {
   render() {
     return (
       <BlacklistItemPresentation
-        navigate={this.navigateToItem}
-        remove={this.removeFromBlacklist}
+        navigate={() => this.navigateToItem()}
+        remove={() => this.removeFromBlacklist()}
         itemTitle={this.props.item.get('title')}
         clearing={this.state.clearing}
       />
