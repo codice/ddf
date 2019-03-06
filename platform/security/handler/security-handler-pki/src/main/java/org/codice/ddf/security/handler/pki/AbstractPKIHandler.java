@@ -19,6 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -95,7 +96,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
     // CRL was specified, check against CRL and return the result or throw a ServletException to the
     // WebSSOFilter
-    if (crlChecker.passesCrlCheck(certs) && ocspService.passesOcspChecker(certs)) {
+    if (crlChecker.passesCrlCheck(certs) && ocspService.passesOcspCheck(certs)) {
       handlerResult.setToken(token);
       handlerResult.setStatus(HandlerResult.Status.COMPLETED);
     } else {

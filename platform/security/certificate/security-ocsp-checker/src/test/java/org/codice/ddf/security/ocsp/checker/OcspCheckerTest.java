@@ -11,9 +11,8 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.handler.pki;
+package org.codice.ddf.security.ocsp.checker;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -73,13 +72,14 @@ public class OcspCheckerTest {
 
     Certificate certificate = ocspChecker.convertToBouncyCastleCert(x509Certificate);
     assertNotNull(certificate);
-    assertEquals(x509Certificate.getSerialNumber(), certificate.getSerialNumber().getValue());
-    assertEquals(x509Certificate.getNotAfter(), certificate.getEndDate().getDate());
-    assertEquals(x509Certificate.getNotBefore(), certificate.getStartDate().getDate());
+    Assert.assertEquals(
+        x509Certificate.getSerialNumber(), certificate.getSerialNumber().getValue());
+    Assert.assertEquals(x509Certificate.getNotAfter(), certificate.getEndDate().getDate());
+    Assert.assertEquals(x509Certificate.getNotBefore(), certificate.getStartDate().getDate());
 
     X500Principal subjectX500Principal = x509Certificate.getSubjectX500Principal();
     X500Name x500name = new X500Name(subjectX500Principal.getName(X500Principal.RFC1779));
-    assertEquals(x500name, certificate.getIssuer());
+    Assert.assertEquals(x500name, certificate.getIssuer());
   }
 
   @Test
@@ -179,7 +179,7 @@ public class OcspCheckerTest {
     X509Certificate x509Certificate = getX509Certificate();
     X509Certificate[] x509CertificateArray = {x509Certificate};
 
-    boolean ocspCheckPasses = ocspChecker.passesOcspChecker(x509CertificateArray);
+    boolean ocspCheckPasses = ocspChecker.passesOcspCheck(x509CertificateArray);
     verify(eventAdmin, times(1)).postEvent(any());
     assertTrue(ocspCheckPasses);
   }
@@ -190,7 +190,7 @@ public class OcspCheckerTest {
     ocspChecker.setOcspEnabled(true);
     ocspChecker.setOcspServerUrl("http://testurl:8993");
 
-    boolean ocspCheckPasses = ocspChecker.passesOcspChecker(null);
+    boolean ocspCheckPasses = ocspChecker.passesOcspCheck(null);
     verify(eventAdmin, times(1)).postEvent(any());
     assertTrue(ocspCheckPasses);
   }

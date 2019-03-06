@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.handler.pki;
+package org.codice.ddf.security;
 
 import java.security.cert.X509Certificate;
 
@@ -23,5 +23,5 @@ public interface OcspService {
    * @param certs - an array of certificates to verify
    * @return true if the certificates are not revoked, false if any of them are revoked.
    */
-  boolean passesOcspChecker(X509Certificate[] certs);
+  boolean passesOcspCheck(X509Certificate[] certs);
 }

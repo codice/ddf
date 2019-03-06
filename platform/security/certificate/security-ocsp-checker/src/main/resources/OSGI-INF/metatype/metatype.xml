@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
     <OCD name="Online Certificate Status Protocol (OCSP)"
-         id="org.codice.ddf.security.handler.pki.OcspChecker">
+         id="org.codice.ddf.security.ocsp.checker.OcspChecker">
         <AD name="Enable validating a certificate against an OCSP server"
             id="ocspEnabled"
             description="Enables validating a certificate against an Online Certificate Status Protocol (OCSP) server."
@@ -28,7 +28,7 @@
             default=""
             description="Sets the Online Certificate Status Protocol (OCSP) server address."/>
     </OCD>
-    <Designate pid="org.codice.ddf.security.handler.pki.OcspChecker">
-        <Object ocdref="org.codice.ddf.security.handler.pki.OcspChecker"/>
+    <Designate pid="org.codice.ddf.security.ocsp.checker.OcspChecker">
+        <Object ocdref="org.codice.ddf.security.ocsp.checker.OcspChecker"/>
     </Designate>
 </metatype:MetaData>
