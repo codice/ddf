@@ -745,10 +745,11 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(500));
 
-    String unavailableOpenSourceId = "Unavailable OpenSearchSource";
+    String unavailableOpenSourceId = "unavailableOpenSearchSource";
 
     OpenSearchFeature.createManagedService(
         getServiceManager(), unavailableOpenSourceId, "bad", "auth");
+    getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
     String unavailableOpenSearchQuery =
         SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
