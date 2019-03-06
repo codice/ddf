@@ -13,7 +13,7 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 const wreqr = require('../../../js/wreqr.js')
-const _ = require('underscore')
+import MapActionsPresentation from '../../presentation/map-actions'
 
 type Props = {
   model: Backbone.Model
@@ -23,8 +23,8 @@ type State = {
   currentOverlayUrl: string
 }
 
-const getActionsWithIdPrefix = (actions: any, id: any) => {
-  return actions.filter((action: any) => action.get('id').indexOf(id) === 0)
+const getActionsWithIdPrefix = (actions: any, id: string) => {
+  return actions.filter((action: any) => action.get('id').startsWith(id))
 }
 
 class MapActions extends React.Component<Props, State> {
@@ -53,7 +53,7 @@ class MapActions extends React.Component<Props, State> {
       'catalog.data.metacard.map.overlay.'
     )
 
-    return _.map(modelOverlayActions, (modelOverlayAction: any) => {
+    return modelOverlayActions.map((modelOverlayAction: any) => {
       return {
         description: modelOverlayAction.get('description'),
         url: modelOverlayAction.get('url'),
@@ -98,37 +98,17 @@ class MapActions extends React.Component<Props, State> {
         .set('currentOverlayUrl', clickedOverlayUrl)
       wreqr.vent.trigger('metacard:overlay', this.props.model.get('metacard'))
     }
-    this.render()
   }
 
   render() {
-    const { currentOverlayUrl } = this.state
+    const hasMapActions = this.getMapActions().length !== 0
     return (
-      this.getMapActions().length !== 0 && (
-        <>
-          <div className="is-header">Map:</div>
-          <div className="is-divider" />
-          <div className="actions">
-            {this.getOverlayActions().map((overlayAction: any) => {
-              return (
-                <a
-                  style={{
-                    cursor: 'pointer',
-                  }}
-                  data-url={overlayAction.url}
-                  title={overlayAction.description}
-                  onClick={this.overlayImage}
-                  key={overlayAction.url}
-                >
-                  {overlayAction.overlayText}
-                  {overlayAction.url === currentOverlayUrl ? ' (remove)' : ''}
-                </a>
-              )
-            })}
-          </div>
-          <div className="is-divider" />
-        </>
-      )
+      <MapActionsPresentation
+        hasMapActions={hasMapActions}
+        overlayActions={this.getOverlayActions()}
+        currentOverlayUrl={this.state.currentOverlayUrl}
+        overlayImage={this.overlayImage}
+      />
     )
   }
 }
