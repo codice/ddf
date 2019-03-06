@@ -278,7 +278,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             isAvailable = availabilityCheck();
           }
         },
-        1,
+        0,
         pollInterval,
         TimeUnit.MINUTES);
   }
