@@ -21,7 +21,6 @@ const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
 import LayerItem from '../../react-component/container/layer-item'
-var User = require('../../js/model/User.js')
 
 const LayerItemView = Marionette.ItemView.extend({
   template() {

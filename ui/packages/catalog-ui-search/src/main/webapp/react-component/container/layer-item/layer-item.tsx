@@ -33,7 +33,7 @@ export interface Visibility {
 }
 
 export interface Actions {
-  updateLayerShow: (newValue: boolean) => void
+  updateLayerShow: () => void
   // updateLayerAlpha : () => void
   // moveDown : (e: any) => void
   // moveUp : (e: any) => void
@@ -82,13 +82,15 @@ class LayerItem extends React.Component<Props, State> {
     this.setState(mapPropsToState(this.props))
   }
 
-  updateLayerShow = (newValue: boolean) => {
-    this.props.layer.set('show', newValue)
+  updateLayerShow = () => {
+      const show = this.state.visibility.show
+    this.props.layer.set('show', !show)
   }
-
+  
+  actions = { updateLayerShow: this.updateLayerShow }
+    
   render() {
-    const actions = { updateLayerShow: this.updateLayerShow }
-    const props = { ...this.state, actions }
+    const props = { ...this.state, actions: this.actions  }
     return <LayerItemPresentation {...props} />
   }
 }

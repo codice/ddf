@@ -12,15 +12,8 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { GrabCursor, IsButton, HighlightBehavior } from '../../styles/mixins'
-import { Order, Visibility, Actions } from '../../container/layer-item'
-
-type Props = {
-  name: string
-  order: Order
-  visibility: Visibility
-  actions: Actions
-}
+import { Props, GrabCursor, IsButton, HighlightBehavior } from '.'
+import Interactions from './interactions'
 
 const Root = styled.div`
   display: block;
@@ -83,43 +76,6 @@ const LayerAlpha = styled.input`
   vertical-align: middle;
 `
 
-const LayerInteractions = styled.div`
-  text-align: right;
-`
-
-const LayerInteractionsButton = styled.button`
-  ${props => IsButton(props.theme)};
-  width: ${props => props.theme.minimumButtonSize};
-  height: ${props => props.theme.minimumButtonSize};
-  vertical-align: top;
-`
-
-const LayerWarning = styled(LayerInteractionsButton)`
-  display: none;
-`
-
-const LayerRemove = styled(LayerInteractionsButton)`
-  display: none;
-`
-const LayerShow = styled(LayerInteractionsButton)`
-  position: relative;
-  display: inline-block !important;
-  vertical-align: middle;
-`
-
-const LayerShowIcon = styled.span`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
-`
-const Faeye = styled(LayerShowIcon)`
-  display: none;
-`
-const Faeyeslash = styled(LayerShowIcon)`
-  display: inline;
-`
-
 const render = (props: Props) => {
   const { name } = props
   return (
@@ -140,24 +96,8 @@ const render = (props: Props) => {
         <div className="layer-visibility">
           <LayerAlpha min="0" max="1" step="0.01" type="range" />
         </div>
-        <LayerInteractions>
-          <LayerWarning data-help="View map layer warnings." title="warning">
-            <span className=" fa fa-warning" />
-          </LayerWarning>
-          <LayerRemove
-            data-help="Remove map layer from user preferences."
-            title="Remove map layer from user preferences."
-          >
-            <span className="fa fa-minus" />
-          </LayerRemove>
-          <LayerShow
-            data-help="Toggle layer visibility."
-            title="Toggle layer visibility."
-          >
-            <Faeye className="fa fa-eye" />
-            <Faeyeslash className="fa fa-eye-slash" />
-          </LayerShow>
-        </LayerInteractions>
+
+        <Interactions {...props}/>
       </LayerPropertiesRoot>
     </Root>
   )
