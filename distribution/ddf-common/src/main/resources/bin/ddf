@@ -51,10 +51,10 @@ managing_solr() {
     return $RC
 }
 
-shutdown_no_java_home() {
-    # Shutdown if JAVA_HOME is not set
-    if [ -z $JAVA_HOME ]; then
-        echo "JAVA_HOME not set. Set JAVA_HOME to proceed - exiting."
+shutdown_no_java_home_or_jre_home() {
+    # Shutdown if JAVA_HOME and JRE_HOME is not set
+    if [ -z $JAVA_HOME ] && [ -z $JRE_HOME ]; then
+        echo "JAVA_HOME nor JRE_HOME is set. Set JAVA_HOME or JRE_HOME to proceed - exiting."
         exit 1
     fi
 }
@@ -86,7 +86,7 @@ attempt_shutdown() {
 while true; do
     clear_restart_flag
     refresh_properties
-    shutdown_no_java_home
+    shutdown_no_java_home_or_jre_home
     attempt_startup
     attempt_shutdown
 done

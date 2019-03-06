@@ -1,0 +1,152 @@
+:title: Java Requirements
+:type: subInstalling
+:status: published
+:parent: Installation Prerequisites
+:order: 01
+
+== Java Requirements
+For a runtime system:
+
+* https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html[JRE 8 x64] {external-link} or https://openjdk.java.net/install[OpenJDK 8 JRE] {external-link} must be installed.
+* The `JRE_HOME` environment variable must be set to the locations where the JRE is installed
+
+For a development system:
+
+* http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
+* The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
+
+. Install/Upgrade to Java 8 x64 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK] {external-link}
+.. The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
+.. Java version must contain only number values.
+. Install/Upgrade to http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] {external-link}.
+. Set the `JAVA_HOME` environment variable to the location where the JDK is installed.
+
+
+.*NIX Unlinking JAVA_HOME if Previously Set
+[WARNING]
+====
+Unlink `JAVA_HOME` if it is already linked to a previous version of the JRE:
+
+`unlink JAVA_HOME`
+====
+
+If JDK was installed:
+====
+.Setting JAVA_HOME variable
+Replace `<JAVA_VERSION>` with the version and build number installed.
+
+. Open a terminal window(*NIX) or command prompt (Windows) with administrator privileges.
+. Determine Java Installation Directory (This varies between operating system versions).
++
+.Find Java Path in *NIX
+----
+which java
+----
++
+.Find Java Path in Windows
+The path to the JDK can vary between versions of Windows, so manually verify the path under:
++
+----
+C:\Program Files\Java\jdk<M.m.p_build>
+----
++
+. Copy path of Java installation to clipboard. (example: `/usr/java/<JAVA_VERSION`>)
+. Set `JAVA_HOME` by replacing <PATH_TO_JAVA> with the copied path in this command:
++
+.Setting `JAVA_HOME` on *NIX
+----
+JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
+export JAVA_HOME
+----
++
+.Setting `JAVA_HOME` on Windows
+----
+set JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
+setx JAVA_HOME "<PATH_TO_JAVA><JAVA_VERSION>"
+----
++
+.Adding `JAVA_HOME` to `PATH` Environment Variable on Windows
+----
+setx PATH "%PATH%;%JAVA_HOME%\bin"
+----
++
+. Restart Terminal (shell) or Command Prompt.
+
+* Verify that the `JAVA_HOME` was set correctly.
+====
+
+====
+
+.*NIX
+----
+echo $JAVA_HOME
+----
+
+.Windows
+----
+echo %JAVA_HOME%
+----
+====
+
+If JRE was installed:
+====
+.Setting JRE_HOME variable
+Replace `<JAVA_VERSION>` with the version and build number installed.
+
+. Open a terminal window(*NIX) or command prompt (Windows) with administrator privileges.
+. Determine Java Installation Directory (This varies between operating system versions).
++
+.Find Java Path in *NIX
+----
+which java
+----
++
+.Find Java Path in Windows
+The path to the JRE can vary between versions of Windows, so manually verify the path under:
++
+----
+C:\Program Files\Java\jre<M.m.p_build>
+----
++
+. Copy path of Java installation to clipboard. (example: `/usr/java/<JAVA_VERSION`>)
+. Set `JRE_HOME` by replacing <PATH_TO_JAVA> with the copied path in this command:
++
+.Setting `JRE_HOME` on *NIX
+----
+JRE_HOME=<PATH_TO_JAVA><JAVA_VERSION>
+export JRE_HOME
+----
++
+.Setting `JRE_HOME` on Windows
+----
+set JRE_HOME=<PATH_TO_JAVA><JAVA_VERSION>
+setx JRE_HOME "<PATH_TO_JAVA><JAVA_VERSION>"
+----
++
+.Adding `JRE_HOME` to `PATH` Environment Variable on Windows
+----
+setx PATH "%PATH%;%JRE_HOME%\bin"
+----
++
+. Restart Terminal (shell) or Command Prompt.
+
+* Verify that the `JRE_HOME` was set correctly.
+====
+
+.File Descriptor Limit on Linux
+[NOTE]
+====
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include:
+
+----
+fs.file-max = 6815744
+----
+
+* For the change to take effect, a restart is required.
+
+.*Nix Restart Command
+----
+init 6
+----
+
+====
