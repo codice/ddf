@@ -46,13 +46,11 @@ const EmptyBlacklist = styled.div`
 `
 
 const ItemsWrapper = styled<Props, 'div'>('div')`
-  > *,
-  > * > td {
+  > * {
     border-top: 1px solid rgba(255, 255, 255, 10%);
     border-bottom: 1px solid rgba(255, 255, 255, 10%);
   }
-  > *:hover,
-  > *:hover > td {
+  > *:hover {
     border-top: 1px solid rgba(255, 255, 255, 20%);
     border-bottom: 1px solid rgba(255, 255, 255, 20%);
   }
