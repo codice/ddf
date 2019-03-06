@@ -20,7 +20,7 @@ import styled from '../../styles/styled-components'
 const Icon = styled.div`
   display: inline-block;
   text-align: center;
-  width: ${props => props.theme.mediumSpacing};
+  width: ${props => props.theme.minimumFontSize};
 `
 const Title = styled.div`
   display: inline-block;
@@ -31,7 +31,7 @@ const Description = styled.div`
   display: block;
   margin-left: calc(
     ${props => props.theme.minimumSpacing} +
-      ${props => props.theme.mediumSpacing}
+      ${props => props.theme.minimumFontSize}
   );
   margin-right: ${props => props.theme.minimumSpacing};
   line-height: normal;

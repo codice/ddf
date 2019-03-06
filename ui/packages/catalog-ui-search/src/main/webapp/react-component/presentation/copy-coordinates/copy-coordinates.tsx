@@ -37,7 +37,7 @@ const Icon = styled.div`
   margin-left: ${props => props.theme.minimumSpacing};
   display: inline-block;
   text-align: center;
-  width: ${props => props.theme.mediumSpacing};
+  width: ${props => props.theme.minimumFontSize};
 `
 
 const CustomDropdown = styled(Dropdown)`
