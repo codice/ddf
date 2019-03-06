@@ -279,8 +279,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           }
         },
         1,
-        pollInterval.longValue() * 60L,
-        TimeUnit.SECONDS);
+        pollInterval,
+        TimeUnit.MINUTES);
   }
 
   public void destroy(int code) {
