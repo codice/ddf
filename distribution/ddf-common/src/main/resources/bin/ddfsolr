@@ -51,7 +51,11 @@ set_security_properties() {
 }
 
 generate_stopkey() {
-    export STOP_KEY=`head /dev/urandom | tr -c -d "a-z0-9" | cut -c1-8`
+    # Generate a random string of 8 lowercase letters and digits.
+    # NOTE: Mac OS interprets bytes as belonging to the UTF-8 character set.
+    # The urandom stream does not spit out valid UTF-8 characters.
+    # Tell Mac OS to not interpret the bytes as charcters with LC_ALL=C
+    export STOP_KEY=`LC_ALL=C head /dev/urandom | tr -c -d "a-z0-9" | cut -c1-8`
 	echo $STOP_KEY >& STOPKEY
 }
 
