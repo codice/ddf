@@ -15,21 +15,61 @@
 /*global define, setTimeout*/
 const Marionette = require('marionette')
 const _ = require('lodash')
-const $ = require('jquery')
-const template = require('./metacard-actions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
-const MapActions = require('../map-actions/map-actions.view.js')
+import React from 'react'
+import MapActions from '../../react-component/container/map-actions'
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel: function() {
     this.model = this.selectionInterface.getSelectedResults().first()
   },
-  template: template,
-  tagName: CustomElements.register('metacard-actions'),
-  regions: {
-    mapActions: '.map-actions',
+  template(props) {
+    return (
+      <React.Fragment>
+        <div className="is-divider" />
+        <div className="is-header">Export as:</div>
+        <div className="is-divider" />
+        <div className="actions">
+          {props.exportActions.map(exportAction => {
+            return (
+              <a href={exportAction.url} target="_blank" key={exportAction.url}>
+                {exportAction.title}
+              </a>
+            )
+          })}
+        </div>
+        <div className="is-divider" />
+        <div className="map-actions">
+          <MapActions model={this.model} />
+        </div>
+
+        {props.otherActions.length !== 0 ? (
+          <React.Fragment>
+            <div className="is-header">Various:</div>
+            <div className="is-divider" />
+            <div className="actions">
+              {props.otherActions.map(otherAction => {
+                return (
+                  <a
+                    href={otherAction.url}
+                    target="_blank"
+                    key={otherAction.url}
+                  >
+                    {otherAction.title}
+                  </a>
+                )
+              })}
+            </div>
+            <div className="is-divider" />
+          </React.Fragment>
+        ) : (
+          ''
+        )}
+      </React.Fragment>
+    )
   },
+  tagName: CustomElements.register('metacard-actions'),
   events: {},
   ui: {},
   selectionInterface: store,
@@ -57,10 +97,5 @@ module.exports = Marionette.LayoutView.extend({
         action => action.title.toLowerCase()
       ),
     }
-  },
-  onRender: function() {
-    this.mapActions.show(new MapActions({ model: this.model }), {
-      replaceElement: true,
-    })
   },
 })

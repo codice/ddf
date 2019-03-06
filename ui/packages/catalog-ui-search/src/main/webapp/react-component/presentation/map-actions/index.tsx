@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,16 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-{{#if mapActions}}
-    <div class="is-header">Map:</div>
-    <div class="is-divider"></div>
-    <div class="actions">
-    {{#each overlayActions}}
-        <a data-url="{{this.url}}" title="{{description}}">
-         {{overlayText}}{{#is url ../currentOverlayUrl}} (remove){{/is}}
-        </a>
-    {{/each}}
-    </div>
-    <div class="is-divider"></div>
-{{/if}}
+export { default } from './map-actions'
