@@ -32,6 +32,7 @@ import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.junit.Test;
@@ -182,7 +183,7 @@ public class PKIHandlerTest {
     handler.setTokenFactory(tokenFactory);
 
     OcspService ocspService = mock(OcspService.class);
-    when(ocspService.passesOcspChecker(any())).thenReturn(returnedValue);
+    when(ocspService.passesOcspCheck(any())).thenReturn(returnedValue);
     handler.setOcspService(ocspService);
 
     CrlChecker crlChecker = mock(CrlChecker.class);

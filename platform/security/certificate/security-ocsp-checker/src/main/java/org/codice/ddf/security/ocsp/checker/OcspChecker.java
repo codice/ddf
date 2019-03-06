@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.handler.pki;
+package org.codice.ddf.security.ocsp.checker;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
@@ -42,6 +42,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.system.alerts.NoticePriority;
 import org.codice.ddf.system.alerts.SystemNotice;
 import org.osgi.service.event.Event;
@@ -70,14 +71,14 @@ public class OcspChecker implements OcspService {
    * @param certs - an array of certificates to verify
    * @return true if the certificates are not revoked, false if any of them are revoked.
    */
-  public boolean passesOcspChecker(X509Certificate[] certs) {
+  public boolean passesOcspCheck(X509Certificate[] certs) {
     if (!ocspEnabled || ocspServerUrl == null) {
       LOGGER.debug("OCSP check is not enabled. Skipping.");
       return true;
     }
 
     if (!ocspServerUrl.startsWith(HTTPS)) {
-      postErrorEvent("The provided URL was not an HTTPS URL.");
+      postErrorEvent(String.format("The provided URL {%s} is not an HTTPS URL.", ocspServerUrl));
       return true;
     }
 
@@ -259,10 +260,9 @@ public class OcspChecker implements OcspService {
     String title = "Failure checking the revocation status of a Certificate through OCSP.";
     Set<String> details = new HashSet<>();
     details.add(
-        "An error occurred while checking the revocation status of a Certificate using an Online Certificate Status Protocol (OCSP) server.");
+        "An error occurred while checking the revocation status of a Certificate using an Online Certificate Status Protocol (OCSP) server. "
+            + "Please resolve the error to resume validating certificates against the OCSP server.");
     details.add(errorMessage);
-    details.add(
-        "Please resolve the error to resume validating certificates against the OCSP server.");
     eventAdmin.postEvent(
         new Event(
             SystemNotice.SYSTEM_NOTICE_BASE_TOPIC + "crl",
