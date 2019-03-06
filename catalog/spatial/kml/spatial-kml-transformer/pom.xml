@@ -120,10 +120,6 @@
                             catalog-core-api-impl,
                             JavaAPIforKml,
                             catalog-core-actions,
-                            catalog-rest-impl,
-                            json-smart,
-                            owasp-java-html-sanitizer,
-                            asm,
                             spatial-kml-util
                         </Embed-Dependency>
                         <Import-Package>!org.abego.treelayout.*, *</Import-Package>
@@ -144,7 +140,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>2.5_MB</maxArtifactSize>
+                                    <maxArtifactSize>1.7_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

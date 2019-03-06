@@ -255,7 +255,7 @@ export default hot(module)(
     }
     async onDownloadSuccess(response: Response) {
       if (response.status === 200) {
-        const data = await response.text()
+        const data = await response.blob()
         const contentType = response.headers.get('content-type')
         const filename = contentDisposition.parse(
           response.headers.get('content-disposition')

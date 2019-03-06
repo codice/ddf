@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Map;
 import javax.security.auth.Subject;
 
-public interface KmlTransformer extends QueryResponseTransformer, MetacardTransformer {
+public interface KMLTransformer extends QueryResponseTransformer, MetacardTransformer {
   public Placemark transformEntry(Subject user, Metacard entry, Map<String, Serializable> arguments)
       throws CatalogTransformerException;
 }

@@ -31,6 +31,6 @@ public class KmlActionProvider extends MetacardTransformerActionProvider {
 
   @Override
   protected boolean canHandleMetacard(Metacard metacard) {
-    return !StringUtils.isEmpty(metacard.getLocation());
+    return StringUtils.isNotBlank(metacard.getLocation());
   }
 }

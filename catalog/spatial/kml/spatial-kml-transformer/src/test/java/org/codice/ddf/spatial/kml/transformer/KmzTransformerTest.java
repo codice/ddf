@@ -15,8 +15,8 @@ package org.codice.ddf.spatial.kml.transformer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.BinaryContent;
@@ -40,15 +40,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KmzTransformerImplTest {
+public class KmzTransformerTest {
 
-  private KmzTransformerImpl kmzTransformer;
+  private KmzTransformer kmzTransformer;
 
   private static final String KML_EXTENSION = ".kml";
 
   private MimeType kmzMimetype;
 
-  @Mock private KmlTransformerImpl kmlTransformer;
+  @Mock private KMLTransformerImpl kmlTransformer;
 
   @Mock private Metacard mockMetacard;
 
@@ -56,15 +56,15 @@ public class KmzTransformerImplTest {
 
   @Before
   public void setup() throws IOException, MimeTypeParseException {
-    kmzTransformer = new KmzTransformerImpl(kmlTransformer);
+    kmzTransformer = new KmzTransformer(kmlTransformer);
     kmzMimetype = new MimeType("application/vnd.google-earth.kmz");
   }
 
   @Test
-  public void testKmlToKmzTransform() throws IOException {
+  public void testTransformKmlToKmz() throws IOException {
     final InputStream resourceAsStream = this.getClass().getResourceAsStream("/kmlPoint.kml");
     BinaryContent inputKmlFile = new BinaryContentImpl(resourceAsStream);
-    BinaryContent kmz = kmzTransformer.kmlToKmzTransform(inputKmlFile);
+    BinaryContent kmz = kmzTransformer.transformKmlToKmz(inputKmlFile);
     assertThat(kmz.getMimeType().match(kmzMimetype), is(true));
 
     String outputKml = getOutputFromBinaryContent(kmz);
@@ -131,8 +131,8 @@ public class KmzTransformerImplTest {
   }
 
   private String readContentsFromZipInputStream(ZipInputStream zipInputStream) throws IOException {
-    String s = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8.name());
+    String kmlDocument = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8.name());
     IOUtils.closeQuietly(zipInputStream);
-    return s;
+    return kmlDocument;
   }
 }

@@ -33,7 +33,7 @@
 
     <bean id="kmlMarshaller" class="org.codice.ddf.spatial.kml.util.KmlMarshaller"/>
 
-    <bean id="kmlTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KmlTransformerImpl">
+    <bean id="kmlTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KMLTransformerImpl">
         <argument ref="blueprintBundleContext"/>
         <argument value="kml-styling/defaultStyling.kml"/>
         <!-- Path for default base Styling file -->
@@ -42,7 +42,7 @@
         <argument ref="kmlMarshaller"/>
     </bean>
 
-    <bean id="kmzTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KmzTransformerImpl">
+    <bean id="kmzTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KmzTransformer">
         <argument ref="kmlTransformerImpl"/>
     </bean>
 
@@ -72,7 +72,7 @@
     <service ref="kmzTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="kmz"/>
-            <entry key="shortname" value="kml"/>
+            <entry key="shortname" value="kmz"/>
             <entry key="title" value="View as KMZ..."/>
             <entry key="description"
                    value="Transforms a Metacard to KMZ for use with Google Earth and other visualization tools."/>
