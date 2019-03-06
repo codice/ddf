@@ -37,7 +37,6 @@ var MapInfoView = require('../../map-info/map-info.view.js')
 var properties = require('../../../js/properties.js')
 var Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
-const _ = require('underscore')
 
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
