@@ -141,7 +141,7 @@ public class ProfileInstallCommandTest {
     verify(bundleService, times(2)).getBundle(anyString());
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testExtraProfilesWhenNotExists() throws Exception {
     profileInstallCommand.profileName = "nonExistent";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
@@ -222,7 +222,7 @@ public class ProfileInstallCommandTest {
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testExtraProfileFileError() throws Exception {
     ddfHome.newFolder("etc", "profiles", "foo.json");
 
