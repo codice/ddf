@@ -258,7 +258,6 @@ const ResultItemView = Marionette.LayoutView.extend({
     'click .result-download': 'triggerDownload',
   },
   regions: {
-    resultActions: '.result-actions',
     resultAdd: '.result-add',
   },
   behaviors() {
