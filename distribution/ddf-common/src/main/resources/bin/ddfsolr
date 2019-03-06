@@ -74,7 +74,7 @@ start_solr() {
 stop_solr() {
     export STOP_KEY=`cat STOPKEY`
     $SOLR_EXEC stop -p $SOLR_PORT
-    [ -f STOPKEY ] && rm STOPKEY
+    [ -f STOPKEY ] && rm -f STOPKEY
 }
 
 print_messages() {
