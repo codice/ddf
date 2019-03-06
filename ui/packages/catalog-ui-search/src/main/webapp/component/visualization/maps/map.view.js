@@ -261,17 +261,12 @@ module.exports = Marionette.LayoutView.extend({
   saveAsHome: function() {
     const boundingBox = this.map.getBoundingBox()
     const userPreferences = user.get('user').get('preferences')
-    if (!_.isEqual(boundingBox, userPreferences.get('mapHome'))) {
-      userPreferences.once('sync', () =>
-        announcement.announce({
-          title: 'Success!',
-          message: 'New map home location set.',
-          type: 'success',
-        })
-      )
-
-      userPreferences.set('mapHome', boundingBox)
-    }
+    userPreferences.set('mapHome', boundingBox)
+    announcement.announce({
+      title: 'Success!',
+      message: 'New map home location set.',
+      type: 'success',
+    })
   },
   addPanZoom: function() {
     const PanZoomView = Marionette.ItemView.extend({
