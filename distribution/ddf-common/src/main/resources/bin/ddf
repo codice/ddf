@@ -61,7 +61,9 @@ shutdown_no_java_home_or_jre_home() {
 
 attempt_startup() {
     if managing_solr; then
-        $SOLR_EXEC restart
+        echo "Checking for running Solr instance..."
+        $SOLR_EXEC stop
+        $SOLR_EXEC start
     fi
 
     if [ "$START_KARAF" = "true" ]; then

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-# Capture start|stop|restart command
+# Capture start|stop command
 COMMAND=$1
 shift
 
 # -----------------------------------------------------------------------------
 usage() {
-    echo "Usage: $0 {start|stop|restart} " >&2; exit 1;
+    echo "Usage: $0 {start|stop} " >&2; exit 1;
 }
 
 # -----------------------------------------------------------------------------
@@ -15,7 +15,7 @@ if [ -z  "$COMMAND" ]; then
     usage
 fi
 
-if  ! ( [ "$COMMAND" == "start" ] || [ "$COMMAND" == "stop" ] || [ "$COMMAND" == "restart" ] ); then
+if  ! ( [ "$COMMAND" == "start" ] || [ "$COMMAND" == "stop" ] ); then
     echo "Unknown command: $COMMAND" >&2
     usage
 fi
@@ -28,6 +28,7 @@ SCRIPTDIR=$(dirname $0)
 HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 GET=${SCRIPTDIR}/get_property
 SOLR_EXEC=${HOME_DIR}/solr/bin/solr
+STOPKEY_FILE=${HOME_DOR}/STOPKEY
 
 # Read port from custom.system.properties file
 SOLR_PORT=$($GET "solr.http.port")
@@ -72,9 +73,13 @@ start_solr() {
 }
 
 stop_solr() {
-    export STOP_KEY=`cat STOPKEY`
-    $SOLR_EXEC stop -p $SOLR_PORT
-    [ -f STOPKEY ] && rm -f STOPKEY
+
+	if [ -f STOPKEY ]; then
+	    export STOP_KEY=`cat STOPKEY`;
+	    rm STOPKEY;
+	fi
+    $SOLR_EXEC stop -p $SOLR_PORT;
+
 }
 
 print_messages() {
@@ -87,7 +92,7 @@ print_messages() {
     fi
 }
 
-if [ "$COMMAND" = "stop" ]; then
+if [ "$COMMAND" == "stop" ]; then
 	stop_solr
 else
     # Read protocol from properties file
@@ -95,7 +100,7 @@ else
 
     # Do not proceed if required properties are missing
     if [ -z "$SOLR_PROTOCOL" ]; then
-        echo "Cannot determine Solr protocol (http or https) from custom.system.properties file. Exiting."
+        echo "Cannot determine Solr protocol (http or https) from custom.system.properties file. Exiing."
         exit 3
     fi
 
