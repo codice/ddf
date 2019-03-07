@@ -14,7 +14,6 @@
  **/
 import React from 'react'
 import styled from '../../styles/styled-components'
-const _ = require('underscore')
 
 const CustomElement = styled.div`
   height: 100%;
@@ -22,74 +21,81 @@ const CustomElement = styled.div`
   display: block;
 `
 const Visualization = styled.div`
-  .visualization-choice {
+  cursor: pointer;
+  opacity: ${props => props.theme.minimumOpacity}
+  :hover {
+    opacity: 1
+  }
+`
+const VisualizationChoice = styled.div`
     white-space: nowrap;
     padding: ${props => props.theme.largeSpacing}
     cursor: move;
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
-  }
-  .visualization-icon {
-    text-align: center;
-    width: ${props => props.theme.minimumButtonSize}
-  }
-
-  .visualization-icon,
-  .visualization-text {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  .visualization-text {
-    width: ~'calc(100% - ${props => props.theme.minimumButtonSize})';
-    font-size: ${props => props.theme.mediumFontSize};
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 `
 
-var configs = {
+const VisualizationIcon = styled.div`
+    text-align: center;
+    width: ${props => props.theme.minimumButtonSize}
+    display: inline-block;
+    vertical-align: middle;
+`
+const VisualizationText = styled.div`
+  width: calc(100% - ${props => props.theme.minimumButtonSize});
+  font-size: ${props => props.theme.mediumFontSize};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+`
+const configs = {
   openlayers: {
     title: '2D Map',
     type: 'component',
     componentName: 'openlayers',
+    icon: 'fa fa-map',
     componentState: {},
   },
   cesium: {
     title: '3D Map',
     type: 'component',
     componentName: 'cesium',
+    icon: 'fa fa-globe',
     componentState: {},
   },
   inspector: {
     title: 'Inspector',
     type: 'component',
     componentName: 'inspector',
+    icon: 'fa fa-info',
     componentState: {},
   },
   table: {
     title: 'Table',
     type: 'component',
     componentName: 'table',
+    icon: 'fa fa-table',
     componentState: {},
   },
   histogram: {
     title: 'Histogram',
     type: 'component',
     componentName: 'histogram',
+    icon: 'fa fa-bar-chart',
     componentState: {},
   },
 }
 
-function unMaximize(contentItem) {
+const unMaximize = contentItem => {
   if (contentItem.isMaximised) {
     contentItem.toggleMaximise()
     return true
   } else if (contentItem.contentItems.length === 0) {
     return false
   } else {
-    return _.some(contentItem.contentItems, subContentItem => {
+    return Array.some(contentItem.contentItems, subContentItem => {
       return unMaximize(subContentItem)
     })
   }
@@ -99,88 +105,36 @@ class VisualizationSelector extends React.Component {
   dragSources = []
   constructor(props) {
     super(props)
-    this.el = React.createRef()
+    this.openlayers = React.createRef()
+    this.cesium = React.createRef()
+    this.inspector = React.createRef()
+    this.histogram = React.createRef()
+    this.table = React.createRef()
   }
   render() {
     return (
-      <div ref={this.el}>
-        <CustomElement onClick={this.handleChoice.bind(this)}>
+      <CustomElement onClick={this.handleChoice.bind(this)}>
+       {Object.values(configs).map(({ title, icon, componentName }, index) => (
           <Visualization
-            className="choice-2dmap is-button"
-            onMouseDown={this.handleMouseDown.bind(this, 'openlayers')}
-            onMouseUp={this.handleMouseUp.bind(this, 'openlayers')}
+            key={index.toString()}
+            innerRef={x => {
+              this[componentName] = x
+            }}
+            onMouseDown={this.handleMouseDown.bind(this, componentName)}
+            onMouseUp={this.handleMouseUp.bind(this, componentName)}
           >
-            <div className="visualization-icon fa fa-map" />
-            <div className="visualization-text">2D Map</div>
+            <VisualizationIcon className={icon} />
+            <VisualizationText>{title}</VisualizationText>
           </Visualization>
-          <Visualization
-            className="choice-3dmap is-button"
-            onMouseDown={this.handleMouseDown.bind(this, 'cesium')}
-            onMouseUp={this.handleMouseUp.bind(this, 'cesium')}
-          >
-            <div className="visualization-icon fa fa-globe" />
-            <div className="visualization-text">3D Map</div>
-          </Visualization>
-          <Visualization
-            className="choice-inspector is-button"
-            onMouseDown={this.handleMouseDown.bind(this, 'inspector')}
-            onMouseUp={this.handleMouseUp.bind(this, 'inspector')}
-          >
-            <div className="visualization-icon fa fa-info" />
-            <div className="visualization-text">Inspector</div>
-          </Visualization>
-          <Visualization
-            className="choice-histogram is-button"
-            onMouseDown={this.handleMouseDown.bind(this, 'histogram')}
-            onMouseUp={this.handleMouseUp.bind(this, 'histogram')}
-          >
-            <div className="visualization-icon fa fa-bar-chart" />
-            <div className="visualization-text">Histogram</div>
-          </Visualization>
-          <Visualization
-            className="choice-table is-button"
-            onMouseDown={this.handleMouseDown.bind(this, 'table')}
-            onMouseUp={this.handleMouseUp.bind(this, 'table')}
-          >
-            <div className="visualization-icon fa fa-table" />
-            <div className="visualization-text">Table</div>
-          </Visualization>
-        </CustomElement>
-      </div>
+       ), this)}
+      </CustomElement>
     )
   }
 
   componentDidMount() {
     this.dragSources = []
-    this.dragSources.push(
-      this.props.goldenLayout.createDragSource(
-        this.el.current.querySelector('.choice-2dmap'),
-        configs.openlayers
-      )
-    )
-    this.dragSources.push(
-      this.props.goldenLayout.createDragSource(
-        this.el.current.querySelector('.choice-3dmap'),
-        configs.cesium
-      )
-    )
-    this.dragSources.push(
-      this.props.goldenLayout.createDragSource(
-        this.el.current.querySelector('.choice-histogram'),
-        configs.histogram
-      )
-    )
-    this.dragSources.push(
-      this.props.goldenLayout.createDragSource(
-        this.el.current.querySelector('.choice-table'),
-        configs.table
-      )
-    )
-    this.dragSources.push(
-      this.props.goldenLayout.createDragSource(
-        this.el.current.querySelector('.choice-inspector'),
-        configs.inspector
-      )
+    this.dragSources = Object.keys(configs).map(key =>
+      this.props.goldenLayout.createDragSource(this[key], configs[key])
     )
     this.listenToDragSources()
   }

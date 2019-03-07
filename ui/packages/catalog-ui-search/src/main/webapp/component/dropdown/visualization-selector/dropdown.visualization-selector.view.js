@@ -18,9 +18,9 @@ var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./dropdown.visualization-selector.hbs')
 var DropdownView = require('../dropdown.view')
-import VisualizationSelector from '../../../react-component/presentation/visualization-selector/visualization-selector.view.js'
+import VisualizationSelector from '../../../react-component/presentation/visualization-selector/visualization-selector'
 import React from 'react'
-var CustomElements = require('../../../js/CustomElements.js')
+const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = DropdownView.extend({
   template: template,
