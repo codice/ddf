@@ -17,8 +17,7 @@ const Common = require('js/Common')
 const converter = new usngs.Converter()
 const usngPrecision = 6
 
-import { Attribute, Coordinates, Props } from '.'
-import { validCoordinates } from './map-info'
+import { Attribute, Coordinates, Format, validCoordinates } from '.'
 
 export const formatAttribute = ({ name, value }: Attribute): string => {
   const isDate = metacardDefinitions.metacardTypes[name].type === 'DATE'
@@ -27,22 +26,30 @@ export const formatAttribute = ({ name, value }: Attribute): string => {
   }`
 }
 
-export const formatCoordinates = ({ lat, lon, format }: Props): any => {
-  const withFormat = {
-    degrees: () => `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`,
-    decimal: () => decimalComponent({ lat, lon }),
-    mgrs: () =>
-      lat > 84 || lat < -80
-        ? 'In UPS Space'
-        : converter.LLtoUSNG(lat, lon, usngPrecision),
-    utm: () => converter.LLtoUTMUPS(lat, lon),
-  }
-  if (!(format in withFormat)) {
+const formatter = {
+  degrees: ({ lat, lon }: Coordinates) =>
+    `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`,
+  decimal: ({ lat, lon }: Coordinates) => decimalComponent({ lat, lon }),
+  mgrs: ({ lat, lon }: Coordinates) =>
+    lat > 84 || lat < -80
+      ? 'In UPS Space'
+      : converter.LLtoUSNG(lat, lon, usngPrecision),
+  utm: ({ lat, lon }: Coordinates) => converter.LLtoUTMUPS(lat, lon),
+}
+
+export const formatCoordinates = ({
+  coordinates,
+  format,
+}: {
+  coordinates: Coordinates
+  format: Format
+}) => {
+  if (!(format in formatter)) {
     throw `Unrecognized coordinate format value [${format}]`
   }
 
-  return validCoordinates({ lat, lon })
-    ? (withFormat as any)[format]()
+  return validCoordinates(coordinates)
+    ? formatter[format](coordinates)
     : undefined
 }
 

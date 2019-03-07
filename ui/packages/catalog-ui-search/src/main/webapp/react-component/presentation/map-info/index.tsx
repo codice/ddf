@@ -11,14 +11,9 @@
  **/
 export { default } from './map-info'
 
-import { Attribute } from '../../container/map-info'
-export { Attribute }
-export interface Coordinates {
-  lat: number
-  lon: number
-}
-
-export type Props = {
-  format: string
-  attributes: Attribute[]
-} & Coordinates
+export {
+  Attribute,
+  Coordinates,
+  Format,
+  validCoordinates,
+} from '../../container/map-info'

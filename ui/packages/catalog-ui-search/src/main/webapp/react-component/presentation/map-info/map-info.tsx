@@ -12,18 +12,19 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Attribute, Coordinates, Props } from '.'
+import { Attribute, Coordinates, Format, validCoordinates } from '.'
 import { formatAttribute, formatCoordinates } from './formatting'
 
-export const validCoordinates = ({ lat, lon }: Coordinates) =>
-  lat !== undefined && lon !== undefined
+type Props = {
+  format: Format
+  attributes: Attribute[]
+  coordinates: Coordinates
+}
 
 const Root = styled<Props, 'div'>('div')`
   font-family: 'Inconsolata', 'Lucida Console', monospace;
   background: ${props => props.theme.backgroundModal};
-  display: ${props => {
-    return validCoordinates(props) ? `block` : `none`
-  }};
+  display: block;
   width: auto;
   height: auto;
   font-size: ${props => props.theme.minimumFontSize};
@@ -50,6 +51,10 @@ const metacardInfo = ({ attributes }: Props) =>
   ))
 
 const render = (props: Props) => {
+  if (!validCoordinates(props.coordinates)) {
+    return null
+  }
+
   const coordinates = formatCoordinates(props)
   return (
     <Root {...props}>

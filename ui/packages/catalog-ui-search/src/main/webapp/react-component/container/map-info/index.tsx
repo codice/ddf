@@ -9,4 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default, Attribute } from './map-info'
+export { default } from './map-info'
+export type Attribute = {
+  name: string
+  value: string
+}
+export type Coordinates = {
+  lat: number
+  lon: number
+}
+export const validCoordinates = ({ lat, lon }: Coordinates) =>
+  lat !== undefined && lon !== undefined
+
+export type Format = 'degrees' | 'decimal' | 'mgrs' | 'utm'

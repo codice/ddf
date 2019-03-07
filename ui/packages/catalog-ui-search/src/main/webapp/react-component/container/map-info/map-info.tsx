@@ -13,20 +13,15 @@ import * as React from 'react'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import MapInfoPresentation from '../../presentation/map-info'
 import { hot } from 'react-hot-loader'
+import { Coordinates, Format, Attribute } from '.'
 
 const user = require('../../../component/singletons/user-instance.js')
 const properties = require('properties')
 const metacardDefinitions = require('component/singletons/metacard-definitions')
 
-export interface Attribute {
-  name: string
-  value: string
-}
-
-interface State {
-  lat: number
-  lon: number
-  format: string
+type State = {
+  coordinates: Coordinates
+  format: Format
   attributes: Attribute[]
 }
 
@@ -37,8 +32,10 @@ type Props = {
 const mapPropsToState = (props: Props) => {
   const { map } = props
   return {
-    lat: map.get('mouseLat'),
-    lon: map.get('mouseLon'),
+    coordinates: {
+      lat: map.get('mouseLat'),
+      lon: map.get('mouseLon'),
+    },
     format: getCoordinateFormat(),
     attributes: getAttributes(map),
   }
@@ -80,7 +77,7 @@ class MapInfo extends React.Component<Props, State> {
     const { listenTo, map } = this.props
     listenTo(
       map,
-      'change:mouseLat change:mouseLon change:target',
+      'change:mouseLat change:mouseLon change:targetMetacard',
       this.handleChange
     )
     listenTo(
