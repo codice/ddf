@@ -67,6 +67,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
@@ -87,6 +90,7 @@ import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
@@ -133,7 +137,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private final ClientFactoryFactory clientFactoryFactory;
 
-  @Nullable private SecureCxfClientFactory<OpenSearch> factory;
+  private SecureCxfClientFactory<OpenSearch> factory;
 
   // service properties
   protected String shortname;
@@ -146,7 +150,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected int distanceTolerance;
 
-  protected PropertyResolver endpointUrl;
+  protected PropertyResolver endpointUrl =
+      new PropertyResolver(
+          "${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/catalog/query");
 
   protected final FilterAdapter filterAdapter;
 
@@ -156,9 +162,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected Set<String> markUpSet;
 
-  protected String username;
+  protected String username = "";
 
-  protected String password;
+  protected String password = "";
 
   private XMLInputFactory xmlInputFactory;
 
@@ -168,15 +174,22 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected final OpenSearchFilterVisitor openSearchFilterVisitor;
 
-  protected Integer connectionTimeout;
+  protected Integer connectionTimeout = 30000;
 
-  protected Integer receiveTimeout;
+  protected Integer receiveTimeout = 60000;
 
   protected boolean disableCnCheck = false;
 
   protected boolean allowRedirects = false;
 
   protected BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
+
+  /** flag indicating whether the source could be contacted */
+  private volatile boolean isAvailable;
+
+  private ScheduledExecutorService scheduler;
+
+  protected Integer pollInterval = 5;
 
   /**
    * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -222,14 +235,59 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   public void init() {
     configureXmlInputFactory();
+    updateFactory();
   }
 
-  // lazy init
-  private SecureCxfClientFactory<OpenSearch> getClientFactory() {
-    if (factory == null) {
-      factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
+  private void updateFactory() {
+    factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
+    updateScheduler();
+  }
+
+  private void updateScheduler() {
+    LOGGER.debug(
+        "Setting availability poll task for {} minute(s) on Source {}", pollInterval, getId());
+
+    isAvailable = false;
+
+    if (scheduler != null) {
+      LOGGER.debug("Cancelling availability poll task on Source {}", getId());
+      scheduler.shutdownNow();
     }
-    return factory;
+
+    scheduler =
+        Executors.newSingleThreadScheduledExecutor(
+            StandardThreadFactoryBuilder.newThreadFactory("openSearchSourceThread"));
+
+    scheduler.scheduleWithFixedDelay(
+        new Runnable() {
+          private boolean availabilityCheck() {
+            LOGGER.debug("Checking availability for source {} ", getId());
+            try {
+              final WebClient client = factory.getWebClient();
+              final Response response = client.head();
+              return response != null
+                  && !(response.getStatus() >= 404 || response.getStatus() == 402);
+            } catch (Exception e) {
+              LOGGER.debug("Web Client was unable to connect to endpoint.", e);
+              return false;
+            }
+          }
+
+          @Override
+          public void run() {
+            isAvailable = availabilityCheck();
+          }
+        },
+        1,
+        pollInterval.longValue() * 60L,
+        TimeUnit.SECONDS);
+  }
+
+  public void destroy(int code) {
+    if (scheduler != null) {
+      LOGGER.debug("Cancelling availability poll task on Source {}", getId());
+      scheduler.shutdownNow();
+    }
   }
 
   protected SecureCxfClientFactory<OpenSearch> createClientFactory(
@@ -270,14 +328,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   @Override
   public boolean isAvailable() {
-    try {
-      final WebClient client = getClientFactory().getWebClient();
-      final Response response = client.head();
-      return response != null && !(response.getStatus() >= 404 || response.getStatus() == 402);
-    } catch (Exception e) {
-      LOGGER.debug("Web Client was unable to connect to endpoint.", e);
-      return false;
-    }
+    return isAvailable;
   }
 
   @Override
@@ -346,7 +397,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             idSearch);
       }
 
-      final WebClient restWebClient = getClientFactory().getWebClientForSubject(subject);
+      final WebClient restWebClient = factory.getWebClientForSubject(subject);
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
       }
@@ -631,7 +682,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   public void setEndpointUrl(String endpointUrl) {
     this.endpointUrl = new PropertyResolver(endpointUrl);
-    factory = null;
+    updateFactory();
   }
 
   @Override
@@ -811,6 +862,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
   }
 
+  public void setPollInterval(Integer interval) {
+    this.pollInterval = Math.max(1, interval);
+    updateScheduler();
+  }
+
   @Override
   public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> requestProperties)
       throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
@@ -887,7 +943,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setUsername(String username) {
     this.username = username;
-    factory = null;
+    updateFactory();
   }
 
   public String getPassword() {
@@ -896,7 +952,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setPassword(String password) {
     this.password = encryptionService.decryptValue(password);
-    factory = null;
+    updateFactory();
   }
 
   public Boolean getDisableCnCheck() {
@@ -905,7 +961,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setDisableCnCheck(Boolean disableCnCheck) {
     this.disableCnCheck = disableCnCheck;
-    factory = null;
+    updateFactory();
   }
 
   public Boolean getAllowRedirects() {
@@ -914,7 +970,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setAllowRedirects(Boolean allowRedirects) {
     this.allowRedirects = allowRedirects;
-    factory = null;
+    updateFactory();
   }
 
   public Integer getConnectionTimeout() {
@@ -923,7 +979,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setConnectionTimeout(Integer connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
-    factory = null;
+    updateFactory();
   }
 
   public Integer getReceiveTimeout() {
@@ -932,7 +988,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setReceiveTimeout(Integer receiveTimeout) {
     this.receiveTimeout = receiveTimeout;
-    factory = null;
+    updateFactory();
   }
 
   private WebClient newRestClient(
@@ -1022,6 +1078,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   protected static class SpatialSearch {
+
     private final Geometry geometry;
     private final BoundingBox boundingBox;
     private final Polygon polygon;
