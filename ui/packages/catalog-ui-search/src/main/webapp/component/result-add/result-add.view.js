@@ -12,110 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/*global define, require, module*/
+import React from 'react'
+import Marionette from 'marionette'
 
-import ListCreate from '../list-create/list-create.js'
-
-var Marionette = require('marionette')
-var $ = require('jquery')
-var template = require('./result-add.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var store = require('../../js/store.js')
-var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-var List = require('../../js/model/List.js')
-var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
-var filter = require('../../js/filter.js')
-var cql = require('../../js/cql.js')
-var _ = require('lodash')
+import ResultAddView from '../../react-component/container/result-add'
 
 module.exports = Marionette.LayoutView.extend({
-  tagName: CustomElements.register('result-add'),
-  template: template,
-  events: {
-    'click .is-existing-list.matches-filter:not(.already-contains)':
-      'addToList',
-    'click .is-existing-list.already-contains': 'removeFromList',
-  },
-  regions: {
-    newList: '.create-new-list',
-  },
-  removeFromList: function(e) {
-    var listId = $(e.currentTarget).data('id')
-    store
-      .getCurrentWorkspace()
-      .get('lists')
-      .get(listId)
-      .removeBookmarks(
-        this.model.map(function(result) {
-          return result.get('metacard').id
-        })
-      )
-  },
-  addToList: function(e) {
-    var listId = $(e.currentTarget).data('id')
-    store
-      .getCurrentWorkspace()
-      .get('lists')
-      .get(listId)
-      .addBookmarks(
-        this.model.map(function(result) {
-          return result.get('metacard').id
-        })
-      )
-  },
-  onRender: function() {
-    this.setupCreateList()
-  },
-  safeRender: function() {
-    if (!this.isDestroyed) {
-      this.render()
-    }
-  },
-  setupCreateList: function() {
-    this.newList.show(
-      PopoutView.createSimpleDropdown({
-        componentToShow: ListCreate,
-        modelForComponent: this.model,
-        leftIcon: 'fa fa-plus',
-        label: 'Create New List',
-        options: {
-          withBookmarks: true,
-        },
-      })
-    )
-  },
-  initialize: function() {
-    this.listenTo(
-      store.getCurrentWorkspace().get('lists'),
-      'add remove update change',
-      this.safeRender
-    )
-  },
-  serializeData: function() {
-    var listJSON = store
-      .getCurrentWorkspace()
-      .get('lists')
-      .toJSON()
-    listJSON = listJSON.map(list => {
-      list.matchesFilter = true
-      if (list['list.cql'] !== '') {
-        list.matchesFilter = this.model.every(function(result) {
-          return result.matchesCql(list['list.cql'])
-        })
-      }
-      list.alreadyContains = false
-      if (
-        _.intersection(
-          list['list.bookmarks'],
-          this.model.map(function(result) {
-            return result.get('metacard').id
-          })
-        ).length === this.model.length
-      ) {
-        list.alreadyContains = true
-      }
-      list.icon = List.getIconMapping()[list['list.icon']]
-      return list
-    })
-    return listJSON
+  template() {
+    return <ResultAddView model={this.model} />
   },
 })
