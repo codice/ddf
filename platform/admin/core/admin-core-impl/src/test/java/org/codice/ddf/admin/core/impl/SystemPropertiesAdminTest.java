@@ -89,20 +89,24 @@ public class SystemPropertiesAdminTest {
   }
 
   @Test
-  public void testWriteSystemPropertiesNullProps() throws NotCompliantMBeanException {
+  public void testWriteSystemPropertiesNullProps() throws NotCompliantMBeanException, IOException {
     SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
     spa.writeSystemProperties(null);
-    List<SystemPropertyDetails> details = spa.readSystemProperties();
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HOST), equalTo("localhost"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("5678"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1234"));
-    assertThat(getDetailsValue(details, SystemInfo.ORGANIZATION), equalTo("org"));
-    assertThat(getDetailsValue(details, SystemInfo.SITE_CONTACT), equalTo("contact"));
-    assertThat(getDetailsValue(details, SystemInfo.SITE_NAME), equalTo("site"));
-    assertThat(getDetailsValue(details, SystemInfo.VERSION), equalTo("version"));
+
+    // Read the system dot properties file and make sure that the new values evaluate to what we
+    // expect
+    org.apache.felix.utils.properties.Properties systemProps =
+        new org.apache.felix.utils.properties.Properties(systemPropsFile);
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("5678"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1234"));
+    assertThat(systemProps.getProperty(SystemInfo.ORGANIZATION), equalTo("org"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_CONTACT), equalTo("contact"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_NAME), equalTo("site"));
+    assertThat(systemProps.getProperty(SystemInfo.VERSION), equalTo("version"));
   }
 
   @Test
@@ -132,17 +136,21 @@ public class SystemPropertiesAdminTest {
     map.put(SystemBaseUrl.INTERNAL_HOST, "newhost");
     map.put(SystemBaseUrl.EXTERNAL_HOST, "newhost");
     spa.writeSystemProperties(map);
-    List<SystemPropertyDetails> details = spa.readSystemProperties();
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HOST), equalTo("newhost"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HOST), equalTo("newhost"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("5678"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1234"));
-    assertThat(getDetailsValue(details, SystemInfo.ORGANIZATION), equalTo("org"));
-    assertThat(getDetailsValue(details, SystemInfo.SITE_CONTACT), equalTo("contact"));
-    assertThat(getDetailsValue(details, SystemInfo.SITE_NAME), equalTo("site"));
-    assertThat(getDetailsValue(details, SystemInfo.VERSION), equalTo("version"));
+
+    // Read the system dot properties file and make sure that the new values evaluate to what we
+    // expect
+    org.apache.felix.utils.properties.Properties systemProps =
+        new org.apache.felix.utils.properties.Properties(systemPropsFile);
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("newhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HOST), equalTo("newhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("5678"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1234"));
+    assertThat(systemProps.getProperty(SystemInfo.ORGANIZATION), equalTo("org"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_CONTACT), equalTo("contact"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_NAME), equalTo("site"));
+    assertThat(systemProps.getProperty(SystemInfo.VERSION), equalTo("version"));
 
     // only writes out the changed props
     assertTrue(systemPropsFile.exists());
@@ -188,24 +196,30 @@ public class SystemPropertiesAdminTest {
     SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
     Map<String, String> map = new HashMap<>();
     map.put(SystemBaseUrl.INTERNAL_HOST, "localhost");
-    map.put(SystemBaseUrl.INTERNAL_HTTP_PORT, "5678");
-    map.put(SystemBaseUrl.INTERNAL_HTTPS_PORT, "1234");
+    map.put(SystemBaseUrl.INTERNAL_HTTP_PORT, "9999");
+    map.put(SystemBaseUrl.INTERNAL_HTTPS_PORT, "1111");
     map.put(SystemBaseUrl.EXTERNAL_HOST, "localhost");
     map.put(SystemBaseUrl.EXTERNAL_HTTP_PORT, "5678");
     map.put(SystemBaseUrl.EXTERNAL_HTTPS_PORT, "1234");
 
     spa.writeSystemProperties(map);
-    List<SystemPropertyDetails> details = spa.readSystemProperties();
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HOST), equalTo("localhost"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("5678"));
-    assertThat(getDetailsValue(details, SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1234"));
-    assertThat(getDetailsValue(details, SystemInfo.ORGANIZATION), equalTo("org"));
-    assertThat(getDetailsValue(details, SystemInfo.SITE_CONTACT), equalTo("contact"));
-    assertThat(getDetailsValue(details, SystemInfo.SITE_NAME), equalTo("site"));
-    assertThat(getDetailsValue(details, SystemInfo.VERSION), equalTo("version"));
+
+    // Read the system dot properties file and make sure that the new values evaluate to what we
+    // expect
+    org.apache.felix.utils.properties.Properties systemProps =
+        new org.apache.felix.utils.properties.Properties(systemPropsFile);
+
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("9999"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1111"));
+    assertThat(systemProps.getProperty(SystemInfo.ORGANIZATION), equalTo("org"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_CONTACT), equalTo("contact"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_NAME), equalTo("site"));
+    assertThat(systemProps.getProperty(SystemInfo.VERSION), equalTo("version"));
   }
 
   private String getDetailsValue(List<SystemPropertyDetails> props, String key) {

@@ -340,10 +340,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     return new SystemPropertyDetailsImpl(title, description, options, key, property);
   }
 
-  private void clearPropertyValue(String key, Properties systemDotProperties) {
-    systemDotProperties.put(key, "");
-  }
-
   private void configureMBean() {
     mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
