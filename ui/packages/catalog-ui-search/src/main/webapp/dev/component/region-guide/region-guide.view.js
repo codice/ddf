@@ -9,7 +9,7 @@ module.exports = BaseGuideView.extend({
   jsxTemplate: RawExample,
   template() {
     return (
-      <React.Fragment key="region-guide.view">
+      <React.Fragment>
         {' '}
         {/* surround with multiple child roots with this to avoid wrapper divs */}
         <div className="section">

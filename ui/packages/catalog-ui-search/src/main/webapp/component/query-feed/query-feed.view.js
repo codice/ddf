@@ -87,7 +87,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   template(data) {
     return (
-      <React.Fragment key="query-feed.view">
+      <React.Fragment>
         <div className="details-text">
           <div className="details-results" title={data.resultCount}>
             {data.pending ? (

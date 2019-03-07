@@ -51,7 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     return (
       <Root>
         {Router.attributes.path === 'forms(/)' ? (
-          <React.Fragment key="search-form-system-tab-container.view">
+          <React.Fragment>
             <div className="title">
               {' '}
               These are system search forms and <b>cannot be changed</b>{' '}

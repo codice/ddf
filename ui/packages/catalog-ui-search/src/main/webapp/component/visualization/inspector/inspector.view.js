@@ -45,7 +45,7 @@ const Content = styled.div`
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('inspector'),
   template: () => (
-    <React.Fragment key="inspector.view">
+    <React.Fragment>
       <Empty className="inspector-empty">
         <h3>Please select result(s) to display in the inspector.</h3>
       </Empty>

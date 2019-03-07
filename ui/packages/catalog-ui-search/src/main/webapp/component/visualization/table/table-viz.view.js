@@ -35,7 +35,7 @@ module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('table-viz'),
   template() {
     return (
-      <React.Fragment key="table-viz.view">
+      <React.Fragment>
         <div className="table-empty">
           <h3>Please select a result set to display the table.</h3>
         </div>

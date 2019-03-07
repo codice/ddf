@@ -25,7 +25,7 @@ module.exports = Marionette.LayoutView.extend({
     this.fromValue = from
     this.toValue = to
     return (
-      <React.Fragment key="between-time.view">
+      <React.Fragment>
         <DateComponent
           label="From"
           placeholder="Limit search to after this time."

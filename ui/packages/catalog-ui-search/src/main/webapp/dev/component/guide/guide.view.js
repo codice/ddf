@@ -140,7 +140,7 @@ module.exports = Marionette.LayoutView.extend({
   template(data) {
     const ComponentToShow = this.getComponentToShow()
     return (
-      <React.Fragment key="guide.view">
+      <React.Fragment>
         <div className="container limit-to-center">
           <div className="section">
             <div className="is-header">Component / Pattern</div>

@@ -30,7 +30,7 @@ module.exports = Marionette.ItemView.extend({
   },
   template() {
     return (
-      <React.Fragment key="result-form.collection.view">
+      <React.Fragment>
         <NewForm
           onClick={() => this.handleNewResultForm()}
           label="New Result Form"

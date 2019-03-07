@@ -51,7 +51,7 @@ class SearchForms extends React.Component {
     const { forms, onClick } = this.props
 
     return (
-      <React.Fragment key="search-form-list.view">
+      <React.Fragment>
         <FilterPadding>
           <input
             style={{ width: '100%' }}

@@ -40,7 +40,7 @@ module.exports = Marionette.ItemView.extend({
     const disabledExport = store.getSelectedResults().length < 1
     const exportClass = disabledExport ? 'composed-menu' : ''
     return (
-      <React.Fragment key="query-interactions.view">
+      <React.Fragment>
         <div
           className="query-interaction interaction-run"
           title="Run"

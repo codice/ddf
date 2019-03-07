@@ -35,7 +35,7 @@ const Warning = styled.span`
 `
 
 export const HistogramContainer = () => (
-  <React.Fragment key="histogram.view">
+  <React.Fragment>
     <Empty className="histogram-empty">
       <h3>Please select a result set to display on the histogram.</h3>
     </Empty>
