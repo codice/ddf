@@ -1,0 +1,27 @@
+:title: Catalog UI Search Attribute Suggestion Whitelist
+:id: org.codice.ddf.catalog.ui.security.facetwhitelist
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Catalog UI Search Attribute Suggestion Whitelist
+
+.[[_org.codice.ddf.catalog.ui.security.facetwhitelist]]Catalog UI Search Attribute Suggestion Whitelist
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Attribute Suggestion Whitelist
+|facetAttributeWhitelist
+|String
+|List of attributes that should provide autocomplete suggestions. Suggestions are typically popular values for the attribute in data storage.
+Caution: Suggestion values are not protected by any security. Only choose attributes whose values will be safe for all users to view.
+|
+|false
+
+|===
