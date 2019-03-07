@@ -16,6 +16,7 @@ import styled from '../../styles/styled-components'
 import { keyframes } from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import BlacklistItemContainer from '../../container/blacklist-item'
+import { transparentize, readableColor } from 'polished'
 
 const expandAnimation = keyframes`
   from {
@@ -47,12 +48,16 @@ const EmptyBlacklist = styled.div`
 
 const ItemsWrapper = styled<Props, 'div'>('div')`
   > * {
-    border-top: 1px solid rgba(255, 255, 255, 10%);
-    border-bottom: 1px solid rgba(255, 255, 255, 10%);
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    border-color: ${props =>
+      transparentize(0.9, readableColor(props.theme.backgroundContent))};
   }
   > *:hover {
-    border-top: 1px solid rgba(255, 255, 255, 20%);
-    border-bottom: 1px solid rgba(255, 255, 255, 20%);
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    border-color: ${props =>
+      transparentize(0.8, readableColor(props.theme.backgroundContent))};
   }
   overflow: hidden;
   ${props =>
