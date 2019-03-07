@@ -41,9 +41,9 @@ const Description = styled.div`
 
 interface Props {
   onChange: (value: string) => void
-  mouseLat: any
-  mouseLon: any
-  target: any
+  mouseLat: number | null | undefined
+  mouseLon: number | null | undefined
+  target: string | null | undefined
   clickDms: string
   clickLat: string
   clickLon: string
