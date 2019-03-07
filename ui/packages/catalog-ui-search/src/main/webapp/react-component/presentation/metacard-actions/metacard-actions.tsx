@@ -25,59 +25,90 @@ const Root = styled.div`
   overflow: auto;
   height: 100%;
   padding: 0px ${props => props.theme.largeSpacing};
-
-  .is-header {
-    text-align: left;
-  }
-  .actions {
-    padding: 0px ${props => props.theme.largeSpacing};
-  }
-  .map-actions {
-    margin-top: ${props => props.theme.minimumSpacing};
-  }
-  a {
-    display: block;
-    margin-top: ${props => props.theme.minimumSpacing};
-  }
 `
+const Header = styled.div`
+  text-align: left;
+  font-size: ${props => props.theme.largeFontSize};
+  font-weight: bolder;
+  opacity: 0.8;
+`
+
+const MapActionsDiv = styled.div`
+  margin-top: ${props => props.theme.minimumSpacing};
+`
+const Divider = styled.div`
+  height: ${props => props.theme.dividerHeight};
+  margin: ${props => props.theme.minimumSpacing} 0px;
+` //TODO add fade
+
+const Actions = styled.div`
+  padding: 0px ${props => props.theme.largeSpacing};
+`
+
+const ActionLink = styled.a`
+  margin-top: ${props => props.theme.minimumSpacing};
+  cursor: pointer;
+`
+
+const ExportActions = (exportActions: any) => {
+  return (
+    <>
+      <Header>Export as:</Header>
+      <Divider />
+      <Actions>
+        {exportActions.map((exportAction: any) => {
+          return (
+            <ActionLink
+              href={exportAction.url}
+              target="_blank"
+              key={exportAction.url}
+            >
+              {exportAction.title}
+            </ActionLink>
+          )
+        })}
+      </Actions>
+    </>
+  )
+}
+
+const OtherActions = (otherActions: any) => {
+  if (otherActions.length === 0) {
+    return null
+  }
+  return (
+    <>
+      <Header>Various:</Header>
+      <Divider />
+      <Actions>
+        {otherActions.map((otherAction: any) => {
+          return (
+            <ActionLink
+              href={otherAction.url}
+              target="_blank"
+              key={otherAction.url}
+            >
+              {otherAction.title}
+            </ActionLink>
+          )
+        })}
+      </Actions>
+      <Divider />
+    </>
+  )
+}
 
 const render = (props: Props) => {
   const { exportActions, otherActions, model } = props
   return (
     <Root>
-      <div className="is-divider" />
-      <div className="is-header">Export as:</div>
-      <div className="is-divider" />
-      <div className="actions">
-        {exportActions.map((exportAction: any) => {
-          return (
-            <a href={exportAction.url} target="_blank" key={exportAction.url}>
-              {exportAction.title}
-            </a>
-          )
-        })}
-      </div>
-      <div className="is-divider" />
-      <div className="map-actions">
+      <Divider />
+      <ExportActions exportActions={exportActions} />
+      <Divider />
+      <MapActionsDiv>
         <MapActions model={model} />
-      </div>
-
-      {otherActions.length !== 0 && (
-        <>
-          <div className="is-header">Various:</div>
-          <div className="is-divider" />
-          <div className="actions">
-            {otherActions.map((otherAction: any) => {
-              return (
-                <a href={otherAction.url} target="_blank" key={otherAction.url}>
-                  {otherAction.title}
-                </a>
-              )
-            })}
-          </div>
-          <div className="is-divider" />
-        </>
-      )}
+      </MapActionsDiv>
+      <OtherActions otherActions={otherActions} />
     </Root>
   )
 }
