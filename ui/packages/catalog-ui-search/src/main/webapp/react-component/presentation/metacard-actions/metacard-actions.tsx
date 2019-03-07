@@ -13,6 +13,7 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled from '../../styles/styled-components'
+import { readableColor } from 'polished'
 import MapActions from '../../container/map-actions'
 
 type Props = {
@@ -37,9 +38,11 @@ const MapActionsDiv = styled.div`
   margin-top: ${props => props.theme.minimumSpacing};
 `
 const Divider = styled.div`
-  height: ${props => props.theme.dividerHeight};
+  height: ${props => props.theme.borderRadius};
   margin: ${props => props.theme.minimumSpacing} 0px;
-` //TODO add fade
+  background: ${props => readableColor(props.theme.backgroundContent)};
+  opacity: 0.1;
+`
 
 const Actions = styled.div`
   padding: 0px ${props => props.theme.largeSpacing};
@@ -48,9 +51,11 @@ const Actions = styled.div`
 const ActionLink = styled.a`
   margin-top: ${props => props.theme.minimumSpacing};
   cursor: pointer;
+  display: block;
 `
 
-const ExportActions = (exportActions: any) => {
+const ExportActions = (props: any) => {
+  const exportActions = props.exportActions
   return (
     <>
       <Header>Export as:</Header>
@@ -72,7 +77,8 @@ const ExportActions = (exportActions: any) => {
   )
 }
 
-const OtherActions = (otherActions: any) => {
+const OtherActions = (props: any) => {
+  const otherActions = props.otherActions
   if (otherActions.length === 0) {
     return null
   }

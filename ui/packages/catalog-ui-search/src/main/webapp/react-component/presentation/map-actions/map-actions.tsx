@@ -13,6 +13,7 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled from '../../styles/styled-components'
+import { readableColor } from 'polished'
 
 type Props = {
   overlayActions: any
@@ -35,9 +36,11 @@ const Header = styled.div`
 `
 
 const Divider = styled.div`
-  height: ${props => props.theme.dividerHeight};
+  height: ${props => props.theme.borderRadius};
   margin: ${props => props.theme.minimumSpacing} 0px;
-` //TODO add fade
+  background: ${props => readableColor(props.theme.backgroundContent)};
+  opacity: 0.1;
+`
 
 const Actions = styled.div`
   padding: 0px ${props => props.theme.largeSpacing};
@@ -46,6 +49,7 @@ const Actions = styled.div`
 const OverlayActionLink = styled.a`
   margin-top: ${props => props.theme.minimumSpacing};
   cursor: pointer;
+  display: block;
 `
 
 const render = (props: Props) => {
