@@ -40,6 +40,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.security.encryption.crypter.Crypter;
+import ddf.security.encryption.crypter.Crypter.CrypterException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -400,96 +401,137 @@ public class FileSystemStorageProvider implements StorageProvider {
   }
 
   private ContentItem readContent(URI uri) throws StorageException {
-    Path file = getContentFilePath(uri);
+    Path path = getContentFilePath(uri);
 
-    if (file == null) {
+    if (path == null) {
       throw new StorageException(
           "Unable to find file for content ID: " + uri.getSchemeSpecificPart());
     }
 
-    String filename = file.getFileName().toString();
-    String extension = FilenameUtils.getExtension(filename);
-    URI reference = null;
+    String filename = path.getFileName().toString();
 
-    // if the file is an external reference, remove the reference extension
-    // so we can get the real extension
-    if (REF_EXT.equals(extension)) {
-      extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(filename));
-      try {
-        String decryptedReference =
-            crypter.decrypt(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
-        reference = new URI(decryptedReference);
+    // resolve external reference if necessary, determine the extension, and retrieve an
+    // InputStream to the content
+    InputStream contentInputStream;
+    String extension;
 
-        if (reference.getScheme() == null) {
-          file = Paths.get(reference.toASCIIString());
-        } else if (reference.getScheme().equalsIgnoreCase("file")) {
-          file = Paths.get(reference);
-        } else {
-          file = null;
-        }
-      } catch (IOException | URISyntaxException e) {
-        throw new StorageException(e);
+    try {
+      if (REF_EXT.equals(FilenameUtils.getExtension(path.getFileName().toString()))) {
+        // remove the external reference extension so we can get the real extension
+        extension =
+            FilenameUtils.getExtension(
+                FilenameUtils.removeExtension(path.getFileName().toString()));
+        contentInputStream = getInputStreamFromReference(path);
+      } else {
+        extension = FilenameUtils.getExtension(path.getFileName().toString());
+        contentInputStream = getInputStreamFromResource(path);
       }
+    } catch (IOException e) {
+      throw new StorageException(
+          String.format("Unable to resolve InputStream given URI of %s", uri), e);
     }
 
-    if (reference != null && file != null && !file.toFile().exists()) {
-      throw new StorageException("Cannot read " + uri + ".");
-    }
+    // decrypt the file content and return as a ByteSource
+    ByteSource byteSource = decryptStream(contentInputStream);
 
+    // determine the size of the content
     long size = 0;
-    String mimeType = DEFAULT_MIME_TYPE;
-    ByteSource byteSource;
-    FileBackedOutputStream decryptedOutputStream = new FileBackedOutputStream(128);
 
-    try (InputStream fileInputStream =
-            file != null ? Files.newInputStream(file) : reference.toURL().openStream();
-        InputStream decryptedInputStream = crypter.decrypt(fileInputStream)) {
-
-      mimeType = mimeTypeMapper.guessMimeType(decryptedInputStream, extension);
-      IOUtils.copy(decryptedInputStream, decryptedOutputStream);
-
-    } catch (IOException ie) {
-      LOGGER.debug(
-          "Error opening stream to external reference {}. Failing StorageProvider read.",
-          reference,
-          ie);
-      throw new StorageException("Cannot read " + reference + ".");
-    } catch (MimeTypeResolutionException e) {
-      LOGGER.debug(
-          "Could not determine mime type for file extension = {}; defaulting to {}",
-          extension,
-          DEFAULT_MIME_TYPE);
+    try {
+      size = byteSource.size();
+    } catch (IOException e) {
+      LOGGER.debug("Problem determining size of resource; defaulting to {}.", size, e);
     }
 
-    if (file == null) { // if store reference
-      final URI finalReference = reference;
-      byteSource =
-          new ByteSource() {
-            @Override
-            public InputStream openStream() throws IOException {
-              return finalReference.toURL().openStream();
-            }
-          };
-    } else { // if resource
-      if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
-        try {
-          mimeType = Files.probeContentType(file);
-        } catch (IOException e) {
-          LOGGER.info("Unable to determine mime type using Java Files service.", e);
-        }
-      }
-
-      LOGGER.debug("mimeType = {}", mimeType);
-      try {
-        size = decryptedOutputStream.asByteSource().size();
-      } catch (IOException e) {
-        LOGGER.info("Unable to retrieve size of file: {}", file.toAbsolutePath().toString(), e);
-      }
-      byteSource = decryptedOutputStream.asByteSource();
-    }
+    // determine the MimeType of the resource
+    String mimeType = determineMimeType(extension, path, byteSource);
 
     return new ContentItemImpl(
         uri.getSchemeSpecificPart(), uri.getFragment(), byteSource, mimeType, filename, size, null);
+  }
+
+  private InputStream getInputStreamFromReference(Path externalReferencePath) throws IOException {
+    URI reference;
+
+    try {
+      byte[] encryptedRefBytes = Files.readAllBytes(externalReferencePath);
+      String encryptedRefString = new String(encryptedRefBytes, Charset.forName("UTF-8"));
+
+      reference = new URI(crypter.decrypt(encryptedRefString));
+    } catch (IOException | URISyntaxException e) {
+      throw new IOException(e);
+    }
+
+    // try and represent the reference as a path
+    Path newPath = null;
+    if (reference.getScheme() == null) {
+      newPath = Paths.get(reference.toASCIIString());
+    } else if (reference.getScheme().equalsIgnoreCase("file")) {
+      newPath = Paths.get(reference);
+    }
+
+    // if the reference can be represented as a path
+    if (newPath != null) {
+      if (!newPath.toFile().exists()) {
+        throw new IOException("Cannot read " + reference + ".");
+      }
+      return getInputStreamFromResource(newPath);
+    }
+
+    return reference.toURL().openStream();
+  }
+
+  private InputStream getInputStreamFromResource(Path path) throws IOException {
+    return Files.newInputStream(path);
+  }
+
+  private String determineMimeType(String extension, Path path, ByteSource byteSource) {
+    String mimeType = DEFAULT_MIME_TYPE;
+
+    // guess MimeType
+    try {
+      mimeType = mimeTypeMapper.guessMimeType(byteSource.openStream(), extension);
+    } catch (IOException | MimeTypeResolutionException e) {
+      LOGGER.debug(
+          "Could not determine mime type for file extension = {}; defaulting to {}.",
+          extension,
+          mimeType);
+    }
+
+    // probe for MimeType
+    if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
+      try {
+        mimeType = Files.probeContentType(path);
+      } catch (IOException e) {
+        LOGGER.debug(
+            "Could not determine mime type from file {}; defaulting to {}.", path, mimeType);
+      }
+    }
+
+    return mimeType;
+  }
+
+  private ByteSource decryptStream(InputStream contentInputStream) throws StorageException {
+    InputStream decryptedInputStream = null;
+    FileBackedOutputStream decryptedOutputStream = null;
+
+    try {
+      // do not use try with resources in order to have these InputStreams in the finally block
+      decryptedInputStream = crypter.decrypt(contentInputStream);
+      decryptedOutputStream = new FileBackedOutputStream(128);
+      IOUtils.copy(decryptedInputStream, decryptedOutputStream);
+    } catch (CrypterException | IOException e) {
+      LOGGER.debug(
+          "Error decrypting InputStream {}. Failing StorageProvider read.", contentInputStream, e);
+      throw new StorageException(
+          String.format("Cannot decrypt InputStream %s.", contentInputStream), e);
+    } finally {
+      // need to close both streams in order for IOUtils to copy properly
+      IOUtils.closeQuietly(decryptedInputStream);
+      IOUtils.closeQuietly(decryptedOutputStream);
+    }
+
+    return decryptedOutputStream.asByteSource();
   }
 
   private List<Path> listPaths(Path dir) throws IOException {

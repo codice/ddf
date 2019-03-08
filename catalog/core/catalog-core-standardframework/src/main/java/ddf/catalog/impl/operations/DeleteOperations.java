@@ -179,7 +179,7 @@ public class DeleteOperations {
 
     } catch (RuntimeException re) {
       LOGGER.info("Exception during runtime while performing delete", re);
-      throw new InternalIngestException("Exception during runtime while performing delete");
+      throw new InternalIngestException("Exception during runtime while performing delete.", re);
 
     } finally {
       if (deleteStorageRequest != null) {
