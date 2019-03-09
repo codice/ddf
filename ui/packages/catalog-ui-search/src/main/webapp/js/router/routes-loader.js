@@ -5,7 +5,7 @@ const path = require('path')
 module.exports = function(source, map) {
   const rootContext = path.join(this.rootContext, 'src/main/webapp/')
   const options = {
-    prefix: 'ddf/',
+    prefix: 'catalog-ui-search/src/main/webapp/',
     resolve(filePath) {
       const possibleAbsolutePathToJSFile = path.join(
         rootContext,

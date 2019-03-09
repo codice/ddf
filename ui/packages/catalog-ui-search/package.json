@@ -61,7 +61,7 @@
     "bootstrap": "3.4.0",
     "cesium": "1.44",
     "clipboard": "1.7.1",
-    "codice-icons": "*",
+    "codice-icons": "file:../codice-icons",
     "content-disposition": "0.5.3",
     "density-clustering": "1.3.0",
     "dropzone": "4.3.0",
@@ -107,7 +107,7 @@
     "wellknown": "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82",
     "wkx": "0.4.5"
   },
-  "main": "src/main/webapp/js/ApplicationSetup.js",
+  "main": "src/main/webapp/index.tsx",
   "alias": {
     "Backbone.ModelBinder": "backbone.modelbinder/Backbone.ModelBinder",
     "cesium$": "cesium/Build/Cesium/Cesium.js"

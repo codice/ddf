@@ -4,7 +4,7 @@ import { shallow, mount } from 'enzyme'
 
 import MarionetteRegionContainer from './index'
 
-const Marionette = require('backbone.marionette')
+const Marionette = require('marionette')
 
 describe('<MarionetteRegionContainer />', () => {
   it('renders a single div', () => {

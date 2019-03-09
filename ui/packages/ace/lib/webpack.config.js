@@ -1,5 +1,6 @@
 const path = require('path')
 const exec = require('child_process').execSync
+const fs = require('fs')
 
 const glob = require('glob')
 
@@ -59,7 +60,9 @@ const base = ({ alias = {}, env }) => ({
     new HtmlWebpackPlugin({
       title: 'My App',
       filename: 'index.html',
-      template: resolve('src/main/webapp/index.html'),
+      template: fs.existsSync(resolve('src/main/webapp/index.html'))
+        ? resolve('src/main/webapp/index.html')
+        : resolve('src/main/webapp/index.js'),
     }),
   ],
   externals: {
@@ -103,7 +106,18 @@ const base = ({ alias = {}, env }) => ({
       },
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
+        exclude: function(modulePath) {
+          if (modulePath.indexOf('catalog-ui-search') > -1) {
+            if (
+              modulePath.lastIndexOf('node_modules') >
+              modulePath.indexOf('catalog-ui-search')
+            ) {
+              return true
+            }
+            return false
+          }
+          return modulePath.indexOf('node_modules') > -1
+        },
         use: babelLoader(
           env === 'test'
             ? [
@@ -150,7 +164,6 @@ const base = ({ alias = {}, env }) => ({
           nodeResolve('raw-loader'),
           path.resolve(__dirname, 'concat-less.js'),
         ],
-        exclude: /node_modules/,
       },
       {
         test: /\.worker\.js$/,
@@ -161,12 +174,30 @@ const base = ({ alias = {}, env }) => ({
         use: [
           {
             loader: nodeResolve('ts-loader'),
+            options: { allowTsInNodeModules: true },
           },
           {
             loader: nodeResolve('stylelint-custom-processor-loader'),
           },
         ],
-        exclude: /node_modules/,
+        exclude: function(modulePath) {
+          if (modulePath.indexOf('catalog-ui-search') > -1) {
+            if (
+              modulePath.lastIndexOf('node_modules') >
+              modulePath.indexOf('catalog-ui-search')
+            ) {
+              return true
+            }
+            return false
+          }
+          return modulePath.indexOf('node_modules') > -1
+        },
+      },
+      {
+        test: /\.(html)$/,
+        use: {
+          loader: 'html-loader',
+        },
       },
     ],
   },

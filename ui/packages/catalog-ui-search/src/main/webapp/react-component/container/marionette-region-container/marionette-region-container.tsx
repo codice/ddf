@@ -10,7 +10,7 @@
  *
  **/
 import * as React from 'react'
-import * as Marionette from 'backbone.marionette'
+import * as Marionette from 'marionette'
 import styled from '../../styles/styled-components'
 const intervalToCheck = 20
 import { hot } from 'react-hot-loader'

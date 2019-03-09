@@ -1,0 +1,43 @@
+{
+  "name": "test",
+  "author": "Codice",
+  "description": "A frontend UI for DDF Catalog",
+  "version": "0.0.1",
+  "license": "LGPL-3.0",
+  "scripts": {
+    "fmt": "ace format -w",
+    "prestart": "ace disable-idp",
+    "start": "ace start",
+    "pretest": "ace bundle --env=test",
+    "test": "ace test ./target/test/index.html",
+    "start:test": "ace start --env=test",
+    "build": "ace bundle",
+    "postbuild": "ace package",
+    "m2": "yarn install:m2",
+    "install:m2": "ace clean && ace bundle && ace package && ace install",
+    "lint:css": "stylelint './src/**/*.tsx'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "devDependencies": {
+    "ace": "*"
+  },
+  "dependencies": {
+    "catalog-ui-search": "file:../catalog-ui-search"
+  },
+  "main": "components/entry/entry",
+  "alias": {
+    "Backbone.ModelBinder": "backbone.modelbinder/Backbone.ModelBinder",
+    "cesium$": "cesium/Build/Cesium/Cesium.js"
+  },
+  "files": [
+    "src/main/resources",
+    "target/webapp"
+  ],
+  "context-path": "/search/catalog"
+}
