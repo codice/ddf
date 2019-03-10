@@ -110,7 +110,7 @@ const base = ({ alias = {}, env }) => ({
           if (modulePath.indexOf('catalog-ui-search') > -1) {
             if (
               modulePath.lastIndexOf('node_modules') >
-              modulePath.indexOf('catalog-ui-search')
+              modulePath.lastIndexOf('catalog-ui-search')
             ) {
               return true
             }
@@ -184,7 +184,7 @@ const base = ({ alias = {}, env }) => ({
           if (modulePath.indexOf('catalog-ui-search') > -1) {
             if (
               modulePath.lastIndexOf('node_modules') >
-              modulePath.indexOf('catalog-ui-search')
+              modulePath.lastIndexOf('catalog-ui-search')
             ) {
               return true
             }
