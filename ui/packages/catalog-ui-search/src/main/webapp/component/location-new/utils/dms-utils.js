@@ -422,16 +422,12 @@ const lon = {
 }
 
 const validateDmsLatInput = input => {
-  if (
-    input.slice(lat.degreesBegin, lat.degreesEnd) > 90 ||
-    input.slice(lat.minutesBegin, lat.minutesEnd) > 60 ||
-    input.slice(lat.secondsBegin, lat.secondsEnd) > 60
-  ) {
-    return false
-  } else if (input.slice(lat.minutesBegin, lat.minutesEnd) === '60') {
-    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°60\'00"'
-  } else if (input.slice(lat.degreesBegin, lat.degreesEnd) === '90') {
+  if (input.slice(lat.degreesBegin, lat.degreesEnd) > 90) {
     return '90°00\'00"'
+  } else if (input.slice(lat.minutesBegin, lat.minutesEnd) > 60) {
+    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°60\'00"'
+  } else if (input.slice(lat.secondsBegin, lat.secondsEnd) > 60) {
+    return input.slice(lat.degreesBegin, lat.minutesEnd) + '\'60"'
   } else if (
     input.slice(lat.degreesBegin, lat.degreesEnd) === '9_' &&
     input.slice(lat.degreesEnd) === '°00\'00"'
@@ -448,16 +444,12 @@ const validateDmsLatInput = input => {
 }
 
 const validateDmsLonInput = input => {
-  if (
-    input.slice(lon.degreesBegin, lon.degreesEnd) > 180 ||
-    input.slice(lon.minutesBegin, lon.minutesEnd) > 60 ||
-    input.slice(lon.secondsBegin, lon.secondsEnd) > 60
-  ) {
-    return false
-  } else if (input.slice(lon.minutesBegin, lon.minutesEnd) === '60') {
-    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°60\'00"'
-  } else if (input.slice(lon.degreesBegin, lon.degreesEnd) === '180') {
+  if (input.slice(lon.degreesBegin, lon.degreesEnd) > 180) {
     return '180°00\'00"'
+  } else if (input.slice(lon.minutesBegin, lon.minutesEnd) > 60) {
+    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°60\'00"'
+  } else if (input.slice(lon.secondsBegin, lon.secondsEnd) > 60) {
+    return input.slice(lon.degreesBegin, lon.minutesEnd) + '\'60"'
   } else if (
     input.slice(lon.degreesBegin, lon.degreesEnd) === '18_' &&
     input.slice(lon.degreesEnd) === '°00\'00"'
