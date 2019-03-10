@@ -16,5 +16,4 @@ export const IsButton = theme => css`
   height: ${theme.minimumButtonSize};
   line-height: ${theme.minimumButtonSize};
   display: inline-block;
-  margin-left: ${theme.mediumSpacing};
 `

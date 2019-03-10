@@ -9,12 +9,23 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { GrabCursor, IsButton, HighlightBehavior } from '../../styles/mixins'
+export {
+  GrabCursor,
+  IsButton,
+  HighlightBehavior,
+  DisabledBehavior,
+} from '../../styles/mixins'
 import { Order, Visibility, Actions } from '../../container/layer-item'
 
-export { GrabCursor, IsButton, HighlightBehavior }
+export { LayerRearrange } from './rearrange'
+export { LayerInteractions } from './layer-properties/interactions'
+export { LayerAlpha } from './layer-properties/alpha'
+export { LayerName } from './layer-properties/name'
 export interface Props {
   name: string
+  id: string
+  warning: string
+  isRemoveable: boolean
   order: Order
   visibility: Visibility
   actions: Actions

@@ -10,9 +10,9 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from '../../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props, IsButton } from '.'
+import { Props, IsButton, HighlightBehavior } from '..'
 
 const Interactions = styled.div`
   text-align: right;
@@ -20,18 +20,20 @@ const Interactions = styled.div`
 
 const InteractionsButton = styled.button`
   ${props => IsButton(props.theme)};
+  ${props => HighlightBehavior({ initialOpacity: props.theme.minimumOpacity })};
   width: ${props => props.theme.minimumButtonSize};
   height: ${props => props.theme.minimumButtonSize};
   vertical-align: top;
 `
 
 const Warning = styled(InteractionsButton)`
-  display: none;
+  display: inline-block;
+  color: ${props => props.theme.warningColor};
+  cursor: default;
 `
+/* stylelint-disable block-no-empty */
+const Remove = styled(InteractionsButton)``
 
-const Remove = styled(InteractionsButton)`
-  display: none;
-`
 const Show = styled(InteractionsButton)`
   position: relative;
   display: inline-block !important;
@@ -53,18 +55,26 @@ const ContentShow = ({ visibility }: Props) => {
 }
 
 const render = (props: Props) => {
-  const {updateLayerShow} = props.actions
+  const { isRemoveable, warning = '' } = props
+  const { updateLayerShow, onRemove } = props.actions
   return (
     <Interactions>
-      <Warning data-help="View map layer warnings." title="warning">
-        <span className=" fa fa-warning" />
-      </Warning>
-      <Remove
-        data-help="Remove map layer from user preferences."
-        title="Remove map layer from user preferences."
-      >
-        <span className="fa fa-minus" />
-      </Remove>
+      {warning !== '' && (
+        <Warning data-help="View map layer warnings." title={warning}>
+          <span className=" fa fa-warning" />
+        </Warning>
+      )}
+
+      {isRemoveable && (
+        <Remove
+          data-help="Remove map layer from user preferences."
+          title="Remove map layer from user preferences."
+          onClick={onRemove}
+        >
+          <span className="fa fa-minus" />
+        </Remove>
+      )}
+
       <Show
         data-help="Toggle layer visibility."
         title="Toggle layer visibility."
@@ -76,4 +86,4 @@ const render = (props: Props) => {
   )
 }
 
-export default hot(module)(render)
+export const LayerInteractions = hot(module)(render)

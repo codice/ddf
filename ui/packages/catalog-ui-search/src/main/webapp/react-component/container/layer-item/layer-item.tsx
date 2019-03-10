@@ -21,27 +21,26 @@ import { hot } from 'react-hot-loader'
 //   padding-right: 5px;
 // `
 
-export interface Order {
+export type Order = {
   order: number
   isBottom: boolean
   isTop: boolean
 }
 
-export interface Visibility {
+export type Visibility = {
   alpha: number
   show: boolean
 }
 
-export interface Actions {
+export type Actions = {
   updateLayerShow: () => void
-  // updateLayerAlpha : () => void
+  updateLayerAlpha: (e: any) => void
   // moveDown : (e: any) => void
   // moveUp : (e: any) => void
-  // onRemove : () => void
+  onRemove: () => void
 }
 
-interface State {
-  name: string
+type State = {
   order: Order
   visibility: Visibility
 }
@@ -52,7 +51,6 @@ type Props = {
 
 const mapPropsToState = (props: Props) => {
   const { layer } = props
-  const name = layer.get('name')
   const show = layer.get('show')
   const alpha = layer.get('alpha')
   const order = layer.get('order')
@@ -60,7 +58,6 @@ const mapPropsToState = (props: Props) => {
   const isTop = layer.collection.first().id === layer.id
 
   return {
-    name,
     order: { order, isBottom, isTop },
     visibility: { show, alpha },
   }
@@ -83,14 +80,38 @@ class LayerItem extends React.Component<Props, State> {
   }
 
   updateLayerShow = () => {
-      const show = this.state.visibility.show
+    const show = this.state.visibility.show
     this.props.layer.set('show', !show)
   }
-  
-  actions = { updateLayerShow: this.updateLayerShow }
-    
+
+  updateLayerAlpha = (e: any) => {
+    this.props.layer.set('alpha', e.target.value)
+  }
+
+  onRemove = () => {
+    const { layer } = this.props
+    layer.collection.remove(layer)
+  }
+
+  actions = {
+    updateLayerShow: this.updateLayerShow,
+    updateLayerAlpha: this.updateLayerAlpha,
+    onRemove: this.onRemove,
+  }
+
   render() {
-    const props = { ...this.state, actions: this.actions  }
+    const { layer } = this.props
+    const layerInfo = {
+      name: layer.get('name'),
+      id: layer.get('id'),
+      warning: layer.get('warning'),
+      isRemoveable: layer.has('userRemovable'),
+    }
+    const props = {
+      ...this.state,
+      ...layerInfo,
+      actions: this.actions,
+    }
     return <LayerItemPresentation {...props} />
   }
 }

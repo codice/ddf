@@ -12,49 +12,22 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props, GrabCursor, IsButton, HighlightBehavior } from '.'
-import Interactions from './interactions'
+import { Props } from '.'
 
-const Root = styled.div`
+import { LayerRearrange, LayerAlpha, LayerInteractions, LayerName } from '.'
+
+const Root = styled<Props, 'div'>('div')`
   display: block;
   white-space: nowrap;
   width: 100%;
   overflow: hidden;
   position: relative;
-`
-
-const RearrangeButton = styled.button`
-  ${props => IsButton(props.theme)};
-  ${HighlightBehavior({ initialOpacity: 0 })};
-  z-index: 1;
-  position: absolute;
-  left: 0px;
-  margin-left: 0px;
-  height: calc(0.5 * ${props => props.theme.minimumButtonSize});
-  line-height: calc(0.5 * ${props => props.theme.minimumButtonSize});
-`
-const RearrangeDown = styled(RearrangeButton)`
-  top: calc(100% - 0.5 * ${props => props.theme.minimumButtonSize});
-`
-const RearrangeUp = styled(RearrangeButton)`
-  top: 0px;
-`
-const RearrangeIcon = styled.span`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
-`
-
-const DragButton = styled.button`
-  ${props => IsButton(props.theme)};
-  ${GrabCursor};
-  vertical-align: middle;
-  position: absolute;
-  left: 0px;
-  margin-left: 0px;
-  top: 0px;
-  height: 100%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: ${props => {
+    if (!props.order.isTop) {
+      return 'none'
+    }
+  }};
 `
 
 const LayerPropertiesRoot = styled.div`
@@ -63,41 +36,18 @@ const LayerPropertiesRoot = styled.div`
   padding: 0 ${props => props.theme.mediumSpacing};
   margin-left: ${props => props.theme.minimumButtonSize};
   width: calc(100% - ${props => props.theme.minimumButtonSize});
-`
-
-const LayerName = styled.div`
-  line-height: ${props => props.theme.minimumButtonSize};
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
-
-const LayerAlpha = styled.input`
-  display: inline-block !important;
-  vertical-align: middle;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
 `
 
 const render = (props: Props) => {
-  const { name } = props
+  const { name = 'Untitled', id } = props
   return (
-    <Root>
-      <RearrangeUp>
-        <RearrangeIcon className="fa fa-angle-up" />
-      </RearrangeUp>
-      <RearrangeDown>
-        <RearrangeIcon className="fa fa-angle-down" />
-      </RearrangeDown>
-      <DragButton>
-        <span className="fa fa-arrows-v" />
-      </DragButton>
-
+    <Root {...props} data-id={id}>
+      <LayerRearrange {...props} />
       <LayerPropertiesRoot>
-        <LayerName title={name}>Layer</LayerName>
-
-        <div className="layer-visibility">
-          <LayerAlpha min="0" max="1" step="0.01" type="range" />
-        </div>
-
-        <Interactions {...props}/>
+        <LayerName {...props}>{name}</LayerName>
+        <LayerAlpha {...props} />
+        <LayerInteractions {...props} />
       </LayerPropertiesRoot>
     </Root>
   )
