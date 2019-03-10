@@ -128,6 +128,8 @@ public class AsyncFileAlterationObserver {
    */
   public boolean checkAndNotify() {
 
+    AsyncFileAlterationListener listenerCopy;
+
     synchronized (processingLock) {
       if (processing.get() != 0) {
         LOGGER.debug(
@@ -137,17 +139,16 @@ public class AsyncFileAlterationObserver {
         LOGGER.debug("Another thread is currently running, returning until next poll");
         return false;
       }
-      isProcessing = true;
-    }
 
-    //  You cannot change listeners in the middle of executions.
-    AsyncFileAlterationListener listenerCopy;
-    synchronized (listenerLock) {
-      if (listener == null) {
-        isProcessing = false;
-        return false;
+      isProcessing = true;
+      //  You cannot change listeners in the middle of executions.
+      synchronized (listenerLock) {
+        if (listener == null) {
+          isProcessing = false;
+          return false;
+        }
+        listenerCopy = listener;
       }
-      listenerCopy = listener;
     }
 
     /* fire directory/file events */
