@@ -431,7 +431,7 @@ public class FileSystemStorageProvider implements StorageProvider {
           String.format("Unable to resolve InputStream given URI of %s", uri), e);
     }
 
-    // decrypt the file content and return as a ByteSource
+    // decrypt the content and return as a ByteSource
     ByteSource byteSource = decryptStream(contentInputStream);
 
     // determine the size of the content
@@ -443,7 +443,7 @@ public class FileSystemStorageProvider implements StorageProvider {
       LOGGER.debug("Problem determining size of resource; defaulting to {}.", size, e);
     }
 
-    // determine the MimeType of the resource
+    // determine the MimeType of the content
     String mimeType = determineMimeType(extension, path, byteSource);
 
     return new ContentItemImpl(

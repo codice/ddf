@@ -208,11 +208,15 @@ public class Crypter {
    * @param plainInputStream The InputStream to encrypt.
    */
   public InputStream encrypt(InputStream plainInputStream) throws CrypterException {
-    if (plainInputStream == null) {
-      throw new CrypterException("Plain InputStream cannot be empty.");
-    }
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
+    }
+    try {
+      if (plainInputStream == null || plainInputStream.available() < 1) {
+        throw new CrypterException("Plain InputStream cannot be null or empty.");
+      }
+    } catch (IOException e) {
+      throw new CrypterException("Problem reading data from plain InputStream.", e);
     }
 
     File tmpFile;
@@ -249,11 +253,15 @@ public class Crypter {
    * @param encryptedInputStream The InputStream to decrypt.
    */
   public InputStream decrypt(InputStream encryptedInputStream) throws CrypterException {
-    if (encryptedInputStream == null) {
-      throw new CrypterException("Encrypted InputStream cannot be empty.");
-    }
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
+    }
+    try {
+      if (encryptedInputStream == null || encryptedInputStream.available() < 1) {
+        throw new CrypterException("Encrypted InputStream cannot be null or empty.");
+      }
+    } catch (IOException e) {
+      throw new CrypterException("Problem reading data from encrypted InputStream.", e);
     }
 
     try {
