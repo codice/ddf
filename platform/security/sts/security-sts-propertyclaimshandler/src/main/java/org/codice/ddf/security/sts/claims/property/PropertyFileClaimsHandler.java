@@ -13,15 +13,17 @@
  */
 package org.codice.ddf.security.sts.claims.property;
 
-import ddf.security.PropertiesLoader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -29,6 +31,10 @@ import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.cxf.sts.token.realm.RealmSupport;
+import org.apache.felix.utils.properties.Properties;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +44,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private String propertyFileLocation;
 
-  private Map<String, String> userMapping;
+  private HashMap<String, String> userMapping;
 
   private List<String> supportedRealms;
 
@@ -47,6 +53,8 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
   private String roleClaimType;
 
   private String idClaimType;
+
+  private PropertiesBackingEngine pbe;
 
   @Override
   public List<URI> getSupportedClaimTypes() {
@@ -80,6 +88,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     if (needsRoleClaim) {
+
       String userAttributes = userMapping.get(user);
       if (userAttributes != null) {
         String[] attributes = userAttributes.split(",");
@@ -160,7 +169,30 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
     if (propertyFileLocation != null
         && !propertyFileLocation.isEmpty()
         && !propertyFileLocation.equals(this.propertyFileLocation)) {
-      userMapping = PropertiesLoader.toMap(PropertiesLoader.loadProperties(propertyFileLocation));
+
+      Properties p = new Properties();
+      try {
+        p.load(getClass().getResourceAsStream(propertyFileLocation));
+      } catch (FileNotFoundException e) {
+        LOGGER.debug("File not found when attempting to load user properties file.", e);
+      } catch (IOException e) {
+        LOGGER.debug("Exception when trying to load the user properties file.", e);
+      }
+
+      pbe = new PropertiesBackingEngine(p);
+
+      List<UserPrincipal> userList = pbe.listUsers();
+      userMapping = new HashMap();
+      for (UserPrincipal eachUser : userList) {
+
+        List<RolePrincipal> userRoles = pbe.listRoles(eachUser);
+        List<String> roleList = new ArrayList();
+        for (RolePrincipal userRole : userRoles) {
+          roleList.add(userRole.getName());
+        }
+
+        userMapping.put(eachUser.getName(), StringUtils.join(roleList, ","));
+      }
     }
     this.propertyFileLocation = propertyFileLocation;
   }
