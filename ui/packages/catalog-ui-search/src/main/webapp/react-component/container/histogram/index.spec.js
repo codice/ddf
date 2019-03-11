@@ -20,8 +20,6 @@ import { HistogramContainer } from '.'
 
 describe('<HistogramContainer />', () => {
   it('renders without error', () => {
-    const wrapper = shallow(
-      <HistogramContainer/>
-    )
+    const wrapper = shallow(<HistogramContainer />)
   })
 })
