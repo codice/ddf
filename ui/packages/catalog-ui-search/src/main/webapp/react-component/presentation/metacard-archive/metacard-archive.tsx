@@ -14,6 +14,7 @@ import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
+import LoadingCompanion from '../../container/loading-companion'
 
 type Props = {
   handleArchive: () => void
@@ -32,9 +33,9 @@ const SubText = styled.span`
 `
 
 const render = (props: Props) => {
-  const { handleArchive, handleRestore, isDeleted } = props
+  const { handleArchive, handleRestore, isDeleted, loading } = props
   return (
-    <>
+    <LoadingCompanion loading={loading}>
       {!isDeleted ? (
         <Button
           style={{ width: '100%', height: 'auto' }}
@@ -59,7 +60,7 @@ and then click 'Restore Archived Items'."
           <MainText>Restore item(s)</MainText>
         </Button>
       )}
-    </>
+    </LoadingCompanion>
   )
 }
 

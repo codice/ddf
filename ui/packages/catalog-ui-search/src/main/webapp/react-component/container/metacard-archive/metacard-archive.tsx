@@ -93,7 +93,7 @@ class MetacardQuality extends React.Component<Props, State> {
           self.refreshResults()
 
           setTimeout(() => {
-            self.setState({ loading: false })
+            self.setState({ isDeleted: true, loading: false })
           }, 2000)
         }
       }.bind(this)
@@ -132,7 +132,7 @@ class MetacardQuality extends React.Component<Props, State> {
             })
 
             setTimeout(() => {
-              self.setState({ loading: false })
+              self.setState({ isDeleted: false, loading: false })
             }, 2000)
           })
         }
