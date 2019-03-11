@@ -23,7 +23,7 @@ public class TinkFeatures {
     return features(
         maven()
             .groupId("ddf.features")
-            .artifactId("security")
+            .artifactId("test-utilities")
             .version(System.getProperty("component.version")) // equal to ${project.version}
             .classifier("features")
             .type("xml"),

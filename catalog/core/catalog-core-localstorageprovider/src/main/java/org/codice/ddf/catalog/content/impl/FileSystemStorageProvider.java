@@ -416,7 +416,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     String extension;
 
     try {
-      if (REF_EXT.equals(FilenameUtils.getExtension(path.getFileName().toString()))) {
+      if (REF_EXT.equals(FilenameUtils.getExtension(filename))) {
         // remove the external reference extension so we can get the real extension
         extension =
             FilenameUtils.getExtension(

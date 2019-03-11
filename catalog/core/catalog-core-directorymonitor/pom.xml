@@ -283,7 +283,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>
-            <artifactId>security</artifactId>
+            <artifactId>test-utilities</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
