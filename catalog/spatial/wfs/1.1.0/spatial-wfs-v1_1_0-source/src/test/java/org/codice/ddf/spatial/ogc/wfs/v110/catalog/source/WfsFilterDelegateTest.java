@@ -19,17 +19,22 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import io.restassured.path.xml.XmlPath;
+import io.restassured.path.xml.config.XmlPathConfig;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1066,6 +1071,60 @@ public class WfsFilterDelegateTest {
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, false);
 
     assertXMLEqual(propertyIsEqualToXmlBoolean, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsDuring() throws JAXBException, IOException, SAXException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.during(MOCK_PROPERTY, date, endDate);
+    assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsBefore() throws JAXBException, IOException, SAXException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.before(MOCK_PROPERTY, date);
+    assertXMLEqual(propertyLessThanXmlDate, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsAfter() throws JAXBException, IOException, SAXException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.after(MOCK_PROPERTY, date);
+    assertXMLEqual(propertyGreaterThanXmlDate, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsRelative() throws JAXBException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.relative(MOCK_PROPERTY, 100_000L);
+    final String xml = marshal(filter);
+    System.out.println(xml);
+    final XmlPathConfig config =
+        new XmlPathConfig().declaredNamespace("ogc", "http://www.opengis.net/ogc");
+
+    final XmlPath xmlPath = new XmlPath(xml).using(config);
+    final String lowerBoundary =
+        xmlPath.getString("ogc:Filter.ogc:PropertyIsBetween.ogc:LowerBoundary.ogc:Literal");
+    assertThat(
+        "There was no lower boundary in the filter XML.",
+        lowerBoundary,
+        not(isEmptyOrNullString()));
+
+    final String upperBoundary =
+        xmlPath.getString("ogc:Filter.ogc:PropertyIsBetween.ogc:UpperBoundary.ogc:Literal");
+    assertThat(
+        "There was no upper boundary in the filter XML.",
+        upperBoundary,
+        not(isEmptyOrNullString()));
+
+    final long start = OffsetDateTime.parse(lowerBoundary).toInstant().toEpochMilli();
+    final long end = OffsetDateTime.parse(upperBoundary).toInstant().toEpochMilli();
+    assertThat("The dates were not 100 seconds apart.", end - start, is(100_000L));
   }
 
   @Test(expected = IllegalArgumentException.class)
