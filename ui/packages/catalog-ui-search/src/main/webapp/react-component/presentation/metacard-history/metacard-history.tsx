@@ -24,46 +24,9 @@ type Props = {
   loading: boolean
 }
 
-// prettier-ignore
 const Root = styled.div`
   overflow: auto;
   height: 100%;
-
-  .metacardHistory-row {
-    transition: padding ${props => props.theme.transitionTime} linear;
-  }
-
-  .metacardHistory-header {
-    height: 50px;
-  }
-  
-  .metacardHistory-body {
-    display: inline-block;
-    max-height: ~'calc(100% - ${props => props.theme.minimumButtonSize}*2 - 20px - ${props => props.theme.minimumSpacing})';
-    overflow: auto;
-    overflow-x: hidden;
-    width: 100%;
-  }
-
-  .metacardHistory-cell {
-    float: left;
-    padding: 10px;
-    text-align: center;
-  }
-
-  .metacardHistory-version {
-    width: 20%;
-  }
-
-  .metacardHistory-date {
-    width: 50%;
-  }
-
-  .metacardHistory-user {
-    width: 30%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 
   button {
     margin-top: 10px;
@@ -75,18 +38,72 @@ const Root = styled.div`
     text-overflow: ellipsis;
   }
 
-  .is-small-screen,
-  .is-mobile-screen {
-    .metacardHistory-body {
-      max-height: none;
-      overflow: auto;
-    }
-
-    .metacardHistory-cell {
-      display: block;
-      width: 100%;
-    }
+  .metacardHistory-cell {
+    float: left;
+    padding: 10px;
+    text-align: center;
   }
+
+  ${props => {
+    if (props.theme.screenBelow(props.theme.smallScreenSize)) {
+      return `
+        .metacardHistory-body {
+          max-height: none;
+          overflow: auto;
+        }
+  
+        .metacardHistory-cell {
+          display: block;
+          width: 100%;
+        }
+    `
+    }
+  }};
+`
+
+const Header = styled.div`
+  height: 50px;
+`
+
+const Row = styled.div`
+  transition: padding ${props => props.theme.transitionTime} linear;
+`
+
+// prettier-ignore
+const Body = styled.div`
+  max-height: calc(100% - ${props => props.theme.minimumButtonSize}*2 - 20px - ${props => props.theme.minimumSpacing});
+  overflow: auto;
+  overflow-x: hidden;
+  width: 100%;
+  cursor: pointer;
+  display: table;
+  content: " ";
+  > *,
+  > * > td {
+    display: inline-block;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  > *:hover,
+  > *:hover > td {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+`
+
+const Version = styled.div`
+  width: 20%;
+`
+
+const Date = styled.div`
+  width: 50%;
+`
+
+const Modified = styled.div`
+  width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 const render = (props: Props) => {
@@ -100,21 +117,15 @@ const render = (props: Props) => {
   return (
     <LoadingCompanion loading={loading}>
       <Root>
-        <div className="metacardHistory-header clearfix">
-          <div className="metacardHistory-row clearfix">
-            <div className="metacardHistory-cell metacardHistory-version">
-              Version
-            </div>
-            <div className="metacardHistory-cell metacardHistory-date">
-              Date
-            </div>
-            <div className="metacardHistory-cell metacardHistory-user">
-              Modified by
-            </div>
-          </div>
-        </div>
-        <div
-          className="metacardHistory-body is-list has-list-highlighting is-clickable"
+        <Header>
+          <Row>
+            <Version className="metacardHistory-cell">Version</Version>
+            <Date className="metacardHistory-cell">Date</Date>
+            <Modified className="metacardHistory-cell">Modified by</Modified>
+          </Row>
+        </Header>
+        <Body
+          className="metacardHistory-body"
           data-help="This is the history of changes to
 this item.  If you have the right permissions, you can click one of the items in the list
 and then click 'Revert to Selected Version' to restore the item to that specific state.  No history
@@ -123,26 +134,26 @@ have chosen."
         >
           {history.map((historyItem: any) => {
             return (
-              <div
-                className={`metacardHistory-row clearfix ${selectedVersion ===
-                  historyItem.id && 'is-selected'}`}
+              <Row
+                className={`${selectedVersion === historyItem.id &&
+                  'is-selected'}`}
                 data-id={historyItem.id}
                 key={historyItem.id}
                 onClick={clickWorkspace}
               >
-                <div className="metacardHistory-cell metacardHistory-version">
+                <Version className="metacardHistory-cell">
                   {historyItem.versionNumber}
-                </div>
-                <div className="metacardHistory-cell metacardHistory-date">
+                </Version>
+                <Date className="metacardHistory-cell">
                   {historyItem.niceDate}
-                </div>
-                <div className="metacardHistory-cell metacardHistory-user">
+                </Date>
+                <Modified className="metacardHistory-cell">
                   {historyItem.editedBy}
-                </div>
-              </div>
+                </Modified>
+              </Row>
             )
           })}
-        </div>
+        </Body>
         {selectedVersion && (
           <Button
             buttonType={buttonTypeEnum.primary}
