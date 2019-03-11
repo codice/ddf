@@ -16,6 +16,7 @@
 import * as React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
+import LoadingCompanion from 'catalog-ui-search/src/main/webapp/react-component/container/loading-companion'
 const PropertyView = require('../../../component/property/property.view.js')
 const user = require('../../../component/singletons/user-instance.js')
 const Property = require('../../../component/property/property.js')
@@ -75,46 +76,105 @@ const ThemeCustom = styled.div`
   display: block;
 `
 
-const saveFontChanges = (fontSize: any) => {
-  let preferences = getPreferences()
+const saveFontChanges = (fontSize: string) => {
   let newFontSize = fontSize
-  preferences.set('fontSize', ThemeUtils.getFontSize(newFontSize))
+  getPreferences().set('fontSize', ThemeUtils.getFontSize(newFontSize))
 }
 
-const saveSpacingChanges = (spacingMode: any) => {
-  let preferences = getPreferences()
+const saveSpacingChanges = (spacingMode: string) => {
   let newSpacingMode = spacingMode
-  preferences.get('theme').set('spacingMode', newSpacingMode)
+  getPreferences()
+    .get('theme')
+    .set('spacingMode', newSpacingMode)
   getPreferences().savePreferences()
 }
 
-const saveAnimationChanges = (animationMode: any) => {
-  let preferences = getPreferences()
+const saveAnimationChanges = (animationMode: string) => {
   let newAnimationMode = animationMode
-  preferences.set('animation', newAnimationMode)
+  getPreferences().set('animation', newAnimationMode)
   getPreferences().savePreferences()
 }
 
-const saveHoverPreviewChanges = (hoverValue: any) => {
-  let preferences = getPreferences()
+const saveHoverPreviewChanges = (hoverValue: string) => {
   let newHoverPreview = hoverValue
-  preferences.set('hoverPreview', newHoverPreview)
+  getPreferences().set('hoverPreview', newHoverPreview)
   getPreferences().savePreferences()
 }
 
-const saveThemeChanges = (themeValue: any) => {
-  let preferences = getPreferences()
+const saveThemeChanges = (themeValue: string) => {
   let newTheme = themeValue
-  preferences.get('theme').set('theme', newTheme)
+  getPreferences()
+    .get('theme')
+    .set('theme', newTheme)
   getPreferences().savePreferences()
 }
 
-const saveCustomColorVariable = (colorVariable: any, selectedValue: any) => {
-  let preferences = getPreferences()
+const saveCustomColorVariable = (
+  colorVariable: string,
+  selectedValue: string
+) => {
   let newValue = selectedValue
-  preferences.get('theme').set(colorVariable, newValue)
+  getPreferences()
+    .get('theme')
+    .set(colorVariable, newValue)
   getPreferences().savePreferences()
 }
+
+const spacingEnum = [
+  {
+    label: 'Comfortable',
+    value: 'comfortable',
+  },
+  {
+    label: 'Cozy',
+    value: 'cozy',
+  },
+  {
+    label: 'Compact',
+    value: 'compact',
+  },
+]
+
+const animationEnum = [
+  {
+    label: 'On',
+    value: true,
+  },
+  {
+    label: 'Off',
+    value: false,
+  },
+]
+
+const hoverEnum = [
+  {
+    label: 'On',
+    value: true,
+  },
+  {
+    label: 'Off',
+    value: false,
+  },
+]
+
+const themeEnum = [
+  {
+    label: 'Dark',
+    value: 'dark',
+  },
+  {
+    label: 'Light',
+    value: 'light',
+  },
+  {
+    label: 'Sea',
+    value: 'sea',
+  },
+  {
+    label: 'Custom',
+    value: 'custom',
+  },
+]
 
 class ThemeSettings extends React.Component<
   {},
@@ -126,6 +186,7 @@ class ThemeSettings extends React.Component<
     themeModel: any
     customToggle: boolean
     customColors: any[]
+    loading: boolean
   }
 > {
   constructor(props: any) {
@@ -143,20 +204,7 @@ class ThemeSettings extends React.Component<
       }),
       spacingModeModel: new Property({
         isEditing: true,
-        enum: [
-          {
-            label: 'Comfortable',
-            value: 'comfortable',
-          },
-          {
-            label: 'Cozy',
-            value: 'cozy',
-          },
-          {
-            label: 'Compact',
-            value: 'compact',
-          },
-        ],
+        enum: spacingEnum,
         value: [getSpacingMode()],
         id: 'Spacing',
       }),
@@ -164,78 +212,54 @@ class ThemeSettings extends React.Component<
         isEditing: true,
         label: 'Animation',
         value: [getAnimationMode()],
-        enum: [
-          {
-            label: 'On',
-            value: true,
-          },
-          {
-            label: 'Off',
-            value: false,
-          },
-        ],
+        enum: animationEnum,
         id: 'Animation',
       }),
       hoverPreviewModel: new Property({
         isEditing: true,
         label: 'Preview Full Image on Hover',
         value: [user.getHoverPreview()],
-        enum: [
-          {
-            label: 'On',
-            value: true,
-          },
-          {
-            label: 'Off',
-            value: false,
-          },
-        ],
+        enum: hoverEnum,
         id: 'Full Image on Hover',
       }),
       themeModel: new Property({
         isEditing: true,
-        enum: [
-          {
-            label: 'Dark',
-            value: 'dark',
-          },
-          {
-            label: 'Light',
-            value: 'light',
-          },
-          {
-            label: 'Sea',
-            value: 'sea',
-          },
-          {
-            label: 'Custom',
-            value: 'custom',
-          },
-        ],
+        enum: themeEnum,
         value: [getTheme()],
         id: 'Theme',
       }),
       customToggle: this.isCustomSet(getTheme()),
       customColors: getCustomColors(),
+      loading: false,
     }
 
     this.state.fontSizeModel.on('change:value', () => {
+      this.setState({ loading: true })
       saveFontChanges(this.state.fontSizeModel.getValue()[0])
+      this.setState({ loading: false })
     })
     this.state.spacingModeModel.on('change:value', () => {
+      this.setState({ loading: true })
       saveSpacingChanges(this.state.spacingModeModel.getValue()[0])
+      this.setState({ loading: false })
     })
     this.state.animationModel.on('change:value', () => {
+      this.setState({ loading: true })
       saveAnimationChanges(this.state.animationModel.getValue()[0])
+      this.setState({ loading: false })
     })
     this.state.hoverPreviewModel.on('change:value', () => {
+      this.setState({ loading: true })
       saveHoverPreviewChanges(this.state.hoverPreviewModel.getValue()[0])
+      this.setState({ loading: false })
     })
     this.state.themeModel.on('change:value', () => {
+      this.setState({ loading: true })
       let themeValue = this.state.themeModel.getValue()[0]
       saveThemeChanges(themeValue)
       this.setState({
         customToggle: this.isCustomSet(themeValue),
+        loading: false,
       })
     })
   }
@@ -243,65 +267,57 @@ class ThemeSettings extends React.Component<
     return themeValue === 'custom' ? true : false
   }
   render() {
+    const { loading } = this.state
+    const Loading = loading ? LoadingCompanion : Root
     return (
-      <Root {...this.props}>
-        <div className="theme-font-size">
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.fontSizeModel,
-              }
-            }}
-            replaceElement={false}
-          />
-        </div>
-        <div className="theme-spacing-mode">
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.spacingModeModel,
-              }
-            }}
-            replaceElement={false}
-          />
-        </div>
-        <div className="theme-animation">
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.animationModel,
-              }
-            }}
-            replaceElement={false}
-          />
-        </div>
-        <div className="theme-hover-preview">
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.hoverPreviewModel,
-              }
-            }}
-            replaceElement={false}
-          />
-        </div>
-        <div className="theme-theme">
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.themeModel,
-              }
-            }}
-            replaceElement={false}
-          />
-        </div>
+      <Loading loading={loading}>
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.fontSizeModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.spacingModeModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.animationModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.hoverPreviewModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.themeModel,
+            }
+          }}
+          replaceElement={false}
+        />
         {this.state.customToggle ? <ThemeCustomComponent /> : null}
-      </Root>
+      </Loading>
     )
   }
 }
