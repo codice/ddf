@@ -18,7 +18,7 @@ import plugin from 'plugins/navigation-right'
 
 const HelpView = require('../../../component/help/help.view.js')
 const UserSettings = require('../../../component/user-settings/user-settings.view.js')
-import UserNotifications from '../user-notifications/user-notifications.view.js'
+import UserNotifications from '../user-notifications/user-notifications'
 const SlideoutViewInstance = require('../../../component/singletons/slideout.view-instance.js')
 const SlideoutRightViewInstance = require('../../../component/singletons/slideout.right.view-instance.js')
 const user = require('../../../component/singletons/user-instance.js')
