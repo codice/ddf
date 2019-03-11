@@ -41,7 +41,7 @@ public abstract class AbstractInstallExtension<A extends java.lang.annotation.An
   private static final String SYSTEM_PROPERTIES_FILE_PATH = "etc/custom.system.properties";
 
   /**
-   * Gets a PaxExam option capable of starting or not Solr based on the provided flag.
+   * Gets a PaxExam option capable of starting Solr based on the provided flag.
    *
    * @param solr <code>true</code> to have Solr started along with DDF; <code>false</code> not to
    *     have it started

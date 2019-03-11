@@ -25,7 +25,7 @@
 
     <groupId>org.codice.ddf</groupId>
     <artifactId>ddf-dominion</artifactId>
-    <name>DDF :: Distribution :: DDF :: Dominion</name>
+    <name>DDF :: Distribution :: Dominion</name>
     <packaging>bundle</packaging>
 
     <dependencies>

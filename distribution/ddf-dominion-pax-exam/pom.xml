@@ -25,7 +25,7 @@
 
     <groupId>org.codice.ddf</groupId>
     <artifactId>ddf-dominion-pax-exam</artifactId>
-    <name>DDF :: Distribution :: DDF :: Dominion :: Pax Exam Extensions</name>
+    <name>DDF :: Distribution :: Dominion :: Pax Exam Extensions</name>
     <packaging>jar</packaging>
 
     <dependencies>
