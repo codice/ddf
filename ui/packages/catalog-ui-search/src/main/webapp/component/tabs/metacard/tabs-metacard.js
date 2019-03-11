@@ -22,6 +22,7 @@ import React from 'react'
 import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
 import MetacardArchive from '../../../react-component/container/metacard-archive'
 import MetacardActions from '../../../react-component/container/metacard-actions'
+import MetacardQuality from '../../../react-component/container/metacard-quality'
 
 const MetacardOverwriteView = Marionette.LayoutView.extend({
   template: () => <MetacardOverwrite />,
@@ -39,6 +40,14 @@ const MetacardActionsView = Marionette.LayoutView.extend({
   template() {
     return (
       <MetacardActions selectionInterface={this.options.selectionInterface} />
+    )
+  },
+})
+
+const MetacardQualityView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardQuality selectionInterface={this.options.selectionInterface} />
     )
   },
 })
