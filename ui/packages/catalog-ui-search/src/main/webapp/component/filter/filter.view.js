@@ -226,6 +226,15 @@ module.exports = Marionette.LayoutView.extend({
       'type',
       this.filterAttribute.currentView.model.get('value')[0]
     )
+    const currentAttributeType =
+      metacardDefinitions.metacardTypes[this.model.get('type')].type
+    const previousAttribute = this.filterAttribute.currentView.model
+      ._previousAttributes.value[0]
+    const previousAttributeType =
+      metacardDefinitions.metacardTypes[previousAttribute].type
+    if (currentAttributeType !== previousAttributeType) {
+      this.model.set('value', [''])
+    }
   },
   delete: function() {
     this.model.destroy()
