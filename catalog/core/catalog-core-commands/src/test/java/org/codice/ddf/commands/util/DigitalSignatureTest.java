@@ -34,6 +34,8 @@ public class DigitalSignatureTest {
 
   private static final String KEYSTORE_PASS = "changeit";
 
+  private static final String EXAMPLE_EXPORT = "/example.zip";
+
   private DigitalSignature digitalSignature;
 
   @Before
@@ -47,7 +49,7 @@ public class DigitalSignatureTest {
 
   @Test
   public void testCreateDigitalSignature() throws Exception {
-    InputStream inputStream = DigitalSignatureTest.class.getResourceAsStream("/example.zip");
+    InputStream inputStream = DigitalSignatureTest.class.getResourceAsStream(EXAMPLE_EXPORT);
     byte[] signature = digitalSignature.createDigitalSignature(inputStream, ALIAS, KEYSTORE_PASS);
 
     assertThat(signature, is(notNullValue()));
@@ -55,10 +57,10 @@ public class DigitalSignatureTest {
 
   @Test
   public void testVerifyDigitalSignature() throws Exception {
-    InputStream inputStream = DigitalSignatureTest.class.getResourceAsStream("/example.zip");
+    InputStream inputStream = DigitalSignatureTest.class.getResourceAsStream(EXAMPLE_EXPORT);
     byte[] signature = digitalSignature.createDigitalSignature(inputStream, ALIAS, KEYSTORE_PASS);
 
-    inputStream = DigitalSignatureTest.class.getResourceAsStream("/example.zip");
+    inputStream = DigitalSignatureTest.class.getResourceAsStream(EXAMPLE_EXPORT);
     boolean verified =
         digitalSignature.verifyDigitalSignature(
             inputStream, new ByteArrayInputStream(signature), ALIAS);

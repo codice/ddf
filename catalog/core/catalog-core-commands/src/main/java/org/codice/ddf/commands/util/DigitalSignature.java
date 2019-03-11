@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.commands.util;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -53,10 +52,10 @@ public class DigitalSignature {
     PrivateKey privateKey = getPrivateKey(alias, password);
 
     if (privateKey == null) {
-      throw new CatalogCommandRuntimeException("");
+      throw new CatalogCommandRuntimeException("Unable to retrieve private key");
     }
 
-    try (BufferedInputStream bufferedInputStream = new BufferedInputStream(data)) {
+    try {
       Signature rsa = Signature.getInstance("SHA256withRSA");
 
       rsa.initSign(getPrivateKey(alias, password));
@@ -64,7 +63,7 @@ public class DigitalSignature {
       byte[] buffer = new byte[BUFFER_SIZE];
       int len;
 
-      while ((len = bufferedInputStream.read(buffer)) >= 0) {
+      while ((len = data.read(buffer)) >= 0) {
         rsa.update(buffer, OFFSET, len);
       }
 
@@ -77,25 +76,23 @@ public class DigitalSignature {
   }
 
   public boolean verifyDigitalSignature(
-      InputStream data, InputStream signature, String certificateAlias)
-      throws IOException, CatalogCommandRuntimeException {
+      InputStream data, InputStream signature, String certificateAlias) throws IOException {
     byte[] sigToVerify = IOUtils.toByteArray(signature);
 
     Certificate certificate = getCertificate(certificateAlias);
 
     if (certificate == null) {
-      throw new CatalogCommandRuntimeException("");
+      throw new CatalogCommandRuntimeException("Unable to retrieve certificate");
     }
 
-    try (BufferedInputStream bufferedInputStream = new BufferedInputStream(data)) {
+    try {
       Signature rsa = Signature.getInstance("SHA256withRSA");
       rsa.initVerify(certificate);
 
       byte[] buffer = new byte[BUFFER_SIZE];
       int len;
 
-      while (bufferedInputStream.available() != 0) {
-        len = bufferedInputStream.read(buffer);
+      while ((len = data.read(buffer)) >= 0) {
         rsa.update(buffer, OFFSET, len);
       }
 

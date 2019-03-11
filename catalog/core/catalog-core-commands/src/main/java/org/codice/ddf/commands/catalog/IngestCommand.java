@@ -240,7 +240,8 @@ public class IngestCommand extends CatalogCommands {
     required = false,
     aliases = {"-s"},
     multiValued = false,
-    description = "Provided absolute path for the digital signature to verify the integrity of the exported data."
+    description =
+        "Provided absolute path for the digital signature to verify the integrity of the exported data. Required when the `--include-content` option is specified."
   )
   String signatureFile;
 
@@ -383,7 +384,8 @@ public class IngestCommand extends CatalogCommands {
     }
 
     if (includeContent && StringUtils.isBlank(signatureFile)) {
-      console.print("You must provide a signature file with your data to ingest");
+      console.print(
+          "You must provide a signature file when the `--include-content` option is specified.");
       return null;
     }
 

@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.catalog.transformer.zip.ZipValidator;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
 import org.codice.ddf.commands.util.DigitalSignature;
 import org.slf4j.Logger;
@@ -111,7 +109,8 @@ public class ImportCommand extends CatalogCommands {
     required = false,
     aliases = {"-s"},
     multiValued = false,
-    description = "Provided absolute path for the digital signature to verify the integrity of the exported data."
+    description =
+        "Provided absolute path for the digital signature to verify the integrity of the exported data. Required when the `--include-content` option is specified."
   )
   String signatureFile;
 
@@ -278,15 +277,6 @@ public class ImportCommand extends CatalogCommands {
     }
 
     return file;
-  }
-
-  private ZipValidator initZipValidator() {
-    ZipValidator zipValidator = new ZipValidator();
-    zipValidator.setSignaturePropertiesPath(
-        Paths.get(System.getProperty("ddf.etc"), "/ws-security/server/signature.properties")
-            .toString());
-    zipValidator.init();
-    return zipValidator;
   }
 
   private Metacard applyInjectors(Metacard original, List<AttributeInjector> injectors) {
