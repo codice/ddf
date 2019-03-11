@@ -84,6 +84,18 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private static final String VERSION_DESCRIPTION = "The version of this instance.";
   private static final String LOCALHOST_DATA_MANAGER = "localhost-data-manager";
   private static final String DATA_MANAGER = "data-manager";
+
+  private String etcDir = System.getProperty(KARAF_ETC);
+  private String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
+  private String userPropertiesFilename = etcDir + File.separator + USERS_PROPERTIES_FILE;
+  private String userAttributesFilename = etcDir + File.separator + USERS_ATTRIBUTES_FILE;
+
+  private File systemPropertiesFile = new File(systemPropertyFilename);
+  private File userPropertiesFile = new File(userPropertiesFilename);
+  private File userAttributesFile = new File(userAttributesFilename);
+
+  private Properties systemDotProperties;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemPropertiesAdmin.class);
   private static final ObjectMapper MAPPER = JsonFactory.create();
 
@@ -102,6 +114,11 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     super(SystemPropertiesAdminMBean.class);
     this.guestClaimsHandlerExt = guestClaimsHandlerExt;
     configureMBean();
+    try {
+      systemDotProperties = new Properties(systemPropertiesFile);
+    } catch (IOException e) {
+      LOGGER.warn("Exception while reading the system.properties file.", e);
+    }
   }
 
   @Override
@@ -109,47 +126,73 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     LOGGER.debug("get system properties");
 
     ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
+
     properties.add(
         getSystemPropertyDetails(
-            SystemBaseUrl.EXTERNAL_HOST, EXTERNAL_HOST_TITLE, EXTERNAL_HOST_DESCRIPTION, null));
+            SystemBaseUrl.EXTERNAL_HOST,
+            EXTERNAL_HOST_TITLE,
+            EXTERNAL_HOST_DESCRIPTION,
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
             SystemBaseUrl.EXTERNAL_HTTP_PORT,
             EXTERNAL_HTTP_PORT_TITLE,
             EXTERNAL_HTTP_PORT_DESCRIPTION,
-            null));
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
             SystemBaseUrl.EXTERNAL_HTTPS_PORT,
             EXTERNAL_HTTPS_PORT_TITLE,
             EXTERNAL_HTTPS_PORT_DESCRIPTION,
-            null));
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
-            SystemBaseUrl.INTERNAL_HOST, INTERNAL_HOST_TITLE, INTERNAL_HOST_DESCRIPTION, null));
+            SystemBaseUrl.INTERNAL_HOST,
+            INTERNAL_HOST_TITLE,
+            INTERNAL_HOST_DESCRIPTION,
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
             SystemBaseUrl.INTERNAL_HTTP_PORT,
             INTERNAL_HTTP_PORT_TITLE,
             INTERNAL_HTTP_PORT_DESCRIPTION,
-            null));
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
             SystemBaseUrl.INTERNAL_HTTPS_PORT,
             INTERNAL_HTTPS_PORT_TITLE,
             INTERNAL_HTTPS_PORT_DESCRIPTION,
-            null));
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
-            SystemInfo.ORGANIZATION, ORGANIZATION_TITLE, ORGANIZATION_DESCRIPTION, null));
+            SystemInfo.ORGANIZATION,
+            ORGANIZATION_TITLE,
+            ORGANIZATION_DESCRIPTION,
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
-            SystemInfo.SITE_CONTACT, SITE_CONTACT_TITLE, SITE_CONTACT_DESCRIPTION, null));
+            SystemInfo.SITE_CONTACT,
+            SITE_CONTACT_TITLE,
+            SITE_CONTACT_DESCRIPTION,
+            null,
+            systemDotProperties));
     properties.add(
         getSystemPropertyDetails(
-            SystemInfo.SITE_NAME, SITE_NAME_TITLE, SITE_NAME_DESCRIPTION, null));
+            SystemInfo.SITE_NAME,
+            SITE_NAME_TITLE,
+            SITE_NAME_DESCRIPTION,
+            null,
+            systemDotProperties));
     properties.add(
-        getSystemPropertyDetails(SystemInfo.VERSION, VERSION_TITLE, VERSION_DESCRIPTION, null));
+        getSystemPropertyDetails(
+            SystemInfo.VERSION, VERSION_TITLE, VERSION_DESCRIPTION, null, systemDotProperties));
 
     return properties;
   }
@@ -159,42 +202,23 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     if (updatedSystemProperties == null) {
       return;
     }
-    // Get custom.system.properties file
+
     // save off the current/old hostname before we make any changes
-    oldHostName = SystemBaseUrl.INTERNAL.getHost();
-
-    String etcDir = System.getProperty(KARAF_ETC);
-    String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
-    String userPropertiesFilename = etcDir + File.separator + USERS_PROPERTIES_FILE;
-    String userAttributesFilename = etcDir + File.separator + USERS_ATTRIBUTES_FILE;
-
-    File systemPropertiesFile = new File(systemPropertyFilename);
-    File userPropertiesFile = new File(userPropertiesFilename);
-    File userAttributesFile = new File(userAttributesFilename);
+    oldHostName = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
 
     try {
-      Properties systemDotProperties = new Properties(systemPropertiesFile);
-
-      updateProperty(SystemBaseUrl.EXTERNAL_HOST, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
-      updateProperty(
-          SystemBaseUrl.EXTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
-      updateProperty(
-          SystemBaseUrl.EXTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.INTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
-      updateProperty(
-          SystemBaseUrl.INTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
-      updateProperty(
-          SystemBaseUrl.INTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemInfo.ORGANIZATION, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemInfo.VERSION, updatedSystemProperties, systemDotProperties);
-      updatePortProperty(systemDotProperties);
+      updatedSystemProperties.forEach(
+          (key, value) -> {
+            // Clears out the property value before setting it
+            //
+            // We have to do this because when we read in the properties, the values are
+            // expanded which can lead to a state where the value is erroneously not updated
+            // after being checked.
+            systemDotProperties.put(key, "");
+            systemDotProperties.put(key, value);
+          });
 
       systemDotProperties.save();
-
     } catch (IOException e) {
       LOGGER.warn("Exception while writing to system.properties file.", e);
     }
@@ -215,7 +239,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
         String oldHostValue = usersDotProperties.getProperty(oldHostName);
 
         if (oldHostValue != null) {
-          String newInternalHost = System.getProperty(SystemBaseUrl.INTERNAL_HOST);
+          String newInternalHost = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
           String newHostValue =
               oldHostValue.replaceAll(
                   LOCALHOST_DATA_MANAGER, String.format("%s-%s", newInternalHost, DATA_MANAGER));
@@ -244,7 +268,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     addGuestClaimsProfileAttributes(json);
 
     if (json.containsKey(oldHostName)) {
-      json.put(System.getProperty(SystemBaseUrl.INTERNAL_HOST), json.remove(oldHostName));
+      json.put(systemDotProperties.get(SystemBaseUrl.INTERNAL_HOST), json.remove(oldHostName));
     }
 
     for (Map.Entry<String, Object> entry : json.entrySet()) {
@@ -295,37 +319,18 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       if (val.contains(DEFAULT_LOCALHOST_DN)) {
         map.put(
             entry.getKey(),
-            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.INTERNAL_HOST)));
+            val.replace(
+                DEFAULT_LOCALHOST_DN,
+                systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST)));
       }
     }
     return map;
   }
 
   private SystemPropertyDetails getSystemPropertyDetails(
-      String key, String title, String description, List<String> options) {
-    String property = System.getProperty(key, "");
+      String key, String title, String description, List<String> options, Properties properties) {
+    String property = properties.getProperty(key);
     return new SystemPropertyDetailsImpl(title, description, options, key, property);
-  }
-
-  private void updateProperty(
-      String key, Map<String, String> updatedProperties, Properties systemDotProperties) {
-    if (updatedProperties.containsKey(key)) {
-      String value = updatedProperties.get(key);
-      systemDotProperties.put(key, value);
-      System.setProperty(key, value);
-    }
-  }
-
-  private void updatePortProperty(Properties systemDotProperties) {
-    String protocol = SystemBaseUrl.EXTERNAL.getProtocol();
-
-    String port = SystemBaseUrl.EXTERNAL.getHttpsPort();
-    if (protocol != null && protocol.equalsIgnoreCase(HTTP_PROTOCOL)) {
-      port = SystemBaseUrl.EXTERNAL.getHttpPort();
-    }
-
-    systemDotProperties.put(SystemBaseUrl.EXTERNAL_PORT, port);
-    System.setProperty(SystemBaseUrl.EXTERNAL_PORT, port);
   }
 
   private void configureMBean() {
