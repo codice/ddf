@@ -15,7 +15,7 @@ import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { Sharing } from '../sharing'
 import { Security, Restrictions } from '../../utils/security'
-const federation = require('./federation.js')
+const federation = require('../../../component/metacard/metacard-federation.js')
 const user = require('../../../component/singletons/user-instance.js')
 const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')

@@ -18,7 +18,7 @@ const QueryResponse = require('../../js/model/QueryResponse.js')
 const QueryResult = require('../../js/model/QueryResult.js')
 const cql = require('../../js/cql.js')
 const router = require('../router/router.js')
-const federation = require('../../react-component/container/workspace-interactions/federation.js')
+const federation = require('./metacard-federation.js')
 
 module.exports = new (Backbone.AssociatedModel.extend({
   relations: [
