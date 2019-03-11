@@ -67,6 +67,12 @@ const Icon = styled.span`
   margin-right: calc(${props => props.theme.minimumSpacing} / 2);
 `
 
+const Author = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
 const Details = (props: Props) => {
   return (
     <React.Fragment>
@@ -76,14 +82,14 @@ const Details = (props: Props) => {
       >
         {props.date}
       </div>
-      <div title={props.owner} data-help="The owner of the workspace.">
+      <Author title={props.owner} data-help="The owner of the workspace.">
         {props.localStorage ? (
           <Icon className="fa fa-home" />
         ) : (
           <Icon className="fa fa-cloud" />
         )}
         <span className="owner-id">{props.owner}</span>
-      </div>
+      </Author>
     </React.Fragment>
   )
 }
