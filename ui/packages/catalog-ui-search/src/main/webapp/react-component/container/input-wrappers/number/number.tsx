@@ -16,15 +16,17 @@ import Base, { Type, BaseProps, destructureBaseProps } from '../base'
 type Props = {
   value: string
   onChange?: (value: boolean) => void
+  placeholder: string
 } & BaseProps
 
 export default hot(module)((props: Props) => {
-  const { value, onChange, ...otherProps } = props
+  const { value, onChange, placeholder, ...otherProps } = props
   return (
     <Base
       value={[value]}
       type={Type.number}
       onChange={onChange}
+      placeholder={placeholder || 'Enter a numerical input'}
       {...destructureBaseProps(otherProps) as any}
     />
   )

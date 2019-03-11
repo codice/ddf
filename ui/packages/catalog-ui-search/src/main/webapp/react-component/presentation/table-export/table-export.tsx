@@ -77,6 +77,7 @@ export default hot(module)((props: Props) => {
           <Number
             label=""
             showLabel={false}
+            placeholder="Enter number of results you would like to export"
             name="customExport"
             value={customExportCount.toString()}
             onChange={handleCustomExportCountChange}
