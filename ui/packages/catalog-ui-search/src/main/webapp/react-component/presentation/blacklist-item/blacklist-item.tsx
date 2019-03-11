@@ -15,6 +15,7 @@ import * as React from 'react'
 import { keyframes } from '../../styles/styled-components'
 import styled from '../../styles/styled-components'
 import { buttonTypeEnum, Button } from '../button'
+import { transparentize, readableColor } from 'polished'
 
 type Props = {
   remove: () => void
@@ -35,6 +36,17 @@ const collapseAnimation = (initialHeight: string) => {
 }
 
 const Root = styled<Props, 'div'>('div')`
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+  border-color: ${props =>
+    transparentize(0.9, readableColor(props.theme.backgroundContent))};
+
+  :hover {
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    border-color: ${props =>
+      transparentize(0.8, readableColor(props.theme.backgroundContent))};
+  }
   display: block;
   text-align: center;
   margin-bottom: ${props => props.theme.minimumSpacing};
