@@ -85,7 +85,7 @@ function getWarning(exportCountInfo: ExportCountInfo): string {
     .getCurrentQuery()
     .get('result')
   const totalHits = getHits(result.get('status').toJSON())
-  let limitWarning = `You cannot export more than the administrator configured limit of ${
+  const limitWarning = `You cannot export more than the administrator configured limit of ${
     properties.exportResultLimit
   }.`
   let warningMessage = ''
