@@ -14,7 +14,7 @@
  **/
 /*global define, window*/
 import * as React from 'react'
-import { HistogramContainer } from '../../../react-component/container/histogram/index.js'
+import { HistogramContainer } from '../../../react-component/container/histogram'
 
 const wreqr = require('../../../js/wreqr.js')
 const $ = require('jquery')
