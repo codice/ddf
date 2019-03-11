@@ -39,23 +39,42 @@ public class PropertyFileClaimsHandlerTest {
     propertyFileClaimsHandler.setRoleClaimType("http://myroletype");
     propertyFileClaimsHandler.setIdClaimType("http://myidtype");
 
+    Claim claimRole = new Claim();
+    claimRole.setClaimType(URI.create("http://myroletype"));
+    Claim claimId = new Claim();
+    claimId.setClaimType(URI.create("http://myidtype"));
     ClaimCollection claimCollection = new ClaimCollection();
-    Claim claim1 = new Claim();
-    claim1.setClaimType(URI.create("http://myroletype"));
-    Claim claim2 = new Claim();
-    claim2.setClaimType(URI.create("http://myidtype"));
-    claimCollection.add(claim1);
-    claimCollection.add(claim2);
-    ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
-    Principal principal = mock(Principal.class);
-    when(principal.getName()).thenReturn("admin");
-    when(claimsParameters.getPrincipal()).thenReturn(principal);
+    claimCollection.add(claimRole);
+    claimCollection.add(claimId);
+
+    ClaimsParameters claimsParametersAdmin = mock(ClaimsParameters.class);
+    Principal principalAdmin = mock(Principal.class);
+    when(principalAdmin.getName()).thenReturn("admin");
+    when(claimsParametersAdmin.getPrincipal()).thenReturn(principalAdmin);
     ProcessedClaimCollection processedClaimCollection =
-        propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+        propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParametersAdmin);
 
     assertEquals(2, processedClaimCollection.size());
-    assertEquals(4, processedClaimCollection.get(0).getValues().size());
+    assertEquals(5, processedClaimCollection.get(0).getValues().size());
     assertEquals("admin", processedClaimCollection.get(1).getValues().get(0));
+    assertEquals("admin", processedClaimCollection.get(0).getValues().get(0));
+    assertEquals("manager", processedClaimCollection.get(0).getValues().get(1));
+    assertEquals("viewer", processedClaimCollection.get(0).getValues().get(2));
+    assertEquals("editor", processedClaimCollection.get(0).getValues().get(3));
+    assertEquals("writer", processedClaimCollection.get(0).getValues().get(4));
+
+    ClaimsParameters claimsParametersAdam = mock(ClaimsParameters.class);
+    Principal principalAdam = mock(Principal.class);
+    when(principalAdam.getName()).thenReturn("adam");
+    when(claimsParametersAdam.getPrincipal()).thenReturn(principalAdam);
+    ProcessedClaimCollection processedClaimCollectionAdam =
+        propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParametersAdam);
+
+    assertEquals(2, processedClaimCollectionAdam.size());
+    assertEquals(2, processedClaimCollectionAdam.get(0).getValues().size());
+    assertEquals("adam", processedClaimCollectionAdam.get(1).getValues().get(0));
+    assertEquals("editor", processedClaimCollectionAdam.get(0).getValues().get(0));
+    assertEquals("writer", processedClaimCollectionAdam.get(0).getValues().get(1));
   }
 
   @Test
