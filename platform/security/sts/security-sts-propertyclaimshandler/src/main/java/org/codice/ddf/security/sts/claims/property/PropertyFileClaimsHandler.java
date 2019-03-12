@@ -54,7 +54,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private String idClaimType;
 
-  private PropertiesBackingEngine pbe;
+  private PropertiesBackingEngine propBackingEngine;
 
   @Override
   public List<URI> getSupportedClaimTypes() {
@@ -179,13 +179,13 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
         LOGGER.debug("Exception when trying to load the user properties file.", e);
       }
 
-      pbe = new PropertiesBackingEngine(p);
+      propBackingEngine = new PropertiesBackingEngine(p);
 
-      List<UserPrincipal> userList = pbe.listUsers();
+      List<UserPrincipal> userList = propBackingEngine.listUsers();
       userMapping = new HashMap();
       for (UserPrincipal eachUser : userList) {
 
-        List<RolePrincipal> userRoles = pbe.listRoles(eachUser);
+        List<RolePrincipal> userRoles = propBackingEngine.listRoles(eachUser);
         List<String> roleList = new ArrayList();
         for (RolePrincipal userRole : userRoles) {
           roleList.add(userRole.getName());
