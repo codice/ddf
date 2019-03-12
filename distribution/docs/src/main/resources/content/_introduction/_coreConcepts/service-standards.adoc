@@ -31,7 +31,7 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 |Supported
 
 |http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] {external-link} Web Processing Service
-|<<{integrating-prefix}wps_endpoint,WPS Endpoint>>
+|<<{integrating-prefix}configuring_wps_endpoint,WPS Endpoint>>
 |
 |Experimental
 
