@@ -82,8 +82,7 @@ public class ServiceManagerImpl implements ServiceManager {
   public static final long MANAGED_SERVICE_TIMEOUT =
       AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
-  public static final long FEATURES_AND_BUNDLES_TIMEOUT =
-      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
+  public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(20);
 
   public static final long HTTP_ENDPOINT_TIMEOUT =
       AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;

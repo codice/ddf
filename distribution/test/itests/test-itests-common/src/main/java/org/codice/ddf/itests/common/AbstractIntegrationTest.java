@@ -141,9 +141,9 @@ public abstract class AbstractIntegrationTest {
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
 
-  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(5);
+  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(2);
 
-  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(5);
+  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(2);
 
   private static final String UNABLE_TO_DETERMINE_EXAM_DIR_ERROR =
       "Unable to determine current exam directory";
