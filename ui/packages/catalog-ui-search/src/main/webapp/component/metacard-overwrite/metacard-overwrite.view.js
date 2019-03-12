@@ -130,7 +130,7 @@ const OverwriteBack = styled.button`
 const Confirm = props => (
   <OverwriteConfirm
     buttonType={buttonTypeEnum.negative}
-    onClick={props.onClick}
+    onClick={props.archive}
     data-help="This will overwrite the item content. To restore a previous content, you can click on 'File' in the toolbar, and then click 'Restore Archived Items'."
   >
     <MainText>Overwrite content</MainText>
@@ -140,7 +140,7 @@ const Confirm = props => (
   </OverwriteConfirm>
 )
 
-const Progress = props => (
+const Sending = props => (
   <OverwriteProgress>
     <ProgressTextUnder>
       Uploading File
@@ -162,7 +162,7 @@ const Progress = props => (
 
 const Success = props => (
   <OverwriteSuccess>
-    <OverwriteBack onClick={props.onClick}>
+    <OverwriteBack onClick={props.startOver}>
       <span className="fa fa-chevron-left" />
     </OverwriteBack>
     <ResultMessage>{props.message}</ResultMessage>
@@ -171,17 +171,22 @@ const Success = props => (
 
 const Error = props => (
   <OverwriteError>
-    <OverwriteBack onClick={props.onClick}>
+    <OverwriteBack onClick={props.startOver}>
       <span className="fa fa-chevron-left" />
     </OverwriteBack>
     <ResultMessage>{props.message}</ResultMessage>
   </OverwriteError>
 )
 
+const Stages = {
+  Confirm,
+  Sending,
+  Success,
+  Error,
+}
+
 const defaultState = {
-  sending: false,
-  success: false,
-  error: false,
+  stage: 'Confirm',
   percentage: 0,
   message: '',
 }
@@ -214,28 +219,15 @@ class MetacardOverwrite extends React.Component {
   }
 
   render() {
-    let Component
-    if (this.state.success) {
-      Component = () => (
-        <Success
-          onClick={() => this.startOver()}
-          message={this.state.message}
-        />
-      )
-    } else if (this.state.error) {
-      Component = () => (
-        <Error onClick={() => this.startOver()} message={this.state.message} />
-      )
-    } else if (this.state.sending) {
-      Component = () => <Progress percentage={this.state.percentage} />
-    } else {
-      Component = () => <Confirm onClick={() => this.archive()} />
-    }
-
+    const Component = Stages[this.state.stage]
     return (
       <Root>
         <div style={{ display: 'none' }} ref={this.dropzoneElement} />
-        <Component />
+        <Component
+          {...this.state}
+          archive={() => this.archive()}
+          startOver={() => this.startOver()}
+        />
       </Root>
     )
   }
@@ -271,8 +263,9 @@ class MetacardOverwrite extends React.Component {
   }
 
   handleSending() {
-    const sending = this.getOverwriteModel().get('sending')
-    this.setState({ sending })
+    if (this.getOverwriteModel().get('sending')) {
+      this.setState({ stage: 'Sending' })
+    }
   }
 
   handlePercentage() {
@@ -281,15 +274,17 @@ class MetacardOverwrite extends React.Component {
   }
 
   handleError() {
-    const error = this.getOverwriteModel().get('error')
-    const message = this.getOverwriteModel().escape('message')
-    this.setState({ error, message })
+    if (this.getOverwriteModel().get('error')) {
+      const message = this.getOverwriteModel().escape('message')
+      this.setState({ stage: 'Error', message })
+    }
   }
 
   handleSuccess() {
-    const success = this.getOverwriteModel().get('success')
-    const message = this.getOverwriteModel().escape('message')
-    this.setState({ success, message })
+    if (this.getOverwriteModel().get('success')) {
+      const message = this.getOverwriteModel().escape('message')
+      this.setState({ stage: 'Success', message })
+    }
   }
 
   archive() {
