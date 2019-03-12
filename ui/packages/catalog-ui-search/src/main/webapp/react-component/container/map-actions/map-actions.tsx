@@ -48,7 +48,7 @@ class MapActions extends React.Component<Props, State> {
   }
 
   getOverlayActions = () => {
-    let modelOverlayActions = getActionsWithIdPrefix(
+    const modelOverlayActions = getActionsWithIdPrefix(
       this.getActions(),
       'catalog.data.metacard.map.overlay.'
     )
@@ -68,7 +68,7 @@ class MapActions extends React.Component<Props, State> {
       overlayTransformerPrefix
     )
     if (overlayTransformerIndex >= 0) {
-      let overlayName = actionUrl.substr(
+      const overlayName = actionUrl.substr(
         overlayTransformerIndex + overlayTransformerPrefix.length
       )
       return 'Overlay ' + overlayName + ' on the map'
