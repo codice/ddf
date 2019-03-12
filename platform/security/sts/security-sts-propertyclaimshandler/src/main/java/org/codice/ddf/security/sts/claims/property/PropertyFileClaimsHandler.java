@@ -44,7 +44,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private String propertyFileLocation;
 
-  private HashMap<String, String> userMapping;
+  private Map<String, String> userMapping;
 
   private List<String> supportedRealms;
 
@@ -170,23 +170,23 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
         && !propertyFileLocation.isEmpty()
         && !propertyFileLocation.equals(this.propertyFileLocation)) {
 
-      Properties p = new Properties();
+      Properties props = new Properties();
       try {
-        p.load(getClass().getResourceAsStream(propertyFileLocation));
+        props.load(getClass().getResourceAsStream(propertyFileLocation));
       } catch (FileNotFoundException e) {
         LOGGER.debug("File not found when attempting to load user properties file.", e);
       } catch (IOException e) {
         LOGGER.debug("Exception when trying to load the user properties file.", e);
       }
 
-      propBackingEngine = new PropertiesBackingEngine(p);
+      propBackingEngine = new PropertiesBackingEngine(props);
 
       List<UserPrincipal> userList = propBackingEngine.listUsers();
-      userMapping = new HashMap();
+      userMapping = new HashMap<>();
       for (UserPrincipal eachUser : userList) {
 
         List<RolePrincipal> userRoles = propBackingEngine.listRoles(eachUser);
-        List<String> roleList = new ArrayList();
+        List<String> roleList = new ArrayList<>();
         for (RolePrincipal userRole : userRoles) {
           roleList.add(userRole.getName());
         }
