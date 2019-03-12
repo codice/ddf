@@ -32,12 +32,15 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 import java.io.IOException;
+import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -199,7 +202,6 @@ public class TestRegistry extends AbstractIntegrationTest {
           String.format(
               "RemoteRegistry (localhost:%s) (%s)",
               CSW_STUB_SERVER_PORT.getPort(), CSW_REGISTRY_TYPE);
-      getCatalogBundle().waitForCatalogStore(storeId);
 
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
@@ -220,7 +222,6 @@ public class TestRegistry extends AbstractIntegrationTest {
     cswServer.setupDefaultQueryResponseExpectation(defaultResponse);
     cswServer.reset();
     waitForMockServer();
-    getCatalogBundle().waitForCatalogStore(storeId);
   }
 
   @After
@@ -325,7 +326,6 @@ public class TestRegistry extends AbstractIntegrationTest {
         getRegistryInsertResponse(REMOTE_METACARD_ID, "Node Name"));
     cswServer.reset();
     waitForMockServer();
-    getCatalogBundle().waitForCatalogStore(storeId);
 
     cswServer
         .whenHttp()
@@ -353,26 +353,20 @@ public class TestRegistry extends AbstractIntegrationTest {
                         "2016-01-26T17:16:34.996Z")
                     .getBytes()));
 
-    try {
-      SECURITY.runAsAdminWithException(
-          () -> {
-            String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
-            LOGGER.info("Created remote metacard with ID: {}", id);
-            assertThat(id, is(regID));
-            cswServer
-                .verifyHttp()
-                .times(
-                    1,
-                    withPostBodyContaining("Transaction"),
-                    withPostBodyContaining("Insert"),
-                    withPostBodyContaining(regID));
-            return null;
-          });
-    } catch (Exception e) {
-      String message = "There was an error creating the remote registry metacard.";
-      LOGGER.error(message, e);
-      throw new Exception(message, e);
-    }
+    waitForCatalogStoreVerify(
+        () -> {
+          String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
+          LOGGER.info("Created remote metacard with ID: {}", id);
+          assertThat(id, is(regID));
+          cswServer
+              .verifyHttp()
+              .times(
+                  1,
+                  withPostBodyContaining("Transaction"),
+                  withPostBodyContaining("Insert"),
+                  withPostBodyContaining(regID));
+          return null;
+        });
   }
 
   @Test
@@ -398,26 +392,21 @@ public class TestRegistry extends AbstractIntegrationTest {
                         "NodeName",
                         "2016-01-26T17:16:34.996Z")
                     .getBytes()));
-    try {
-      SECURITY.runAsAdminWithException(
-          () -> {
-            String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
-            assertThat(id, is(regID));
-            cswServer
-                .verifyHttp()
-                .times(
-                    0,
-                    withPostBodyContaining("Transaction"),
-                    withPostBodyContaining("Ingest"),
-                    withPostBodyContaining(METACARD_ID));
 
-            return null;
-          });
-    } catch (Exception e) {
-      String message = "There was an error creating the remote registry metacard.";
-      LOGGER.error(message, e);
-      throw new Exception(message, e);
-    }
+    waitForCatalogStoreVerify(
+        () -> {
+          String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
+          assertThat(id, is(regID));
+          cswServer
+              .verifyHttp()
+              .times(
+                  0,
+                  withPostBodyContaining("Transaction"),
+                  withPostBodyContaining("Ingest"),
+                  withPostBodyContaining(METACARD_ID));
+
+          return null;
+        });
   }
 
   @Test
@@ -459,26 +448,21 @@ public class TestRegistry extends AbstractIntegrationTest {
             withPostBodyContaining(REMOTE_METACARD_ID))
         .then(
             ok(), contentType("text/xml"), bytesContent(remoteUpdatedMetacardResponse.getBytes()));
-    try {
-      SECURITY.runAsAdminWithException(
-          () -> {
-            FederationAdminService federationAdminServiceImpl =
-                getServiceManager().getService(FederationAdminService.class);
-            federationAdminServiceImpl.updateRegistryEntry(
-                getRegistryNode(
-                    METACARD_ID, regID, regID, "New Node Name", "2016-02-26T17:16:34.996Z"),
-                new HashSet(destinations));
-            cswServer
-                .verifyHttp()
-                .times(1, withPostBodyContaining("Transaction"), withPostBodyContaining("Update"));
-            cswServer.verifyHttp().atLeast(4);
-            return null;
-          });
-    } catch (Exception e) {
-      String message = "There was an error updating the remote registry metacard.";
-      LOGGER.error(message, e);
-      throw new Exception(message, e);
-    }
+
+    waitForCatalogStoreVerify(
+        () -> {
+          FederationAdminService federationAdminServiceImpl =
+              getServiceManager().getService(FederationAdminService.class);
+          federationAdminServiceImpl.updateRegistryEntry(
+              getRegistryNode(
+                  METACARD_ID, regID, regID, "New Node Name", "2016-02-26T17:16:34.996Z"),
+              new HashSet(destinations));
+          cswServer
+              .verifyHttp()
+              .times(1, withPostBodyContaining("Transaction"), withPostBodyContaining("Update"));
+          cswServer.verifyHttp().atLeast(4);
+          return null;
+        });
   }
 
   @Test
@@ -489,46 +473,40 @@ public class TestRegistry extends AbstractIntegrationTest {
         getRegistryQueryResponse(
             REMOTE_METACARD_ID, regID, REMOTE_REGISTRY_ID, "NodeName", "2016-01-26T17:16:34.996Z");
 
-    try {
-      createRegistryEntry(METACARD_ID, regID);
+    createRegistryEntry(METACARD_ID, regID);
 
-      cswServer
-          .whenHttp()
-          .match(
-              post("/services/csw"),
-              withPostBodyContaining("GetRecords"),
-              withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL))
-          .then(ok(), contentType("text/xml"), bytesContent(remoteMetacardResponse.getBytes()));
-      cswServer
-          .whenHttp()
-          .match(
-              post("/services/csw"),
-              withPostBodyContaining("GetRecords"),
-              not(withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL)),
-              withPostBodyContaining(REMOTE_METACARD_ID))
-          .then(ok(), contentType("text/xml"), bytesContent(remoteMetacardResponse.getBytes()));
+    cswServer
+        .whenHttp()
+        .match(
+            post("/services/csw"),
+            withPostBodyContaining("GetRecords"),
+            withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL))
+        .then(ok(), contentType("text/xml"), bytesContent(remoteMetacardResponse.getBytes()));
+    cswServer
+        .whenHttp()
+        .match(
+            post("/services/csw"),
+            withPostBodyContaining("GetRecords"),
+            not(withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL)),
+            withPostBodyContaining(REMOTE_METACARD_ID))
+        .then(ok(), contentType("text/xml"), bytesContent(remoteMetacardResponse.getBytes()));
 
-      SECURITY.runAsAdminWithException(
-          () -> {
-            FederationAdminService federationAdminServiceImpl =
-                getServiceManager().getService(FederationAdminService.class);
+    waitForCatalogStoreVerify(
+        () -> {
+          FederationAdminService federationAdminServiceImpl =
+              getServiceManager().getService(FederationAdminService.class);
 
-            List<String> toBeDeletedIDs = new ArrayList<>();
-            toBeDeletedIDs.add(regID);
+          List<String> toBeDeletedIDs = new ArrayList<>();
+          toBeDeletedIDs.add(regID);
 
-            federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(
-                toBeDeletedIDs, new HashSet(destinations));
-            cswServer
-                .verifyHttp()
-                .times(1, withPostBodyContaining("Transaction"), withPostBodyContaining("Delete"));
-            cswServer.verifyHttp().atLeast(3);
-            return null;
-          });
-    } catch (Exception e) {
-      String message = "There was an error deleting the remote registry metacard.";
-      LOGGER.error(message, e);
-      throw new Exception(message, e);
-    }
+          federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(
+              toBeDeletedIDs, new HashSet(destinations));
+          cswServer
+              .verifyHttp()
+              .times(1, withPostBodyContaining("Transaction"), withPostBodyContaining("Delete"));
+          cswServer.verifyHttp().atLeast(3);
+          return null;
+        });
   }
 
   @Test
@@ -633,5 +611,26 @@ public class TestRegistry extends AbstractIntegrationTest {
         Thread.sleep(SLEEP_TIME);
       }
     }
+  }
+
+  private static void waitForCatalogStoreVerify(final Callable callable)
+      throws PrivilegedActionException {
+    SECURITY.runAsAdminWithException(
+        () -> {
+          Awaitility.given()
+              .pollInterval(5, TimeUnit.SECONDS)
+              .await()
+              .atMost(5, TimeUnit.MINUTES)
+              .untilAsserted(
+                  () -> {
+                    try {
+                      callable.call();
+                    } catch (Exception e) {
+                      throw new AssertionError(
+                          "There was an error interacting with the remote registry metacard.", e);
+                    }
+                  });
+          return null;
+        });
   }
 }

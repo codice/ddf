@@ -160,7 +160,6 @@
         <interfaces>
             <value>org.codice.ddf.registry.api.internal.RegistryStore</value>
             <value>ddf.catalog.source.CatalogStore</value>
-            <value>ddf.catalog.source.FederatedSource</value>
         </interfaces>
         <cm:managed-component class="org.codice.ddf.registry.api.impl.RegistryStoreImpl"
                               init-method="init" destroy-method="destroy">

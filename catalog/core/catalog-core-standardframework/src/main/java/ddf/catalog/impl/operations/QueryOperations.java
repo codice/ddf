@@ -47,6 +47,7 @@ import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
@@ -70,6 +71,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -796,22 +798,25 @@ public class QueryOperations extends DescribableImpl {
           for (String id : sourceIds) {
             LOGGER.debug("Looking up source ID = {}", id);
 
-            final List<FederatedSource> fedSources =
-                frameworkProperties
-                    .getFederatedSources()
-                    .stream()
-                    .filter(e -> e.getId().equals(id))
-                    .collect(Collectors.toList());
+            Stream<FederatedSource> federatedSources =
+                frameworkProperties.getFederatedSources().stream();
+            Stream<CatalogStore> catalogStores = frameworkProperties.getCatalogStores().stream();
 
-            if (fedSources.isEmpty()) {
+            List<FederatedSource> sources =
+                new ArrayList<>(
+                    Stream.concat(federatedSources, catalogStores)
+                        .filter(e -> e.getId().equals(id))
+                        .collect(Collectors.toList()));
+
+            if (sources.isEmpty()) {
               exceptions.add(
                   new ProcessingDetailsImpl(
                       id, new SourceUnavailableException("Source id is not found")));
             } else {
-              if (fedSources.size() != 1) {
+              if (sources.size() != 1) {
                 LOGGER.debug("Multiple sources found for id: {}", id);
               }
-              FederatedSource source = fedSources.get(0);
+              FederatedSource source = sources.get(0);
 
               boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
               if (!canAccessSource) {
