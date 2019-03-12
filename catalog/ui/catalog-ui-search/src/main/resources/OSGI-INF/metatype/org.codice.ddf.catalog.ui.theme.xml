@@ -15,7 +15,6 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Catalog UI Search Theme" id="org.codice.ddf.catalog.ui.theme">
-
         <AD id="theme"
             name="Theme"
             description="Specifies the default theme. Custom consists of the colors below."
@@ -97,7 +96,6 @@
             description="Specifies the default theme zoom percentage."
             type="Integer"
             default="100"/>
-
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.theme">

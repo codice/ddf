@@ -14,6 +14,8 @@
  **/
 /*global define*/
 import React from 'react'
+import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+
 import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
@@ -38,8 +40,41 @@ const HandleBarsHelpers = require('../../js/HandlebarsHelpers.js')
 const ResultLinkView = require('../result-link/result-link.view.js')
 const plugin = require('plugins/result-item')
 
+const LIST_DISPLAY_TYPE = 'List'
+const GRID_DISPLAY_TYPE = 'Grid'
+
+const renderResultLink = (shouldRender, model) =>
+  shouldRender && (
+    <MarionetteRegionContainer
+      className="result-link is-button is-neutral composed-button"
+      data-help="Follow external links."
+      view={props => PopoutView.createSimpleDropdown(props)}
+      viewOptions={{
+        componentToShow: ResultLinkView,
+        modelForComponent: model,
+        leftIcon: 'fa fa-external-link',
+      }}
+    />
+  )
+
+const getResultDisplayType = () =>
+  (user &&
+    user
+      .get('user')
+      .get('preferences')
+      .get('resultDisplay')) ||
+  LIST_DISPLAY_TYPE
+
 const ResultItemView = Marionette.LayoutView.extend({
   template(data) {
+    const model = this.model
+    const displayAsGrid = getResultDisplayType() === GRID_DISPLAY_TYPE
+    const renderThumbnail = displayAsGrid && data.metacard.properties.thumbnail
+    const renderResultLinkDropdown = model
+      .get('metacard')
+      .get('properties')
+      .get('associations.external')
+
     return (
       <React.Fragment>
         <div
@@ -47,7 +82,11 @@ const ResultItemView = Marionette.LayoutView.extend({
           data-metacard-id={data.id}
           data-query-id={data.metacard.queryId}
         >
-          <div className="container-indicator" />
+          <MarionetteRegionContainer
+            className="container-indicator"
+            view={ResultIndicatorView}
+            viewOptions={{ model: model }}
+          />
           <div className="container-content">
             <div className="content-header">
               <span
@@ -92,13 +131,16 @@ const ResultItemView = Marionette.LayoutView.extend({
               </span>
             </div>
             <div className="content-body">
-              {data.metacard.properties.thumbnail ? (
-                <div
+              {renderThumbnail && (
+                <MarionetteRegionContainer
                   className="detail-thumbnail details-property"
                   data-help={HandleBarsHelpers.getAlias('thumbnail')}
+                  view={HoverPreviewDropdown}
+                  viewOptions={{
+                    model: new DropdownModel(),
+                    modelForComponent: model,
+                  }}
                 />
-              ) : (
-                ''
               )}
               {data.customDetail.map(detail => {
                 return (
@@ -182,11 +224,7 @@ const ResultItemView = Marionette.LayoutView.extend({
                 data-help="Downloads
                         the results associated product directly to your machine."
               />
-              <div
-                className="result-link is-button is-neutral composed-button"
-                title="Follow external links"
-                data-help="Follow external links."
-              />
+              {renderResultLink(renderResultLinkDropdown, model)}
               <button
                 className="result-add is-button is-neutral composed-button"
                 title="Add or remove the result from a list, or make a new list with this result."
@@ -220,9 +258,7 @@ const ResultItemView = Marionette.LayoutView.extend({
     'click .result-download': 'triggerDownload',
   },
   regions: {
-    resultIndicator: '.container-indicator',
-    resultThumbnail: '.detail-thumbnail',
-    resultLink: '.result-link',
+    resultAdd: '.result-add',
   },
   behaviors() {
     return {
@@ -276,57 +312,19 @@ const ResultItemView = Marionette.LayoutView.extend({
     this.handleSelectionChange()
   },
   handleSelectionChange: function() {
-    var selectedResults = this.options.selectionInterface.getSelectedResults()
-    var isSelected = selectedResults.get(this.model.id)
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    const isSelected = selectedResults.get(this.model.id)
     this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
   handleMetacardUpdate: function() {
     this.$el.attr(this.attributes())
     this.render()
-    this.onBeforeShow()
     this.checkDisplayType()
     this.checkTags()
     this.checkIsInWorkspace()
     this.checkIfBlacklisted()
     this.checkIfDownloadable()
     this.checkIfLinks()
-  },
-  onBeforeShow: function() {
-    this.resultIndicator.show(
-      new ResultIndicatorView({
-        model: this.model,
-      })
-    )
-    if (
-      this.model
-        .get('metacard')
-        .get('properties')
-        .get('associations.external')
-    ) {
-      this.resultLink.show(
-        PopoutView.createSimpleDropdown({
-          componentToShow: ResultLinkView,
-          modelForComponent: this.model,
-          leftIcon: 'fa fa-external-link',
-        })
-      )
-    }
-    this.handleResultThumbnail()
-  },
-  handleResultThumbnail: function() {
-    if (
-      this.model
-        .get('metacard')
-        .get('properties')
-        .get('thumbnail')
-    ) {
-      this.resultThumbnail.show(
-        new HoverPreviewDropdown({
-          model: new DropdownModel(),
-          modelForComponent: this.model,
-        })
-      )
-    }
   },
   addConfiguredResultProperties: function(result) {
     result.showSource = false
@@ -430,17 +428,14 @@ const ResultItemView = Marionette.LayoutView.extend({
         .get('associations.external') !== undefined
     )
   },
-  checkDisplayType: function() {
-    var displayType = user
-      .get('user')
-      .get('preferences')
-      .get('resultDisplay')
-    switch (displayType) {
-      case 'List':
+  checkDisplayType() {
+    switch (getResultDisplayType()) {
+      case LIST_DISPLAY_TYPE:
         this.$el.removeClass('is-grid').addClass('is-list')
         break
-      case 'Grid':
+      case GRID_DISPLAY_TYPE:
         this.$el.addClass('is-grid').removeClass('is-list')
+        this.render()
         break
     }
   },

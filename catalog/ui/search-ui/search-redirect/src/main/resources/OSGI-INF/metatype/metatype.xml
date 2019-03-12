@@ -16,11 +16,9 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Search UI Redirect" id="org.codice.ddf.ui.searchui.filter.RedirectServlet">
-        <AD
-                description="Specifies the redirect URI to use when accessing the /search URI."
-                name="Redirect URI" id="defaultUri" required="true" type="String"
-                default="/search/catalog"
-                />
+        <AD description="Specifies the redirect URI to use when accessing the /search URI."
+            name="Redirect URI" id="defaultUri" type="String"
+            default="${org.codice.ddf.external.context}/search/catalog/"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.ui.searchui.filter.RedirectServlet">

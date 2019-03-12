@@ -66,6 +66,7 @@ module.exports = Marionette.LayoutView.extend({
   dropzoneAnimationRequestDetails: undefined,
   resetDropzone() {
     this.dropzone.options.autoProcessQueue = false
+    this.dropzone.removeAllFiles(true)
   },
   triggerNewUpload() {
     this.onBeforeDestroy()

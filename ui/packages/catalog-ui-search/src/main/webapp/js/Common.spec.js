@@ -63,4 +63,32 @@ describe('Common', () => {
       expect(uuid).to.satisfy(value => value.indexOf('-') === -1)
     })
   })
+  describe('getImageSrc', () => {
+    it('prepends data:image to null', () => {
+      const image = Common.getImageSrc(null)
+      expect(image).to.equal('data:image/png;base64,null')
+    })
+    it('prepends data:image to undefined', () => {
+      const image = Common.getImageSrc(undefined)
+      expect(image).to.equal('data:image/png;base64,undefined')
+    })
+    it('prepends data:image to non-empty and non-http string', () => {
+      const image = Common.getImageSrc('iVBORw0KGgoAAAANSUhEUgAABkAAAAH')
+      expect(image).to.equal(
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABkAAAAH'
+      )
+    })
+    it('prepends data:image to non-string value', () => {
+      const image = Common.getImageSrc(123456789)
+      expect(image).to.equal('data:image/png;base64,123456789')
+    })
+    it('returns url unchanged', () => {
+      const image = Common.getImageSrc('http://some.url/cx.png')
+      expect(image).to.equal('http://some.url/cx.png')
+    })
+    it('returns empty string unchanged', () => {
+      const image = Common.getImageSrc('')
+      expect(image).to.equal('')
+    })
+  })
 })

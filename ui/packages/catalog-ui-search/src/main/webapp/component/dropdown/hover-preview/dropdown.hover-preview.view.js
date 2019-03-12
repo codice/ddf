@@ -13,55 +13,62 @@
  *
  **/
 /*global define*/
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
+import React from 'react'
+
 const DropdownView = require('../dropdown.view')
-const template = require('./dropdown.hover-preview.hbs')
 const ComponentView = require('../../hover-preview/hover-preview.view.js')
-const properties = require('../../../js/properties.js')
-const _merge = require('lodash/merge')
 const Common = require('../../../js/Common.js')
 const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
-  template: template,
-  className: 'is-hover-preview',
-  componentToShow: ComponentView,
-  events: {
-    'mouseenter button': 'handleMouseEnter',
-    'mouseleave button': 'handleMouseLeave',
-    'click button': 'handleClick',
-  },
-  handleMouseEnter: function() {
-    if (user.getHoverPreview()) {
-      this.model.open()
+  events: {}, // remove base events
+  template() {
+    const metadataThumbnail = this.modelForComponent
+      .get('metacard')
+      .get('properties')
+      .get('thumbnail')
+    const model = this.model
+
+    const openThumbnailInNewWindow = () =>
+      window.open(Common.getImageSrc(metadataThumbnail))
+    const onMouseEnter = () => user.getHoverPreview() && model.open()
+    const onMouseLeave = () => model.close()
+    const onImageError = () => {
+      this.imageLoadError = true
+      this.render()
     }
-  },
-  handleMouseLeave: function() {
-    this.model.close()
-  },
-  handleClick: function() {
-    window.open(
-      Common.getImageSrc(
-        this.options.modelForComponent
-          .get('metacard')
-          .get('properties')
-          .get('thumbnail')
-      )
+
+    return (
+      (metadataThumbnail && (
+        <React.Fragment>
+          {(this.imageLoadError && (
+            <span>
+              <i className="fa fa-picture-o" aria-hidden="true" />
+              {` Unable to load image`}
+            </span>
+          )) || (
+            <img
+              src={Common.getImageSrc(metadataThumbnail)}
+              onError={onImageError}
+            />
+          )}
+          <button
+            className="is-primary"
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onClick={openThumbnailInNewWindow}
+            title="Click to open image in a new window."
+          >
+            <span className="fa fa-search-plus" />
+          </button>
+        </React.Fragment>
+      )) || <React.Fragment />
     )
   },
+  imageLoadError: false,
+  className: 'is-hover-preview',
+  componentToShow: ComponentView,
   initialize: function() {
     DropdownView.prototype.initialize.call(this)
-  },
-  initializeComponentModel: function() {
-    //override if you need more functionality
-    this.modelForComponent = this.options.modelForComponent
-  },
-  listenToComponent: function() {
-    //override if you need more functionality
-  },
-  serializeData: function() {
-    return this.options.modelForComponent.toJSON()
   },
 })

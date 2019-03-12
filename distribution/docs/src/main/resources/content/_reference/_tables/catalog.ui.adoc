@@ -5,7 +5,7 @@
 :application: ${ddf-ui}
 :summary: Catalog UI Search.
 
-.[[_org.codice.ddf.catalog.ui]]Catalog UI Search
+.[[_org.codice.ddf.catalog.ui]]{title}
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -33,21 +33,31 @@
 |Imagery Providers
 |imageryProviders
 |String
-|List of imagery providers to use. Valid types are: *OSM* (OpenStreetMap), *AGM* (ArcGisMap), *BM* (BingMap), *WMS* (WebMapService), *WMT* (WebMapTile), **TMS** (TileMapService), and *GE* (GoogleEarth).
+a|List of imagery providers to use.
 
-*WMS example*: `{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}`
+The valid types are:
+
+* *OSM* (OpenStreetMap)
+* *AGM* (ArcGisMap)
+* *BM* (BingMap)
+* *WMS* (WebMapService)
+* *WMT* (WebMapTile)
+* *TMS* (TileMapService)
+* *GE* (GoogleEarth)
 
 *OSM example*: `{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}`
 
 *AGM example*: `{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}`
 
-*Multiple layer example*: +
-_Topmost Layer_: `{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}` +
-_Bottommost Layer_: `{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}`
+*WMS example*: `{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}`
 
 *WMT example*: `{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}`
 
 *TMS example* (3d map support only): `{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}`
+
+*Multiple layer example*: +
+_Topmost Layer_: `{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}` +
+_Bottommost Layer_: `{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}`
 |
 |false
 
@@ -68,6 +78,13 @@ Example:
 |[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]
 |true
 
+|List Templates
+|listTemplates
+|String
+|Templates for users to quickly create lists that already specify an icon and a filter. Example: {"id":"Pizza Deliveries", "list.icon": "tasks", "list.cql": "(\"anyText\"ILIKE &apos;pizza&apos;)"}
+|
+|false
+
 |Map Projection
 |projection
 |String
@@ -81,7 +98,6 @@ Example:
 |Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers.
 |
 |false
-
 
 |Connection Timeout
 |timeout
@@ -144,7 +160,7 @@ Example:
 |Boolean
 |Locally cached results will be returned in search results.
 |true
-|false
+|true
 
 |Allow Editing
 |editingEnabled
@@ -156,7 +172,7 @@ Example:
 |Enable Web Sockets
 |webSocketsEnabled
 |Boolean
-|Enable Web Sockets.
+|Enables use of Web Sockets
 |true
 |false
 
@@ -202,6 +218,13 @@ Example:
 |false
 |false
 
+|Relevance Score Precision
+|relevancePrecision
+|Integer
+|Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345).
+|5
+|false
+
 |Show Logo in Title Bar
 |logoEnabled
 |Boolean
@@ -227,16 +250,12 @@ Example:
 |basicSearchTemporalSelectionDefault
 |String
 |Enable Basic Search Temporal Selections.
-|created, +
-datetime.end, +
-datetime.start, +
-effective, +
-expiration, +
-metacard.created, +
-metacard.modified, +
-metacard.version.versioned-on, +
-modified
-|false
+a|* `created`
+* `effective`
+* `modified`
+* `metacard.created`
+* `metacard.modified`
+|true
 
 |Basic Search Match Type Metacard Attribute
 |basicSearchMatchType
@@ -256,31 +275,31 @@ modified
 |readOnly
 |String
 |List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^checksum$, +
-^checksum-algorithm$, +
-^id$, +
-^resource-download-url$, +
-^resource-uri$, +
-^resource.derived-uri$, +
-^resource.derived-download-url$, +
-^modified$, +
-^metacard-tags$, +
-^metadata$, +
-^metacard-type$, +
-^source-id$, +
-^point-of-contact$, +
-^metacard\., +
-^version\., +
-^validation\.
+a|* `^checksum$`
+* `^checksum-algorithm$`
+* `^id$`
+* `^resource-download-url$`
+* `^resource-uri$`
+* `^resource.derived-uri$`
+* `^resource.derived-download-url$`
+* `^modified$`
+* `^metacard-tags$`
+* `^metadata$`
+* `^metacard-type$`
+* `^source-id$`
+* `^point-of-contact$`
+* `^metacard.`
+* `^version.`
+* `^validation.`
 |false
 
 |Summary Metacard Attributes
 |summaryShow
 |String
 |List of metacard attributes to display in the summary view.
-|created, +
-modified, +
-thumbnail
+a|* `created`
+* `modified`
+* `thumbnail`
 |false
 
 |Result Preview Metacard Attributes
@@ -294,13 +313,13 @@ thumbnail
 |scheduleFrequencyList
 |Long
 |Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.
-|1800, +
-3600, +
-7200, +
-14400, +
-28800, +
-57600, +
-86400
+a|* `1800`
+* `3600`
+* `7200`
+* `14400`
+* `28800`
+* `57600`
+* `86400`
 |true
 
 |Auto Merge Time
@@ -360,7 +379,7 @@ thumbnail
 |Map Home
 |mapHome
 |String
-|Specifies the default home view for the map by bounding box. The format is: "West, South, East, North" where North, East, South, and West are coordinates in degrees. An example is: `-124, 60, -100, 40`.
+|Specifies the default home view for the map by bounding box. The format is "West, South, East, North", where North, East, South, and West are coordinates in degrees. An example is: `-124, 60, -100, 40`.
 |
 |false
 
@@ -370,13 +389,6 @@ thumbnail
 |Specifies a custom UI branding name in the UI.
 |Intrigue
 |true
-
-|Relevance Score Precision
-|relevancePrecision
-|Integer
-|Set the number of digits to display in for each relevance score. The default is `5` (i.e. 12.345).
-|5
-|false
 
 |Upload Editor: Attribute Configuration
 |attributeEnumMap
@@ -400,181 +412,6 @@ values. This is intended for use with String datatypes, which by default may be 
 |String
 |List of attributes which must be set before an upload is permitted. If an attribute is
 listed as required but not shown in the editor, it will be ignored.
-|
-|false
-
-|===
-
-.[[_org.codice.ddf.catalog.ui.theme]]Catalog UI Search Theme
-[cols="1,1m,1,3,1m,1" options="header"]
-|===
-
-|Name
-|Id
-|Type
-|Description
-|Default Value
-|Required
-
-|Theme
-|theme
-|String
-|Specifies the default theme. `Custom` consists of the colors below.
-|Dark
-|true
-
-|Primary Color
-|customPrimaryColor
-|String
-|
-|#3c6dd5
-|true
-
-|Positive Color
-|customPositiveColor
-|String
-|
-|#428442
-|true
-
-|Negative Color
-|customNegativeColor
-|String
-|
-|#8a423c
-|true
-
-|Warning Color
-|customWarningColor
-|String
-|
-|#c89600
-|true
-
-|Favorite Color
-|customFavoriteColor
-|String
-|
-|#d1d179
-|true
-
-|Background Navigation Color
-|customBackgroundNavigation
-|String
-|
-|#252529
-|true
-
-|Background Accent Content Color
-|customBackgroundAccentContent
-|String
-|
-|#2A2A2E
-|true
-
-|Background Dropdown Color
-|customBackgroundDropdown
-|String
-|
-|#35353a
-|true
-
-|Background Content Color
-|customBackgroundContent
-|String
-|
-|#35353a
-|true
-
-|Background Modal Color
-|customBackgroundModal
-|String
-|
-|#252529
-|true
-
-|Background Slideout Color
-|customBackgroundSlideout
-|String
-|
-|#252529
-|true
-
-|Theme Spacing Mode
-|spacingMode
-|String
-|Specifies the default theme spacing mode.
-|Comfortable
-|true
-
-|Theme Zoom
-|zoomPercentage
-|Integer
-|Specifies the default theme zoom percentage.
-|100
-|true
-
-|===
-
-
-.[[_org.codice.ddf.catalog.ui.attributes.hidden]]Catalog UI Search Hidden Attributes
-[cols="1,1m,1,3,1m,1" options="header"]
-|===
-
-|Name
-|Id
-|Type
-|Description
-|Default Value
-|Required
-
-|Hidden Attributes
-|hiddenAttributes
-|String
-|List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^sorts$, +
-^cql$, +
-^polling$, +
-^cached$
-|false
-
-|===
-
-.[[_org.codice.ddf.catalog.ui.attributes.aliases]]Catalog UI Search Attribute Aliases
-[cols="1,1m,1,3,1m,1" options="header"]
-|===
-
-|Name
-|Id
-|Type
-|Description
-|Default Value
-|Required
-
-|Attribute Aliases
-|attributeAliases
-|String
-|List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: `title=Title`.
-|
-|false
-
-|===
-
-.[[_org.codice.ddf.catalog.ui.attributes.descriptions]]Catalog UI Search Attribute Descriptions
-[cols="1,1m,1,3,1m,1" options="header"]
-|===
-
-|Name
-|Id
-|Type
-|Description
-|Default Value
-|Required
-
-|Attribute Descriptions
-|attributeDescriptions
-|String
-|List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: `checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors`.
 |
 |false
 

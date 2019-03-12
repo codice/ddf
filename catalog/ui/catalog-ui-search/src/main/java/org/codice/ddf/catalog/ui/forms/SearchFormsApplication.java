@@ -52,6 +52,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -78,11 +79,13 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final CatalogFramework catalogFramework;
 
+  private final FilterBuilder filterBuilder;
+
   private final TemplateTransformer transformer;
 
   private final EndpointUtil util;
 
-  private final FilterBuilder filterBuilder;
+  private final Supplier<Subject> subjectSupplier;
 
   private static final String RESP_MSG = "message";
 
@@ -99,10 +102,20 @@ public class SearchFormsApplication implements SparkApplication {
       FilterBuilder filterBuilder,
       TemplateTransformer transformer,
       EndpointUtil util) {
+    this(catalogFramework, filterBuilder, transformer, util, SearchFormsApplication::getSubject);
+  }
+
+  public SearchFormsApplication(
+      CatalogFramework catalogFramework,
+      FilterBuilder filterBuilder,
+      TemplateTransformer transformer,
+      EndpointUtil util,
+      Supplier<Subject> subjectSupplier) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.transformer = transformer;
     this.util = util;
+    this.subjectSupplier = subjectSupplier;
   }
 
   /**
@@ -290,7 +303,7 @@ public class SearchFormsApplication implements SparkApplication {
 
   private Map<String, Object> runWhenNotGuest(
       Response res, CheckedSupplier<Map<String, Object>> templateOperation) throws Exception {
-    Subject subject = (Subject) SecurityUtils.getSubject();
+    Subject subject = subjectSupplier.get();
     if (subject.isGuest()) {
       res.status(403);
       return ImmutableMap.of(RESP_MSG, "Guests cannot perform this action.");
@@ -383,6 +396,10 @@ public class SearchFormsApplication implements SparkApplication {
     }
 
     return null;
+  }
+
+  private static Subject getSubject() {
+    return (Subject) SecurityUtils.getSubject();
   }
 
   @FunctionalInterface

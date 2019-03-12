@@ -15,9 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Workspace Security"
-         id="org.codice.ddf.catalog.ui.security">
-
+    <OCD name="Catalog UI Search Workspace Security" id="org.codice.ddf.catalog.ui.security">
         <AD id="systemUserAttribute"
             name="System User Attribute"
             description="The name of the attribute to determine the system user."

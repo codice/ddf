@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<img src="{{getImageSrc metacard.properties.thumbnail}}">
-<button class="is-primary" title="Click to open image in a new window.">
-    <span class="fa fa-search-plus"></span>
-</button>
+export const geometryComparatorsAnyGeo = ['INTERSECTS']
+export const dateComparators = [
+  'BEFORE',
+  'AFTER',
+  'RELATIVE',
+  'BETWEEN',
+  'IS EMPTY',
+]
+export const geometryComparators = ['INTERSECTS', 'IS EMPTY']
+export const stringComparators = [
+  'CONTAINS',
+  'MATCHCASE',
+  '=',
+  'NEAR',
+  'IS EMPTY',
+]
+export const stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
+export const numberComparators = ['>', '<', '=', '>=', '<=', 'IS EMPTY']
+export const booleanComparators = ['=', 'IS EMPTY']

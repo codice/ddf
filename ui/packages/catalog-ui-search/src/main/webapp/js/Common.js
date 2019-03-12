@@ -204,11 +204,13 @@ module.exports = {
     return moment(date).fromNow()
   },
   getImageSrc: function(img) {
-    if (img === '' || img.substring(0, 4) === 'http') {
+    if (
+      typeof img === 'string' &&
+      (img === '' || img.substring(0, 4) === 'http')
+    )
       return img
-    } else {
-      return 'data:image/png;base64,' + img
-    }
+
+    return 'data:image/png;base64,' + img
   },
   getResourceUrlFromThumbUrl: function(url) {
     return url.replace(/=thumbnail[_=&\d\w\s;]+/, '=resource')

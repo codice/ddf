@@ -1,0 +1,26 @@
+:title: Catalog UI Search Metacard Type Whitelist
+:id: org.codice.ddf.catalog.ui.whitelist
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Catalog UI Search Metacard Type Whitelist.
+
+.[[_org.codice.ddf.catalog.ui.whitelist]]Catalog UI Search Metacard Type Whitelist
+[cols="1,1m,1,3,1m,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Metacard Type Whitelist
+|whiteListedMetacardTypes
+|String
+|List of metacard types that are whitelisted and not filtered. NOTE: This will directly filter out metacard types rendered from metacard application. An empty list will whitelist everything.
+|
+|false
+
+|===
