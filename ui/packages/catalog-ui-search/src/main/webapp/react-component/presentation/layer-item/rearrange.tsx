@@ -13,7 +13,7 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import { Props, IsButton, HighlightBehavior, GrabCursor } from '.'
-
+import { Order } from '../../container/layer-item'
 /* stylelint-disable block-no-empty */
 const Rearrange = styled.div``
 
@@ -47,23 +47,25 @@ const Drag = styled.button`
   top: 0px;
   height: 100%;
 `
-const RearrangeUp = ({ isTop }: { isTop: boolean }) => {
-  if (isTop) {
+const RearrangeUp = ({ order, handleClick }: { order:Order, handleClick: (e:any)=>void }) => {
+    const {isTop} = order
+    if (isTop) {
     return null
   }
   return (
-    <Up>
+    <Up onClick={handleClick}>
       <RearrangeIcon className="fa fa-angle-up" />
     </Up>
   )
 }
 
-const RearrangeDown = ({ isBottom }: { isBottom: boolean }) => {
+const RearrangeDown = ({ order, handleClick }: { order: Order, handleClick: (e:any)=>void }) => {
+    const {isBottom} = order
   if (isBottom) {
     return null
   }
   return (
-    <Down>
+    <Down onClick={handleClick}>
       <RearrangeIcon className="fa fa-angle-down" />
     </Down>
   )
@@ -71,11 +73,12 @@ const RearrangeDown = ({ isBottom }: { isBottom: boolean }) => {
 
 const render = (props: Props) => {
   const { order } = props
+  const {moveDown, moveUp} = props.actions
   return (
     <Rearrange>
-      {RearrangeUp(order)}
-      {RearrangeDown(order)}
-      <Drag>
+      {RearrangeUp({order, handleClick:moveUp})}
+      {RearrangeDown({order, handleClick:moveDown})}
+      <Drag className = "layer-rearrange">
         <span className="fa fa-arrows-v" />
       </Drag>
     </Rearrange>

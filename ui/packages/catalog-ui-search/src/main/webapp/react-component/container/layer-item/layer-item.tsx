@@ -12,11 +12,12 @@
 import * as React from 'react'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 //import styled from '../../styles/styled-components'
-import LayerItemPresentation from '../../presentation/layer-item'
+import LayerItemPresentation from '../../presentation/layer-item/layer-item'
 
 //import Dropdown from '../../presentation/dropdown'
 import { hot } from 'react-hot-loader'
-
+const CustomElements = require('../../../js/CustomElements')
+const Component = CustomElements.register('layer-item')
 // const Span = styled.span`
 //   padding-right: 5px;
 // `
@@ -35,8 +36,8 @@ export type Visibility = {
 export type Actions = {
   updateLayerShow: () => void
   updateLayerAlpha: (e: any) => void
-  // moveDown : (e: any) => void
-  // moveUp : (e: any) => void
+  moveDown : (e: any) => void
+  moveUp : (e: any) => void
   onRemove: () => void
 }
 
@@ -47,6 +48,8 @@ type State = {
 
 type Props = {
   layer: Backbone.Model
+  collection: any
+  options: any
 } & WithBackboneProps
 
 const mapPropsToState = (props: Props) => {
@@ -72,7 +75,8 @@ class LayerItem extends React.Component<Props, State> {
 
   listenToLayer = () => {
     const { listenTo, layer } = this.props
-    listenTo(layer, 'change:show change:alpha change:order', this.handleChange)
+    listenTo(layer, 'change', this.handleChange)
+    listenTo(layer.collection, 'sort remove add', this.handleChange)
   }
 
   handleChange = () => {
@@ -88,22 +92,53 @@ class LayerItem extends React.Component<Props, State> {
     this.props.layer.set('alpha', e.target.value)
   }
 
+  moveDown = () => {
+    const {options, layer} = this.props
+    const ordering = options.sortable.toArray()
+    const currentIndex = ordering.indexOf(layer.id)
+    ordering.splice(currentIndex, 1)
+    ordering.splice(currentIndex + 1, 0, layer.id)
+    options.sortable.sort(ordering)
+    options.focusModel.setDown(layer.id)
+    options.updateOrdering()
+    console.log(`Moving ${layer.get("name")} to index ${currentIndex + 1}`)
+    console.log(options.sortable.toArray())
+  }
+
+  moveUp = () => {
+    const {options, layer} = this.props
+    const ordering = options.sortable.toArray()
+    const currentIndex = ordering.indexOf(layer.id)
+    ordering.splice(currentIndex - 1, 0, layer.id)
+    ordering.splice(currentIndex + 1, 1)
+    options.sortable.sort(ordering)
+    options.focusModel.setUp(layer.id)
+    options.updateOrdering()
+     console.log(`Moving ${layer.get("name")} to index ${currentIndex - 1}`)
+    
+    console.log(options.sortable.toArray())
+  }
+
   onRemove = () => {
-    const { layer } = this.props
-    layer.collection.remove(layer)
+    debugger
+    const { layer,collection } = this.props
+    collection.remove(layer)
   }
 
   actions = {
     updateLayerShow: this.updateLayerShow,
     updateLayerAlpha: this.updateLayerAlpha,
+    moveDown: this.moveDown,
+    moveUp: this.moveUp,
     onRemove: this.onRemove,
   }
 
   render() {
     const { layer } = this.props
+    const id = layer.get('id')
     const layerInfo = {
       name: layer.get('name'),
-      id: layer.get('id'),
+      id,
       warning: layer.get('warning'),
       isRemoveable: layer.has('userRemovable'),
     }
@@ -112,7 +147,9 @@ class LayerItem extends React.Component<Props, State> {
       ...layerInfo,
       actions: this.actions,
     }
-    return <LayerItemPresentation {...props} />
+    
+    console.log(`Rerendering: ${layerInfo.name} ${this.state.order.order}`)
+    return <Component data-id={id} ><LayerItemPresentation  {...props}  /></Component>
   }
 }
 

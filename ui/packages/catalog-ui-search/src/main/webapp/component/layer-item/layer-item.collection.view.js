@@ -24,7 +24,7 @@ import LayerItem from '../../react-component/container/layer-item'
 
 const LayerItemView = Marionette.ItemView.extend({
   template() {
-    return <LayerItem layer={this.model} />
+    return <LayerItem layer={this.model} options={this.options} />
   },
 })
 

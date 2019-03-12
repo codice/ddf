@@ -21,7 +21,7 @@ export { LayerRearrange } from './rearrange'
 export { LayerInteractions } from './layer-properties/interactions'
 export { LayerAlpha } from './layer-properties/alpha'
 export { LayerName } from './layer-properties/name'
-export interface Props {
+export type Props = {
   name: string
   id: string
   warning: string
@@ -30,4 +30,4 @@ export interface Props {
   visibility: Visibility
   actions: Actions
 }
-export { default } from './layer-item'
+export { default } from './layers'

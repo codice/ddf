@@ -40,12 +40,12 @@ const LayerPropertiesRoot = styled.div`
 `
 
 const render = (props: Props) => {
-  const { name = 'Untitled', id } = props
+  console.log(`${props.name} isTop: ${props.order.isTop} `)
   return (
-    <Root {...props} data-id={id}>
+    <Root {...props}>
       <LayerRearrange {...props} />
       <LayerPropertiesRoot>
-        <LayerName {...props}>{name}</LayerName>
+        <LayerName {...props} />
         <LayerAlpha {...props} />
         <LayerInteractions {...props} />
       </LayerPropertiesRoot>
