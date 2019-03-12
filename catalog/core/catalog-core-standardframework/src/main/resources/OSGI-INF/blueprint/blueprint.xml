@@ -12,8 +12,8 @@
  **/ -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
@@ -21,7 +21,7 @@
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
     </type-converters>
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
@@ -31,7 +31,8 @@
 
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+               filter="(id=uuidGenerator)"/>
 
     <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
 
@@ -91,14 +92,15 @@
 
 
     <cm:managed-service-factory id="ddf.catalog.impl.action.SourceActionProviderImpl"
-                                factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl" interface="ddf.action.ActionProvider">
+                                factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl"
+                                interface="ddf.action.ActionProvider">
         <service-properties>
             <entry key="id" value="catalog.data.source.iframe.simple"/>
         </service-properties>
         <cm:managed-component class="ddf.catalog.impl.action.SourceActionProviderImpl">
             <argument value="catalog.data.source.iframe.simple"/>
             <cm:managed-properties persistent-id=""
-                                   update-strategy="container-managed" />
+                                   update-strategy="container-managed"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 

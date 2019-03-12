@@ -28,13 +28,13 @@
         <argument value="downloadManagerThread"/>
     </bean>
 
-  <reference-list id="downloadManagers" interface="org.codice.ddf.catalog.resource.download.internal.DownloadManager"
-    availability="optional">
-    <reference-listener bind-method="bindPlugin"
-      unbind-method="unbindPlugin" ref="downloadManagerSortedList"/>
-  </reference-list>
+    <reference-list id="downloadManagers" interface="org.codice.ddf.catalog.resource.download.internal.DownloadManager"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="downloadManagerSortedList"/>
+    </reference-list>
 
-  <bean id="downloadManagerSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="downloadManagerSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
     <bean id="reliableResourceDownloadManager"
           class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
@@ -60,22 +60,24 @@
     </bean>
 
     <bean id="mBeanServer" class="java.lang.management.ManagementFactory"
-        factory-method="getPlatformMBeanServer" />
+          factory-method="getPlatformMBeanServer"/>
 
     <bean id="resourceDownloadMBean"
-          class="org.codice.ddf.catalog.resource.download.impl.ResourceDownload" init-method="init" destroy-method="destroy">
-          <argument ref="mBeanServer"/>
-          <argument ref="catalogFramework"/>
-          <argument ref="resourceCacheMBean"/>
+          class="org.codice.ddf.catalog.resource.download.impl.ResourceDownload" init-method="init"
+          destroy-method="destroy">
+        <argument ref="mBeanServer"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="resourceCacheMBean"/>
     </bean>
 
     <bean id="resourceCacheMBean"
-          class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheService" init-method="init" destroy-method="destroy">
-          <argument ref="mBeanServer"/>
-          <argument ref="productCache"/>
-          <argument ref="reliableResourceDownloadManager"/>
-          <argument ref="frameworkProperties"/> 
-          <argument ref="catalogFramework"/>
+          class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheService" init-method="init"
+          destroy-method="destroy">
+        <argument ref="mBeanServer"/>
+        <argument ref="productCache"/>
+        <argument ref="reliableResourceDownloadManager"/>
+        <argument ref="frameworkProperties"/>
+        <argument ref="catalogFramework"/>
     </bean>
 
 </blueprint>
