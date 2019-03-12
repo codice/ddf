@@ -36,7 +36,7 @@
             description="Enables versioning of both metacards and content."/>
     </OCD>
 
-    <OCD name="Status Source Poller Runner" id="ddf.catalog.util.impl.StatusSourcePollerRunner">
+    <OCD name="Status Source Poller Runner" id="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">
         <AD name="Poll Interval (minutes)" id="pollIntervalMinutes" type="Integer" default="1" min="1"
             description="The interval (in minutes) at which to recheck the availability of all sources. Must be at least
             1 minute. WARNING: Increasing this value increases the maximum delay for the Source Poller to be updated for
@@ -64,8 +64,8 @@
         <Object ocdref="ddf.catalog.history.Historian"/>
     </Designate>
 
-    <Designate pid="ddf.catalog.util.impl.StatusSourcePollerRunner">
-        <Object ocdref="ddf.catalog.util.impl.StatusSourcePollerRunner"/>
+    <Designate pid="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">
+        <Object ocdref="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"/>
     </Designate>
 
     <Designate pid="ddf.catalog.impl.operations.QueryOperations">

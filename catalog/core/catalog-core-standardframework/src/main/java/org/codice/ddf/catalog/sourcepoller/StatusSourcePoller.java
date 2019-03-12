@@ -11,28 +11,36 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.util.impl;
+package org.codice.ddf.catalog.sourcepoller;
 
-import ddf.catalog.source.Source;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * The {@link SourcePoller} provides a non-blocking alternative to {@link Source} methods (e.g.
- * {@link Source#isAvailable()} and {@link Source#getContentTypes()}, which can block because they
- * submit a request to a remote client). In this {@link Poller}, {@link SourceKey}s are used to
- * compare {@link Source}s. This class also provides a method not available in {@link Poller}:
- * {@link #getCachedValueForSource(Source)}.
+ * The {@link StatusSourcePoller} is a non-blocking alternative to {@link
+ * ddf.catalog.source.Source#isAvailable()}.
+ *
+ * @see SourceStatus
  */
-public class SourcePoller<V> extends Poller<SourceKey, V> {
+public class StatusSourcePoller extends SourcePoller<SourceStatus> {
 
-  protected SourcePoller(
+  private static final Logger LOGGER = LoggerFactory.getLogger(StatusSourcePoller.class);
+
+  public StatusSourcePoller(
       final ExecutorService pollThreadPool, final ExecutorService pollTimeoutWatcherThreadPool) {
     super(pollThreadPool, pollTimeoutWatcherThreadPool);
   }
 
-  /** @throws NullPointerException if the {@code source} is {@code null} */
-  public Optional<V> getCachedValueForSource(final Source source) {
-    return getCachedValue(new SourceKey(source));
+  @Override
+  protected void handleTimeout(final SourceKey key) {
+    LOGGER.debug("Timeout occurred while getting the availability for source {}", key);
+    cacheNewValue(key, SourceStatus.TIMEOUT);
+  }
+
+  @Override
+  protected void handleException(final SourceKey sourceKey, final RuntimeException e) {
+    LOGGER.debug("RuntimeException getting the availability for source {}", sourceKey, e);
+    cacheNewValue(sourceKey, SourceStatus.EXCEPTION);
   }
 }

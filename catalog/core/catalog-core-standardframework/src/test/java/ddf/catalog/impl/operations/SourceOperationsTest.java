@@ -30,10 +30,10 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.util.impl.SourcePoller;
-import ddf.catalog.util.impl.SourceStatus;
 import java.util.Collections;
 import java.util.Optional;
+import org.codice.ddf.catalog.sourcepoller.SourcePoller;
+import org.codice.ddf.catalog.sourcepoller.SourceStatus;
 import org.junit.Test;
 
 public class SourceOperationsTest {

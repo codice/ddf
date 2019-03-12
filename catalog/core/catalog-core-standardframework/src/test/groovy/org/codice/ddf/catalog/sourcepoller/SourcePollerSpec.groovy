@@ -11,30 +11,32 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.util.impl
+package org.codice.ddf.catalog.sourcepoller
 
+import ddf.catalog.source.Source
 import spock.lang.Specification
 
-class PollerExceptionSpec extends Specification {
+import java.util.concurrent.ExecutorService
 
-    def 'test invalid causes'() {
+class SourcePollerSpec extends Specification {
+
+    def 'test getCachedValueForSource'() {
+        given:
+        final Source mockSource = Mock(Source) {
+            getId() >> 'test id'
+        }
+
+        final SourcePoller sourcePoller = Spy(SourcePoller, constructorArgs: [Mock(ExecutorService), Mock(ExecutorService)]) {
+            getCachedValue(new SourceKey(mockSource)) >> cachedValue
+        }
+
         when:
-        new PollerException(causes)
+        Optional cachedValueForSource = sourcePoller.getCachedValueForSource(mockSource)
 
         then:
-        thrown(expectedException)
+        cachedValueForSource == cachedValue
 
         where:
-        causes || expectedException
-        null   || NullPointerException
-        [:]    || IllegalArgumentException
-    }
-
-    def 'test getCauses'() {
-        given:
-        final Map<?, Throwable> causes = Mock()
-
-        expect:
-        (new PollerException(causes)).getCauses() == causes
+        cachedValue << [Optional.empty(), Optional.of(_)]
     }
 }

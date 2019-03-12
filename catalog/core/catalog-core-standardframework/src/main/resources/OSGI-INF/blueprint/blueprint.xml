@@ -72,7 +72,7 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <bean id="sourceRegistry" class="ddf.catalog.util.impl.SourceRegistry">
+    <bean id="sourceRegistry" class="org.codice.ddf.catalog.sourcepoller.SourceRegistry">
         <property name="connectedSources" ref="connectedSources"/>
         <property name="federatedSources" ref="federatedSources"/>
         <property name="catalogProviders" ref="catalog"/>
@@ -80,7 +80,7 @@
     </bean>
 
     <bean id="statusSourcePoller"
-          class="ddf.catalog.util.impl.StatusSourcePoller" destroy-method="destroy">
+          class="org.codice.ddf.catalog.sourcepoller.StatusSourcePoller" destroy-method="destroy">
         <argument>
             <bean class="java.util.concurrent.Executors" factory-method="newCachedThreadPool">
                 <argument>
@@ -102,7 +102,7 @@
             </bean>
         </argument>
     </bean>
-    <bean id="statusSourcePollerRunner" class="ddf.catalog.util.impl.StatusSourcePollerRunner"
+    <bean id="statusSourcePollerRunner" class="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"
           init-method="init" destroy-method="destroy">
         <argument ref="statusSourcePoller"/>
         <argument value="1"/><!--pollIntervalMinutes-->
@@ -119,12 +119,12 @@
         </argument>
         <argument ref="sourceRegistry"/>
         <cm:managed-properties
-                persistent-id="ddf.catalog.util.impl.StatusSourcePollerRunner"
+                persistent-id="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"
                 update-strategy="container-managed"/>
     </bean>
 
     <bean id="contentTypesSourcePoller"
-          class="ddf.catalog.util.impl.ContentTypesSourcePoller"
+          class="org.codice.ddf.catalog.sourcepoller.ContentTypesSourcePoller"
           destroy-method="destroy">
         <argument>
             <bean class="java.util.concurrent.Executors" factory-method="newCachedThreadPool">
@@ -148,7 +148,7 @@
         </argument>
     </bean>
     <bean id="contentTypesSourcePollerRunner"
-          class="ddf.catalog.util.impl.ContentTypesSourcePollerRunner" init-method="init"
+          class="org.codice.ddf.catalog.sourcepoller.ContentTypesSourcePollerRunner" init-method="init"
           destroy-method="destroy">
         <argument ref="contentTypesSourcePoller"/>
         <argument value="60"/><!--pollIntervalMinutes-->

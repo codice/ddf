@@ -30,8 +30,6 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.Describable;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
-import ddf.catalog.util.impl.SourcePoller;
-import ddf.catalog.util.impl.SourceStatus;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,6 +40,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.catalog.sourcepoller.SourcePoller;
+import org.codice.ddf.catalog.sourcepoller.SourceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

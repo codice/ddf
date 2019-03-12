@@ -22,8 +22,8 @@ import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.FederatedSource
 import ddf.catalog.source.Source
 import ddf.catalog.source.SourceUnavailableException
-import ddf.catalog.util.impl.SourcePoller
-import ddf.catalog.util.impl.SourceStatus
+import org.codice.ddf.catalog.sourcepoller.SourcePoller
+import org.codice.ddf.catalog.sourcepoller.SourceStatus
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
