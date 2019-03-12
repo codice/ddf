@@ -63,18 +63,18 @@ public class PropertyFileClaimsHandlerTest {
     assertEquals("editor", processedClaimCollection.get(0).getValues().get(3));
     assertEquals("writer", processedClaimCollection.get(0).getValues().get(4));
 
-    ClaimsParameters claimsParametersAdam = mock(ClaimsParameters.class);
-    Principal principalAdam = mock(Principal.class);
-    when(principalAdam.getName()).thenReturn("adam");
-    when(claimsParametersAdam.getPrincipal()).thenReturn(principalAdam);
-    ProcessedClaimCollection processedClaimCollectionAdam =
-        propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParametersAdam);
+    ClaimsParameters claimsParametersUser1 = mock(ClaimsParameters.class);
+    Principal principalUser1 = mock(Principal.class);
+    when(principalUser1.getName()).thenReturn("User1");
+    when(claimsParametersUser1.getPrincipal()).thenReturn(principalUser1);
+    ProcessedClaimCollection processedClaimCollectionUser1 =
+        propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParametersUser1);
 
-    assertEquals(2, processedClaimCollectionAdam.size());
-    assertEquals(2, processedClaimCollectionAdam.get(0).getValues().size());
-    assertEquals("adam", processedClaimCollectionAdam.get(1).getValues().get(0));
-    assertEquals("editor", processedClaimCollectionAdam.get(0).getValues().get(0));
-    assertEquals("writer", processedClaimCollectionAdam.get(0).getValues().get(1));
+    assertEquals(2, processedClaimCollectionUser1.size());
+    assertEquals(2, processedClaimCollectionUser1.get(0).getValues().size());
+    assertEquals("User1", processedClaimCollectionUser1.get(1).getValues().get(0));
+    assertEquals("editor", processedClaimCollectionUser1.get(0).getValues().get(0));
+    assertEquals("writer", processedClaimCollectionUser1.get(0).getValues().get(1));
   }
 
   @Test
