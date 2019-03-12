@@ -13,116 +13,311 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./metacard-overwrite.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var store = require('../../js/store.js')
-var ConfirmationView = require('../confirmation/confirmation.view.js')
-var Dropzone = require('dropzone')
-var Common = require('../../js/Common.js')
-var OverwritesInstance = require('../singletons/overwrites-instance.js')
+const store = require('../../js/store.js')
+const ConfirmationView = require('../confirmation/confirmation.view.js')
+const Dropzone = require('dropzone')
+const OverwritesInstance = require('../singletons/overwrites-instance.js')
+import React from 'react'
+import ReactDOM from 'react-dom'
+import styled from '../../react-component/styles/styled-components'
+import { readableColor } from 'polished'
+import {
+  Button,
+  buttonTypeEnum,
+} from '../../react-component/presentation/button'
+import withListenTo from '../../react-component/container/backbone-container'
 
-function getOverwriteModel(view) {
-  return OverwritesInstance.get(view.model.get('metacard').id)
+const Root = styled.div`
+  overflow: auto;
+  white-space: nowrap;
+  height: 100%;
+`
+
+const OverwriteConfirm = styled(Button)`
+  display: inline-block;
+  white-space: normal;
+  vertical-align: top !important;
+  width: 100%;
+  transform: translateX(0%);
+  transition: transform ${props => props.theme.coreTransitionTime} linear;
+  height: auto;
+`
+
+const MainText = styled.span`
+  display: block;
+  font-size: ${props => props.theme.largeFontSize};
+`
+
+const SubText = styled.span`
+  display: block;
+  font-size: ${props => props.theme.mediumFontSize};
+`
+
+const OverwriteStatus = styled.div`
+  display: inline-block;
+  white-space: normal;
+  vertical-align: top !important;
+  width: 100%;
+  transform: translateX(0%);
+  transition: transform ${props => props.theme.coreTransitionTime} linear;
+  text-align: center;
+  position: relative;
+  white-space: normal;
+  padding: 10px;
+`
+
+const OverwriteProgress = styled(OverwriteStatus)`
+  line-height: ${props => props.theme.minimumButtonSize};
+`
+
+const ProgressText = styled.div`
+  padding: 10px;
+  top: 0px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  font-size: ${props => props.theme.largeFontSize};
+  color: ${props => readableColor(props.theme.backgroundContent)};
+`
+
+const ProgressTextUnder = styled.div`
+  font-size: ${props => props.theme.largeFontSize};
+  visibility: hidden;
+`
+
+const ProgressInfo = styled.div`
+  font-size: ${props => props.theme.mediumFontSize};
+  color: ${props => readableColor(props.theme.backgroundContent)};
+`
+
+const ProgressBar = styled.div`
+  z-index: 0;
+  top: 0px;
+  left: 0px;
+  position: absolute;
+  width: 0%;
+  height: 100%;
+  background: ${props => props.theme.positiveColor};
+  transition: width ${props => props.theme.coreTransitionTime} linear;
+`
+
+const OverwriteSuccess = styled(OverwriteStatus)`
+  color: ${props => readableColor(props.theme.positiveColor)};
+  background: ${props => props.theme.positiveColor};
+`
+
+const OverwriteError = styled(OverwriteStatus)`
+  color: ${props => readableColor(props.theme.negativeColor)};
+  background: ${props => props.theme.negativeColor};
+`
+
+const ResultMessage = styled.div`
+  font-size: ${props => props.theme.largeFontSize};
+  margin-left: ${props => props.theme.minimumButtonSize};
+`
+
+const OverwriteBack = styled.button`
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: ${props => props.theme.minimumButtonSize};
+  height: 100%;
+  text-align: center;
+`
+
+const Confirm = props => (
+  <OverwriteConfirm
+    buttonType={buttonTypeEnum.negative}
+    onClick={props.onClick}
+    data-help="This will overwrite the item content. To restore a previous content, you can click on 'File' in the toolbar, and then click 'Restore Archived Items'."
+  >
+    <MainText>Overwrite content</MainText>
+    <SubText>
+      WARNING: This will completely overwrite the current content and metadata.
+    </SubText>
+  </OverwriteConfirm>
+)
+
+const Progress = props => (
+  <OverwriteProgress>
+    <ProgressTextUnder>
+      Uploading File
+      <div>{props.percentage}%</div>
+      <ProgressInfo>
+        If you leave this view, the overwrite will still continue.
+      </ProgressInfo>
+    </ProgressTextUnder>
+    <ProgressText>
+      Uploading File
+      <div>{Math.floor(props.percentage)}%</div>
+      <ProgressInfo>
+        If you leave this view, the overwrite will still continue.
+      </ProgressInfo>
+    </ProgressText>
+    <ProgressBar style={{ width: `${props.percentage}%` }} />
+  </OverwriteProgress>
+)
+
+const Success = props => (
+  <OverwriteSuccess>
+    <OverwriteBack onClick={props.onClick}>
+      <span className="fa fa-chevron-left" />
+    </OverwriteBack>
+    <ResultMessage>{props.message}</ResultMessage>
+  </OverwriteSuccess>
+)
+
+const Error = props => (
+  <OverwriteError>
+    <OverwriteBack onClick={props.onClick}>
+      <span className="fa fa-chevron-left" />
+    </OverwriteBack>
+    <ResultMessage>{props.message}</ResultMessage>
+  </OverwriteError>
+)
+
+const defaultState = {
+  sending: false,
+  success: false,
+  error: false,
+  percentage: 0,
+  message: '',
 }
 
-module.exports = Marionette.ItemView.extend({
-  setDefaultModel: function() {
-    this.model = this.selectionInterface.getSelectedResults().first()
-  },
-  template: template,
-  tagName: CustomElements.register('metacard-overwrite'),
-  events: {
-    'click button.overwrite-confirm': 'archive',
-    'click button.overwrite-back': 'startOver',
-  },
-  selectionInterface: store,
-  initialize: function(options) {
-    this.selectionInterface =
-      options.selectionInterface || this.selectionInterface
-    if (!options.model) {
-      this.setDefaultModel()
-    }
-  },
-  onRender: function() {
-    this.setupDropzone()
-  },
-  setupDropzone: function() {
-    this.dropzone = new Dropzone(this.el.querySelector('.overwrite-dropzone'), {
-      url: './internal/catalog/' + this.model.get('metacard').id,
-      maxFilesize: 5000000, //MB
-      method: 'put',
-    })
+class MetacardOverwrite extends React.Component {
+  constructor(props) {
+    super(props)
+    this.selectionInterface = props.selectionInterface || store
+    this.state = defaultState
+    this.state.model =
+      props.model || this.selectionInterface.getSelectedResults().first()
+    this.dropzoneElement = React.createRef()
+  }
+
+  componentDidMount() {
+    this.dropzone = new Dropzone(
+      ReactDOM.findDOMNode(this.dropzoneElement.current),
+      {
+        url: './internal/catalog/' + this.state.model.get('metacard').id,
+        maxFilesize: 5000000, //MB
+        method: 'put',
+      }
+    )
     this.trackOverwrite()
     this.setupEventListeners()
     this.handleSending()
     this.handlePercentage()
     this.handleError()
     this.handleSuccess()
-  },
-  trackOverwrite: function() {
-    if (!getOverwriteModel(this)) {
+  }
+
+  render() {
+    let Component
+    if (this.state.success) {
+      Component = () => (
+        <Success
+          onClick={() => this.startOver()}
+          message={this.state.message}
+        />
+      )
+    } else if (this.state.error) {
+      Component = () => (
+        <Error onClick={() => this.startOver()} message={this.state.message} />
+      )
+    } else if (this.state.sending) {
+      Component = () => <Progress percentage={this.state.percentage} />
+    } else {
+      Component = () => <Confirm onClick={() => this.archive()} />
+    }
+
+    return (
+      <Root>
+        <div style={{ display: 'none' }} ref={this.dropzoneElement} />
+        <Component />
+      </Root>
+    )
+  }
+
+  getOverwriteModel() {
+    return OverwritesInstance.get(this.state.model.get('metacard').id)
+  }
+
+  trackOverwrite() {
+    if (!this.getOverwriteModel()) {
       OverwritesInstance.add({
-        id: this.model.get('metacard').id,
+        id: this.state.model.get('metacard').id,
         dropzone: this.dropzone,
-        result: this.model,
+        result: this.state.model,
       })
     }
-  },
-  setupEventListeners: function() {
-    var overwriteModel = getOverwriteModel(this)
-    this.listenTo(overwriteModel, 'change:percentage', this.handlePercentage)
-    this.listenTo(overwriteModel, 'change:sending', this.handleSending)
-    this.listenTo(overwriteModel, 'change:error', this.handleError)
-    this.listenTo(overwriteModel, 'change:success', this.handleSuccess)
-  },
-  handleSending: function() {
-    var sending = getOverwriteModel(this).get('sending')
-    this.$el.toggleClass('show-progress', sending)
-  },
-  handlePercentage: function() {
-    var percentage = getOverwriteModel(this).get('percentage')
-    this.$el
-      .find('.overwrite-progress > .progress-bar')
-      .css('width', percentage + '%')
-    this.$el.find('.progress-percentage').html(Math.floor(percentage) + '%')
-  },
-  handleError: function() {
-    var error = getOverwriteModel(this).get('error')
-    this.$el.toggleClass('has-error', error)
-    this.$el
-      .find('.error-message')
-      .html(getOverwriteModel(this).escape('message'))
-  },
-  handleSuccess: function(file, response) {
-    var success = getOverwriteModel(this).get('success')
-    this.$el.toggleClass('has-success', success)
-    this.$el
-      .find('.success-message')
-      .html(getOverwriteModel(this).escape('message'))
-  },
-  archive: function() {
-    this.listenTo(
+  }
+
+  setupEventListeners() {
+    const overwriteModel = this.getOverwriteModel()
+    this.props.listenTo(overwriteModel, 'change:percentage', () =>
+      this.handlePercentage()
+    )
+    this.props.listenTo(overwriteModel, 'change:sending', () =>
+      this.handleSending()
+    )
+    this.props.listenTo(overwriteModel, 'change:error', () =>
+      this.handleError()
+    )
+    this.props.listenTo(overwriteModel, 'change:success', () =>
+      this.handleSuccess()
+    )
+  }
+
+  handleSending() {
+    const sending = this.getOverwriteModel().get('sending')
+    this.setState({ sending })
+  }
+
+  handlePercentage() {
+    const percentage = this.getOverwriteModel().get('percentage')
+    this.setState({ percentage })
+  }
+
+  handleError() {
+    const error = this.getOverwriteModel().get('error')
+    const message = this.getOverwriteModel().escape('message')
+    this.setState({ error, message })
+  }
+
+  handleSuccess() {
+    const success = this.getOverwriteModel().get('success')
+    const message = this.getOverwriteModel().escape('message')
+    this.setState({ success, message })
+  }
+
+  archive() {
+    this.props.listenTo(
       ConfirmationView.generateConfirmation({
         prompt: 'Are you sure you want to overwrite the content?',
         no: 'Cancel',
         yes: 'Overwrite',
       }),
       'change:choice',
-      function(confirmation) {
+      confirmation => {
         if (confirmation.get('choice')) {
-          this.$el.find('.overwrite-dropzone').click()
+          this.dropzoneElement.current.click()
         }
-      }.bind(this)
+      }
     )
-  },
-  startOver: function() {
-    OverwritesInstance.remove(this.model.get('metacard').id)
-    this.render()
-  },
-  onDestroy: function() {
-    OverwritesInstance.removeIfUnused(this.model.get('metacard').id)
-  },
-})
+  }
+
+  startOver() {
+    OverwritesInstance.remove(this.state.model.get('metacard').id)
+    this.trackOverwrite()
+    this.setupEventListeners()
+    this.setState(defaultState)
+  }
+
+  componentWillUnmount() {
+    OverwritesInstance.removeIfUnused(this.state.model.get('metacard').id)
+  }
+}
+
+export default withListenTo(MetacardOverwrite)
