@@ -32,11 +32,7 @@ module.exports = Marionette.LayoutView.extend({
         mouseLat={props.mouseLat}
         mouseLon={props.mouseLon}
         target={props.target}
-        clickDms={props.clickDms}
-        clickLat={props.clickLat}
-        clickLon={props.clickLon}
-        clickMgrs={props.clickMgrs}
-        clickUtmUps={props.clickUtmUps}
+        coordinateValues={props.coordinateValues}
         selectionCount={props.selectionCount}
         closeMenu={this.triggerClick.bind(this)}
       />
@@ -44,7 +40,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   tagName: CustomElements.register('map-context-menu'),
   className: 'composed-menu',
-  modelEvents: {},
+  modelEvents: {
+    'change': 'render'
+  },
   selectMenu(value) {
     switch (value) {
       case 'Histogram':

@@ -19,9 +19,6 @@ const Empty = styled.div`
   text-align: center;
   padding: ${props => props.theme.largeSpacing};
   display: none;
-  span {
-    color: ${props => props.theme.warningColor};
-  }
 `
 const Attribute = styled.div`
   display: block;
@@ -33,9 +30,6 @@ const NoData = styled.div`
   text-align: center;
   padding: ${props => props.theme.largeSpacing};
   display: none;
-  span {
-    color: ${props => props.theme.warningColor};
-  }
 `
 const Container = styled.div`
   display: block;

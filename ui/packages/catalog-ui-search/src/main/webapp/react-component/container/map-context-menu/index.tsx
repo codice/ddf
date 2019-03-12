@@ -44,14 +44,60 @@ interface Props {
   mouseLat: number | null | undefined
   mouseLon: number | null | undefined
   target: string | null | undefined
-  clickDms: string
-  clickLat: string
-  clickLon: string
-  clickMgrs: string
-  clickUtmUps: string
+  coordinateValues: {
+    dms: string
+    lat: string
+    lon: string
+    mgrs: string
+    utmUps: string
+  }
   selectionCount: number
   closeMenu: () => void
 }
+
+const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
+  <MenuItem key="0" value="CopyCoordinates">
+    <CopyCoordinates
+      coordinateValues={coordinateValues}
+      closeParent={closeMenu}
+    />
+  </MenuItem>
+)
+
+const renderHistogramMenu = () => (
+  <MenuItem key="10" value="Histogram">
+    <Icon className="interaction-icon fa fa-bar-chart" />
+    <Title>View Histogram</Title>
+  </MenuItem>
+)
+
+const renderHistogramSelectionMenu = ({ selectionCount }: Props) => (
+  <MenuItem key="11" value="HistogramSelection">
+    <Icon className="interaction-icon fa fa-bar-chart" />
+    <Title>View Histogram</Title>
+    <Description>({selectionCount} selected)</Description>
+  </MenuItem>
+)
+
+const renderInspectorMenu = ({ target }: Props) => (
+  <MenuItem key="20" value="Inspector">
+    <Icon className="interaction-icon fa fa-info" />
+    <Title>View Inspector</Title>
+    <Description>({target})</Description>
+  </MenuItem>
+)
+
+const renderMenu = ({ onChange }: Props, menuItems: any[]) => (
+  <Menu onChange={onChange}>{menuItems}</Menu>
+)
+
+const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (
+  <MenuItem key="21" value="InspectorSelection">
+    <Icon className="interaction-icon fa fa-info" />
+    <Title>View Inspector</Title>
+    <Description>({selectionCount} selected)</Description>
+  </MenuItem>
+)
 
 export const MapContextMenu = (props: Props) => {
   const hasTarget = typeof props.target === 'string'
@@ -61,51 +107,17 @@ export const MapContextMenu = (props: Props) => {
     typeof props.mouseLon !== 'undefined'
   const menuItems = []
   if (hasMouseCoordinates) {
-    menuItems.push(
-      <MenuItem key="0" value="CopyCoordinates">
-        <CopyCoordinates
-          clickDms={props.clickDms}
-          clickLat={props.clickLat}
-          clickLon={props.clickLon}
-          clickMgrs={props.clickMgrs}
-          clickUtmUps={props.clickUtmUps}
-          closeParent={props.closeMenu}
-        />
-      </MenuItem>
-    )
+    menuItems.push(renderCopyCoordinatesMenu(props))
   }
-  menuItems.push(
-    <MenuItem key="10" value="Histogram">
-      <Icon className="interaction-icon fa fa-bar-chart" />
-      <Title>View Histogram</Title>
-    </MenuItem>
-  )
+  menuItems.push(renderHistogramMenu())
   if (hasSelection) {
-    menuItems.push(
-      <MenuItem key="11" value="HistogramSelection">
-        <Icon className="interaction-icon fa fa-bar-chart" />
-        <Title>View Histogram</Title>
-        <Description>({props.selectionCount} selected)</Description>
-      </MenuItem>
-    )
+    menuItems.push(renderHistogramSelectionMenu(props))
   }
   if (hasTarget) {
-    menuItems.push(
-      <MenuItem key="20" value="Inspector">
-        <Icon className="interaction-icon fa fa-info" />
-        <Title>View Inspector</Title>
-        <Description>({props.target})</Description>
-      </MenuItem>
-    )
+    menuItems.push(renderInspectorMenu(props))
   }
   if (hasSelection) {
-    menuItems.push(
-      <MenuItem key="21" value="InspectorSelection">
-        <Icon className="interaction-icon fa fa-info" />
-        <Title>View Inspector</Title>
-        <Description>({props.selectionCount} selected)</Description>
-      </MenuItem>
-    )
+    menuItems.push(renderInspectorSelectionMenu(props))
   }
-  return <Menu onChange={props.onChange}>{menuItems}</Menu>
+  return renderMenu(props, menuItems)
 }
