@@ -15,13 +15,18 @@ package org.codice.ddf.security;
 
 import java.security.cert.X509Certificate;
 
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 public interface OcspService {
 
   /**
    * Checks the whether the given {@param certs} are revoked or not against the OCSP server.
    *
    * @param certs - an array of certificates to verify
-   * @return true if the certificates are not revoked, false if any of them are revoked.
+   * @return true if the certificates are not revoked or if they could not be properly checked
+   *     against the OCSP server. Returns false if any of them are revoked.
    */
   boolean passesOcspCheck(X509Certificate[] certs);
 }

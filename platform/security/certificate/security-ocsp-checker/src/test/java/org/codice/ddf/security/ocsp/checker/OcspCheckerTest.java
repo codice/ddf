@@ -13,9 +13,10 @@
  */
 package org.codice.ddf.security.ocsp.checker;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -24,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -56,7 +56,6 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.service.event.EventAdmin;
 
@@ -71,15 +70,15 @@ public class OcspCheckerTest {
     X509Certificate x509Certificate = getX509Certificate();
 
     Certificate certificate = ocspChecker.convertToBouncyCastleCert(x509Certificate);
-    assertNotNull(certificate);
-    Assert.assertEquals(
-        x509Certificate.getSerialNumber(), certificate.getSerialNumber().getValue());
-    Assert.assertEquals(x509Certificate.getNotAfter(), certificate.getEndDate().getDate());
-    Assert.assertEquals(x509Certificate.getNotBefore(), certificate.getStartDate().getDate());
+    assertThat(certificate, is(notNullValue()));
+    assertThat(
+        x509Certificate.getSerialNumber(), equalTo(certificate.getSerialNumber().getValue()));
+    assertThat(x509Certificate.getNotAfter(), equalTo(certificate.getEndDate().getDate()));
+    assertThat(x509Certificate.getNotBefore(), equalTo(certificate.getStartDate().getDate()));
 
     X500Principal subjectX500Principal = x509Certificate.getSubjectX500Principal();
     X500Name x500name = new X500Name(subjectX500Principal.getName(X500Principal.RFC1779));
-    Assert.assertEquals(x500name, certificate.getIssuer());
+    assertThat(x500name, equalTo(certificate.getIssuer()));
   }
 
   @Test
@@ -88,11 +87,11 @@ public class OcspCheckerTest {
     Certificate certificate = getBouncyCastleCertificate();
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(certificate);
-    assertNotNull(ocspReq);
+    assertThat(ocspReq, is(notNullValue()));
 
-    Assert.assertEquals(
+    assertThat(
         ocspReq.getRequestList()[0].getCertID().getSerialNumber(),
-        certificate.getSerialNumber().getValue());
+        equalTo(certificate.getSerialNumber().getValue()));
   }
 
   @Test
@@ -106,7 +105,7 @@ public class OcspCheckerTest {
 
     Response response = ocspChecker.sendOcspRequest(ocspReq);
 
-    assertNotNull(response);
+    assertThat(response, is(notNullValue()));
   }
 
   @Test
@@ -115,7 +114,7 @@ public class OcspCheckerTest {
 
     OCSPResp resp = mockOcspResponse(new UnknownStatus());
     boolean response = ocspChecker.isOCSPResponseValid(resp);
-    assertFalse(response);
+    assertThat(response, is(false));
   }
 
   @Test
@@ -124,7 +123,7 @@ public class OcspCheckerTest {
 
     OCSPResp resp = mockOcspResponse(new RevokedStatus(new Date(), 0));
     boolean response = ocspChecker.isOCSPResponseValid(resp);
-    assertFalse(response);
+    assertThat(response, is(false));
   }
 
   @Test
@@ -135,7 +134,7 @@ public class OcspCheckerTest {
     when(resp.getResponseObject()).thenReturn(null);
 
     boolean response = ocspChecker.isOCSPResponseValid(resp);
-    assertFalse(response);
+    assertThat(response, is(false));
   }
 
   @Test
@@ -148,7 +147,7 @@ public class OcspCheckerTest {
     when(resp.getResponseObject()).thenReturn(basicOCSPResp);
 
     boolean response = ocspChecker.isOCSPResponseValid(resp);
-    assertFalse(response);
+    assertThat(response, is(false));
   }
 
   @Test
@@ -157,16 +156,15 @@ public class OcspCheckerTest {
 
     OCSPResp resp = mockOcspResponse(null);
     boolean response = ocspChecker.isOCSPResponseValid(resp);
-    assertTrue(response);
+    assertThat(response, is(true));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = OcspChecker.OcspCheckerException.class)
   public void testPostEvent() throws Exception {
     OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
     Response response = mock(Response.class);
 
     ocspChecker.createOcspResponse(response);
-    verify(eventAdmin, times(1)).postEvent(any());
   }
 
   @Test
@@ -181,7 +179,7 @@ public class OcspCheckerTest {
 
     boolean ocspCheckPasses = ocspChecker.passesOcspCheck(x509CertificateArray);
     verify(eventAdmin, times(1)).postEvent(any());
-    assertTrue(ocspCheckPasses);
+    assertThat(ocspCheckPasses, is(true));
   }
 
   @Test
@@ -192,7 +190,7 @@ public class OcspCheckerTest {
 
     boolean ocspCheckPasses = ocspChecker.passesOcspCheck(null);
     verify(eventAdmin, times(1)).postEvent(any());
-    assertTrue(ocspCheckPasses);
+    assertThat(ocspCheckPasses, is(true));
   }
 
   private X509Certificate getX509Certificate() throws Exception {

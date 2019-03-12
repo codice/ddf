@@ -20,6 +20,7 @@
     <reference id="clientFactoryFactory"
                interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+
     <bean id="ocspService" class="org.codice.ddf.security.ocsp.checker.OcspChecker">
         <cm:managed-properties persistent-id="org.codice.ddf.security.ocsp.checker.OcspChecker"
                                update-strategy="container-managed"/>

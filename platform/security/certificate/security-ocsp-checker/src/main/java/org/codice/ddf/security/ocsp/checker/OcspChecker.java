@@ -69,7 +69,8 @@ public class OcspChecker implements OcspService {
    * Checks the whether the given {@param certs} are revoked or not against the OCSP server.
    *
    * @param certs - an array of certificates to verify
-   * @return true if the certificates are not revoked, false if any of them are revoked.
+   * @return true if the certificates are not revoked or if they could not be properly checked
+   *     against the OCSP server. Returns false if any of them are revoked.
    */
   public boolean passesOcspCheck(X509Certificate[] certs) {
     if (!ocspEnabled || ocspServerUrl == null) {
@@ -95,7 +96,7 @@ public class OcspChecker implements OcspService {
           LOGGER.debug("Certificate has been revoked by the OCSP server.");
           return false;
         }
-      } catch (IOException e) {
+      } catch (OcspCheckerException e) {
         // ignore
       }
     }
@@ -110,10 +111,10 @@ public class OcspChecker implements OcspService {
    *
    * @param cert - the X509Certificate to convert
    * @return a Bouncy Castle certificate
-   * @throws IOException after posting an alert to the admin console, if any error occurs
+   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
    */
   @VisibleForTesting
-  Certificate convertToBouncyCastleCert(X509Certificate cert) throws IOException {
+  Certificate convertToBouncyCastleCert(X509Certificate cert) throws OcspCheckerException {
     try {
       byte[] data = cert.getEncoded();
       return Certificate.getInstance(data);
@@ -121,7 +122,7 @@ public class OcspChecker implements OcspService {
       postErrorEvent(
           "Unable to convert certificate to a Bouncy Castle certificate. The certificate status could not be verified. "
               + e.getMessage());
-      throw new IOException(e);
+      throw new OcspCheckerException();
     }
   }
 
@@ -130,10 +131,10 @@ public class OcspChecker implements OcspService {
    *
    * @param cert - certificate to verify
    * @return the created OCSP request
-   * @throws IOException after posting an alert to the admin console, if any error occurs
+   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
    */
   @VisibleForTesting
-  OCSPReq generateOcspRequest(Certificate cert) throws IOException {
+  OCSPReq generateOcspRequest(Certificate cert) throws OcspCheckerException {
     try {
       JcaDigestCalculatorProviderBuilder digestCalculatorProviderBuilder =
           new JcaDigestCalculatorProviderBuilder();
@@ -152,7 +153,7 @@ public class OcspChecker implements OcspService {
       postErrorEvent(
           "Unable to create a OCSP request. The certificate status could not be verified. "
               + e.getMessage());
-      throw new IOException();
+      throw new OcspCheckerException();
     }
   }
 
@@ -161,10 +162,10 @@ public class OcspChecker implements OcspService {
    *
    * @param ocspReq - the OCSP request to send
    * @return the response from the OCSP server
-   * @throws IOException after posting an alert to the admin console, if any error occurs
+   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
    */
   @VisibleForTesting
-  Response sendOcspRequest(OCSPReq ocspReq) throws IOException {
+  Response sendOcspRequest(OCSPReq ocspReq) throws OcspCheckerException {
     try {
       SecureCxfClientFactory cxfClientFactory =
           factory.getSecureCxfClientFactory(ocspServerUrl, WebClient.class);
@@ -180,7 +181,7 @@ public class OcspChecker implements OcspService {
       postErrorEvent(
           "Unable to send OCSP request. The certificate status could not be verified. "
               + e.getMessage());
-      throw new IOException(e);
+      throw new OcspCheckerException();
     }
   }
 
@@ -189,16 +190,16 @@ public class OcspChecker implements OcspService {
    *
    * @param response - the response to convert to
    * @return an OCSP response of the given response
-   * @throws IOException after posting an alert to the admin console, if any error occurs
+   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
    */
   @VisibleForTesting
-  OCSPResp createOcspResponse(Response response) throws IOException {
+  OCSPResp createOcspResponse(Response response) throws OcspCheckerException {
     Object entity = response.getEntity();
 
     if (!(entity instanceof InputStream)) {
       postErrorEvent(
           "Unable to send OCSP request. The certificate status could not be verified. Unable to get a response from the OCSP server.");
-      throw new IOException();
+      throw new OcspCheckerException();
     }
 
     try (InputStream inputStream = (InputStream) entity) {
@@ -207,7 +208,7 @@ public class OcspChecker implements OcspService {
       postErrorEvent(
           "Unable to send OCSP request. The certificate status could not be verified. "
               + e.getMessage());
-      throw new IOException(e);
+      throw new OcspCheckerException();
     }
   }
 
@@ -279,5 +280,15 @@ public class OcspChecker implements OcspService {
 
   public void setOcspServerUrl(String ocspServerUrl) {
     this.ocspServerUrl = ocspServerUrl;
+  }
+
+  /**
+   * Custom exception usually thrown after an unexpected error occurred while validating a
+   * certificate. An alert should be posted to the admin console first.
+   */
+  class OcspCheckerException extends Exception {
+    public OcspCheckerException() {
+      super();
+    }
   }
 }
