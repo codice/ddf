@@ -62,7 +62,7 @@ class MetacardHistory extends React.Component<Props, State> {
         return
       }
 
-      let history = await res.json()
+      const history = await res.json()
       history.sort((historyItem1: any, historyItem2: any) => {
         return (
           moment.unix(historyItem2.versioned) -
@@ -122,8 +122,10 @@ class MetacardHistory extends React.Component<Props, State> {
       ) {
         announcement.announce({
           title: 'Waiting on Reverted Data',
-          message:
-            "It's taking an unusually long time for the reverted data to come back.  The item will be put in a revisionlike state (read-only) until data returns.",
+          message: [
+            "It's taking an unusually long time for the reverted data to come back.",
+            'The item will be put in a revision-like state (read-only) until data returns.',
+          ],
           type: 'warn',
         })
       }
