@@ -16,10 +16,13 @@ package org.codice.ddf.security.sts.claims.property;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
@@ -35,6 +38,7 @@ import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngine;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +46,10 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PropertyFileClaimsHandler.class);
 
-  private String propertyFileLocation;
+  private static Path propertyFileLocation =
+      Paths.get(new AbsolutePathResolver("etc/users.properties").getPath());
+
+  private boolean propertiesLoaded = false;
 
   private Map<String, String> userMapping;
 
@@ -67,6 +74,11 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
   @Override
   public ProcessedClaimCollection retrieveClaimValues(
       ClaimCollection claims, ClaimsParameters parameters) {
+
+    if (!this.propertiesLoaded) {
+      loadClaimsFromPropertiesFile();
+    }
+
     ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
     Principal principal = parameters.getPrincipal();
     boolean needsRoleClaim = false;
@@ -162,39 +174,69 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
   }
 
   public String getPropertyFileLocation() {
-    return propertyFileLocation;
+    return propertyFileLocation.toString();
   }
 
+  /**
+   * Sets the path to where the user properties file can be found
+   *
+   * @param propertyFileLocation The absolute path to the file
+   * @return void
+   */
   public void setPropertyFileLocation(String propertyFileLocation) {
     if (propertyFileLocation != null
         && !propertyFileLocation.isEmpty()
-        && !propertyFileLocation.equals(this.propertyFileLocation)) {
+        && !propertyFileLocation.equals(this.propertyFileLocation.toString())) {
 
-      Properties props = new Properties();
-      try {
-        props.load(getClass().getResourceAsStream(propertyFileLocation));
-      } catch (FileNotFoundException e) {
-        LOGGER.debug("File not found when attempting to load user properties file.", e);
-      } catch (IOException e) {
-        LOGGER.debug("Exception when trying to load the user properties file.", e);
-      }
-
-      propBackingEngine = new PropertiesBackingEngine(props);
-
-      List<UserPrincipal> userList = propBackingEngine.listUsers();
-      userMapping = new HashMap();
-      for (UserPrincipal eachUser : userList) {
-
-        List<RolePrincipal> userRoles = propBackingEngine.listRoles(eachUser);
-        List<String> roleList = new ArrayList();
-        for (RolePrincipal userRole : userRoles) {
-          roleList.add(userRole.getName());
-        }
-
-        userMapping.put(eachUser.getName(), StringUtils.join(roleList, ","));
-      }
+      setPropertyFileLocation(Paths.get(propertyFileLocation));
     }
-    this.propertyFileLocation = propertyFileLocation;
+  }
+
+  /**
+   * Sets the path to where the user properties file can be found
+   *
+   * @param propertyFilePath The path to the file
+   * @return void
+   */
+  public void setPropertyFileLocation(Path propertyFilePath) {
+    if (propertyFilePath != null) {
+      this.propertyFileLocation = propertyFilePath;
+
+      this.userMapping = null;
+      this.propertiesLoaded = false;
+
+      loadClaimsFromPropertiesFile();
+    }
+  }
+
+  private void loadClaimsFromPropertiesFile() {
+
+    Properties props = new Properties();
+
+    try {
+      props.load(this.propertyFileLocation.toFile());
+    } catch (FileNotFoundException e) {
+      LOGGER.debug("File not found when attempting to load user properties file.", e);
+    } catch (IOException e) {
+      LOGGER.debug("Exception when trying to load the user properties file.", e);
+    }
+
+    propBackingEngine = new PropertiesBackingEngine(props);
+
+    List<UserPrincipal> userList = propBackingEngine.listUsers();
+    userMapping = new HashMap();
+    for (UserPrincipal eachUser : userList) {
+
+      List<RolePrincipal> userRoles = propBackingEngine.listRoles(eachUser);
+      List<String> roleList = new ArrayList<>();
+      for (RolePrincipal userRole : userRoles) {
+        roleList.add(userRole.getName());
+      }
+
+      userMapping.put(eachUser.getName(), StringUtils.join(roleList, ","));
+    }
+
+    this.propertiesLoaded = true;
   }
 
   public String getRoleClaimType() {
