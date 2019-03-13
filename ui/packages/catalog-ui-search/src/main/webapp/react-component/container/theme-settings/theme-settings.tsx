@@ -76,35 +76,30 @@ const ThemeCustom = styled.div`
 `
 
 const saveFontChanges = (fontSize: string) => {
-  let newFontSize = fontSize
-  getPreferences().set('fontSize', ThemeUtils.getFontSize(newFontSize))
+  getPreferences().set('fontSize', ThemeUtils.getFontSize(fontSize))
 }
 
 const saveSpacingChanges = (spacingMode: string) => {
-  let newSpacingMode = spacingMode
   getPreferences()
     .get('theme')
-    .set('spacingMode', newSpacingMode)
+    .set('spacingMode', spacingMode)
   getPreferences().savePreferences()
 }
 
 const saveAnimationChanges = (animationMode: string) => {
-  let newAnimationMode = animationMode
-  getPreferences().set('animation', newAnimationMode)
+  getPreferences().set('animation', animationMode)
   getPreferences().savePreferences()
 }
 
 const saveHoverPreviewChanges = (hoverValue: string) => {
-  let newHoverPreview = hoverValue
-  getPreferences().set('hoverPreview', newHoverPreview)
+  getPreferences().set('hoverPreview', hoverValue)
   getPreferences().savePreferences()
 }
 
 const saveThemeChanges = (themeValue: string) => {
-  let newTheme = themeValue
   getPreferences()
     .get('theme')
-    .set('theme', newTheme)
+    .set('theme', themeValue)
   getPreferences().savePreferences()
 }
 
@@ -112,10 +107,9 @@ const saveCustomColorVariable = (
   colorVariable: string,
   selectedValue: string
 ) => {
-  let newValue = selectedValue
   getPreferences()
     .get('theme')
-    .set(colorVariable, newValue)
+    .set(colorVariable, selectedValue)
   getPreferences().savePreferences()
 }
 
