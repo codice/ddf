@@ -30,7 +30,7 @@ type State = {
   loading: boolean
 }
 
-class MetacardQuality extends React.Component<Props, State> {
+class MetacardArchive extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
 
@@ -52,14 +52,43 @@ class MetacardQuality extends React.Component<Props, State> {
     this.setState({ loading: false })
   }
 
-  handleArchive = () => {
-    const body = JSON.stringify(
-      this.state.collection.map((result: any) => {
-        return result.get('metacard').get('id')
-      })
-    )
+  onArchiveConfirm = async (confirmation: any) => {
+    if (confirmation.get('choice')) {
+      const body = JSON.stringify(
+        this.state.collection.map((result: any) => {
+          return result.get('metacard').get('id')
+        })
+      )
+      this.setState({ loading: true })
 
-    const self = this
+      const res = await fetch('./internal/metacards', {
+        method: 'DELETE',
+        body,
+      })
+      if (!res.ok) {
+        announcement.announce({
+          title: 'Unable to archive the selected item(s).',
+          message: 'Something went wrong.',
+          type: 'error',
+        })
+      }
+
+      this.state.collection.forEach(function(result) {
+        result
+          .get('metacard')
+          .get('properties')
+          .set('metacard-tags', ['deleted'])
+        result.trigger('refreshdata')
+      })
+      this.refreshResults()
+
+      setTimeout(() => {
+        this.setState({ isDeleted: true, loading: false })
+      }, 2000)
+    }
+  }
+
+  handleArchive = () => {
     this.props.listenTo(
       ConfirmationView.generateConfirmation({
         prompt:
@@ -68,41 +97,42 @@ class MetacardQuality extends React.Component<Props, State> {
         yes: 'Archive',
       }),
       'change:choice',
-      async function(confirmation: any) {
-        if (confirmation.get('choice')) {
-          self.setState({ loading: true })
-
-          const res = await fetch('./internal/metacards', {
-            method: 'DELETE',
-            body,
-          })
-          if (!res.ok) {
-            announcement.announce({
-              title: 'Unable to archive the selected item(s).',
-              message: 'Something went wrong.',
-              type: 'error',
-            })
-          }
-
-          self.state.collection.forEach(function(result) {
-            result
-              .get('metacard')
-              .get('properties')
-              .set('metacard-tags', ['deleted'])
-            result.trigger('refreshdata')
-          })
-          self.refreshResults()
-
-          setTimeout(() => {
-            self.setState({ isDeleted: true, loading: false })
-          }, 2000)
-        }
-      }.bind(this)
+      this.onArchiveConfirm
     )
   }
 
+  onRestoreConfirm = (confirmation: any) => {
+    if (confirmation.get('choice')) {
+      this.setState({ loading: true })
+
+      const promises = this.state.collection.map((result: any) => {
+        const metacardDeletedId = result
+          .get('metacard')
+          .get('properties')
+          .get('metacard.deleted.id')
+        const metacardDeletedVersion = result
+          .get('metacard')
+          .get('properties')
+          .get('metacard.deleted.version')
+
+        fetch(
+          `./internal/history/revert/${metacardDeletedId}/${metacardDeletedVersion}`
+        )
+      })
+
+      Promise.all(promises).then(() => {
+        this.state.collection.map((result: any) => {
+          ResultUtils.refreshResult(result)
+        })
+
+        setTimeout(() => {
+          this.setState({ isDeleted: false, loading: false })
+        }, 2000)
+      })
+    }
+  }
+
   handleRestore = () => {
-    const self = this
     this.props.listenTo(
       ConfirmationView.generateConfirmation({
         prompt:
@@ -111,33 +141,7 @@ class MetacardQuality extends React.Component<Props, State> {
         yes: 'Restore',
       }),
       'change:choice',
-      function(confirmation: any) {
-        if (confirmation.get('choice')) {
-          self.setState({ loading: true })
-
-          const promises = self.state.collection.map((result: any) => {
-            fetch(
-              `./internal/history/revert/${result
-                .get('metacard')
-                .get('properties')
-                .get('metacard.deleted.id')}/${result
-                .get('metacard')
-                .get('properties')
-                .get('metacard.deleted.version')}`
-            )
-          })
-
-          Promise.all(promises).then(() => {
-            self.state.collection.map((result: any) => {
-              ResultUtils.refreshResult(result)
-            })
-
-            setTimeout(() => {
-              self.setState({ isDeleted: false, loading: false })
-            }, 2000)
-          })
-        }
-      }.bind(this)
+      this.onRestoreConfirm
     )
   }
 
@@ -160,4 +164,4 @@ class MetacardQuality extends React.Component<Props, State> {
   }
 }
 
-export default hot(module)(withListenTo(MetacardQuality))
+export default hot(module)(withListenTo(MetacardArchive))

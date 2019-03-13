@@ -32,12 +32,17 @@ const SubText = styled.span`
   font-size: ${props => props.theme.mediumFontSize};
 `
 
+const ArchiveButton = styled(Button)`
+  width: 100%;
+  height: auto;
+`
+
 const render = (props: Props) => {
   const { handleArchive, handleRestore, isDeleted, loading } = props
   return (
     <LoadingCompanion loading={loading}>
       {!isDeleted ? (
-        <Button
+        <ArchiveButton
           style={{ width: '100%', height: 'auto' }}
           buttonType={buttonTypeEnum.negative}
           onClick={handleArchive}
@@ -49,16 +54,16 @@ and then click 'Restore Archived Items'."
           <SubText>
             WARNING: This will remove the item(s) from standard search results.
           </SubText>
-        </Button>
+        </ArchiveButton>
       ) : (
-        <Button
+        <ArchiveButton
           style={{ width: '100%', height: 'auto' }}
           buttonType={buttonTypeEnum.positive}
           onClick={handleRestore}
           data-help="This will restore the item(s) to standard search results."
         >
           <MainText>Restore item(s)</MainText>
-        </Button>
+        </ArchiveButton>
       )}
     </LoadingCompanion>
   )
