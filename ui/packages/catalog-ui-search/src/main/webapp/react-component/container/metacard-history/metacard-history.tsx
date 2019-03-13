@@ -22,6 +22,7 @@ import MetacardHistoryPresentation from '../../presentation/metacard-history'
 
 type Props = {
   selectionInterface: any
+  model: Backbone.Model
 }
 
 type State = {
@@ -35,20 +36,18 @@ class MetacardHistory extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
 
-    let model
-    if (props.selectionInterface) {
-      model = props.selectionInterface.getSelectedResults().first()
-    } else {
-      model = store.getSelectedResults().first()
-    }
+    const selectionInterface = props.selectionInterface || store
+    const model = props.model || selectionInterface.getSelectedResults().first()
 
     this.state = {
-      model: model,
+      model,
       history: [],
       selectedVersion: undefined,
       loading: true,
     }
+  }
 
+  componentDidMount() {
     this.loadData()
   }
 
