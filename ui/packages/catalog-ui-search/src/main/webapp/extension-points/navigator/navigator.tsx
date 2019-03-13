@@ -30,21 +30,46 @@ export type Props = {
   closeSlideout?: () => void
 }
 
+const { createAction } = require('imperio')
+
+const { withAction } = createAction({
+  type: 'navigation/NAVIGATE',
+  docs: 'Navigate UI to a particular route.',
+})
+
+const Presentation = (props: PresentationProps) => {
+  return (
+    <Root {...props}>
+      <ProductLink {...props} />
+      <Divider />
+      <UpperNavigationLinks {...props} />
+      {props.recentMetacard || props.recentWorkspace ? <Divider /> : ''}
+      <RecentLinks {...props} />
+      <Divider />
+      <LowerNavigationLinks {...props} />
+    </Root>
+  )
+}
+
+const Action = withAction({
+  params: [
+    'workspaces',
+    'ingest',
+    'sources',
+    'forms',
+    'resultForms',
+    'about',
+  ].map(fragment => ({ fragment })),
+  fn: ({ fragment, props }: any) => {
+    if (fragment !== undefined) {
+      props.navigateToRoute(fragment)
+    }
+  },
+})(Presentation)
+
 const Navigator = (props: Props) => (
   <NavigatorContainer closeSlideout={props.closeSlideout}>
-    {(props: PresentationProps) => {
-      return (
-        <Root {...props}>
-          <ProductLink {...props} />
-          <Divider />
-          <UpperNavigationLinks {...props} />
-          {props.recentMetacard || props.recentWorkspace ? <Divider /> : ''}
-          <RecentLinks {...props} />
-          <Divider />
-          <LowerNavigationLinks {...props} />
-        </Root>
-      )
-    }}
+    {(props: PresentationProps) => <Action {...props} />}
   </NavigatorContainer>
 )
 

@@ -1,0 +1,26 @@
+{
+  "name": "catalog-ui-search-e2e",
+  "description": "",
+  "scripts": {
+    "m2": "ace install",
+    "disable-idp": "ace disable-idp --whitelist '/search/catalog/test'",
+    "prestart": "ace disable-idp",
+    "start": "ace start --proxy=http://localhost:8080 --port 8181",
+    "start:test": "ace start --env=test --proxy=http://localhost:8080 --port 8282",
+    "pree2e": "node ./wait-for-intrigue.js",
+    "e2e": "ace test",
+    "e2e:dev": "ace test --url http://localhost:8282/search/catalog/test/ --visible",
+    "e2e:prod": "ace test --url https://localhost:8993/search/catalog/test/ --visible",
+    "build": "ace bundle --env=test",
+    "postbuild": "ace package"
+  },
+  "files": [
+    "target/test"
+  ],
+  "dependencies": {
+    "ace": "*",
+    "imperio": "*"
+  },
+  "main": "./src/main/webapp/index.js",
+  "context-path": "/search/catalog/test"
+}

@@ -15,7 +15,7 @@
     "posttest": "ace pom",
     "prebuild": "ace clean --workspaces",
     "build": "yarn format && ace set-env lerna run build",
-    "postbuild": "ace gen-feature && yarn run build-fonts",
+    "postbuild": "ace gen-feature --exclude catalog-ui-search-e2e && yarn run build-fonts",
     "build-fonts": "yarn run clean-fonts && yarn run copy-fonts && yarn run build-sass",
     "build-sass": "node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/",
     "disable-idp": "ace disable-idp",
@@ -29,7 +29,7 @@
     "react-dom": "16.8.6"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256",
+    "@connexta/ace": "git://github.com/connexta/ace.git#476ba5a6c09c4d9b0646acb55ef2ef4e290a4bbf",
     "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
@@ -45,6 +45,6 @@
   ],
   "resolutions": {
     "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
-    "@connexta/ace": "git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256"
+    "@connexta/ace": "git://github.com/connexta/ace.git#476ba5a6c09c4d9b0646acb55ef2ef4e290a4bbf"
   }
 }

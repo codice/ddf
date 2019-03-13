@@ -56,6 +56,13 @@ const isValidFacetAttribute = (id, type) => {
   return true
 }
 
+const { createAction } = require('imperio')
+
+const { register, unregister } = createAction({
+  type: 'workspace/query/SET-FILTER',
+  docs: 'Set the current advanced query filter in the current workspace.',
+})
+
 module.exports = Marionette.LayoutView.extend({
   template,
   tagName: CustomElements.register('query-advanced'),
@@ -95,6 +102,28 @@ module.exports = Marionette.LayoutView.extend({
       filter = cql.simplify(cql.read(this.model.get('cql')))
     }
 
+    this.showAdvanced(filter)
+
+    this.action = register({
+      el: this.el,
+      params: [
+        {
+          filter: {
+            type: 'ILIKE',
+            property: 'anyText',
+            value: '',
+          },
+        },
+      ],
+      fn: ({ filter }) => {
+        this.showAdvanced(filter)
+      },
+    })
+  },
+  onDestroy() {
+    unregister(this.action)
+  },
+  showAdvanced(filter) {
     this.queryAdvanced.show(
       new FilterBuilderView({
         suggester: async ({ id, type }) => {

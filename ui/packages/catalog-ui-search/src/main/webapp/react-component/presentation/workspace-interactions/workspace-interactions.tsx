@@ -15,6 +15,7 @@
 
 import * as React from 'react'
 import MenuAction from '../menu-action'
+import { withDropdown } from '../dropdown'
 import styled from '../../styles/styled-components'
 import { readableColor } from 'polished'
 import { hot } from 'react-hot-loader'
@@ -180,4 +181,37 @@ const render = (props: Props) => {
   )
 }
 
-export default hot(module)(render)
+const { createAction } = require('imperio')
+
+const { withAction } = createAction({
+  type: 'workspace/interactions/SELECT-INTERACTION',
+  docs: 'Select a workspace interaction.',
+})
+
+const WorkspaceInteractions = withDropdown(
+  withAction({
+    params: [
+      'saveWorkspace',
+      'runAllSearches',
+      'cancelAllSearches',
+      'openWorkspaceInNewTab',
+      'viewSharing',
+      'viewDetails',
+      'duplicateWorkspace',
+      'subscribeToWorkspace',
+      'unsubscribeFromWorkspace',
+      'deletionPrompt',
+    ].map(interaction => ({ interaction })),
+    fn: ({ props, interaction }: any) => {
+      const f = props[interaction]
+      if (typeof f === 'function') {
+        f()
+        props.dropdownContext.closeAndRefocus()
+      }
+    },
+  })(render)
+)
+
+export default hot(module)((props: Props) => {
+  return <WorkspaceInteractions {...props} />
+})
