@@ -18,24 +18,65 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.security.Principal;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class PropertyFileClaimsHandlerTest {
 
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Before
+  public void setup() throws IOException {
+    temporaryFolder.create();
+  }
+
+  @After
+  public void cleanup() throws IOException {
+    temporaryFolder.delete();
+  }
+
   @Test
-  public void testRetrieveClaimValues() {
+  public void testGetPropertyFileLocation() {
+    PropertyFileClaimsHandler claimsHandler = new PropertyFileClaimsHandler();
+    String propertyFileLocation = claimsHandler.getPropertyFileLocation();
+    String defaultPath =
+        Paths.get(new AbsolutePathResolver("etc/users.properties").getPath()).toString();
+
+    assertEquals(defaultPath, propertyFileLocation);
+
+    claimsHandler.setPropertyFileLocation("users.properties");
+    String newPropertyFileLocation = claimsHandler.getPropertyFileLocation();
+    String testPath = Paths.get("users.properties").toString();
+    assertEquals(testPath, newPropertyFileLocation);
+  }
+
+  @Test
+  public void testRetrieveClaimValues() throws IOException {
+
     PropertyFileClaimsHandler propertyFileClaimsHandler = new PropertyFileClaimsHandler();
-    propertyFileClaimsHandler.setPropertyFileLocation("/users.properties");
+    String oldPropFileLocation = propertyFileClaimsHandler.getPropertyFileLocation();
+    propertyFileClaimsHandler.setPropertyFileLocation(
+        createTempFilePathFromResourceFileName("users.properties"));
     propertyFileClaimsHandler.setRoleClaimType("http://myroletype");
     propertyFileClaimsHandler.setIdClaimType("http://myidtype");
 
@@ -75,6 +116,8 @@ public class PropertyFileClaimsHandlerTest {
     assertEquals("User1", processedClaimCollectionUser1.get(1).getValues().get(0));
     assertEquals("editor", processedClaimCollectionUser1.get(0).getValues().get(0));
     assertEquals("writer", processedClaimCollectionUser1.get(0).getValues().get(1));
+
+    propertyFileClaimsHandler.setPropertyFileLocation(oldPropFileLocation);
   }
 
   @Test
@@ -104,5 +147,16 @@ public class PropertyFileClaimsHandlerTest {
         claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
 
     Assert.assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
+  }
+
+  private String createTempFilePathFromResourceFileName(final String resourceFileName)
+      throws IOException {
+    final InputStream resourceAsStream =
+        PropertyFileClaimsHandlerTest.class.getResourceAsStream("/" + resourceFileName);
+    final File userFile = temporaryFolder.newFile(resourceFileName);
+    final FileOutputStream userFileOs = new FileOutputStream(userFile);
+    IOUtils.copy(resourceAsStream, userFileOs);
+
+    return userFile.getAbsolutePath();
   }
 }
