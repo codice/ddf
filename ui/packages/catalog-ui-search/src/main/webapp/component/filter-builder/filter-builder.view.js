@@ -166,9 +166,6 @@ module.exports = Marionette.LayoutView.extend({
       cql: 'anyText ILIKE ""',
     }
   },
-  deserialize: function(cql) {
-    deserialize(cql)
-  },
   handleEditing: function() {
     var isEditing = this.$el.hasClass('is-editing')
     if (isEditing) {
