@@ -43,7 +43,6 @@ const render = (props: Props) => {
     <LoadingCompanion loading={loading}>
       {!isDeleted ? (
         <ArchiveButton
-          style={{ width: '100%', height: 'auto' }}
           buttonType={buttonTypeEnum.negative}
           onClick={handleArchive}
           data-help="This will remove the item(s) from standard search results.
@@ -57,7 +56,6 @@ and then click 'Restore Archived Items'."
         </ArchiveButton>
       ) : (
         <ArchiveButton
-          style={{ width: '100%', height: 'auto' }}
           buttonType={buttonTypeEnum.positive}
           onClick={handleRestore}
           data-help="This will restore the item(s) to standard search results."
