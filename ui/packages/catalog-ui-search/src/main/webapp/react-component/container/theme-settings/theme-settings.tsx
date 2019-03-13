@@ -16,7 +16,6 @@
 import * as React from 'react'
 import styled from '../../../react-component/styles/styled-components'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
-import LoadingCompanion from 'catalog-ui-search/src/main/webapp/react-component/container/loading-companion'
 const PropertyView = require('../../../component/property/property.view.js')
 const user = require('../../../component/singletons/user-instance.js')
 const Property = require('../../../component/property/property.js')
@@ -186,7 +185,6 @@ class ThemeSettings extends React.Component<
     themeModel: any
     customToggle: boolean
     customColors: any[]
-    loading: boolean
   }
 > {
   constructor(props: any) {
@@ -230,36 +228,25 @@ class ThemeSettings extends React.Component<
       }),
       customToggle: this.isCustomSet(getTheme()),
       customColors: getCustomColors(),
-      loading: false,
     }
 
     this.state.fontSizeModel.on('change:value', () => {
-      this.setState({ loading: true })
       saveFontChanges(this.state.fontSizeModel.getValue()[0])
-      this.setState({ loading: false })
     })
     this.state.spacingModeModel.on('change:value', () => {
-      this.setState({ loading: true })
       saveSpacingChanges(this.state.spacingModeModel.getValue()[0])
-      this.setState({ loading: false })
     })
     this.state.animationModel.on('change:value', () => {
-      this.setState({ loading: true })
       saveAnimationChanges(this.state.animationModel.getValue()[0])
-      this.setState({ loading: false })
     })
     this.state.hoverPreviewModel.on('change:value', () => {
-      this.setState({ loading: true })
       saveHoverPreviewChanges(this.state.hoverPreviewModel.getValue()[0])
-      this.setState({ loading: false })
     })
     this.state.themeModel.on('change:value', () => {
-      this.setState({ loading: true })
       let themeValue = this.state.themeModel.getValue()[0]
       saveThemeChanges(themeValue)
       this.setState({
         customToggle: this.isCustomSet(themeValue),
-        loading: false,
       })
     })
   }
@@ -267,59 +254,55 @@ class ThemeSettings extends React.Component<
     return themeValue === 'custom' ? true : false
   }
   render() {
-    const { loading } = this.state
-    const Loading = loading ? LoadingCompanion : React.Fragment
     return (
-      <Loading>
-        <Root>
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.fontSizeModel,
-              }
-            }}
-            replaceElement={false}
-          />
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.spacingModeModel,
-              }
-            }}
-            replaceElement={false}
-          />
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.animationModel,
-              }
-            }}
-            replaceElement={false}
-          />
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.hoverPreviewModel,
-              }
-            }}
-            replaceElement={false}
-          />
-          <MarionetteRegionContainer
-            view={PropertyView}
-            viewOptions={() => {
-              return {
-                model: this.state.themeModel,
-              }
-            }}
-            replaceElement={false}
-          />
-          {this.state.customToggle ? <ThemeCustomComponent /> : null}
-        </Root>
-      </Loading>
+      <Root>
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.fontSizeModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.spacingModeModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.animationModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.hoverPreviewModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        <MarionetteRegionContainer
+          view={PropertyView}
+          viewOptions={() => {
+            return {
+              model: this.state.themeModel,
+            }
+          }}
+          replaceElement={false}
+        />
+        {this.state.customToggle ? <ThemeCustomComponent /> : null}
+      </Root>
     )
   }
 }
@@ -351,18 +334,15 @@ class ThemeCustomComponent extends React.Component<
       <ThemeCustom>
         {this.state.customColorArray.map((colorVariable: any) => {
           return (
-            <div>
-              <MarionetteRegionContainer
-                view={PropertyView}
-                viewOptions={() => {
-                  return {
-                    model: colorVariable,
-                  }
-                }}
-                replaceElement={false}
-                key={colorVariable.label}
-              />
-            </div>
+            <MarionetteRegionContainer
+              view={PropertyView}
+              viewOptions={() => {
+                return {
+                  model: colorVariable,
+                }
+              }}
+              replaceElement={false}
+            />
           )
         })}
       </ThemeCustom>
