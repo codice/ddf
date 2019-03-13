@@ -23,7 +23,6 @@ const SlideoutViewInstance = require('../../../component/singletons/slideout.vie
 const SlideoutRightViewInstance = require('../../../component/singletons/slideout.right.view-instance.js')
 const user = require('../../../component/singletons/user-instance.js')
 import UserView from '../../../react-component/container/user'
-const Marionette = require('marionette')
 export interface Props {
   username: string
   hasUnseenNotifications: boolean
@@ -134,10 +133,7 @@ const Root = styled<Props, 'div'>('div')`
 `
 
 const toggleAlerts = () => {
-  const UserNotificationsView = Marionette.ItemView.extend({
-    template: () => <UserNotifications />,
-  })
-  SlideoutRightViewInstance.updateContent(UserNotificationsView)
+  SlideoutRightViewInstance.updateContent(UserNotifications)
   SlideoutRightViewInstance.open()
 }
 

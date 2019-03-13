@@ -16,8 +16,6 @@ import React from 'react'
 import styled from '../../styles/styled-components'
 import withListenTo from '../../container/backbone-container'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
-const Backbone = require('backbone')
-const CustomElements = require('../../../js/CustomElements.js')
 const NotificationGroupView = require('../../../component/notification-group/notification-group.view.js')
 const user = require('../../../component/singletons/user-instance.js')
 const moment = require('moment')
@@ -30,20 +28,24 @@ const Empty = styled.div`
   font-size: ${props => props.theme.largeFontSize}
   padding: ${props => props.theme.mediumSpacing}
 `
+
+const Root = styled.div`
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+`
 const Notifications = styled.div`
   height: 100%;
   width: 100%;
   display: block;
-  overflow: auto;
   padding: ${props => props.theme.mediumSpacing};
 `
 
 class UserNotifications extends React.Component {
   constructor(props) {
     super(props)
-    this.state = userNotifications
     this.props.listenTo(userNotifications, 'add remove update', () =>
-      this.setState(userNotifications)
+      this.setState({})
     )
   }
   render() {
@@ -62,7 +64,11 @@ class UserNotifications extends React.Component {
         <div>No Notifications</div>
       </Empty>
     ) : (
-      <Notifications>{notificationsList}</Notifications>
+      <Root>
+        <div>
+          <Notifications>{notificationsList}</Notifications>
+        </div>
+      </Root>
     )
   }
   listPreviousDays(numDays) {
@@ -99,10 +105,7 @@ class UserNotifications extends React.Component {
   }
   componentWillUnmount() {
     userNotifications.setSeen()
-    user
-      .get('user')
-      .get('preferences')
-      .savePreferences()
+    user.savePreferences()
   }
 }
 export default withListenTo(UserNotifications)
