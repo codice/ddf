@@ -15,7 +15,7 @@ import AlertSettings from '../../container/alert-settings'
 import SearchSettings from '../../../react-component/presentation/search-settings/search-settings'
 import HiddenSettings from '../../../react-component/container/user-blacklist/user-blacklist'
 const MapSettings = require('../../../component/layers/layers.view.js')
-const TimeSettings = require('../../../component/time-settings/time-settings.view.js')
+import TimeSettings from '../../container/time-settings'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
@@ -150,9 +150,7 @@ class UserSettings extends React.Component<Props, State> {
             text="Time"
             icon="fa fa-clock-o"
             onClick={() => {
-              this.updateComponent(
-                <MarionetteRegionContainer view={TimeSettings} />
-              )
+              this.updateComponent(<TimeSettings />)
             }}
             disabled={Boolean(component)}
           />

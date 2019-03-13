@@ -21,6 +21,7 @@ type Props = {
   replaceElement?: boolean
   className?: string
   style?: React.CSSProperties
+  bindView?: (view: any) => void
 } & React.HTMLProps<HTMLDivElement> &
   JSX.IntrinsicAttributes
 
@@ -41,10 +42,13 @@ export default hot(module)(
         this.region.show(this.props.view, {
           replaceElement: this.props.replaceElement,
         })
+        this.props.bindView && this.props.bindView(this.props.view)
       } else {
-        this.region.show(new this.props.view(this.props.viewOptions), {
+        const viewInstance = new this.props.view(this.props.viewOptions)
+        this.region.show(viewInstance, {
           replaceElement: this.props.replaceElement,
         })
+        this.props.bindView && this.props.bindView(viewInstance)
       }
     }
     onceInDOM(callback: () => void) {
