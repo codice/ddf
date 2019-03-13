@@ -18,7 +18,6 @@ const ConfirmationView = require('../confirmation/confirmation.view.js')
 const Dropzone = require('dropzone')
 const OverwritesInstance = require('../singletons/overwrites-instance.js')
 import React from 'react'
-import ReactDOM from 'react-dom'
 import styled from '../../react-component/styles/styled-components'
 import { readableColor } from 'polished'
 import {
@@ -217,14 +216,11 @@ class MetacardOverwrite extends React.Component {
   }
 
   componentDidMount() {
-    this.dropzone = new Dropzone(
-      ReactDOM.findDOMNode(this.dropzoneElement.current),
-      {
-        url: './internal/catalog/' + this.model.get('metacard').id,
-        maxFilesize: 5000000, //MB
-        method: 'put',
-      }
-    )
+    this.dropzone = new Dropzone(this.dropzoneElement.current, {
+      url: './internal/catalog/' + this.model.get('metacard').id,
+      maxFilesize: 5000000, //MB
+      method: 'put',
+    })
     this.trackOverwrite()
     this.setupEventListeners()
     this.setState(mapOverwriteModelToState(this.getOverwriteModel()))
