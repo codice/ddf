@@ -36,6 +36,8 @@ public class DigitalSignatureTest {
 
   private static final String EXAMPLE_EXPORT = "/example.zip";
 
+  private static final String ARCHIVE_EXPORT = "/archive.zip";
+
   private DigitalSignature digitalSignature;
 
   @Before
@@ -68,8 +70,27 @@ public class DigitalSignatureTest {
     assertThat(verified, is(true));
   }
 
+  @Test
+  public void testInvalidDigitalSignature() throws Exception {
+    InputStream inputStream = DigitalSignatureTest.class.getResourceAsStream(EXAMPLE_EXPORT);
+    byte[] signature = digitalSignature.createDigitalSignature(inputStream, ALIAS, KEYSTORE_PASS);
+
+    inputStream = DigitalSignatureTest.class.getResourceAsStream(ARCHIVE_EXPORT);
+    boolean verified =
+        digitalSignature.verifyDigitalSignature(
+            inputStream, new ByteArrayInputStream(signature), ALIAS);
+
+    assertThat(verified, is(false));
+  }
+
   @Test(expected = CatalogCommandRuntimeException.class)
   public void testCreateDigitalSignaturePrivateKeyNotInKeyStore() throws Exception {
     digitalSignature.createDigitalSignature(null, "hello", "world");
+  }
+
+  @Test(expected = CatalogCommandRuntimeException.class)
+  public void testVerifyDigitalSignatureCertificateNotInKeyStore() throws Exception {
+    InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+    digitalSignature.verifyDigitalSignature(null, inputStream, "hello");
   }
 }
