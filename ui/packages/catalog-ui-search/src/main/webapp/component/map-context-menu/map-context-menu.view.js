@@ -41,7 +41,7 @@ module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('map-context-menu'),
   className: 'composed-menu',
   modelEvents: {
-    'change': 'render'
+    change: 'render',
   },
   selectMenu(value) {
     switch (value) {
