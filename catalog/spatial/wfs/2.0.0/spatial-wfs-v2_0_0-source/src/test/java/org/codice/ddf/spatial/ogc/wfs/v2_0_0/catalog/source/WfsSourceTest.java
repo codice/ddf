@@ -27,10 +27,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -49,6 +53,7 @@ import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerConfigurationException;
@@ -73,6 +78,7 @@ import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
@@ -1081,6 +1087,149 @@ public class WfsSourceTest {
     // Perform test
     assertEquals(source.getConnectionTimeout().intValue(), 10000);
     assertEquals(source.getReceiveTimeout().intValue(), 10000);
+  }
+
+  @Test
+  public void testClientFactoryIsCreatedCorrectlyWhenUsernameAndPasswordAreConfigured()
+      throws SecurityServiceException, WfsException {
+    final WfsSource source =
+        getWfsSource(
+            ONE_TEXT_PROPERTY_SCHEMA,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            1,
+            false);
+
+    final String wfsUrl = "http://localhost/wfs";
+    final String username = "test_user";
+    final String password = "encrypted_password";
+    final Boolean disableCnCheck = false;
+    final Integer connectionTimeout = 10000;
+    final Integer receiveTimeout = 20000;
+
+    source.setPollInterval(1);
+
+    doReturn("unencrypted_password").when(encryptionService).decryptValue(password);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("username", username)
+            .put("password", password)
+            .put("disableCnCheck", disableCnCheck)
+            .put("connectionTimeout", connectionTimeout)
+            .put("receiveTimeout", receiveTimeout)
+            .put("pollInterval", 1)
+            .put("disableSorting", false)
+            .put("forceSpatialFilter", "NO_FILTER")
+            .build();
+    source.refresh(configuration);
+
+    verify(mockClientFactory)
+        .getSecureCxfClientFactory(
+            eq(wfsUrl),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            eq(disableCnCheck),
+            eq(false),
+            eq(connectionTimeout),
+            eq(receiveTimeout),
+            eq(username),
+            eq("unencrypted_password"));
+  }
+
+  @Test
+  public void testClientFactoryIsCreatedCorrectlyWhenCertAliasAndKeystorePathAreConfigured()
+      throws SecurityServiceException, WfsException {
+    final WfsSource source =
+        getWfsSource(
+            ONE_TEXT_PROPERTY_SCHEMA,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            1,
+            false);
+
+    final String wfsUrl = "http://localhost/wfs";
+    final Boolean disableCnCheck = false;
+    final Integer connectionTimeout = 10000;
+    final Integer receiveTimeout = 20000;
+    final String certAlias = "mycert";
+    final String keystorePath = "/path/to/keystore";
+    final String sslProtocol = "TLSv1.2";
+
+    source.setCertAlias(certAlias);
+    source.setKeystorePath(keystorePath);
+    source.setSslProtocol(sslProtocol);
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("disableCnCheck", disableCnCheck)
+            .put("connectionTimeout", connectionTimeout)
+            .put("receiveTimeout", receiveTimeout)
+            .put("pollInterval", 1)
+            .put("disableSorting", false)
+            .put("forceSpatialFilter", "NO_FILTER")
+            .build();
+    source.refresh(configuration);
+
+    verify(mockClientFactory)
+        .getSecureCxfClientFactory(
+            eq(wfsUrl),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            eq(disableCnCheck),
+            eq(false),
+            eq(connectionTimeout),
+            eq(receiveTimeout),
+            eq(certAlias),
+            eq(keystorePath),
+            eq(sslProtocol));
+  }
+
+  @Test
+  public void testClientFactoryIsCreatedCorrectlyWhenNoAuthIsConfigured()
+      throws SecurityServiceException, WfsException {
+    final WfsSource source =
+        getWfsSource(
+            ONE_TEXT_PROPERTY_SCHEMA,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            1,
+            false);
+
+    final String wfsUrl = "http://localhost/wfs";
+    final Boolean disableCnCheck = false;
+    final Integer connectionTimeout = 10000;
+    final Integer receiveTimeout = 20000;
+
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("wfsUrl", wfsUrl)
+            .put("disableCnCheck", disableCnCheck)
+            .put("connectionTimeout", connectionTimeout)
+            .put("receiveTimeout", receiveTimeout)
+            .put("pollInterval", 1)
+            .put("disableSorting", false)
+            .put("forceSpatialFilter", "NO_FILTER")
+            .build();
+    source.refresh(configuration);
+
+    verify(mockClientFactory)
+        .getSecureCxfClientFactory(
+            eq(wfsUrl),
+            eq(Wfs.class),
+            any(List.class),
+            isA(MarkableStreamInterceptor.class),
+            eq(disableCnCheck),
+            eq(false),
+            eq(connectionTimeout),
+            eq(receiveTimeout));
   }
 
   @Test
