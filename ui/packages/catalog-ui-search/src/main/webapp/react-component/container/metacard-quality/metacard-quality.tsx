@@ -19,6 +19,7 @@ import MetacardQualityPresentation from '../../presentation/metacard-quality'
 
 type Props = {
   selectionInterface: any
+  model: Backbone.Model
 }
 
 type State = {
@@ -32,12 +33,8 @@ class MetacardQuality extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
 
-    let model
-    if (props.selectionInterface) {
-      model = props.selectionInterface.getSelectedResults().first()
-    } else {
-      model = store.getSelectedResults().first()
-    }
+    const selectionInterface = props.selectionInterface || store
+    const model = props.model || selectionInterface.getSelectedResults().first()
 
     this.state = {
       model,
@@ -45,11 +42,9 @@ class MetacardQuality extends React.Component<Props, State> {
       metacardValidation: [],
       loading: true,
     }
-
-    this.loadData()
   }
 
-  loadData = () => {
+  componentDidMount() {
     setTimeout(() => {
       const attributeValidationRes = fetch(
         `./internal/metacard/${this.state.model
@@ -65,7 +60,6 @@ class MetacardQuality extends React.Component<Props, State> {
 
       Promise.all([attributeValidationRes, metacardValidationRes]).then(
         async responses => {
-          this.setState({ loading: false })
           const attributeValidation = await this.getData(
             responses[0],
             'Attribute'
@@ -75,6 +69,7 @@ class MetacardQuality extends React.Component<Props, State> {
           this.setState({
             attributeValidation,
             metacardValidation,
+            loading: false,
           })
         }
       )

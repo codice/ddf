@@ -72,13 +72,15 @@ const render = (props: Props) => {
                 <th>Message</th>
               </thead>
               <tbody>
-                {metacardValidation.map((validation: any) => {
+                {metacardValidation.map((validation: any, i: number) => {
                   return (
-                    <tr>
+                    <tr key={i}>
                       <td>
-                        {validation.attributes.map((attribute: any) => {
-                          return <div>{attribute}</div>
-                        })}
+                        {validation.attributes.map(
+                          (attribute: string, j: number) => {
+                            return <div key={attribute + j}>{attribute}</div>
+                          }
+                        )}
                       </td>
                       <td>{validation.severity}</td>
                       {validation.duplicate ? (
@@ -87,12 +89,12 @@ const render = (props: Props) => {
                           {validation.duplicate.ids.map(
                             (id: any, index: number) => {
                               return (
-                                <>
+                                <React.Fragment key={id}>
                                   <a href={`#metacards/${id}`}>{id}</a>
                                   {index !== validation.duplicate.ids.length - 1
                                     ? ', '
                                     : ''}
-                                </>
+                                </React.Fragment>
                               )
                             }
                           )}
@@ -121,18 +123,20 @@ const render = (props: Props) => {
                 <th>Errors</th>
               </thead>
               <tbody>
-                {attributeValidation.map((validation: any) => {
+                {attributeValidation.map((validation: any, i: number) => {
                   return (
-                    <tr>
+                    <tr key={i}>
                       <td>{validation.attribute}</td>
                       <td>
-                        {validation.warnings.map((warning: any) => {
-                          return <div>{warning}</div>
-                        })}
+                        {validation.warnings.map(
+                          (warning: string, j: number) => {
+                            return <div key={warning + j}>{warning}</div>
+                          }
+                        )}
                       </td>
                       <td>
-                        {validation.errors.map((error: any) => {
-                          return <div>{error}</div>
+                        {validation.errors.map((error: string, j: number) => {
+                          return <div key={error + j}>{error}</div>
                         })}
                       </td>
                     </tr>
