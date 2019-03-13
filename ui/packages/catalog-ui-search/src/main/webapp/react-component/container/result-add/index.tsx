@@ -27,7 +27,7 @@ const LIST_ICON_KEY = 'list.icon'
 
 type Props = {
   model: [
-    {
+    Backbone.Model & {
       matchesCql: (item: any) => any
     }
   ]
@@ -41,42 +41,44 @@ type List = {
   toJSON: () => [any]
 }
 
-const formatListItems = (list: any, model: Props['model']) => {
+const listItemToObject = (
+  list: { [key: string]: any },
+  model: Props['model']
+): { [key: string]: {} } => {
   const matchesFilter =
     (list[LIST_CQL_KEY] !== '' &&
       model.every(item => item.matchesCql(list[LIST_CQL_KEY]))) ||
     true
   const alreadyContains =
-    (_.intersection(
+    _.intersection(
       list[LIST_BOOKMARKS_KEY],
       model.map((item: any) => item.get('metacard').id)
-    ).length === model.length &&
-      true) ||
-    false
+    ).length === model.length
+
   const icon = ListModel.getIconMapping()[list[LIST_ICON_KEY]]
 
   return {
     ...list,
-    matchesFilter: matchesFilter,
-    alreadyContains: alreadyContains,
-    icon: icon,
+    matchesFilter,
+    alreadyContains,
+    icon,
   }
 }
 
 const formatList = (model: Props['model']) => {
   const json = getLists().toJSON()
 
-  return json.map((list: List) => formatListItems(list, model)) as [any]
+  return json.map((list: List) => listItemToObject(list, model))
 }
 
 const getLists = () => store.getCurrentWorkspace().get('lists')
 
-const addToList = (id: any, metacardIds: [any]) =>
+const addToList = (id: string, metacardIds: [string]) =>
   getLists()
     .get(id)
     .addBookmarks(metacardIds)
 
-const removeFromList = (id: any, metacardIds: [any]) =>
+const removeFromList = (id: string, metacardIds: [string]) =>
   getLists()
     .get(id)
     .removeBookmarks(metacardIds)

@@ -29,7 +29,7 @@ type Result = {
 
 type Props = {
   items?: [Result]
-  model: any
+  model: Backbone.Model & any
   bookmarkHandler: (id: any) => void
 }
 
@@ -44,11 +44,6 @@ const Button = styled.button`
   text-align: left;
   height: ${props => props.theme.minimumButtonSize};
   line-height: ${props => props.theme.minimumButtonSize};
-
-  .composed-button {
-    width: 100%;
-    display: block;
-  }
 `
 
 const IconSpan = styled.span`
