@@ -21,6 +21,7 @@ import MetacardArchivePresentation from '../../presentation/metacard-archive'
 
 type Props = {
   selectionInterface: any
+  model: any
 } & WithBackboneProps
 
 type State = {
@@ -33,12 +34,8 @@ class MetacardQuality extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
 
-    let collection
-    if (props.selectionInterface) {
-      collection = props.selectionInterface.getSelectedResults()
-    } else {
-      collection = store.getSelectedResults()
-    }
+    const selectionInterface = props.selectionInterface || store
+    const collection = props.model || selectionInterface.getSelectedResults()
 
     const isDeleted = collection.some((result: any) => {
       result.isDeleted()
@@ -47,8 +44,12 @@ class MetacardQuality extends React.Component<Props, State> {
     this.state = {
       collection,
       isDeleted,
-      loading: false,
+      loading: true,
     }
+  }
+
+  componentDidMount() {
+    this.setState({ loading: false })
   }
 
   handleArchive = () => {

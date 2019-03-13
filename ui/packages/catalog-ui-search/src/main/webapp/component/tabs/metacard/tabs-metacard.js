@@ -30,8 +30,12 @@ const MetacardOverwriteView = Marionette.LayoutView.extend({
 
 const MetacardArchiveView = Marionette.LayoutView.extend({
   template() {
+    console.log(this.options)
     return (
-      <MetacardArchive selectionInterface={this.options.selectionInterface} />
+      <MetacardArchive
+        selectionInterface={this.options.selectionInterface}
+        collection={options.model}
+      />
     )
   },
 })
