@@ -191,13 +191,28 @@ const defaultState = {
   message: '',
 }
 
+const mapOverwriteModelToState = overwriteModel => {
+  const currentState = {}
+  if (overwriteModel.get('success')) {
+    currentState.stage = 'Success'
+  } else if (overwriteModel.get('error')) {
+    currentState.stage = 'Error'
+  } else if (overwriteModel.get('sending')) {
+    currentState.stage = 'Sending'
+  } else {
+    currentState.stage = 'Confirm'
+  }
+  currentState.percentage = overwriteModel.get('percentage')
+  currentState.message = overwriteModel.escape('message')
+
+  return currentState
+}
+
 class MetacardOverwrite extends React.Component {
   constructor(props) {
     super(props)
-    this.selectionInterface = props.selectionInterface || store
     this.state = defaultState
-    this.state.model =
-      props.model || this.selectionInterface.getSelectedResults().first()
+    this.model = store.getSelectedResults().first()
     this.dropzoneElement = React.createRef()
   }
 
@@ -205,17 +220,14 @@ class MetacardOverwrite extends React.Component {
     this.dropzone = new Dropzone(
       ReactDOM.findDOMNode(this.dropzoneElement.current),
       {
-        url: './internal/catalog/' + this.state.model.get('metacard').id,
+        url: './internal/catalog/' + this.model.get('metacard').id,
         maxFilesize: 5000000, //MB
         method: 'put',
       }
     )
     this.trackOverwrite()
     this.setupEventListeners()
-    this.handleSending()
-    this.handlePercentage()
-    this.handleError()
-    this.handleSuccess()
+    this.setState(mapOverwriteModelToState(this.getOverwriteModel()))
   }
 
   render() {
@@ -233,58 +245,31 @@ class MetacardOverwrite extends React.Component {
   }
 
   getOverwriteModel() {
-    return OverwritesInstance.get(this.state.model.get('metacard').id)
+    return OverwritesInstance.get(this.model.get('metacard').id)
   }
 
   trackOverwrite() {
     if (!this.getOverwriteModel()) {
       OverwritesInstance.add({
-        id: this.state.model.get('metacard').id,
+        id: this.model.get('metacard').id,
         dropzone: this.dropzone,
-        result: this.state.model,
+        result: this.model,
       })
     }
   }
 
   setupEventListeners() {
     const overwriteModel = this.getOverwriteModel()
-    this.props.listenTo(overwriteModel, 'change:percentage', () =>
-      this.handlePercentage()
-    )
-    this.props.listenTo(overwriteModel, 'change:sending', () =>
-      this.handleSending()
-    )
-    this.props.listenTo(overwriteModel, 'change:error', () =>
-      this.handleError()
-    )
-    this.props.listenTo(overwriteModel, 'change:success', () =>
-      this.handleSuccess()
+    this.props.listenTo(
+      overwriteModel,
+      'change:percentage change:sending change:error change:success',
+      () => this.handleChange()
     )
   }
 
-  handleSending() {
-    if (this.getOverwriteModel().get('sending')) {
-      this.setState({ stage: 'Sending' })
-    }
-  }
-
-  handlePercentage() {
-    const percentage = this.getOverwriteModel().get('percentage')
-    this.setState({ percentage })
-  }
-
-  handleError() {
-    if (this.getOverwriteModel().get('error')) {
-      const message = this.getOverwriteModel().escape('message')
-      this.setState({ stage: 'Error', message })
-    }
-  }
-
-  handleSuccess() {
-    if (this.getOverwriteModel().get('success')) {
-      const message = this.getOverwriteModel().escape('message')
-      this.setState({ stage: 'Success', message })
-    }
+  handleChange() {
+    const overwriteModel = this.getOverwriteModel()
+    this.setState(mapOverwriteModelToState(overwriteModel))
   }
 
   archive() {
@@ -304,14 +289,14 @@ class MetacardOverwrite extends React.Component {
   }
 
   startOver() {
-    OverwritesInstance.remove(this.state.model.get('metacard').id)
+    OverwritesInstance.remove(this.model.get('metacard').id)
     this.trackOverwrite()
     this.setupEventListeners()
     this.setState(defaultState)
   }
 
   componentWillUnmount() {
-    OverwritesInstance.removeIfUnused(this.state.model.get('metacard').id)
+    OverwritesInstance.removeIfUnused(this.model.get('metacard').id)
   }
 }
 
