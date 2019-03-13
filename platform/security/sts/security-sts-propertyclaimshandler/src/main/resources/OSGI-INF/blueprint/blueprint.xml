@@ -32,7 +32,6 @@
                   value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
         <property name="idClaimType"
                   value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
-        <property name="propertyFileLocation" value="${ddf.etc}/users.properties"/>
     </bean>
 
     <bean id="attributeClaimsHandler" class="org.codice.ddf.security.sts.claims.property.UsersAttributesFileClaimsHandler" init-method="init">
