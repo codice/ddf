@@ -28,16 +28,6 @@ const Root = styled.div`
   overflow: auto;
   height: 100%;
 
-  button {
-    margin-top: 10px;
-    width: 100%;
-    text-align: center;
-    height: ${props => props.theme.minimumButtonSize};
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
   .metacardHistory-cell {
     float: left;
     padding: 10px;
@@ -106,6 +96,16 @@ const Modified = styled.div`
   text-overflow: ellipsis;
 `
 
+const RevertButton = styled(Button)`
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+  height: ${props => props.theme.minimumButtonSize};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
 const render = (props: Props) => {
   const {
     clickWorkspace,
@@ -155,7 +155,7 @@ have chosen."
           })}
         </Body>
         {selectedVersion && (
-          <Button
+          <RevertButton
             buttonType={buttonTypeEnum.primary}
             onClick={revertToSelectedVersion}
             icon="fa fa-undo"
