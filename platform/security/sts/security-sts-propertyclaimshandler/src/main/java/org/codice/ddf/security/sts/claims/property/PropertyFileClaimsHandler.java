@@ -61,8 +61,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private String idClaimType;
 
-  private PropertiesBackingEngine propBackingEngine;
-
+ 
   @Override
   public List<URI> getSupportedClaimTypes() {
     List<URI> uriList = new ArrayList<>();
@@ -221,7 +220,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
       LOGGER.debug("Exception when trying to load the user properties file.", e);
     }
 
-    propBackingEngine = new PropertiesBackingEngine(props);
+    PropertiesBackingEngine propBackingEngine = new PropertiesBackingEngine(props);
 
     List<UserPrincipal> userList = propBackingEngine.listUsers();
     userMapping = new HashMap();
