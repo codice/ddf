@@ -10,9 +10,8 @@
  *
  **/
 /*global define*/
-const _ = require('underscore')
+const Marionette = require('marionette')
 const Tabs = require('../tabs')
-const store = require('../../../js/store.js')
 const MetacardBasicView = require('../../editor/metacard-basic/metacard-basic.view.js')
 const MetacardAdvancedView = require('../../editor/metacard-advanced/metacard-advanced.view.js')
 const MetacardHistoryView = require('../../metacard-history/metacard-history.view.js')
@@ -20,8 +19,13 @@ const MetacardAssociationsView = require('../../metacard-associations/metacard-a
 const MetacardQualityView = require('../../metacard-quality/metacard-quality.view.js')
 const MetacardActionsView = require('../../metacard-actions/metacard-actions.view.js')
 const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
-const MetacardOverwriteView = require('../../metacard-overwrite/metacard-overwrite.view.js')
 const MetacardPreviewView = require('../../metacard-preview/metacard-preview.view.js')
+import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
+import React from 'react'
+
+const MetacardOverwriteView = Marionette.LayoutView.extend({
+  template: () => <MetacardOverwrite />,
+})
 
 module.exports = Tabs.extend({
   defaults: {
