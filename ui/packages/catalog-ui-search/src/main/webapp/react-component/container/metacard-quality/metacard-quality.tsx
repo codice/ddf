@@ -19,7 +19,6 @@ import MetacardQualityPresentation from '../../presentation/metacard-quality'
 
 type Props = {
   selectionInterface: any
-  model: Backbone.Model
 }
 
 type State = {
@@ -34,7 +33,7 @@ class MetacardQuality extends React.Component<Props, State> {
     super(props)
 
     const selectionInterface = props.selectionInterface || store
-    const model = props.model || selectionInterface.getSelectedResults().first()
+    const model = selectionInterface.getSelectedResults().first()
 
     this.state = {
       model,
