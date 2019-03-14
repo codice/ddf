@@ -19,10 +19,7 @@ import MetacardArchive from '../../../react-component/container/metacard-archive
 const MetacardArchiveView = Marionette.LayoutView.extend({
   template() {
     return (
-      <MetacardArchive
-        selectionInterface={this.options.selectionInterface}
-        collection={options.model}
-      />
+      <MetacardArchive selectionInterface={this.options.selectionInterface} />
     )
   },
 })

@@ -21,7 +21,6 @@ import MetacardArchivePresentation from '../../presentation/metacard-archive'
 
 type Props = {
   selectionInterface: any
-  model: any
 } & WithBackboneProps
 
 type State = {
@@ -35,7 +34,7 @@ class MetacardArchive extends React.Component<Props, State> {
     super(props)
 
     const selectionInterface = props.selectionInterface || store
-    const collection = props.model || selectionInterface.getSelectedResults()
+    const collection = selectionInterface.getSelectedResults()
 
     const isDeleted = collection.some((result: any) => {
       result.isDeleted()
@@ -63,14 +62,17 @@ class MetacardArchive extends React.Component<Props, State> {
 
       const res = await fetch('./internal/metacards', {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
         body,
       })
       if (!res.ok) {
+        this.setState({ loading: false })
         announcement.announce({
           title: 'Unable to archive the selected item(s).',
           message: 'Something went wrong.',
           type: 'error',
         })
+        return
       }
 
       this.state.collection.forEach(function(result) {
