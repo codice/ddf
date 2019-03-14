@@ -19,11 +19,18 @@ import com.google.crypto.tink.CleartextKeysetHandle;
 import com.google.crypto.tink.JsonKeysetReader;
 import com.google.crypto.tink.JsonKeysetWriter;
 import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.aead.AeadConfig;
 import com.google.crypto.tink.aead.AeadFactory;
 import com.google.crypto.tink.aead.AeadKeyTemplates;
+import com.google.crypto.tink.proto.KeyTemplate;
+import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
+import com.google.crypto.tink.streamingaead.StreamingAeadFactory;
+import com.google.crypto.tink.streamingaead.StreamingAeadKeyTemplates;
 import ddf.security.SecurityConstants;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,8 +52,10 @@ import org.slf4j.LoggerFactory;
 public class Crypter {
   private static final Logger LOGGER = LoggerFactory.getLogger(Crypter.class);
   private static final String DEFAULT_KEYSET_FILE_NAME = "default";
+  private static final String STREAMING_KEYSET_FILE_SPECIFIER = "-streaming";
   private static final String KEYSET_FILE_EXTENSION = ".json";
   private static final int ASSOCIATED_DATA_BYTE_SIZE = 10;
+  @VisibleForTesting static final int CHUNK_SIZE = 128;
 
   private final String keysetDir =
       AccessController.doPrivileged(
@@ -57,8 +66,10 @@ public class Crypter {
               () -> System.getProperty(SecurityConstants.ASSOCIATED_DATA_PATH));
 
   @VisibleForTesting KeysetHandle keysetHandle;
+  @VisibleForTesting KeysetHandle streamingKeysetHandle;
   private byte[] associatedData;
   private Aead aead;
+  private StreamingAead streamingAead;
 
   /**
    * Read/create a specified keyset under the keyset directory.
@@ -68,18 +79,35 @@ public class Crypter {
    */
   public Crypter(String keysetFileName) throws CrypterException {
     String keysetLocation = Paths.get(keysetDir, keysetFileName + KEYSET_FILE_EXTENSION).toString();
+    String streamingKeysetLocation =
+        Paths.get(
+                keysetDir, keysetFileName + STREAMING_KEYSET_FILE_SPECIFIER + KEYSET_FILE_EXTENSION)
+            .toString();
 
     synchronized (Crypter.class) {
       File keysetFile = new File(keysetLocation);
+      File streamingKeysetFile = new File(streamingKeysetLocation);
 
       try {
         AeadConfig.register();
+        StreamingAeadConfig.register();
+
+        // aead keyset
         if (!keysetFile.exists()) {
-          keysetHandle = initKeysetHandle(keysetFile);
+          keysetHandle = initKeysetHandle(keysetFile, AeadKeyTemplates.AES128_GCM);
         } else {
           keysetHandle = readKeysetHandle(keysetFile);
         }
+        // streaming aead keyset
+        if (!streamingKeysetFile.exists()) {
+          streamingKeysetHandle =
+              initKeysetHandle(streamingKeysetFile, StreamingAeadKeyTemplates.AES128_GCM_HKDF_4KB);
+        } else {
+          streamingKeysetHandle = readKeysetHandle(streamingKeysetFile);
+        }
+
         aead = AeadFactory.getPrimitive(keysetHandle);
+        streamingAead = StreamingAeadFactory.getPrimitive(streamingKeysetHandle);
         associatedData = getAssociatedData();
       } catch (GeneralSecurityException | IOException e) {
         LOGGER.warn("Problem initializing keyset.");
@@ -95,6 +123,46 @@ public class Crypter {
   /**
    * Encrypts a plain text value using Tink.
    *
+   * @param plainBytes The value to encrypt.
+   */
+  public byte[] encrypt(byte[] plainBytes) throws CrypterException {
+    if (plainBytes == null || plainBytes.length < 1) {
+      throw new CrypterException("Bytes to encrypt cannot be null or empty.");
+    }
+    if (associatedData == null) {
+      throw new CrypterException("Associated data cannot be null.");
+    }
+
+    try {
+      return aead.encrypt(plainBytes, associatedData);
+    } catch (GeneralSecurityException e) {
+      throw new CrypterException("Problem encrypting.", e);
+    }
+  }
+
+  /**
+   * Decrypts a plain text value using Tink.
+   *
+   * @param encryptedBytes The value to decrypt.
+   */
+  public byte[] decrypt(byte[] encryptedBytes) throws CrypterException {
+    if (encryptedBytes == null || encryptedBytes.length < 1) {
+      throw new CrypterException("Bytes to decrypt cannot be null or empty.");
+    }
+    if (associatedData == null) {
+      throw new CrypterException("Associated data cannot be null.");
+    }
+
+    try {
+      return aead.decrypt(encryptedBytes, associatedData);
+    } catch (GeneralSecurityException | NullPointerException e) {
+      throw new CrypterException("Problem decrypting.", e);
+    }
+  }
+
+  /**
+   * Encrypts a plain text value using Tink.
+   *
    * @param plainTextValue The value to encrypt.
    */
   public String encrypt(String plainTextValue) throws CrypterException {
@@ -104,11 +172,11 @@ public class Crypter {
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
     }
+
     try {
       byte[] encryptedBytes = aead.encrypt(plainTextValue.getBytes(), associatedData);
       return Base64.getEncoder().encodeToString(encryptedBytes);
     } catch (GeneralSecurityException e) {
-      LOGGER.debug("Problem encrypting.", e);
       throw new CrypterException("Problem encrypting.", e);
     }
   }
@@ -125,16 +193,85 @@ public class Crypter {
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
     }
+
     try {
       byte[] encryptedBytes = Base64.getDecoder().decode(encryptedValue);
       return new String(aead.decrypt(encryptedBytes, associatedData));
     } catch (GeneralSecurityException | NullPointerException e) {
-      LOGGER.debug("Problem decrypting.", e);
       throw new CrypterException("Problem decrypting.", e);
     }
   }
 
-  private KeysetHandle initKeysetHandle(File keysetFile)
+  /**
+   * Encrypts a plain InputStream using Tink.
+   *
+   * @param plainInputStream The InputStream to encrypt.
+   */
+  public InputStream encrypt(InputStream plainInputStream) throws CrypterException {
+    if (associatedData == null) {
+      throw new CrypterException("Associated data cannot be null.");
+    }
+    try {
+      if (plainInputStream == null || plainInputStream.available() < 1) {
+        throw new CrypterException("Plain InputStream cannot be null or empty.");
+      }
+    } catch (IOException e) {
+      throw new CrypterException("Problem reading data from plain InputStream.", e);
+    }
+
+    File tmpFile;
+    try {
+      tmpFile = File.createTempFile("encryption", ".tmp");
+    } catch (IOException e) {
+      throw new CrypterException("Unable to create temporary file for encryption.");
+    }
+
+    try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+        OutputStream encryptedOutputStream =
+            streamingAead.newEncryptingStream(fileOutputStream, associatedData)) {
+      byte[] byteBuffer = new byte[CHUNK_SIZE];
+      while (plainInputStream.available() > 0) {
+        int bytesRead = plainInputStream.read(byteBuffer);
+        if (bytesRead < 1) {
+          throw new IOException(
+              String.format("Incorrect # of bytes read from plain InputStream: %d.", bytesRead));
+        }
+        encryptedOutputStream.write(byteBuffer);
+      }
+      encryptedOutputStream.close(); // need to close it here in order for it to flush
+      return new FileInputStream(tmpFile);
+    } catch (GeneralSecurityException | IOException e) {
+      throw new CrypterException("Problem encrypting.", e);
+    } finally {
+      tmpFile.deleteOnExit();
+    }
+  }
+
+  /**
+   * Decrypts an encrypted InputStream using Tink.
+   *
+   * @param encryptedInputStream The InputStream to decrypt.
+   */
+  public InputStream decrypt(InputStream encryptedInputStream) throws CrypterException {
+    if (associatedData == null) {
+      throw new CrypterException("Associated data cannot be null.");
+    }
+    try {
+      if (encryptedInputStream == null || encryptedInputStream.available() < 1) {
+        throw new CrypterException("Encrypted InputStream cannot be null or empty.");
+      }
+    } catch (IOException e) {
+      throw new CrypterException("Problem reading data from encrypted InputStream.", e);
+    }
+
+    try {
+      return streamingAead.newDecryptingStream(encryptedInputStream, associatedData);
+    } catch (GeneralSecurityException | IOException e) {
+      throw new CrypterException("Problem decrypting.", e);
+    }
+  }
+
+  private KeysetHandle initKeysetHandle(File keysetFile, KeyTemplate keyType)
       throws IOException, GeneralSecurityException {
 
     if (!keysetFile.getParentFile().exists()) {
@@ -142,15 +279,24 @@ public class Crypter {
           (PrivilegedAction<Boolean>) () -> keysetFile.getParentFile().mkdirs());
     }
 
+    KeysetHandle keysetHandle = KeysetHandle.generateNew(keyType);
+
     try (OutputStream keysetFileOutputStream = getKeysetOutputStream(keysetFile)) {
       if (keysetFileOutputStream == null) {
         throw new IOException("Problem opening keyset file output stream.");
       }
-      KeysetHandle keysetHandle = KeysetHandle.generateNew(AeadKeyTemplates.AES128_GCM);
       CleartextKeysetHandle.write(
           keysetHandle, JsonKeysetWriter.withOutputStream(keysetFileOutputStream));
-      return keysetHandle;
     }
+
+    try (OutputStream keysetFileOutputStream = getKeysetOutputStream(keysetFile)) {
+      if (keysetFileOutputStream == null) {
+        throw new IOException("Problem opening keyset file output stream.");
+      }
+      CleartextKeysetHandle.write(
+          keysetHandle, JsonKeysetWriter.withOutputStream(keysetFileOutputStream));
+    }
+    return keysetHandle;
   }
 
   private OutputStream getKeysetOutputStream(File keysetFile) {

@@ -207,6 +207,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-wrap</artifactId>
+            <version>${pax.url.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>${javax.inject.version}</version>
@@ -268,6 +274,14 @@
             <groupId>org.apache.camel.karaf</groupId>
             <artifactId>apache-camel</artifactId>
             <version>${camel.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>test-utilities</artifactId>
+            <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
             <scope>test</scope>
