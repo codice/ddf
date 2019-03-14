@@ -12,14 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
 const Marionette = require('marionette')
 const memoize = require('lodash/memoize')
 const $ = require('jquery')
 const template = require('./query-advanced.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
-const FilterBuilderModel = require('../filter-builder/filter-builder.js')
 const cql = require('../../js/cql.js')
 const store = require('../../js/store.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
@@ -134,9 +132,18 @@ module.exports = Marionette.LayoutView.extend({
         isFormBuilder: this.options.isFormBuilder || false,
       })
     )
+
+    let filter
+    if (this.model.get('filterTree') !== undefined) {
+      filter = this.model.get('filterTree')
+    } else if (this.options.isAdd) {
+      filter = cql.read("anyText ILIKE '%'")
+    } else if (this.model.get('cql')) {
+      filter = cql.simplify(cql.read(this.model.get('cql')))
+    }
+
     this.queryAdvanced.show(
       new FilterBuilderView({
-        model: new FilterBuilderModel(),
         suggester: async ({ id, type }) => {
           if (!isValidFacetAttribute(id, type)) {
             return []
@@ -144,20 +151,12 @@ module.exports = Marionette.LayoutView.extend({
 
           return fetchSuggestions(id)
         },
+        filter,
         isForm: this.options.isForm || false,
         isFormBuilder: this.options.isFormBuilder || false,
       })
     )
 
-    if (this.model.get('filterTree') !== undefined) {
-      this.queryAdvanced.currentView.deserialize(this.model.get('filterTree'))
-    } else if (this.options.isAdd) {
-      this.queryAdvanced.currentView.deserialize(cql.read("anyText ILIKE '%'"))
-    } else if (this.model.get('cql')) {
-      this.queryAdvanced.currentView.deserialize(
-        cql.simplify(cql.read(this.model.get('cql')))
-      )
-    }
     this.queryAdvanced.currentView.turnOffEditing()
     this.edit()
   },

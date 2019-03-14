@@ -20,7 +20,6 @@ const template = require('./result-filter.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance.js')
 const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
-const FilterBuilderModel = require('../filter-builder/filter-builder.js')
 const cql = require('../../js/cql.js')
 
 module.exports = Marionette.LayoutView.extend({
@@ -45,25 +44,25 @@ module.exports = Marionette.LayoutView.extend({
       .get('resultFilter')
   },
   onRender: function() {
+    var resultFilter = this.getResultFilter()
+    let filter
+    if (resultFilter) {
+      filter = cql.simplify(cql.read(resultFilter))
+    } else {
+      filter = {
+        property: 'anyText',
+        value: '',
+        type: 'ILIKE',
+      }
+    }
     this.editorProperties.show(
       new FilterBuilderView({
-        model: new FilterBuilderModel({ isResultFilter: true }),
+        filter,
+        isResultFilter: true,
       })
     )
     this.editorProperties.currentView.turnOnEditing()
     this.editorProperties.currentView.turnOffNesting()
-    var resultFilter = this.getResultFilter()
-    if (resultFilter) {
-      this.editorProperties.currentView.deserialize(
-        cql.simplify(cql.read(resultFilter))
-      )
-    } else {
-      this.editorProperties.currentView.deserialize({
-        property: 'anyText',
-        value: '',
-        type: 'ILIKE',
-      })
-    }
     this.handleFilter()
   },
   getFilter: function() {

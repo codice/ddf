@@ -17,8 +17,6 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
-const FilterModel = require('./filter')
-const FilterBuilderModel = require('../filter-builder/filter-builder.js')
 const Sortable = require('sortablejs')
 
 module.exports = Marionette.CollectionView.extend({
@@ -55,6 +53,7 @@ module.exports = Marionette.CollectionView.extend({
   },
   childViewOptions: function() {
     return {
+      editing: true,
       isForm: this.options.isForm || false,
       isFormBuilder: this.options.isFormBuilder || false,
       isSortable: !this.sortable.options.disabled,
@@ -65,16 +64,6 @@ module.exports = Marionette.CollectionView.extend({
     this.listenTo(this.collection, 'remove', this.handleMinusButton)
     this.listenTo(this.collection, 'add', this.handleMinusButton)
     this.handleMinusButton()
-  },
-  addFilter: function(filterModel) {
-    filterModel = filterModel || new FilterModel()
-    this.collection.push(filterModel)
-    return this.children.last()
-  },
-  addFilterBuilder: function(filterBuilderModel) {
-    filterBuilderModel = filterBuilderModel || new FilterBuilderModel()
-    this.collection.push(filterBuilderModel)
-    return this.children.last()
   },
   turnOnEditing: function() {
     this.children.forEach(function(childView) {
