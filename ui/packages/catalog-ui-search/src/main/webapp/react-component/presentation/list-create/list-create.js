@@ -6,8 +6,8 @@
  * any manner and for any purpose, and to have or permit others to do so.
  */
 import * as React from 'react'
-import styled from 'catalog-ui-search/src/main/webapp/react-component/styles/styled-components'
-import withListenTo from 'catalog-ui-search/src/main/webapp/react-component/container/backbone-container'
+import styled from '../../styles/styled-components'
+import withListenTo from '../../container/backbone-container'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import { buttonTypeEnum, Button } from '../button'
 
@@ -20,8 +20,21 @@ const CreateContainer = styled.div`
   padding: ${props => props.theme.minimumSpacing};
 `
 
-class ListCreate extends React.Component {
+const AddButton = props => {
+  const { children, onClick } = props
+  return (
+    <Button
+      buttonType={buttonTypeEnum.primary}
+      onClick={onClick}
+      style={{ width: '100%' }}
+    >
+      <span className="fa fa-plus" />
+      <span>{children}</span>
+    </Button>
+  )
+}
 
+class ListCreate extends React.Component {
   constructor(props) {
     super(props)
     this.listEditor = new ListEditorView({
@@ -64,7 +77,7 @@ class ListCreate extends React.Component {
           yes: 'Create',
         }),
         'change:choice',
-          (confirmation) => {
+        confirmation => {
           if (confirmation.get('choice')) {
             store
               .getCurrentWorkspace()
@@ -77,25 +90,18 @@ class ListCreate extends React.Component {
   }
 
   render() {
-    let buttonText, onClickFunction
-
-    if (this.props.withBookmarks) {
-      buttonText = 'Create New List with Result(s)'
-      onClickFunction = this.createList.bind(this)
-    } else {
-      buttonText = 'Create New List'
-      onClickFunction = this.createListWithBookmarks.bind(this)
-    }
     return (
       <CreateContainer>
         <MarionetteRegionContainer view={this.listEditor} />
-        <Button 
-          buttonType={buttonTypeEnum.primary}
-          onClick={() => onClickFunction()}
-          style={{ width: '100%'}}>
-          <span className="fa fa-plus" />
-          <span>{buttonText}</span>
-        </Button>
+        {this.props.withBookmarks ? (
+          <AddButton onClick={this.createList}>
+            Create New List with Result(s)
+          </AddButton>
+        ) : (
+          <AddButton onClick={this.createListWithBookmarks}>
+            Create New List
+          </AddButton>
+        )}
       </CreateContainer>
     )
   }
