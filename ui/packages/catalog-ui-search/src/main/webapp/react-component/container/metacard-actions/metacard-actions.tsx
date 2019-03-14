@@ -18,12 +18,11 @@ import MetacardActionsPresentation from '../../presentation/metacard-actions'
 
 type Props = {
   selectionInterface: any
-  model: any
 }
 
 const MetacardActions = (props: Props) => {
   const selectionInterface = props.selectionInterface || store
-  const model = props.model || selectionInterface.getSelectedResults().first()
+  const model = selectionInterface.getSelectedResults().first()
 
   const exportActions = _.sortBy(
     model.getExportActions().map((action: any) => ({

@@ -39,10 +39,7 @@ const MetacardArchiveView = Marionette.LayoutView.extend({
 const MetacardActionsView = Marionette.LayoutView.extend({
   template() {
     return (
-      <MetacardActions
-        selectionInterface={this.options.selectionInterface}
-        model={this.options.model}
-      />
+      <MetacardActions selectionInterface={this.options.selectionInterface} />
     )
   },
 })
