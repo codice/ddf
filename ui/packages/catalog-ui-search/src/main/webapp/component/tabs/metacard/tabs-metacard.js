@@ -54,10 +54,7 @@ const MetacardQualityView = Marionette.LayoutView.extend({
 const MetacardHistoryView = Marionette.LayoutView.extend({
   template() {
     return (
-      <MetacardHistory
-        selectionInterface={this.options.selectionInterface}
-        model={this.options.model}
-      />
+      <MetacardHistory selectionInterface={this.options.selectionInterface} />
     )
   },
 })
