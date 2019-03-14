@@ -12,11 +12,11 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props } from '.'
+import { PresentationProps } from '.'
 
 import { LayerRearrange, LayerAlpha, LayerInteractions, LayerName } from '.'
 
-const Root = styled<Props, 'div'>('div')`
+const Root = styled<PresentationProps, 'div'>('div')`
   display: block;
   white-space: nowrap;
   width: 100%;
@@ -39,8 +39,7 @@ const LayerPropertiesRoot = styled.div`
   border-left: 2px solid rgba(255, 255, 255, 0.1);
 `
 
-const render = (props: Props) => {
-  console.log(`${props.name} isTop: ${props.order.isTop} `)
+const render = (props: PresentationProps) => {
   return (
     <Root {...props}>
       <LayerRearrange {...props} />

@@ -10,9 +10,9 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../../styles/styled-components'
+import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props, IsButton, HighlightBehavior } from '..'
+import { PresentationProps, IsButton, HighlightBehavior } from '.'
 
 const Interactions = styled.div`
   text-align: right;
@@ -40,7 +40,6 @@ const Show = styled(InteractionsButton)`
   vertical-align: middle;
 `
 
-//const ShowIcon = styled<Props, 'span'>('span')`
 const ShowIcon = styled.span`
   position: absolute;
   left: 50%;
@@ -49,13 +48,13 @@ const ShowIcon = styled.span`
   display: inline;
 `
 
-const ContentShow = ({ visibility }: Props) => {
+const ContentShow = ({ visibility }: PresentationProps) => {
   const className = `fa ${visibility.show ? 'fa-eye' : 'fa-eye-slash'}`
   return <ShowIcon className={className} />
 }
 
-const render = (props: Props) => {
-  const { isRemoveable, warning = '' } = props
+const render = (props: PresentationProps) => {
+  const { isRemovable, warning = '' } = props.layerInfo
   const { updateLayerShow, onRemove } = props.actions
   return (
     <Interactions>
@@ -65,7 +64,7 @@ const render = (props: Props) => {
         </Warning>
       )}
 
-      {isRemoveable && (
+      {isRemovable && (
         <Remove
           data-help="Remove map layer from user preferences."
           title="Remove map layer from user preferences."

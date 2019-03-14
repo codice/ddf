@@ -10,9 +10,9 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../../styles/styled-components'
+import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props, DisabledBehavior } from '..'
+import { PresentationProps, DisabledBehavior } from '.'
 
 const Alpha = styled.input.attrs({
   min: '0',
@@ -33,7 +33,7 @@ const AlphaEnabled = styled(Alpha)`
   cursor: default !important;
 `
 
-const render = (props: Props) => {
+const render = (props: PresentationProps) => {
   const { show, alpha } = props.visibility
   const { updateLayerAlpha } = props.actions
   return show ? (

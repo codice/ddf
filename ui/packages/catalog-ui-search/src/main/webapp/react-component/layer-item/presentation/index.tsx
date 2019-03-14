@@ -9,4 +9,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default, Order, Visibility, Actions } from './layer-item'
+
+export {
+  GrabCursor,
+  IsButton,
+  HighlightBehavior,
+  DisabledBehavior,
+} from '../../styles/mixins'
+
+import { LayerInfo, Order, Visibility, Actions } from '..'
+export type PresentationProps = {
+  layerInfo: LayerInfo
+  order: Order
+  visibility: Visibility
+  actions: Actions
+  options?: any
+}
+
+export { default as LayerRearrange } from './rearrange'
+export { LayerInteractions } from './interactions'
+export { LayerAlpha } from './alpha'
+export { LayerName } from './name'
+export { default } from './layer-item'

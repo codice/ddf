@@ -10,48 +10,27 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
-//import styled from '../../styles/styled-components'
-import LayerItemPresentation from '../../presentation/layer-item/layer-item'
-
-//import Dropdown from '../../presentation/dropdown'
 import { hot } from 'react-hot-loader'
-const CustomElements = require('../../../js/CustomElements')
+import { Order, Visibility } from '.'
+import withListenTo, {
+  WithBackboneProps,
+} from '../container/backbone-container'
+import LayerItemPresentation from './presentation/layer-item'
+
+const CustomElements = require('../../js/CustomElements')
 const Component = CustomElements.register('layer-item')
-// const Span = styled.span`
-//   padding-right: 5px;
-// `
-
-export type Order = {
-  order: number
-  isBottom: boolean
-  isTop: boolean
-}
-
-export type Visibility = {
-  alpha: number
-  show: boolean
-}
-
-export type Actions = {
-  updateLayerShow: () => void
-  updateLayerAlpha: (e: any) => void
-  moveDown: (e: any) => void
-  moveUp: (e: any) => void
-  onRemove: () => void
-}
 
 type State = {
   order: Order
   visibility: Visibility
 }
 
-type Props = {
+type ContainerProps = {
   layer: Backbone.Model
   options: any
 } & WithBackboneProps
 
-const mapPropsToState = (props: Props) => {
+const mapPropsToState = (props: ContainerProps) => {
   const { layer } = props
   const show = layer.get('show')
   const alpha = layer.get('alpha')
@@ -61,25 +40,36 @@ const mapPropsToState = (props: Props) => {
 
   return {
     order: { order, isBottom, isTop },
-    visibility: { show, alpha }
+    visibility: { show, alpha },
   }
 }
 
-class LayerItem extends React.Component<Props, State> {
-  constructor(props: Props) {
+class LayerItem extends React.Component<ContainerProps, State> {
+  _isMounted = false
+  constructor(props: ContainerProps) {
     super(props)
     this.state = mapPropsToState(props)
     this.listenToLayer()
   }
 
+  componentDidMount() {
+    this._isMounted = true
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
+  }
+
   listenToLayer = () => {
     const { listenTo, layer } = this.props
-    listenTo(layer, 'change', this.handleChange)
+    listenTo(layer, 'change:show change:alpha change:order', this.handleChange)
     listenTo(layer.collection, 'sort remove add', this.handleChange)
   }
 
   handleChange = () => {
-    this.setState(mapPropsToState(this.props))
+    if (this._isMounted) {
+      this.setState(mapPropsToState(this.props))
+    }
   }
 
   updateLayerShow = () => {
@@ -100,8 +90,6 @@ class LayerItem extends React.Component<Props, State> {
     options.sortable.sort(ordering)
     options.focusModel.setDown(layer.id)
     options.updateOrdering()
-    console.log(`Moving ${layer.get('name')} to index ${currentIndex + 1}`)
-    console.log(options.sortable.toArray())
   }
 
   moveUp = () => {
@@ -113,18 +101,14 @@ class LayerItem extends React.Component<Props, State> {
     options.sortable.sort(ordering)
     options.focusModel.setUp(layer.id)
     options.updateOrdering()
-    console.log(`Moving ${layer.get('name')} to index ${currentIndex - 1}`)
-
-    console.log(options.sortable.toArray())
   }
 
   onRemove = () => {
-    debugger
     const { layer } = this.props
     layer.collection.remove(layer)
   }
 
-  actions = {
+  _actions = {
     updateLayerShow: this.updateLayerShow,
     updateLayerAlpha: this.updateLayerAlpha,
     moveDown: this.moveDown,
@@ -137,18 +121,17 @@ class LayerItem extends React.Component<Props, State> {
     const id = layer.get('id')
     const layerInfo = {
       name: layer.get('name'),
-      id,
       warning: layer.get('warning'),
-      isRemoveable: layer.has('userRemovable'),
+      isRemovable: layer.has('userRemovable'),
+      id,
     }
     const props = {
       ...this.state,
-      ...layerInfo,
-      actions: this.actions,
-      options: {focusModel: this.props.options.focusModel}
+      layerInfo,
+      actions: this._actions,
+      options: { focusModel: this.props.options.focusModel },
     }
 
-    console.log(`Rerendering: ${layerInfo.name} ${this.state.order.order}`)
     return (
       <Component data-id={id}>
         <LayerItemPresentation {...props} />

@@ -10,9 +10,9 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../../styles/styled-components'
+import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props, DisabledBehavior } from '..'
+import { PresentationProps, DisabledBehavior } from '.'
 
 const Name = styled.div`
   line-height: ${props => props.theme.minimumButtonSize};
@@ -28,13 +28,13 @@ const NameEnabled = styled(Name)`
   opacity: 1;
 `
 
-const render = (props: Props) => {
-  const { name = 'Untitled', id } = props
+const render = (props: PresentationProps) => {
+  const { name = 'Untitled' } = props.layerInfo
   const { show } = props.visibility
   return show ? (
-    <NameEnabled title={name}>{`${name} ${id}`}</NameEnabled>
+    <NameEnabled title={name}>{name}</NameEnabled>
   ) : (
-    <NameDisabled title={name}>{`${name} ${id}`}</NameDisabled>
+    <NameDisabled title={name}>{name}</NameDisabled>
   )
 }
 

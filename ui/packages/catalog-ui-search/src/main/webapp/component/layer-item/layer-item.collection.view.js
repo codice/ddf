@@ -14,13 +14,14 @@
  **/
 /* global require*/
 const _ = require('underscore')
-const React = require('react')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
-import LayerItem from '../../react-component/container/layer-item'
+
+import * as React from 'react'
+import LayerItem from '../../react-component/layer-item'
 
 const LayerItemView = Marionette.ItemView.extend({
   attributes: function() {

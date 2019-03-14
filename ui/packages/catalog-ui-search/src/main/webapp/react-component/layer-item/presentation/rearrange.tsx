@@ -12,8 +12,8 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import { Props, IsButton, HighlightBehavior, GrabCursor } from '.'
-import * as ReactDOM from 'react-dom'
+import { PresentationProps, IsButton, HighlightBehavior, GrabCursor } from '.'
+
 /* stylelint-disable block-no-empty */
 const Rearrange = styled.div``
 
@@ -47,73 +47,70 @@ const Drag = styled.button`
   top: 0px;
   height: 100%;
 `
-const RearrangeUp = (props:Props) => {
+const RearrangeUp = (
+  props: PresentationProps,
+  forwardedRef: React.RefObject<HTMLButtonElement>
+) => {
   const { isTop } = props.order
-  const {moveUp: handleClick} = props.actions
-  if (isTop) {
-    return null
-  }
+  const { moveUp: handleClick } = props.actions
+
   return (
-    <Up onClick={handleClick}>
-      <RearrangeIcon className="fa fa-angle-up" />
-    </Up>
+    !isTop && (
+      <Up innerRef={forwardedRef} onClick={handleClick}>
+        <RearrangeIcon className="fa fa-angle-up" />
+      </Up>
+    )
   )
 }
 
-const RearrangeDown = (props:Props) => {
+const RearrangeDown = (
+  props: PresentationProps,
+  forwardedRef: React.RefObject<HTMLButtonElement>
+) => {
   const { isBottom } = props.order
-  const {moveDown: handleClick} = props.actions
-  if (isBottom) {
-    return null
-  }
+  const { moveDown: handleClick } = props.actions
+
   return (
-    <Down onClick={handleClick}>
-      <RearrangeIcon className="fa fa-angle-down" />
-    </Down>
+    !isBottom && (
+      <Down innerRef={forwardedRef} onClick={handleClick}>
+        <RearrangeIcon className="fa fa-angle-down" />
+      </Down>
+    )
   )
 }
-
-export const LayerRearrange = hot(module) (class LayerRearrange extends React.Component<Props, {}> {
-  private down: React.RefObject<HTMLInputElement>
-  private up: React.RefObject<HTMLInputElement>
-  constructor(props: Props) {
-    super(props)  
-    this.down=React.createRef()
-    this.up=React.createRef()
+class LayerRearrange extends React.Component<PresentationProps, {}> {
+  private down: React.RefObject<HTMLButtonElement>
+  private up: React.RefObject<HTMLButtonElement>
+  constructor(props: PresentationProps) {
+    super(props)
+    this.down = React.createRef()
+    this.up = React.createRef()
   }
 
-  componentDidMount () {
-    const {id, order} = this.props
-    const {focusModel} = this.props.options
+  componentDidMount() {
+    const { isTop, isBottom } = this.props.order
+    const { id } = this.props.layerInfo
+    const { focusModel } = this.props.options
 
     if (focusModel.id === id) {
       let focusRef = focusModel.isUp() ? this.up : this.down
-      focusRef = order.isTop ? this.down: focusRef
-      focusRef = order.isBottom ? this.up : focusRef
-      // @ts-ignore
-      setTimeout(function(){ReactDOM.findDOMNode(focusRef.current).focus() }, 0);
+      focusRef = isTop ? this.down : focusRef
+      focusRef = isBottom ? this.up : focusRef
+      setTimeout(() => focusRef.current!.focus(), 0)
     }
-
-
-}
+  }
 
   render() {
     return (
       <Rearrange>
-         {/*
-         // @ts-ignore*/ }
-        <RearrangeUp {...this.props} ref={this.up}/>
-         {/*
-         // @ts-ignore*/ }
-        <RearrangeDown {...this.props} ref={this.down}/>
-        {/* {RearrangeUp({ order, handleClick: moveUp })}
-        {RearrangeDown({ order, handleClick: moveDown })}  */}
-
+        {RearrangeUp(this.props, this.up)}
+        {RearrangeDown(this.props, this.down)}
         <Drag className="layer-rearrange">
           <span className="fa fa-arrows-v" />
         </Drag>
       </Rearrange>
     )
   }
-}  )
- 
+}
+
+export default hot(module)(LayerRearrange)
