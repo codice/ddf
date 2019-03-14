@@ -13,7 +13,7 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import { Props, IsButton, HighlightBehavior, GrabCursor } from '.'
-import { Order } from '../../container/layer-item'
+import * as ReactDOM from 'react-dom'
 /* stylelint-disable block-no-empty */
 const Rearrange = styled.div``
 
@@ -47,9 +47,10 @@ const Drag = styled.button`
   top: 0px;
   height: 100%;
 `
-const RearrangeUp = ({ order, handleClick }: { order:Order, handleClick: (e:any)=>void }) => {
-    const {isTop} = order
-    if (isTop) {
+const RearrangeUp = (props:Props) => {
+  const { isTop } = props.order
+  const {moveUp: handleClick} = props.actions
+  if (isTop) {
     return null
   }
   return (
@@ -59,8 +60,9 @@ const RearrangeUp = ({ order, handleClick }: { order:Order, handleClick: (e:any)
   )
 }
 
-const RearrangeDown = ({ order, handleClick }: { order: Order, handleClick: (e:any)=>void }) => {
-    const {isBottom} = order
+const RearrangeDown = (props:Props) => {
+  const { isBottom } = props.order
+  const {moveDown: handleClick} = props.actions
   if (isBottom) {
     return null
   }
@@ -71,18 +73,47 @@ const RearrangeDown = ({ order, handleClick }: { order: Order, handleClick: (e:a
   )
 }
 
-const render = (props: Props) => {
-  const { order } = props
-  const {moveDown, moveUp} = props.actions
-  return (
-    <Rearrange>
-      {RearrangeUp({order, handleClick:moveUp})}
-      {RearrangeDown({order, handleClick:moveDown})}
-      <Drag className = "layer-rearrange">
-        <span className="fa fa-arrows-v" />
-      </Drag>
-    </Rearrange>
-  )
+export const LayerRearrange = hot(module) (class LayerRearrange extends React.Component<Props, {}> {
+  private down: React.RefObject<HTMLInputElement>
+  private up: React.RefObject<HTMLInputElement>
+  constructor(props: Props) {
+    super(props)  
+    this.down=React.createRef()
+    this.up=React.createRef()
+  }
+
+  componentDidMount () {
+    const {id, order} = this.props
+    const {focusModel} = this.props.options
+
+    if (focusModel.id === id) {
+      let focusRef = focusModel.isUp() ? this.up : this.down
+      focusRef = order.isTop ? this.down: focusRef
+      focusRef = order.isBottom ? this.up : focusRef
+      // @ts-ignore
+      setTimeout(function(){ReactDOM.findDOMNode(focusRef.current).focus() }, 0);
+    }
+
+
 }
 
-export const LayerRearrange = hot(module)(render)
+  render() {
+    return (
+      <Rearrange>
+         {/*
+         // @ts-ignore*/ }
+        <RearrangeUp {...this.props} ref={this.up}/>
+         {/*
+         // @ts-ignore*/ }
+        <RearrangeDown {...this.props} ref={this.down}/>
+        {/* {RearrangeUp({ order, handleClick: moveUp })}
+        {RearrangeDown({ order, handleClick: moveDown })}  */}
+
+        <Drag className="layer-rearrange">
+          <span className="fa fa-arrows-v" />
+        </Drag>
+      </Rearrange>
+    )
+  }
+}  )
+ 

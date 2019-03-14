@@ -30,7 +30,7 @@ const AlphaDisabled = styled(Alpha)`
 
 const AlphaEnabled = styled(Alpha)`
   opacity: 1;
-  cursor: default !important
+  cursor: default !important;
 `
 
 const render = (props: Props) => {

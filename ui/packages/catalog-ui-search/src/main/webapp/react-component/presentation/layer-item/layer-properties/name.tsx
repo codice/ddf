@@ -29,7 +29,7 @@ const NameEnabled = styled(Name)`
 `
 
 const render = (props: Props) => {
-  const { name = "Untitled", id } = props
+  const { name = 'Untitled', id } = props
   const { show } = props.visibility
   return show ? (
     <NameEnabled title={name}>{`${name} ${id}`}</NameEnabled>

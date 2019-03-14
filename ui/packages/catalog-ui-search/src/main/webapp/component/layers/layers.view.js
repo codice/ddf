@@ -22,9 +22,9 @@ const template = require('./layers.hbs')
 const user = require('../singletons/user-instance.js')
 const CustomElements = require('../../js/CustomElements.js')
 
-import * as React from 'react'
-import Layers from '../../react-component/presentation/layer-item/layers'
-import MapSettings from '../../react-component/container/map-settings/map-settings'
+// import * as React from 'react'
+// import Layers from '../../react-component/presentation/layer-item/layers'
+const LayerItemCollectionView = require('../layer-item/layer-item.collection.view.js')
 // this is to track focus, since on reordering rerenders and loses focus
 const FocusModel = Backbone.Model.extend({
   defaults: {
@@ -87,16 +87,29 @@ module.exports = Marionette.LayoutView.extend({
     this.focusModel = new FocusModel()
   },
   onRender: function() {
-    const layers = this.model.get('mapLayers')
-    const updateOrdering = this.updateOrdering.bind(this)
-    const focusModel = this.focusModel
-    const LayersView = Marionette.LayoutView.extend({
-      template() {
-        return <Layers layerCollection={layers} updateOrdering={updateOrdering} focusModel={focusModel}/>
-      },
-    })
-    
-    this.layers.show(new LayersView())
+    this.layers.show(
+      new LayerItemCollectionView({
+        collection: this.model.get('mapLayers'),
+        updateOrdering: this.updateOrdering.bind(this),
+        focusModel: this.focusModel,
+      })
+    )
+    // const layers = this.model.get('mapLayers')
+    // const updateOrdering = this.updateOrdering.bind(this)
+    // const focusModel = this.focusModel
+    // const LayersView = Marionette.LayoutView.extend({
+    //   template() {
+    //     return (
+    //       <Layers
+    //         layerCollection={layers}
+    //         updateOrdering={updateOrdering}
+    //         focusModel={focusModel}
+    //       />
+    //     )
+    //   },
+    // })
+
+    // this.layers.show(new LayersView())
   },
   listenToModel: function() {
     this.stopListeningToModel()

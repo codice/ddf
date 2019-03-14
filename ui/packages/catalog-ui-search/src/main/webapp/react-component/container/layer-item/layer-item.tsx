@@ -36,8 +36,8 @@ export type Visibility = {
 export type Actions = {
   updateLayerShow: () => void
   updateLayerAlpha: (e: any) => void
-  moveDown : (e: any) => void
-  moveUp : (e: any) => void
+  moveDown: (e: any) => void
+  moveUp: (e: any) => void
   onRemove: () => void
 }
 
@@ -48,7 +48,6 @@ type State = {
 
 type Props = {
   layer: Backbone.Model
-  collection: any
   options: any
 } & WithBackboneProps
 
@@ -62,7 +61,7 @@ const mapPropsToState = (props: Props) => {
 
   return {
     order: { order, isBottom, isTop },
-    visibility: { show, alpha },
+    visibility: { show, alpha }
   }
 }
 
@@ -93,7 +92,7 @@ class LayerItem extends React.Component<Props, State> {
   }
 
   moveDown = () => {
-    const {options, layer} = this.props
+    const { options, layer } = this.props
     const ordering = options.sortable.toArray()
     const currentIndex = ordering.indexOf(layer.id)
     ordering.splice(currentIndex, 1)
@@ -101,12 +100,12 @@ class LayerItem extends React.Component<Props, State> {
     options.sortable.sort(ordering)
     options.focusModel.setDown(layer.id)
     options.updateOrdering()
-    console.log(`Moving ${layer.get("name")} to index ${currentIndex + 1}`)
+    console.log(`Moving ${layer.get('name')} to index ${currentIndex + 1}`)
     console.log(options.sortable.toArray())
   }
 
   moveUp = () => {
-    const {options, layer} = this.props
+    const { options, layer } = this.props
     const ordering = options.sortable.toArray()
     const currentIndex = ordering.indexOf(layer.id)
     ordering.splice(currentIndex - 1, 0, layer.id)
@@ -114,15 +113,15 @@ class LayerItem extends React.Component<Props, State> {
     options.sortable.sort(ordering)
     options.focusModel.setUp(layer.id)
     options.updateOrdering()
-     console.log(`Moving ${layer.get("name")} to index ${currentIndex - 1}`)
-    
+    console.log(`Moving ${layer.get('name')} to index ${currentIndex - 1}`)
+
     console.log(options.sortable.toArray())
   }
 
   onRemove = () => {
     debugger
-    const { layer,collection } = this.props
-    collection.remove(layer)
+    const { layer } = this.props
+    layer.collection.remove(layer)
   }
 
   actions = {
@@ -146,10 +145,15 @@ class LayerItem extends React.Component<Props, State> {
       ...this.state,
       ...layerInfo,
       actions: this.actions,
+      options: {focusModel: this.props.options.focusModel}
     }
-    
+
     console.log(`Rerendering: ${layerInfo.name} ${this.state.order.order}`)
-    return <Component data-id={id} ><LayerItemPresentation  {...props}  /></Component>
+    return (
+      <Component data-id={id}>
+        <LayerItemPresentation {...props} />
+      </Component>
+    )
   }
 }
 

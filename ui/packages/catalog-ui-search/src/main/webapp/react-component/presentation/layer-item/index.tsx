@@ -17,7 +17,7 @@ export {
 } from '../../styles/mixins'
 import { Order, Visibility, Actions } from '../../container/layer-item'
 
-export { LayerRearrange } from './rearrange'
+export {LayerRearrange}  from './rearrange'
 export { LayerInteractions } from './layer-properties/interactions'
 export { LayerAlpha } from './layer-properties/alpha'
 export { LayerName } from './layer-properties/name'
@@ -29,5 +29,6 @@ export type Props = {
   order: Order
   visibility: Visibility
   actions: Actions
+  options?: any
 }
 export { default } from './layers'

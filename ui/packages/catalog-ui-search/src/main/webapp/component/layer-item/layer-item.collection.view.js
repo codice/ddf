@@ -23,6 +23,11 @@ const Sortable = require('sortablejs')
 import LayerItem from '../../react-component/container/layer-item'
 
 const LayerItemView = Marionette.ItemView.extend({
+  attributes: function() {
+    return {
+      'data-id': this.model.id,
+    }
+  },
   template() {
     return <LayerItem layer={this.model} options={this.options} />
   },
