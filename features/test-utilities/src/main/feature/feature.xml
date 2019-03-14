@@ -50,4 +50,13 @@
         <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/3.5.0</bundle>
         <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/3.0.0</bundle>
     </feature>
+
+    <feature name="tink-test-dependencies" version="${project.version}"
+      description="Tink dependencies for use within component/integration tests.">
+        <feature prerequisite="true">wrap</feature>
+        <bundle>mvn:org.json/json/${org.json.version}</bundle>
+        <bundle>mvn:com.google.protobuf/protobuf-java/${protobuf.version}</bundle>
+        <bundle>wrap:mvn:com.google.crypto.tink/tink/${tink.version}</bundle>
+        <bundle>wrap:mvn:ddf.security.encryption/security-encryption-crypter/${project.version}</bundle>
+    </feature>
 </features>
