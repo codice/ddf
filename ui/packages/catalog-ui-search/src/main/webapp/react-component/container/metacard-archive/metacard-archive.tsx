@@ -37,18 +37,14 @@ class MetacardArchive extends React.Component<Props, State> {
     const collection = selectionInterface.getSelectedResults()
 
     const isDeleted = collection.some((result: any) => {
-      result.isDeleted()
+      return result.isDeleted()
     })
 
     this.state = {
       collection,
       isDeleted,
-      loading: true,
+      loading: false,
     }
-  }
-
-  componentDidMount() {
-    this.setState({ loading: false })
   }
 
   onArchiveConfirm = async (confirmation: any) => {
@@ -117,7 +113,7 @@ class MetacardArchive extends React.Component<Props, State> {
           .get('properties')
           .get('metacard.deleted.version')
 
-        fetch(
+        return fetch(
           `./internal/history/revert/${metacardDeletedId}/${metacardDeletedVersion}`
         )
       })
