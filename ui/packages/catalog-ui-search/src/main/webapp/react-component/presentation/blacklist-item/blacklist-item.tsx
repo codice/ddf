@@ -12,14 +12,13 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import { keyframes } from '../../styles/styled-components'
-import styled from '../../styles/styled-components'
+import styled, { keyframes } from '../../styles/styled-components'
 import { buttonTypeEnum, Button } from '../button'
 import { transparentize, readableColor } from 'polished'
 
 type Props = {
-  remove: () => void
-  navigate: () => void
+  onRemove: () => void
+  onNavigate: () => void
   itemTitle: string
   clearing: boolean
 }
@@ -76,12 +75,12 @@ const ItemDetails = styled.div`
 const BlacklistItemPresentation = (props: Props) => {
   return (
     <Root {...props}>
-      <ItemDetails onClick={props.navigate}>{props.itemTitle}</ItemDetails>
+      <ItemDetails onClick={props.onNavigate}>{props.itemTitle}</ItemDetails>
       <Button
         style={{ float: 'right' }}
         icon="fa fa-eye"
         buttonType={buttonTypeEnum.neutral}
-        onClick={props.remove}
+        onClick={props.onRemove}
       />
     </Root>
   )

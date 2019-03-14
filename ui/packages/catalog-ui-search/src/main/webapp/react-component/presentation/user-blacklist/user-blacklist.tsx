@@ -12,8 +12,7 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import styled from '../../styles/styled-components'
-import { keyframes } from '../../styles/styled-components'
+import styled, { keyframes } from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import BlacklistItemContainer from '../../container/blacklist-item'
 
@@ -55,7 +54,7 @@ const ItemsWrapper = styled<Props, 'div'>('div')`
 `
 
 type Props = {
-  clearBlacklist: () => void
+  onClearBlacklist: () => void
   blacklist: Backbone.Collection<Backbone.Model>
   clearing: boolean
 }
@@ -66,7 +65,7 @@ const Blacklist = (props: Props) => {
       <Button
         icon="fa fa-eye"
         buttonType={buttonTypeEnum.neutral}
-        onClick={props.clearBlacklist}
+        onClick={props.onClearBlacklist}
         style={{ width: '100%' }}
         text="Unhide All"
       />

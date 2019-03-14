@@ -63,7 +63,7 @@ class UserBlacklistContainer extends React.Component<WithBackboneProps, State> {
   render() {
     return (
       <UserBlackListPresentation
-        clearBlacklist={() => this.clearBlacklist()}
+        onClearBlacklist={this.clearBlacklist}
         blacklist={this.state.blacklist}
         clearing={this.state.clearing}
       />

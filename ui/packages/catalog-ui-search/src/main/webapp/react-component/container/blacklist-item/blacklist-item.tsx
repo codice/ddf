@@ -14,7 +14,7 @@ import * as React from 'react'
 import BlacklistItemPresentation from '../../presentation/blacklist-item'
 const user = require('../../../component/singletons/user-instance.js')
 
-var wreqr = require('../../../js/wreqr')
+const wreqr = require('../../../js/wreqr')
 
 type Props = {
   item: Backbone.Model
@@ -54,8 +54,8 @@ class BlacklistItemContainer extends React.Component<Props, State> {
   render() {
     return (
       <BlacklistItemPresentation
-        navigate={() => this.navigateToItem()}
-        remove={() => this.removeFromBlacklist()}
+        onNavigate={this.navigateToItem}
+        onRemove={this.removeFromBlacklist}
         itemTitle={this.props.item.get('title')}
         clearing={this.state.clearing}
       />
