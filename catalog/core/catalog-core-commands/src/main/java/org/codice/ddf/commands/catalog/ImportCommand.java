@@ -145,16 +145,18 @@ public class ImportCommand extends CatalogCommands {
               + "File being imported: {}",
           importFile);
     } else {
-      if (StringUtils.isNotBlank(signatureFile)) {
-        String alias = System.getProperty("org.codice.ddf.system.hostname");
-
-        if (!verifier.verifyDigitalSignature(
-            new FileInputStream(file), new FileInputStream(signatureFile), alias)) {
-          throw new CatalogCommandRuntimeException("The provided data could not be verified");
-        }
-      } else {
+      if (StringUtils.isBlank(signatureFile)) {
         throw new CatalogCommandRuntimeException(
             "A signature file must be provided with import data");
+      }
+
+      String alias = System.getProperty("org.codice.ddf.system.hostname");
+
+      try (FileInputStream fileIs = new FileInputStream(file);
+          FileInputStream sigFileIs = new FileInputStream(signatureFile)) {
+        if (!verifier.verifyDigitalSignature(fileIs, sigFileIs, alias)) {
+          throw new CatalogCommandRuntimeException("The provided data could not be verified");
+        }
       }
     }
     SecurityLogger.audit("Called catalog:import command on the file: {}", importFile);

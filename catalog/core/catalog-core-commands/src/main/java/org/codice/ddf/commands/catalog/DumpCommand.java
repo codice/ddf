@@ -285,13 +285,18 @@ public class DumpCommand extends CqlCommands {
       String alias = System.getProperty(SystemBaseUrl.EXTERNAL_HOST);
       String password = System.getProperty("javax.net.ssl.keyStorePassword");
 
-      byte[] signature =
-          signer.createDigitalSignature(new FileInputStream(outputFile), alias, password);
+      try (InputStream inputStream = new FileInputStream(outputFile)) {
+        byte[] signature = signer.createDigitalSignature(inputStream, alias, password);
 
-      String epoch = Long.toString(Instant.now().getEpochSecond());
-      String signatureFilepath = String.format("%sdump_%s.sig", dirPath, epoch);
+        if (signature == null) {
+          console.println("An error occurred while signing export");
+        } else {
+          String epoch = Long.toString(Instant.now().getEpochSecond());
+          String signatureFilepath = String.format("%sdump_%s.sig", dirPath, epoch);
 
-      FileUtils.writeByteArrayToFile(new File(signatureFilepath), signature);
+          FileUtils.writeByteArrayToFile(new File(signatureFilepath), signature);
+        }
+      }
     } else {
       ResultIterable.resultIterable(catalog::query, queryRequest)
           .stream()

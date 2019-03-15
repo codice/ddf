@@ -138,7 +138,7 @@ public class ExportCommand extends CqlCommands {
     required = false,
     aliases = {"-o"}
   )
-  String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.apply("zip")).toString();
+  String output = getExportFilePath();
 
   @Option(
     name = "--delete",
@@ -312,12 +312,11 @@ public class ExportCommand extends CqlCommands {
     console.println("Signing zip file...");
     Instant start = Instant.now();
 
-    try {
+    try (InputStream inputStream = new FileInputStream(outputFile)) {
       String alias = System.getProperty(SystemBaseUrl.EXTERNAL_HOST);
       String password = System.getProperty("javax.net.ssl.keyStorePassword");
 
-      byte[] signature =
-          signer.createDigitalSignature(new FileInputStream(outputFile), alias, password);
+      byte[] signature = signer.createDigitalSignature(inputStream, alias, password);
 
       if (signature != null) {
         String signatureFilepath =
@@ -646,5 +645,9 @@ public class ExportCommand extends CqlCommands {
               filter, filterBuilder.attribute(Metacard.TAGS).is().like().text(DELETED_METACARD));
     }
     return filter;
+  }
+
+  private String getExportFilePath() {
+    return Paths.get(System.getProperty("ddf.home"), FILE_NAMER.apply("zip")).toString();
   }
 }

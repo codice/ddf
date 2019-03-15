@@ -58,7 +58,7 @@ public class DigitalSignature {
     try {
       Signature rsa = Signature.getInstance("SHA256withRSA");
 
-      rsa.initSign(getPrivateKey(alias, password));
+      rsa.initSign(privateKey);
 
       byte[] buffer = new byte[BUFFER_SIZE];
       int len;
@@ -98,7 +98,7 @@ public class DigitalSignature {
 
       return rsa.verify(sigToVerify);
     } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
-      String message = "An error occurred while signing file";
+      String message = "An error occurred while verifying file";
       LOGGER.debug(message, e);
       throw new CatalogCommandRuntimeException(message, e);
     }
