@@ -43,24 +43,18 @@ IF "%COMMAND%"=="start" (
     CALL %SOLR_EXEC% start -p !solr.http.port! -m !solr.mem!
 )
 
-IF "%COMMAND%"=="restart" (
-    CALL :GEN_STOPKEY
-    IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
-    CALL %SOLR_EXEC% restart -p !solr.http.port! -m !solr.mem!
-)
-
 IF "%COMMAND%"=="stop" (
-    SET /P STOP_KEY=<%STOPKEY_FILE%
-    CALL %SOLR_EXEC% stop -p !solr.http.port!
-    DEL %STOPKEY_FILE%
+   SET /P STOP_KEY=<%STOPKEY_FILE%
+   CALL %SOLR_EXEC% stop -p !solr.http.port!
+   DEL %STOPKEY_FILE%
 )
 
 EXIT /B
 
 :GEN_STOPKEY
 REM Generate a random stop key for Solr and write it to a file
-FOR /F %%i IN (%MAKE_KEY%) DO SET STOP_KEY=%%i
-ECHO !STOP_KEY! > %STOPKEY_FILE%
+CALL %MAKE_KEY% > %STOPKEY_FILE%
+SET /P STOP_KEY=<%STOPKEY_FILE%
 EXIT /B
 
 ENDLOCAL
