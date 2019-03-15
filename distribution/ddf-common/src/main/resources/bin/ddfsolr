@@ -28,7 +28,6 @@ SCRIPTDIR=$(dirname $0)
 HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 GET=${SCRIPTDIR}/get_property
 SOLR_EXEC=${HOME_DIR}/solr/bin/solr
-STOPKEY_FILE=${HOME_DOR}/STOPKEY
 
 # Read port from custom.system.properties file
 SOLR_PORT=$($GET "solr.http.port")
