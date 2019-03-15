@@ -44,9 +44,9 @@ const SearchGroup = styled.div`
   padding-top: ${props => props.theme.largeSpacing};
 `
 
-let namespace = CustomElements.getNamespace()
+const namespace = CustomElements.getNamespace()
 
-let QuerySelector = Marionette.LayoutView.extend({
+const QuerySelector = Marionette.LayoutView.extend({
   setDefaultModel: function() {
     this.model = store.getCurrentQueries()
   },
@@ -105,16 +105,16 @@ let QuerySelector = Marionette.LayoutView.extend({
   },
   addQuery: function() {
     if (this.model.canAddQuery()) {
-      let newQuery = new Query.Model()
+      const newQuery = new Query.Model()
       store.setQueryByReference(newQuery)
     }
   },
   selectQuery: function(event) {
-    let queryId = event.currentTarget.getAttribute('data-queryId')
+    const queryId = event.currentTarget.getAttribute('data-queryId')
     store.setQueryById(queryId)
   },
   handleQuerySelect: function() {
-    let query = store.getQuery()
+    const query = store.getQuery()
     this.$el.find(namespace + 'query-item').removeClass('is-selected')
     if (query) {
       this.$el
