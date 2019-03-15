@@ -15,16 +15,14 @@ package org.codice.ddf.security.rest.authentication.impl;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.codice.ddf.security.rest.authentication.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +35,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   private SessionFactory sessionFactory;
 
-  private BaseAuthenticationTokenFactory tokenFactory;
+  private STSAuthenticationTokenFactory tokenFactory;
 
   public AuthenticationServiceImpl(SecurityManager securityManager, SessionFactory sessionFactory) {
     this.securityManager = securityManager;
     this.sessionFactory = sessionFactory;
-    tokenFactory = new BaseAuthenticationTokenFactory();
+    tokenFactory = new STSAuthenticationTokenFactory();
   }
 
   @Override
@@ -61,7 +59,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     // Create an authentication token
     BaseAuthenticationToken authenticationToken =
-        tokenFactory.fromUsernamePassword(username, password);
+        tokenFactory.fromUsernamePassword(username, password, request.getRemoteAddr());
 
     // Authenticate
     Subject subject = securityManager.getSubject(authenticationToken);
@@ -69,21 +67,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       throw new SecurityServiceException("Authentication failed");
     }
 
-    for (Object principal : subject.getPrincipals()) {
-      if (principal instanceof SecurityAssertion) {
-        SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
-
-        if (securityToken == null) {
-          LOGGER.debug("Cannot add null security token to session");
-          continue;
-        }
-
-        // Create a session and add the security token
-        session = sessionFactory.getOrCreateSession(request);
-        SecurityTokenHolder holder =
-            (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
-        holder.setSecurityToken(securityToken);
-      }
-    }
+    // Create a session and add the security token
+    session = sessionFactory.getOrCreateSession(request);
+    SecurityTokenHolder holder =
+        (SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
+    holder.setPrincipals(subject.getPrincipals());
   }
 }

@@ -13,6 +13,8 @@
  */
 package ddf.security.service.impl;
 
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.expansion.Expansion;
 import ddf.security.permission.KeyValueCollectionPermission;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -33,10 +36,6 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
-import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.schema.XSString;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -119,12 +118,17 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
   protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
     SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
     LOGGER.debug("Retrieving authorization info for {}", principalCollection.getPrimaryPrincipal());
-    SecurityAssertion assertion = principalCollection.oneByType(SecurityAssertion.class);
-    if (assertion == null) {
+    Collection<SecurityAssertion> assertions = principalCollection.byType(SecurityAssertion.class);
+    if (assertions.isEmpty()) {
       String msg = "No assertion found, cannot retrieve authorization info.";
       throw new AuthorizationException(msg);
     }
-    List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
+    List<AttributeStatement> attributeStatements =
+        assertions
+            .stream()
+            .map(SecurityAssertion::getAttributeStatements)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     Set<Permission> permissions = new HashSet<>();
     Set<String> roles = new HashSet<>();
 
@@ -185,15 +189,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
   private Set<String> expandAttributes(Attribute attribute, Collection<Expansion> expansions) {
     Set<String> attributeSet = new HashSet<>();
     String attributeName = attribute.getName();
-    for (XMLObject curValue : attribute.getAttributeValues()) {
-      if (curValue instanceof XSString) {
-        attributeSet.add(((XSString) curValue).getValue());
-      } else {
-        LOGGER.debug(
-            "Unexpected attribute type (non-string) for attribute named {} - ignored",
-            attributeName);
-      }
-    }
+    attributeSet.addAll(attribute.getValues());
     for (Expansion expansionService : expansions) {
       LOGGER.debug(
           "Expanding attributes for {} - original values: {}", attributeName, attributeSet);

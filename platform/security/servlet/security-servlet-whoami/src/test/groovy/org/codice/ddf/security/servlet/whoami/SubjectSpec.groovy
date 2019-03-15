@@ -14,18 +14,15 @@
 package org.codice.ddf.security.servlet.whoami
 
 import ddf.security.Subject
+import ddf.security.assertion.Attribute
+import ddf.security.assertion.AttributeStatement
+import ddf.security.assertion.AuthenticationStatement
 import ddf.security.assertion.SecurityAssertion
 import ddf.security.principal.GuestPrincipal
-import org.apache.shiro.subject.PrincipalCollection
-import org.opensaml.core.xml.schema.XSString
-import org.opensaml.saml.saml2.core.Attribute
-import org.opensaml.saml.saml2.core.AttributeStatement
-import org.opensaml.saml.saml2.core.AuthnStatement
-import spock.lang.Specification
-
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.stream.Collectors
+import org.apache.shiro.subject.PrincipalCollection
+import spock.lang.Specification
 
 class SubjectSpec extends Specification {
 
@@ -42,7 +39,7 @@ class SubjectSpec extends Specification {
         def assertion = Mock(SecurityAssertion)
         def principal = new GuestPrincipal("127.0.0.1")
         def attrStatement = Mock(AttributeStatement)
-        def authnStatement = Mock(AuthnStatement)
+        def authenticationStatement = Mock(AuthenticationStatement)
 
         def attributes = ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress':
                                   ['guest@localhost']]
@@ -59,7 +56,7 @@ class SubjectSpec extends Specification {
         assertion.getPrincipal() >> principal
         assertion.getAttributeStatements() >> [attrStatement]
         assertion.getIssuer() >> "TestIssuer"
-        assertion.getAuthnStatements() >> [authnStatement]
+        assertion.getAuthnStatements() >> [authenticationStatement]
         assertion.getNotOnOrAfter() >> notOnOrAfter
 
         attrStatement.getAttributes() >> attrs
@@ -71,18 +68,10 @@ class SubjectSpec extends Specification {
         def attr = Mock(Attribute)
 
         attr.getName() >> attribute.getKey()
-        attr.getAttributeValues() >> attribute.value.collect {
-            mockXSString(it)
+        attr.getValues() >> attribute.getValue().collect {
+            it
         }
 
         attr
-    }
-
-    protected def mockXSString(String str) {
-        def xstr = Mock(XSString)
-
-        xstr.getValue() >> str
-
-        xstr
     }
 }

@@ -13,18 +13,18 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import java.security.Principal;
+import ddf.security.assertion.SecurityAssertion;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-public class SAMLAuthenticationToken extends BaseAuthenticationToken {
+public class SAMLAuthenticationToken extends STSAuthenticationToken {
   private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAuthenticationToken.class);
-
-  boolean reference = true;
 
   /**
    * Constructor that only allows SecurityToken objects to be used as the credentials.
@@ -32,27 +32,8 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
    * @param principal represents the
    * @param token
    */
-  public SAMLAuthenticationToken(Principal principal, SecurityToken token) {
-    super(principal, token);
-    reference = false;
-  }
-
-  public SAMLAuthenticationToken(Principal principal, String samlRef) {
-    super(principal, samlRef);
-    reference = true;
-  }
-
-  public boolean isReference() {
-    return reference;
-  }
-
-  public void replaceReferenece(SecurityToken token) {
-    if (reference) {
-      credentials = token;
-      reference = false;
-    } else {
-      LOGGER.debug("Current token is not a reference - call to replace is ignored.");
-    }
+  public SAMLAuthenticationToken(Object principal, PrincipalCollection token, String ip) {
+    super(principal, token, ip);
   }
 
   /**
@@ -61,12 +42,16 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
    * @return the SAML token as a DOM element or null if it doesn't exist
    */
   public Element getSAMLTokenAsElement() {
-    if (reference) {
-      LOGGER.debug("Attempting to return a SAML token without converting from a reference.");
-      return null;
-    }
-
-    SecurityToken token = (SecurityToken) getCredentials();
+    SecurityToken token =
+        ((PrincipalCollection) getCredentials())
+            .byType(SecurityAssertion.class)
+            .stream()
+            .filter(sa -> StringUtils.containsIgnoreCase(sa.getTokenType(), "saml"))
+            .map(SecurityAssertion::getToken)
+            .filter(SecurityToken.class::isInstance)
+            .map(SecurityToken.class::cast)
+            .findFirst()
+            .orElse(null);
     if (token != null) {
       return token.getToken();
     }
@@ -74,7 +59,7 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
   }
 
   @Override
-  public String getCredentialsAsXMLString() {
+  public String getCredentialsAsString() {
     String creds = "";
     Element element = getSAMLTokenAsElement();
     if (element != null) {

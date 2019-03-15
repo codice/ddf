@@ -22,7 +22,9 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
+import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.Enumeration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -44,17 +46,20 @@ public class LogoutServletTest {
 
   private HttpSession httpSession;
 
+  private PrintWriter printWriter;
+
   @Before
-  public void testsetup() {
+  public void testsetup() throws Exception {
     localLogoutServlet = new MockLocalLogoutServlet();
-    localLogoutServlet.setRedirectUri("/logout/logout-response.html");
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);
+    printWriter = mock(PrintWriter.class);
 
     httpSession = mock(HttpSession.class);
     when(request.getSession()).thenReturn(httpSession);
     when(request.getSession().getId()).thenReturn("id");
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
+    when(response.getWriter()).thenReturn(printWriter);
 
     Subject subject = mock(Subject.class);
     when(subject.hasRole(anyString())).thenReturn(false);
@@ -64,16 +69,15 @@ public class LogoutServletTest {
   }
 
   @Test
-  public void testLocalLogout() {
+  public void testLocalLogoutBasicAuth() {
     // Used for detecting basic auth
     when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
 
     // used for detecting pki
-    when(request.getAttribute("javax.servlet.request.X509Certificate"))
-        .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
+    when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
 
     SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-    when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(securityTokenHolder);
     try {
       localLogoutServlet.doGet(request, response);
@@ -81,6 +85,50 @@ public class LogoutServletTest {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();
+    verify(printWriter).write("{ \"mustCloseBrowser\": true }");
+  }
+
+  @Test
+  public void testLocalLogoutPkiAuth() {
+    // Used for detecting basic auth
+    when(request.getHeaders(anyString()))
+        .thenReturn(Collections.enumeration(Collections.emptyList()));
+
+    // used for detecting pki
+    when(request.getAttribute("javax.servlet.request.X509Certificate"))
+        .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
+
+    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(securityTokenHolder);
+    try {
+      localLogoutServlet.doGet(request, response);
+    } catch (ServletException e) {
+      fail(e.getMessage());
+    }
+    verify(httpSession).invalidate();
+    verify(printWriter).write("{ \"mustCloseBrowser\": true }");
+  }
+
+  @Test
+  public void testLocalLogoutNotBasicOrPki() {
+    // Used for detecting basic auth
+    when(request.getHeaders(anyString()))
+        .thenReturn(Collections.enumeration(Collections.emptyList()));
+
+    // used for detecting pki
+    when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
+
+    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+        .thenReturn(securityTokenHolder);
+    try {
+      localLogoutServlet.doGet(request, response);
+    } catch (ServletException e) {
+      fail(e.getMessage());
+    }
+    verify(httpSession).invalidate();
+    verify(printWriter).write("{ \"mustCloseBrowser\": false }");
   }
 
   @Test()
@@ -95,7 +143,7 @@ public class LogoutServletTest {
         .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
 
     SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-    when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(securityTokenHolder);
     try {
       localLogoutServlet.doGet(request, response);
@@ -117,7 +165,7 @@ public class LogoutServletTest {
         .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
 
     SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-    when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(securityTokenHolder);
     try {
       localLogoutServlet.doGet(request, response);

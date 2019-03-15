@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+    <OCD description="OIDC Realm Configuration"
+         name="OIDC Configuration Settings"
+         id="org.codice.ddf.security.oidc.realm.OidcRealm">
+
+        <AD name="OIDC NameID Policy" id="usernameAttributeList"
+            type="String" cardinality="100"
+            default="preferred_username, name, email, sub"
+            description="List of attributes that are considered for replacing the username of the logged in user.
+            If any of these attributes match any of the attributes within the SecurityAssertion, the value of the first matching attribute will be used as the username.
+            (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).-"/>
+    </OCD>
+
+    <Designate
+            pid="org.codice.ddf.security.oidc.realm.OidcRealm">
+        <Object
+                ocdref="org.codice.ddf.security.oidc.realm.OidcRealm"/>
+    </Designate>
+
+</metatype:MetaData>

@@ -19,14 +19,7 @@
             <entry key="alias" value="/whoami"/>
             <entry key="async-supported" value="true"/>
         </service-properties>
-        <bean class="org.codice.ddf.security.servlet.whoami.WhoAmIServlet">
-            <property name="securityManager">
-                <reference interface="ddf.security.service.SecurityManager"/>
-            </property>
-            <property name="httpSessionFactory">
-                <reference interface="ddf.security.http.SessionFactory" filter="(id=http)"/>
-            </property>
-        </bean>
+        <bean class="org.codice.ddf.security.servlet.whoami.WhoAmIServlet"/>
     </service>
 
 </blueprint>

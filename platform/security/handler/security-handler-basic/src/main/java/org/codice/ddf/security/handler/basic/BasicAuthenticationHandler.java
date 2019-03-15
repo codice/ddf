@@ -24,9 +24,9 @@ import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.STSAuthenticationToken;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +40,10 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
 
-  private final BaseAuthenticationTokenFactory tokenFactory;
+  private final STSAuthenticationTokenFactory tokenFactory;
 
   public BasicAuthenticationHandler() {
-    tokenFactory = new BaseAuthenticationTokenFactory();
+    tokenFactory = new STSAuthenticationTokenFactory();
     LOGGER.debug("Creating basic username/token bst handler.");
   }
 
@@ -78,7 +78,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     LOGGER.debug("Doing authentication and authorization for path {}", path);
 
-    BaseAuthenticationToken token = extractAuthenticationInfo(httpRequest);
+    STSAuthenticationToken token = extractAuthenticationInfo(httpRequest);
 
     // we found credentials, attach to result and return with completed status
     if (token != null) {
@@ -119,24 +119,24 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     }
   }
 
-  protected BaseAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
+  protected STSAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (StringUtils.isEmpty(authHeader)) {
       return null;
     }
 
-    return extractAuthInfo(authHeader);
+    return extractAuthInfo(authHeader, request.getRemoteAddr());
   }
 
   /**
    * Extract the Authorization header and parse into a username/password token.
    *
    * @param authHeader the authHeader string from the HTTP request
-   * @return the initialized BaseAuthenticationToken for this username and password combination (or
+   * @return the initialized STSAuthenticationToken for this username and password combination (or
    *     null)
    */
-  protected BaseAuthenticationToken extractAuthInfo(String authHeader) {
-    BaseAuthenticationToken token = null;
+  protected STSAuthenticationToken extractAuthInfo(String authHeader, String ip) {
+    STSAuthenticationToken token = null;
     authHeader = authHeader.trim();
     String[] parts = authHeader.split(" ");
     if (parts.length == 2) {
@@ -149,9 +149,9 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
           String userPass = new String(decode, StandardCharsets.UTF_8);
           String[] authComponents = userPass.split(":");
           if (authComponents.length == 2) {
-            token = tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1]);
+            token = tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1], ip);
           } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
-            token = tokenFactory.fromUsernamePassword(authComponents[0], "");
+            token = tokenFactory.fromUsernamePassword(authComponents[0], "", ip);
           }
         }
       }

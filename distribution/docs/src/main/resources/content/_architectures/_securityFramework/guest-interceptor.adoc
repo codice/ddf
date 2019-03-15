@@ -25,7 +25,7 @@ Configure the Guest Interceptor from the ${admin-console}:
 . Navigate to the *${admin-console}* at \${secure_url}/admin
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
-. Select the *Security STS Guest Claims Handler* configuration.
+. Select the *Guest Claims Configuration* configuration.
 . Select the `+` next to Attributes to add a new attribute.
 . Add any additional attributes that will apply to every user.
 . Select *Save changes*.

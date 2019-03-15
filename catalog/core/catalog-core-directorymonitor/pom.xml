@@ -413,6 +413,12 @@
             <version>2.1.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-oidc-bundle</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -438,6 +444,7 @@
                             !org.eclipse.jetty.server.ssl,
                             !org.apache.tools.ant,
                             !org.apache.tools.ant.types,
+                            !com.nimbusds.jwt,
                             org.apache.commons.io.comparator,
                             *
                         </Import-Package>

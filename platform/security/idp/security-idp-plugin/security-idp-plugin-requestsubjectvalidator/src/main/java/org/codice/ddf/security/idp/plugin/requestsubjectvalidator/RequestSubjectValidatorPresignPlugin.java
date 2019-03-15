@@ -30,7 +30,7 @@ import org.opensaml.saml.saml2.core.Subject;
 
 /**
  * This plugin is responsible for verifying that the {@code Subject} of the received {@code
- * AuthnRequest} refers to the same principle as the {@code Subject} of the {@code Response}.
+ * AuthnRequest} refers to the same principal as the {@code Subject} of the {@code Response}.
  */
 public class RequestSubjectValidatorPresignPlugin implements SamlPresignPlugin {
 

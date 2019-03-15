@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.itests.common.security;
 
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 
@@ -35,9 +36,16 @@ public class SecurityPolicyConfigurator {
   private static final String FACTORY_PID =
       "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
-  public static final String BASIC_AUTH_TYPES = "/=SAML|basic";
+  public static final String BROWSER_USER_AGENT =
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 
-  public static final String GUEST_AUTH_TYPES = "/=SAML|GUEST,/admin=SAML|basic,/system=SAML|basic";
+  public static final String SAML_AUTH_TYPES = "/=SAML";
+
+  public static final String BASIC_AUTH_TYPES = "/=BASIC";
+
+  public static final String PKI_AUTH_TYPES = "/=PKI";
+
+  public static final String GUEST_AUTH_TYPES = "/=,/admin=basic,/system=basic";
 
   public static final String DEFAULT_WHITELIST =
       "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/idp,/idp,/services/platform/config/ui,/login";
@@ -67,6 +75,14 @@ public class SecurityPolicyConfigurator {
     configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
+  public void configureRestForSaml(String whitelist) throws Exception {
+    configureWebContextPolicy(SAML_AUTH_TYPES, null, createWhitelist(whitelist));
+  }
+
+  public void configureRestForPki(String whitelist) throws Exception {
+    configureWebContextPolicy(PKI_AUTH_TYPES, null, createWhitelist(whitelist));
+  }
+
   public void waitForBasicAuthReady(String url) {
     expect("Waiting for basic auth")
         .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -79,6 +95,34 @@ public class SecurityPolicyConfigurator {
         .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .checkEvery(1, TimeUnit.SECONDS)
         .until(() -> when().get(url).then().extract().statusCode() == 200);
+  }
+
+  public void waitForSamlAuthReady(String url) {
+    expect("Waiting for guest auth")
+        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .checkEvery(1, TimeUnit.SECONDS)
+        .until(
+            () ->
+                given()
+                            .header("User-Agent", BROWSER_USER_AGENT)
+                            .redirects()
+                            .follow(false)
+                            .when()
+                            .get(url)
+                            .then()
+                            .extract()
+                            .statusCode()
+                        == 302
+                    || given()
+                            .header("User-Agent", BROWSER_USER_AGENT)
+                            .redirects()
+                            .follow(false)
+                            .when()
+                            .get(url)
+                            .then()
+                            .extract()
+                            .statusCode()
+                        == 303);
   }
 
   public static String createWhitelist(String whitelist) {
@@ -111,6 +155,10 @@ public class SecurityPolicyConfigurator {
       putPolicyValues(policyProperties, "whiteListContexts", whitelist);
     }
 
+    putPolicyValues(policyProperties, "guestAccess", true);
+
+    putPolicyValues(policyProperties, "sessionAccess", true);
+
     new SynchronizedConfiguration(
             FACTORY_PID, null, policyProperties, createChecker(policyProperties), configAdmin)
         .updateConfig();
@@ -122,6 +170,10 @@ public class SecurityPolicyConfigurator {
     if (StringUtils.isNotBlank(value)) {
       properties.put(key, StringUtils.split(value, ","));
     }
+  }
+
+  private void putPolicyValues(Map<String, Object> properties, String key, Object value) {
+    properties.put(key, value);
   }
 
   private Callable<Boolean> createChecker(final Map<String, Object> policyProperties) {

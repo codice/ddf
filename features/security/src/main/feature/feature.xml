@@ -139,6 +139,7 @@
              description="API for authentication handlers for web applications.">
         <feature>security-core-api</feature>
         <feature>parser-xml</feature>
+        <feature>oidc-dependencies</feature>
         <bundle>mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf/cxf-rt-rs-security-jose-jaxrs/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf.services.sts/cxf-services-sts-core/${cxf.version}</bundle>
@@ -167,7 +168,10 @@
         <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
         <feature>cxf-jaxrs</feature>
         <feature>security-sts-realm</feature>
+        <feature>security-guest-realm</feature>
         <feature>util-uuidgenerator</feature>
+        <feature dependency="true">oidc-dependencies</feature>
+        <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
         <feature>security-migratable</feature>
@@ -185,6 +189,7 @@
         <configfile finalname="${ddf.etc}/ddf.security.pdp.realm.AuthzRealm.config">
             mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}/config/default-authzrealm
         </configfile>
+        <feature dependency="true">oidc-dependencies</feature>
         <feature>security-expansion</feature>
         <feature>security-expansion-user-attributes</feature>
         <feature>security-expansion-metacard-attributes</feature>
@@ -205,6 +210,8 @@
         <feature>cxf-jaxrs</feature>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <feature>security-handler-api</feature>
+        <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core</feature>
         <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
     </feature>
 
@@ -240,6 +247,7 @@
     <feature name="security-sts-server" version="${project.version}"
              description="Security STS.">
         <feature>sts-prereqs</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <feature>guava</feature>
         <configfile finalname="${ddf.etc}/ws-security/attributeMap.properties">
             mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
@@ -271,7 +279,22 @@
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature>security-policy-context</feature>
+        <feature dependency="true">saml-validator</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-guest-realm" version="${project.version}"
+             description="Security Guest Realm.">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <feature>security-core</feature>
+        <feature>javax-validation</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-policy-context</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>cxf-jaxrs</feature>
+        <feature dependency="true">oidc-dependencies</feature>
+        <bundle>mvn:ddf.security/security-guest-realm/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-ldaplogin" version="${project.version}"
@@ -322,6 +345,53 @@
         <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
     </feature>
 
+    <feature name="oidc-dependencies" version="${project.version}"
+      description="All OIDC third party dependencies">
+        <feature prerequisite="true">wrap</feature>
+        <feature>jackson</feature>
+        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <bundle>mvn:org.ow2.asm/asm/5.2</bundle>
+        <bundle>mvn:net.minidev/accessors-smart/1.2</bundle>
+        <bundle>mvn:net.minidev/json-smart/2.3</bundle>
+        <bundle>wrap:mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.version}</bundle>
+        <bundle>wrap:mvn:com.nimbusds/oauth2-oidc-sdk/${nimbus.version}</bundle>
+        <bundle>mvn:com.nimbusds/lang-tag/${nimbus.langtag.version}</bundle>
+        <bundle>wrap:mvn:com.github.stephenc.jcip/jcip-annotations/1.0-1</bundle>
+        <bundle>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-oidc-bundle/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-handler-oidc" version="${project.version}"
+             description="OIDC Authentication Handler for web applications.">
+        <feature>oidc-dependencies</feature>
+        <feature>action-core-impl</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-oidc/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-handler-oauth" version="${project.version}"
+      description="OIDC Authentication Handler for web applications.">
+        <feature>oidc-dependencies</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.security.handler/security-handler-oauth/${project.version}</bundle>
+    </feature>
+
+    <feature name="jackson" version="${project.version}">
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+    </feature>
+
+    <feature name="security-oidc-realm" version="${project.version}"
+             description="OIDC Authentication Handler for web applications.">
+        <feature>jackson</feature>
+        <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core</feature>
+        <feature>security-handler-api</feature>
+        <feature>security-handler-oidc</feature>
+        <bundle>mvn:ddf.platform.security/security-oidc-realm/${project.version}</bundle>
+    </feature>
+
     <feature name="security-filter-login" version="${project.version}"
              description="Login Filter for web applications.">
         <feature>security-core</feature>
@@ -331,6 +401,7 @@
         <feature>cxf-frontend-javascript</feature>
         <feature>security-filter-api</feature>
         <feature>security-handler-api</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
     </feature>
 
@@ -343,31 +414,14 @@
         <feature>cxf-frontend-javascript</feature>
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
     </feature>
 
-    <feature name="security-handler-saml" version="${project.version}"
-             description="SAML Handler for web applications.">
-        <feature>cxf-rs-security-sso-saml</feature>
-        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
-        <feature>javax-validation</feature>
-        <feature>cxf-frontend-javascript</feature>
-        <feature>security-handler-api</feature>
-        <feature>security-core</feature>
-        <bundle>mvn:ddf.security.handler/security-handler-saml/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-handler-guest" version="${project.version}"
-             description="Guest Handler for web applications.">
-        <feature>ddf-branding</feature>
-        <feature>security-handler-basic</feature>
-        <feature>security-handler-api</feature>
-        <feature>branding-registry</feature>
-        <bundle>mvn:ddf.security.handler/security-handler-guest/${project.version}</bundle>
-    </feature>
 
     <feature name="security-filter-web-sso" version="${project.version}"
              description="Web SSO Filter for web applications.">
+        <feature>security-core</feature>
         <feature>security-filter-api</feature>
         <feature>security-handler-api</feature>
         <feature>security-policy-context</feature>
@@ -379,25 +433,6 @@
         <feature>security-core-api</feature>
         <bundle>mvn:ddf.security.policy/security-policy-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.policy/security-policy-context/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-sts-guestvalidator" version="${project.version}"
-             description="Validates guest tokens.">
-        <feature>guava</feature>
-        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
-        <feature>javax-validation</feature>
-        <feature>cxf-frontend-javascript</feature>
-        <feature>cxf-jaxrs</feature>
-
-        <feature>security-sts-server</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-guestvalidator/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-sts-guestclaimshandler"
-             version="${project.version}"
-             description="Retrieves the guest user claims.">
-        <feature>security-sts-server</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-guestclaimshandler/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-certificateclaimshandler"
@@ -427,6 +462,7 @@
         <feature>security-policy-context</feature>
         <feature>security-core</feature>
         <feature>security-encryption</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.security.interceptor/security-interceptor-guest/${project.version}</bundle>
     </feature>
 
@@ -468,9 +504,6 @@
     <feature name="security-guest" version="${project.version}"
              description="Contains all of the guest security features.">
         <feature>security-interceptor-guest-wrapper</feature>
-        <feature>security-handler-guest</feature>
-        <feature>security-sts-guestvalidator</feature>
-        <feature>security-sts-guestclaimshandler</feature>
         <feature>security-interceptor-guest</feature>
     </feature>
 
@@ -500,6 +533,7 @@
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature>security-core</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.platform.security/session-management-service/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/session-management-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-session-expiry/${project.version}</bundle>
@@ -519,7 +553,6 @@
         <feature>action-core-impl</feature>
         <feature>cxf-rs-security-sso-saml</feature>
         <feature>security-filter-api</feature>
-        <feature>security-handler-saml</feature>
         <feature>session-invalidator</feature>
         <feature>platform-paxweb-jettyconfig</feature>
         <feature>security-filter-login</feature>
@@ -529,11 +562,21 @@
         <feature>util-uuidgenerator</feature>
         <feature>security-handler-basic</feature>
         <feature>security-idp-plugin</feature>
+        <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-core</feature>
+        <feature>saml-validator</feature>
+        <bundle>mvn:ddf.security/security-saml-util/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+    </feature>
+
+    <feature name="saml-validator" version="${project.version}" description="Saml token validator">
+        <feature>security-core</feature>
+        <bundle>mvn:ddf.security.saml/saml-assertion-validator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.saml/saml-assertion-validator-impl/${project.version}</bundle>
     </feature>
 
     <feature name="security-idp-plugin" version="${project.version}"
@@ -543,6 +586,7 @@
         <feature>javax-validation</feature>
         <feature>cxf-frontend-javascript</feature>
         <feature>security-handler-api</feature>
+        <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-subjectconfirmation/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-plugin-requestsubjectvalidator/${project.version}</bundle>
@@ -584,8 +628,10 @@
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
         <feature>security-filter-login</feature>
-        <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>
+        <feature>security-oidc-realm</feature>
+        <feature>security-handler-oidc</feature>
+        <feature>security-handler-oauth</feature>
         <feature>security-filter-authz</feature>
         <feature>security-pdp-authz</feature>
         <feature>security-servlet-logout</feature>

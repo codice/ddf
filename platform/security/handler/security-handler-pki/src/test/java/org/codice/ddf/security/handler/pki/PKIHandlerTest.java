@@ -35,8 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.junit.Test;
 
 public class PKIHandlerTest {
@@ -186,7 +186,7 @@ public class PKIHandlerTest {
     System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
 
     PKIHandler handler = new PKIHandler();
-    BaseAuthenticationTokenFactory tokenFactory = new BaseAuthenticationTokenFactory();
+    STSAuthenticationTokenFactory tokenFactory = new STSAuthenticationTokenFactory();
     tokenFactory.init();
     handler.setTokenFactory(tokenFactory);
 

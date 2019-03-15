@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +70,7 @@ public class URLResourceReaderTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(URLResourceReaderTest.class);
 
-  private static final String TEST_PATH = "/src/test/resources/data/";
+  private static final Path TEST_PATH = Paths.get("src", "test", "resources", "data");
 
   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
@@ -101,7 +102,7 @@ public class URLResourceReaderTest {
 
   private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
 
-  private static final String INVALID_PATH = "/my/invalid/path/";
+  private static final Path INVALID_PATH = Paths.get("my", "invalid", "path");
 
   private static final String ROOT_PATH = "/";
 
@@ -168,12 +169,11 @@ public class URLResourceReaderTest {
     URLResourceReader resourceReader =
         new TestURLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
-    String filePath = TEST_PATH + MPEG_FILE_NAME_1;
+    URI uri = TEST_PATH.resolve(MPEG_FILE_NAME_1).toUri();
 
     HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
     try {
-      LOGGER.info("Getting resource: {}", filePath);
-      URI uri = new URI(FILE_SCHEME_PLUS_SEP + filePath);
+      LOGGER.info("Getting resource: {}", uri);
 
       resourceReader.retrieveResource(uri, arguments);
     } catch (IOException e) {
@@ -182,87 +182,84 @@ public class URLResourceReaderTest {
     } catch (ResourceNotFoundException e) {
       LOGGER.info("Caught unexpected ResourceNotFoundException");
       assert (true);
-    } catch (URISyntaxException e) {
-      LOGGER.info("Caught unexpected URISyntaxException");
-      fail();
     }
   }
 
   @Test
   public void testReadJPGFile() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(JPEG_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(
         filePath,
         JPEG_FILE_NAME_1,
         JPEG_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testReadMPEGFile() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + MPEG_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(MPEG_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(
         filePath,
         MPEG_FILE_NAME_1,
         VIDEO_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testReadMP4File() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + MP4_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(MP4_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(
         filePath,
         MP4_FILE_NAME_1,
         MP4_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testReadPPTFile() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + PPT_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(PPT_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(
         filePath,
         PPT_FILE_NAME_1,
         "application/vnd.ms-powerpoint",
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testReadPPTXFile() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + PPTX_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(PPTX_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(
         filePath,
         PPTX_FILE_NAME_1,
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testReadFileWithUnknownExtension() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + "UnknownExtension.hugh";
+    String filePath = TEST_PATH.resolve("UnknownExtension.hugh").toAbsolutePath().toString();
     verifyFile(
         filePath,
         "UnknownExtension.hugh",
         DEFAULT_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testReadFileWithNoExtension() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithoutExtension";
+    String filePath = TEST_PATH.resolve("JpegWithoutExtension").toAbsolutePath().toString();
     verifyFile(
         filePath,
         "JpegWithoutExtension",
         JPEG_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
@@ -272,24 +269,25 @@ public class URLResourceReaderTest {
     this.customResolver.setCustomMimeTypes(
         new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
-    String filePath = ABSOLUTE_PATH + TEST_PATH + "CustomExtension.xyz";
+    String filePath = TEST_PATH.resolve("CustomExtension.xyz").toAbsolutePath().toString();
     verifyFile(
         filePath,
         "CustomExtension.xyz",
         CUSTOM_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
   public void testJpegWithUnknownExtension() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithUnknownExtension.hugh";
+    String filePath =
+        TEST_PATH.resolve("JpegWithUnknownExtension.hugh").toAbsolutePath().toString();
     verifyFile(
         filePath,
         "JpegWithUnknownExtension.hugh",
         JPEG_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
@@ -299,13 +297,13 @@ public class URLResourceReaderTest {
     this.customResolver.setCustomMimeTypes(
         new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
-    String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithCustomExtension.xyz";
+    String filePath = TEST_PATH.resolve("JpegWithCustomExtension.xyz").toAbsolutePath().toString();
     verifyFile(
         filePath,
         "JpegWithCustomExtension.xyz",
         CUSTOM_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
@@ -314,13 +312,13 @@ public class URLResourceReaderTest {
     // "image/xyz"
     this.customResolver.setCustomMimeTypes(new String[] {"jpg=" + CUSTOM_MIME_TYPE});
 
-    String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(JPEG_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(
         filePath,
         JPEG_FILE_NAME_1,
         CUSTOM_MIME_TYPE,
-        ABSOLUTE_PATH + TEST_PATH,
-        ABSOLUTE_PATH + TEST_PATH + "pdf");
+        TEST_PATH.toAbsolutePath().toString(),
+        TEST_PATH.toAbsolutePath().toString() + "pdf");
   }
 
   @Test
@@ -350,7 +348,7 @@ public class URLResourceReaderTest {
   public void testUrlToNonExistentFile() throws Exception {
     URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
 
-    String filePath = ABSOLUTE_PATH + TEST_PATH + "NonExistentFile.jpg";
+    String filePath = TEST_PATH.resolve("NonExistentFile.jpg").toAbsolutePath().toString();
 
     HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
     try {
@@ -369,14 +367,14 @@ public class URLResourceReaderTest {
 
   @Test
   public void testHTTPReturnsFileNameWithoutPath() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + JPEG_FILE_NAME_1);
 
     verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, 5);
   }
 
   @Test
   public void testNameInContentDisposition() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
     MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
@@ -399,7 +397,7 @@ public class URLResourceReaderTest {
    */
   @Test
   public void testRetrieveQualifiedResource() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
     MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
@@ -427,7 +425,7 @@ public class URLResourceReaderTest {
    */
   @Test
   public void testServerSupportsPartialContentResponseWithCorrectOffset() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
 
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
@@ -457,7 +455,7 @@ public class URLResourceReaderTest {
    */
   @Test
   public void testServerSupportsPartialContentResponseWithNotEnoughOffset() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
 
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
@@ -486,7 +484,7 @@ public class URLResourceReaderTest {
    */
   @Test(expected = ResourceNotFoundException.class)
   public void testServerSupportsPartialContentResponseTooMuchOffset() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
 
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
@@ -516,7 +514,7 @@ public class URLResourceReaderTest {
    */
   @Test
   public void testServerDoesNotSupportPartialContent() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
 
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
@@ -538,7 +536,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testUnquotedNameInContentDisposition() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
 
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
@@ -557,7 +555,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testUnquotedNameEndingSemicolonInContentDisposition() throws Exception {
-    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + "/src/test/resources/data/" + BAD_FILE_NAME);
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
     MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
@@ -608,7 +606,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testReadFileResourceDirectoryIsRoot() throws Exception {
-    String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
+    String filePath = TEST_PATH.resolve(JPEG_FILE_NAME_1).toAbsolutePath().toString();
     verifyFile(filePath, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, ROOT_PATH);
   }
 
@@ -617,20 +615,22 @@ public class URLResourceReaderTest {
     // Setup (2 paths)
     URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
-        ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
+        ImmutableSet.of(
+            TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
 
     // Perform Test (remove a path). NOTE: the complete set of configured root resource
     // directories
     // is passed in (not just the path to remove). In this case, ABSOLUTE_PATH + TEST_PATH +
     // "pdf" is removed.
-    resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
+    resourceReader.setRootResourceDirectories(
+        ImmutableSet.of(TEST_PATH.toAbsolutePath().toString()));
 
     // Verify
     Set<String> rootResourceDirectories = resourceReader.getRootResourceDirectories();
     assertThat(rootResourceDirectories.size(), is(1));
     assertThat(
         rootResourceDirectories,
-        hasItems(Paths.get(ABSOLUTE_PATH + TEST_PATH).normalize().toString()));
+        hasItems(Paths.get(TEST_PATH.toAbsolutePath().toString()).normalize().toString()));
   }
 
   @Test
@@ -638,16 +638,17 @@ public class URLResourceReaderTest {
     // Setup (2 paths)
     URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
-        ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
+        ImmutableSet.of(
+            TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
 
     // Perform Test (add a path). NOTE: the complete set of configured root resource directories
     // is passed in (not just the path to add). In this case, ABSOLUTE_PATH + TEST_PATH + "doc"
     // is added.
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(
-            ABSOLUTE_PATH + TEST_PATH,
-            ABSOLUTE_PATH + TEST_PATH + "pdf",
-            ABSOLUTE_PATH + TEST_PATH + "doc"));
+            TEST_PATH.toAbsolutePath().toString(),
+            TEST_PATH.toAbsolutePath().toString() + "pdf",
+            TEST_PATH.toAbsolutePath().toString() + "doc"));
 
     // Verify
     Set<String> rootResourceDirectories = resourceReader.getRootResourceDirectories();
@@ -655,9 +656,9 @@ public class URLResourceReaderTest {
     assertThat(
         rootResourceDirectories,
         hasItems(
-            Paths.get(ABSOLUTE_PATH + TEST_PATH).normalize().toString(),
-            Paths.get(ABSOLUTE_PATH + TEST_PATH + "pdf").normalize().toString(),
-            Paths.get(ABSOLUTE_PATH + TEST_PATH + "doc").normalize().toString()));
+            Paths.get(TEST_PATH.toAbsolutePath().toString()).normalize().toString(),
+            Paths.get(TEST_PATH.toAbsolutePath().toString() + "pdf").normalize().toString(),
+            Paths.get(TEST_PATH.toAbsolutePath().toString() + "doc").normalize().toString()));
   }
 
   /**
@@ -669,7 +670,8 @@ public class URLResourceReaderTest {
     // Setup (2 paths)
     URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
-        ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
+        ImmutableSet.of(
+            TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
 
     // Perform Test
     resourceReader.setRootResourceDirectories(null);
@@ -688,7 +690,8 @@ public class URLResourceReaderTest {
     // Setup (2 paths)
     URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
-        ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
+        ImmutableSet.of(
+            TEST_PATH.toAbsolutePath().toString(), TEST_PATH.toAbsolutePath().toString() + "pdf"));
 
     // Perform Test
     resourceReader.setRootResourceDirectories(new HashSet<String>());
@@ -706,7 +709,9 @@ public class URLResourceReaderTest {
 
     // Perform Test
     resourceReader.setRootResourceDirectories(
-        ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + invalidPath));
+        ImmutableSet.of(
+            TEST_PATH.toAbsolutePath().toString(),
+            TEST_PATH.toAbsolutePath().toString() + invalidPath));
 
     // Verify
     Set<String> rootResourceDirectories = resourceReader.getRootResourceDirectories();

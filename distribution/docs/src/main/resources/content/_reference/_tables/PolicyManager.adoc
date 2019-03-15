@@ -23,11 +23,25 @@
 |20
 |true
 
+|Allow Guest Access
+|guestAccess
+|Boolean
+|Allow guest access to all web contexts. Required attributes can be used to restrict access to contexts from guest users.
+|true
+|true
+
+|Allow Session Storage
+|sessionAccess
+|Boolean
+|Allow for session cookies to be used. Note that the SAML and OIDC authentication types require session storage to be enabled.
+|true
+|true
+
 |Authentication Types
 |authenticationTypes
 |String
-|List of authentication types required for each context. List of default valid authentication types are: IDP, SAML, BASIC, PKI, GUEST. Example: /context=AUTH1|AUTH2|AUTH3
-|/=IDP|GUEST,/admin=IDP|basic
+|List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1|AUTH2|AUTH3
+|/=SAML,/admin=SAML|BASIC
 |true
 
 |Required Attributes

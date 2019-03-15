@@ -36,7 +36,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -58,7 +58,7 @@ public class AuthenticationServiceImplTest {
   public void setup() throws SecurityServiceException, URISyntaxException {
     HttpSessionFactory sessionFactory = mock(HttpSessionFactory.class);
     HttpSession session = mock(HttpSession.class);
-    when(session.getAttribute(SecurityConstants.SAML_ASSERTION))
+    when(session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(mock(SecurityTokenHolder.class));
     when(sessionFactory.getOrCreateSession(any())).thenReturn(session);
 
@@ -102,7 +102,7 @@ public class AuthenticationServiceImplTest {
     Subject subject = mock(Subject.class);
     SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
     SecurityToken securityToken = mock(SecurityToken.class);
-    when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
+    when(securityAssertion.getToken()).thenReturn(securityToken);
 
     PrincipalCollection collection = mock(PrincipalCollection.class);
     Iterator iter = mock(Iterator.class);
@@ -113,7 +113,7 @@ public class AuthenticationServiceImplTest {
     when(subject.getPrincipals()).thenReturn(collection);
 
     BaseAuthenticationToken token =
-        new BaseAuthenticationTokenFactory().fromUsernamePassword(username, password);
+        new STSAuthenticationTokenFactory().fromUsernamePassword(username, password, "local");
     when(securityManager.getSubject(argThat(new UsernamePasswordTokenMatcher(token))))
         .thenReturn(subject);
   }
@@ -130,7 +130,7 @@ public class AuthenticationServiceImplTest {
     public boolean matches(Object object) {
       if (object instanceof BaseAuthenticationToken) {
         BaseAuthenticationToken right = (BaseAuthenticationToken) object;
-        return left.getCredentialsAsXMLString().equals(right.getCredentialsAsXMLString());
+        return left.getCredentialsAsString().equals(right.getCredentialsAsString());
       }
 
       return false;

@@ -19,7 +19,7 @@
         <AD name="SP Metadata" id="spMetadata" required="true" type="String"
             default="https://${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/services/saml/sso/metadata"
             cardinality="100"
-            description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(<md:EntityDescriptor>...</md:EntityDescriptor>)."/>
+            description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(&lt;md:EntityDescriptor&gt;...&lt;/md:EntityDescriptor&gt;)."/>
 
         <AD name="Require Signed AuthnRequests" id="strictSignature" required="false" type="Boolean"
             default="true"
@@ -33,10 +33,6 @@
             type="Integer"
             default="30"
             description="Sets the cookie expiration time for single sign on. This value should match the lifetime of SAML assertions"/>
-
-        <AD name="Allow Guest Access" id="guestAccess" required="false" type="Boolean"
-            default="true"
-            description="Toggle whether or not to allow Guest access. The default is 'true'."/>
 
     </OCD>
 

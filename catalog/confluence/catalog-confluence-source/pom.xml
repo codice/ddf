@@ -125,11 +125,6 @@
             <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -146,7 +141,6 @@
                             catalog-core-api-impl;scope=!test,
                             platform-util,
                             commons-lang3,
-                            security-core-impl,
                             gson-support
                         </Embed-Dependency>
                         <Import-Package>

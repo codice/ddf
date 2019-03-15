@@ -34,9 +34,7 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-    <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet" init-method="init">
-        <property name="redirectUri" value="/logout/logout-response.html"/>
-    </bean>
+    <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet"/>
 
     <service ref="logoutServlet" interface="javax.servlet.Servlet">
         <service-properties>

@@ -13,26 +13,30 @@
  */
 package org.codice.ddf.security.servlet.whoami;
 
+import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 import ddf.security.SubjectUtils;
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
+import ddf.security.assertion.AuthenticationStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.principal.GuestPrincipal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.shiro.subject.Subject;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.opensaml.saml.saml2.core.AuthnContext;
-import org.opensaml.saml.saml2.core.AuthnContextClassRef;
-import org.opensaml.saml.saml2.core.AuthnStatement;
 
 public class WhoAmI {
 
@@ -51,116 +55,151 @@ public class WhoAmI {
           .appendSuffix(" second", " seconds")
           .toFormatter();
 
-  private final String name;
+  final List<WhoAmISubject> whoAmISubjects;
 
-  private final String displayName;
-
-  private final String email;
-
-  private final Date notOnOrAfter;
-
-  private final Date notBefore;
-
-  private final String expiresIn;
-
-  private final String issuer;
-
-  private final boolean isGuest;
-
-  private final List<String> authnContextClasses;
-
-  private final Map<String, SortedSet<String>> claims;
-
-  public WhoAmI(Subject subject) {
+  public WhoAmI(final Subject subject) {
     notNull(subject);
 
-    SecurityAssertion assertion = extractSecurityAssertion(subject);
-    notNull(assertion);
+    Collection<SecurityAssertion> assertions = extractSecurityAssertions(subject);
+    notEmpty(assertions);
 
-    name = SubjectUtils.getName(subject);
-    displayName = SubjectUtils.getName(subject, null, true);
-    email = SubjectUtils.getEmailAddress(subject);
-    claims = Collections.unmodifiableMap(SubjectUtils.getSubjectAttributes(subject));
-
-    issuer = assertion.getIssuer();
-    isGuest = assertion.getPrincipal() instanceof GuestPrincipal;
-
-    notOnOrAfter = assertion.getNotOnOrAfter();
-    notBefore = assertion.getNotBefore();
-    expiresIn = durationUntilNow(notOnOrAfter);
-
-    authnContextClasses = extractAuthnContextClasses(assertion.getAuthnStatements());
+    whoAmISubjects =
+        assertions.stream().map(a -> getWhoAmI(a, subject)).collect(Collectors.toList());
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public String getIssuer() {
-    return issuer;
-  }
-
-  public Date getNotOnOrAfter() {
-    return new Date(notOnOrAfter.getTime());
-  }
-
-  public Date getNotBefore() {
-    return new Date(notBefore.getTime());
-  }
-
-  public String getExpiresIn() {
-    return expiresIn;
-  }
-
-  public List<String> getAuthnContextClasses() {
-    return authnContextClasses;
-  }
-
-  public boolean isGuest() {
-    return isGuest;
-  }
-
-  public Map<String, SortedSet<String>> getClaims() {
-    return claims;
-  }
-
-  private SecurityAssertion extractSecurityAssertion(Subject subject) {
+  private Collection<SecurityAssertion> extractSecurityAssertions(Subject subject) {
     if ((null == subject)
         || (null == subject.getPrincipals())
-        || (null == subject.getPrincipals().oneByType(SecurityAssertion.class))) {
-      return null;
+        || subject.getPrincipals().byType(SecurityAssertion.class).isEmpty()) {
+      return Collections.emptyList();
     }
 
-    return subject.getPrincipals().oneByType(SecurityAssertion.class);
+    return subject.getPrincipals().byType(SecurityAssertion.class);
   }
 
-  private String durationUntilNow(Date expiration) {
-    if (expiration == null) {
-      return null;
+  private WhoAmISubject getWhoAmI(SecurityAssertion assertion, Subject subject) {
+    return new WhoAmISubject(assertion, subject);
+  }
+
+  public static class WhoAmISubject {
+    private final String name;
+
+    private final String principalName;
+
+    private final String displayName;
+
+    private final String email;
+
+    private final Date notOnOrAfter;
+
+    private final Date notBefore;
+
+    private final String expiresIn;
+
+    private final String issuer;
+
+    private final String tokenType;
+
+    private final boolean isGuest;
+
+    private final List<String> authnContextClasses;
+
+    private final Map<String, SortedSet<String>> claims;
+
+    public WhoAmISubject(SecurityAssertion assertion, Subject subject) {
+      name = SubjectUtils.getName(subject);
+      principalName = assertion.getPrincipal().getName();
+      displayName = SubjectUtils.getName(subject, null, true);
+      email = SubjectUtils.getEmailAddress(subject);
+      claims = Collections.unmodifiableMap(getAttributes(assertion));
+
+      issuer = assertion.getIssuer();
+      tokenType = assertion.getTokenType();
+      isGuest = assertion.getPrincipal() instanceof GuestPrincipal;
+
+      notOnOrAfter = assertion.getNotOnOrAfter();
+      notBefore = assertion.getNotBefore();
+      expiresIn = durationUntilNow(notOnOrAfter);
+
+      authnContextClasses = extractAuthnContextClasses(assertion.getAuthnStatements());
     }
 
-    return TIME_FORMATTER.print(
-        new Period(expiration.getTime() - DateTime.now().getMillis()).normalizedStandard());
-  }
+    private Map<String, SortedSet<String>> getAttributes(SecurityAssertion assertion) {
+      return Stream.of(assertion)
+          .map(SecurityAssertion::getAttributeStatements)
+          .flatMap(Collection::stream)
+          .map(AttributeStatement::getAttributes)
+          .flatMap(Collection::stream)
+          .collect(
+              Collectors.toMap(
+                  Attribute::getName,
+                  WhoAmISubject::getAttributeValues,
+                  (acc, val) -> {
+                    acc.addAll(val);
+                    return acc;
+                  }));
+    }
 
-  private List<String> extractAuthnContextClasses(List<AuthnStatement> authnStatements) {
-    return Collections.unmodifiableList(
-        authnStatements
-            .stream()
-            .filter(Objects::nonNull)
-            .map(AuthnStatement::getAuthnContext)
-            .filter(Objects::nonNull)
-            .map(AuthnContext::getAuthnContextClassRef)
-            .filter(Objects::nonNull)
-            .map(AuthnContextClassRef::getAuthnContextClassRef)
-            .collect(Collectors.toList()));
+    private static SortedSet<String> getAttributeValues(Attribute attribute) {
+      return new TreeSet<>(attribute.getValues());
+    }
+
+    private String durationUntilNow(Date expiration) {
+      if (expiration == null) {
+        return null;
+      }
+
+      return TIME_FORMATTER.print(
+          new Period(expiration.getTime() - DateTime.now().getMillis()).normalizedStandard());
+    }
+
+    private List<String> extractAuthnContextClasses(List<AuthenticationStatement> authnStatements) {
+      return Collections.unmodifiableList(
+          authnStatements
+              .stream()
+              .filter(Objects::nonNull)
+              .map(AuthenticationStatement::getAuthnContextClassRef)
+              .collect(Collectors.toList()));
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getDisplayName() {
+      return displayName;
+    }
+
+    public String getEmail() {
+      return email;
+    }
+
+    public Date getNotOnOrAfter() {
+      return notOnOrAfter;
+    }
+
+    public Date getNotBefore() {
+      return notBefore;
+    }
+
+    public String getExpiresIn() {
+      return expiresIn;
+    }
+
+    public String getIssuer() {
+      return issuer;
+    }
+
+    public boolean isGuest() {
+      return isGuest;
+    }
+
+    public List<String> getAuthnContextClasses() {
+      return authnContextClasses;
+    }
+
+    public Map<String, SortedSet<String>> getClaims() {
+      return claims;
+    }
   }
 }

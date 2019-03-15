@@ -33,7 +33,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -51,9 +51,9 @@ public class LogoutServiceImplTest {
     sm = mock(SecurityManager.class);
 
     when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
-    when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+    when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(securityTokenHolder);
-    when(securityTokenHolder.getSecurityToken()).thenReturn(new SecurityToken());
+    when(securityTokenHolder.getPrincipals()).thenReturn(new SimplePrincipalCollection());
   }
 
   @Test
@@ -66,7 +66,7 @@ public class LogoutServiceImplTest {
     logoutServiceImpl.setSecurityManager(sm);
     logoutServiceImpl.setLogoutActionProviders(ImmutableList.of(mockLogoutActionProvider));
 
-    String responseMessage = logoutServiceImpl.getActionProviders(null);
+    String responseMessage = logoutServiceImpl.getActionProviders(null, null);
 
     JSONArray actionProperties = (JSONArray) new JSONParser().parse(responseMessage);
     assertEquals(1, actionProperties.size());
@@ -80,7 +80,7 @@ public class LogoutServiceImplTest {
   public class MockLogoutAction implements ActionProvider {
 
     @Override
-    public <T> Action getAction(T subject) {
+    public <T> Action getAction(T subjectMap) {
       try {
         return new ActionImpl(
             "security.logout.test",

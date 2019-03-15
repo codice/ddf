@@ -57,17 +57,19 @@ Enabling CRL revocation or modifying the CRL file will require a restart of ${br
 . (Replace <CRL_FILENAME> with the file path or URL of the CRL file used in previous step.)
 
 Adding this property will also enable CRL revocation for any context policy implementing PKI authentication.
-For example, adding an authentication policy in the Web Context Policy Manager of `/search=SAML|PKI` will disable basic authentication, require a certificate for the search UI, and allow a SAML SSO session to be created.
+For example, adding an authentication policy in the Web Context Policy Manager of `/search=PKI` will disable basic authentication and require a certificate for the search UI.
 If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error.
-If no certificate is provided, the guest handler will grant guest access.
+If no certificate is provided, and guest access is enabled on the web context policy, guest access will be granted.
 
 This also enables CRL revocation for the STS endpoint.
 The STS CRL Interceptor monitors the same `encryption.properties` file and operates in an identical manner to the PKI Authenication's CRL handler. Enabling the CRL via the `encryption.properties` file will also enable it for the STS, and also requires a restart.
 
 If the CRL cannot be placed in ${home_directory}/etc/keystores but can be accessed via an *HTTPS* URL:
 
-. Navigate to the ${admin-console}.
-. Navigate to *System -> Configuration -> Certificate Revocation List (CRL)*
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *Certificate Revocation List (CRL)*
 . Add the *HTTPS* URL under *CRL URL address*
 . Check the *Enable CRL via URL* option
 
@@ -78,8 +80,8 @@ A local CRL file will be created and the `encryption.properties` and `signature.
 The PKIHandler implements CRL revocation, so any web context that is configured to use PKI authentication will also use CRL revocation if revocation is enabled.
 
 . After enabling revocation (see above), open the *Web Context Policy Manager*.
-. Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=SAML|PKI`
-. If guest access is required, add `GUEST` to the policy. Ex, `/search=SAML|PKI|GUEST`.
+. Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=PKI`
+. If guest access is also required, check the 'Allow Guest Access` box in the policy.
 
 With guest access, a user with a revoked certificate will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.
 
@@ -153,8 +155,10 @@ The advantage of using an OCSP Server over a CRL is the fact that a local copy o
 
 ==== Enabling OCSP Revocation
 
-. Navigate to the ${admin-console}.
-. Navigate to *System -> Configuration -> Online Certificate Status Protocol (OCSP)*.
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *Online Certificate Status Protocol (OCSP)*
 . Add the URL of the OCSP server under *OCSP server URL*.
 . Check the *Enable validating a certificate against an OCSP server* option.
 

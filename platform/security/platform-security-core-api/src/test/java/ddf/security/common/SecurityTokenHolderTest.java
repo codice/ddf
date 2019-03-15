@@ -17,7 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
 
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
 
 public class SecurityTokenHolderTest {
@@ -26,41 +27,41 @@ public class SecurityTokenHolderTest {
   public void testRetrieveSecurityTokens() {
     // given
     SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
-    SecurityToken securityToken = new SecurityToken();
+    PrincipalCollection principalCollection = new SimplePrincipalCollection();
 
     // when
-    securityTokenHolder.setSecurityToken(securityToken);
+    securityTokenHolder.setPrincipals(principalCollection);
 
     // then
-    assertThat(securityTokenHolder.getSecurityToken(), is(securityToken));
+    assertThat(securityTokenHolder.getPrincipals(), is(principalCollection));
   }
 
   @Test
   public void testSettingMultipleSecurityTokens() {
     // given
     SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
-    SecurityToken securityTokenOne = new SecurityToken();
-    SecurityToken securityTokenTwo = new SecurityToken();
+    PrincipalCollection securityTokenOne = new SimplePrincipalCollection();
+    PrincipalCollection securityTokenTwo = new SimplePrincipalCollection();
 
     // when
-    securityTokenHolder.setSecurityToken(securityTokenOne);
-    securityTokenHolder.setSecurityToken(securityTokenTwo);
+    securityTokenHolder.setPrincipals(securityTokenOne);
+    securityTokenHolder.setPrincipals(securityTokenTwo);
 
     // then
-    assertThat(securityTokenHolder.getSecurityToken(), is(securityTokenTwo));
+    assertThat(securityTokenHolder.getPrincipals(), is(securityTokenTwo));
   }
 
   @Test
   public void testRemoveSecurityToken() {
     // given
     SecurityTokenHolder securityTokenHolder = new SecurityTokenHolder();
-    SecurityToken securityToken = new SecurityToken();
-    securityTokenHolder.setSecurityToken(securityToken);
+    PrincipalCollection securityToken = new SimplePrincipalCollection();
+    securityTokenHolder.setPrincipals(securityToken);
 
     // when
     securityTokenHolder.remove();
 
     // then
-    assertNull(securityTokenHolder.getSecurityToken());
+    assertNull(securityTokenHolder.getPrincipals());
   }
 }

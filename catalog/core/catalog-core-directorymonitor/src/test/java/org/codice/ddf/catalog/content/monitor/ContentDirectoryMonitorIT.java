@@ -333,7 +333,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.platform", "security-filter-api"),
         new BundleInfo("ddf.action.core", "action-core-api"),
         new BundleInfo("ddf.distribution", "ddf-branding-plugin"),
-        new BundleInfo("ddf.security.handler", "security-handler-api"),
         new BundleInfo("ddf.mime.core", "mime-core-api"),
         new BundleInfo("ddf.mime.core", "mime-core-impl"),
         new BundleInfo("ddf.mime.tika", "mime-tika-resolver"),
@@ -348,11 +347,25 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("net.jodah", "failsafe"),
         new BundleInfo("ddf.platform", "bootflag-api"),
         new BundleInfo("ddf.catalog.transformer", "catalog-transformer-bootflag"),
+        new BundleInfo("ddf.security.handler", "security-handler-api"),
+        new BundleInfo("ddf.platform", "platform-parser-xml"),
+        new BundleInfo("ddf.platform", "platform-parser-api"),
+        new BundleInfo("ddf.platform.security", "security-oidc-bundle"),
+        new BundleInfo("com.fasterxml.jackson.core", "jackson-core"),
+        new BundleInfo("com.fasterxml.jackson.core", "jackson-annotations"),
+        new BundleInfo("com.fasterxml.jackson.core", "jackson-databind"),
+        new BundleInfo("com.sun.mail", "javax.mail"),
+        new BundleInfo("org.ow2.asm", "asm"),
+        new BundleInfo("net.minidev", "accessors-smart"),
+        new BundleInfo("net.minidev", "json-smart"),
+        new BundleInfo("com.github.stephenc.jcip", "jcip-annotations", true),
+        new BundleInfo("com.nimbusds", "nimbus-jose-jwt"),
+        new BundleInfo("com.nimbusds", "oauth2-oidc-sdk"),
+        new BundleInfo("com.nimbusds", "lang-tag"),
+        new BundleInfo("commons-codec", "commons-codec"),
         new BundleInfo("org.apache.cxf", "cxf-rt-rs-security-jose"),
         new BundleInfo("org.apache.cxf", "cxf-rt-rs-security-jose-jaxrs"),
-        new BundleInfo("org.apache.cxf.services.sts", "cxf-services-sts-core"),
-        new BundleInfo("ddf.platform", "platform-parser-xml"),
-        new BundleInfo("ddf.platform", "platform-parser-api"));
+        new BundleInfo("org.apache.cxf.services.sts", "cxf-services-sts-core"));
   }
 
   private CatalogFramework mockCatalogFramework() throws Exception {

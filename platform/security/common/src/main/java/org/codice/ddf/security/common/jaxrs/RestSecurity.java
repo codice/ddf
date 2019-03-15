@@ -107,8 +107,9 @@ public final class RestSecurity {
     org.w3c.dom.Element samlToken = null;
     try {
       for (Object principal : subject.getPrincipals().asList()) {
-        if (principal instanceof SecurityAssertion) {
-          SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
+        if (principal instanceof SecurityAssertion
+            && ((SecurityAssertion) principal).getToken() instanceof SecurityToken) {
+          SecurityToken securityToken = (SecurityToken) ((SecurityAssertion) principal).getToken();
           samlToken = securityToken.getToken();
         }
       }

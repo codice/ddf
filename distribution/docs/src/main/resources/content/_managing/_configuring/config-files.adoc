@@ -17,7 +17,7 @@ This type of configuration file also supports lists within configuration values 
 ====
 This new configuration file format *must* be used for any configuration that makes use of lists.
 Examples include Web Context Policy Manager (`org.codice.ddf.security.policy.context.impl.PolicyManager.config`)
-and Security STS Guest Claims Handler (`ddf.security.sts.guestclaims.config`).
+and Guest Claims Configuration (`ddf.security.guest.realm.config`).
 ====
 
 [WARNING]

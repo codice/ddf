@@ -7,15 +7,16 @@
 
 == {title}
 
-${branding} uses https://shiro.org[Apache Shiro] for the concept of https://shiro.apache.org/realm.html[Realms] for Authentication and Authorization.
+${branding} uses https://shiro.org[Apache Shiro] {external-link} for the concept of https://shiro.apache.org/realm.html[Realms] {external-link} for Authentication and Authorization.
 Realms are components that access security data such as such as users or permissions.
 
 === Authenticating Realms
 
 `org.apache.shiro.realm.AuthenticatingRealm`
 
-Authenticating Realms are used to authenticate an incoming authentication token and create a https://shiro.apache.org/subject.html[Subject] on successful authentication.
-A Subject is an application user and all available security-relevant information about that user.
+Authenticating Realms are used to authenticate an incoming Authentication Token and return https://shiro.apache.org/static/1.2.6/apidocs/org/apache/shiro/authc/AuthenticationInfo.html[Authentication Info] {external-link} on successful authentication.
+This Authentication Info is used by the Shiro framework to put together a resulting Subject.
+A Subject represents the application user and contains all available security-relevant information about that user.
 
 .Implementations of Authenticating Realms in ${branding}:
 [cols="1m,2" options="header"]
@@ -24,9 +25,14 @@ A Subject is an application user and all available security-relevant information
 |Classname
 |Description
 
-|ddf.security.realm.sts.StsRealm
-|This realm delegates authentication to the Secure Token Service (STS). It creates a `RequestSecurityToken` message from the incoming Authentication Token and converts a successful STS response into a Subject.
+|org.codice.ddf.security.guest.realm.GuestRealm
+|This realm checks if Guest access is allowed on the incoming Authentication Token, and if so the Guest realm returns the Guest Authentication Info.
 
+|org.codice.ddf.security.oidc.realm.OidcRealm
+|This realm takes in any OIDC/OAuth credentials found on the incoming Authentication Token, and if so resolves the ID_Token using those credentials. The ID_Token is then used to put together the resulting Authentication Info.
+
+|ddf.security.realm.sts.StsRealm
+|This realm delegates authentication to the Secure Token Service (STS). It creates a `RequestSecurityToken` message from the incoming Authentication Token and converts a successful STS response into Authentication Info.
 |===
 
 === Authorizing Realms
@@ -49,39 +55,36 @@ They are passed in the `AuthorizationInfo` of the Subject along with the permiss
 
 |org.codice.ddf.security.filter.websso.WebSSOFilter
 |This filter is the main security filter that works with a number of handlers to protect a variety of web contexts, each using different authentication schemes and policies.
-
-|org.codice.ddf.security.handler.saml.SAMLAssertionHandler
-|This handler is executed by the WebSSOFilter for any contexts configured to use it.
-This handler should always come first when configured in the Web Context Policy Manager, as it provides a caching capability to web contexts that use it.
-The handler will first check for the existence of an HTTP Authorization header of type SAML, whose value is a Base64 + deflate SAML assertion.
-If that is not found, then the handler will check for the existence of the deprecated `org.codice.websso.saml.token` cookie with the same value.
-Failing that, it will check for a JSESSIONID cookie to use as a reference to a cached assertion.
-If the JSESSIONID is valid, the `SecurityToken` will be retrieved from the cache.
+It attaches an Authentication Token to the request by either checking the session or calling the configured Security Handlers.
 
 |org.codice.ddf.security.handler.basic.BasicAuthenticationHandler
 |Checks for basic authentication credentials in the http request header.
-If they exist, they are retrieved and passed to the `LoginFilter` for exchange.
+If no credentials are found, it supports the acquisition of basic credentials on user-agent requests.
 
 |org.codice.ddf.security.handler.pki.PKIHandler
 |Handler for PKI based authentication.
-X509 chain will be extracted from the HTTP request and converted to a `BinarySecurityToken`.
+X509 chain will be extracted from the HTTP request.
 
-|org.codice.ddf.security.handler.guest.GuestHandler
-|Handler that allows guest user access via a guest user account.
-The guest account credentials are configured via the org.codice.ddf.security.claims.guest.GuestClaimsHandler.
-The `GuestHandler` also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the guest user.
+|org.codice.security.idp.client.IdpHandler
+|Handler for IdP/SAML based authentication.
+If no credentials are found, it supports the acquisition of credentials through the configured SAML IdP.
+
+|org.codice.ddf.security.handler.oidc.OidcHandler
+|Handler for OIDC based authentication.
+If no credentials are found, and is a user-agent request, this handler supports the acquisition of credentials through the configured OIDC IdP.
+
+|org.codice.ddf.security.handler.oauth.OAuthHandler
+|Handler for OAuth based authentication.
+Does not support the acquisition of credentials.
 
 |org.codice.ddf.security.filter.login.LoginFilter
-|This filter runs immediately after the WebSSOFilter and exchanges any authentication information found in the request with a Subject via Shiro.
+|This filter runs immediately after the WebSSOFilter and exchanges an Authentication Token found in the request with a Subject via Shiro.
 
 |org.codice.ddf.security.filter.authorization.AuthorizationFilter
-|This filter runs immediately after the `LoginFilter` and checks any permissions assigned to the web context against the attributes of the user via Shiro.
+|This filter runs immediately after the `LoginFilter` and checks any permissions assigned to the web context against the attributes of the Subject via Shiro.
 
 |org.apache.shiro.realm.AuthenticatingRealm
-|This is an abstract authenticating realm that exchanges an `org.apache.shiro.authc.AuthenticationToken` for a `ddf.security.Subject` in the form of an `org.apache.shiro.authc.AuthenticationInfo`
-
-|ddf.security.realm.sts.StsRealm
-|This realm is an implementation of `org.apache.shiro.realm.AuthenticatingRealm` and connects to an STS (configurable) to exchange the authentication token for a Subject.
+|This is an abstract authenticating realm that exchanges an `org.apache.shiro.authc.AuthenticationToken` for a `org.apache.shiro.authc.AuthenticationInfo`, which is used by the Shiro framework to put together a `ddf.security.Subject`.
 
 |ddf.security.service.AbstractAuthorizingRealm
 |This is an abstract authorizing realm that takes care of caching and parsing the Subject's `AuthorizingInfo` and should be extended to allow the implementing realm to focus on making the decision.
@@ -93,14 +96,13 @@ This interface allows an integrator to add additional policy information to the 
 This approach is often easier to configure for those that are not familiar with XACML.
 
 |org.codice.ddf.security.validator.*
-|A number of STS validators are provided for X.509 (BinarySecurityToken), UsernameToken, SAML Assertion, and ${branding} custom tokens.
-The ${branding} custom tokens are all `BinarySecurityTokens` that may have PKI or username/password information.
+|A number of validators are provided for X.509 and Username tokens.
 
 |===
 
 [WARNING]
 ====
-An update was made to the SAML Assertion Handler to pass SAML assertions through the Authorization HTTP header.
+An update was made to the IdpHandler to pass SAML assertions through the Authorization HTTP header.
 Cookies _are_ still accepted and processed to maintain legacy federation compatibility, but assertions are sent in the header on outbound requests.
 While a machine's identity will still federate between versions, a user's identity will ONLY be federated when a ${branding} version 2.7.x server communicates with a ${branding} version 2.8.x+ server, or between two servers whose versions are 2.8.x or higher.
 ====

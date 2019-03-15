@@ -28,7 +28,7 @@ public class HandlerResultTest {
     HandlerResult result = new HandlerResult();
     assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
 
-    MockBSTAuthenticationToken token = new MockBSTAuthenticationToken("x", "y");
+    STSAuthenticationToken token = new STSAuthenticationToken("x", "y", "127.0.0.1");
     result = new HandlerResult(HandlerResult.Status.COMPLETED, token);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
     assertEquals(result.getToken(), token);

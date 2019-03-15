@@ -52,5 +52,6 @@
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
         </bundle>
+        <bundle>wrap:mvn:com.auth0/java-jwt/3.8.1</bundle>
     </feature>
 </features>

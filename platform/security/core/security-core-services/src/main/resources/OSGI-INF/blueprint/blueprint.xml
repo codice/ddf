@@ -31,12 +31,6 @@
         <cm:managed-properties persistent-id="ddf.security.service.SecurityManager"
                                update-strategy="container-managed"/>
         <property name="realms" ref="realmList"/>
-        <property name="usernameAttributeList">
-            <list>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
-                <value>uid</value>
-            </list>
-        </property>
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>

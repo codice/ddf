@@ -106,8 +106,6 @@
 
     <bean id="x509DelegationHandler"
           class="org.codice.ddf.security.delegation.x509.X509DelegationHandler"/>
-    <bean id="bstDelegationHandler"
-          class="org.codice.ddf.security.delegation.BSTDelegationHandler"/>
 
     <!-- DELEGATE CONFIGURATION -->
     <bean id="issueDelegate"
@@ -123,7 +121,6 @@
                 <ref component-id="samlDelegationHandler"/>
                 <ref component-id="hokDelegationHandler"/>
                 <ref component-id="x509DelegationHandler"/>
-                <ref component-id="bstDelegationHandler"/>
             </list>
         </property>
         <property name="tokenValidators" ref="tokenValidatorList"/>

@@ -18,8 +18,17 @@ public class BundleInfo {
 
   public final String artifactId;
 
+  public final boolean wrap;
+
   public BundleInfo(String groupId, String artifactId) {
     this.groupId = groupId;
     this.artifactId = artifactId;
+    this.wrap = false;
+  }
+
+  public BundleInfo(String groupId, String artifactId, boolean wrap) {
+    this.groupId = groupId;
+    this.artifactId = artifactId;
+    this.wrap = true;
   }
 }

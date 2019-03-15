@@ -16,12 +16,16 @@
 /** Main view page for add. */
 define([
   'backbone.marionette',
+  'underscore',
+  'backbone',
+  'js/wreqr.js',
   'js/views/installer/Welcome.view',
-  'components/installer-navigation/installer-navigation.view.js',
+  'js/views/installer/Profile.view.js',
+  'js/views/installer/SsoConfiguration.view.js',
   'js/views/installer/Configuration.view.js',
   'js/views/installer/GuestClaims.view.js',
   'js/views/installer/Finish.view.js',
-  'js/views/installer/Profile.view.js',
+  'components/installer-navigation/installer-navigation.view.js',
   './installer.hbs',
   'js/application',
   'js/CustomElements',
@@ -29,22 +33,53 @@ define([
   'js/models/installer/Configuration.js',
 ], function(
   Marionette,
+  _,
+  Backbone,
+  wreqr,
   WelcomeView,
-  NavigationView,
+  ProfileView,
+  SsoConfigurationView,
   ConfigurationView,
   GuestClaimsView,
   FinishView,
-  ProfileView,
+  NavigationView,
   mainTemplate,
   Application,
   CustomElements,
   Service,
   ConfigurationModel
 ) {
-  var serviceModelResponse = new Service.Response()
-  serviceModelResponse.fetch({
+  var guestClaimsServiceResponse = new Service.Response()
+  guestClaimsServiceResponse.fetch({
     url:
-      './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)',
+      './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.guest.realm)',
+  })
+
+  var ssoConfigurationServiceResponses = new Service.Response()
+  ssoConfigurationServiceResponses.listenTo(
+    // when the config is modified in the installer
+    wreqr.vent,
+    'ssoConfigModified',
+    function() {
+      ssoConfigurationServiceResponses.attributes.modified = true
+    }
+  )
+  ssoConfigurationServiceResponses.listenTo(
+    // when the config is persisted in the installer
+    wreqr.vent,
+    'ssoConfigPersisted',
+    function() {
+      ssoConfigurationServiceResponses.attributes.fetched = false
+      ssoConfigurationServiceResponses.attributes.modified = false
+      ssoConfigurationServiceResponses.fetch({
+        url:
+          './jolokia/read/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/SsoConfigurations',
+      })
+    }
+  )
+  ssoConfigurationServiceResponses.fetch({
+    url:
+      './jolokia/read/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/SsoConfigurations',
   })
 
   var systemPropertiesWrapped = new ConfigurationModel.SystemPropertiesWrapped()
@@ -56,10 +91,11 @@ define([
     className: 'container well well-main',
     regions: {
       welcome: '#welcome',
-      configuration: '#configuration',
-      guestClaims: '#guestClaims',
-      finish: '#finish',
       profiles: '#profiles',
+      guestClaims: '#guestClaims',
+      configuration: '#configuration',
+      ssoConfiguration: '#ssoConfiguration',
+      finish: '#finish',
       navigation: '#navigation',
     },
     onRender: function() {
@@ -71,69 +107,58 @@ define([
       //close whatever view is open
       this.$el.toggleClass('is-loading', false)
       var welcomeStep = 0,
-        guestClaimsStep = 2,
         profileStep = 1,
+        guestClaimsStep = 2,
         configStep = 3,
-        finishStep = 4
+        ssoConfigurationStep = 4,
+        finishStep = 5
 
-      if (
-        this.welcome.currentView &&
-        this.model.get('stepNumber') !== welcomeStep
-      ) {
+      var stepNumber = this.model.get('stepNumber')
+
+      if (this.welcome.currentView && stepNumber !== welcomeStep) {
         this.hideWelcome()
       }
-      if (
-        this.configuration.currentView &&
-        this.model.get('stepNumber') !== configStep
-      ) {
+      if (this.profiles.currentView && stepNumber !== profileStep) {
+        this.hideProfiles()
+      }
+      if (this.guestClaims.currentView && stepNumber !== guestClaimsStep) {
+        this.hideGuestClaims()
+      }
+      if (this.configuration.currentView && stepNumber !== configStep) {
         this.hideConfiguration()
       }
       if (
-        this.guestClaims.currentView &&
-        this.model.get('stepNumber') !== guestClaimsStep
+        this.ssoConfiguration.currentView &&
+        stepNumber != ssoConfigurationStep
       ) {
-        this.hideGuestClaims()
+        this.hideSsoConfiguration()
       }
-      if (
-        this.profiles.currentView &&
-        this.model.get('stepNumber') !== profileStep
-      ) {
-        this.hideProfiles()
-      }
-
-      if (
-        this.finish.currentView &&
-        this.model.get('stepNumber') !== finishStep
-      ) {
+      if (this.finish.currentView && stepNumber !== finishStep) {
         this.hideFinish()
       }
       //show the next or previous view
-      if (
-        !this.welcome.currentView &&
-        this.model.get('stepNumber') <= welcomeStep
-      ) {
+      if (!this.welcome.currentView && stepNumber <= welcomeStep) {
         this.showWelcome()
-      } else if (
-        !this.configuration.currentView &&
-        this.model.get('stepNumber') === configStep
-      ) {
-        this.showConfiguration()
-      } else if (
-        !this.guestClaims.currentView &&
-        this.model.get('stepNumber') === guestClaimsStep
-      ) {
-        this.showGuestClaims()
-      } else if (
-        !this.profiles.currentView &&
-        this.model.get('stepNumber') === profileStep
-      ) {
+      } else if (!this.profiles.currentView && stepNumber === profileStep) {
         this.showProfiles()
       } else if (
-        !this.finish.currentView &&
-        this.model.get('stepNumber') >= finishStep
+        !this.guestClaims.currentView &&
+        stepNumber === guestClaimsStep
       ) {
+        this.showGuestClaims()
+      } else if (!this.configuration.currentView && stepNumber === configStep) {
+        this.showConfiguration()
+      } else if (
+        !this.ssoConfiguration.currentView &&
+        stepNumber === ssoConfigurationStep
+      ) {
+        this.showSsoConfiguration()
+      } else if (!this.finish.currentView && stepNumber >= finishStep) {
         this.showFinish()
       }
+    },
+    showLoading: function() {
+      this.$el.toggleClass('is-loading', true)
     },
     showWelcome: function() {
       if (this.welcome.currentView) {
@@ -142,61 +167,6 @@ define([
         this.welcome.show(new WelcomeView({ navigationModel: this.model }))
       }
       this.$(this.welcome.el).show()
-    },
-    showConfiguration: function() {
-      if (systemPropertiesWrapped.get('fetched')) {
-        if (this.configuration.currentView) {
-          this.configuration.show()
-        } else {
-          this.configuration.show(
-            new ConfigurationView({
-              model: systemPropertiesWrapped.get('systemProperties'),
-              navigationModel: this.model,
-            })
-          )
-        }
-        this.$(this.configuration.el).show()
-      } else {
-        this.listenToOnce(
-          systemPropertiesWrapped,
-          'change:fetched',
-          this.changePage
-        )
-        this.showLoading()
-      }
-    },
-    showGuestClaims: function() {
-      if (serviceModelResponse.get('fetched')) {
-        if (this.guestClaims.currentView) {
-          this.guestClaims.show()
-        } else {
-          this.guestClaims.show(
-            new GuestClaimsView({
-              model: serviceModelResponse,
-              navigationModel: this.model,
-            })
-          )
-        }
-        this.$(this.guestClaims.el).show()
-      } else {
-        this.listenToOnce(
-          serviceModelResponse,
-          'change:fetched',
-          this.changePage
-        )
-        this.showLoading()
-      }
-    },
-    showLoading: function() {
-      this.$el.toggleClass('is-loading', true)
-    },
-    showFinish: function() {
-      if (this.finish.currentView) {
-        this.finish.show()
-      } else {
-        this.finish.show(new FinishView({ navigationModel: this.model }))
-      }
-      this.$(this.finish.el).show()
     },
     showProfiles: function() {
       var self = this
@@ -229,25 +199,121 @@ define([
       }
       this.$(this.profiles.el).show()
     },
+    showGuestClaims: function() {
+      if (guestClaimsServiceResponse.get('fetched')) {
+        if (this.guestClaims.currentView) {
+          this.guestClaims.show()
+        } else {
+          this.guestClaims.show(
+            new GuestClaimsView({
+              model: guestClaimsServiceResponse,
+              navigationModel: this.model,
+            })
+          )
+        }
+        this.$(this.guestClaims.el).show()
+      } else {
+        this.listenToOnce(
+          guestClaimsServiceResponse,
+          'change:fetched',
+          this.changePage
+        )
+        this.showLoading()
+      }
+    },
+    showConfiguration: function() {
+      if (systemPropertiesWrapped.get('fetched')) {
+        if (this.configuration.currentView) {
+          this.configuration.show()
+        } else {
+          this.configuration.show(
+            new ConfigurationView({
+              model: systemPropertiesWrapped.get('systemProperties'),
+              navigationModel: this.model,
+            })
+          )
+        }
+        this.$(this.configuration.el).show()
+      } else {
+        this.listenToOnce(
+          systemPropertiesWrapped,
+          'change:fetched',
+          this.changePage
+        )
+        this.showLoading()
+      }
+    },
+    showSsoConfiguration: function() {
+      if (ssoConfigurationServiceResponses.get('fetched') != true) {
+        // wait for fetch
+        this.listenToOnce(
+          ssoConfigurationServiceResponses,
+          'change:fetched',
+          this.changePage
+        )
+        this.showLoading()
+        return
+      }
+
+      if (ssoConfigurationServiceResponses.get('modified') === true) {
+        // fetch and wait
+        ssoConfigurationServiceResponses.attributes.fetched = false
+        ssoConfigurationServiceResponses.fetch({
+          url:
+            './jolokia/read/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/SsoConfigurations',
+        })
+        this.listenToOnce(
+          ssoConfigurationServiceResponses,
+          'change:fetched',
+          this.changePage
+        )
+        this.showLoading()
+        return
+      }
+
+      if (this.ssoConfiguration.currentView) {
+        this.ssoConfiguration.show()
+      } else {
+        this.ssoConfiguration.show(
+          new SsoConfigurationView({
+            metatypes: ssoConfigurationServiceResponses.get('value').models,
+            navigationModel: this.model,
+          })
+        )
+      }
+      this.$(this.ssoConfiguration.el).show()
+    },
+    showFinish: function() {
+      if (this.finish.currentView) {
+        this.finish.show()
+      } else {
+        this.finish.show(new FinishView({ navigationModel: this.model }))
+      }
+      this.$(this.finish.el).show()
+    },
     hideWelcome: function() {
       this.welcome.close()
       this.$(this.welcome.el).hide()
     },
-    hideConfiguration: function() {
-      this.configuration.close()
-      this.$(this.configuration.el).hide()
+    hideProfiles: function() {
+      this.profiles.close()
+      this.$(this.profiles.el).hide()
     },
     hideGuestClaims: function() {
       this.guestClaims.close()
       this.$(this.guestClaims.el).hide()
     },
+    hideConfiguration: function() {
+      this.configuration.close()
+      this.$(this.configuration.el).hide()
+    },
+    hideSsoConfiguration: function() {
+      this.ssoConfiguration.close()
+      this.$(this.ssoConfiguration.el).hide()
+    },
     hideFinish: function() {
       this.finish.close()
       this.$(this.finish.el).hide()
-    },
-    hideProfiles: function() {
-      this.profiles.close()
-      this.$(this.profiles.el).hide()
     },
   })
 

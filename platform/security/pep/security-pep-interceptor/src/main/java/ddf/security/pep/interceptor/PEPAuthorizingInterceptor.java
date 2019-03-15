@@ -22,7 +22,6 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.service.impl.SecurityAssertionStore;
 import java.util.function.Function;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
@@ -89,19 +88,16 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
       SecurityAssertion assertion = assertionRetriever.apply(message);
       boolean isPermitted = false;
 
-      if ((assertion != null) && (assertion.getSecurityToken() != null)) {
+      if ((assertion != null) && (assertion.getToken() != null)) {
         Subject user = null;
         CollectionPermission action = null;
 
         String actionURI = getActionUri(message);
 
         try {
-          user = securityManager.getSubject(assertion.getSecurityToken());
+          user = securityManager.getSubject(assertion.getToken());
           if (user == null) {
             throw new AccessDeniedException("Unauthorized");
-          }
-          if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(format(assertion.getSecurityToken().getToken()));
           }
 
           LOGGER.debug("Is user authenticated: {}", user.isAuthenticated());
@@ -123,9 +119,10 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
           SecurityLogger.audit("Is Subject  permitted? " + isPermitted, user);
           // store the subject so the DDF framework can use it later
           ThreadContext.bind(user);
-          message.put(SecurityConstants.SAML_ASSERTION, user);
+          message.put(SecurityConstants.SECURITY_TOKEN_KEY, user);
           LOGGER.debug(
-              "Added assertion information to message at key {}", SecurityConstants.SAML_ASSERTION);
+              "Added assertion information to message at key {}",
+              SecurityConstants.SECURITY_TOKEN_KEY);
         } catch (SecurityServiceException e) {
           SecurityLogger.audit(
               "Denying access : Caught exception when trying to authenticate user for service ["

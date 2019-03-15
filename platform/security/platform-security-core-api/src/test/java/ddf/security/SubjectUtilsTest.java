@@ -25,6 +25,8 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.principal.GuestPrincipal;
 import java.io.IOException;
@@ -55,8 +57,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.core.xml.schema.XSString;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 
 /** Tests out the SubjectUtils class */
 public class SubjectUtilsTest {
@@ -162,7 +162,7 @@ public class SubjectUtilsTest {
     SecurityAssertion assertion = mock(SecurityAssertion.class);
 
     doReturn(pc).when(subject).getPrincipals();
-    doReturn(assertion).when(pc).oneByType(SecurityAssertion.class);
+    doReturn(Collections.singletonList(assertion)).when(pc).byType(SecurityAssertion.class);
     doReturn(ImmutableList.of(assertion)).when(pc).byType(SecurityAssertion.class);
     doReturn(principal).when(assertion).getPrincipal();
 
@@ -226,32 +226,36 @@ public class SubjectUtilsTest {
   }
 
   private Attribute getAttribute(Map.Entry<String, List<String>> attribute) {
-    Attribute attr = mock(Attribute.class);
+    Attribute mockAttribute = mock(Attribute.class);
 
-    doReturn(attribute.getKey()).when(attr).getName();
+    doReturn(attribute.getKey()).when(mockAttribute).getName();
 
-    doReturn(attribute.getValue().stream().map(this::getXSString).collect(Collectors.toList()))
-        .when(attr)
-        .getAttributeValues();
+    doReturn(attribute.getValue()).when(mockAttribute).getValues();
 
-    return attr;
+    return mockAttribute;
   }
 
   private Subject getSubjectWithAttributes(Map<String, List<String>> attributes) {
 
     Subject subject = mock(Subject.class);
-    PrincipalCollection pc = mock(PrincipalCollection.class);
-    SecurityAssertion assertion = mock(SecurityAssertion.class);
-    AttributeStatement as = mock(AttributeStatement.class);
+    PrincipalCollection principalCollection = mock(PrincipalCollection.class);
+    SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
+    AttributeStatement attributeStatement = mock(AttributeStatement.class);
 
     List<Attribute> attrs =
         attributes.entrySet().stream().map(this::getAttribute).collect(Collectors.toList());
 
-    doReturn(pc).when(subject).getPrincipals();
-    doReturn(assertion).when(pc).oneByType(SecurityAssertion.class);
-    doReturn(ImmutableList.of(assertion)).when(pc).byType(SecurityAssertion.class);
-    doReturn(Collections.singletonList(as)).when(assertion).getAttributeStatements();
-    doReturn(attrs).when(as).getAttributes();
+    doReturn(principalCollection).when(subject).getPrincipals();
+    doReturn(Collections.singletonList(securityAssertion))
+        .when(principalCollection)
+        .byType(SecurityAssertion.class);
+    doReturn(ImmutableList.of(securityAssertion))
+        .when(principalCollection)
+        .byType(SecurityAssertion.class);
+    doReturn(Collections.singletonList(attributeStatement))
+        .when(securityAssertion)
+        .getAttributeStatements();
+    doReturn(attrs).when(attributeStatement).getAttributes();
 
     return subject;
   }
