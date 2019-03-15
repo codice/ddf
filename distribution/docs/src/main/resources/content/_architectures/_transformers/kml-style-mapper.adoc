@@ -5,7 +5,7 @@
 :link: _kml_style_mapper
 :summary: Maps a KML Style URL to a metacard based on that metacard's attributes.
 
-The KML Style Mapper provides the ability for the `KmlTransformer` to map a KML Style URL to a metacard based on that metacard's attributes.
+The KML Style Mapper provides the ability for the `KMLTransformer` to map a KML Style URL to a metacard based on that metacard's attributes.
 For example, if a user wanted all JPEGs to be blue, the KML Style Mapper provides the ability to do so.
 This would also allow an administrator to configure metacards from each source to be different colors.
 
@@ -13,7 +13,7 @@ The configured style URLs are expected to be HTTP URLs.
 For more information on style URL's, refer to the https://developers.google.com/kml/documentation/kmlreference#styleurl[KML Reference] {external-link}.
 
 The KML Style Mapper supports all basic and extended metacard attributes.
-When a style mapping is configured, the resulting transformed KML contain a `<styleUrl>` tag pointing to that style, rather than the default KML style supplied by the `KmlTransformer`.
+When a style mapping is configured, the resulting transformed KML contain a `<styleUrl>` tag pointing to that style, rather than the default KML style supplied by the `KMLTransformer`.
 
 ===== Installing the KML Style Mapper
 

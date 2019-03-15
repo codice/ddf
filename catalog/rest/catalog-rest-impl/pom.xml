@@ -159,6 +159,9 @@
                             !org.codice.ddf.platform.util,
                             *
                         </Import-Package>
+                        <Export-Package>
+                            org.codice.ddf.rest.impl.action.*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

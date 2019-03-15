@@ -161,7 +161,7 @@ class ResultsExport extends React.Component<Props, State> {
         response.headers.get('content-disposition')
       ).parameters.filename
       const contentType = response.headers.get('content-type')
-      const data = await response.text()
+      const data = await response.blob()
 
       saveFile(filename, 'data:' + contentType, data)
     }

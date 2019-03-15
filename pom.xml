@@ -51,6 +51,8 @@
         <version>1.0.5</version>
     </parent>
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <!--  default URL properties -->
         <ddf.scm.connection.url/>
         <snapshots.repository.url/>
