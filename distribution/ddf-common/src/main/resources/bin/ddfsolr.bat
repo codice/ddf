@@ -43,6 +43,7 @@ IF "%COMMAND%"=="start" (
     CALL %SOLR_EXEC% start -p !solr.http.port! -m !solr.mem!
 )
 
+
 IF "%COMMAND%"=="stop" (
    SET /P STOP_KEY=<%STOPKEY_FILE%
    CALL %SOLR_EXEC% stop -p !solr.http.port!
