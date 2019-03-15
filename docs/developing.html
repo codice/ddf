@@ -5,8 +5,8 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.13.6. Copyright (c) Codice Foundation">
-<title>Developing DDF Components</title>
+<meta name="author" content="Version 2.14.0. Copyright (c) Codice Foundation">
+<title>Developing DDF Components: Developer&#8217;s Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
 /* Remove comment around @import statement below when using as a custom stylesheet */
@@ -518,9 +518,9 @@ table.CodeRay td.code>pre{padding:0}
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Developing DDF Components</h1>
+<h1>Developing DDF Components: Developer&#8217;s Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.13.6. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.14.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -758,12 +758,40 @@ table.CodeRay td.code>pre{padding:0}
 </ul>
 </li>
 <li><a href="#_wfs_services">1.25. WFS Services</a></li>
-<li><a href="#_contributing_to_documentation">1.26. Contributing to Documentation</a>
+<li><a href="#_json_definition_files">1.26. JSON Definition Files</a>
 <ul class="sectlevel3">
-<li><a href="#_editing_existing_documentation">1.26.1. Editing Existing Documentation</a></li>
-<li><a href="#_adding_new_documentation_content">1.26.2. Adding New Documentation Content</a></li>
-<li><a href="#_creating_a_new_documentation_template">1.26.3. Creating a New Documentation Template</a></li>
-<li><a href="#_extending_documentation_in_downstream_distributions">1.26.4. Extending Documentation in Downstream Distributions</a></li>
+<li><a href="#_definition_file_format">1.26.1. Definition File Format</a></li>
+<li><a href="#_deploying_definition_files">1.26.2. Deploying Definition Files</a></li>
+</ul>
+</li>
+<li><a href="#_developing_subscriptions">1.27. Developing Subscriptions</a>
+<ul class="sectlevel3">
+<li><a href="#_subscription_lifecycle">1.27.1. Subscription Lifecycle</a>
+<ul class="sectlevel4">
+<li><a href="#_creation">1.27.1.1. Creation</a></li>
+<li><a href="#_evaluation">1.27.1.2. Evaluation</a></li>
+<li><a href="#_update_evaluation">1.27.1.3. Update Evaluation</a></li>
+<li><a href="#_durability">1.27.1.4. Durability</a></li>
+</ul>
+</li>
+<li><a href="#_creating_a_subscription">1.27.2. Creating a Subscription</a>
+<ul class="sectlevel4">
+<li><a href="#_event_processing_and_notification">1.27.2.1. Event Processing and Notification</a>
+<ul class="sectlevel5">
+<li><a href="#_using_ddf_implementation">1.27.2.1.1. Using DDF Implementation</a></li>
+</ul>
+</li>
+<li><a href="#_delivery_method">1.27.2.2. Delivery Method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_contributing_to_documentation">1.28. Contributing to Documentation</a>
+<ul class="sectlevel3">
+<li><a href="#_editing_existing_documentation">1.28.1. Editing Existing Documentation</a></li>
+<li><a href="#_adding_new_documentation_content">1.28.2. Adding New Documentation Content</a></li>
+<li><a href="#_creating_a_new_documentation_template">1.28.3. Creating a New Documentation Template</a></li>
+<li><a href="#_extending_documentation_in_downstream_distributions">1.28.4. Extending Documentation in Downstream Distributions</a></li>
 </ul>
 </li>
 </ul>
@@ -1492,7 +1520,7 @@ Metacard entry = inputTransformer.transform(messageInputStream);</pre></td>
                     }
                 ]
             }
-        ]
+        ],
         <span class="key"><span class="delimiter">&quot;</span><span class="content">topic.vocabulary</span><span class="delimiter">&quot;</span></span>: [
              {
                  <span class="key"><span class="delimiter">&quot;</span><span class="content">validator</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">relationship</span><span class="delimiter">&quot;</span></span>,
@@ -1916,7 +1944,7 @@ In this case, the attribute will be injected only into metacard types that match
 <h3 id="_developing_endpoints"><a class="anchor" href="#_developing_endpoints"></a><a class="link" href="#_developing_endpoints">1.7. Developing Endpoints</a></h3>
 <div class="paragraph">
 <p>Custom endpoints can be created, if necessary.
-See <a href="documentation.html#_available_endpoints">Available Endpoints</a> for descriptions of provided endpoints.</p>
+See <a href="documentation.html#_endpoint_details">Endpoints</a> for descriptions of provided endpoints.</p>
 </div>
 <div class="paragraph">
 <p>Complete the following procedure to create an endpoint. </p>
@@ -2429,10 +2457,12 @@ Query Response Transformers can be used through the Catalog transform convenienc
 7
 8
 9
+10
 </pre></td>
   <td class="code"><pre>...
 <span class="tag">&lt;service</span> <span class="attribute-name">ref</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">SampleResponseTransformer</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">interface</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.catalog.transform.QueryResponseTransformer</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;service-properties&gt;</span>
+        <span class="tag">&lt;entry</span> <span class="attribute-name">key</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">value</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">[[sampleId]]</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
         <span class="tag">&lt;entry</span> <span class="attribute-name">key</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">shortname</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">value</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">[[sampletransform]]</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
         <span class="tag">&lt;entry</span> <span class="attribute-name">key</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">value</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">[[Sample Response Transformer]]</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
         <span class="tag">&lt;entry</span> <span class="attribute-name">key</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">value</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">[[A new transformer for response queues.]]</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
@@ -2460,6 +2490,11 @@ Query Response Transformers can be used through the Catalog transform convenienc
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A unique identifier to target a specific query response transformer.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">atom</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>shortname</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">An abbreviation for the return type of the BinaryContent being sent to the user.</p></td>
@@ -7742,7 +7777,256 @@ Additionally, a base class, <code>AbstractFeatureConverter</code>, has been crea
 </div>
 </div>
 <div class="sect2">
-<h3 id="_contributing_to_documentation"><a class="anchor" href="#_contributing_to_documentation"></a><a class="link" href="#_contributing_to_documentation">1.26. Contributing to Documentation</a></h3>
+<h3 id="_json_definition_files"><a class="anchor" href="#_json_definition_files"></a><a class="link" href="#_json_definition_files">1.26. JSON Definition Files</a></h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This section concerns capabilities that are considered experimental. The features described in this section may change or be removed in a future version of the application.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>DDF supports adding new attribute types, metacard types, validators, and more using json-formatted definition files.</p>
+</div>
+<div class="paragraph">
+<p>The following may be defined in a JSON definition file:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_attribute_type_definition_file">Attribute Types</a></p>
+</li>
+<li>
+<p><a href="#_metacard_type_definition_file">Metacard Types</a></p>
+</li>
+<li>
+<p><a href="#_global_attribute_validators_file">Global Attribute Validators</a></p>
+</li>
+<li>
+<p><a href="#_default_attribute_values">Default Attribute Values</a></p>
+</li>
+<li>
+<p><a href="#_attribute_injection_definition">Attribute Injections</a></p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_definition_file_format"><a class="anchor" href="#_definition_file_format"></a><a class="link" href="#_definition_file_format">1.26.1. Definition File Format</a></h4>
+<div class="paragraph">
+<p>A definition file follows the JSON format as specified in <a href="http://www.ecma-international.org/publications/standards/Ecma-404.htm">ECMA-404</a> <span class="image"><a class="image" href="_wfs_services"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="JSON Definition Files"></a></span>.
+All definition files must be valid JSON in order to be parsed.</p>
+</div>
+<div class="paragraph">
+<p>A single definition file may define as many of the types as needed.
+This means that types can be defined across multiple files for grouping or clarity.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_deploying_definition_files"><a class="anchor" href="#_deploying_definition_files"></a><a class="link" href="#_deploying_definition_files">1.26.2. Deploying Definition Files</a></h4>
+<div class="paragraph">
+<p>The file must have a <code>.json</code> extension in order to be picked up by the deployer.
+Once the definition file is ready to be deployed, put the definition file <code>&lt;filename&gt;.json</code> into the <code>etc/definitions</code> folder.</p>
+</div>
+<div class="paragraph">
+<p>Definition files can be added, updated, and/or deleted in the <code>etc/definitions</code> folder.
+The changes are applied dynamically and no restart is required.</p>
+</div>
+<div class="paragraph">
+<p>If a definition file is removed from the <code>etc/definitions</code> folder, the changes that were applied by that file will be undone.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_developing_subscriptions"><a class="anchor" href="#_developing_subscriptions"></a><a class="link" href="#_developing_subscriptions">1.27. Developing Subscriptions</a></h3>
+<div class="paragraph">
+<p>Subscriptions represent "standing queries" in the Catalog.
+Like a query, subscriptions are based on the OGC Filter specification.</p>
+</div>
+<div class="sect3">
+<h4 id="_subscription_lifecycle"><a class="anchor" href="#_subscription_lifecycle"></a><a class="link" href="#_subscription_lifecycle">1.27.1. Subscription Lifecycle</a></h4>
+<div class="paragraph">
+<p>A Subscription itself is a series of events during which various plugins or transformers can be called to process the subscription.</p>
+</div>
+<div class="sect4">
+<h5 id="_creation"><a class="anchor" href="#_creation"></a><a class="link" href="#_creation">1.27.1.1. Creation</a></h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Subscriptions are created directly with the <a href="architecture.html#_event_processor">Event Processor</a> or declaratively through use of the Whiteboard Design Pattern.</p>
+</li>
+<li>
+<p>The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_evaluation"><a class="anchor" href="#_evaluation"></a><a class="link" href="#_evaluation">1.27.1.2. Evaluation</a></h5>
+<div class="ulist">
+<ul>
+<li>
+<p>When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin will be invoked.</p>
+</li>
+<li>
+<p>If the delivery is not rejected, the associated Delivery Method callback will be invoked.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_update_evaluation"><a class="anchor" href="#_update_evaluation"></a><a class="link" href="#_update_evaluation">1.27.1.3. Update Evaluation</a></h5>
+<div class="paragraph">
+<p>Notably, the Catalog allows event evaluation on both the previous value (if available) and new value of a Metacard when an update occurs.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_durability"><a class="anchor" href="#_durability"></a><a class="link" href="#_durability">1.27.1.4. Durability</a></h5>
+<div class="paragraph">
+<p>Subscription durability is not provided by the Event Processor.
+Thus, all subscriptions are transient and will not be recreated in the event of a system restart.
+It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
+This decision was made for the sake of simplicity, flexibility, and the inability of the Event Processor to recreate a fully-configured Delivery Method without being overly restrictive.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>Subscriptions are not persisted by the Catalog itself.</strong><br>
+Subscriptions must be explicitly persisted by an endpoint and are not persisted by the Catalog.
+The Catalog Framework, or more specifically the Event Processor itself, does not persist subscriptions.
+Certain endpoints, however, can persist the subscriptions on their own and recreate them on system startup.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_creating_a_subscription"><a class="anchor" href="#_creating_a_subscription"></a><a class="link" href="#_creating_a_subscription">1.27.2. Creating a Subscription</a></h4>
+<div class="paragraph">
+<p>Currently, the Catalog reference implementation does not contain a subscription endpoint.
+Therefore, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client&#8217;s subscription filtering criteria to be used by Catalog&#8217;s Event Processor to determine which events are of interest to the client.
+The endpoint client also provides the callback URL of the event consumer to be called when an event matching the subscription&#8217;s criteria is found.
+This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created. 
+Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor. 
+The Delivery Method will, in turn, send the event notification out to the event consumer. 
+As part of the subscription creation process, the Catalog verifies that the event consumer at the specified callback URL is available to receive callbacks.
+Therefore, the client must ensure the event consumer is running prior to creating the subscription.
+The Catalog completes the subscription creation by executing any pre-subscription Catalog Plugins, and then registering the subscription with the OSGi Service Registry.
+The Catalog does not persist subscriptions by default.</p>
+</div>
+<div class="sect4">
+<h5 id="_event_processing_and_notification"><a class="anchor" href="#_event_processing_and_notification"></a><a class="link" href="#_event_processing_and_notification">1.27.2.1. Event Processing and Notification</a></h5>
+<div class="paragraph">
+<p>If an event matches a subscription&#8217;s criteria, any pre-delivery plugins that are installed are invoked, the subscription&#8217;s <code>DeliveryMethod</code> is retrieved, and its operation corresponding to the type of ingest event is invoked. 
+For example, the <code>DeliveryMethod</code> <code>created()</code> function is called when a metacard is created.
+The <code>DeliveryMethod</code> operations subsequently invoke the corresponding operation in the client&#8217;s event consumer service, which is specified by the callback URL provided when the <code>DeliveryMethod</code> was created.
+An internal subscription tracker monitors the OSGi registry, looking for subscriptions to be added (or deleted).
+When it detects a subscription being added, it informs the Event Processor, which sets up the subscription&#8217;s filtering and is responsible for posting event notifications to the subscriber when events satisfying their criteria are met.</p>
+</div>
+<div class="paragraph">
+<p>The Standard Event Processor is an implementation of the Event Processor and provides the ability to create/delete subscriptions.
+Events are generated by the CatalogFramework as metacards are created/updated/deleted and the Standard Event Processor is called since it is also a Post-Ingest Plugin.
+The Standard Event Processor checks each event against each subscription&#8217;s criteria.</p>
+</div>
+<div class="paragraph">
+<p>When an event matches a subscription&#8217;s criteria the Standard Event Processor:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>invokes each pre-delivery plugin on the metacard in the event.</p>
+</li>
+<li>
+<p>invokes the <code>DeliveryMethod</code> operation corresponding to the type of event being processed, e.g., <code>created()</code> operation for the creation of a metacard.</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<div class="title">Available Event Processor</div>
+<ul>
+<li>
+<p><a href="architecture.html#_event_processor">Standard Event Processor</a></p>
+</li>
+</ul>
+</div>
+<div class="sect5">
+<h6 id="_using_ddf_implementation"><a class="anchor" href="#_using_ddf_implementation"></a><a class="link" href="#_using_ddf_implementation">1.27.2.1.1. Using DDF Implementation</a></h6>
+<div class="paragraph">
+<p>If applicable, the implementation of <code>Subscription</code> that comes with DDF should be used.
+It is available at <code>ddf.catalog.event.impl.SubscriptionImpl</code> and offers a constructor that takes in all of the necessary objects.
+Specifically, all that is needed is a <code>Filter</code>, <code>DeliveryMethod</code>, <code>Set&lt;String&gt;</code> of source IDs, and a <code>boolean</code> for enterprise.</p>
+</div>
+<div class="paragraph">
+<p>The following is an example code stub showing how to create a new instance of Subscription using the DDF implementation. </p>
+</div>
+<div class="listingblock">
+<div class="title">Creating a Subscription</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td>
+  <td class="code"><pre><span class="comment">// Create a new filter using an imported FilterBuilder</span>
+<span class="predefined-type">Filter</span> filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(<span class="string"><span class="delimiter">&quot;</span><span class="content">*</span><span class="delimiter">&quot;</span></span>);
+<span class="error"> </span>
+<span class="comment">// Create a implementation of DeliveryMethod</span>
+DeliveryMethod deliveryMethod = <span class="keyword">new</span> MyCustomDeliveryMethod();
+<span class="error"> </span>
+<span class="comment">// Create a set of source ids</span>
+<span class="comment">// This set is empty as the subscription is not specific to any sources</span>
+<span class="predefined-type">Set</span>&lt;<span class="predefined-type">String</span>&gt; sourceIds = <span class="keyword">new</span> <span class="predefined-type">HashSet</span>&lt;<span class="predefined-type">String</span>&gt;();
+<span class="error"> </span>
+<span class="comment">// Set the isEnterprise boolean value</span>
+<span class="comment">// This subscription example should notifications from all sources (not just local)</span>
+<span class="type">boolean</span> isEnterprise = <span class="predefined-constant">true</span>;
+
+Subscription subscription = <span class="keyword">new</span> SubscriptionImpl(filter, deliveryMethod, sourceIds,isEnterprise);</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_delivery_method"><a class="anchor" href="#_delivery_method"></a><a class="link" href="#_delivery_method">1.27.2.2. Delivery Method</a></h5>
+<div class="paragraph">
+<p>A Delivery Method provides the operation (created, updated, deleted) for how an event&#8217;s metacard can be delivered.</p>
+</div>
+<div class="paragraph">
+<p>A Delivery Method is associated with a subscription and contains the callback URL of the event consumer to be notified of events.
+The Delivery Method encapsulates the operations to be invoked by the Event Processor when an event matches the criteria for the subscription.
+The Delivery Method&#8217;s operations are responsible for invoking the corresponding operations on the event consumer associated with the callback URL.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_contributing_to_documentation"><a class="anchor" href="#_contributing_to_documentation"></a><a class="link" href="#_contributing_to_documentation">1.28. Contributing to Documentation</a></h3>
 <div class="paragraph">
 <p>DDF documentation is included in the source code, so it is edited and maintained in much the same way.</p>
 </div>
@@ -7779,10 +8063,10 @@ Additionally, a base class, <code>AbstractFeatureConverter</code>, has been crea
 </tbody>
 </table>
 <div class="sect3">
-<h4 id="_editing_existing_documentation"><a class="anchor" href="#_editing_existing_documentation"></a><a class="link" href="#_editing_existing_documentation">1.26.1. Editing Existing Documentation</a></h4>
+<h4 id="_editing_existing_documentation"><a class="anchor" href="#_editing_existing_documentation"></a><a class="link" href="#_editing_existing_documentation">1.28.1. Editing Existing Documentation</a></h4>
 <div class="paragraph">
 <p>Update existing content when code behavior changes, new capabilities are added to features, or the configuration process changes.
-Content is organized within the <code>content</code> directory in sub directories according to the audience and purpose for each section of the documentation.
+Content is organized within the <code>content</code> directory in sub directories according to the audience and purpose for each document in the documentation library.
 Use this list to determine placement of new content.</p>
 </div>
 <div class="dlist">
@@ -7824,6 +8108,10 @@ Use this list to determine placement of new content.</p>
 <dd>
 <p>This section details how metadata is extracted and normalized by DDF.</p>
 </dd>
+<dt class="hdlist1">Documentation</dt>
+<dd>
+<p>This is a collection of all of the individual documentation pages in one html or pdf file.</p>
+</dd>
 </dl>
 </div>
 <div class="paragraph">
@@ -7831,7 +8119,7 @@ Use this list to determine placement of new content.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_adding_new_documentation_content"><a class="anchor" href="#_adding_new_documentation_content"></a><a class="link" href="#_adding_new_documentation_content">1.26.2. Adding New Documentation Content</a></h4>
+<h4 id="_adding_new_documentation_content"><a class="anchor" href="#_adding_new_documentation_content"></a><a class="link" href="#_adding_new_documentation_content">1.28.2. Adding New Documentation Content</a></h4>
 <div class="paragraph">
 <p>If creating a new section is required, there are some minimal requirements for a new <code>.adoc</code> file.</p>
 </div>
@@ -7861,7 +8149,7 @@ Different sections have different headers required, but some common attributes a
 </div>
 </div>
 <div class="sect3">
-<h4 id="_creating_a_new_documentation_template"><a class="anchor" href="#_creating_a_new_documentation_template"></a><a class="link" href="#_creating_a_new_documentation_template">1.26.3. Creating a New Documentation Template</a></h4>
+<h4 id="_creating_a_new_documentation_template"><a class="anchor" href="#_creating_a_new_documentation_template"></a><a class="link" href="#_creating_a_new_documentation_template">1.28.3. Creating a New Documentation Template</a></h4>
 <div class="paragraph">
 <p>To create a new, standalone documentation page, create a new template in the <code>templates</code> directory.
 Optionally, this template can <code>include</code> some of the internal templates in the <code>templates/build</code> directory, but this is not required.</p>
@@ -7871,7 +8159,7 @@ Optionally, this template can <code>include</code> some of the internal template
 </div>
 </div>
 <div class="sect3">
-<h4 id="_extending_documentation_in_downstream_distributions"><a class="anchor" href="#_extending_documentation_in_downstream_distributions"></a><a class="link" href="#_extending_documentation_in_downstream_distributions">1.26.4. Extending Documentation in Downstream Distributions</a></h4>
+<h4 id="_extending_documentation_in_downstream_distributions"><a class="anchor" href="#_extending_documentation_in_downstream_distributions"></a><a class="link" href="#_extending_documentation_in_downstream_distributions">1.28.4. Extending Documentation in Downstream Distributions</a></h4>
 <div class="paragraph">
 <p>By mimicking the build and directory structure of the documentation, downstream projects are able to leverage the existing documentation and insert content before and after sections of the DDF documentation.</p>
 </div>
@@ -7892,7 +8180,7 @@ Optionally, this template can <code>include</code> some of the internal template
 <dt class="hdlist1"><code>content</code></dt>
 <dd>
 <p>Contains the .adoc files that make up the content.
-Sub-directories are organized according to sections of the complete documentation.</p>
+Sub-directories are organized according to the documents that make up the main library.</p>
 </dd>
 <dt class="hdlist1"><code>images</code></dt>
 <dd>
@@ -8274,7 +8562,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-02-21 01:19:01 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-03-11 21:40:38 UTC
 </div>
 </div>
 </body>
