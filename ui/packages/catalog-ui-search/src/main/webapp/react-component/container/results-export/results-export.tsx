@@ -80,14 +80,7 @@ class ResultsExport extends React.Component<Props, State> {
       prevState.selectedResults !== this.state.selectedResults ||
       _prevProps.transformer !== this.props.transformer
     ) {
-      let type = this.getTransformerType()
-
-      if (this.props.transformer) {
-        type = 'metacard'
-      }
-
-      this.fetchExportOptions(type)
-
+      this.fetchExportOptions()
       this.setState({
         selectedFormat: 'Select an export option',
         downloadDisabled: true,
@@ -95,23 +88,15 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
   getTransformerType = () => {
-    let transformerType = 'metacard'
-
-    if (this.state.selectedResults.length > 1) {
-      transformerType = 'query'
-    }
-    return transformerType
+    return !this.props.transformer && this.state.selectedResults.length > 1
+      ? 'query'
+      : 'metacard'
   }
   componentDidMount() {
-    if (this.props.transformer) {
-      this.fetchExportOptions('metacard')
-    } else {
-      const type = this.getTransformerType()
-      this.fetchExportOptions(type)
-    }
+    this.fetchExportOptions()
   }
-  fetchExportOptions = (transformerType: string) => {
-    fetch(`./internal/transformers/${transformerType}`)
+  fetchExportOptions = () => {
+    fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
         return exportFormats.sort(
