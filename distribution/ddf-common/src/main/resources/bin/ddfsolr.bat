@@ -14,7 +14,7 @@ CALL %GET_PROPERTY% solr.http.protocol
 CALL %GET_PROPERTY% solr.mem 2g
 
 IF NOT "!solr.http.protocol!"=="http" IF NOT "!solr.http.protocol!"=="https" (
-    ECHO Unkown Solr protocol %solr.http.protocol% found in custom.system.properties file
+    ECHO Unknown Solr protocol %solr.http.protocol% found in custom.system.properties file
     ECHO Expected 'http' or 'https' - Setting to the default https
     SET solr.http.protocol=https
 )
@@ -59,7 +59,7 @@ EXIT /B
 
 :GEN_STOPKEY
 REM Generate a random stop key for Solr and write it to a file
-FOR /F %%i IN ('\sandbox\dib-4.6.6-SNAPSHOT\bin\makekey.bat') DO SET STOP_KEY=%%i
+FOR /F %%i IN (%MAKE_KEY%) DO SET STOP_KEY=%%i
 ECHO !STOP_KEY! > %STOPKEY_FILE%
 EXIT /B
 
