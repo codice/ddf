@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.13.6. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.14.0. Copyright (c) Codice Foundation">
 <title>DDF User&#8217;s Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF User&#8217;s Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.13.6. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.14.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -590,46 +590,18 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 </ul>
 </li>
-<li><a href="#_using_standard_search_ui">4. Using Standard Search UI</a>
+<li><a href="#_using_the_simple_search">4. Using the Simple Search</a>
 <ul class="sectlevel2">
 <li><a href="#_search">4.1. Search</a>
 <ul class="sectlevel3">
-<li><a href="#_installing_search_ui">4.1.1. Installing Search UI</a></li>
-<li><a href="#_search_criteria">4.1.2. Search Criteria</a></li>
-<li><a href="#_results">4.1.3. Results</a></li>
-<li><a href="#_enhanced_search">4.1.4. Enhanced Search</a></li>
-<li><a href="#_record_summary">4.1.5. Record Summary</a></li>
-<li><a href="#_record_details">4.1.6. Record Details</a></li>
-</ul>
-</li>
-<li><a href="#_actions">4.2. Actions</a>
-<ul class="sectlevel3">
-<li><a href="#_save_a_search">4.2.1. Save a Search</a></li>
-</ul>
-</li>
-<li><a href="#_workspaces">4.3. Workspaces</a>
-<ul class="sectlevel3">
-<li><a href="#_create_a_workspace">4.3.1. Create a Workspace</a></li>
-</ul>
-</li>
-<li><a href="#_notifications">4.4. Notifications</a></li>
-<li><a href="#_activities">4.5. Activities</a></li>
-<li><a href="#_downloads">4.6. Downloads</a></li>
-<li><a href="#_maps">4.7. Maps</a></li>
-</ul>
-</li>
-<li><a href="#_using_the_simple_search">5. Using the Simple Search</a>
-<ul class="sectlevel2">
-<li><a href="#_search_2">5.1. Search</a>
-<ul class="sectlevel3">
-<li><a href="#_search_criteria_2">5.1.1. Search Criteria</a></li>
-<li><a href="#_results_2">5.1.2. Results</a>
+<li><a href="#_search_criteria">4.1.1. Search Criteria</a></li>
+<li><a href="#_results">4.1.2. Results</a>
 <ul class="sectlevel4">
-<li><a href="#_results_summary">5.1.2.1. Results  Summary</a></li>
-<li><a href="#_results_table">5.1.2.2. Results Table</a></li>
+<li><a href="#_results_summary">4.1.2.1. Results  Summary</a></li>
+<li><a href="#_results_table">4.1.2.2. Results Table</a></li>
 </ul>
 </li>
-<li><a href="#_result_view">5.1.3. Result View</a></li>
+<li><a href="#_result_view">4.1.3. Result View</a></li>
 </ul>
 </li>
 </ul>
@@ -654,13 +626,10 @@ table.CodeRay td.code>pre{padding:0}
 <dd>
 <p>Using Intrigue.</p>
 </dd>
-<dt class="hdlist1"><a href="#_using_standard_search_ui">Using Standard Search UI</a></dt>
-<dd>
-<p>Using Standard Search UI.</p>
-</dd>
 <dt class="hdlist1"><a href="#_using_the_simple_search">Using the Simple Search</a></dt>
 <dd>
-<p>Using the Simple Search user interface.</p>
+<p>Using the Simple Search user interface.
+None.</p>
 </dd>
 </dl>
 </div>
@@ -921,10 +890,10 @@ To exit this mode, click the <code>?</code> again or press <code>escape</code>.<
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p>To share by user role, set the drop-down menu to <strong>Can Access</strong> for each desired role. All users with that role will be able to view the workspace.</p>
+<p>To share by user role, set the drop-down menu to <strong>Read</strong> or <strong>Read and Write</strong> for each desired role. All users with that role will be able to view the workspace, but will be limited based on the permission assigned. No user will be granted the ability to share the workspace with additional users.</p>
 </li>
 <li>
-<p>To share with an individual user, add his/her email to the email list.</p>
+<p>To share with an individual user, add his/her email to the email list and set the drop-down menu to <strong>Read</strong>, <strong>Read and Write</strong>, or <strong>Read, Write, and Share</strong>.</p>
 </li>
 </ol>
 </div>
@@ -1091,7 +1060,8 @@ fields must be set before uploads will be permitted.</p>
 <p><strong>Search Archived</strong>: Execute this search, but specifically for archived results.</p>
 </li>
 <li>
-<p><strong>Search Historical</strong>: Execute this search, but specifically for historical results.</p>
+<p>*
+Search Historical*: Execute this search, but specifically for historical results.</p>
 </li>
 </ul>
 </div>
@@ -1110,27 +1080,17 @@ fields must be set before uploads will be permitted.</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
-<p><a id="_text_search_details"></a><strong>Text Search Details</strong></p>
+<p><a id="_text_search_details"></a><strong>Text Search Details</strong>: Searches across all textual data of the targeted data source. Text search capabilities include:</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
-<p>Searches across all textual data of the targeted data source. Text search capabilities include:</p>
-<div class="ulist no-bullet">
-<ul class="no-bullet">
-<li>
-<p>Search for an exact word, such as <code>Text = apple</code>: Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.</p>
+<p>Search for an exact word, such as <code>Text = apple</code> : Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.</p>
 </li>
 <li>
-<p>Search for the existence of items containing multiple words, such as <code>Text = apple orange</code>: Returns items containing both "apple" and "orange" words. Words can occur anywhere in an item&#8217;s metadata.</p>
+<p>Search for the existence of items containing multiple words, such as <code>Text = apple orange</code> : Returns items containing both "apple" and "orange" words. Words can occur anywhere in an item&#8217;s metadata.</p>
 </li>
 <li>
-<p>Search using wildcards, such as <code>Text = foo*</code>: Returns items containing words like "food", "fool", etc.</p>
-</li>
-<li>
-<p>Text searches are by default case insensitive, but case sensitive searches are an option.</p>
-</li>
-</ul>
-</div>
+<p>Search using wildcards, such as <code>Text = foo*</code> : Returns items containing words like "food", "fool", etc..</p>
 </li>
 <li>
 <p>Wildcards should only be used for single word searches, not for phrases.</p>
@@ -1141,24 +1101,20 @@ fields must be set before uploads will be permitted.</p>
 <div class="title">Warning</div>
 </td>
 <td class="content">
-When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for <code>Text = ca*</code> instead of <code>Text = -ca*</code> when searching for words like "cat", "-cat", etc.  and search for <code>Text = *og</code> instead of <code>Text = *og.</code> when searching for words like "dog", "dog.", etc..
+When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for <code>Text = ca*</code> instead of <code>Text = -ca*</code> when searching for words like "cat", "-cat", etc..  and search for <code>Text = *og</code> instead of <code>Text = *og.</code> when searching for words like "dog", "dog.", etc..
 </td>
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Text searches are by default case insensitive, but case sensitive searches are possible by toggling the <code>Matchcase</code> option.</p>
-</div>
+</li>
+<li>
+<p>Text searches are by default case insensitive, but case sensitive searches are an option.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p><a id="_temporal_search_details"></a><strong>Temporal Search Details</strong></p>
-<div class="ulist no-bullet">
-<ul class="no-bullet">
-<li>
-<p>Search based on absolute time of the created, modified, or effective date.</p>
+<p><a id="_temporal_search_details"></a><strong>Temporal Search Details</strong>: Search based on absolute time of the created, modified, or effective date.</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
@@ -1179,15 +1135,12 @@ When searching with wildcards, do not include the punctuation at the beginning o
 </ul>
 </div>
 </li>
-</ul>
-</div>
-</li>
 <li>
 <p><a id="_spatial_search_details"></a><strong>Spatial Search Details</strong></p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
-<p>Search by latitude/longitude, USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a <strong>Keyword</strong> for a region, country, or city in the <strong>Location</strong> section of the query builder.</p>
+<p>Search by latitude/longitude (decimal degrees or degrees minutes seconds), USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a <strong>Keyword</strong> for a region, country, or city in the <strong>Location</strong> section of the query builder.</p>
 </li>
 </ul>
 </div>
@@ -1220,7 +1173,7 @@ When searching with wildcards, do not include the punctuation at the beginning o
 <p><strong>Property</strong>: Property to compare against.</p>
 </li>
 <li>
-<p><strong>Comparison</strong>: How to compare the value for this property against the provided value. Depending on the type of property selected, various comparison values will be available. See <a href="#_advanced_query_builder_comparators">Types of Comparators</a>.</p>
+<p><strong>Comparison</strong>: How to compare the value for this property against the provided value. Depending on the type of property selected, various comparison values will be available. See <a href="#_advanced_query_builder_comparators">Types of Comparators</a></p>
 </li>
 <li>
 <p><strong>Search Terms</strong>: The value for the property to use during comparison.</p>
@@ -1239,7 +1192,7 @@ When searching with wildcards, do not include the punctuation at the beginning o
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
-<p><strong>Textual</strong></p>
+<p><strong>Textual</strong>:</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
@@ -1253,6 +1206,9 @@ When searching with wildcards, do not include the punctuation at the beginning o
 </li>
 <li>
 <p><strong>NEAR</strong>: Performs a fuzzy proximity-based textual search. A NEAR query of <code>"car street" within 3</code> will match a sample text of <code>the blue car drove down the street with the red building</code> because performing three word deletions in that phrase (<code>drove</code>, <code>down</code>, <code>the</code>) causes <code>car</code> and <code>street</code> to become adjacent.</p>
+</li>
+<li>
+<p><strong>EMPTY</strong>: Search records when the attribute itself does not exist or when the attribute value is null.</p>
 <div class="paragraph">
 <p>More generally, a NEAR query of <code>"A B" within N</code> matches a text document if you can perform at most N insertions/deletions to your document and end up with <code>A</code> followed by <code>B</code>.</p>
 </div>
@@ -1267,7 +1223,7 @@ When searching with wildcards, do not include the punctuation at the beginning o
 </div>
 </li>
 <li>
-<p><strong>Temporal</strong></p>
+<p><strong>Temporal</strong>:</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
@@ -1279,21 +1235,27 @@ When searching with wildcards, do not include the punctuation at the beginning o
 <li>
 <p><strong>RELATIVE</strong> Search records relative to the current time.</p>
 </li>
+<li>
+<p><strong>EMPTY</strong>: Search records when the attribute itself does not exist or when the attribute value is null.</p>
+</li>
 </ul>
 </div>
 </li>
 <li>
-<p><strong>Spatial</strong></p>
+<p><strong>Spatial</strong>:</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
 <p><strong>INTERSECTS</strong>: Gives a component with the same functionality as <a href="#_spatial_search_details">Basic Spatial Search</a>.</p>
 </li>
+<li>
+<p><strong>EMPTY</strong>: Search records when the attribute itself does not exist or when the attribute value is null.</p>
+</li>
 </ul>
 </div>
 </li>
 <li>
-<p><strong>Numeric</strong></p>
+<p><strong>Numeric</strong>:</p>
 <div class="ulist no-bullet">
 <ul class="no-bullet">
 <li>
@@ -1310,6 +1272,9 @@ When searching with wildcards, do not include the punctuation at the beginning o
 </li>
 <li>
 <p><strong>&lt;</strong>: Search records with field entries less than the specified value.</p>
+</li>
+<li>
+<p><strong>EMPTY</strong>: Search records when the attribute itself does not exist or when the attribute value is null.</p>
 </li>
 </ul>
 </div>
@@ -1887,579 +1852,20 @@ Ex: <code><a href="https://{FQDN}:{PORT}/search/catalog/?lowBandwidth#workspaces
 </div>
 </div>
 <div class="sect1">
-<h2 id="_using_standard_search_ui"><a class="anchor" href="#_using_standard_search_ui"></a><a class="link" href="#_using_standard_search_ui">4. Using Standard Search UI</a></h2>
-<div class="sectionbody">
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>This feature has been <strong>DEPRECATED</strong> and will be removed in a future version.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="dlist">
-<dl>
-<dt class="hdlist1">To use the Standard Search UI, uninstall the DDF </dt>
-<dd>
-<p>Security :: Filter :: CSRF bundle.</p>
-</dd>
-</dl>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The DDF Standard Search UI application allows a user to search for records in the local
-Catalog (provider) and federated sources. Results of the search are returned in HTML format and are
-displayed on a globe, providing a visual representation of where the records were found. The Search
-UI is not installed by default; however, it can be installed through the Admin UI.</p>
-</div>
-<div class="paragraph">
-<p>Located at the bottom of the left pane of the Search UI are two tabs: <a href="#_search">Search</a> and
-<a href="#_workspaces">Workspaces</a>. The Search tab contains basic fields to query the Catalog and other sources. The
-workspaces feature uses the same search criteria that are provided in the Search tab, and it also
-allows the user to create custom searches that can be saved for later execution. The right-side
-pane displays a map that, when records are found, shows the location of where the record was
-retrieved.</p>
-</div>
-<div class="sect2">
-<h3 id="_search"><a class="anchor" href="#_search"></a><a class="link" href="#_search">4.1. Search</a></h3>
-<div class="paragraph">
-<p>The Standard Search UI allows users to search for records in the local Catalog and federated
-sources based on the criteria entered in the Search tab. After a search is executed, the UI
-provides results based on the defined criteria and detailed information about each result.
-Additionally, a user can save individual records that were returned by the query to a workspace, so
-they can be referenced in the future. The user can also save the search criteria to a workspace so
-the query can be run again.</p>
-</div>
-<div class="sect3">
-<h4 id="_installing_search_ui"><a class="anchor" href="#_installing_search_ui"></a><a class="link" href="#_installing_search_ui">4.1.1. Installing Search UI</a></h4>
-<div class="paragraph">
-<p>The Search UI is not installed by default, but can be installed through the Admin UI.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Go to <strong>Admin UI</strong></p>
-</li>
-<li>
-<p>Go to <strong>System</strong> tab</p>
-</li>
-<li>
-<p>Go to <strong>Feature</strong> tab</p>
-</li>
-<li>
-<p>Install feature: <strong>search-ui-deprecated</strong></p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_search_criteria"><a class="anchor" href="#_search_criteria"></a><a class="link" href="#_search_criteria">4.1.2. Search Criteria</a></h4>
-<div class="paragraph">
-<p>The Search UI queries a Catalog using the following criteria.</p>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 85.7143%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Criteria</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Text</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search by free text using the grammar of the underlying endpoint/Catalog.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search based on relative or absolute time of the created, modified, or effective date.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Location</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search by latitude/longitude or the USNG using a point-radius or bounding box.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search for specific content types.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sorting</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sort results by relevance, distance, created time, modified time or effective time.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Additional Sources</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Select <strong>All Sources</strong> or <strong>Specific Sources</strong>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All Sources</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Create an enterprise search. All federations are queried.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specific Sources</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search a specific source(s). If a source is unavailable, it is displayed in red text.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_results"><a class="anchor" href="#_results"></a><a class="link" href="#_results">4.1.3. Results</a></h4>
-<div class="paragraph">
-<p>After a query is executed, the records matching the search criteria are automatically displayed in
-the Results pane.</p>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 85.7143%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Item</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search criteria</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enhanced search toggle. Enables the enhanced search menu (see below). Allows users to filter and
- refine search and build more sophisticated queries.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Results</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of records that were returned as a result of the query. Only the top 250 results are
- displayed, with the most relevant records displayed at the top of the list. If more than 250
- results are returned, try narrowing the search criteria.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Navigates back to the Search pane.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Save button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allows the user to select individual records to save.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Records list</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Shows the results of the search. The following information is displayed for each record:</p>
-<p class="tableblock">Title – The title of the record is displayed in blue text. Select the title of the record to view
-more details.</p>
-<p class="tableblock">Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution)
-and the amount of time that has passed since the record was modified (e.g., an hour ago).</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_enhanced_search"><a class="anchor" href="#_enhanced_search"></a><a class="link" href="#_enhanced_search">4.1.4. Enhanced Search</a></h4>
-<div class="paragraph">
-<p>The enhanced search menu allows more granular filtering of results and the ability to construct
-sophisticated queries.</p>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 85.7143%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Item</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of all sources searched with check boxes to allow users to refine searches to the most
- relevant sources.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metadata Content Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of metadata content types found in the search, with the ability to select and deselect
- content type.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Query</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Query builder enables users to construct a very granular search query.
- The first drop-down menu contains the metadata elements in the search results, and the second
- contains operators based on the field selected (greater than, equals, contains, matchcase, before, after,
- etc.)  Click the + to add further constraints to the query, or x to remove.
- Click Search to use the new query.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Executes an enhanced search on any new parameters that were specified or the query built above.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_record_summary"><a class="anchor" href="#_record_summary"></a><a class="link" href="#_record_summary">4.1.5. Record Summary</a></h4>
-<div class="paragraph">
-<p>When an individual record is selected in the results list, the Record pane opens. When the Summary
-button is selected in the Record pane, the following information is displayed.</p>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 85.7143%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Item</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Results button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Navigates back to the original query results list.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Up and down arrows</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Navigate through the records that were returned in the search. When the end or the beginning of
- the search results list is reached, the respective up or down arrow is disabled.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Details button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Opens the <a href="#_record_details">Details</a> tab, which displays more information about the record.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Title</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The title of the record is displayed in white font.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The location that the metadata came from, which could be the local provider or a federated source.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Created time</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">When the record was created.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Modified time</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time since the record was last modified.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Locate button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Centers the map on the record&#8217;s originating location.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Thumbnail</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Depicts a reduced-size image of the original artifact for the current record, if available.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Download</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A link to download the record. The size, if known, is indicated.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_record_details"><a class="anchor" href="#_record_details"></a><a class="link" href="#_record_details">4.1.6. Record Details</a></h4>
-<div class="paragraph">
-<p>When an individual record is selected in the results list, the Record pane opens. When the Details
-button is selected in the Record pane, the following information is displayed.</p>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 85.7143%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Item</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Results button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Navigates back to the original query results list.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Up and down arrows</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Navigate through the records that were returned in the search. When the end or the beginning of
- the search results list is reached, the respective up or down arrow is disabled.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Summary button</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Opens the Summary tab, which provides a high-level overview of the result set.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Id</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The record&#8217;s unique identifier.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source Id</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Where the metadata was retrieved from, which could be the local provider or a federated source.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Title</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The title of the record is displayed in white font.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Thumbnail</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Depicts a reduced size image of the original artifact for the current record, if available.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Resource URI</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Identifies the stored resource within the server.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Created time</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">When the record was created.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard Content Type version</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The version of the metadata associated with the record.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The type of metacard associated with the record.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard Content Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The type of the metadata associated with the record.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Resource size</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the resource, if available.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Modified</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time since the record was last modified.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Download</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">When applicable, a download link for the product associated with the record is displayed. The size
- of the product is also displayed, if available. If the size is not available, N/A is displayed.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metadata</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Shows a representation of the metadata XML, if available.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_actions"><a class="anchor" href="#_actions"></a><a class="link" href="#_actions">4.2. Actions</a></h3>
-<div class="paragraph">
-<p>Depending on the contents of the metacard, various actions will be available to perform on the
-metadata.</p>
-</div>
-<div class="paragraph">
-<p>Troubleshooting: if no actions are available, ensure IP address is configured correctly under
-global configuration in Admin Console.</p>
-</div>
-<div class="sect3">
-<h4 id="_save_a_search"><a class="anchor" href="#_save_a_search"></a><a class="link" href="#_save_a_search">4.2.1. Save a Search</a></h4>
-<div class="paragraph">
-<p>Saved searches are search criteria that are created and saved by a user. Each saved search has a
-name that was defined by the user, and the search can be executed at a later time or be scheduled
-for execution. Bookmarked records that the user elected to save for future use are returned
-as part of a search. These queries can be saved to a <a href="#_workspaces">workspace</a>, which is a
-collection of searches and records created by a user. Complete the following procedure to create
-a saved search.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Select the Search tab at the bottom of the left pane.</p>
-</li>
-<li>
-<p>Use the fields provided to define the <a href="#_search_criteria">Search Criteria</a> for the query to be saved.</p>
-</li>
-<li>
-<p>Select the <strong>Save</strong> button. The Select Workspace pane opens.</p>
-</li>
-<li>
-<p>Type a name for the query in the <strong>ENTER NAME FOR SEARCH</strong> field.</p>
-</li>
-<li>
-<p>Select a workspace in which to save the query, or create a workspace by typing a title for the new workspace in the <strong>New Workspace</strong> field.</p>
-</li>
-<li>
-<p>Select the <strong>Save</strong> button.</p>
-</li>
-</ol>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>The size of the product is based on the value in the associated metacard&#8217;s resource-size attribute.
-This is defined when the metacard was originally created and may or may not be accurate. Often it
-will be set to N/A, indicating that the size is unknown or not applicable.</p>
-</div>
-<div class="paragraph">
-<p>However, if the administrator has enabled caching on DDF, and has installed the
-<code>catalog-core-resourcesizeplugin</code> PostQuery Plugin, and if the product has been retrieved, it has been cached and the size of the product can be determined based on the cached file&#8217;s size.
-Therefore, subsequent query results that include that product will display an accurate size under
-the download link.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_workspaces"><a class="anchor" href="#_workspaces"></a><a class="link" href="#_workspaces">4.3. Workspaces</a></h3>
-<div class="paragraph">
-<p>Each user can create multiple workspaces and assign each of them a descriptive name.
-Each workspace can contain multiple <a href="#_save_a_search">saved searches</a> and contain multiple saved records.
-Workspaces are saved for each user and are loaded when the user logs in.
-Workspaces and their contents are persisted, so they survive if DDF is restarted. Within the Standard Search UI, workspaces are private and cannot be viewed by other users.</p>
-</div>
-<div class="sect3">
-<h4 id="_create_a_workspace"><a class="anchor" href="#_create_a_workspace"></a><a class="link" href="#_create_a_workspace">4.3.1. Create a Workspace</a></h4>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Select the Workspaces tab at the bottom of the Search UI&#8217;s left pane. The Workspaces pane opens, which displays the existing workspaces that were created by the user. At the top of the pane, an option to <strong>Add</strong> and an option to <strong>Edit</strong> are displayed.</p>
-</li>
-<li>
-<p>Select the <strong>Add</strong> button at the top of the left pane. A new workspace is created.</p>
-</li>
-<li>
-<p>In the <strong>Workspace Name</strong> field, enter a descriptive name for the workspace.</p>
-</li>
-<li>
-<p>Select the <strong>Add</strong> button. The Workspaces pane opens, which now displays the new workspace and any
-existing workspaces.</p>
-</li>
-<li>
-<p>Select the name of the new workspace. The data (i.e., saved searches and records) for the
-selected workspace is displayed in the Workspace pane.</p>
-</li>
-<li>
-<p>Select the + icon near the top of the Workspace pane to begin adding queries to the workspace.
-The Add/Edit Search pane opens.</p>
-</li>
-<li>
-<p>Enter a name for the new query to be saved in the QUERY NAME field.</p>
-</li>
-<li>
-<p>Complete the rest of the <a href="#_search_criteria">Search Criteria</a>.</p>
-</li>
-<li>
-<p>Select the <strong>Save &amp; Search</strong> button. The Search UI begins searching for records matching the
-criteria, and the new query is saved to the workspace. When the search is complete, the
-Workspace pane opens.</p>
-</li>
-<li>
-<p>Select the name of the search to view the query results.</p>
-</li>
-<li>
-<p>If necessary, in the Workspace pane, select the <strong>Edit</strong> button then select the pencil icon next to the name of a query to change the search
-criteria.</p>
-</li>
-<li>
-<p>If necessary, in the Workspace pane, select the delete icon next to the name of a query to delete the query from the workspace.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_notifications"><a class="anchor" href="#_notifications"></a><a class="link" href="#_notifications">4.4. Notifications</a></h3>
-<div class="paragraph">
-<p>The Standard Search UI receives all notifications from DDF. These notifications appear as
-pop-up windows inside the Search UI to alert the user of an event of interest. To view all
-notifications, select the notification icon.</p>
-</div>
-<div class="paragraph">
-<p>Currently, the notifications provide information about product retrieval only. After a user
-initiates a resource download, they receive periodic notifications that provide the progress of the
-download (e.g., the download completed, failed, or is being retried).</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>A notification pop-up remains visible until it is dismissed or the browser is refreshed. Once a
-notification is dismissed, it cannot be retrieved again.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_activities"><a class="anchor" href="#_activities"></a><a class="link" href="#_activities">4.5. Activities</a></h3>
-<div class="paragraph">
-<p>Similar to notifications, activities appear as pop-up windows inside the Search UI. Activity events
-include the status and progress of actions that are being performed by the user, such as searches
-and downloads. To view all activities, select the activity icon in
-the top-right corner of the window. A list of all activities opens in a drop-down menu, from which
-activities can be read and deleted. If a download activity is being performed, the Activity
-drop-down menu provides the link to retrieve the product.</p>
-</div>
-<div class="paragraph">
-<p>If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down
-menu until the action being performed is complete.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_downloads"><a class="anchor" href="#_downloads"></a><a class="link" href="#_downloads">4.6. Downloads</a></h3>
-<div class="paragraph">
-<p>Downloads from the UI are currently managed by the user-specific browser&#8217;s download manager.
-The UI itself does not have a built-in download manager utility.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_maps"><a class="anchor" href="#_maps"></a><a class="link" href="#_maps">4.7. Maps</a></h3>
-<div class="paragraph">
-<p>The right side of the Search UI contains a map to locate search results on. There are three views
-for this map, 3D, 2D, and Columbus View. To choose a different view, select the map icon in the
-upper right corner. (The icon will change depending on current view selected.)</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_using_the_simple_search"><a class="anchor" href="#_using_the_simple_search"></a><a class="link" href="#_using_the_simple_search">5. Using the Simple Search</a></h2>
+<h2 id="_using_the_simple_search"><a class="anchor" href="#_using_the_simple_search"></a><a class="link" href="#_using_the_simple_search">4. Using the Simple Search</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The DDF Simple Search UI application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
 Results are returned in HTML format.</p>
 </div>
 <div class="sect2">
-<h3 id="_search_2"><a class="anchor" href="#_search_2"></a><a class="link" href="#_search_2">5.1. Search</a></h3>
+<h3 id="_search"><a class="anchor" href="#_search"></a><a class="link" href="#_search">4.1. Search</a></h3>
 <div class="paragraph">
 <p>The <strong>Input</strong> form allows the user to specify keyword, geospatial, temporal, and type query parameters.
 It also allows the user to select the sources to search and the number of results to return.</p>
 </div>
 <div class="sect3">
-<h4 id="_search_criteria_2"><a class="anchor" href="#_search_criteria_2"></a><a class="link" href="#_search_criteria_2">5.1.1. Search Criteria</a></h4>
+<h4 id="_search_criteria"><a class="anchor" href="#_search_criteria"></a><a class="link" href="#_search_criteria">4.1.1. Search Criteria</a></h4>
 <div class="paragraph">
 <p>Enter one or more of the available search criteria to execute a query:</p>
 </div>
@@ -2493,12 +1899,12 @@ It also allows the user to select the sources to search and the number of result
 </div>
 </div>
 <div class="sect3">
-<h4 id="_results_2"><a class="anchor" href="#_results_2"></a><a class="link" href="#_results_2">5.1.2. Results</a></h4>
+<h4 id="_results"><a class="anchor" href="#_results"></a><a class="link" href="#_results">4.1.2. Results</a></h4>
 <div class="paragraph">
 <p>The table of results shows the details of the results found, as well as a link to download the product if applicable.</p>
 </div>
 <div class="sect4">
-<h5 id="_results_summary"><a class="anchor" href="#_results_summary"></a><a class="link" href="#_results_summary">5.1.2.1. Results  Summary</a></h5>
+<h5 id="_results_summary"><a class="anchor" href="#_results_summary"></a><a class="link" href="#_results_summary">4.1.2.1. Results  Summary</a></h5>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Total Results</dt>
@@ -2513,7 +1919,7 @@ It also allows the user to select the sources to search and the number of result
 </div>
 </div>
 <div class="sect4">
-<h5 id="_results_table"><a class="anchor" href="#_results_table"></a><a class="link" href="#_results_table">5.1.2.2. Results Table</a></h5>
+<h5 id="_results_table"><a class="anchor" href="#_results_table"></a><a class="link" href="#_results_table">4.1.2.2. Results Table</a></h5>
 <div class="paragraph">
 <p>The Results table provides a preview of and links to the results.
 The table consists of these columns:</p>
@@ -2549,7 +1955,7 @@ The table consists of these columns:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_result_view"><a class="anchor" href="#_result_view"></a><a class="link" href="#_result_view">5.1.3. Result View</a></h4>
+<h4 id="_result_view"><a class="anchor" href="#_result_view"></a><a class="link" href="#_result_view">4.1.3. Result View</a></h4>
 <div class="paragraph">
 <p>This view shows more detailed look at a result.</p>
 </div>
@@ -2664,7 +2070,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-02-21 01:18:53 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-03-11 21:40:31 UTC
 </div>
 </div>
 </body>

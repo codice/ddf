@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.13.6. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.14.0. Copyright (c) Codice Foundation">
 <title>Managing</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,18 +520,14 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Managing</h1>
 <div class="details">
-<span id="author" class="author">Version 2.13.6. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.14.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_securing">1. Securing</a>
 <ul class="sectlevel2">
-<li><a href="#_security_hardening">1.1. Security Hardening</a>
-<ul class="sectlevel3">
-<li><a href="#_hardening_checklist">1.1.1. Hardening Checklist</a></li>
-</ul>
-</li>
+<li><a href="#_security_hardening">1.1. Security Hardening</a></li>
 <li><a href="#_auditing">1.2. Auditing</a>
 <ul class="sectlevel3">
 <li><a href="#_enabling_fallback_audit_logging">1.2.1. Enabling Fallback Audit Logging</a></li>
@@ -545,6 +541,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel3">
 <li><a href="#_hardware_requirements">2.1.1. Hardware Requirements</a></li>
 <li><a href="#_java_requirements">2.1.2. Java Requirements</a></li>
+<li><a href="#_java_requirements_2">2.1.3. Java Requirements</a></li>
 </ul>
 </li>
 <li><a href="#_installing_with_the_ddf_distribution_zip">2.2. Installing With the DDF Distribution Zip</a>
@@ -576,18 +573,18 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_verifying_startup">2.3.1. Verifying Startup</a></li>
 <li><a href="#_ddf_directory_contents_after_installation_and_initial_startup">2.3.2. DDF Directory Contents after Installation and Initial Startup</a></li>
 <li><a href="#_completing_installation">2.3.3. Completing Installation</a>
-<ul class="sectlevel5">
+<ul class="sectlevel4">
 <li><a href="#_completing_installation_from_the_admin_console">2.3.3.1. Completing Installation from the Admin Console</a></li>
 <li><a href="#_completing_installation_from_the_command_console">2.3.3.2. Completing Installation from the Command Console</a>
-<ul class="sectlevel6">
-<li><a href="#_configure_guest_claim_attributes">Configure Guest Claim Attributes</a></li>
-<li><a href="#_system_configuration_settings">System Configuration Settings</a></li>
+<ul class="sectlevel5">
+<li><a href="#_configuring_guest_claim_attributes">2.3.3.2.1. Configuring Guest Claim Attributes</a></li>
+<li><a href="#_system_configuration_settings">2.3.3.2.2. System Configuration Settings</a></li>
 </ul>
 </li>
-<li><a href="#_firewall_port_configuration">2.3.3.3. Firewall Port Configuration</a></li>
-<li><a href="#_internet_explorer_11_enhanced_security_configuration">2.3.3.4. Internet Explorer 11 Enhanced Security Configuration</a></li>
 </ul>
 </li>
+<li><a href="#_firewall_port_configuration">2.3.4. Firewall Port Configuration</a></li>
+<li><a href="#_internet_explorer_11_enhanced_security_configuration">2.3.5. Internet Explorer 11 Enhanced Security Configuration</a></li>
 </ul>
 </li>
 <li><a href="#_high_availability_initial_setup">2.4. High Availability Initial Setup</a>
@@ -632,7 +629,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_allowing_guest_user_access">3.4.1.2. Allowing Guest User Access</a>
 <ul class="sectlevel5">
 <li><a href="#_configuring_guest_interceptor_if_allowing_guest_users">3.4.1.2.1. Configuring Guest Interceptor if Allowing Guest Users</a></li>
-<li><a href="#_configuring_guest_claim_attributes">3.4.1.2.2. Configuring Guest Claim Attributes</a></li>
+<li><a href="#_configuring_guest_claim_attributes_2">3.4.1.2.2. Configuring Guest Claim Attributes</a></li>
 </ul>
 </li>
 </ul>
@@ -828,15 +825,26 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_wfs_2_0_source">3.8.5.11. WFS 2.0 Source</a></li>
 </ul>
 </li>
-<li><a href="#_federating_through_a_registry">3.8.6. Federating Through a Registry</a>
+<li><a href="#_configuring_endpoints">3.8.6. Configuring Endpoints</a>
 <ul class="sectlevel4">
-<li><a href="#_configuring_identity_node">3.8.6.1. Configuring Identity Node</a>
-<ul class="sectlevel5">
-<li><a href="#_adding_a_service_binding_to_a_node">3.8.6.1.1. Adding a Service Binding to a Node</a></li>
+<li><a href="#_configuring_catalog_rest_endpoint">3.8.6.1. Configuring Catalog REST Endpoint</a></li>
+<li><a href="#_configuring_csw_endpoint">3.8.6.2. Configuring CSW Endpoint</a></li>
+<li><a href="#_configuring_ftp_endpoint">3.8.6.3. Configuring FTP Endpoint</a></li>
+<li><a href="#_configuring_kml_endpoint">3.8.6.4. Configuring KML Endpoint</a></li>
+<li><a href="#_configuring_opensearch_endpoint">3.8.6.5. Configuring OpenSearch Endpoint</a></li>
+<li><a href="#_configuring_wps_endpoint">3.8.6.6. Configuring WPS Endpoint</a></li>
+<li><a href="#_compression_services">3.8.6.7. Compression Services</a></li>
 </ul>
 </li>
-<li><a href="#_publishing_to_other_nodes">3.8.6.2. Publishing to Other Nodes</a></li>
-<li><a href="#_subscribing_to_another_node">3.8.6.3. Subscribing to Another Node</a></li>
+<li><a href="#_federating_through_a_registry">3.8.7. Federating Through a Registry</a>
+<ul class="sectlevel4">
+<li><a href="#_configuring_identity_node">3.8.7.1. Configuring Identity Node</a>
+<ul class="sectlevel5">
+<li><a href="#_adding_a_service_binding_to_a_node">3.8.7.1.1. Adding a Service Binding to a Node</a></li>
+</ul>
+</li>
+<li><a href="#_publishing_to_other_nodes">3.8.7.2. Publishing to Other Nodes</a></li>
+<li><a href="#_subscribing_to_another_node">3.8.7.3. Subscribing to Another Node</a></li>
 </ul>
 </li>
 </ul>
@@ -887,6 +895,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_configuring_decanter_scheduler">3.12.3.2. Configuring Decanter Scheduler</a></li>
 </ul>
 </li>
+<li><a href="#_encrypting_passwords">3.12.4. Encrypting Passwords</a>
+<ul class="sectlevel4">
+<li><a href="#_encryption_command">3.12.4.1. Encryption Command</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -925,9 +938,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_available_console_commands">4.3.1.3. Available Console Commands</a>
 <ul class="sectlevel5">
 <li><a href="#_catalog_commands">4.3.1.3.1. Catalog Commands</a></li>
-<li><a href="#_subscriptions_commands">4.3.1.3.2. Subscriptions Commands</a></li>
-<li><a href="#_platform_commands">4.3.1.3.3. Platform Commands</a></li>
-<li><a href="#_persistence_store_commands">4.3.1.3.4. Persistence Store Commands</a></li>
+<li><a href="#_solr_commands">4.3.1.3.2. Solr Commands</a></li>
+<li><a href="#_subscriptions_commands">4.3.1.3.3. Subscriptions Commands</a></li>
+<li><a href="#_platform_commands">4.3.1.3.4. Platform Commands</a></li>
+<li><a href="#_persistence_store_commands">4.3.1.3.5. Persistence Store Commands</a></li>
+<li><a href="#_migrate_commands">4.3.1.3.6. Migrate Commands</a></li>
 </ul>
 </li>
 <li><a href="#_command_scheduler">4.3.1.4. Command Scheduler</a>
@@ -974,18 +989,20 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_user_interface_ingest">5.1.2. User Interface Ingest</a></li>
 <li><a href="#_content_directory_monitor_ingest">5.1.3. Content Directory Monitor Ingest</a></li>
 <li><a href="#_external_methods_of_ingesting_data">5.1.4. External Methods of Ingesting Data</a></li>
-<li><a href="#_other_methods_of_ingesting_data">5.1.5. Other Methods of Ingesting Data</a></li>
+<li><a href="#_creating_and_managing_system_search_forms_through_karaf">5.1.5. Creating And Managing System Search Forms Through Karaf</a></li>
+<li><a href="#_other_methods_of_ingesting_data">5.1.6. Other Methods of Ingesting Data</a></li>
 </ul>
 </li>
-<li><a href="#_backing_up_the_catalog">5.2. Backing Up the Catalog</a></li>
-<li><a href="#_validating_data">5.3. Validating Data</a>
+<li><a href="#_validating_data">5.2. Validating Data</a>
 <ul class="sectlevel3">
-<li><a href="#_viewing_invalid_metacards">5.3.1. Viewing Invalid Metacards</a></li>
-<li><a href="#_manually_editing_attributes">5.3.2. Manually Editing Attributes</a></li>
-<li><a href="#_injecting_attributes">5.3.3. Injecting Attributes</a></li>
-<li><a href="#_overriding_attributes">5.3.4. Overriding Attributes</a></li>
+<li><a href="#_configuring_schematron_services">5.2.1. Configuring Schematron Services</a></li>
+<li><a href="#_viewing_invalid_metacards">5.2.2. Viewing Invalid Metacards</a></li>
+<li><a href="#_manually_editing_attributes">5.2.3. Manually Editing Attributes</a></li>
+<li><a href="#_injecting_attributes">5.2.4. Injecting Attributes</a></li>
+<li><a href="#_overriding_attributes">5.2.5. Overriding Attributes</a></li>
 </ul>
 </li>
+<li><a href="#_backing_up_the_catalog">5.3. Backing Up the Catalog</a></li>
 <li><a href="#_removing_expired_records_from_the_catalog">5.4. Removing Expired Records from the Catalog</a></li>
 <li><a href="#_migrating_data">5.5. Migrating Data</a></li>
 <li><a href="#_automatically_added_metacard_attributes">5.6. Automatically Added Metacard Attributes</a>
@@ -1075,7 +1092,7 @@ Use this section to prepare, install, configure, run, and monitor a DDF.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>The security precautions are best performed as configuration is taking place, so hardening steps are integrated into configuration steps.</p>
+<p>The  security precautions are best performed as configuration is taking place, so hardening steps are integrated into configuration steps.</p>
 </div>
 </td>
 </tr>
@@ -1090,71 +1107,6 @@ Most configurations have a security component to them, and important considerati
 Steps required for hardening are marked as <strong>Required for Hardening</strong> and are collected here for convenience.
 Refer to the checklist during system setup.</p>
 </div>
-<div class="sect3">
-<h4 id="_hardening_checklist"><a class="anchor" href="#_hardening_checklist"></a><a class="link" href="#_hardening_checklist">1.1.1. Hardening Checklist</a></h4>
-<div class="paragraph">
-<p>The following list enumerates the required mitigations needed for hardening:</p>
-</div>
-<div class="ulist checklist">
-<ul class="checklist">
-<li>
-<p>&#10063; <a href="#_auditing">Configure Auditing</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_setting_directory_permissions">Set Directory Permissions</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_managing_keystores_and_certificates">Configure Keystore and Certificates</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_disallowing_login_without_certificates">Disallow Login Without Certificates</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_managing_certificate_revocation_list_crl">Configure Certificate Revocation List</a></p>
-<div class="ulist checklist">
-<ul class="checklist">
-<li>
-<p>&#10063; <a href="#_denying_guest_user_access">Deny Guest User Access</a> (if denying Guest users)</p>
-</li>
-<li>
-<p>&#10063; <a href="#_allowing_guest_user_access">Allow Guest User Access</a> (if allowing Guest users)</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>&#10063; <a href="#_configuring_guest_claim_attributes">Configure Guest Claim Attributes</a> (if allowing Guest users)</p>
-</li>
-<li>
-<p>&#10063; <a href="#_configuring_guest_access">Configure Guest User Authentication</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_hiding_errors_and_warnings_from_users_based_on_role">Create unique user role</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_limiting_access_to_the_sts">Limit Access to the STS</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_restricting_access_to_admin_console">Restricting Access to Admin Console</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_restricting_feature_app_service_and_configuration_access">Restrict Feature, App, Service, and Configuration Access</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_removing_default_users">Remove Default Users</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_hardening_solr">Harden Solr</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_environment_hardening">Environment Hardening</a></p>
-</li>
-<li>
-<p>&#10063; <a href="#_isolating_solr_cloud_and_zookeeper">Isolate Solr Cloud and Zookeeper</a>. (If using)</p>
-</li>
-</ul>
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_auditing"><a class="anchor" href="#_auditing"></a><a class="link" href="#_auditing">1.2. Auditing</a></h3>
@@ -1167,7 +1119,7 @@ Refer to the checklist during system setup.</p>
 </div>
 <div class="paragraph">
 <p>Audit logging captures security-specific system events for monitoring and review.
-DDF provides a <a href="developing.html#_security_logging_plugin">Audit Plugin</a> that logs all catalog transactions to the <code>security.log</code>.
+DDF provides an <a href="developing.html#_security_logging_plugin">Audit Plugin</a> that logs all catalog transactions to the <code>security.log</code>.
 Information captured includes user identity, query information, and resources retrieved.</p>
 </div>
 <div class="paragraph">
@@ -1250,7 +1202,7 @@ The logs themselves could be used to generate such reports outside the scope of 
 <div class="ulist">
 <ul>
 <li>
-<p>uncomment the line (remove the <code>#</code> from the beginning of the line) for <code>log4j2</code> (<code>org.ops4j.pax.logging.log4j2.config.file = ${karaf.etc}/log4j2.config.xml</code>)</p>
+<p>uncomment the line (remove the <code>#</code> from the beginning of the line) for <code>log4j2</code> (<code>org.ops4j.pax.logging.log4j2.config.file = ${karaf.etc}/log4j2.xml</code>)</p>
 </li>
 <li>
 <p>delete all subsequent lines</p>
@@ -1279,7 +1231,7 @@ The logs themselves could be used to generate such reports outside the scope of 
 </div>
 </li>
 <li>
-<p>edit <code>&lt;DDF_HOME&gt;/etc/log4j2.config.xml</code></p>
+<p>edit <code>&lt;DDF_HOME&gt;/etc/log4j2.xml</code></p>
 <div class="ulist">
 <ul>
 <li>
@@ -1302,8 +1254,8 @@ The logs themselves could be used to generate such reports outside the scope of 
 3
 </pre></td>
   <td class="code"><pre><span class="tag">&lt;RollingFile</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">securityBackup</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">append</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">ignoreExceptions</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">false</span><span class="delimiter">&quot;</span></span>
-                     <span class="attribute-name">fileName</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${sys:karaf.data}/log/securityBackup.log</span><span class="delimiter">&quot;</span></span>
-                     <span class="attribute-name">filePattern</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${sys:karaf.data}/log/securityBackup.log-%d{yyyy-MM-dd-HH}-%i.log.gz</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span></pre></td>
+                     <span class="attribute-name">fileName</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${sys:karaf.log}/securityBackup.log</span><span class="delimiter">&quot;</span></span>
+                     <span class="attribute-name">filePattern</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">${sys:karaf.log}/securityBackup.log-%d{yyyy-MM-dd-HH}-%i.log.gz</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span></pre></td>
 </tr></table></code></pre>
 </div>
 </div>
@@ -1459,7 +1411,7 @@ correctly.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Additional Software</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">JDK 8 x64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JRE 8 x64</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JDK 8 x64</p></td>
 </tr>
 </tbody>
@@ -1507,6 +1459,22 @@ Chrome</p></td>
 </div>
 <div class="sect3">
 <h4 id="_java_requirements"><a class="anchor" href="#_java_requirements"></a><a class="link" href="#_java_requirements">2.1.2. Java Requirements</a></h4>
+<div class="paragraph">
+<p>For a runtime system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html">JRE 8 x64</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Java Requirements"></span> or <a href="https://openjdk.java.net/install">OpenJDK 8 JRE</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Java Requirements"></span> must be installed.</p>
+</li>
+<li>
+<p>The <code>JRE_HOME</code> environment variable must be set to the locations where the JRE is installed</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For a development system:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -1531,6 +1499,257 @@ Chrome</p></td>
 </li>
 <li>
 <p>Install/Upgrade to <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">JDK8</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Java Requirements"></span>.</p>
+</li>
+<li>
+<p>Set the <code>JAVA_HOME</code> environment variable to the location where the JDK is installed.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="title">*NIX Unlinking JAVA_HOME if Previously Set</div>
+<div class="paragraph">
+<p>Unlink <code>JAVA_HOME</code> if it is already linked to a previous version of the JRE:</p>
+</div>
+<div class="paragraph">
+<p><code>unlink JAVA_HOME</code></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If JDK was installed:</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<div class="title">Setting JAVA_HOME variable</div>
+<p>Replace <code>&lt;JAVA_VERSION&gt;</code> with the version and build number installed.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open a terminal window(*NIX) or command prompt (Windows) with administrator privileges.</p>
+</li>
+<li>
+<p>Determine Java Installation Directory (This varies between operating system versions).</p>
+<div class="listingblock">
+<div class="title">Find Java Path in *NIX</div>
+<div class="content">
+<pre>which java</pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Find Java Path in Windows</div>
+<p>The path to the JDK can vary between versions of Windows, so manually verify the path under:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>C:\Program Files\Java\jdk&lt;M.m.p_build&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Copy path of Java installation to clipboard. (example: <code>/usr/java/&lt;JAVA_VERSION</code>&gt;)</p>
+</li>
+<li>
+<p>Set <code>JAVA_HOME</code> by replacing &lt;PATH_TO_JAVA&gt; with the copied path in this command:</p>
+<div class="listingblock">
+<div class="title">Setting <code>JAVA_HOME</code> on *NIX</div>
+<div class="content">
+<pre>JAVA_HOME=&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;
+export JAVA_HOME</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Setting <code>JAVA_HOME</code> on Windows</div>
+<div class="content">
+<pre>set JAVA_HOME=&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;
+setx JAVA_HOME "&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;"</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Adding <code>JAVA_HOME</code> to <code>PATH</code> Environment Variable on Windows</div>
+<div class="content">
+<pre>setx PATH "%PATH%;%JAVA_HOME%\bin"</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Restart Terminal (shell) or Command Prompt.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Verify that the <code>JAVA_HOME</code> was set correctly.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock">
+<div class="title">*NIX</div>
+<div class="content">
+<pre>echo $JAVA_HOME</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Windows</div>
+<div class="content">
+<pre>echo %JAVA_HOME%</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>If JRE was installed:</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<div class="title">Setting JRE_HOME variable</div>
+<p>Replace <code>&lt;JAVA_VERSION&gt;</code> with the version and build number installed.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open a terminal window(*NIX) or command prompt (Windows) with administrator privileges.</p>
+</li>
+<li>
+<p>Determine Java Installation Directory (This varies between operating system versions).</p>
+<div class="listingblock">
+<div class="title">Find Java Path in *NIX</div>
+<div class="content">
+<pre>which java</pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Find Java Path in Windows</div>
+<p>The path to the JRE can vary between versions of Windows, so manually verify the path under:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>C:\Program Files\Java\jre&lt;M.m.p_build&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Copy path of Java installation to clipboard. (example: <code>/usr/java/&lt;JAVA_VERSION</code>&gt;)</p>
+</li>
+<li>
+<p>Set <code>JRE_HOME</code> by replacing &lt;PATH_TO_JAVA&gt; with the copied path in this command:</p>
+<div class="listingblock">
+<div class="title">Setting <code>JRE_HOME</code> on *NIX</div>
+<div class="content">
+<pre>JRE_HOME=&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;
+export JRE_HOME</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Setting <code>JRE_HOME</code> on Windows</div>
+<div class="content">
+<pre>set JRE_HOME=&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;
+setx JRE_HOME "&lt;PATH_TO_JAVA&gt;&lt;JAVA_VERSION&gt;"</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Adding <code>JRE_HOME</code> to <code>PATH</code> Environment Variable on Windows</div>
+<div class="content">
+<pre>setx PATH "%PATH%;%JRE_HOME%\bin"</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Restart Terminal (shell) or Command Prompt.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Verify that the <code>JRE_HOME</code> was set correctly.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">File Descriptor Limit on Linux</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For Linux systems, increase the file descriptor limit by editing <code>/etc/sysctl.conf</code> to include:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>fs.file-max = 6815744</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For the change to take effect, a restart is required.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">*Nix Restart Command</div>
+<div class="content">
+<pre>init 6</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_java_requirements_2"><a class="anchor" href="#_java_requirements_2"></a><a class="link" href="#_java_requirements_2">2.1.3. Java Requirements</a></h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">JDK8</a> must be installed.</p>
+</li>
+<li>
+<p>The <code>JAVA_HOME</code> environment variable must be set to the location where the JDK is installed.</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Install/Upgrade to Java 8 x64 <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">J2SE 8 SDK</a></p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>The recommended version is <a href="http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html">8u60</a> or later.</p>
+</li>
+<li>
+<p>Java version must contain only number values.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Install/Upgrade to <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">JDK8</a>.</p>
 </li>
 <li>
 <p>Set the <code>JAVA_HOME</code> environment variable to the location where the JDK is installed.</p>
@@ -1759,7 +1978,7 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>Change the current directory to the location of the zip file (ddf-2.13.6.zip).</p>
+<p>Change the current directory to the location of the zip file (ddf-2.14.0.zip).</p>
 <div class="listingblock">
 <div class="title">*NIX (Example assumes DDF has been downloaded to a CD/DVD)</div>
 <div class="content">
@@ -1774,17 +1993,17 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>Copy ddf-2.13.6.zip to &lt;DDF_HOME&gt;.</p>
+<p>Copy ddf-2.14.0.zip to &lt;DDF_HOME&gt;.</p>
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>cp ddf-2.13.6.zip &lt;DDF_HOME&gt;</pre>
+<pre>cp ddf-2.14.0.zip &lt;DDF_HOME&gt;</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Windows</div>
 <div class="content">
-<pre>copy ddf-2.13.6.zip &lt;DDF_HOME&gt;</pre>
+<pre>copy ddf-2.14.0.zip &lt;DDF_HOME&gt;</pre>
 </div>
 </div>
 </li>
@@ -1798,11 +2017,11 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>The DDF zip is now located within the <code>&lt;DDF_HOME&gt;</code>. Unzip ddf-2.13.6.zip.</p>
+<p>The DDF zip is now located within the <code>&lt;DDF_HOME&gt;</code>. Unzip ddf-2.14.0.zip.</p>
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>unzip ddf-2.13.6.zip</pre>
+<pre>unzip ddf-2.14.0.zip</pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -1821,7 +2040,7 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 <div class="listingblock">
 <div class="title">Use Java to Unzip in Windows(Replace <code>&lt;PATH_TO_JAVA&gt;</code> with correct path <code>and &lt;JAVA_VERSION&gt;</code> with current version.)</div>
 <div class="content">
-<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.13.6.zip</pre>
+<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.14.0.zip</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1841,7 +2060,7 @@ The command prompt will stop responding to input during this time.</p>
 <p>Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.</p>
 </div>
 <div class="paragraph">
-<p>Within the <code>&lt;DDF_HOME&gt;</code>, a directory is created named ddf-2.13.6.
+<p>Within the <code>&lt;DDF_HOME&gt;</code>, a directory is created named ddf-2.14.0.
 This directory will be referred to in the documentation as <code>&lt;DDF_HOME&gt;</code>.</p>
 </div>
 <div class="olist arabic">
@@ -1879,7 +2098,7 @@ System administrators MUST perform the following steps prior to deploying bundle
 <td class="content">
 <div class="paragraph">
 <p>The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
-For example the <code>DDF_USER</code> should have read-only access to <code>&lt;DDF_HOME&gt;</code>, except for the sub-directories <code>etc</code>, <code>data</code>, <code>solr</code> and <code>instances</code>.</p>
+For example the <code>DDFUSER</code> should have read-only access to <code>&lt;DDF_HOME&gt;</code>, except for the sub-directories <code>etc</code>, <code>data</code>, <code>solr</code> and <code>instances</code>.</p>
 </div>
 </td>
 </tr>
@@ -1984,7 +2203,7 @@ For example the <code>DDF_USER</code> should have read-only access to <code>&lt;
 <div class="ulist">
 <ul>
 <li>
-<p><code>chgrp -R DDF_GROUP &lt;DDF_HOME&gt;/etc &lt;DDF_HOME&gt;/data &lt;DDF_HOME&gt;/instances &lt;DDF_HOME&gt;/solr</code></p>
+<p><code>chgrp -R DDFGROUP &lt;DDF_HOME&gt;/etc &lt;DDF_HOME&gt;/data &lt;DDF_HOME&gt;/instances &lt;DDF_HOME&gt;/solr</code></p>
 </li>
 </ul>
 </div>
@@ -2163,10 +2382,10 @@ The truststore holds the certificates of nodes or other entities that DDF needs 
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Remove the default keystore at <code>etc/keystore/serverKeystore.jks</code>.</p>
+<p>Remove the default keystore at <code>etc/keystores/serverKeystore.jks</code>.</p>
 </li>
 <li>
-<p>Add the desired keystore file to the <code>etc/keystore</code> directory.</p>
+<p>Add the desired keystore file to the <code>etc/keystores</code> directory.</p>
 </li>
 <li>
 <p>Edit <code>custom.system.properties</code> file to set filenames and passwords.</p>
@@ -2199,10 +2418,10 @@ The truststore holds the certificates of nodes or other entities that DDF needs 
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Remove the default truststore at <code>etc/keystore/serverTruststore.jks</code>.</p>
+<p>Remove the default truststore at <code>etc/keystores/serverTruststore.jks</code>.</p>
 </li>
 <li>
-<p>Add the desired truststore file to the <code>etc/keystore</code> directory.</p>
+<p>Add the desired truststore file to the <code>etc/keystores</code> directory.</p>
 </li>
 <li>
 <p>Edit <code>custom.system.properties</code> file to set filenames and passwords.</p>
@@ -2223,7 +2442,7 @@ The truststore holds the certificates of nodes or other entities that DDF needs 
 <div class="sect5">
 <h6 id="_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key"><a class="anchor" href="#_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key"></a><a class="link" href="#_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key">2.2.2.1.3. Creating a New Keystore/Truststore with an Existing Certificate and Private Key</a></h6>
 <div class="paragraph">
-<p>If provide an existing certificate create a new keystore and truststore with it.</p>
+<p>If provided an existing certificate, create a new keystore and truststore with it.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2651,8 +2870,8 @@ Bundle fragments remain in the <strong>Resolved</strong> state and can never mov
 <div class="paragraph">
 <p>Upon startup, complete installation from either the Admin Console or the Command Console.</p>
 </div>
-<div class="sect5">
-<h6 id="_completing_installation_from_the_admin_console"><a class="anchor" href="#_completing_installation_from_the_admin_console"></a><a class="link" href="#_completing_installation_from_the_admin_console">2.3.3.1. Completing Installation from the Admin Console</a></h6>
+<div class="sect4">
+<h5 id="_completing_installation_from_the_admin_console"><a class="anchor" href="#_completing_installation_from_the_admin_console"></a><a class="link" href="#_completing_installation_from_the_admin_console">2.3.3.1. Completing Installation from the Admin Console</a></h5>
 <div class="paragraph">
 <p>Upon startup, the installation can be completed by navigating to the Admin Console at https://{FQDN}:{PORT}/admin.</p>
 </div>
@@ -2832,8 +3051,8 @@ Otherwise the redirect link must be used.</p>
 </div>
 </div>
 </div>
-<div class="sect5">
-<h6 id="_completing_installation_from_the_command_console"><a class="anchor" href="#_completing_installation_from_the_command_console"></a><a class="link" href="#_completing_installation_from_the_command_console">2.3.3.2. Completing Installation from the Command Console</a></h6>
+<div class="sect4">
+<h5 id="_completing_installation_from_the_command_console"><a class="anchor" href="#_completing_installation_from_the_command_console"></a><a class="link" href="#_completing_installation_from_the_command_console">2.3.3.2. Completing Installation from the Command Console</a></h5>
 <div class="paragraph">
 <p>In order to install DDF from the Command Console, use the command <code>profile:install &lt;profile-name&gt;</code>.
 The <code>&lt;profile-name&gt;</code> should be the desired <a href="#_setup_types">Setup Type</a> in lowercase letters.
@@ -2854,15 +3073,15 @@ After installing the Setup Type, these other components can be set up as describ
 </tr>
 </table>
 </div>
-<div class="sect6">
-<h7 id="_configure_guest_claim_attributes"><a class="anchor" href="#_configure_guest_claim_attributes"></a><a class="link" href="#_configure_guest_claim_attributes">Configure Guest Claim Attributes</a></h7>
+<div class="sect5">
+<h6 id="_configuring_guest_claim_attributes"><a class="anchor" href="#_configuring_guest_claim_attributes"></a><a class="link" href="#_configuring_guest_claim_attributes">2.3.3.2.1. Configuring Guest Claim Attributes</a></h6>
 <div class="paragraph">
 <p>The Guest Claim Attributes can be configured via the Admin Console after running the <code>profile:install</code> command.
 See <a href="#_configuring_guest_claim_attributes">Configuring Guest Claim Attributes</a>.</p>
 </div>
 </div>
-<div class="sect6">
-<h7 id="_system_configuration_settings"><a class="anchor" href="#_system_configuration_settings"></a><a class="link" href="#_system_configuration_settings">System Configuration Settings</a></h7>
+<div class="sect5">
+<h6 id="_system_configuration_settings"><a class="anchor" href="#_system_configuration_settings"></a><a class="link" href="#_system_configuration_settings">2.3.3.2.2. System Configuration Settings</a></h6>
 <div class="paragraph">
 <p>System Settings and Contact Info, as described in <a href="#_configuring_system_settings">System Configuration Settings</a>, can be changed in <code>&lt;DDF_HOME&gt;/etc/custom.system.properties</code>.
 The certificates must be set up manually as described in <a href="#_managing_keystores_and_certificates">Managing Keystores and Certificates</a>.</p>
@@ -2883,8 +3102,9 @@ The certificates must be set up manually as described in <a href="#_managing_key
 </div>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_firewall_port_configuration"><a class="anchor" href="#_firewall_port_configuration"></a><a class="link" href="#_firewall_port_configuration">2.3.3.3. Firewall Port Configuration</a></h5>
+</div>
+<div class="sect3">
+<h4 id="_firewall_port_configuration"><a class="anchor" href="#_firewall_port_configuration"></a><a class="link" href="#_firewall_port_configuration">2.3.4. Firewall Port Configuration</a></h4>
 <div class="paragraph">
 <p>Below is a table listing all of the default ports that DDF uses and a description of what they are used for.
 Firewalls will need to be configured to open these ports in order for external systems to communicate with DDF.</p>
@@ -2984,8 +3204,8 @@ must be able to receive requests from DDF on this port.</p>
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_internet_explorer_11_enhanced_security_configuration"><a class="anchor" href="#_internet_explorer_11_enhanced_security_configuration"></a><a class="link" href="#_internet_explorer_11_enhanced_security_configuration">2.3.3.4. Internet Explorer 11 Enhanced Security Configuration</a></h5>
+<div class="sect3">
+<h4 id="_internet_explorer_11_enhanced_security_configuration"><a class="anchor" href="#_internet_explorer_11_enhanced_security_configuration"></a><a class="link" href="#_internet_explorer_11_enhanced_security_configuration">2.3.5. Internet Explorer 11 Enhanced Security Configuration</a></h4>
 <div class="paragraph">
 <p>Below are steps listing all of the changes that DDF requires to run on Internet Explorer 11 and several additional considerations to keep in mind.</p>
 </div>
@@ -3032,7 +3252,6 @@ must be able to receive requests from DDF on this port.</p>
 </td>
 </tr>
 </table>
-</div>
 </div>
 </div>
 </div>
@@ -3159,7 +3378,7 @@ On Windows, this means they must be under the same drive.</p>
 <p>Edit the <code>&lt;DDF_HOME&gt;/etc/org.ops4j.pax.logging.cfg</code> file to enable log4j2, following the steps in <a href="#_enabling_fallback_audit_logging">Enabling Fallback Audit Logging</a>.</p>
 </li>
 <li>
-<p>Then put the appropriate log4j2 appender in <code>&lt;DDF_HOME&gt;/etc/log4j2.config.xml</code> to send logs to the chosen third party tool.
+<p>Then put the appropriate log4j2 appender in <code>&lt;DDF_HOME&gt;/etc/log4j2.xml</code> to send logs to the chosen third party tool.
 See <a href="https://logging.apache.org/log4j/2.x/manual/appenders.html">Log4j Appenders</a> <span class="image"><a class="image" href="_configuring_guest_claims_attribute_page"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="High Availability Initial Setup Exceptions"></a></span>.</p>
 </li>
 </ul>
@@ -3443,19 +3662,19 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version            Name                                     Repository                           Description
-[installed  ] [2.13.6  ] security-handler-api                     security-services-app-2.13.6 API for authentication handlers for web applications.
-[installed  ] [2.13.6  ] security-core                            security-services-app-2.13.6 DDF Security Core
-[uninstalled] [2.13.6  ] security-expansion                       security-services-app-2.13.6 DDF Security Expansion
-[uninstalled] [2.13.6  ] security-cas-client                      security-services-app-2.13.6 DDF Security CAS Client.
-[uninstalled] [2.13.6  ] security-cas-tokenvalidator              security-services-app-2.13.6 DDF Security CAS Validator for the STS.
-[installed  ] [2.13.6  ] security-pdp-authz                       security-services-app-2.13.6 DDF Security PDP.
-[uninstalled] [2.13.6  ] security-pep-serviceauthz                security-services-app-2.13.6 DDF Security PEP Service AuthZ
-[uninstalled] [2.13.6  ] security-expansion-user-attributes       security-services-app-2.13.6 DDF Security Expansion User Attributes Expansion
-[uninstalled] [2.13.6  ] security-expansion-metacard-attributes   security-services-app-2.13.6 DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [2.13.6  ] security-sts-server                      security-services-app-2.13.6 DDF Security STS.
-[installed  ] [2.13.6  ] security-sts-realm                       security-services-app-2.13.6 DDF Security STS Realm.
-[uninstalled] [2.13.6  ] security-sts-ldaplogin                   security-services-app-2.13.6 DDF Security STS JAAS LDAP Login.
-[uninstalled] [2.13.6  ] security-sts-ldapclaimshandler           security-services-app-2.13.6 Retrieves claims attributes from an LDAP store.</pre>
+[installed  ] [2.14.0  ] security-handler-api                     security-services-app-2.14.0 API for authentication handlers for web applications.
+[installed  ] [2.14.0  ] security-core                            security-services-app-2.14.0 DDF Security Core
+[uninstalled] [2.14.0  ] security-expansion                       security-services-app-2.14.0 DDF Security Expansion
+[uninstalled] [2.14.0  ] security-cas-client                      security-services-app-2.14.0 DDF Security CAS Client.
+[uninstalled] [2.14.0  ] security-cas-tokenvalidator              security-services-app-2.14.0 DDF Security CAS Validator for the STS.
+[installed  ] [2.14.0  ] security-pdp-authz                       security-services-app-2.14.0 DDF Security PDP.
+[uninstalled] [2.14.0  ] security-pep-serviceauthz                security-services-app-2.14.0 DDF Security PEP Service AuthZ
+[uninstalled] [2.14.0  ] security-expansion-user-attributes       security-services-app-2.14.0 DDF Security Expansion User Attributes Expansion
+[uninstalled] [2.14.0  ] security-expansion-metacard-attributes   security-services-app-2.14.0 DDF Security Expansion Metacard Attributes Expansion
+[installed  ] [2.14.0  ] security-sts-server                      security-services-app-2.14.0 DDF Security STS.
+[installed  ] [2.14.0  ] security-sts-realm                       security-services-app-2.14.0 DDF Security STS Realm.
+[uninstalled] [2.14.0  ] security-sts-ldaplogin                   security-services-app-2.14.0 DDF Security STS JAAS LDAP Login.
+[uninstalled] [2.14.0  ] security-sts-ldapclaimshandler           security-services-app-2.14.0 Retrieves claims attributes from an LDAP store.</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -3487,11 +3706,11 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  		   Description
-[installed  ] [2.13.6         ] ddf-core                      ddf-2.13.6
-[uninstalled] [2.13.6         ] ddf-sts                       ddf-2.13.6
-[installed  ] [2.13.6         ] ddf-security-common           ddf-2.13.6
-[installed  ] [2.13.6         ] ddf-resource-impl             ddf-2.13.6
-[installed  ] [2.13.6         ] ddf-source-dummy              ddf-2.13.6</pre>
+[installed  ] [2.14.0         ] ddf-core                      ddf-2.14.0
+[uninstalled] [2.14.0         ] ddf-sts                       ddf-2.14.0
+[installed  ] [2.14.0         ] ddf-security-common           ddf-2.14.0
+[installed  ] [2.14.0         ] ddf-resource-impl             ddf-2.14.0
+[installed  ] [2.14.0         ] ddf-source-dummy              ddf-2.14.0</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -3527,11 +3746,11 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  Description
-[installed  ] [2.13.6         ] ddf-core                      ddf-2.13.6
-[uninstalled] [2.13.6         ] ddf-sts                       ddf-2.13.6
-[installed  ] [2.13.6         ] ddf-security-common           ddf-2.13.6
-[installed  ] [2.13.6         ] ddf-resource-impl             ddf-2.13.6
-[uninstalled] [2.13.6         ] ddf-source-dummy              ddf-2.13.6</pre>
+[installed  ] [2.14.0         ] ddf-core                      ddf-2.14.0
+[uninstalled] [2.14.0         ] ddf-sts                       ddf-2.14.0
+[installed  ] [2.14.0         ] ddf-security-common           ddf-2.14.0
+[installed  ] [2.14.0         ] ddf-resource-impl             ddf-2.14.0
+[uninstalled] [2.14.0         ] ddf-source-dummy              ddf-2.14.0</pre>
 </div>
 </div>
 </div>
@@ -3842,7 +4061,7 @@ Does not change the address the system runs on.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The version of DDF that is running.</p>
 <p class="tableblock">This value should not be changed from the factory default.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.13.6</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.14.0</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
@@ -4367,9 +4586,17 @@ Once the guest user is configured, redaction and filtering of metadata is done f
 <p>If a legacy client requires the use of the secured SOAP endpoints, the <a href="developing.html#_configuring_guest_interceptor">guest interceptor</a> should be configured.
 Otherwise, the guest interceptor and <code>public</code> endpoints should be uninstalled for a hardened system.</p>
 </div>
+<div class="paragraph">
+<p>To uninstall the guest interceptor and <code>public</code> endpoints:
+. Navigate to the <strong>Admin Console</strong>.
+. Select the <strong>System</strong> tab.
+. Open the <strong>Features</strong> section.
+. Search for <strong>security-interceptor-guest</strong>.
+. Click the <strong>Uninstall</strong> button.</p>
+</div>
 </div>
 <div class="sect5">
-<h6 id="_configuring_guest_claim_attributes"><a class="anchor" href="#_configuring_guest_claim_attributes"></a><a class="link" href="#_configuring_guest_claim_attributes">3.4.1.2.2. Configuring Guest Claim Attributes</a></h6>
+<h6 id="_configuring_guest_claim_attributes_2"><a class="anchor" href="#_configuring_guest_claim_attributes_2"></a><a class="link" href="#_configuring_guest_claim_attributes_2">3.4.1.2.2. Configuring Guest Claim Attributes</a></h6>
 <div class="paragraph">
 <p>A guest user&#8217;s attributes define the most permissive set of claims for an unauthenticated user.</p>
 </div>
@@ -4735,7 +4962,6 @@ With that configuration, any clients that failed to connect using either the SAM
 <div class="paragraph">
 <p>When using the included IdP, DDF can be configured to use the <a href="#_configuring_included_sts">included Security Token Service(STS)</a> or an <a href="#_connecting_to_external_sts">external STS</a>.</p>
 </div>
-<hr>
 <div class="sect5">
 <h6 id="_configuring_included_sts"><a class="anchor" href="#_configuring_included_sts"></a><a class="link" href="#_configuring_included_sts">3.4.2.1.1. Configuring Included STS</a></h6>
 <div class="paragraph">
@@ -4937,7 +5163,6 @@ The <a href="documentation.html#_security_sts">Security Token Service (STS)</a> 
 </li>
 </ul>
 </div>
-<hr>
 </div>
 <div class="sect5">
 <h6 id="_connecting_to_external_sts"><a class="anchor" href="#_connecting_to_external_sts"></a><a class="link" href="#_connecting_to_external_sts">3.4.2.1.2. Connecting to External STS</a></h6>
@@ -5010,7 +5235,6 @@ The <a href="documentation.html#_security_sts">Security Token Service (STS)</a> 
 </li>
 </ol>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect4">
@@ -5069,7 +5293,6 @@ To idenify the ones it can interoperate with use the <a href="https://github.com
 To add an additional, external Service Provider, add the SP metadata to the <strong>IdP Server</strong> configuration.
 See <a href="#_configuring_idp_sp">Configuring Security IdP Service Provider</a> for more detail.</p>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_configuring_without_an_identity_provider"><a class="anchor" href="#_configuring_without_an_identity_provider"></a><a class="link" href="#_configuring_without_an_identity_provider">3.4.2.3. Configuring Without an Identity Provider</a></h5>
@@ -5121,7 +5344,6 @@ See <a href="#_configuring_idp_sp">Configuring Security IdP Service Provider</a>
 </li>
 </ol>
 </div>
-<hr>
 <div class="sect5">
 <h6 id="_using_sts_without_idp"><a class="anchor" href="#_using_sts_without_idp"></a><a class="link" href="#_using_sts_without_idp">3.4.2.3.1. Using STS without IdP</a></h6>
 <div class="paragraph">
@@ -5147,14 +5369,12 @@ See <a href="#_configuring_idp_sp">Configuring Security IdP Service Provider</a>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect5">
 <h6 id="_connecting_to_external_sts_without_idp"><a class="anchor" href="#_connecting_to_external_sts_without_idp"></a><a class="link" href="#_connecting_to_external_sts_without_idp">3.4.2.3.2. Connecting to External STS Without IdP</a></h6>
 <div class="paragraph">
 <p>The process for <a href="#_connecting_to_external_sts">connecting to an external STS</a> is the same with or without an IdP.</p>
 </div>
-<hr>
 </div>
 </div>
 </div>
@@ -5191,14 +5411,12 @@ See <a href="#_configuring_idp_sp">Configuring Security IdP Service Provider</a>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_connecting_to_external_sts_with_soap"><a class="anchor" href="#_connecting_to_external_sts_with_soap"></a><a class="link" href="#_connecting_to_external_sts_with_soap">3.4.3.2. Connecting to External STS with SOAP</a></h5>
 <div class="paragraph">
 <p>See <a href="#_connecting_to_external_sts">connecting to an external STS</a> for initial STS setup.</p>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect3">
@@ -5218,7 +5436,7 @@ See <a href="#_configuring_idp_sp">Configuring Security IdP Service Provider</a>
 </table>
 </div>
 <div class="paragraph">
-<p>Use the <a href="documentation.html#_encryption_service">Encryption Service</a>, from the Command Console to set passwords for your LDAP server.
+<p>Use the <a href="documentation.html#_encrypting_passwords">Encryption Service</a>, from the Command Console to set passwords for your LDAP server.
 Then change the LDAP Bind User Password in the <a href="reference.html#_Claims_Handler_Manager">Security STS LDAP and Roles Claims Handler</a> configurations to use the encrypted password.</p>
 </div>
 <div class="paragraph">
@@ -5876,10 +6094,8 @@ This feature can be found at <strong>Admin Console &#8594; Admin &#8594; Default
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Once the default users are removed, the <code>&lt;DDF_HOME&gt;/bin/client</code> and <code>&lt;DDF_HOME&gt;/bin/client.bat</code> scripts will not work.</p>
-</div>
-<div class="paragraph">
-<p>If SSH access to the Karaf shell is to be supported, edit the file <code>org.apache.karaf.shell.cfg</code> in the <code>&lt;INSTALL_HOME&gt;/etc</code> directory, changing the value of the <code>sshRealm</code> property from <code>karaf</code> to <code>ldap</code>.</p>
+<p>Once the default users are removed, the <code>&lt;DDF_HOME&gt;/bin/client</code> and <code>&lt;DDF_HOME&gt;/bin/client.bat</code> scripts will not work.
+If SSH access to the Karaf shell is to be supported, edit the file <code>org.apache.karaf.shell.cfg</code> in the <code>&lt;INSTALL_HOME&gt;/etc</code> directory, changing the value of the <code>sshRealm</code> property from <code>karaf</code> to <code>ldap</code>.</p>
 </div>
 </td>
 </tr>
@@ -5944,13 +6160,16 @@ Authenticators are stored in an external identity management solution. However, 
 <div class="ulist">
 <ul>
 <li>
-<p>Navigate to <strong>Admin Console</strong></p>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
 </li>
 <li>
-<p>Under <strong>Security</strong>, select &#8594; <strong>Web Context Policy Manager</strong></p>
+<p>Select <strong>Security</strong>.</p>
 </li>
 <li>
-<p>Add a policy for each context requiring restriction</p>
+<p>Select <strong>Web Context Policy Manager</strong>.</p>
+</li>
+<li>
+<p>Add a policy for each context requiring restriction.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -5963,7 +6182,7 @@ Authenticators are stored in an external identity management solution. However, 
 </div>
 </li>
 <li>
-<p>Click <strong>Save</strong></p>
+<p>Click <strong>Save</strong>.</p>
 </li>
 </ul>
 </div>
@@ -6297,7 +6516,6 @@ For example:</p>
 </tr>
 </table>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect4">
@@ -6348,7 +6566,7 @@ The new password is encrypted and then stored in the system properties.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The Solr distribition included with DDF comes already configured with a user. To see the
+<p>The Solr distrubition included with DDF comes already configured with a user. To see the
 username or default password, either inspect the file
 <code>&lt;DDF_HOME&gt;/etc/custom.system.properties</code> or refer to the properties
 <a href="#_managed_solr_properties">here</a>.</p>
@@ -6399,13 +6617,13 @@ command line utility <code>curl</code> to change the password from <code>admin</
 </div>
 </li>
 <li>
-<p>Encrypt the password using the <a href="documentation.html#_encryption_service">Encryption Service</a>.
+<p>Encrypt the password using the <a href="documentation.html#_encrypting_passwords">Encryption Service</a>.
 The encryption command enciphers the password. It is safe to save the peristed password in a file.</p>
 </li>
 <li>
 <p>Update property <code>solr.password</code> in the file &lt;DDF_HOME&gt;/etc/custom.system.properties` to
 be the ouput from the encryption command. Be sure to include <code>ENC(</code> and <code>)</code> characters produced by
-the encryption command. Note that the default password is not enclosed in <code>ENC()</code> because that
+the encryption comand. Note that the default password is not enclosed in <code>ENC()</code> because that
 is not necessary for cleartext. Cleartext is used by the system exactly as it appears.
 <a href="#_do_not_autogenerate_a_solr_password">follow these instructions</a>.</p>
 </li>
@@ -6440,7 +6658,7 @@ this string:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code> "credentials": {
-      "admin": "31u3dZLhFmlhsyYzlLxtUDoKR2j8oRnLwWcAH7Lbor4= F9eRJs+ZMI95YSQnBP/lGrLH8h60lKKizjMgC69J+WM="}</code></pre>
+      "admin": "EjjOS/zyQ1KQQdSXFb/rFm7w6MItU5pmdthM35ZiJaA= ZZI7d4jf/8hz5oZz7ljBE6+uv1wqncj+VudX3arbib4="}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6462,7 +6680,7 @@ this string:</p>
 <div class="paragraph">
 <p>To disable Solr&#8217;s basic authentication mechanism, rename or remove the file
 <code>&lt;DDF_HOME&gt;/solr/server/solr/security.json</code> and restart Solr. The file <code>security.json</code>
-configures Solr to use basic authentication and defines Solr users. If the file is not present,
+configures Solr to use basic authetnication and defines Solr users. If the file is not present,
 Solr requires no login. This could a security issue in many environments and it is recommended
 to never disable Solr authentication in an operational environment. If authentication is disabled,
 the system property <a href="#_solr_usebasicauth"><code>solr.useBasicAuth</code></a> may be set to
@@ -6479,7 +6697,6 @@ As this drastically reduces the usefulness of the index, this configuration is n
 The recommended approach is to encrypt the entire drive through the Operating System of the server
 on which the index is located.</p>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect4">
@@ -6517,9 +6734,8 @@ failing, or a message that the client certificate is invalid.</p>
 <div class="paragraph">
 <p>The Solr server&#8217;s URL is configured in DDF&#8217;s <code>custom.system.properties</code> file. See
 <a href="#_solr_server_url">solr.http.url</a> for more information.
-An <em>example</em> of a typical URL for the Solr Admin UI is <code>https//:hostname:8994</code>.</p>
+An <em>example</em> of a typical URL for the Solr Admin UI is <code><a href="https://hostname:8994" class="bare">https://hostname:8994</a></code>.</p>
 </div>
-<hr>
 </div>
 </div>
 </div>
@@ -6613,7 +6829,6 @@ Depending on need, configure DDF to act on the warnings or errors discovered.</p
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_hiding_errors_or_warnings_from_queries"><a class="anchor" href="#_hiding_errors_or_warnings_from_queries"></a><a class="link" href="#_hiding_errors_or_warnings_from_queries">3.5.4.2. Hiding Errors or Warnings from Queries</a></h5>
@@ -6642,7 +6857,6 @@ Depending on need, configure DDF to act on the warnings or errors discovered.</p
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_hiding_errors_and_warnings_from_users_based_on_role"><a class="anchor" href="#_hiding_errors_and_warnings_from_users_based_on_role"></a><a class="link" href="#_hiding_errors_and_warnings_from_users_based_on_role">3.5.4.3. Hiding Errors and Warnings from Users Based on Role</a></h5>
@@ -6714,7 +6928,6 @@ that includes a UUID).
 </li>
 </ol>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect3">
@@ -7398,7 +7611,6 @@ Note that this particular configuration would not require any XACML rules to be 
 All of the attributes can be matched internally and there is no reason to call out to the external XACML processing engine.
 For more complex decisions, it might be necessary to write a XACML policy to handle certain attributes.</p>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_setting_xacml_policies"><a class="anchor" href="#_setting_xacml_policies"></a><a class="link" href="#_setting_xacml_policies">3.6.2.2. Setting XACML Policies</a></h5>
@@ -7409,7 +7621,6 @@ This is the directory in which the PDP will look for XACML policies every 60 sec
 <div class="paragraph">
 <p>See <a href="developing.html#_developing_xacml_policies">Developing XACML Policies</a> for more information about custom XACML policies.</p>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_catalog_filter_policy_plugins"><a class="anchor" href="#_catalog_filter_policy_plugins"></a><a class="link" href="#_catalog_filter_policy_plugins">3.6.2.3. Catalog Filter Policy Plugins</a></h5>
@@ -7418,7 +7629,6 @@ This is the directory in which the PDP will look for XACML policies every 60 sec
 These Policy Plugin implementations allow an administrator to easily add filtering capabilities to some standard Metacard types for all Catalog operations.
 These plugins will place policy information on the Metacard itself that allows the <a href="developing.html#_filter_plugin">Filter Plugin</a> to restrict unauthorized users from viewing content they are not allowed to view.</p>
 </div>
-<hr>
 </div>
 </div>
 </div>
@@ -7495,7 +7705,6 @@ Users can customize their individual views as well.</p>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_configuring_map_layers_for_intrigue"><a class="anchor" href="#_configuring_map_layers_for_intrigue"></a><a class="link" href="#_configuring_map_layers_for_intrigue">3.7.1.2. Configuring Map Layers for Intrigue</a></h5>
@@ -7587,12 +7796,11 @@ Equivalent addition and deletion of a map layer can be found in <a href="#_map_c
 <div class="paragraph">
 <div class="title">Map Layer Advanced Configuration</div>
 <p>Select <strong>Advanced Configuration</strong> to edit the JSON-formatted configuration directly.
-See <a href="reference.html#_org.codice.ddf.catalog.ui.config">Catalog UI Search Configurations</a> for examples of map layer configurations.</p>
+See <a href="reference.html#_org.codice.ddf.catalog.ui">Catalog UI Search Configurations</a> for examples of map layer configurations.</p>
 </div>
 <div class="paragraph">
 <p>External links to the specific API documentation of the map layer is also available from the <strong>Advanced Configuration</strong> menu.</p>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_map_configuration_for_intrigue"><a class="anchor" href="#_map_configuration_for_intrigue"></a><a class="link" href="#_map_configuration_for_intrigue">3.7.1.3. Map Configuration for Intrigue</a></h5>
@@ -7711,7 +7919,6 @@ Equivalent addition and deletion of a map layer can be found in <a href="#_confi
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_configuring_user_access_to_ingest_and_metadata_for_intrigue"><a class="anchor" href="#_configuring_user_access_to_ingest_and_metadata_for_intrigue"></a><a class="link" href="#_configuring_user_access_to_ingest_and_metadata_for_intrigue">3.7.1.4. Configuring User Access to Ingest and Metadata for Intrigue</a></h5>
@@ -7774,7 +7981,6 @@ remove the users' ability to ingest.</p>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_configuring_the_intrigue_upload_editor"><a class="anchor" href="#_configuring_the_intrigue_upload_editor"></a><a class="link" href="#_configuring_the_intrigue_upload_editor">3.7.1.5. Configuring the Intrigue Upload Editor</a></h5>
@@ -7811,7 +8017,7 @@ editor.</p>
 </ol>
 </div>
 <div class="paragraph">
-<p>See <a href="reference.html#_org.codice.ddf.catalog.ui.config">Intrigue Configurations</a> for more information
+<p>See <a href="reference.html#_org.codice.ddf.catalog.ui">Intrigue Configurations</a> for more information
 regarding these configurations.</p>
 </div>
 <div class="paragraph">
@@ -7819,7 +8025,6 @@ regarding these configurations.</p>
 <p>The editor only appears if it has attributes to show. If the upload editing capability is not
 desired, simply remove all entries from the attribute configuration and the editor will be hidden.</p>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_configuring_search_options_for_intrigue"><a class="anchor" href="#_configuring_search_options_for_intrigue"></a><a class="link" href="#_configuring_search_options_for_intrigue">3.7.1.6. Configuring Search Options for Intrigue</a></h5>
@@ -7855,7 +8060,6 @@ for any of these types of metacards.</p>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_configuring_query_feedback_for_intrigue"><a class="anchor" href="#_configuring_query_feedback_for_intrigue"></a><a class="link" href="#_configuring_query_feedback_for_intrigue">3.7.1.7. Configuring Query Feedback for Intrigue</a></h5>
@@ -7976,9 +8180,8 @@ for any of these types of metacards.</p>
 </ol>
 </div>
 <div class="paragraph">
-<p>See <a href="reference.html#_org.codice.ddf.catalog.ui.config">Catalog UI Search Configurations</a> for default Query Feedback configurations.</p>
+<p>See <a href="reference.html#_org.codice.ddf.catalog.ui">Catalog UI Search Configurations</a> for default Query Feedback configurations.</p>
 </div>
-<hr>
 </div>
 </div>
 </div>
@@ -9098,7 +9301,7 @@ Cloud installation instructions have been followed.</p>
 <p><a href="http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.14.0_1/jts-1.14.0_1.jar" class="bare">http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.14.0_1/jts-1.14.0_1.jar</a></p>
 </li>
 <li>
-<p><a href="http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.13.6" class="bare">http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.13.6</a></p>
+<p><a href="http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.14.0" class="bare">http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.14.0</a></p>
 </li>
 </ol>
 </div>
@@ -9459,7 +9662,7 @@ More mappings can be added to the <code>featurePropToMetacardAttrMap</code> line
 6
 7
 </pre></td>
-  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.13.6</span><span class="delimiter">&quot;</span></span>
+  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.14.0</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;config</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
         featureType = {http://www.openplans.org/topp}states
@@ -9473,7 +9676,308 @@ More mappings can be added to the <code>featurePropToMetacardAttrMap</code> line
 </div>
 </div>
 <div class="sect3">
-<h4 id="_federating_through_a_registry"><a class="anchor" href="#_federating_through_a_registry"></a><a class="link" href="#_federating_through_a_registry">3.8.6. Federating Through a Registry</a></h4>
+<h4 id="_configuring_endpoints"><a class="anchor" href="#_configuring_endpoints"></a><a class="link" href="#_configuring_endpoints">3.8.6. Configuring Endpoints</a></h4>
+<div class="paragraph">
+<p>Configure endpoints to enable external systems to send and receive content and metadata from DDF.</p>
+</div>
+<div class="sect4">
+<h5 id="_configuring_catalog_rest_endpoint"><a class="anchor" href="#_configuring_catalog_rest_endpoint"></a><a class="link" href="#_configuring_catalog_rest_endpoint">3.8.6.1. Configuring Catalog REST Endpoint</a></h5>
+<div class="paragraph">
+<p>The Catalog REST endpoint allows clients to perform operations on the Catalog using REST.</p>
+</div>
+<div class="paragraph">
+<p>To install the Catalog REST endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Install the <code>catalog-rest-endpoint</code> feature.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The Catalog REST endpoint has no configurable properties.
+It can only be installed or uninstalled.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_csw_endpoint"><a class="anchor" href="#_configuring_csw_endpoint"></a><a class="link" href="#_configuring_csw_endpoint">3.8.6.2. Configuring CSW Endpoint</a></h5>
+<div class="paragraph">
+<p>The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.</p>
+</div>
+<div class="paragraph">
+<p>To install the CSW endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Install the <code>csw-endpoint</code> feature.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The CSW endpoint has no configurable properties.
+It can only be installed or uninstalled.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_ftp_endpoint"><a class="anchor" href="#_configuring_ftp_endpoint"></a><a class="link" href="#_configuring_ftp_endpoint">3.8.6.3. Configuring FTP Endpoint</a></h5>
+<div class="paragraph">
+<p>The FTP endpoint provides a method for ingesting files directly into the DDF Catalog using the FTP protocol
+The files sent over FTP are not first written to the file system, as the <a href="#_content_directory_monitor">Directory Monitor</a> does, but instead the FTP stream of the file is ingested directly into the DDF catalog, thus avoiding extra I/O overhead.</p>
+</div>
+<div class="paragraph">
+<p>To install the FTP endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Install the <code>catalog-ftp</code> feature.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>To configure the FTP endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Select <strong>FTP Endpoint</strong>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>See <a href="reference.html#_ddf.catalog.ftp.FtpServerManager">FTP Endpoint configurations</a> for all possible configurations.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_kml_endpoint"><a class="anchor" href="#_configuring_kml_endpoint"></a><a class="link" href="#_configuring_kml_endpoint">3.8.6.4. Configuring KML Endpoint</a></h5>
+<div class="paragraph">
+<p>Keyhole Markup Language (<em>KML</em>) is an XML notation for describing geographic annotation and visualization for 2- and 3- dimensional maps.</p>
+</div>
+<div class="paragraph">
+<p>The root network link will create a network link for each configured source, including the local catalog.
+The individual source network links will perform a query against the OpenSearch Endpoint periodically based on the current view in the KML client.
+The query parameters for this query are obtained by a bounding box generated by Google Earth.
+The root network link will refresh every 12 hours or can be forced to refresh.
+As a user changes their current view, the query will be re-executed with the bounding box of the new view.
+(This query gets re-executed two seconds after the user stops moving the view.)</p>
+</div>
+<div class="paragraph">
+<p>This KML Network Link endpoint has the ability to serve up custom KML style documents and Icons to be used within that document.
+The KML style document must be a valid XML document containing a KML style.
+The KML Icons should be placed in a single level directory and must be an image type (png, jpg, tif, etc.).
+The Description will be displayed as a pop-up from the root network link on Google Earth.
+This may contain the general purpose of the network and URLs to external resources.￼￼￼</p>
+</div>
+<div class="paragraph">
+<p>To install the KML endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Install the <code>spatial-kml</code> feature.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>To configure the KML endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Select <strong>KML Endpoint</strong>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>See <a href="reference.html#_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint">KML Endpoint configurations</a> for all possible configurations.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_opensearch_endpoint"><a class="anchor" href="#_configuring_opensearch_endpoint"></a><a class="link" href="#_configuring_opensearch_endpoint">3.8.6.5. Configuring OpenSearch Endpoint</a></h5>
+<div class="paragraph">
+<p>The OpenSearch endpoint enables a client to send query parameters and receive search results. This endpoint uses the input query parameters to create an OpenSearch query. The client does not need to specify all of the query parameters, only the query parameters of interest.</p>
+</div>
+<div class="paragraph">
+<p>To install the KML endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Install the <code>catalog-opensearch-endpoint</code> feature.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The OpenSearch endpoint has no configurable properties.
+It can only be installed or uninstalled.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_wps_endpoint"><a class="anchor" href="#_configuring_wps_endpoint"></a><a class="link" href="#_configuring_wps_endpoint">3.8.6.6. Configuring WPS Endpoint</a></h5>
+<div class="paragraph">
+<p>The WPS endpoint enables a client to execute and monitor long running processes.</p>
+</div>
+<div class="paragraph">
+<p>To install the WPS endpoint:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select <strong>System</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Features</strong>.</p>
+</li>
+<li>
+<p>Install the <code>spatial-wps</code> feature.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The WPS endpoint has no configurable properties.
+It can only be installed or uninstalled.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_compression_services"><a class="anchor" href="#_compression_services"></a><a class="link" href="#_compression_services">3.8.6.7. Compression Services</a></h5>
+<div class="paragraph">
+<p>DDF supports compression of outgoing and incoming messages through the Compression Services.
+These compression services are based on <a href="http://cxf.apache.org/">CXF</a> message encoding.</p>
+</div>
+<div class="paragraph">
+<p>The formats supported in DDF are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">gzip</dt>
+<dd>
+<p>Adds GZip compression to messages through CXF components. Code comes with CXF.</p>
+</dd>
+<dt class="hdlist1">exi</dt>
+<dd>
+<p>Adds <a href="http://www.w3.org/XML/EXI/">Efficient XML Interchange (EXI)</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Compression Services"></a></span> support to outgoing responses. EXI is an W3C standard for XML encoding that shrinks xml to a smaller size than normal GZip compression.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>To Install a compression service:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select the <strong>System</strong> tab.</p>
+</li>
+<li>
+<p>Select the <strong>Features</strong> tab.</p>
+</li>
+<li>
+<p>Start the service for the desired compression format:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>compression-exi</code></p>
+</li>
+<li>
+<p><code>compression-gzip</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The compression services either need to be installed BEFORE the desired CXF service is started or the CXF service needs to be refreshed / restarted after the compression service is installed.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Compression services have no configurable properties.
+They can only be installed or uninstalled.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_federating_through_a_registry"><a class="anchor" href="#_federating_through_a_registry"></a><a class="link" href="#_federating_through_a_registry">3.8.7. Federating Through a Registry</a></h4>
 <div class="paragraph">
 <p>Another approach to configuring federation is to use the <strong>Registry</strong> application to locate sources in a network/enterprise.
 See <a href="reference.html#_installing_registry">Registry Application Reference</a> for details on installing the Registry application.
@@ -9508,7 +10012,7 @@ Use the registry to subscribe to and federate with other instances of DDF.</p>
 </table>
 </div>
 <div class="sect4">
-<h5 id="_configuring_identity_node"><a class="anchor" href="#_configuring_identity_node"></a><a class="link" href="#_configuring_identity_node">3.8.6.1. Configuring Identity Node</a></h5>
+<h5 id="_configuring_identity_node"><a class="anchor" href="#_configuring_identity_node"></a><a class="link" href="#_configuring_identity_node">3.8.7.1. Configuring Identity Node</a></h5>
 <div class="paragraph">
 <p>The "Identity Node" is the local DDF instance.
 Configure the information to share with other registries/nodes.</p>
@@ -9895,7 +10399,7 @@ Configure the information to share with other registries/nodes.</p>
 </tbody>
 </table>
 <div class="sect5">
-<h6 id="_adding_a_service_binding_to_a_node"><a class="anchor" href="#_adding_a_service_binding_to_a_node"></a><a class="link" href="#_adding_a_service_binding_to_a_node">3.8.6.1.1. Adding a Service Binding to a Node</a></h6>
+<h6 id="_adding_a_service_binding_to_a_node"><a class="anchor" href="#_adding_a_service_binding_to_a_node"></a><a class="link" href="#_adding_a_service_binding_to_a_node">3.8.7.1.1. Adding a Service Binding to a Node</a></h6>
 <div class="paragraph">
 <p>Advertise the methods other nodes use to connect to the local DDF instance.</p>
 </div>
@@ -9950,11 +10454,10 @@ Configure the information to share with other registries/nodes.</p>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_publishing_to_other_nodes"><a class="anchor" href="#_publishing_to_other_nodes"></a><a class="link" href="#_publishing_to_other_nodes">3.8.6.2. Publishing to Other Nodes</a></h5>
+<h5 id="_publishing_to_other_nodes"><a class="anchor" href="#_publishing_to_other_nodes"></a><a class="link" href="#_publishing_to_other_nodes">3.8.7.2. Publishing to Other Nodes</a></h5>
 <div class="paragraph">
 <p>Send details about the local DDF instance to other nodes.</p>
 </div>
@@ -9986,10 +10489,9 @@ Configure the information to share with other registries/nodes.</p>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 <div class="sect4">
-<h5 id="_subscribing_to_another_node"><a class="anchor" href="#_subscribing_to_another_node"></a><a class="link" href="#_subscribing_to_another_node">3.8.6.3. Subscribing to Another Node</a></h5>
+<h5 id="_subscribing_to_another_node"><a class="anchor" href="#_subscribing_to_another_node"></a><a class="link" href="#_subscribing_to_another_node">3.8.7.3. Subscribing to Another Node</a></h5>
 <div class="paragraph">
 <p>Receive details about another node.</p>
 </div>
@@ -10049,7 +10551,6 @@ Configure the information to share with other registries/nodes.</p>
 </li>
 </ol>
 </div>
-<hr>
 </div>
 </div>
 </div>
@@ -10362,7 +10863,7 @@ DDF includes a whitelist of allowed shell commands in
 <p>Run the command migration:export from the Command Console.</p>
 </li>
 <li>
-<p>Files named <code>ddf-2.13.6.dar</code>, <code>ddf-2.13.6.dar.key</code>, and <code>ddf-2.13.6.dar.sha256</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
+<p>Files named <code>ddf-2.14.0.dar</code>, <code>ddf-2.14.0.dar.key</code>, and <code>ddf-2.14.0.dar.sha256</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
 The <code>.dar</code> file contains the encrypted information. The <code>.key</code> and <code>.sha256</code> files contains the encryption key and a validation checksum. Copy the '.dar' file to a secure location and copy the '.key' and '.sha256' to a different secure location.
 Keeping all 3 files together represents a security risk and should be avoided.</p>
 </li>
@@ -10414,9 +10915,6 @@ Keeping all 3 files together represents a security risk and should be avoided.</
 <li>
 <p>DDF will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting DDF.</p>
 </li>
-<li>
-<p>Finish <a href="#_hardening_checklist">hardening</a> the system (e.g. file and directory permissions).</p>
-</li>
 </ol>
 </div>
 <div class="paragraph">
@@ -10432,7 +10930,7 @@ To decrypt the exported file:</p>
 <p>Run the command migration:decrypt from the Command Console.</p>
 </li>
 <li>
-<p>A file named <code>ddf-2.13.6.zip</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
+<p>A file named <code>ddf-2.14.0.zip</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
 This file represents the decrypted version of the <code>.dar</code> file.</p>
 </li>
 </ol>
@@ -10477,7 +10975,6 @@ This file represents the decrypted version of the <code>.dar</code> file.</p>
 </tr>
 </table>
 </div>
-<hr>
 </div>
 <div class="sect4">
 <h5 id="_isolating_solr_cloud_and_zookeeper"><a class="anchor" href="#_isolating_solr_cloud_and_zookeeper"></a><a class="link" href="#_isolating_solr_cloud_and_zookeeper">3.10.1.2. Isolating Solr Cloud and Zookeeper</a></h5>
@@ -10511,7 +11008,6 @@ The DDF process must be visible on the network to allow authorized parties to in
 </li>
 </ul>
 </div>
-<hr>
 </div>
 </div>
 <div class="sect3">
@@ -10905,6 +11401,44 @@ The Scheduler can be configured by editing the file <code>&lt;DDF_HOME&gt;/etc/o
 </table>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_encrypting_passwords"><a class="anchor" href="#_encrypting_passwords"></a><a class="link" href="#_encrypting_passwords">3.12.4. Encrypting Passwords</a></h4>
+<div class="paragraph">
+<p>DDF includes an encryption service to encrypt plain text such as passwords.</p>
+</div>
+<div class="sect4">
+<h5 id="_encryption_command"><a class="anchor" href="#_encryption_command"></a><a class="link" href="#_encryption_command">3.12.4.1. Encryption Command</a></h5>
+<div class="paragraph">
+<p>An encrypt security command is provided with DDF to encrypt text.
+This is useful when displaying password fields to users.</p>
+</div>
+<div class="paragraph">
+<p>Below is an example of the <code>security:encrypt</code> command used to encrypt the plain text <code>myPasswordToEncrypt</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the Command Console.</p>
+<div class="listingblock java">
+<div class="title">security:encrypt Command Example</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code>ddf@local&gt;security:encrypt myPasswordToEncrypt</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>The output is the encrypted value.</p>
+<div class="listingblock java">
+<div class="title">security:encrypt Command Output</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code>ddf@local&gt;bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -11065,12 +11599,13 @@ wrapper.java.additional.4=-Dkaraf.home="%KARAF_HOME%"
 wrapper.java.additional.5=-Dkaraf.base="%KARAF_BASE%"
 wrapper.java.additional.6=-Dkaraf.data="%KARAF_DATA%"
 wrapper.java.additional.7=-Dkaraf.etc="%KARAF_ETC%"
-wrapper.java.additional.8=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.9=-Djava.io.tmpdir="%KARAF_DATA%/tmp"
-wrapper.java.additional.10=-Djava.util.logging.config.file="%KARAF_BASE%/etc/java.util.logging.properties"
-wrapper.java.additional.11=-Dcom.sun.management.jmxremote
-wrapper.java.additional.12=-Dkaraf.startLocalConsole=false
-wrapper.java.additional.13=-Dkaraf.startRemoteShell=true</pre>
+wrapper.java.additional.8=-Dkaraf.log="%KARAF_LOG%"
+wrapper.java.additional.9=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.10=-Djava.io.tmpdir="%KARAF_DATA%/tmp"
+wrapper.java.additional.11=-Djava.util.logging.config.file="%KARAF_ETC%/java.util.logging.properties"
+wrapper.java.additional.12=-Dcom.sun.management.jmxremote
+wrapper.java.additional.13=-Dkaraf.startLocalConsole=false
+wrapper.java.additional.14=-Dkaraf.startRemoteShell=true</pre>
 </div>
 </div>
 </li>
@@ -11094,7 +11629,7 @@ wrapper.java.additional.13=-Dkaraf.startRemoteShell=true</pre>
 <div class="sect4">
 <h5 id="_karaf_documentation"><a class="anchor" href="#_karaf_documentation"></a><a class="link" href="#_karaf_documentation">4.1.1.2. Karaf Documentation</a></h5>
 <div class="paragraph">
-<p>Because DDF is built on top of Apache Karaf, more information on operating DDF can be found in the <a href="http://karaf.apache.org/index/documentation.html">Karaf documentation</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Run DDF as a Managed Service"></a></span>.</p>
+<p>Because DDF is built on top of Apache Karaf, more information on operating DDF can be found in the <a href="http://karaf.apache.org/index/documentation.html">Karaf documentation</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Run DDF as a Managed Service"></a></span>.</p>
 </div>
 </div>
 </div>
@@ -11472,7 +12007,7 @@ OPTIONS
 <h5 id="_cql_syntax"><a class="anchor" href="#_cql_syntax"></a><a class="link" href="#_cql_syntax">4.3.1.2. CQL Syntax</a></h5>
 <div class="paragraph">
 <p>The CQL syntax used with console commands should follow the OGC CQL format.
-GeoServer provides a description of the grammar and examples in this <a href="http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html">CQL Tutorial</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="CQL Syntax"></a></span>.</p>
+GeoServer provides a description of the grammar and examples in this <a href="http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html">CQL Tutorial</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="CQL Syntax"></a></span>.</p>
 </div>
 <div class="listingblock">
 <div class="title">CQL Syntax Examples</div>
@@ -11488,7 +12023,7 @@ ddf@local&gt;store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type n
 <div class="sect4">
 <h5 id="_available_console_commands"><a class="anchor" href="#_available_console_commands"></a><a class="link" href="#_available_console_commands">4.3.1.3. Available Console Commands</a></h5>
 <div class="paragraph">
-<p>Many console commands are available, including DFF commands and the core Karaf console commands. For more information about these core Karaf commands and using the console, see the Commands documentation for Karaf 4.2.1 at <a href="https://karaf.apache.org/documentation.html">Karaf documentation</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Available Console Commands"></a></span>.</p>
+<p>Many console commands are available, including DFF commands and the core Karaf console commands. For more information about these core Karaf commands and using the console, see the Commands documentation for Karaf 4.2.2 at <a href="https://karaf.apache.org/documentation.html">Karaf documentation</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Available Console Commands"></a></span>.</p>
 </div>
 <div class="paragraph">
 <p>For a complete list of all available commands, from the Command Console, press <strong>TAB</strong> and confirm when prompted.</p>
@@ -11517,12 +12052,11 @@ ddf@local&gt;store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type n
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_catalog_command_descriptions">catalog</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Catalog Shell Commands are meant to be used with any <code>CatalogProvider</code> implementations.
-They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Catalog Shell Commands are meant to be used with any <code>CatalogProvider</code> implementations. They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_subscription_command_descriptions">subscription</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The DDF PubSub shell commands provide functions to list the registered subscriptions in DDF and to delete subscriptions.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_migrate_command_descriptions">migrate</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Migrate Shell Commands provide functions to perform data migrations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_platform_command_descriptions">platform</a></p></td>
@@ -11531,6 +12065,14 @@ They provide general useful queries and functions against the Catalog API that c
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_store_command_descriptions">store</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The Persistence Shell Commands are meant to be used with any <code>PersistentStore</code> implementations. They provide the ability to query and delete entries from the persistence store.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_subscription_command_descriptions">subscription</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The DDF PubSub shell commands provide functions to list the registered subscriptions in DDF and to delete subscriptions.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_solr_command_descriptions">solr</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Solr commands are used for the Solr <code>CatalogProvider</code> implementation. They provide commands specific to that provider.</p></td>
 </tr>
 </tbody>
 </table>
@@ -11706,52 +12248,86 @@ offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]</p
 <pre>ddf@local&gt;// Given we've ingested a few metacards
 ddf@local&gt;catalog:latest
 #       ID                                Modified Date              Title
-1       a6e9ae09c792438e92a3c9d7452a449f  2019-02-21 00:24:43:869
-2       b4aced45103a400da42f3b319e58c3ed  2019-02-21 00:24:43:869
-3       a63ab22361e14cee9970f5284e8eb4e0  2019-02-21 00:24:43:869 myTitle
+1       a6e9ae09c792438e92a3c9d7452a449f  2019-03-11 21:02:58:162
+2       b4aced45103a400da42f3b319e58c3ed  2019-03-11 21:02:58:162
+3       a63ab22361e14cee9970f5284e8eb4e0  2019-03-11 21:02:58:162 myTitle
 
 ddf@local&gt;// Filter out older files
-ddf@local&gt;catalog:dump --created-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Filter out new file
-ddf@local&gt;catalog:dump --created-before 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-before 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.023 seconds
 
 ddf@local&gt;// Choose middle file
-ddf@local&gt;catalog:dump --created-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.020 seconds
 
 ddf@local&gt;// Modified dates work the same way
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Can mix and match, most restrictive limits apply
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.024 seconds
 
 ddf@local&gt;// Can use UTC instead of (or in combination with) explicit time zone offset
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.020 seconds
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Can leave off time zone, but default (local time on server) may not match what you expect!
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.018 seconds
 
 ddf@local&gt;// Can leave off trailing minutes / seconds
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.024 seconds
 
 ddf@local&gt;// Can use year and day number
-ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-03-11 21:02:58:162 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.027 seconds</pre>
 </div>
 </div>
 </div>
 <div class="sect5">
-<h6 id="_subscriptions_commands"><a class="anchor" href="#_subscriptions_commands"></a><a class="link" href="#_subscriptions_commands">4.3.1.3.2. Subscriptions Commands</a></h6>
+<h6 id="_solr_commands"><a class="anchor" href="#_solr_commands"></a><a class="link" href="#_solr_commands">4.3.1.3.2. Solr Commands</a></h6>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 20. <a id="_solr_command_descriptions"></a>Solr Command Descriptions</caption>
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 90%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>solr:backup</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Creates a backup of the selected Solr core/collection. This uses the Solr interface for creating
+the backup. In Solr Cloud deployments the selected backup directory must exist and be shared on all
+Solr nodes.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>solr:restore</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Restores a Solr backup to the selected core/collection. This uses the Solr interfaces for restoring
+the backup. In Solr Cloud deployments the directory containing the files to restore must exist and be
+ shared on all Solr nodes.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect5">
+<h6 id="_subscriptions_commands"><a class="anchor" href="#_subscriptions_commands"></a><a class="link" href="#_subscriptions_commands">4.3.1.3.3. Subscriptions Commands</a></h6>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -11767,7 +12343,7 @@ ddf@local&gt;catalog:dump --modified-after 2019-02-21 00:24:43:869 /home/user/dd
 </table>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 20. <a id="_subscription_command_descriptions"></a>Subscription Command Descriptions</caption>
+<caption class="title">Table 21. <a id="_subscription_command_descriptions"></a>Subscription Command Descriptions</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 80%;">
@@ -11951,9 +12527,9 @@ Deleted 2 subscriptions out of 2 subscriptions found.</code></pre>
 </div>
 </div>
 <div class="sect5">
-<h6 id="_platform_commands"><a class="anchor" href="#_platform_commands"></a><a class="link" href="#_platform_commands">4.3.1.3.3. Platform Commands</a></h6>
+<h6 id="_platform_commands"><a class="anchor" href="#_platform_commands"></a><a class="link" href="#_platform_commands">4.3.1.3.4. Platform Commands</a></h6>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 21. <a id="_platform_command_descriptions"></a>Platform Command Descriptions</caption>
+<caption class="title">Table 22. <a id="_platform_command_descriptions"></a>Platform Command Descriptions</caption>
 <colgroup>
 <col style="width: 10%;">
 <col style="width: 90%;">
@@ -11977,9 +12553,9 @@ Deleted 2 subscriptions out of 2 subscriptions found.</code></pre>
 </table>
 </div>
 <div class="sect5">
-<h6 id="_persistence_store_commands"><a class="anchor" href="#_persistence_store_commands"></a><a class="link" href="#_persistence_store_commands">4.3.1.3.4. Persistence Store Commands</a></h6>
+<h6 id="_persistence_store_commands"><a class="anchor" href="#_persistence_store_commands"></a><a class="link" href="#_persistence_store_commands">4.3.1.3.5. Persistence Store Commands</a></h6>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 22. <a id="_store_command_descriptions"></a>Persistence Store Command Descriptions</caption>
+<caption class="title">Table 23. <a id="_store_command_descriptions"></a>Persistence Store Command Descriptions</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 75%;">
@@ -11999,6 +12575,68 @@ Deleted 2 subscriptions out of 2 subscriptions found.</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect5">
+<h6 id="_migrate_commands"><a class="anchor" href="#_migrate_commands"></a><a class="link" href="#_migrate_commands">4.3.1.3.6. Migrate Commands</a></h6>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title"><a id="_migrate_command_descriptions"></a>Migrate Command Descriptions</div>
+<div class="paragraph">
+<p>Performing a data migration creates, updates, or deletes existing metacards within the system.
+A data migration needs to be run when the structure of the data changes to ensure that existing resources function as expected.
+The effects of this command cannot be reverted or undone. It is highly recommended to back up the catalog before performing a data migration.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The syntax for the migration command is</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>migrate:data --list</code></p>
+</li>
+<li>
+<p><code>migrate:data --all</code></p>
+</li>
+<li>
+<p><code>migrate:data &lt;serviceId&gt;</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Select the <code>&lt;serviceId&gt;</code> based on which data migration task you wish to run.
+To see a list of all data migrations tasks that are currently available, run the
+<code>migrate:data --list</code> command.</p>
+</div>
+<div class="paragraph">
+<p>The <code>--all</code> option runs every data migration task that is available.</p>
+</div>
+<div class="paragraph">
+<p>The <code>--list</code> option lists all available data migration tasks.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If an error occurrs performing a data migration the specifics of that error are
+available in the logs or are printed to the karaf console.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect4">
@@ -12190,7 +12828,7 @@ A report is generated in <em>xls</em> format.</p>
 <p>The name and location of the log file can be changed with the following setting:</p>
 </div>
 <div class="paragraph">
-<p><code>log4j.appender.out.file=&lt;KARAF.DATA&gt;/log/ddf.log</code></p>
+<p><code>log4j.appender.out.file=&lt;DDF_HOME&gt;/data/log/ddf.log</code></p>
 </div>
 </div>
 <div class="sect4">
@@ -12241,7 +12879,7 @@ A report is generated in <em>xls</em> format.</p>
 <p>Other appenders can be selected and configured.</p>
 </div>
 <div class="paragraph">
-<p>For more detail on configuring the log file and what is logged to the console see: <a href="http://karaf.apache.org/manual/latest/#_log">Karaf Documentation: Log</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Monitoring"></a></span>.</p>
+<p>For more detail on configuring the log file and what is logged to the console see: <a href="http://karaf.apache.org/manual/latest/#_log">Karaf Documentation: Log</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Monitoring"></a></span>.</p>
 </div>
 </div>
 <div class="sect4">
@@ -12315,19 +12953,6 @@ This is the most popular format for access logs and can be parsed by many web se
 </div>
 <div class="sect4">
 <h5 id="_using_the_logviewer"><a class="anchor" href="#_using_the_logviewer"></a><a class="link" href="#_using_the_logviewer">4.4.2.9. Using the LogViewer</a></h5>
-<div class="paragraph">
-<p>Monitor system logs with the <strong>LogViewer</strong>, a convenient "viewing portal" for incoming logs.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Navigate to the LogViewer at https://{FQDN}:{PORT}/admin/logviewer</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>or</p>
-</div>
 <div class="ulist">
 <ul>
 <li>
@@ -12417,7 +13042,7 @@ It does not affect the logs generated or events captured by the system logger.</
 <p>If, after configuration, a DDF is not performing as expected, consult this table of common fixes and workarounds.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 23. General Troubleshooting</caption>
+<caption class="title">Table 24. General Troubleshooting</caption>
 <colgroup>
 <col style="width: 30%;">
 <col style="width: 70%;">
@@ -12478,7 +13103,7 @@ It does not affect the logs generated or events captured by the system logger.</
 <p>Install missing Windows libraries.</p>
 </div>
 <div class="paragraph">
-<p>Some Windows platforms are missing libraries that are required by DDF.  These libraries are provided by the <a href="http://www.microsoft.com/en-us/download/details.aspx?id=15336">Microsoft Visual C++ 2008 Redistributable Package x64</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation"></a></span>.</p>
+<p>Some Windows platforms are missing libraries that are required by DDF.  These libraries are provided by the <a href="http://www.microsoft.com/en-us/download/details.aspx?id=15336">Microsoft Visual C++ 2008 Redistributable Package x64</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation"></a></span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -12656,7 +13281,7 @@ There are multiple methods available for ingesting files into the DDF.</p>
 <td class="content">
 <div class="paragraph">
 <p>Ingesting with the console ingest command creates a metacard in the catalog, but does not copy the resource to the content store.
-The Ingest Command requires read access to the directory being ingested from, see the <a href="architecture.html#_url_resource_reader">URL Resource Reader</a> for configuring read permissions on the directory.</p>
+The Ingest Command requires read access to the directory being ingested. See the <a href="architecture.html#_url_resource_reader">URL Resource Reader</a> for configuring read permission entries to the directory.</p>
 </div>
 </td>
 </tr>
@@ -12742,7 +13367,7 @@ Optionally, ingested files can be automatically moved to a directory called <cod
 <div class="sect3">
 <h4 id="_external_methods_of_ingesting_data"><a class="anchor" href="#_external_methods_of_ingesting_data"></a><a class="link" href="#_external_methods_of_ingesting_data">5.1.4. External Methods of Ingesting Data</a></h4>
 <div class="paragraph">
-<p>Third-party tools, such as <a href="https://curl.haxx.se/">cURL.exe</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="External Methods of Ingesting Data"></a></span> and the <a href="https://advancedrestclient.com/">Chrome Advanced Rest Client</a> <span class="image"><a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="External Methods of Ingesting Data"></a></span>, can be used to send files to DDF for ingest.</p>
+<p>Third-party tools, such as <a href="https://curl.haxx.se/">cURL.exe</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="External Methods of Ingesting Data"></a></span> and the <a href="https://advancedrestclient.com/">Chrome Advanced Rest Client</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="External Methods of Ingesting Data"></a></span>, can be used to send files to DDF for ingest.</p>
 </div>
 <div class="listingblock">
 <div class="title">Windows Example</div>
@@ -12817,30 +13442,154 @@ The default location of the log is <code>&lt;DDF_HOME&gt;/data/log/ingest_error.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_methods_of_ingesting_data"><a class="anchor" href="#_other_methods_of_ingesting_data"></a><a class="link" href="#_other_methods_of_ingesting_data">5.1.5. Other Methods of Ingesting Data</a></h4>
+<h4 id="_creating_and_managing_system_search_forms_through_karaf"><a class="anchor" href="#_creating_and_managing_system_search_forms_through_karaf"></a><a class="link" href="#_creating_and_managing_system_search_forms_through_karaf">5.1.5. Creating And Managing System Search Forms Through Karaf</a></h4>
 <div class="paragraph">
-<p>The DDF provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. See <a href="documentation.html#_available_endpoints">Available Endpoints</a> for more information.</p>
+<p>System search provide a way to execute queries with pre-defined templates and search criteria. System search forms are loaded
+via the system and are read-only. This command allows an administrator to ingest, modify or remove system search forms within the system.</p>
+</div>
+<div class="listingblock">
+<div class="title">Loading Forms With Defaults</div>
+<div class="content">
+<pre>forms:load</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Loading Forms With Overrides</div>
+<div class="content">
+<pre>forms:load --formsDirectory "/etc/forms" --forms "forms.json" --results "results.json"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Where:<br>
+<strong>-formsDirectory</strong> Specifies the directory in which the forms JSON and XML will reside</p>
+</div>
+<div class="paragraph">
+<p><strong>-results</strong> Specifies the file name of the <code>results.json</code> file</p>
+</div>
+<div class="paragraph">
+<p><strong>-forms</strong> Specifies the file name of the <code>forms.json</code> file</p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s important to note that <code>forms:load</code> will fallback to the system default location for forms, results and the forms directory. The defaults are as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>formsDirectory: "/etc/forms"
+forms: "forms.json"
+results: "results.json"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example search forms and result form data can be found in <code>&lt;DDF_HOME&gt;/etc/forms/readme.md</code>.</p>
+</div>
+<div class="paragraph">
+<p>Managing Forms</p>
+</div>
+<div class="paragraph">
+<p>In addition to ingesting new system forms into the system, we provide the capability to manage the forms, view the forms and remove them.</p>
+</div>
+<div class="listingblock">
+<div class="title">Viewing All Forms</div>
+<div class="content">
+<pre>forms:manage --list</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Removing Single Form</div>
+<div class="content">
+<pre>forms:manage --remove-single "METACARD_ID"</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Removing All Forms</div>
+<div class="content">
+<pre>forms:manage --remove-all</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Where:<br>
+<strong>-list</strong> Displays the titles and IDs of all system forms in the system</p>
+</div>
+<div class="paragraph">
+<p><strong>-remove-single</strong> Takes in a metacard ID as an argument and removes it</p>
+</div>
+<div class="paragraph">
+<p><strong>-remove-all</strong> Removes all system forms from the system</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_other_methods_of_ingesting_data"><a class="anchor" href="#_other_methods_of_ingesting_data"></a><a class="link" href="#_other_methods_of_ingesting_data">5.1.6. Other Methods of Ingesting Data</a></h4>
+<div class="paragraph">
+<p>The DDF provides endpoints for integration with other data systems and to further automate ingesting data into the catalog.
+See <a href="documentation.html#_endpoint_details">Endpoints</a> for more information.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_backing_up_the_catalog"><a class="anchor" href="#_backing_up_the_catalog"></a><a class="link" href="#_backing_up_the_catalog">5.2. Backing Up the Catalog</a></h3>
+<h3 id="_validating_data"><a class="anchor" href="#_validating_data"></a><a class="link" href="#_validating_data">5.2. Validating Data</a></h3>
 <div class="paragraph">
-<p>To backup local catalog records, a Catalog Backup Plugin is available.
-It is not installed by default for performance reasons.</p>
+<p>Configure DDF to perform validation on ingested documents to verify the integrity of the metadata brought into the catalog.</p>
 </div>
 <div class="paragraph">
-<p>See <a href="developing.html#_catalog_backup_plugin">Catalog Backup Plugin</a> for installation and configuration instructions).</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_validating_data"><a class="anchor" href="#_validating_data"></a><a class="link" href="#_validating_data">5.3. Validating Data</a></h3>
-<div class="paragraph">
-<p>DDF enables administrators to isolate metacards with data validation issues and to edit the metacard to correct validation errors.
+<p>Isolate metacards with data validation issues and edit the metacard to correct validation errors.
 Additional attributes can be added to metacards as needed.</p>
 </div>
 <div class="sect3">
-<h4 id="_viewing_invalid_metacards"><a class="anchor" href="#_viewing_invalid_metacards"></a><a class="link" href="#_viewing_invalid_metacards">5.3.1. Viewing Invalid Metacards</a></h4>
+<h4 id="_configuring_schematron_services"><a class="anchor" href="#_configuring_schematron_services"></a><a class="link" href="#_configuring_schematron_services">5.2.1. Configuring Schematron Services</a></h4>
+<div class="paragraph">
+<p>DDF uses <a href="https://github.com/schematron">Schematron Validation</a> <span class="image"><a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Configuring Schematron Services"></a></span> to validate metadata ingested into the catalog.</p>
+</div>
+<div class="paragraph">
+<p>Custom schematron rulesets can be used to validate metacard metadata.
+Multiple services can be created, and each service can have multiple rulesets associated with it.
+Namespaces are used to distinguish services.
+The root schematron files may be placed anywhere on the file system as long as they are configured with an absolute path.
+Any root schematron files with a relative path are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</code>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Schematron files may reference other schematron files using an include statement with a relative path.
+However, when using the document function within a schematron ruleset to reference another file, the path must be absolute or relative to the DDF installation home directory.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Schematron validation services are configured with a namespace and one or more schematron rulesets.
+Additionally, warnings may be suppressed so that only errors are reported.</p>
+</div>
+<div class="paragraph">
+<p>To create a new service:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Navigate to the <strong>Admin Console</strong>.</p>
+</li>
+<li>
+<p>Select the <strong>Catalog</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Configuration</strong>.</p>
+</li>
+<li>
+<p>Ensure that <code>catalog-schematron-plugin</code> is started.</p>
+</li>
+<li>
+<p>Select <strong>Schematron Validation Services</strong>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_viewing_invalid_metacards"><a class="anchor" href="#_viewing_invalid_metacards"></a><a class="link" href="#_viewing_invalid_metacards">5.2.2. Viewing Invalid Metacards</a></h4>
 <div class="paragraph">
 <p>To view invalid metacards, query for them through Intrigue.
 Viewing will require DDF-administrator privileges, if <a href="#_hiding_errors_or_warnings_from_queries">Catalog Federation Strategy</a> is configured to filter invalid metacards.</p>
@@ -12866,12 +13615,9 @@ Viewing will require DDF-administrator privileges, if <a href="#_hiding_errors_o
 </div>
 </div>
 <div class="sect3">
-<h4 id="_manually_editing_attributes"><a class="anchor" href="#_manually_editing_attributes"></a><a class="link" href="#_manually_editing_attributes">5.3.2. Manually Editing Attributes</a></h4>
+<h4 id="_manually_editing_attributes"><a class="anchor" href="#_manually_editing_attributes"></a><a class="link" href="#_manually_editing_attributes">5.2.3. Manually Editing Attributes</a></h4>
 <div class="paragraph">
 <p>For small numbers of metacards, or for metacards ingested without overrides, attributes can be edited directly.</p>
-</div>
-<div class="paragraph">
-<p>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -12919,7 +13665,7 @@ so changes will not be saved.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_injecting_attributes"><a class="anchor" href="#_injecting_attributes"></a><a class="link" href="#_injecting_attributes">5.3.3. Injecting Attributes</a></h4>
+<h4 id="_injecting_attributes"><a class="anchor" href="#_injecting_attributes"></a><a class="link" href="#_injecting_attributes">5.2.4. Injecting Attributes</a></h4>
 <div class="paragraph">
 <p>To create a new attribute, it must be injected into the metacard before it is available to edit or override.</p>
 </div>
@@ -12929,7 +13675,7 @@ See <a href="developing.html#_developing_attribute_injections">Developing Attrib
 </div>
 </div>
 <div class="sect3">
-<h4 id="_overriding_attributes"><a class="anchor" href="#_overriding_attributes"></a><a class="link" href="#_overriding_attributes">5.3.4. Overriding Attributes</a></h4>
+<h4 id="_overriding_attributes"><a class="anchor" href="#_overriding_attributes"></a><a class="link" href="#_overriding_attributes">5.2.5. Overriding Attributes</a></h4>
 <div class="paragraph">
 <p>Automatically change the value of an existing attribute on ingest by setting an attribute override.</p>
 </div>
@@ -12995,6 +13741,16 @@ See <a href="developing.html#_developing_attribute_injections">Developing Attrib
 </div>
 </div>
 <div class="sect2">
+<h3 id="_backing_up_the_catalog"><a class="anchor" href="#_backing_up_the_catalog"></a><a class="link" href="#_backing_up_the_catalog">5.3. Backing Up the Catalog</a></h3>
+<div class="paragraph">
+<p>To backup local catalog records, a Catalog Backup Plugin is available.
+It is not installed by default for performance reasons.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="developing.html#_catalog_backup_plugin">Catalog Backup Plugin</a> for installation and configuration instructions).</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_removing_expired_records_from_the_catalog"><a class="anchor" href="#_removing_expired_records_from_the_catalog"></a><a class="link" href="#_removing_expired_records_from_the_catalog">5.4. Removing Expired Records from the Catalog</a></h3>
 <div class="paragraph">
 <p>DDF has many ways to remove expired records from the underlying Catalog data store.
@@ -13027,7 +13783,7 @@ Finally the metacard is passed through a series of <a href="architecture.html#_a
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_wfs_2_0_source"><img src="data:image/png;base64,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" alt="Ingest Attribute Flow" width="520" height="560"></a>
+<a class="image" href="managing.adoc#_encrypting_passwords"><img src="data:image/png;base64,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" alt="Ingest Attribute Flow" width="520" height="560"></a>
 </div>
 <div class="title">Ingest Attribute Flow</div>
 </div>
@@ -13284,7 +14040,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-02-21 01:18:40 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-03-11 21:40:14 UTC
 </div>
 </div>
 </body>
