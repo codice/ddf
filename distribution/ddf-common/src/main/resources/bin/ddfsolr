@@ -99,7 +99,7 @@ else
 
     # Do not proceed if required properties are missing
     if [ -z "$SOLR_PROTOCOL" ]; then
-        echo "Cannot determine Solr protocol (http or https) from custom.system.properties file. Exiing."
+        echo "Cannot determine Solr protocol (http or https) from custom.system.properties file. Exiting."
         exit 3
     fi
 
