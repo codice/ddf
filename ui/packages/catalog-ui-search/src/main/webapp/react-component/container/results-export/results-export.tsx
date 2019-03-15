@@ -32,6 +32,7 @@ type ExportFormat = {
 
 type Props = {
   store: any
+  transformer?: string
 } & WithBackboneProps
 
 type State = {
@@ -56,6 +57,7 @@ class ResultsExport extends React.Component<Props, State> {
       this.handleSelectionChange
     )
   }
+
   handleSelectionChange = () => {
     this.setState(this.mapSelectionToState())
   }
@@ -74,24 +76,41 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
   componentDidUpdate(_prevProps: Props, prevState: State) {
-    if (prevState.selectedResults !== this.state.selectedResults) {
-      this.fetchExportOptions()
+    if (
+      prevState.selectedResults !== this.state.selectedResults ||
+      _prevProps.transformer !== this.props.transformer
+    ) {
+      let type = this.getTransformerType()
+
+      if (this.props.transformer) {
+        type = 'metacard'
+      }
+
+      this.fetchExportOptions(type)
+
       this.setState({
         selectedFormat: 'Select an export option',
         downloadDisabled: true,
       })
     }
   }
-  componentDidMount() {
-    this.fetchExportOptions()
-  }
-  fetchExportOptions = () => {
+  getTransformerType = () => {
     let transformerType = 'metacard'
 
     if (this.state.selectedResults.length > 1) {
       transformerType = 'query'
     }
-
+    return transformerType
+  }
+  componentDidMount() {
+    if (this.props.transformer) {
+      this.fetchExportOptions('metacard')
+    } else {
+      const type = this.getTransformerType()
+      this.fetchExportOptions(type)
+    }
+  }
+  fetchExportOptions = (transformerType: string) => {
     fetch(`./internal/transformers/${transformerType}`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
@@ -139,7 +158,20 @@ class ResultsExport extends React.Component<Props, State> {
 
     let response = null
 
-    if (this.state.selectedResults.length > 1) {
+    if (this.props.transformer) {
+      const cql = getResultSetCql(
+        this.state.selectedResults.map((result: Result) => result.id)
+      )
+      const srcs = Array.from(this.getResultSources())
+
+      response = await exportResultSet(this.props.transformer, {
+        cql,
+        srcs,
+        args: {
+          transformerId,
+        },
+      })
+    } else if (this.state.selectedResults.length > 1) {
       const cql = getResultSetCql(
         this.state.selectedResults.map((result: Result) => result.id)
       )
