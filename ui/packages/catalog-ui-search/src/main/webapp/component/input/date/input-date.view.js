@@ -24,8 +24,6 @@ const Common = require('../../../js/Common.js')
 const user = require('../../singletons/user-instance.js')
 require('eonasdan-bootstrap-datetimepicker')
 
-const timeOnlyFormat = 'HH:mm:ss.SSS'
-
 function getDateFormat() {
   return user
     .get('user')
@@ -67,6 +65,7 @@ module.exports = InputView.extend({
     InputView.prototype.initialize.call(this)
   },
   hasSameTime: function(newDate, oldDate) {
+    const timeOnlyFormat = 'HH:mm:ss.SSS'
     if (oldDate == null || newDate == null) {
       return false
     }
@@ -151,11 +150,9 @@ module.exports = InputView.extend({
 
         let newValue = this.getCurrentValue()
 
-        if (e.type === 'dp') {
-          newValue = this.hasSameTime(e.date, e.oldDate)
-            ? e.date.startOf('day')
-            : e.date
-        }
+        newValue = this.hasSameTime(e.date, e.oldDate)
+          ? e.date.startOf('day')
+          : e.date
 
         newValue = moment
           .tz(newValue, getDateFormat(), getTimeZone())
@@ -174,11 +171,11 @@ module.exports = InputView.extend({
     )
   },
   isValid: function() {
-    let currentValue = this.$el.find('input').val()
+    const currentValue = this.$el.find('input').val()
     return currentValue != null && currentValue !== ''
   },
   onDestroy: function() {
-    let datetimepicker = this.$el
+    const datetimepicker = this.$el
       .find('.input-group.date')
       .data('DateTimePicker')
     if (datetimepicker) {
