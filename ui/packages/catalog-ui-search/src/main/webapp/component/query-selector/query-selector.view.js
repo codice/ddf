@@ -14,25 +14,67 @@
  **/
 /*global define, setTimeout*/
 const Marionette = require('marionette')
-const _ = require('underscore')
 const $ = require('jquery')
-const querySelectorTemplate = require('./query-selector.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const Query = require('../../js/model/Query.js')
 const QueryItemCollectionView = require('../query-item/query-item.collection.view.js')
+import React from 'react'
+import {
+  Button,
+  buttonTypeEnum,
+} from '../../react-component/presentation/button'
+import styled from '../../react-component/styles/styled-components'
 
-var namespace = CustomElements.getNamespace()
+const gray = 'darkslategray'
 
-var QuerySelector = Marionette.LayoutView.extend({
+const SearchButton = styled(Button)`
+  line-height: ${props => props.theme.minimumButtonSize};
+  padding: 0px ${props => props.theme.largeSpacing};
+`
+
+const SearchIcon = styled.div`
+  display: block;
+  opacity: 0.5;
+`
+
+const Span = styled.span`
+  opacity: 0.5;
+`
+
+const SearchGroup = styled.div`
+  padding-top: ${props => props.theme.largeSpacing};
+`
+
+let namespace = CustomElements.getNamespace()
+
+let QuerySelector = Marionette.LayoutView.extend({
   setDefaultModel: function() {
     this.model = store.getCurrentQueries()
   },
-  template: querySelectorTemplate,
+  template() {
+    return (
+      <React.Fragment>
+        <div className="querySelector-list" />
+        <div align="center" className="if-empty is-header">
+          <Span>New searches will appear here</Span>
+          <SearchGroup>
+            <SearchIcon className="fa fa-search fa-5x" />
+            <SearchButton
+              className="quick-add"
+              buttonType={buttonTypeEnum.primary}
+            >
+              Create a Search
+            </SearchButton>
+          </SearchGroup>
+        </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('query-selector'),
   modelEvents: {},
   events: function() {
-    var eventObj = {
+    let eventObj = {
       'click .querySelector-add': 'addQuery',
       'click > .if-empty .quick-add': 'triggerQuery',
     }
@@ -65,16 +107,16 @@ var QuerySelector = Marionette.LayoutView.extend({
   },
   addQuery: function() {
     if (this.model.canAddQuery()) {
-      var newQuery = new Query.Model()
+      let newQuery = new Query.Model()
       store.setQueryByReference(newQuery)
     }
   },
   selectQuery: function(event) {
-    var queryId = event.currentTarget.getAttribute('data-queryId')
+    let queryId = event.currentTarget.getAttribute('data-queryId')
     store.setQueryById(queryId)
   },
   handleQuerySelect: function() {
-    var query = store.getQuery()
+    let query = store.getQuery()
     this.$el.find(namespace + 'query-item').removeClass('is-selected')
     if (query) {
       this.$el
