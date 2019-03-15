@@ -24,6 +24,8 @@ const Common = require('../../../js/Common.js')
 const user = require('../../singletons/user-instance.js')
 require('eonasdan-bootstrap-datetimepicker')
 
+const timeOnlyFormat = 'HH:mm:ss.SSS'
+
 function getDateFormat() {
   return user
     .get('user')
@@ -41,8 +43,6 @@ function getTimeZone() {
 module.exports = InputView.extend({
   template: template,
   events: {
-    'click .input-revert': 'revert',
-    'dp.change .input-group.date': 'handleRevert',
     'dp.show .input-group.date': 'handleOpen',
     'dp.hide .input-group.date': 'removeResizeHandler',
   },
@@ -65,6 +65,17 @@ module.exports = InputView.extend({
       this.initializeDatepicker
     )
     InputView.prototype.initialize.call(this)
+  },
+  hasSameTime: function(newDate, oldDate) {
+    if (oldDate == null || newDate == null) {
+      return false
+    }
+    const newTime = newDate.format(timeOnlyFormat)
+    const oldTime = oldDate.format(timeOnlyFormat)
+    if (newTime == oldTime) {
+      return true
+    }
+    return false
   },
   onRender: function() {
     this.initializeDatepicker()
@@ -117,7 +128,7 @@ module.exports = InputView.extend({
     $(window).off('resize.datePicker')
   },
   getCurrentValue: function() {
-    var currentValue = this.$el.find('input').val()
+    let currentValue = this.$el.find('input').val()
     if (currentValue) {
       return moment
         .tz(currentValue, getDateFormat(), getTimeZone())
@@ -128,19 +139,46 @@ module.exports = InputView.extend({
   },
   listenForChange: function() {
     this.$el.on(
+      'dp.change',
+      function(e) {
+        if (e.oldDate === null) {
+          return
+        }
+
+        let datetimepicker = this.$el
+          .find('.input-group.date')
+          .data('DateTimePicker')
+
+        let newValue = this.getCurrentValue()
+
+        if (e.type === 'dp') {
+          newValue = this.hasSameTime(e.date, e.oldDate)
+            ? e.date.startOf('day')
+            : e.date
+        }
+
+        newValue = moment
+          .tz(newValue, getDateFormat(), getTimeZone())
+          .format(getDateFormat())
+
+        datetimepicker.viewDate(newValue)
+        this.$el.find('input').val(newValue)
+        this.validate()
+      }.bind(this)
+    )
+    this.$el.on(
       'dp.change click input change keyup',
-      function() {
-        this.model.set('value', this.getCurrentValue())
+      function(e) {
         this.validate()
       }.bind(this)
     )
   },
   isValid: function() {
-    var currentValue = this.$el.find('input').val()
+    let currentValue = this.$el.find('input').val()
     return currentValue != null && currentValue !== ''
   },
   onDestroy: function() {
-    var datetimepicker = this.$el
+    let datetimepicker = this.$el
       .find('.input-group.date')
       .data('DateTimePicker')
     if (datetimepicker) {
