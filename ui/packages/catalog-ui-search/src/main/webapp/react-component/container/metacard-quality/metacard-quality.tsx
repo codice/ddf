@@ -22,7 +22,6 @@ type Props = {
 }
 
 type State = {
-  model: Backbone.Model
   attributeValidation: any
   metacardValidation: any
   loading: boolean
@@ -33,19 +32,18 @@ class MetacardQuality extends React.Component<Props, State> {
     super(props)
 
     const selectionInterface = props.selectionInterface || store
-    const model = selectionInterface.getSelectedResults().first()
+    this.model = selectionInterface.getSelectedResults().first()
 
     this.state = {
-      model,
       attributeValidation: [],
       metacardValidation: [],
       loading: true,
     }
   }
-
+  model: Backbone.Model
   componentDidMount() {
     setTimeout(() => {
-      const metacardId = this.state.model.get('metacard').get('id')
+      const metacardId = this.model.get('metacard').get('id')
 
       const attributeValidationRes = fetch(
         `./internal/metacard/${metacardId}/attribute/validation`
