@@ -175,7 +175,7 @@ Within the body of the request, include a `GetRecords` operation to define the q
 Define the service and version to use (CSW, 2.0.2).
 The output format must be `application/xml`.
 Specify the output schema.
-(To get a list of supported schemas, send a <<{integrating-prefix}get_capabilities,Get Capabilities>> request to the CSW endpoint.)
+(To get a list of supported schemas, send a <<{integrating-prefix}csw_endpoint_get_capabilities_examples,Get Capabilities>> request to the CSW endpoint.)
 
 .GetRecords Syntax
 [source,xml,linenums]
@@ -295,7 +295,7 @@ Within the `Constraint` element, define the query as an OSG or CQL filter.
 
 .Querying a Specific Source with the CSW Endpoint
 To query a `Specific Source`, specify a query for a `source-id`.
-To find a valid `source-id` , send a <<{integrating-prefix}get_capabilities,Get Capabilities>> request.
+To find a valid `source-id` , send a <<{integrating-prefix}csw_endpoint_get_capabilities_examples,Get Capabilities>> request.
 Configured sources will be listed in the `FederatedCatalogs` section of the response.
 
 [NOTE]
