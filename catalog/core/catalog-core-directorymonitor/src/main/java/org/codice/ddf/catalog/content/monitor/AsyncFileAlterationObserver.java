@@ -161,7 +161,9 @@ public class AsyncFileAlterationObserver {
           rootFile.getName());
     }
 
-    isProcessing = false;
+    synchronized (processingLock) {
+      isProcessing = false;
+    }
     return true;
   }
 
