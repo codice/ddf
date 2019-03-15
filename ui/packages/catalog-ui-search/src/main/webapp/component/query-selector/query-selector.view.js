@@ -26,8 +26,6 @@ import {
 } from '../../react-component/presentation/button'
 import styled from '../../react-component/styles/styled-components'
 
-const gray = 'darkslategray'
-
 const SearchButton = styled(Button)`
   line-height: ${props => props.theme.minimumButtonSize};
   padding: 0px ${props => props.theme.largeSpacing};
