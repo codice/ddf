@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import javax.validation.constraints.NotNull;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -35,7 +34,10 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableFileConsumer.class);
 
-  FileSystemPersistenceProvider fileSystemPersistenceProvider;
+  //  Implement these to serialize the observers states.
+  protected FileSystemPersistenceProvider fileSystemPersistenceProvider;
+
+  protected ObjectPersistentStore jsonSerializer;
 
   private String remaining;
 
@@ -62,17 +64,16 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
   @Override
   protected boolean pollDirectory(String fileName, List list, int depth) {
     if (remaining != null) {
-      String sha1 = getShaFor(remaining);
-      initialize(remaining, sha1);
-      return doPoll(sha1);
+      initialize(remaining);
+      return doPoll(remaining);
     }
 
     return false;
   }
 
-  protected abstract void initialize(@NotNull String remaining, @NotNull String sha1);
+  protected abstract void initialize(String fileName);
 
-  protected abstract boolean doPoll(@NotNull String sha1);
+  protected abstract boolean doPoll(String sha1);
 
   void submitExchange(Exchange exchange) {
     processExchange(exchange);
