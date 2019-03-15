@@ -45,16 +45,14 @@ class MetacardQuality extends React.Component<Props, State> {
 
   componentDidMount() {
     setTimeout(() => {
+      const metacardId = this.state.model.get('metacard').get('id')
+
       const attributeValidationRes = fetch(
-        `./internal/metacard/${this.state.model
-          .get('metacard')
-          .get('id')}/attribute/validation`
+        `./internal/metacard/${metacardId}/attribute/validation`
       )
 
       const metacardValidationRes = fetch(
-        `./internal/metacard/${this.state.model
-          .get('metacard')
-          .get('id')}/validation`
+        `./internal/metacard/${metacardId}/validation`
       )
 
       Promise.all([attributeValidationRes, metacardValidationRes]).then(

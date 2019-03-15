@@ -57,94 +57,102 @@ const Root = styled.div`
   }
 `
 
+const MetacardValidation = (props: any) => {
+  const metacardValidation = props.metacardValidation
+  return (
+    <>
+      <Header>Metacard Validation Issues</Header>
+      <table>
+        <thead>
+          <th>Attribute</th>
+          <th>Severity</th>
+          <th>Message</th>
+        </thead>
+        <tbody>
+          {metacardValidation.map((validation: any, i: number) => {
+            return (
+              <tr key={i}>
+                <td>
+                  {validation.attributes.map((attribute: string, j: number) => {
+                    return <div key={attribute + j}>{attribute}</div>
+                  })}
+                </td>
+                <td>{validation.severity}</td>
+                {validation.duplicate ? (
+                  <td>
+                    {validation.duplicate.message[0]}
+                    {validation.duplicate.ids.map((id: any, index: number) => {
+                      return (
+                        <React.Fragment key={id}>
+                          <a href={`#metacards/${id}`}>{id}</a>
+                          {index !== validation.duplicate.ids.length - 1
+                            ? ', '
+                            : ''}
+                        </React.Fragment>
+                      )
+                    })}
+                    {validation.duplicate.message[1]}
+                  </td>
+                ) : (
+                  <td>{validation.message}</td>
+                )}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </>
+  )
+}
+
+const AttributeValidation = (props: any) => {
+  const attributeValidation = props.attributeValidation
+  return (
+    <>
+      <Header>Attribute Validation Issues</Header>
+      <table>
+        <thead>
+          <th>Attribute</th>
+          <th>Warnings</th>
+          <th>Errors</th>
+        </thead>
+        <tbody>
+          {attributeValidation.map((validation: any, i: number) => {
+            return (
+              <tr key={i}>
+                <td>{validation.attribute}</td>
+                <td>
+                  {validation.warnings.map((warning: string, j: number) => {
+                    return <div key={warning + j}>{warning}</div>
+                  })}
+                </td>
+                <td>
+                  {validation.errors.map((error: string, j: number) => {
+                    return <div key={error + j}>{error}</div>
+                  })}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </>
+  )
+}
+
 const render = (props: Props) => {
   const { metacardValidation, attributeValidation, loading } = props
   return (
     <LoadingCompanion loading={loading}>
       <Root>
         {metacardValidation.length > 0 ? (
-          <>
-            <Header>Metacard Validation Issues</Header>
-            <table>
-              <thead>
-                <th>Attribute</th>
-                <th>Severity</th>
-                <th>Message</th>
-              </thead>
-              <tbody>
-                {metacardValidation.map((validation: any, i: number) => {
-                  return (
-                    <tr key={i}>
-                      <td>
-                        {validation.attributes.map(
-                          (attribute: string, j: number) => {
-                            return <div key={attribute + j}>{attribute}</div>
-                          }
-                        )}
-                      </td>
-                      <td>{validation.severity}</td>
-                      {validation.duplicate ? (
-                        <td>
-                          {validation.duplicate.message[0]}
-                          {validation.duplicate.ids.map(
-                            (id: any, index: number) => {
-                              return (
-                                <React.Fragment key={id}>
-                                  <a href={`#metacards/${id}`}>{id}</a>
-                                  {index !== validation.duplicate.ids.length - 1
-                                    ? ', '
-                                    : ''}
-                                </React.Fragment>
-                              )
-                            }
-                          )}
-                          {validation.duplicate.message[1]}
-                        </td>
-                      ) : (
-                        <td>{validation.message}</td>
-                      )}
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </>
+          <MetacardValidation metacardValidation={metacardValidation} />
         ) : (
           <Header>No Metacard Validation Issues to Report</Header>
         )}
 
         {attributeValidation.length > 0 ? (
-          <>
-            <Header>Attribute Validation Issues</Header>
-            <table>
-              <thead>
-                <th>Attribute</th>
-                <th>Warnings</th>
-                <th>Errors</th>
-              </thead>
-              <tbody>
-                {attributeValidation.map((validation: any, i: number) => {
-                  return (
-                    <tr key={i}>
-                      <td>{validation.attribute}</td>
-                      <td>
-                        {validation.warnings.map(
-                          (warning: string, j: number) => {
-                            return <div key={warning + j}>{warning}</div>
-                          }
-                        )}
-                      </td>
-                      <td>
-                        {validation.errors.map((error: string, j: number) => {
-                          return <div key={error + j}>{error}</div>
-                        })}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </>
+          <AttributeValidation attributeValidation={attributeValidation} />
         ) : (
           <Header>No Attribute Validation Issues to Report</Header>
         )}
