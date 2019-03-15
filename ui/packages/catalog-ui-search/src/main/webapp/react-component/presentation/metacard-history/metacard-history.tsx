@@ -106,7 +106,7 @@ const RevertButton = styled(Button)`
   text-overflow: ellipsis;
 `
 
-const render = (props: Props) => {
+const MetacardHistory = (props: Props) => {
   const {
     clickWorkspace,
     revertToSelectedVersion,
@@ -167,4 +167,4 @@ have chosen."
   )
 }
 
-export default hot(module)(render)
+export default hot(module)(MetacardHistory)

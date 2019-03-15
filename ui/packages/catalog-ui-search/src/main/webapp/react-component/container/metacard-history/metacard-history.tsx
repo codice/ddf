@@ -25,7 +25,6 @@ type Props = {
 }
 
 type State = {
-  model: Backbone.Model
   history: any
   selectedVersion: any
   loading: boolean
@@ -36,16 +35,15 @@ class MetacardHistory extends React.Component<Props, State> {
     super(props)
 
     const selectionInterface = props.selectionInterface || store
-    const model = selectionInterface.getSelectedResults().first()
+    this.model = selectionInterface.getSelectedResults().first()
 
     this.state = {
-      model,
       history: [],
       selectedVersion: undefined,
       loading: true,
     }
   }
-
+  model: Backbone.Model
   componentDidMount() {
     this.loadData()
   }
@@ -53,7 +51,7 @@ class MetacardHistory extends React.Component<Props, State> {
   loadData() {
     setTimeout(async () => {
       const res = await fetch(
-        `./internal/history/${this.state.model.get('metacard').get('id')}`
+        `./internal/history/${this.model.get('metacard').get('id')}`
       )
 
       if (!res.ok || res.status === 204) {
@@ -88,9 +86,9 @@ class MetacardHistory extends React.Component<Props, State> {
     this.setState({ loading: true })
 
     const res = await fetch(
-      `./internal/history/revert/${this.state.model
-        .get('metacard')
-        .get('id')}/${this.state.selectedVersion}`
+      `./internal/history/revert/${this.model.get('metacard').get('id')}/${
+        this.state.selectedVersion
+      }`
     )
 
     if (!res.ok) {
@@ -103,17 +101,17 @@ class MetacardHistory extends React.Component<Props, State> {
       return
     }
 
-    this.state.model
+    this.model
       .get('metacard')
       .get('properties')
       .set('metacard-tags', ['revision'])
-    ResultUtils.refreshResult(this.state.model)
+    ResultUtils.refreshResult(this.model)
 
     setTimeout(() => {
       //let solr flush
-      this.state.model.trigger('refreshdata')
+      this.model.trigger('refreshdata')
       if (
-        this.state.model
+        this.model
           .get('metacard')
           .get('properties')
           .get('metacard-tags')
