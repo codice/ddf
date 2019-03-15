@@ -30,12 +30,14 @@ module.exports = DropdownView.extend({
   className: 'is-search-settings',
   componentToShow: Marionette.LayoutView.extend({
     template() {
-      return <SearchSettings
-        onClose={() => {
-          this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-        }}
-      />
-    }
+      return (
+        <SearchSettings
+          onClose={() => {
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+          }}
+        />
+      )
+    },
   }),
   initialize: function() {
     DropdownView.prototype.initialize.call(this)

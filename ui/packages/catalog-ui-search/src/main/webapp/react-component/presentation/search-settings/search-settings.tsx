@@ -10,7 +10,9 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../../container/backbone-container'
+import withListenTo, {
+  WithBackboneProps,
+} from '../../container/backbone-container'
 const user = require('../../../component/singletons/user-instance.js')
 const properties = require('../../../js/properties.js')
 const Property = require('../../../component/property/property.js')
@@ -28,80 +30,82 @@ import { hot } from 'react-hot-loader'
 // `
 
 type Props = {
-    onClose : () => void
+  onClose: () => void
 } & WithBackboneProps
 
 type State = {
-    value: Number
+  value: Number
 }
 
-class SearchSettings extends React.Component<Props, State>{
-    propertyModel: any
-    constructor (props: Props) {
-        super(props)
-        this.state = {
-            value: this.getUserResultCount()
-        }
-        
+class SearchSettings extends React.Component<Props, State> {
+  propertyModel: any
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      value: this.getUserResultCount(),
     }
-    render () {
-        const propertyModel = new Property({
-            label: 'Number of Search Results',
-            value: [this.state.value],
-            min: 1,
-            max: properties.resultCount,
-            type: 'RANGE',
-            isEditing: true
-        })
-        console.log('state', this.state)
-        return (
-            <div>
-                <div className="editor-properties">
-                    <div className="property-result-count">
-                        <MarionetteRegionContainer
-                            view = {PropertyView}
-                            viewOptions = {{
-                                model: propertyModel,
-                            }}
-                            replaceElement
-                        />
-                    </div>
-                    <div className="is-header">Defaults</div>
-                    <div className="property-search-settings">
-                    </div>
-                </div>
-                <div className="editor-footer">
-                    <button className="editor-cancel is-negative" onClick={this.triggerCancel}>
-                        <span className="fa fa-times"></span>
-                        <span>
-                            Cancel
-                        </span>
-                    </button>
-                        <button className="editor-save is-positive" onClick={this.triggerSave}>
-                        <span className="fa fa-floppy-o">
-                        </span>
-                        <span>
-                            Save
-                        </span>
-                    </button>
-                </div>
-            </div>
-        )
-    }
-    triggerSave = () => {
-        console.log('value: ', this.propertyModel.getValue()[0])
-    }
-    triggerCancel = () => {
-        console.log('cancelling!')
-        this.setState({
-            value: 100
-        })
-        this.props.onClose()
-    }
+  }
+  render() {
+    const propertyModel = new Property({
+      label: 'Number of Search Results',
+      value: [this.state.value],
+      min: 1,
+      max: properties.resultCount,
+      type: 'RANGE',
+      isEditing: true,
+    })
+    console.log('state', this.state)
+    return (
+      <div>
+        <div className="editor-properties">
+          <div className="property-result-count">
+            <MarionetteRegionContainer
+              view={PropertyView}
+              viewOptions={{
+                model: propertyModel,
+              }}
+              replaceElement
+            />
+          </div>
+          <div className="is-header">Defaults</div>
+          <div className="property-search-settings" />
+        </div>
+        <div className="editor-footer">
+          <button
+            className="editor-cancel is-negative"
+            onClick={this.triggerCancel}
+          >
+            <span className="fa fa-times" />
+            <span>Cancel</span>
+          </button>
+          <button
+            className="editor-save is-positive"
+            onClick={this.triggerSave}
+          >
+            <span className="fa fa-floppy-o" />
+            <span>Save</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
+  triggerSave = () => {
+    console.log('value: ', this.propertyModel.getValue()[0])
+  }
+  triggerCancel = () => {
+    console.log('cancelling!')
+    this.setState({
+      value: 100,
+    })
+    this.props.onClose()
+  }
 
-    getUserResultCount = () => {
-        return user.get('user').get('preferences').get('resultCount')
-    }
+  getUserResultCount = () => {
+    return user
+      .get('user')
+      .get('preferences')
+      .get('resultCount')
+  }
 }
 
 export default hot(module)(withListenTo(SearchSettings))
