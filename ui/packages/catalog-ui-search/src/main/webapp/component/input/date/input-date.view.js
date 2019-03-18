@@ -148,9 +148,7 @@ module.exports = InputView.extend({
           .find('.input-group.date')
           .data('DateTimePicker')
 
-        let newValue = this.getCurrentValue()
-
-        newValue = this.hasSameTime(e.date, e.oldDate)
+        let newValue = this.hasSameTime(e.date, e.oldDate)
           ? e.date.startOf('day')
           : e.date
 
