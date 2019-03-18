@@ -33,11 +33,11 @@ const SearchButton = styled(Button)`
 
 const SearchIcon = styled.div`
   display: block;
-  opacity: 0.5;
+  opacity: ${props => props.theme.minimumOpacity};
 `
 
 const Span = styled.span`
-  opacity: 0.5;
+  opacity: ${props => props.theme.minimumOpacity};
 `
 const namespace = CustomElements.getNamespace()
 
