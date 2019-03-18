@@ -39,11 +39,6 @@ const SearchIcon = styled.div`
 const Span = styled.span`
   opacity: 0.5;
 `
-
-const SearchGroup = styled.div`
-  padding-top: ${props => props.theme.largeSpacing};
-`
-
 const namespace = CustomElements.getNamespace()
 
 const QuerySelector = Marionette.LayoutView.extend({
@@ -56,7 +51,7 @@ const QuerySelector = Marionette.LayoutView.extend({
         <div className="querySelector-list" />
         <div align="center" className="if-empty is-header">
           <Span>New searches will appear here</Span>
-          <SearchGroup>
+          <div>
             <SearchIcon className="fa fa-search fa-5x" />
             <SearchButton
               className="quick-add"
@@ -64,7 +59,7 @@ const QuerySelector = Marionette.LayoutView.extend({
             >
               Create a Search
             </SearchButton>
-          </SearchGroup>
+          </div>
         </div>
       </React.Fragment>
     )
