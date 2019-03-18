@@ -617,11 +617,11 @@ public class IngestCommand extends CatalogCommands {
   private void buildQueue(File inputFile, ArrayBlockingQueue<Metacard> metacardQueue, long start) {
     try {
       if (includeContent) {
-        try (FileInputStream fileInputStream = new FileInputStream(inputFile)) {
+        try (InputStream data = new FileInputStream(inputFile);
+            InputStream signature = new FileInputStream(signatureFile)) {
           String alias = System.getProperty("org.codice.ddf.system.hostname");
 
-          if (verifier.verifyDigitalSignature(
-              fileInputStream, new FileInputStream(signatureFile), alias)) {
+          if (verifier.verifyDigitalSignature(data, signature, alias)) {
             processIncludeContent(metacardQueue);
           } else {
             throw new CatalogCommandRuntimeException(
