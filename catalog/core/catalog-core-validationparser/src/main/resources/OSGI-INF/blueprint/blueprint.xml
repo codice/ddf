@@ -24,6 +24,9 @@
         <argument>
             <reference interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
         </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType" />
+        </argument>
     </bean>
 
     <service ref="validationDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>

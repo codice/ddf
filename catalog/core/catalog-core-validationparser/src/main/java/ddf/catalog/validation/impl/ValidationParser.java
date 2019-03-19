@@ -38,6 +38,16 @@ import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.DateTimeAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
+import ddf.catalog.data.impl.types.VersionAttributes;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.MetacardValidator;
@@ -78,6 +88,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -92,6 +103,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ValidationParser implements ArtifactInstaller {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
   private static final String METACARD_VALIDATORS_PROPERTY = "metacardvalidators";
 
@@ -116,14 +129,6 @@ public class ValidationParser implements ArtifactInstaller {
   public static final Type OUTER_VALIDATOR_TYPE =
       new TypeToken<List<Outer.Validator>>() {}.getType();
 
-  private final AttributeRegistry attributeRegistry;
-
-  private final AttributeValidatorRegistry attributeValidatorRegistry;
-
-  private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
-
-  private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
-
   private static final Gson GSON =
       new GsonBuilder()
           .disableHtmlEscaping()
@@ -132,18 +137,41 @@ public class ValidationParser implements ArtifactInstaller {
           .setLenient()
           .create();
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
+  private final AttributeRegistry attributeRegistry;
+
+  private final AttributeValidatorRegistry attributeValidatorRegistry;
+
+  private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
+
+  private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
 
   private final Function<Class, Bundle> bundleLookup;
+
+  private final List<MetacardType> metacardTypes;
+
+  private final List<MetacardType> coreTypes =
+      ImmutableList.of(
+          new AssociationsAttributes(),
+          new ContactAttributes(),
+          new CoreAttributes(),
+          new DateTimeAttributes(),
+          new LocationAttributes(),
+          new MediaAttributes(),
+          new SecurityAttributes(),
+          new TopicAttributes(),
+          new ValidationAttributes(),
+          new VersionAttributes());
 
   public ValidationParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
-      DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+      DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      List<MetacardType> metacardTypes) {
     this(
         attributeRegistry,
         attributeValidatorRegistry,
         defaultAttributeValueRegistry,
+        metacardTypes,
         FrameworkUtil::getBundle);
   }
 
@@ -152,10 +180,12 @@ public class ValidationParser implements ArtifactInstaller {
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      List<MetacardType> metacardTypes,
       Function<Class, Bundle> bundleLookup) {
     this.attributeRegistry = attributeRegistry;
     this.attributeValidatorRegistry = attributeValidatorRegistry;
     this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    this.metacardTypes = metacardTypes;
     this.bundleLookup = bundleLookup;
   }
 
@@ -265,13 +295,24 @@ public class ValidationParser implements ArtifactInstaller {
 
   @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
   private List<Callable<Boolean>> parseMetacardTypes(
-      Changeset changeset, List<Outer.MetacardType> metacardTypes) {
+      Changeset changeset, List<Outer.MetacardType> incomingMetacardTypes) {
     List<Callable<Boolean>> staged = new ArrayList<>();
     BundleContext context = getBundleContext();
-    for (Outer.MetacardType metacardType : metacardTypes) {
+    List<MetacardType> stagedTypes = new ArrayList<>();
+
+    for (Outer.MetacardType metacardType : incomingMetacardTypes) {
       Set<AttributeDescriptor> attributeDescriptors =
           new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
       Set<String> requiredAttributes = new HashSet<>();
+
+      Set<AttributeDescriptor> extendedAttributes =
+          metacardType
+              .extendsTypes
+              .stream()
+              .flatMap(getStringStreamFunction(stagedTypes))
+              .collect(Collectors.toSet());
+
+      attributeDescriptors.addAll(extendedAttributes);
 
       metacardType.attributes.forEach(
           (attributeName, attribute) -> {
@@ -305,6 +346,7 @@ public class ValidationParser implements ArtifactInstaller {
       Dictionary<String, Object> properties = new DictionaryMap<>();
       properties.put(NAME_PROPERTY, metacardType.type);
       MetacardType type = new MetacardTypeImpl(metacardType.type, attributeDescriptors);
+      stagedTypes.add(type);
       staged.add(
           () -> {
             ServiceRegistration<MetacardType> registration =
@@ -314,6 +356,27 @@ public class ValidationParser implements ArtifactInstaller {
           });
     }
     return staged;
+  }
+
+  private Function<String, Stream<? extends AttributeDescriptor>> getStringStreamFunction(
+      List<MetacardType> stagedTypes) {
+    return type ->
+        new ImmutableList.Builder<MetacardType>()
+            .addAll(metacardTypes)
+            .addAll(stagedTypes)
+            .addAll(coreTypes)
+            .build()
+            .stream()
+            .filter(mt -> mt.getName().equals(type))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        String.format(
+                            "Could not find a metacard type by name '%s'. Was the type already defined or defined first in the list of definitions?",
+                            type)))
+            .getAttributeDescriptors()
+            .stream();
   }
 
   private List<Callable<Boolean>> registerMetacardValidators(
@@ -529,6 +592,7 @@ public class ValidationParser implements ArtifactInstaller {
 
   /** TODO DDF-3578 once MetacardValidator is eliminated, this pattern can be cleaned up */
   private class ValidatorWrapper {
+
     private List<MetacardValidator> metacardValidators = new ArrayList<>();
     private List<ReportingMetacardValidator> reportingMetacardValidators = new ArrayList<>();
     private List<AttributeValidator> attributeValidators = new ArrayList<>();
@@ -720,6 +784,7 @@ public class ValidationParser implements ArtifactInstaller {
   }
 
   private static class Outer {
+
     List<Outer.MetacardType> metacardTypes;
 
     Map<String, Outer.AttributeType> attributeTypes;
@@ -734,15 +799,19 @@ public class ValidationParser implements ArtifactInstaller {
     List<Map<String, List<MetacardValidatorDefinition>>> metacardvalidators;
 
     private static class MetacardType {
+
       String type;
+      List<String> extendsTypes;
       Map<String, MetacardAttribute> attributes;
     }
 
     private static class MetacardAttribute {
+
       boolean required;
     }
 
     private static class AttributeType {
+
       String type;
       boolean tokenized;
       boolean stored;
@@ -751,17 +820,20 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     private static class Default {
+
       String attribute;
       String value;
       List<String> metacardTypes;
     }
 
     private static class Injection {
+
       String attribute;
       List<String> metacardTypes;
     }
 
     private static class Validator {
+
       @SuppressWarnings("squid:S1700" /* Required to match expected JSON structure */)
       String validator;
 
@@ -778,6 +850,7 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     private static class ValidatorCollection extends Validator {
+
       List<Outer.Validator> validators;
 
       ValidatorCollection(String validatorName, List<Validator> validators) {
@@ -788,11 +861,13 @@ public class ValidationParser implements ArtifactInstaller {
   }
 
   private static class MetacardValidatorDefinition {
+
     String validator;
     List<String> requiredattributes;
   }
 
   private class Changeset {
+
     private final List<ServiceRegistration<MetacardType>> metacardTypeServices = new ArrayList<>();
 
     private final List<ServiceRegistration<MetacardValidator>> metacardValidatorServices =
@@ -812,6 +887,7 @@ public class ValidationParser implements ArtifactInstaller {
   }
 
   private static class ValidatorHierarchyAdapter implements JsonDeserializer<Outer.Validator> {
+
     @Override
     public Outer.Validator deserialize(
         JsonElement jsonElement, Type type, JsonDeserializationContext context) {
