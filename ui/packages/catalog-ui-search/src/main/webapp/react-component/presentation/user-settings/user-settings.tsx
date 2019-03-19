@@ -141,9 +141,7 @@ class UserSettings extends React.Component<Props, State> {
             text="Search Options"
             icon="fa fa-search"
             onClick={() => {
-              this.updateComponent(
-                <SearchSettings showFooter = {false}/>
-              )
+              this.updateComponent(<SearchSettings showFooter={false} />)
             }}
             disabled={Boolean(component)}
           />

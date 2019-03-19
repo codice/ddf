@@ -25,30 +25,31 @@ import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 
 const Root = styled.div`
-overflow: hidden;
-padding: ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing};
+  overflow: hidden;
+  padding: ${props => props.theme.minimumSpacing}
+    ${props => props.theme.minimumSpacing};
 `
 
 const PropertyResultCount = styled.div`
-margin-bottom: ${props => props.theme.largeSpacing};
+  margin-bottom: ${props => props.theme.largeSpacing};
 `
 
 const QuerySettings = styled.div`
-.editor-header,
-.editor-footer {
-  display: none;
-}
-.editor-properties {
-  padding: 0px;
-}
+  .editor-header,
+  .editor-footer {
+    display: none;
+  }
+  .editor-properties {
+    padding: 0px;
+  }
 `
 
 const EditorFooter = styled<Props, 'div'>('div')`
-display: ${props => (props.showFooter ? 'block' : 'none')};
-button {
-  display: inline-block;
-  width: 50%;
-}
+  display: ${props => (props.showFooter ? 'block' : 'none')};
+  button {
+    display: inline-block;
+    width: 50%;
+  }
 `
 
 type Props = {
@@ -57,121 +58,125 @@ type Props = {
   showFooter: boolean
 } & WithBackboneProps
 
-export default hot(module)(withListenTo(class SearchSettings extends React.Component<Props, {}> {
-  propertyModel: any
-  queryModel: any
-  querySettingsView: any
-  propertyView: any
-  constructor(props: Props) {
-    super(props)
-    this.setQuerySettingsView()
-    this.setPropertyView()
-  }
-  render() {
-    return (
-      <Root>
-        <div className="editor-properties">
-          <PropertyResultCount>
-            <MarionetteRegionContainer
-              view={this.propertyView}
-              replaceElement
-            />
-          </PropertyResultCount>
-          <div className="is-header">Defaults</div>
-          <QuerySettings className="property-search-settings">
-              <MarionetteRegionContainer view={this.querySettingsView}/>
-          </QuerySettings>
-        </div>
-        <EditorFooter {...this.props}>
-          <button
-            className="editor-cancel is-negative"
-            onClick={this.triggerCancel}
-          >
-            <span className="fa fa-times" />
-            <span>Cancel</span>
-          </button>
-          <button
-            className="editor-save is-positive"
-            onClick={this.triggerSave}
-          >
-            <span className="fa fa-floppy-o" />
-            <span>Save</span>
-          </button>
-        </EditorFooter>
-      </Root>
-    )
-  }
-  triggerSave = () => {
-    this.updateResultCountSettings()
-    this.updateSearchSettings()
-    this.props.listenTo(
-      ConfirmationView.generateConfirmation({
-        prompt: 'Do you want to apply the new defaults to this search?',
-        no: 'No',
-        yes: 'Apply',
-      }),
-      'change:choice',
-      (confirmation: any) => {
-        if (confirmation.get('choice')) {
-          this.props.model.applyDefaults()
+export default hot(module)(
+  withListenTo(
+    class SearchSettings extends React.Component<Props, {}> {
+      propertyModel: any
+      queryModel: any
+      querySettingsView: any
+      propertyView: any
+      constructor(props: Props) {
+        super(props)
+        this.setQuerySettingsView()
+        this.setPropertyView()
+      }
+      render() {
+        return (
+          <Root>
+            <div className="editor-properties">
+              <PropertyResultCount>
+                <MarionetteRegionContainer
+                  view={this.propertyView}
+                  replaceElement
+                />
+              </PropertyResultCount>
+              <div className="is-header">Defaults</div>
+              <QuerySettings className="property-search-settings">
+                <MarionetteRegionContainer view={this.querySettingsView} />
+              </QuerySettings>
+            </div>
+            <EditorFooter {...this.props}>
+              <button
+                className="editor-cancel is-negative"
+                onClick={this.triggerCancel}
+              >
+                <span className="fa fa-times" />
+                <span>Cancel</span>
+              </button>
+              <button
+                className="editor-save is-positive"
+                onClick={this.triggerSave}
+              >
+                <span className="fa fa-floppy-o" />
+                <span>Save</span>
+              </button>
+            </EditorFooter>
+          </Root>
+        )
+      }
+      triggerSave = () => {
+        this.updateResultCountSettings()
+        this.updateSearchSettings()
+        this.props.listenTo(
+          ConfirmationView.generateConfirmation({
+            prompt: 'Do you want to apply the new defaults to this search?',
+            no: 'No',
+            yes: 'Apply',
+          }),
+          'change:choice',
+          (confirmation: any) => {
+            if (confirmation.get('choice')) {
+              this.props.model.applyDefaults()
+            }
+          }
+        )
+        user.savePreferences()
+        if (!!this.props.onClose) {
+          this.props.onClose()
         }
       }
-    )
-    user.savePreferences()
-    if(!!this.props.onClose){
-      this.props.onClose()
+      updateResultCountSettings = () => {
+        user.getPreferences().set({
+          resultCount: this.propertyModel.getValue()[0],
+        })
+      }
+      updateSearchSettings = () => {
+        user
+          .getPreferences()
+          .get('querySettings')
+          .set(this.querySettingsView.toJSON())
+      }
+      triggerCancel = () => {
+        this.setPropertyView()
+        this.setQuerySettingsView()
+        if (!!this.props.onClose) {
+          this.props.onClose()
+        }
+        this.forceUpdate()
+      }
+      getUserResultCount = () => {
+        return user
+          .get('user')
+          .get('preferences')
+          .get('resultCount')
+      }
+      setPropertyView = () => {
+        this.propertyModel = new Property({
+          label: 'Number of Search Results',
+          value: [this.getUserResultCount()],
+          min: 1,
+          max: properties.resultCount,
+          type: 'RANGE',
+          isEditing: true,
+        })
+        this.propertyView = new PropertyView({
+          model: this.propertyModel,
+        })
+      }
+      setQuerySettingsView = () => {
+        this.queryModel = new QueryModel.Model()
+        this.querySettingsView = new QuerySettingsView({
+          model: this.queryModel,
+          inSearchSettings: true,
+        })
+      }
+      componentWillUnmount = () => {
+        if (!this.props.showFooter) {
+          this.updateResultCountSettings()
+          this.updateSearchSettings()
+          user.savePreferences()
+        }
+      }
     }
-  }
-  updateResultCountSettings = () => {
-    user.getPreferences().set({
-        resultCount: this.propertyModel.getValue()[0],
-    })
-  }
-  updateSearchSettings = () => {
-    user
-      .getPreferences()
-      .get('querySettings')
-      .set(this.querySettingsView.toJSON())
-  }
-  triggerCancel = () => {
-    this.setPropertyView()
-    this.setQuerySettingsView()
-    if(!!this.props.onClose){
-      this.props.onClose()
-    }
-    this.forceUpdate()
-  }
-  getUserResultCount = () => {
-    return user
-      .get('user')
-      .get('preferences')
-      .get('resultCount')
-  }
-  setPropertyView = () => {
-    this.propertyModel = new Property({
-      label: 'Number of Search Results',
-      value: [this.getUserResultCount()],
-      min: 1,
-      max: properties.resultCount,
-      type: 'RANGE',
-      isEditing: true,
-    })
-    this.propertyView = new PropertyView({
-      model: this.propertyModel
-    })
-  }
-  setQuerySettingsView = () => {
-    this.queryModel = new QueryModel.Model()
-    this.querySettingsView = new QuerySettingsView({
-      model: this.queryModel,
-      inSearchSettings: true,
-    })
-  }
-  componentWillUnmount = () => {
-    if(!this.props.showFooter) {
-      this.updateResultCountSettings()
-      this.updateSearchSettings()
-      user.savePreferences()
-    }
-  }
-}))
+  )
+)
