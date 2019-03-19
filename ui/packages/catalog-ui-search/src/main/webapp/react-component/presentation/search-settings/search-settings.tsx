@@ -52,8 +52,8 @@ button {
 `
 
 type Props = {
-  onClose: () => void
-  model: any
+  onClose?: () => void
+  model?: any
   showFooter: boolean
 } & WithBackboneProps
 
@@ -118,7 +118,9 @@ export default hot(module)(withListenTo(class SearchSettings extends React.Compo
       }
     )
     user.savePreferences()
-    this.props.onClose()
+    if(!!this.props.onClose){
+      this.props.onClose()
+    }
   }
   updateResultCountSettings = () => {
     user.getPreferences().set({
@@ -134,7 +136,9 @@ export default hot(module)(withListenTo(class SearchSettings extends React.Compo
   triggerCancel = () => {
     this.setPropertyView()
     this.setQuerySettingsView()
-    this.props.onClose()
+    if(!!this.props.onClose){
+      this.props.onClose()
+    }
     this.forceUpdate()
   }
   getUserResultCount = () => {
