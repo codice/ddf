@@ -18,7 +18,6 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-settings.hbs')
-const ComponentView = require('../../search-settings/search-settings.view.js')
 const CustomElements = require('../../../js/CustomElements.js')
 
 import React from 'react'
@@ -35,6 +34,7 @@ module.exports = DropdownView.extend({
           onClose={() => {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
           }}
+          model={this.options.modelForComponent}
         />
       )
     },
