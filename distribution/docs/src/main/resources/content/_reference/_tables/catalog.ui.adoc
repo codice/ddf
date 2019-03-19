@@ -329,13 +329,6 @@ a|* `1800`
 |1000
 |true
 
-|Result Page Size
-|resultPageSize
-|Integer
-|Specifies the number of results allowed per page on the client-side.
-|25
-|true
-
 |Query Feedback Email Subject Template
 |queryFeedbackEmailSubjectTemplate
 |String
