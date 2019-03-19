@@ -28,7 +28,9 @@ CALL %GET_PROPERTY% start.ddf
 
 REM Start Solr if needed
 IF "%start.solr%" == "true" (
-    CALL %SOLR_EXEC% restart
+    ECHO Checking for running Solr instance...
+    CALL %SOLR_EXEC% stop
+    CALL %SOLR_EXEC% start
 )
 
 REM Actually invoke ddf to gain restart support

@@ -93,6 +93,13 @@ const ThreeDotMenu = styled.span`
   text-align: center;
 `
 
+const Author = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+`
+
 const Actions = props => {
   const { title } = props
   return (
@@ -111,10 +118,10 @@ const CustomSearchForm = props => {
       <FormTitle data-help={title}>{title}</FormTitle>
       {isDefault ? <DefaultIcon className="fa fa-star" /> : null}
       <FormContents>{createdOn}</FormContents>
-      <FormContents>
+      <Author title={createdBy}>
         <span className="fa fa-cloud" />
         {' ' + createdBy}
-      </FormContents>
+      </Author>
       <Actions title="Shows a list of actions to take on the search forms" />
     </RelativeWrapper>
   )
@@ -136,10 +143,10 @@ export default Marionette.LayoutView.extend({
         <RelativeWrapper>
           <FormTitle data-help={props.title}>{props.title}</FormTitle>
           <FormContents>{props.createdOn}</FormContents>
-          <FormContents>
+          <Author title={createdBy}>
             <span className="fa fa-cloud" />
             {' ' + props.createdBy}
-          </FormContents>
+          </Author>
           <Actions title="Shows a list of actions to take on the result forms" />
         </RelativeWrapper>
       )

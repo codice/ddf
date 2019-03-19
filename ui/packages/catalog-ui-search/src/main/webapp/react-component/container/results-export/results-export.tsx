@@ -32,6 +32,7 @@ type ExportFormat = {
 
 type Props = {
   store: any
+  transformer?: string
 } & WithBackboneProps
 
 type State = {
@@ -56,6 +57,7 @@ class ResultsExport extends React.Component<Props, State> {
       this.handleSelectionChange
     )
   }
+
   handleSelectionChange = () => {
     this.setState(this.mapSelectionToState())
   }
@@ -74,7 +76,10 @@ class ResultsExport extends React.Component<Props, State> {
     }
   }
   componentDidUpdate(_prevProps: Props, prevState: State) {
-    if (prevState.selectedResults !== this.state.selectedResults) {
+    if (
+      prevState.selectedResults !== this.state.selectedResults ||
+      _prevProps.transformer !== this.props.transformer
+    ) {
       this.fetchExportOptions()
       this.setState({
         selectedFormat: 'Select an export option',
@@ -82,17 +87,16 @@ class ResultsExport extends React.Component<Props, State> {
       })
     }
   }
+  getTransformerType = () => {
+    return !this.props.transformer && this.state.selectedResults.length > 1
+      ? 'query'
+      : 'metacard'
+  }
   componentDidMount() {
     this.fetchExportOptions()
   }
   fetchExportOptions = () => {
-    let transformerType = 'metacard'
-
-    if (this.state.selectedResults.length > 1) {
-      transformerType = 'query'
-    }
-
-    fetch(`./internal/transformers/${transformerType}`)
+    fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
       .then((exportFormats: ExportFormat[]) => {
         return exportFormats.sort(
@@ -139,7 +143,20 @@ class ResultsExport extends React.Component<Props, State> {
 
     let response = null
 
-    if (this.state.selectedResults.length > 1) {
+    if (this.props.transformer) {
+      const cql = getResultSetCql(
+        this.state.selectedResults.map((result: Result) => result.id)
+      )
+      const srcs = Array.from(this.getResultSources())
+
+      response = await exportResultSet(this.props.transformer, {
+        cql,
+        srcs,
+        args: {
+          transformerId,
+        },
+      })
+    } else if (this.state.selectedResults.length > 1) {
       const cql = getResultSetCql(
         this.state.selectedResults.map((result: Result) => result.id)
       )

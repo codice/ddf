@@ -121,6 +121,17 @@ module.exports = Marionette.ItemView.extend({
             Export Selected
           </div>
         </div>
+        <div
+          className={`query-interaction interaction-zipped-export ${exportClass} ${
+            disabledExport ? 'is-disabled' : ''
+          }`}
+          title="Export Selected (Compressed)"
+          data-help="Opens a form to export the selected search results in a compressed zip folder."
+        >
+          <div className={`interaction-text ${exportClass}`}>
+            Export Selected (Compressed)
+          </div>
+        </div>
       </React.Fragment>
     )
   },
@@ -138,6 +149,7 @@ module.exports = Marionette.ItemView.extend({
     'click .interaction-feedback': 'handleFeedback',
     'click .interaction-annotations': 'handleAnnotations',
     'click .interaction-export': 'handleExport',
+    'click .interaction-zipped-export': 'handleZippedExport',
     click: 'handleClick',
   },
   ui: {},
@@ -255,6 +267,13 @@ module.exports = Marionette.ItemView.extend({
     lightboxInstance.model.updateTitle('Export Results')
     lightboxInstance.model.open()
     lightboxInstance.showContent(<ResultsExport store={store} />)
+  },
+  handleZippedExport: function() {
+    lightboxInstance.model.updateTitle('Export Results (Compressed)')
+    lightboxInstance.model.open()
+    lightboxInstance.showContent(
+      <ResultsExport store={store} transformer={'zipCompression'} />
+    )
   },
   handleResult: function() {
     this.$el.toggleClass('has-results', this.model.get('result') !== undefined)
