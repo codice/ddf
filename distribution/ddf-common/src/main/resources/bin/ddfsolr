@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-# Capture start|stop|restart command
-# Set a default value in the event no arguments are provided
+# Capture start|stop command
 COMMAND=$1
 shift
 
 # -----------------------------------------------------------------------------
 usage() {
-    echo "Usage: $0 {start|stop|restart} " >&2; exit 1;
+    echo "Usage: $0 {start|stop} " >&2; exit 1;
 }
 
 # -----------------------------------------------------------------------------
@@ -16,7 +15,7 @@ if [ -z  "$COMMAND" ]; then
     usage
 fi
 
-if  ! ( [ "$COMMAND" == "start" ] || [ "$COMMAND" == "stop" ] || [ "$COMMAND" == "restart" ] ); then
+if  ! ( [ "$COMMAND" == "start" ] || [ "$COMMAND" == "stop" ] ); then
     echo "Unknown command: $COMMAND" >&2
     usage
 fi
@@ -51,15 +50,35 @@ set_security_properties() {
       export SOLR_SSL_TRUST_STORE_TYPE=$($GET javax.net.ssl.trustStoreType)
 }
 
+generate_stopkey() {
+    # Generate a random string of 8 lowercase letters and digits.
+    # NOTE: Mac OS interprets bytes as belonging to the UTF-8 character set.
+    # The urandom stream does not spit out valid UTF-8 characters.
+    # Tell Mac OS to not interpret the bytes as charcters with LC_ALL=C
+    export STOP_KEY=`cat /dev/urandom | env LC_CTYPE=C tr -dc a-z0-9 | head -c 8`
+    echo $STOP_KEY >& STOPKEY
+}
+
+
 start_solr() {
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties
     fi
-
+    generate_stopkey
     $SOLR_EXEC $1 -force -p $SOLR_PORT -m $SOLR_MEM
     local rc=$?
     print_messages $rc
     return $rc
+}
+
+stop_solr() {
+
+	if [ -f STOPKEY ]; then
+	    export STOP_KEY=`cat STOPKEY`;
+	    rm STOPKEY;
+	fi
+    $SOLR_EXEC stop -p $SOLR_PORT;
+
 }
 
 print_messages() {
@@ -72,9 +91,8 @@ print_messages() {
     fi
 }
 
-
-if [ "$COMMAND" = "stop" ]; then
-    $SOLR_EXEC stop -p $SOLR_PORT
+if [ "$COMMAND" == "stop" ]; then
+	stop_solr
 else
     # Read protocol from properties file
     SOLR_PROTOCOL=$($GET "solr.http.protocol")
