@@ -74,7 +74,8 @@ pipeline {
                         }
                     }
                 }
-                stage ('Windows') {
+                //Commenting out Windows builds until pipeline issues can be resolved
+                /*stage ('Windows') {
                     agent { label 'server-2016-large' }
                     steps {
                         retry(3) {
@@ -88,7 +89,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
         stage('Full Build Except Itests') {
@@ -105,7 +106,8 @@ pipeline {
                         }
                     }
                 }
-                stage ('Windows') {
+                //Commenting out Windows builds until pipeline issues can be resolved
+                /*stage ('Windows') {
                     agent { label 'server-2016-large'}
                     steps {
                         retry(3) {
@@ -117,7 +119,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
         stage('Integration Tests Only Build') {
@@ -136,7 +138,8 @@ pipeline {
                         }
                     }
                 }
-                stage ('Windows') {
+                //Commenting out Windows builds until pipeline issues can be resolved
+                /*stage ('Windows') {
                     agent { label 'server-2016-large'}
                     steps {
                         retry(3) {
@@ -149,7 +152,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
         stage('Security Analysis') {
