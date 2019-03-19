@@ -43,8 +43,8 @@ const QuerySettings = styled.div`
 }
 `
 
-const EditorFooter = styled.div`
-display: block;
+const EditorFooter = styled<Props, 'div'>('div')`
+display: ${props => (props.showFooter ? 'block' : 'none')};
 button {
   display: inline-block;
   width: 50%;
@@ -54,16 +54,16 @@ button {
 type Props = {
   onClose: () => void
   model: any
+  showFooter: boolean
 } & WithBackboneProps
 
-class SearchSettings extends React.Component<Props> {
+export default hot(module)(withListenTo(class SearchSettings extends React.Component<Props, {}> {
   propertyModel: any
   queryModel: any
   querySettingsView: any
   propertyView: any
   constructor(props: Props) {
     super(props)
-    console.log('model prop: ', this.props.model)
     this.setQuerySettingsView()
     this.setPropertyView()
   }
@@ -82,7 +82,7 @@ class SearchSettings extends React.Component<Props> {
               <MarionetteRegionContainer view={this.querySettingsView}/>
           </QuerySettings>
         </div>
-        <EditorFooter>
+        <EditorFooter {...this.props}>
           <button
             className="editor-cancel is-negative"
             onClick={this.triggerCancel}
@@ -163,6 +163,11 @@ class SearchSettings extends React.Component<Props> {
       inSearchSettings: true,
     })
   }
-}
-
-export default hot(module)(withListenTo(SearchSettings))
+  componentWillUnmount = () => {
+    if(!this.props.showFooter) {
+      this.updateResultCountSettings()
+      this.updateSearchSettings()
+      user.savePreferences()
+    }
+  }
+}))

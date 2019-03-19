@@ -35,6 +35,7 @@ module.exports = DropdownView.extend({
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
           }}
           model={this.options.modelForComponent}
+          showFooter = {true}
         />
       )
     },
