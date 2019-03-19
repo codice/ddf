@@ -127,7 +127,7 @@ module.exports = InputView.extend({
     $(window).off('resize.datePicker')
   },
   getCurrentValue: function() {
-    let currentValue = this.$el.find('input').val()
+    const currentValue = this.$el.find('input').val()
     if (currentValue) {
       return moment
         .tz(currentValue, getDateFormat(), getTimeZone())
