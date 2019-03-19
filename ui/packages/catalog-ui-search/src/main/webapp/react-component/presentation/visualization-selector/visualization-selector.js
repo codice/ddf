@@ -114,19 +114,22 @@ class VisualizationSelector extends React.Component {
   render() {
     return (
       <CustomElement onClick={this.handleChoice.bind(this)}>
-       {Object.values(configs).map(({ title, icon, componentName }, index) => (
-          <Visualization
-            key={index.toString()}
-            innerRef={x => {
-              this[componentName] = x
-            }}
-            onMouseDown={this.handleMouseDown.bind(this, componentName)}
-            onMouseUp={this.handleMouseUp.bind(this, componentName)}
-          >
-            <VisualizationIcon className={icon} />
-            <VisualizationText>{title}</VisualizationText>
-          </Visualization>
-       ), this)}
+        {Object.values(configs).map(
+          ({ title, icon, componentName }, index) => (
+            <Visualization
+              key={index.toString()}
+              innerRef={x => {
+                this[componentName] = x
+              }}
+              onMouseDown={this.handleMouseDown.bind(this, componentName)}
+              onMouseUp={this.handleMouseUp.bind(this, componentName)}
+            >
+              <VisualizationIcon className={icon} />
+              <VisualizationText>{title}</VisualizationText>
+            </Visualization>
+          ),
+          this
+        )}
       </CustomElement>
     )
   }
