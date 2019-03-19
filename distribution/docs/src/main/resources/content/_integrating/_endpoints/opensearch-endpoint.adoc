@@ -2,10 +2,8 @@
 :type: endpoint
 :status: published
 :operations: query
-:url: \${secure_url}/services/catalog/query
 :link: _opensearch_endpoint
 :summary: Sends query parameters and receives search results.
-:implements: https://jax-rs-spec.java.net/[JAX-RS] {external-link}
 
 == {title}
 
@@ -15,34 +13,23 @@ The client does not need to specify all of the query parameters, only the query 
 
 The OpenSearch specification defines a file format to describe an OpenSearch endpoint.
 This file is XML-based and is used to programatically retrieve a site's endpoint, as well as the different parameter options a site holds.
-The parameters are defined via the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] and https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR IPT] Specifications.
+The parameters are defined via the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] {external-link} and https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR IPT] {external-link} Specifications.
 
-Many modern web browsers currently act as OpenSearch clients.
-The request call is an HTTP GET with the query options being parameters that are passed.
+==== OpenSearch Contextual Queries
 
-.OpenSearch Endpoint Operations
-[cols="2,1m,2,5m", options="header"]
-|===
+To use the OpenSearch endpoint for a query, send a `GET` request with the query options as parameters
 
-|Operation
-|FTP Request Type
-|Details
-|Example URL
+.OpenSearch Query URL
+[source,https]
+----
+https://<FQDN>:<PORT>/services/catalog/query?<NAME>="<VALUE>"
+----
 
-|query
-|GET
-|This request performs a full-text search for the phrase 'Predator' on the ${branding} providers and provides the results as Atom-formatted XML for the web browser to render.
-|{url}?q=Predator
-
-|===
-
-=== Parameter List
-
-.Main OpenSearch Standard
+.OpenSearch Parameter List
 [cols="4*", options="header"]
 |===
-|OS Element
-|HTTP Parameter
+|OpenSearch Element
+|HTTPS Parameter
 |Possible Values
 |Comments
 
@@ -77,45 +64,63 @@ See <<{architecture-prefix}available_query_response_transformers,Query Response 
 default: `atom`
 |===
 
-.Temporal Extension
+.Sample OpenSearch Textual Query
+[source,https]
+----
+https://<FQDN>:<PORT>/services/catalog/query?q="Aliquam"&count=20
+----
+
+==== OpenSearch Temporal Queries
+Queries can also specify a start and end time to narrow results.
+
+.OpenSearch Temporal Parameters
 [cols="4*", options="header"]
 |===
-|OS Element
-|HTTP Parameter
+|OpenSearch Element
+|HTTPS Parameter
 |Possible Values
 |Comments
 
 |`start`
 |`dtstart`
-|RFC-3399-defined value (e.g. `YYYY-MM-DDTHH:mm:ssZ`, `yyyy-MM-dd'T'HH:mm:ss.SSSZZ`)
+|RFC-3399-defined value:`YYYY-MM-DDTHH:mm:ssZ` or `yyyy-MM-dd'T'HH:mm:ss.SSSZZ`
 |Specifies the beginning of the time slice of the search.
 
 Default value of "1970-01-01T00:00:00Z" is used when `dtend` is specified but `dtstart` is not specified.
 
 |`end`
 |`dtend`
-|RFC-3399-defined value (e.g. `YYYY-MM-DDTHH:mm:ssZ`, `yyyy-MM-dd'T'HH:mm:ss.SSSZZ`)
+|RFC-3399-defined value:`YYYY-MM-DDTHH:mm:ssZ` or `yyyy-MM-dd'T'HH:mm:ss.SSSZZ`
 |Specifies the ending of the time slice of the search
 
 Current GMT date/time is used when `dtstart` is specified but `dtend` is not specified.
 |===
 
+.OpenSearch Temporal Query Example
+[source,https]
+----
+https://<FQDN>:<PORT>/services/catalog/query?q='*'&dtstart=${timestamp}T00:00:00Z&dtend=${timestamp}T18:00:00Z
+----
+
 [NOTE]
 ====
 The start and end temporal criteria must be of the format specified above. Other formats are currently not supported. Example:
 
-`2011-01-01T12:00:00.111-04:00`.
+`${timestamp}T12:00:00.111-04:00`.
 
 *The start and end temporal elements are based on <<{metadata-prefix}modified,modified>> timestamps for a metacard.*
 ====
 
-.Geospatial Extension
-These geospatial query parameters are used to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` of the given geospatial parameters. 
+==== OpenSearch Geospatial Queries
+Query by location.
 
+Use geospatial query parameters to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` to the given geospatial parameters. 
+
+.Opensearch Geospatial Parameters
 [cols="4", options="header"]
 |===
-|OS Element
-|HTTP Parameter
+|OpenSearch Element
+|HTTPS Parameter
 |Possible Values
 |Comments
 
@@ -166,11 +171,20 @@ Examples:
 
 |===
 
-.Extensions
+.OpenSearch GeoSpatial Query Example
+[source,https]
+----
+https://localhost:8993/services/catalog/query?q='*'&lon=44.792&lat=-6.171
+----
+
+==== Additional OpenSearch Query Parameters
+The OpenSearch Endpoint can also use these additional parameters to refine queries
+
+.OpenSearch Query Extensions
 [cols="4*", options="header"]
 |===
-|OS Element
-|HTTP Parameter
+|OpenSearch Element
+|HTTPS Parameter
 |Possible Values
 |Comments
 
@@ -203,30 +217,6 @@ default: `1000`
 |Maximum timeout (milliseconds) for query to respond.
 
 default: `300000` (5 minutes)
-|===
-
-.Federated Search
-[cols="4*", options="header"]
-|===
-|OS Element
-|HTTP Parameter
-|Possible Values
-|Comments
-
-|`routeTo`
-|`src`
-|Comma-delimited list of site names to query. Varies depending on the names of the sites in the federation. `local` specifies to query the local site.
-|If `src` is not provided, the default behavior is to execute an enterprise search to the entire federation.
-
-|===
-
-.${branding} Extensions
-[cols="4*", options="header"]
-|===
-|OS Element
-|HTTP Parameter
-|Possible Values
-|Comments
 
 |`dateOffset`
 |`dtoffset`
@@ -250,13 +240,34 @@ default: `300000` (5 minutes)
 
 |===
 
-==== Supported Complex Contextual Query Format
+.Federated Search
+[cols="4*", options="header"]
+|===
+|OpenSearch Element
+|HTTPS Parameter
+|Possible Values
+|Comments
+
+|`routeTo`
+|`src`
+|Comma-delimited list of site names to query. Varies depending on the names of the sites in the federation. `local` specifies to query the local site.
+|If `src` is not provided, the default behavior is to execute an enterprise search to the entire federation.
+
+|===
+
+=== Complex Contextual Query Format
 
 The OpenSearch Endpoint supports the following operators: `AND`, `OR`, and `NOT`.
 These operators are case sensitive.
 Implicit `ANDs` are also supported.
 
-Using parentheses to change the order of operations is supported.
-Using quotes to group keywords into literal expressions is supported.
+Use parentheses to change the order of operations.
+Use quotes to group keywords into literal expressions.
 
 See the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] specification for more syntax specifics.
+
+.OpenSearch Endpoint Complex Query Example
+[source,https]
+----
+https://<FQDN>:<PORT>/services/catalog/query?q='cat OR dog'
+----
