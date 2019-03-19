@@ -64,7 +64,7 @@ public class AsyncFileAlterationObserverTest {
 
   private CountDownLatch delayLatch;
 
-  private static int timeout = 3000; //  3 seconds
+  private static int timeout = 5000; //  5 seconds
 
   private void doTest(Synchronization cb) {
     synchronized (timesToFail) {
@@ -179,7 +179,7 @@ public class AsyncFileAlterationObserverTest {
   @Test
   public void testRemovalOfListenerDuringExecution() throws Exception {
 
-    File[] files = initFiles(100, monitoredDirectory, "null00");
+    File[] files = initFiles(75, monitoredDirectory, "null00");
 
     CountDownLatch latch = new CountDownLatch(5);
 
@@ -861,7 +861,7 @@ public class AsyncFileAlterationObserverTest {
 
     init();
     int toFail = 10;
-    initSemaphore(toFail + grandchildFiles.length * 2);
+    initSemaphore(grandchildFiles.length * 2);
 
     File siblingDir = new File(monitoredDirectory, "child002");
 
@@ -875,11 +875,17 @@ public class AsyncFileAlterationObserverTest {
 
     observer.checkAndNotify();
 
+    //  This will cover the initial successful children. This does not account for the failures.
+    delayLatch.await(timeout, TimeUnit.MILLISECONDS);
+
+    delayLatch = new CountDownLatch(toFail);
+
     observer.checkAndNotify();
 
     //  These are combined because we don't know what it will fail on. Thus we can only
     //  count the combined total.
 
+    //  This will cover only the failures.
     delayLatch.await(timeout, TimeUnit.MILLISECONDS);
 
     ArgumentCaptor<File> propertyKeyCaptor = ArgumentCaptor.forClass(File.class);
@@ -1016,8 +1022,6 @@ public class AsyncFileAlterationObserverTest {
   //  Test creations, changes, and deletes with a delay, 5 threads, and intermittent errors
   @Test
   public void contentMonitorTest() throws Exception {
-    int threads = 5;
-
     initNestedDirectory(16, 12, 6, 11);
 
     int toFail = 7;
