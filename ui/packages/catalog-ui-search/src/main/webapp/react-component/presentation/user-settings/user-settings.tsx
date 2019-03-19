@@ -13,8 +13,8 @@ import * as React from 'react'
 import ThemeSettings from '../../container/theme-settings'
 import AlertSettings from '../../container/alert-settings'
 import SearchSettings from '../../../react-component/presentation/search-settings/search-settings'
+import HiddenSettings from '../../../react-component/container/user-blacklist/user-blacklist'
 const MapSettings = require('../../../component/layers/layers.view.js')
-const HiddenSettings = require('../../../component/user-blacklist/user-blacklist.view.js')
 const TimeSettings = require('../../../component/time-settings/time-settings.view.js')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import styled from '../../styles/styled-components'

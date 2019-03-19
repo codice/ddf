@@ -86,17 +86,11 @@ export default hot(module)(
               </QuerySettings>
             </div>
             <EditorFooter {...this.props}>
-              <button
-                className="editor-cancel is-negative"
-                onClick={this.triggerCancel}
-              >
+              <button className="is-negative" onClick={this.triggerCancel}>
                 <span className="fa fa-times" />
                 <span>Cancel</span>
               </button>
-              <button
-                className="editor-save is-positive"
-                onClick={this.triggerSave}
-              >
+              <button className="is-positive" onClick={this.triggerSave}>
                 <span className="fa fa-floppy-o" />
                 <span>Save</span>
               </button>
