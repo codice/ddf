@@ -220,7 +220,7 @@ Query.Model = PartialAssociatedModel.extend({
   startTieredSearch: function(ids) {
     this.set('federation', 'local')
     this.startSearch(undefined, searches => {
-      $.when(searches).then(() => {
+      $.when(...searches).then(() => {
         const queryResponse = this.get('result')
         if (queryResponse && queryResponse.isUnmerged()) {
           this.listenToOnce(
