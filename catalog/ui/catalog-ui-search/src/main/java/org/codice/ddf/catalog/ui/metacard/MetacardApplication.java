@@ -671,67 +671,6 @@ public class MetacardApplication implements SparkApplication {
         },
         util::getJson);
 
-    post(
-        "/queries",
-        APPLICATION_JSON,
-        (req, res) -> {
-          Map<String, Object> body =
-              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
-
-          Metacard query = new QueryMetacardImpl(transformer.transform(body));
-          Metacard stored = saveMetacard(query);
-
-          res.status(201);
-          return transformer.transform(stored);
-        },
-        util::getJson);
-
-    put(
-        "/queries/:id",
-        (req, res) -> {
-          String queryId = req.params("id");
-          Map<String, Object> body =
-              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
-
-          Metacard query = new QueryMetacardImpl(transformer.transform(body));
-          Metacard updated = updateMetacard(queryId, query);
-
-          return transformer.transform(updated);
-        },
-        util::getJson);
-
-    get(
-        "/queries/:id",
-        (req, res) -> {
-          String id = req.params("id");
-          Metacard metacard = util.getMetacardById(id);
-
-          Set<String> metacardTags = metacard.getTags();
-
-          if (metacardTags == null || !metacardTags.contains(QUERY_TAG)) {
-            res.status(400);
-            return ImmutableMap.of("message", "Requested ID is not a query metacard.");
-          } else {
-            return transformer.transform(metacard);
-          }
-        },
-        util::getJson);
-
-    delete(
-        "/queries/:id",
-        APPLICATION_JSON,
-        (req, res) -> {
-          String queryId = req.params(":id");
-
-          WorkspaceMetacardImpl workspace = workspaceService.getWorkspaceFromQueryId(queryId);
-          workspace.removeQueryAssociation(queryId);
-          saveMetacard(workspace);
-
-          catalogFramework.delete(new DeleteRequestImpl(queryId));
-          return ImmutableMap.of("message", "Successfully deleted.");
-        },
-        util::getJson);
-
     get(
         "/enumerations/metacardtype/:type",
         APPLICATION_JSON,
