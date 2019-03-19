@@ -54,14 +54,16 @@ managing_solr() {
 shutdown_no_java_home_or_jre_home() {
     # Shutdown if JAVA_HOME and JRE_HOME is not set
     if [ -z $JAVA_HOME ] && [ -z $JRE_HOME ]; then
-        echo "JAVA_HOME nor JRE_HOME is set. Set JAVA_HOME or JRE_HOME to proceed - exiting."
+        echo "JAVA_HOME nor JRE_HOME is set. Set JAVA_HOME or JRE_HOME to proceed - Exiting."
         exit 1
     fi
 }
 
 attempt_startup() {
     if managing_solr; then
-        $SOLR_EXEC restart
+        echo "Checking for running Solr instance..."
+        $SOLR_EXEC stop
+        $SOLR_EXEC start
     fi
 
     if [ "$START_KARAF" = "true" ]; then
