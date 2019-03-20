@@ -21,10 +21,12 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <reference id="camelContext" interface="org.apache.camel.CamelContext"
+    <!-- Over blueprint timeout is changed from 5 minutes to 30 minutes (see pom.xml) -->
+    <!-- Set these 2 references back to the default 5 minutes  -->
+    <reference timeout="300000" id="camelContext" interface="org.apache.camel.CamelContext"
                filter="(camel.context.name=catalogCamelContext)"/>
 
-    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+    <reference timeout="300000" id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
     <!-- Waits for all input transformers before registering CDM services -->
     <reference id="inputTransformerServiceFlag" interface="org.codice.ddf.platform.bootflag.BootServiceFlag"

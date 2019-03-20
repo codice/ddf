@@ -396,7 +396,8 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <!-- Override this module's blueprint timeout to be 30 minutes instead of 5 (default) -->
+                        <Bundle-SymbolicName>${project.artifactId};blueprint.timeout:=1800000</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             ddf-security-common,

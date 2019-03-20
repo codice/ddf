@@ -51,7 +51,7 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
       "org.codice.ddf.platform.bootflag.transformerWaitTimeoutSeconds";
 
   private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS =
-      TimeUnit.MINUTES.toSeconds(5);
+      TimeUnit.MINUTES.toSeconds(20);
 
   private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(20);
 
