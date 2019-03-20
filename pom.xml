@@ -165,7 +165,7 @@
         <asm.version>3.3.1</asm.version>
         <awaitility.version>3.1.2</awaitility.version>
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
-        <bouncy.version>1.60</bouncy.version>
+        <bouncy.version>1.61</bouncy.version>
         <camel.version>2.22.1</camel.version>
         <cas.client.version>3.4.1</cas.client.version>
         <cesium.version>1.34</cesium.version>
