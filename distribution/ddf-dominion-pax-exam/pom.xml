@@ -49,6 +49,12 @@
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
+            <artifactId>maven-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
             <artifactId>dominion</artifactId>
             <version>${codice-test.version}</version>
             <scope>compile</scope>

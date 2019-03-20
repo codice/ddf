@@ -19,7 +19,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.codice.ddf.dominion.commons.options.CommonOptions;
+import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.karaf.KarafOptions.DistributionConfiguration;
@@ -36,7 +36,7 @@ public class DDFOptions {
   public static final String SECURITY_PROFILE_PROPERTY = "ddf.security.profile";
 
   /** Dominion option for installing the DDF kernel. */
-  @CommonOptions.Install
+  @DDFCommonOptions.Install
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -61,7 +61,7 @@ public class DDFOptions {
    * org.codice.dominion.Dominion#DISTRIBUTION_PROPERTY} system property will be retained; thus
    * allowing a particular test written for DDF a chance to run with any downstream distributions.
    */
-  @CommonOptions.Install
+  @DDFCommonOptions.Install
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)

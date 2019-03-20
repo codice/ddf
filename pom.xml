@@ -59,7 +59,7 @@
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
         <codice-maven.version>0.2</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
-        <codice-test.version>0.4</codice-test.version>
+        <codice-test.version>0.5-SNAPSHOT</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.7</acdebugger.version>
         <!--temporary codice version of pax web-->
@@ -1122,6 +1122,12 @@ are essentially embedding a slightly modified version of felix -->
         <dependency>
             <groupId>org.codice.test</groupId>
             <artifactId>spock-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>maven-extensions</artifactId>
             <version>${codice-test.version}</version>
             <scope>test</scope>
         </dependency>

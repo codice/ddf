@@ -14,9 +14,9 @@
 package org.codice.ddf.dominion.pax.exam.options.extensions;
 
 import org.apache.commons.io.FilenameUtils;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 

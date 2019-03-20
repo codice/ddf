@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.dominion.commons.pax.exam.options.extensions;
 
-import org.codice.ddf.dominion.commons.options.CommonOptions.Claim;
+import org.codice.ddf.dominion.commons.options.DDFCommonOptions.Claim;
 import org.codice.ddf.dominion.commons.pax.exam.options.UsersAttributesFileClaimPutOption;
 import org.codice.dominion.options.Utilities;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;

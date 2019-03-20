@@ -18,27 +18,32 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.codice.ddf.dominion.commons.options.CommonOptions;
+import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.ClaimExtension;
+import org.codice.ddf.dominion.commons.pax.exam.options.extensions.GrantPermissionExtension;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.InstallExtension;
+import org.codice.ddf.dominion.commons.pax.exam.options.extensions.PolicyFileExtension;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Option.Extension;
+import org.codice.dominion.options.Options;
 
 /** Option factory for DDF common options that works with Dominion PaxExam driver. */
-public class CommonsOptionExtensionFactory implements Option.Factory {
+public class DDFCommonsOptionExtensionFactory implements Option.Factory {
   private static final Map<Class<? extends Annotation>, Extension> EXTENSIONS;
 
   static {
     final Map<Class<? extends Annotation>, Option.Extension> map = new HashMap<>(8);
 
-    map.put(CommonOptions.Install.class, new InstallExtension());
-    map.put(CommonOptions.Claim.class, new ClaimExtension());
+    map.put(DDFCommonOptions.Install.class, new InstallExtension());
+    map.put(DDFCommonOptions.Claim.class, new ClaimExtension());
+    map.put(Options.GrantPermission.class, new GrantPermissionExtension());
+    map.put(DDFCommonOptions.PolicyFile.class, new PolicyFileExtension());
     EXTENSIONS = Collections.unmodifiableMap(map);
   }
 
   @Nullable
   @Override
   public Option.Extension getExtension(java.lang.annotation.Annotation annotation) {
-    return CommonsOptionExtensionFactory.EXTENSIONS.get(annotation.annotationType());
+    return DDFCommonsOptionExtensionFactory.EXTENSIONS.get(annotation.annotationType());
   }
 }

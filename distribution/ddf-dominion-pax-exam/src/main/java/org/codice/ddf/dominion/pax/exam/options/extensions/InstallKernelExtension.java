@@ -14,11 +14,11 @@
 package org.codice.ddf.dominion.pax.exam.options.extensions;
 
 import org.codice.ddf.dominion.options.DDFOptions.InstallKernel;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.options.karaf.KarafOptions.DistributionConfiguration.Platform;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 
 /**

@@ -25,13 +25,14 @@ import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.EnableRemoteDebugging;
+import org.codice.maven.MavenUrl;
 
 /**
  * This class defines annotations that can be used to configure Dominion containers. It is solely
  * used for scoping.
  */
 @SuppressWarnings("squid:CommentedOutCodeLine" /* placeholder annotations for itests */)
-public class CommonOptions {
+public class DDFCommonOptions {
   public static final String CUSTOM_SYSTEM_PROPERTIES = "etc/custom.system.properties";
   public static final String KARAF_MGMT_CFG = "etc/org.apache.karaf.management.cfg";
   public static final String KARAF_SHELL_CFG = "etc/org.apache.karaf.shell.cfg";
@@ -72,37 +73,37 @@ public class CommonOptions {
    * HTTP.
    */
   @Options.UpdateConfigFile(
-    target = CommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
     key = "org.codice.ddf.system.httpsPort",
     value = "{port.https}"
   )
   @Options.UpdateConfigFile(
-    target = CommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
     key = "org.codice.ddf.system.httpPort",
     value = "{port.http}"
   )
   @Options.UpdateConfigFile(
-    target = CommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
     key = "org.codice.ddf.catalog.ftp.port",
     value = "{port.ftp}"
   )
   @Options.UpdateConfigFile(
-    target = CommonOptions.KARAF_MGMT_CFG,
+    target = DDFCommonOptions.KARAF_MGMT_CFG,
     key = "rmiRegistryPort",
     value = "{port.rmi.registry}"
   )
   @Options.UpdateConfigFile(
-    target = CommonOptions.KARAF_MGMT_CFG,
+    target = DDFCommonOptions.KARAF_MGMT_CFG,
     key = "rmiServerPort",
     value = "{port.rmi.server}"
   )
   @Options.UpdateConfigFile(
-    target = CommonOptions.KARAF_SHELL_CFG,
+    target = DDFCommonOptions.KARAF_SHELL_CFG,
     key = "sshPort",
     value = "{port.ssh}"
   )
   @Options.UpdateConfigFile(
-    target = CommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
     key = "solr.http.port",
     value = "{port.solr}"
   )
@@ -128,7 +129,7 @@ public class CommonOptions {
   public @interface ConfigureLogging {}
 
   /**
-   * Options for adding a new claim or replacing an existing one.
+   * Option for adding a new claim or replacing an existing one.
    *
    * <p>This option will be updating the <code>etc/users.attributes</code> file.
    */
@@ -186,6 +187,84 @@ public class CommonOptions {
     String value();
   }
 
+  /**
+   * Option for adding a new policy file.
+   *
+   * <p>This option will be installing the policy file under the <code>security</code> folder.
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.PolicyFiles.class)
+  public @interface PolicyFile {
+    /**
+     * Specifies the name for the policy file. This will generate a file named <code>
+     * security/{name}.policy</code> under <code>"{karaf.home}"</code>.
+     *
+     * @return the policy name
+     */
+    @Interpolate
+    String name();
+
+    /**
+     * Specifies the filename to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the source filename to copy
+     */
+    @Interpolate
+    String file() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the url to copy its content as the policy file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the source url to copy
+     */
+    @Interpolate
+    String url() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the Maven url of an artifact to copy its content as the policy file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the artifact maven url to copy
+     */
+    MavenUrl artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the text to copy to the target file. Each entry will represent a different line in
+     * the policy file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the content text to copy
+     */
+    @Interpolate
+    String[] content() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the resource name to copy as the policy file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the resource name to copy
+     */
+    @Interpolate
+    String resource() default Options.NOT_DEFINED;
+  }
+
   // these were built from the itests requirements. Uncomment and figure out where the actual
   // implementation should go: here or in the extension itself if it is too specific on PaxExam
 
@@ -241,7 +320,7 @@ public class CommonOptions {
 
   /** Options to install the DDF Dominion common options in addition to the Dominion framework. */
   @Options.Install
-  @CommonOptions.Claim(
+  @DDFCommonOptions.Claim(
     userId = Dominion.DOMINION_USER_ID,
     name = Claims.EMAIL,
     value = "{dominion.email:-" + Dominion.DOMINION_USER_ID + "@localhost.local}"
@@ -263,7 +342,16 @@ public class CommonOptions {
     public @interface Claims {
       Claim[] value();
     }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link PolicyFile} annotations. */
+    public @interface PolicyFiles {
+      PolicyFile[] value();
+    }
   }
 
-  private CommonOptions() {}
+  private DDFCommonOptions() {}
 }
