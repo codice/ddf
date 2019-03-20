@@ -47,6 +47,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -313,8 +315,13 @@ public class ExportCommand extends CqlCommands {
     Instant start = Instant.now();
 
     try (InputStream inputStream = new FileInputStream(outputFile)) {
-      String alias = System.getProperty(SystemBaseUrl.EXTERNAL_HOST);
-      String password = System.getProperty("javax.net.ssl.keyStorePassword");
+      String alias =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST));
+      String password =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("javax.net.ssl.keyStorePassword"));
 
       byte[] signature = signer.createDigitalSignature(inputStream, alias, password);
 

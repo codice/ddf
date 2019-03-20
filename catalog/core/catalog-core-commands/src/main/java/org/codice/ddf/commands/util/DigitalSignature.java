@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -110,7 +111,12 @@ public class DigitalSignature {
 
   private PrivateKey getPrivateKey(String alias, String password) {
     try {
-      return (PrivateKey) keyStore.getKey(alias, password.toCharArray());
+      Key key = keyStore.getKey(alias, password.toCharArray());
+
+      if (key instanceof PrivateKey) {
+        return (PrivateKey) key;
+      }
+
     } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
       LOGGER.debug("Unable to retrieve private key from key store", e);
     }

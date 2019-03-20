@@ -47,6 +47,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -282,15 +284,18 @@ public class DumpCommand extends CqlCommands {
       File outputFile = new File(dirPath + zipFileName);
       createZip(catalog, queryRequest, outputFile, resultCount);
 
-      String alias = System.getProperty(SystemBaseUrl.EXTERNAL_HOST);
-      String password = System.getProperty("javax.net.ssl.keyStorePassword");
+      String alias =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST));
+      String password =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("javax.net.ssl.keyStorePassword"));
 
       try (InputStream inputStream = new FileInputStream(outputFile)) {
         byte[] signature = signer.createDigitalSignature(inputStream, alias, password);
 
-        if (signature == null) {
-          console.println("An error occurred while signing export");
-        } else {
+        if (signature != null) {
           String epoch = Long.toString(Instant.now().getEpochSecond());
           String signatureFilepath = String.format("%sdump_%s.sig", dirPath, epoch);
 

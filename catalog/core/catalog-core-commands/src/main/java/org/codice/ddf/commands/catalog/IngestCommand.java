@@ -46,6 +46,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -619,13 +621,15 @@ public class IngestCommand extends CatalogCommands {
       if (includeContent) {
         try (InputStream data = new FileInputStream(inputFile);
             InputStream signature = new FileInputStream(signatureFile)) {
-          String alias = System.getProperty("org.codice.ddf.system.hostname");
+          String alias =
+              AccessController.doPrivileged(
+                  (PrivilegedAction<String>)
+                      () -> System.getProperty("org.codice.ddf.system.hostname"));
 
           if (verifier.verifyDigitalSignature(data, signature, alias)) {
             processIncludeContent(metacardQueue);
           } else {
-            throw new CatalogCommandRuntimeException(
-                "The provided signature was invalid for the provided data");
+            console.println("The provided signature was invalid for the provided data");
           }
         } catch (IOException | CatalogCommandRuntimeException e) {
           throw new CatalogCommandRuntimeException(

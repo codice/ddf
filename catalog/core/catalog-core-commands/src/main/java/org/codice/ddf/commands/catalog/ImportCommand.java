@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,7 +112,7 @@ public class ImportCommand extends CatalogCommands {
     aliases = {"-s"},
     multiValued = false,
     description =
-        "Provided absolute path for the digital signature to verify the integrity of the exported data. Required when the `--include-content` option is specified."
+        "Provide an absolute path for the digital signature to verify the integrity of the exported data. Required unless you use --skip-signature-verification."
   )
   String signatureFile;
 
@@ -146,11 +148,15 @@ public class ImportCommand extends CatalogCommands {
           importFile);
     } else {
       if (StringUtils.isBlank(signatureFile)) {
-        throw new CatalogCommandRuntimeException(
-            "A signature file must be provided with import data");
+        String message = "A signature file must be provided with import data";
+        console.println(message);
+        throw new CatalogCommandRuntimeException(message);
       }
 
-      String alias = System.getProperty("org.codice.ddf.system.hostname");
+      String alias =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("org.codice.ddf.system.hostname"));
 
       try (FileInputStream fileIs = new FileInputStream(file);
           FileInputStream sigFileIs = new FileInputStream(signatureFile)) {
