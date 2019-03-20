@@ -96,8 +96,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private File userPropertiesFile = new File(userPropertiesFilename);
   private File userAttributesFile = new File(userAttributesFilename);
 
-  private Properties systemDotProperties;
-
   private static final Gson GSON =
       new GsonBuilder()
           .disableHtmlEscaping()
@@ -122,11 +120,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     super(SystemPropertiesAdminMBean.class);
     this.guestClaimsHandlerExt = guestClaimsHandlerExt;
     configureMBean();
-    try {
-      systemDotProperties = new Properties(systemPropertiesFile);
-    } catch (IOException e) {
-      LOGGER.warn("Exception while reading the system.properties file.", e);
-    }
   }
 
   @Override
@@ -135,72 +128,78 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
     ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
 
-    properties.add(
-        getSystemPropertyDetails(
-            SystemBaseUrl.EXTERNAL_HOST,
-            EXTERNAL_HOST_TITLE,
-            EXTERNAL_HOST_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemBaseUrl.EXTERNAL_HTTP_PORT,
-            EXTERNAL_HTTP_PORT_TITLE,
-            EXTERNAL_HTTP_PORT_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemBaseUrl.EXTERNAL_HTTPS_PORT,
-            EXTERNAL_HTTPS_PORT_TITLE,
-            EXTERNAL_HTTPS_PORT_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemBaseUrl.INTERNAL_HOST,
-            INTERNAL_HOST_TITLE,
-            INTERNAL_HOST_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemBaseUrl.INTERNAL_HTTP_PORT,
-            INTERNAL_HTTP_PORT_TITLE,
-            INTERNAL_HTTP_PORT_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemBaseUrl.INTERNAL_HTTPS_PORT,
-            INTERNAL_HTTPS_PORT_TITLE,
-            INTERNAL_HTTPS_PORT_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemInfo.ORGANIZATION,
-            ORGANIZATION_TITLE,
-            ORGANIZATION_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemInfo.SITE_CONTACT,
-            SITE_CONTACT_TITLE,
-            SITE_CONTACT_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemInfo.SITE_NAME,
-            SITE_NAME_TITLE,
-            SITE_NAME_DESCRIPTION,
-            null,
-            systemDotProperties));
-    properties.add(
-        getSystemPropertyDetails(
-            SystemInfo.VERSION, VERSION_TITLE, VERSION_DESCRIPTION, null, systemDotProperties));
+    Properties systemDotProperties = null;
+    try {
+      systemDotProperties = new Properties(systemPropertiesFile);
+      properties.add(
+          getSystemPropertyDetails(
+              SystemBaseUrl.EXTERNAL_HOST,
+              EXTERNAL_HOST_TITLE,
+              EXTERNAL_HOST_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemBaseUrl.EXTERNAL_HTTP_PORT,
+              EXTERNAL_HTTP_PORT_TITLE,
+              EXTERNAL_HTTP_PORT_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemBaseUrl.EXTERNAL_HTTPS_PORT,
+              EXTERNAL_HTTPS_PORT_TITLE,
+              EXTERNAL_HTTPS_PORT_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemBaseUrl.INTERNAL_HOST,
+              INTERNAL_HOST_TITLE,
+              INTERNAL_HOST_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemBaseUrl.INTERNAL_HTTP_PORT,
+              INTERNAL_HTTP_PORT_TITLE,
+              INTERNAL_HTTP_PORT_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemBaseUrl.INTERNAL_HTTPS_PORT,
+              INTERNAL_HTTPS_PORT_TITLE,
+              INTERNAL_HTTPS_PORT_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemInfo.ORGANIZATION,
+              ORGANIZATION_TITLE,
+              ORGANIZATION_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemInfo.SITE_CONTACT,
+              SITE_CONTACT_TITLE,
+              SITE_CONTACT_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemInfo.SITE_NAME,
+              SITE_NAME_TITLE,
+              SITE_NAME_DESCRIPTION,
+              null,
+              systemDotProperties));
+      properties.add(
+          getSystemPropertyDetails(
+              SystemInfo.VERSION, VERSION_TITLE, VERSION_DESCRIPTION, null, systemDotProperties));
+    } catch (IOException e) {
+      LOGGER.warn("Exception while reading the system.properties file.", e);
+    }
 
     return properties;
   }
@@ -211,10 +210,11 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       return;
     }
 
-    // save off the current/old hostname before we make any changes
-    oldHostName = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
-
     try {
+      Properties systemDotProperties = new Properties(systemPropertiesFile);
+
+      // save off the current/old hostname before we make any changes
+      oldHostName = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
       updatedSystemProperties.forEach(
           (key, value) -> {
             // Clears out the property value before setting it
@@ -228,7 +228,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
       systemDotProperties.save();
     } catch (IOException e) {
-      LOGGER.warn("Exception while writing to system.properties file.", e);
+      LOGGER.warn("Exception while reading or writing to system.properties file.", e);
     }
 
     writeOutUsersDotPropertiesFile(userPropertiesFile);
@@ -247,6 +247,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
         String oldHostValue = usersDotProperties.getProperty(oldHostName);
 
         if (oldHostValue != null) {
+          Properties systemDotProperties = new Properties(systemPropertiesFile);
           String newInternalHost = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
           String newHostValue =
               oldHostValue.replaceAll(
@@ -276,14 +277,19 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     addGuestClaimsProfileAttributes(json);
 
     if (json.containsKey(oldHostName)) {
-      json.put(systemDotProperties.get(SystemBaseUrl.INTERNAL_HOST), json.remove(oldHostName));
-    }
-
-    for (Map.Entry<String, Object> entry : json.entrySet()) {
-      json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
+      Properties systemDotProperties = null;
+      try {
+        systemDotProperties = new Properties(systemPropertiesFile);
+        json.put(systemDotProperties.get(SystemBaseUrl.INTERNAL_HOST), json.remove(oldHostName));
+      } catch (IOException e) {
+        LOGGER.warn("Exception while reading the system.properties file.", e);
+      }
     }
 
     try {
+      for (Map.Entry<String, Object> entry : json.entrySet()) {
+        json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
+      }
       FileUtils.writeStringToFile(userAttributesFile, GSON.toJson(json), Charset.defaultCharset());
     } catch (IOException e) {
       LOGGER.warn("Unable to write user attribute file for system update.", e);
@@ -306,7 +312,9 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
    * hostname.
    */
   @SuppressWarnings("unchecked")
-  private Object replaceLocalhost(Object hostMap) {
+  private Object replaceLocalhost(Object hostMap) throws IOException {
+    Properties systemDotProperties = new Properties(systemPropertiesFile);
+
     if (!(hostMap instanceof Map)) {
       return hostMap;
     }
