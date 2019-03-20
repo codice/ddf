@@ -13,13 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
+
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
 
 public class SrcToQuerySources extends WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
-    return QueryMetacardTypeImpl.QUERY_SOURCES;
+    return QUERY_SOURCES;
   }
 
   @Override

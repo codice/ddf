@@ -11,7 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package org.codice.ddf.catalog.ui.metacard.query.data.metacard;
+
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.FACETS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_CQL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_ENTERPRISE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FILTER_TREE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_METACARD_TYPE_NAME;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_POLLING;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SORTS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TYPE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SCHEDULES;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
@@ -24,33 +37,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class QueryMetacardTypeImpl extends MetacardTypeImpl {
-
-  public static final String QUERY_TAG = "query";
-
-  public static final String QUERY_METACARD_TYPE_NAME = "metacard.query";
-
-  public static final String QUERY_CQL = "cql";
-
-  public static final String QUERY_FILTER_TREE = "filterTree";
-
-  public static final String QUERY_SOURCES = "sources";
-
-  public static final String QUERY_ENTERPRISE = "enterprise";
-
-  public static final String QUERY_SORTS = "sorts";
-
-  public static final String QUERY_POLLING = "polling";
-
-  public static final String QUERY_FEDERATION = "federation";
-
-  public static final String QUERY_TYPE = "type";
-
-  public static final String DETAIL_LEVEL = "detail-level";
-
-  public static final String SCHEDULES = "schedules";
-
-  public static final String FACETS = "facets";
-
   private static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
 
   public static final Set<String> QUERY_ATTRIBUTE_NAMES;

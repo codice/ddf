@@ -22,7 +22,7 @@ import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import java.util.Set;
 import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeImpl;
 
 /**
  * Represents a data structure for storing a query template. The {@code template.query.filter} field

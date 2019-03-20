@@ -11,7 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package org.codice.ddf.catalog.ui.metacard.query.data.metacard;
+
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_CQL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_ENTERPRISE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TAG;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -28,7 +33,7 @@ public class QueryMetacardImpl extends MetacardImpl {
 
   public QueryMetacardImpl() {
     super(TYPE);
-    setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
+    setTags(Collections.singleton(QUERY_TAG));
   }
 
   public QueryMetacardImpl(String title) {
@@ -38,7 +43,7 @@ public class QueryMetacardImpl extends MetacardImpl {
 
   public QueryMetacardImpl(Metacard wrappedMetacard) {
     super(wrappedMetacard, TYPE);
-    setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
+    setTags(Collections.singleton(QUERY_TAG));
 
     for (AttributeDescriptor attrDesc : TYPE.getAttributeDescriptors()) {
       Attribute attr = wrappedMetacard.getAttribute(attrDesc.getName());
@@ -56,15 +61,15 @@ public class QueryMetacardImpl extends MetacardImpl {
   }
 
   public String getCql() {
-    return (String) getAttribute(QueryMetacardTypeImpl.QUERY_CQL).getValue();
+    return (String) getAttribute(QUERY_CQL).getValue();
   }
 
   public void setCql(String cql) {
-    setAttribute(QueryMetacardTypeImpl.QUERY_CQL, cql);
+    setAttribute(QUERY_CQL, cql);
   }
 
   public void setEnterprise(Boolean b) {
-    setAttribute(QueryMetacardTypeImpl.QUERY_ENTERPRISE, b);
+    setAttribute(QUERY_ENTERPRISE, b);
   }
 
   /**
@@ -73,7 +78,7 @@ public class QueryMetacardImpl extends MetacardImpl {
    * @return list of source (always non-null)
    */
   public List<String> getSources() {
-    Attribute attribute = getAttribute(QueryMetacardTypeImpl.QUERY_SOURCES);
+    Attribute attribute = getAttribute(QUERY_SOURCES);
     if (attribute == null) {
       return Collections.emptyList();
     }
@@ -86,6 +91,6 @@ public class QueryMetacardImpl extends MetacardImpl {
   }
 
   public void setSources(List<String> sources) {
-    setAttribute(QueryMetacardTypeImpl.QUERY_SOURCES, new ArrayList<>(sources));
+    setAttribute(QUERY_SOURCES, new ArrayList<>(sources));
   }
 }

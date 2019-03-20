@@ -79,6 +79,10 @@
 
     <reference id="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
 
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeImpl"/>
+    </service>
+
     <bean id="configurationApplication"
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
@@ -111,10 +115,6 @@
         <property name="historianConfigurations" ref="historianConfigurations"/>
         <property name="i18n" ref="resourceBundleLocator"/>
     </bean>
-
-    <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
-    </service>
 
     <service interface="ddf.catalog.data.MetacardType">
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
@@ -581,6 +581,11 @@
         <property name="descriptors" ref="transformerDescriptors"/>
     </bean>
 
+    <bean id="queryMetacardApplication" class="org.codice.ddf.catalog.ui.metacard.QueryMetacardApplication">
+        <argument ref="catalogFramework"/>
+        <argument ref="endpointUtil"/>
+    </bean>
+
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <property name="sparkApplications">
@@ -600,6 +605,7 @@
                 <ref component-id="buildApplication"/>
                 <ref component-id="geoCoderApplication"/>
                 <ref component-id="transformerDescriptorApplication"/>
+                <ref component-id="queryMetacardApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>
