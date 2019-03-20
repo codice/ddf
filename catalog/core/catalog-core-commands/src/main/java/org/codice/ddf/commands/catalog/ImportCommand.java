@@ -29,7 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,13 +39,14 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.catalog.transformer.zip.ZipValidator;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
+import org.codice.ddf.commands.util.DigitalSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +76,8 @@ public class ImportCommand extends CatalogCommands {
 
   @Reference private StorageProvider storageProvider;
 
+  private DigitalSignature verifier = new DigitalSignature();
+
   @Argument(
     name = "Import File",
     description = "The file to import",
@@ -102,12 +106,21 @@ public class ImportCommand extends CatalogCommands {
   )
   boolean force = false;
 
+  @Option(
+    name = "--signature",
+    required = false,
+    aliases = {"-s"},
+    multiValued = false,
+    description =
+        "Provide an absolute path for the digital signature to verify the integrity of the exported data. Required unless you use --skip-signature-verification."
+  )
+  String signatureFile;
+
   @Override
   protected Object executeWithSubject() throws Exception {
     int metacards = 0;
     int content = 0;
     int derivedContent = 0;
-    ZipValidator zipValidator = initZipValidator();
     File file = initImportFile(importFile);
     InputTransformer transformer =
         getServiceByFilter(
@@ -134,8 +147,22 @@ public class ImportCommand extends CatalogCommands {
               + "File being imported: {}",
           importFile);
     } else {
-      if (!zipValidator.validateZipFile(importFile)) {
-        throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
+      if (StringUtils.isBlank(signatureFile)) {
+        String message = "A signature file must be provided with import data";
+        console.println(message);
+        throw new CatalogCommandRuntimeException(message);
+      }
+
+      String alias =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("org.codice.ddf.system.hostname"));
+
+      try (FileInputStream fileIs = new FileInputStream(file);
+          FileInputStream sigFileIs = new FileInputStream(signatureFile)) {
+        if (!verifier.verifyDigitalSignature(fileIs, sigFileIs, alias)) {
+          throw new CatalogCommandRuntimeException("The provided data could not be verified");
+        }
       }
     }
     SecurityLogger.audit("Called catalog:import command on the file: {}", importFile);
@@ -258,15 +285,6 @@ public class ImportCommand extends CatalogCommands {
     }
 
     return file;
-  }
-
-  private ZipValidator initZipValidator() {
-    ZipValidator zipValidator = new ZipValidator();
-    zipValidator.setSignaturePropertiesPath(
-        Paths.get(System.getProperty("ddf.etc"), "/ws-security/server/signature.properties")
-            .toString());
-    zipValidator.init();
-    return zipValidator;
   }
 
   private Metacard applyInjectors(Metacard original, List<AttributeInjector> injectors) {

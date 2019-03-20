@@ -46,6 +46,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +77,8 @@ import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.support.completers.FileCompleter;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
+import org.codice.ddf.commands.util.DigitalSignature;
 import org.codice.ddf.platform.util.Exceptions;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.fusesource.jansi.Ansi;
@@ -143,6 +147,8 @@ public class IngestCommand extends CatalogCommands {
   private final AtomicInteger ignoreCount = new AtomicInteger();
 
   private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
+
+  private DigitalSignature verifier;
 
   @Argument(
     name = "File path or Directory path",
@@ -231,6 +237,16 @@ public class IngestCommand extends CatalogCommands {
   )
   boolean includeContent = false;
 
+  @Option(
+    name = "--signature",
+    required = false,
+    aliases = {"-s"},
+    multiValued = false,
+    description =
+        "Provided absolute path for the digital signature to verify the integrity of the exported data. Required when the `--include-content` option is specified."
+  )
+  String signatureFile;
+
   @Reference StorageProvider storageProvider;
 
   private Map<String, List<File>> metacardFileMapping;
@@ -238,6 +254,14 @@ public class IngestCommand extends CatalogCommands {
   private File failedIngestDirectory = null;
 
   private Optional<InputTransformer> transformer = null;
+
+  public IngestCommand() {
+    this.verifier = new DigitalSignature();
+  }
+
+  public IngestCommand(DigitalSignature verifier) {
+    this.verifier = verifier;
+  }
 
   @Override
   protected Object executeWithSubject() throws Exception {
@@ -358,6 +382,12 @@ public class IngestCommand extends CatalogCommands {
 
     if (includeContent && !FilenameUtils.isExtension(filePath, "zip")) {
       console.printf("File %s must be a zip file.", filePath);
+      return null;
+    }
+
+    if (includeContent && StringUtils.isBlank(signatureFile)) {
+      console.print(
+          "You must provide a signature file when the `--include-content` option is specified.");
       return null;
     }
 
@@ -589,7 +619,22 @@ public class IngestCommand extends CatalogCommands {
   private void buildQueue(File inputFile, ArrayBlockingQueue<Metacard> metacardQueue, long start) {
     try {
       if (includeContent) {
-        processIncludeContent(metacardQueue);
+        try (InputStream data = new FileInputStream(inputFile);
+            InputStream signature = new FileInputStream(signatureFile)) {
+          String alias =
+              AccessController.doPrivileged(
+                  (PrivilegedAction<String>)
+                      () -> System.getProperty("org.codice.ddf.system.hostname"));
+
+          if (verifier.verifyDigitalSignature(data, signature, alias)) {
+            processIncludeContent(metacardQueue);
+          } else {
+            console.println("The provided signature was invalid for the provided data");
+          }
+        } catch (IOException | CatalogCommandRuntimeException e) {
+          throw new CatalogCommandRuntimeException(
+              "An error occurred while verifying digital signature", e);
+        }
       } else {
         try (Stream<Path> ingestStream =
             Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS)) {

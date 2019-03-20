@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +42,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.codice.ddf.commands.util.DigitalSignature;
 import org.fusesource.jansi.Ansi;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -55,6 +58,20 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
 
   @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
+  private DigitalSignature signer;
+
+  @Before
+  public void setup() throws Exception {
+    this.signer = mock(DigitalSignature.class);
+
+    when(signer.createDigitalSignature(
+            any(InputStream.class), any(String.class), any(String.class)))
+        .thenReturn(new byte[0]);
+    doReturn(true)
+        .when(signer)
+        .verifyDigitalSignature(any(InputStream.class), any(InputStream.class), any(String.class));
+  }
+
   /**
    * Check for bad output directory.
    *
@@ -63,7 +80,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   @Test
   public void testNonExistentOutputDirectory() throws Exception {
     // given
-    DumpCommand dumpCommand = new DumpCommand();
+    DumpCommand dumpCommand = new DumpCommand(signer);
     dumpCommand.dirPath = "nosuchdirectoryanywherehereman";
     dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
 
@@ -85,7 +102,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   @Test
   public void testOutputDirectoryIsFile() throws Exception {
     // given
-    DumpCommand dumpCommand = new DumpCommand();
+    DumpCommand dumpCommand = new DumpCommand(signer);
     File testFile = testFolder.newFile("somefile.txt");
     String testFilePath = testFile.getAbsolutePath();
     dumpCommand.dirPath = testFilePath;
@@ -112,7 +129,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   @Test
   public void testNormalOperation() throws Exception {
     // given
-    DumpCommand dumpCommand = new DumpCommand();
+    DumpCommand dumpCommand = new DumpCommand(signer);
     dumpCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -135,7 +152,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   @Test
   public void testNormalOperationNoFiles() throws Exception {
     // given
-    DumpCommand dumpCommand = new DumpCommand();
+    DumpCommand dumpCommand = new DumpCommand(signer);
     dumpCommand.catalogFramework = givenCatalogFramework(getEmptyResultList());
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -165,7 +182,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     metacard1.setResourceURI(new URI("content:" + metacard1.getId()));
     metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
 
-    DumpCommand dumpCommand = new DumpCommand();
+    DumpCommand dumpCommand = new DumpCommand(signer);
     dumpCommand.catalogFramework = givenCatalogFramework(resultList);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -200,7 +217,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     metacard1.setResourceURI(new URI("content:" + metacard1.getId()));
     metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
 
-    TestDumpCommand dumpCommand = new TestDumpCommand(transformers);
+    TestDumpCommand dumpCommand = new TestDumpCommand(transformers, signer);
     dumpCommand.catalogFramework = givenCatalogFramework(resultList);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     File outputDirectory = testFolder.newFolder("somedirectory");
@@ -223,7 +240,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
         ImmutableList.of(
             new ResultImpl(getMetacard("metacardId1")), new ResultImpl(getMetacard("metacardId2")));
 
-    TestDumpCommand dumpCommand = new TestDumpCommand(Collections.emptyList());
+    TestDumpCommand dumpCommand = new TestDumpCommand(Collections.emptyList(), signer);
     dumpCommand.catalogFramework = givenCatalogFramework(results);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
     dumpCommand.dirPath = outputDirectoryPath;
@@ -268,7 +285,8 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   private class TestDumpCommand extends DumpCommand {
     private List<MetacardTransformer> list;
 
-    TestDumpCommand(List<MetacardTransformer> list) {
+    TestDumpCommand(List<MetacardTransformer> list, DigitalSignature signer) {
+      super(signer);
       this.list = list;
     }
 

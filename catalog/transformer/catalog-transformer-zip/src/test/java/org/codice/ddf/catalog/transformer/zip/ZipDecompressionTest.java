@@ -18,9 +18,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -45,8 +42,6 @@ public class ZipDecompressionTest {
 
   private List<String> zipContentList = Arrays.asList("id1", "id2", "id3");
 
-  private ZipValidator zipValidator;
-
   @Before
   public void setUp() throws Exception {
     zipDecompression = new ZipDecompression();
@@ -54,14 +49,6 @@ public class ZipDecompressionTest {
     arguments = new HashMap<>();
     arguments.put(ZipDecompression.FILE_PATH, "target/");
     arguments.put(ZipDecompression.FILE_NAME, ZIP_FILE_NAME);
-    zipValidator = mock(ZipValidator.class);
-    when(zipValidator.validateZipFile(anyString())).thenReturn(true);
-    zipDecompression.setZipValidator(zipValidator);
-  }
-
-  @Test
-  public void testGetZipValidator() {
-    assertThat(zipDecompression.getZipValidator(), is(zipValidator));
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -96,12 +83,6 @@ public class ZipDecompressionTest {
   public void testDecompressionWithNullStream() throws Exception {
     List<Metacard> result = zipDecompression.transform(null, arguments);
     assertThat(result, nullValue());
-  }
-
-  @Test(expected = CatalogTransformerException.class)
-  public void testDecompressionInvalidZip() throws Exception {
-    when(zipValidator.validateZipFile(anyString())).thenThrow(ZipValidationException.class);
-    zipDecompression.transform(zipInputStream, arguments);
   }
 
   @Test
