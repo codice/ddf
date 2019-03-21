@@ -9,12 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-export default function leftPad(numToPad: number, size: number) {
-  var sign = Math.sign(numToPad) === -1 ? '-' : ''
-  var numNoDecimal = Math.floor(Math.abs(numToPad))
-  return new Array(sign === '-' ? size - 1 : size)
-    .concat([Math.sign(numToPad) * numNoDecimal])
-    .join(' ')
-    .slice(-size)
+export { default } from './map-info'
+export type Attribute = {
+  name: string
+  value: string
 }
+export type Coordinates = {
+  lat: number
+  lon: number
+}
+export const validCoordinates = ({ lat, lon }: Coordinates) =>
+  lat !== undefined && lon !== undefined
+
+export type Format = 'degrees' | 'decimal' | 'mgrs' | 'utm'

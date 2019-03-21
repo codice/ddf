@@ -9,4 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default } from './left-pad'
+export { default } from './map-info'
+
+export {
+  Attribute,
+  Coordinates,
+  Format,
+  validCoordinates,
+} from '../../container/map-info'
