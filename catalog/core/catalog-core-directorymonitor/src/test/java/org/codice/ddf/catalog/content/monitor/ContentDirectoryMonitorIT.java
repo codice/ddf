@@ -79,6 +79,7 @@ import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreCo
 import org.codice.ddf.catalog.content.monitor.features.CamelFeatures;
 import org.codice.ddf.catalog.content.monitor.features.CxfFeatures;
 import org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures;
+import org.codice.ddf.catalog.content.monitor.features.TinkFeatures;
 import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
 import org.codice.ddf.test.common.ComponentTestRunner;
 import org.codice.ddf.test.common.annotations.AfterExam;
@@ -246,6 +247,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
             "cxf-ws-security",
             "cxf-frontend-javascript",
             "cxf-jaxrs"),
+        TinkFeatures.start("tink-test-dependencies"),
         keystoreAndTruststoreConfig(),
         initContentDirectoryMonitorConfig(),
         streamBundle(

@@ -243,7 +243,7 @@ grant codeBase "file:/catalog-rest-impl/catalog-transformer-resource/ftp/org.apa
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl" {
+grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl/catalog-core-localstorageprovider" {
     permission java.io.FilePermission "${ddf.home.perm}etc", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets", "read,write";
