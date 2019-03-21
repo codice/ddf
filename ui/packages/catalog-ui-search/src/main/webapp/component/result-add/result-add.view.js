@@ -13,12 +13,13 @@
  *
  **/
 /*global define, require, module*/
+import ListCreate from '../list-create/list-create.js'
+
 var Marionette = require('marionette')
 var $ = require('jquery')
 var template = require('./result-add.hbs')
 var CustomElements = require('../../js/CustomElements.js')
 var store = require('../../js/store.js')
-var ListCreateView = require('../list-create/list-create.view.js')
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 var List = require('../../js/model/List.js')
 var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
@@ -72,7 +73,7 @@ module.exports = Marionette.LayoutView.extend({
   setupCreateList: function() {
     this.newList.show(
       PopoutView.createSimpleDropdown({
-        componentToShow: ListCreateView,
+        componentToShow: ListCreate,
         modelForComponent: this.model,
         leftIcon: 'fa fa-plus',
         label: 'Create New List',

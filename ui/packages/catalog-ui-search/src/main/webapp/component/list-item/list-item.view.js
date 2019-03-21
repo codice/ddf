@@ -68,6 +68,7 @@ module.exports = Marionette.LayoutView.extend({
             view: ListEditorView,
             viewOptions: {
               model: this.options.model,
+              showFooter: true,
             },
           },
         ],
