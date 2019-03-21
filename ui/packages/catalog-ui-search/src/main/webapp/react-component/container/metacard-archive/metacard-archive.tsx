@@ -71,17 +71,16 @@ class MetacardArchive extends React.Component<Props, State> {
         return
       }
 
-      this.state.collection.forEach(function(result) {
-        result
-          .get('metacard')
-          .get('properties')
-          .set('metacard-tags', ['deleted'])
-        result.trigger('refreshdata')
-      })
-      this.refreshResults()
-
       setTimeout(() => {
         this.setState({ isDeleted: true, loading: false })
+        this.state.collection.forEach(function(result) {
+          result
+            .get('metacard')
+            .get('properties')
+            .set('metacard-tags', ['deleted'])
+          result.trigger('refreshdata')
+        })
+        this.refreshResults()
       }, 2000)
     }
   }
@@ -118,7 +117,19 @@ class MetacardArchive extends React.Component<Props, State> {
         )
       })
 
-      Promise.all(promises).then(() => {
+      Promise.all(promises).then((responses: any) => {
+        const isResponseOk = responses.every((resp: any) => {
+          return resp.ok
+        })
+        if (!isResponseOk) {
+          this.setState({ loading: false })
+          announcement.announce({
+            title: 'Unable to restore the selected item(s).',
+            message: 'Something went wrong.',
+            type: 'error',
+          })
+        }
+
         this.state.collection.map((result: any) => {
           ResultUtils.refreshResult(result)
         })
