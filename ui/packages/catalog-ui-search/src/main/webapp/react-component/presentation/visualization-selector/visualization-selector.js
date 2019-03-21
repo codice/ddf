@@ -20,20 +20,19 @@ const CustomElement = styled.div`
   width: 100%;
   display: block;
 `
+
 const Visualization = styled.div`
   cursor: pointer;
-  opacity: ${props => props.theme.minimumOpacity}
+  opacity: ${props => props.theme.minimumOpacity};
+  padding: ${props => props.theme.largeSpacing};
   :hover {
-    opacity: 1
+    opacity: 1;
   }
-`
-const VisualizationChoice = styled.div`
-    white-space: nowrap;
-    padding: ${props => props.theme.largeSpacing}
-    cursor: move;
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
+  white-space: nowrap;
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 `
 
 const VisualizationIcon = styled.div`
