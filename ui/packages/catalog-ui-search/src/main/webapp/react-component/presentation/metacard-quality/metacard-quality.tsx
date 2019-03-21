@@ -22,7 +22,7 @@ type Props = {
 }
 
 const Header = styled.h4`
-  text-align: center;
+  text-align: left;
 `
 
 const Root = styled.div`
