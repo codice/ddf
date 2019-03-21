@@ -72,41 +72,34 @@ public class DDFCommonOptions {
    * Dominion options for dynamically allocating ports for HTTPS, HTTP, FTP, SSH, RMI, and Solr
    * HTTP.
    */
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
-    key = "org.codice.ddf.system.httpsPort",
-    value = "{port.https}"
-  )
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
-    key = "org.codice.ddf.system.httpPort",
-    value = "{port.http}"
-  )
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
-    key = "org.codice.ddf.catalog.ftp.port",
-    value = "{port.ftp}"
-  )
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.KARAF_MGMT_CFG,
-    key = "rmiRegistryPort",
-    value = "{port.rmi.registry}"
-  )
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.KARAF_MGMT_CFG,
-    key = "rmiServerPort",
-    value = "{port.rmi.server}"
-  )
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.KARAF_SHELL_CFG,
-    key = "sshPort",
-    value = "{port.ssh}"
-  )
-  @Options.UpdateConfigFile(
-    target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
-    key = "solr.http.port",
-    value = "{port.solr}"
-  )
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+      key = "org.codice.ddf.system.httpsPort",
+      value = "{port.https}")
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+      key = "org.codice.ddf.system.httpPort",
+      value = "{port.http}")
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+      key = "org.codice.ddf.catalog.ftp.port",
+      value = "{port.ftp}")
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.KARAF_MGMT_CFG,
+      key = "rmiRegistryPort",
+      value = "{port.rmi.registry}")
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.KARAF_MGMT_CFG,
+      key = "rmiServerPort",
+      value = "{port.rmi.server}")
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.KARAF_SHELL_CFG,
+      key = "sshPort",
+      value = "{port.ssh}")
+  @Options.UpdateConfigProperty(
+      target = DDFCommonOptions.CUSTOM_SYSTEM_PROPERTIES,
+      key = "solr.http.port",
+      value = "{port.solr}")
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
@@ -303,7 +296,7 @@ public class DDFCommonOptions {
   //  public @interface InstallTestCatalogUIForms {
   //  }
   //
-  //  @Options.ReplaceFile( -----------> should be replace with @KarafOptions.LocalUser
+  //  @Options.ReplaceFile( -----------> should be replace with @KarafOptions.AddLocalUser
   //      target = "/etc/users.properties",
   //      resource = "/etc/test-users.properties"
   //  )
@@ -321,10 +314,9 @@ public class DDFCommonOptions {
   /** Options to install the DDF Dominion common options in addition to the Dominion framework. */
   @Options.Install
   @DDFCommonOptions.Claim(
-    userId = Dominion.DOMINION_USER_ID,
-    name = Claims.EMAIL,
-    value = "{dominion.email:-" + Dominion.DOMINION_USER_ID + "@localhost.local}"
-  )
+      userId = Dominion.DOMINION_USER_ID,
+      name = Claims.EMAIL,
+      value = "{dominion.email:-" + Dominion.DOMINION_USER_ID + "@localhost.local}")
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
