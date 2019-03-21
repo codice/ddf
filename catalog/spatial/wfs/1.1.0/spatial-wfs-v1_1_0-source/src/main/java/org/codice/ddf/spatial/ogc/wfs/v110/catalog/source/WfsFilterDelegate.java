@@ -82,6 +82,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
 
+  // The OGC Filter 1.1 spec says the default value of matchCase is true.
+  private static final boolean DEFAULT_MATCH_CASE = true;
+
   private static final String MISSING_PARAMETERS_MSG = "Required parameters are missing";
 
   private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
@@ -280,92 +283,114 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   @Override
   public FilterType propertyIsEqualTo(
       String propertyName, String literal, boolean isCaseSensitive) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, isCaseSensitive);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, Date date) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(date), PROPERTY_IS_OPS.PropertyIsEqualTo);
+        propertyName,
+        convertDateToIso8601Format(date),
+        PROPERTY_IS_OPS.PropertyIsEqualTo,
+        DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, int literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, short literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, long literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, float literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, double literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsLike(String propertyName, String literal, boolean isCaseSensitive) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLike);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLike, isCaseSensitive);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(
       String propertyName, String literal, boolean isCaseSensitive) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo, isCaseSensitive);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+        propertyName,
+        convertDateToIso8601Format(literal),
+        PROPERTY_IS_OPS.PropertyIsNotEqualTo,
+        DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, String literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsGreaterThan);
+        propertyName,
+        convertDateToIso8601Format(literal),
+        PROPERTY_IS_OPS.PropertyIsGreaterThan,
+        DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
@@ -373,35 +398,41 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsFilterType(
         propertyName,
         convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
+        PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo,
+        DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, Number literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, String literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsLessThan);
+        propertyName,
+        convertDateToIso8601Format(literal),
+        PROPERTY_IS_OPS.PropertyIsLessThan,
+        DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
+    return buildPropertyIsFilterType(
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan, DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsLessThanOrEqualTo(String propertyName, String literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
@@ -409,13 +440,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsFilterType(
         propertyName,
         convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
+        PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo,
+        DEFAULT_MATCH_CASE);
   }
 
   @Override
   public FilterType propertyIsLessThanOrEqualTo(String propertyName, Number literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo, DEFAULT_MATCH_CASE);
   }
 
   @Override
@@ -464,7 +496,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildPropertyIsFilterType(
-      String propertyName, Object literal, PROPERTY_IS_OPS propertyIsType) {
+      String propertyName,
+      Object literal,
+      PROPERTY_IS_OPS propertyIsType,
+      boolean isCaseSensitive) {
     if (!isValidInputParameters(propertyName, literal)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
@@ -474,9 +509,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     if ((Metacard.ANY_TEXT.equalsIgnoreCase(propertyName))) {
-      return buildPropertyIsFilterTypeForAnyGeo(literal, propertyIsType);
+      return buildPropertyIsFilterTypeForAnyGeo(literal, propertyIsType, isCaseSensitive);
     } else if (featureMetacardType.getProperties().contains(propertyName)) {
-      return buildPropertyIsFilterTypeForProperty(propertyName, literal, propertyIsType);
+      return buildPropertyIsFilterTypeForProperty(
+          propertyName, literal, propertyIsType, isCaseSensitive);
     } else if (Metacard.ID.equals(propertyName)) {
       return buildPropertyIsFilterTypeForId(literal);
     }
@@ -507,13 +543,17 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildPropertyIsFilterTypeForProperty(
-      String propertyName, Object literal, PROPERTY_IS_OPS propertyIsType) {
+      String propertyName,
+      Object literal,
+      PROPERTY_IS_OPS propertyIsType,
+      boolean isCaseSensitive) {
     FilterType returnFilter = new FilterType();
     FeatureAttributeDescriptor attrDesc =
         (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
     if (attrDesc.isIndexed()) {
       returnFilter.setComparisonOps(
-          createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
+          createPropertyIsFilter(
+              attrDesc.getPropertyName(), literal, propertyIsType, isCaseSensitive));
       return returnFilter;
     }
     // blacklisted property encountered
@@ -521,7 +561,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildPropertyIsFilterTypeForAnyGeo(
-      Object literal, PROPERTY_IS_OPS propertyIsType) {
+      Object literal, PROPERTY_IS_OPS propertyIsType, boolean isCaseSensitive) {
 
     if (CollectionUtils.isEmpty(featureMetacardType.getTextualProperties())) {
       LOGGER.debug("Feature Type does not have Textual Properties to query.");
@@ -529,14 +569,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     if (featureMetacardType.getTextualProperties().size() == 1) {
-      return buildPropertyIsFilterForSingleProperty(literal, propertyIsType);
+      return buildPropertyIsFilterForSingleProperty(literal, propertyIsType, isCaseSensitive);
     }
 
-    return buildPropertyIsFilterForMultipleProperties(literal, propertyIsType);
+    return buildPropertyIsFilterForMultipleProperties(literal, propertyIsType, isCaseSensitive);
   }
 
   private FilterType buildPropertyIsFilterForMultipleProperties(
-      final Object literal, final PROPERTY_IS_OPS propertyIsType) {
+      final Object literal, final PROPERTY_IS_OPS propertyIsType, boolean isCaseSensitive) {
     List<FilterType> binaryCompOpsToBeOred = new ArrayList<>();
 
     featureMetacardType
@@ -549,7 +589,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
               if (attrDesc.isIndexed()) {
                 FilterType filter = new FilterType();
                 filter.setComparisonOps(
-                    createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
+                    createPropertyIsFilter(
+                        attrDesc.getPropertyName(), literal, propertyIsType, isCaseSensitive));
                 binaryCompOpsToBeOred.add(filter);
               } else {
                 if (LOGGER.isDebugEnabled()) {
@@ -567,7 +608,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildPropertyIsFilterForSingleProperty(
-      Object literal, PROPERTY_IS_OPS propertyIsType) {
+      Object literal, PROPERTY_IS_OPS propertyIsType, boolean isCaseSensitive) {
     FeatureAttributeDescriptor attrDescriptor =
         (FeatureAttributeDescriptor)
             featureMetacardType.getAttributeDescriptor(
@@ -575,7 +616,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (attrDescriptor.isIndexed()) {
       FilterType returnFilter = new FilterType();
       returnFilter.setComparisonOps(
-          createPropertyIsFilter(attrDescriptor.getPropertyName(), literal, propertyIsType));
+          createPropertyIsFilter(
+              attrDescriptor.getPropertyName(), literal, propertyIsType, isCaseSensitive));
       return returnFilter;
     }
     LOGGER.debug("All textual properties have been blacklisted.  Removing from query.");
@@ -583,13 +625,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private JAXBElement<? extends ComparisonOpsType> createPropertyIsFilter(
-      String property, Object literal, PROPERTY_IS_OPS operation) {
+      String property, Object literal, PROPERTY_IS_OPS operation, boolean isCaseSensitive) {
     switch (operation) {
       case PropertyIsEqualTo:
         JAXBElement<BinaryComparisonOpType> propIsEqualTo =
             filterObjectFactory.createPropertyIsEqualTo(new BinaryComparisonOpType());
         propIsEqualTo.getValue().getExpression().add(createPropertyNameType(property));
         propIsEqualTo.getValue().getExpression().add(createLiteralType(literal));
+        propIsEqualTo.getValue().setMatchCase(isCaseSensitive);
         return propIsEqualTo;
 
       case PropertyIsNotEqualTo:
@@ -597,7 +640,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             filterObjectFactory.createPropertyIsNotEqualTo(new BinaryComparisonOpType());
         propIsNotEqualTo.getValue().getExpression().add(createPropertyNameType(property));
         propIsNotEqualTo.getValue().getExpression().add(createLiteralType(literal));
-
+        propIsNotEqualTo.getValue().setMatchCase(isCaseSensitive);
         return propIsNotEqualTo;
 
       case PropertyIsGreaterThan:
@@ -605,7 +648,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             filterObjectFactory.createPropertyIsGreaterThan(new BinaryComparisonOpType());
         propIsGreaterThan.getValue().getExpression().add(createPropertyNameType(property));
         propIsGreaterThan.getValue().getExpression().add(createLiteralType(literal));
-
+        propIsGreaterThan.getValue().setMatchCase(isCaseSensitive);
         return propIsGreaterThan;
 
       case PropertyIsGreaterThanOrEqualTo:
@@ -613,7 +656,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(new BinaryComparisonOpType());
         propIsGreaterThanOrEqualTo.getValue().getExpression().add(createPropertyNameType(property));
         propIsGreaterThanOrEqualTo.getValue().getExpression().add(createLiteralType(literal));
-
+        propIsGreaterThanOrEqualTo.getValue().setMatchCase(isCaseSensitive);
         return propIsGreaterThanOrEqualTo;
 
       case PropertyIsLessThan:
@@ -621,7 +664,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             filterObjectFactory.createPropertyIsLessThan(new BinaryComparisonOpType());
         propIsLessThan.getValue().getExpression().add(createPropertyNameType(property));
         propIsLessThan.getValue().getExpression().add(createLiteralType(literal));
-
+        propIsLessThan.getValue().setMatchCase(isCaseSensitive);
         return propIsLessThan;
 
       case PropertyIsLessThanOrEqualTo:
@@ -629,7 +672,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             filterObjectFactory.createPropertyIsLessThanOrEqualTo(new BinaryComparisonOpType());
         propIsLessThanOrEqualTo.getValue().getExpression().add(createPropertyNameType(property));
         propIsLessThanOrEqualTo.getValue().getExpression().add(createLiteralType(literal));
-
+        propIsLessThanOrEqualTo.getValue().setMatchCase(isCaseSensitive);
         return propIsLessThanOrEqualTo;
 
       case PropertyIsLike:
@@ -640,7 +683,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         propIsLike.getValue().setSingleChar(SINGLE_CHAR);
         propIsLike.getValue().setWildCard(WfsConstants.WILD_CARD);
         propIsLike.getValue().setLiteral(createLiteralType(literal).getValue());
-
+        propIsLike.getValue().setMatchCase(isCaseSensitive);
         return propIsLike;
 
       default:
