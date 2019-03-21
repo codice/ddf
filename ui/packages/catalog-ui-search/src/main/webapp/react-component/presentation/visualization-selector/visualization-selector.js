@@ -20,15 +20,14 @@ const CustomElement = styled.div`
   width: 100%;
   display: block;
 `
+
 const Visualization = styled.div`
   cursor: pointer;
-  opacity: ${props => props.theme.minimumOpacity}
-  padding: ${props => props.theme.largeSpacing}
+  opacity: ${props => props.theme.minimumOpacity};
+  padding: ${props => props.theme.largeSpacing};
   :hover {
-    opacity: 1
+    opacity: 1;
   }
-`
-const VisualizationChoice = styled.div`
   white-space: nowrap;
   cursor: move;
   cursor: grab;
