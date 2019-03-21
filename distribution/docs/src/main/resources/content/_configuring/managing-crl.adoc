@@ -155,7 +155,7 @@ The advantage of using an OCSP Server over a CRL is the fact that a local copy o
 
 . Navigate to the ${admin-console}.
 . Navigate to *System -> Configuration -> Online Certificate Status Protocol (OCSP)*
-. Add the *HTTPS* URL of the OCSP server under *OCSP server URL*
+. Add the URL of the OCSP server under *OCSP server URL*
 . Check the *Enable validating a certificate against an OCSP server* option
 
 [NOTE]
