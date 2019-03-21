@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 
 public class OcspChecker implements OcspService {
   private static final Logger LOGGER = LoggerFactory.getLogger(OcspChecker.class);
-  private static final String HTTPS = "https://";
 
   private final ClientFactoryFactory factory;
   private final EventAdmin eventAdmin;
@@ -75,11 +74,6 @@ public class OcspChecker implements OcspService {
   public boolean passesOcspCheck(X509Certificate[] certs) {
     if (!ocspEnabled || ocspServerUrl == null) {
       LOGGER.debug("OCSP check is not enabled. Skipping.");
-      return true;
-    }
-
-    if (!ocspServerUrl.startsWith(HTTPS)) {
-      postErrorEvent(String.format("The provided URL {%s} is not an HTTPS URL.", ocspServerUrl));
       return true;
     }
 

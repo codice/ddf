@@ -182,17 +182,6 @@ public class OcspCheckerTest {
     assertThat(ocspCheckPasses, is(true));
   }
 
-  @Test
-  public void testHttpUrl() {
-    OcspChecker ocspChecker = new OcspChecker(factory, eventAdmin);
-    ocspChecker.setOcspEnabled(true);
-    ocspChecker.setOcspServerUrl("http://testurl:8993");
-
-    boolean ocspCheckPasses = ocspChecker.passesOcspCheck(null);
-    verify(eventAdmin, times(1)).postEvent(any());
-    assertThat(ocspCheckPasses, is(true));
-  }
-
   private X509Certificate getX509Certificate() throws Exception {
     String certificateString =
         "MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ"
