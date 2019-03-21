@@ -47,11 +47,7 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(InputTransformerBootServiceFlag.class);
 
-  private static final String TRANSFORMER_WAIT_TIMEOUT_PROPERTY =
-      "org.codice.ddf.platform.bootflag.transformerWaitTimeoutSeconds";
-
-  private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS =
-      TimeUnit.MINUTES.toSeconds(20);
+  private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(20);
 
   private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(20);
 
@@ -81,7 +77,7 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
     this.inputTransformers = inputTransformers;
     this.executorService = Executors.newSingleThreadExecutor();
     this.transformerCheckPeriodMillis = DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS;
-    this.transformerWaitTimeoutMillis = getTransformerWaitTimeout();
+    this.transformerWaitTimeoutMillis = DEFAULT_TRANSFORMER_WAIT_TIMEOUT_MILLIS;
     executorService.submit(
         () -> waitForInputTransformers(FrameworkUtil.getBundle(this.getClass())));
   }
@@ -159,25 +155,6 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
     }
 
     return false;
-  }
-
-  private static long getTransformerWaitTimeout() {
-    long timeoutSeconds;
-    try {
-      timeoutSeconds = Long.parseLong(System.getProperty(TRANSFORMER_WAIT_TIMEOUT_PROPERTY));
-    } catch (NumberFormatException e) {
-      timeoutSeconds = DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS;
-      LOGGER.debug(
-          "Invalid or no {} property as long. Using default timeout of {} seconds",
-          TRANSFORMER_WAIT_TIMEOUT_PROPERTY,
-          DEFAULT_TRANSFORMER_WAIT_TIMEOUT_SECONDS);
-    }
-    return TimeUnit.SECONDS.toMillis(timeoutSeconds);
-  }
-
-  @VisibleForTesting
-  public long getTransformerWaitTimeoutMillis() {
-    return transformerWaitTimeoutMillis;
   }
 
   public void destroy() {
