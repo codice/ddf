@@ -50,7 +50,6 @@ module.exports = Marionette.ItemView.extend({
   },
   handleModelUpdates: function() {
     this.render()
-    this.onBeforeShow()
     this.checkTags()
   },
   serializeData: function() {
