@@ -17,7 +17,6 @@ const MetacardAdvancedView = require('../../editor/metacard-advanced/metacard-ad
 const MetacardHistoryView = require('../../metacard-history/metacard-history.view.js')
 const MetacardAssociationsView = require('../../metacard-associations/metacard-associations.view.js')
 const MetacardQualityView = require('../../metacard-quality/metacard-quality.view.js')
-const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
 const MetacardPreviewView = require('../../metacard-preview/metacard-preview.view.js')
 import React from 'react'
 import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
