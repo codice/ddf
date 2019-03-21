@@ -47,7 +47,7 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(InputTransformerBootServiceFlag.class);
 
-  private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(20);
+  private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(5);
 
   private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(20);
 
