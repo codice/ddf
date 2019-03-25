@@ -73,6 +73,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -102,9 +103,9 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ValidationParser implements ArtifactInstaller {
+public class DefinitionParser implements ArtifactInstaller {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefinitionParser.class);
 
   private static final String METACARD_VALIDATORS_PROPERTY = "metacardvalidators";
 
@@ -162,7 +163,7 @@ public class ValidationParser implements ArtifactInstaller {
           new ValidationAttributes(),
           new VersionAttributes());
 
-  public ValidationParser(
+  public DefinitionParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
@@ -176,7 +177,7 @@ public class ValidationParser implements ArtifactInstaller {
   }
 
   @VisibleForTesting
-  ValidationParser(
+  DefinitionParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
@@ -306,8 +307,9 @@ public class ValidationParser implements ArtifactInstaller {
       Set<String> requiredAttributes = new HashSet<>();
 
       Set<AttributeDescriptor> extendedAttributes =
-          metacardType
-              .extendsTypes
+          Optional.of(metacardType)
+              .map(omt -> omt.extendsTypes)
+              .orElse(Collections.emptyList())
               .stream()
               .flatMap(getStringStreamFunction(stagedTypes))
               .collect(Collectors.toSet());

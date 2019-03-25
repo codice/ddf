@@ -26,12 +26,12 @@ import java.time.ZoneOffset
 
 import static org.mockito.Matchers.isNull
 
-class ValidationParserSpec extends Specification {
+class DefinitionParserSpec extends Specification {
 
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
-    ValidationParser validationParser
+    DefinitionParser validationParser
 
     AttributeRegistry attributeRegistry
 
@@ -45,16 +45,24 @@ class ValidationParserSpec extends Specification {
 
     BundleContext mockBundleContext = Mock(BundleContext)
 
+    List<MetacardType> alreadyRegisteredTypes = [
+            new MetacardTypeImpl("testMetacard", [new CoreAttributes()]),
+            new MetacardTypeImpl("already-registered-type", [new CoreAttributes()])]
+
     void setup() {
         attributeRegistry = new AttributeRegistryImpl()
 
         attributeValidatorRegistry = new AttributeValidatorRegistryImpl()
 
-        attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
+        attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", [new CoreAttributes()]))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
-        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
-                defaultAttributeValueRegistry, { clazz -> mockBundle })
+        validationParser = new DefinitionParser(
+                attributeRegistry,
+                attributeValidatorRegistry,
+                defaultAttributeValueRegistry,
+                alreadyRegisteredTypes,
+                { clazz -> mockBundle })
 
         mockBundle.getBundleContext() >> mockBundleContext
 
@@ -380,6 +388,39 @@ class ValidationParserSpec extends Specification {
         }, { it.get("name") == type2Name })
     }
 
+  def "test metacard extensions with pre-existing types and ones declared in same file"() {
+    setup:
+    file.withPrintWriter { it.write(extendsTypes) }
+    def type1name = "type1"
+    def type2name = "type2"
+
+    def coreAttributes = new CoreAttributes().attributeDescriptors.collect({ ad -> ad.name })
+    def type1Attributes = ["attribute1", "attribute2"]
+    def type2Attributes = ["attribute3"]
+
+    when:
+    validationParser.install(file)
+
+    then: "type 1 contains the two defined attributes plus core attributes which are a part of 'already-registered-type'"
+    1 * mockBundleContext.registerService(
+        MetacardType.class,
+        { MetacardType it ->
+          it.attributeDescriptors.collect({ ad -> ad.name }).
+              containsAll(coreAttributes.plus(type1Attributes))
+        },
+        { it.name == type1name })
+
+    then: "type 2 contains all of type1 attributes + attribute3"
+    1 * mockBundleContext.registerService(
+        MetacardType.class,
+        { MetacardType it ->
+          it.attributeDescriptors
+              .collect({ ad -> ad.name })
+              .containsAll(coreAttributes.plus(type1Attributes).plus(type2Attributes))
+        },
+        { it.name == type2name })
+  }
+
     def "test metacard validators"() {
         setup:
         file.withPrintWriter { it.write(metacardValidator) }
@@ -696,6 +737,57 @@ class ValidationParserSpec extends Specification {
                 "arguments": [null, "mustHave", "description", null]
             }
         ]
+    }
+}
+'''
+
+    String extendsTypes = '''
+{
+    "metacardTypes": [
+        {
+            "type": "type1",
+            "extendsTypes": ["already-registered-type"],
+            "attributes": {
+                "attribute1": {
+                    "required": true
+                },
+                "attribute2": {
+                    "required": false
+                }
+            }
+        },
+        {
+            "type": "type2",
+            "extendsTypes": ["type1"],
+            "attributes": {
+                "attribute3": {
+                    "required": false
+                }
+            }
+        }
+    ],
+    "attributeTypes": {
+        "attribute1": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "attribute2": {
+            "type": "XML_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        },
+        "attribute3": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
     }
 }
 '''
