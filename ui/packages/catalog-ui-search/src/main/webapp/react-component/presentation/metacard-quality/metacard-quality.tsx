@@ -23,6 +23,7 @@ type Props = {
 
 const Header = styled.h4`
   text-align: left;
+  padding: ${props => props.theme.minimumSpacing};
 `
 
 const Root = styled.div`
