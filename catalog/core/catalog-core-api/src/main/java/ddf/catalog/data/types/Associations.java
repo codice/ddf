@@ -25,14 +25,14 @@ public interface Associations {
    * Metacard}. <br>
    * Uses original taxonomy to preserve backwards compatibility.
    */
-  String RELATED = Metacard.RELATED;
+  String RELATED = "metacard.associations.related";
 
   /**
    * {@link ddf.catalog.data.Attribute} name for accessing the derived associations of the {@link
    * Metacard}. <br>
    * Uses original taxonomy to preserve backwards compatibility.
    */
-  String DERIVED = Metacard.DERIVED;
+  String DERIVED = "metacard.associations.derived";
 
   /**
    * {@link ddf.catalog.data.Attribute} name for accessing the external associations of the {@link

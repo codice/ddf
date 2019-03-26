@@ -60,7 +60,7 @@ public interface Metacard extends Serializable {
   /**
    * Attribute name for the ID of the source where the {@link Metacard} is cataloged.
    *
-   * @deprecated
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.SOURCE_ID}
    */
   String SOURCE_ID = "source-id";
 
@@ -84,70 +84,113 @@ public interface Metacard extends Serializable {
   /**
    * {@link Attribute} name for accessing the ID of the {@link Metacard}. <br>
    * Every {@link ddf.catalog.source.Source} is required to return this attribute.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.ID}.
    */
   String ID = "id";
 
-  /** {@link Attribute} name for accessing the tags of the {@link Metacard}. <br> */
+  /**
+   * {@link Attribute} name for accessing the tags of the {@link Metacard}.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.METACARD_TAGS}.
+   */
   String TAGS = "metacard-tags";
 
-  /** {@link Attribute} name for accessing the title of the {@link Metacard}. <br> */
+  /**
+   * {@link Attribute} name for accessing the title of the {@link Metacard}.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.TITLE}.
+   */
   String TITLE = "title";
 
-  /** {@link Attribute} name for accessing the XML metadata for this {@link Metacard}. <br> */
+  /**
+   * {@link Attribute} name for accessing the XML metadata for this {@link Metacard}.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.METADATA}.
+   */
   String METADATA = "metadata";
 
-  /** {@link Attribute} name for accessing the location for this {@link Metacard}. <br> */
+  /**
+   * {@link Attribute} name for accessing the location for this {@link Metacard}.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.LOCATION}.
+   */
   String GEOGRAPHY = "location";
 
-  /** {@link Attribute} name for accessing the date/time this {@link Metacard} was created. <br> */
+  /**
+   * {@link Attribute} name for accessing the date/time this {@link Metacard} was created.
+   *
+   * @deprecated - This concept has changed. "created" now refers to the resource created date
+   *     instead of the metacard created date. This can be referenced with {@link
+   *     ddf.catalog.data.types.Core.CREATED}. The metacard created date can now be referenced with
+   *     {@link ddf.catalog.data.types.Core.METACARD_CREATED}.
+   */
   String CREATED = "created";
 
   /**
    * {@link Attribute} name for accessing the date/time this {@link Metacard} was last modified.
-   * <br>
+   *
+   * @deprecated - This concept has changed. "modified" now refers to the resource modified date
+   *     instead of the metacard modified date. This can be referenced with {@link
+   *     ddf.catalog.data.types.Core.MODIFIED}. The metacard modified date can now be referenced
+   *     with {@link ddf.catalog.data.types.Core.METACARD_MODIFIED}.
    */
   String MODIFIED = "modified";
 
   /**
    * {@link Attribute} name for accessing the date/time the {@link Metacard} is no longer valid and
-   * could be removed. <br>
+   * could be removed.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.EXPIRATION}
    */
   String EXPIRATION = "expiration";
 
   /**
    * {@link Attribute} name for accessing the date/time the {@link Metacard} was last known to be
-   * up-to-date. <br>
+   * up-to-date.
+   *
+   * @deprecated - excluded from catalog taxonomy
    */
   String EFFECTIVE = "effective";
 
   /**
    * {@link Attribute} name for accessing the point of contact to the product this {@link Metacard}
-   * represents. <br>
+   * represents.
+   *
+   * @deprecated - excluded from catalog taxonomy
    */
   String POINT_OF_CONTACT = "point-of-contact";
 
   /**
    * {@link Attribute} name for accessing the {@link URI} reference to the product this {@link
-   * Metacard} represents. <br>
+   * Metacard} represents.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_URI}
    */
   String RESOURCE_URI = "resource-uri";
 
   /**
    * {@link Attribute} name for accessing the resource download URL for the product this {@link
-   * Metacard} represents. <br>
+   * Metacard} represents.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_DOWNLOAD_URL}
    */
   String RESOURCE_DOWNLOAD_URL = "resource-download-url";
 
   /**
    * {@link Attribute} name for accessing the size (in bytes) of the product this {@link Metacard}
-   * represents. <br>
+   * represents.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_SIZE}
    */
   String RESOURCE_SIZE = "resource-size";
 
   /**
    * {@link Attribute} name for accessing the thumbnail image of the product this {@link Metacard}
    * represents. The thumbnail must be of MIME Type <code>image/jpeg</code> and 128 kilobytes or
-   * less. <br>
+   * less.
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.THUMBNAIL}
    */
   String THUMBNAIL = "thumbnail";
 
@@ -172,6 +215,7 @@ public interface Metacard extends Serializable {
    * {@link Metacard} represents.
    *
    * @since DDF-2.2.0.RC1
+   * @deprecated - excluded from catalog taxonomy
    */
   String SECURITY = "security";
 
@@ -179,6 +223,7 @@ public interface Metacard extends Serializable {
    * {@link Attribute} description associated with the {@link Metacard}
    *
    * @since DDF-2.8.0
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DESCRIPTION}
    */
   String DESCRIPTION = "description";
 
@@ -190,6 +235,7 @@ public interface Metacard extends Serializable {
    * for local resources
    *
    * @since DDF-2.9.0
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM_ALGORITHM}
    */
   String CHECKSUM_ALGORITHM = "checksum-algorithm";
 
@@ -197,6 +243,7 @@ public interface Metacard extends Serializable {
    * {@link Attribute} name for related {@link Metacard} ids.
    *
    * @since DDF-2.9.0
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.RELATED}
    */
   public static final String RELATED = "metacard.associations.related";
 
@@ -204,6 +251,7 @@ public interface Metacard extends Serializable {
    * {@link Attribute} name for derived {@link Metacard} ids.
    *
    * @since DDF-2.9.0
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.DERIVED}
    */
   public static final String DERIVED = "metacard.associations.derived";
 
@@ -211,18 +259,24 @@ public interface Metacard extends Serializable {
    * {@link Attribute} checksum value for the {@link Metacard#RESOURCE_URI}
    *
    * @since DDF-2.9.0
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM}
    */
   String CHECKSUM = "checksum";
 
   /**
    * {@link Attribute} that provides URIs for derived formats of the {@literal
    * Metacard.RESOURCE_URI}
+   *
+   * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DERIVED_RESOURCE_URI}
    */
   String DERIVED_RESOURCE_URI = "resource.derived-uri";
 
   /**
    * {@link Attribute} name for accessing the derived resource download URL for the derived products
    * of this {@link Metacard}. <br>
+   *
+   * @deprecated - instead reference {@link
+   *     ddf.catalog.data.types.Core.DERIVED_RESOURCE_DOWNLOAD_URL}
    */
   String DERIVED_RESOURCE_DOWNLOAD_URL = "resource.derived-download-url";
 
@@ -302,6 +356,8 @@ public interface Metacard extends Serializable {
    *
    * @return {@link Date} - when this {@link Metacard} was created.
    * @see Metacard#CREATED
+   * @deprecated - Do not use. Concept of created date has changed. Instead access dates using
+   *     catalog taxonomy fields.
    */
   Date getCreatedDate();
 
@@ -313,6 +369,8 @@ public interface Metacard extends Serializable {
    *
    * @return {@link Date} - when this {@link Metacard} was last modified.
    * @see Metacard#MODIFIED
+   * @deprecated - Do not use. Concept of modified date has changed. Instead access dates using
+   *     catalog taxonomy fields.
    */
   Date getModifiedDate();
 

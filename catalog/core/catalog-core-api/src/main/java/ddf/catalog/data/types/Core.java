@@ -86,13 +86,13 @@ public interface Core {
    * derived products of this {@link ddf.catalog.data.Metacard}. <br>
    * Uses original taxonomy to preserve backwards compatibility.
    */
-  String DERIVED_RESOURCE_DOWNLOAD_URL = Metacard.DERIVED_RESOURCE_DOWNLOAD_URL;
+  String DERIVED_RESOURCE_DOWNLOAD_URL = "resource.derived-download-url";
 
   /**
    * {@link ddf.catalog.data.Attribute} that provides URIs for derived formats of the {@literal
    * ddf.catalog.data.Metacard.RESOURCE_URI}
    */
-  String DERIVED_RESOURCE_URI = Metacard.DERIVED_RESOURCE_URI;
+  String DERIVED_RESOURCE_URI = "resource.derived-uri";
 
   /**
    * {@link ddf.catalog.data.Attribute} name for accessing the resource download URL for the product
@@ -159,5 +159,5 @@ public interface Core {
    * {@link ddf.catalog.data.Attribute} name for accessing the tags of the {@link Metacard}. <br>
    * Uses original taxonomy to preserve backwards compatibility.
    */
-  String METACARD_TAGS = Metacard.TAGS;
+  String METACARD_TAGS = "metacard-tags";
 }
