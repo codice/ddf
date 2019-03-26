@@ -62,8 +62,8 @@ class MetacardHistory extends React.Component<Props, State> {
       const history = await res.json()
       history.sort((historyItem1: any, historyItem2: any) => {
         return (
-          moment.unix(historyItem2.versioned) -
-          moment.unix(historyItem1.versioned)
+          moment.unix(historyItem2.versioned.seconds) -
+          moment.unix(historyItem1.versioned.seconds)
         )
       })
       history.forEach((historyItem: any, index: any) => {
