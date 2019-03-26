@@ -34,6 +34,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.source.solr.json.MetacardTypeMapperFactory;
 import java.io.ByteArrayInputStream;
@@ -185,13 +186,13 @@ public class DynamicSchemaResolver {
     this.tinyBinaryFunction = this::newTinyBinary;
     this.schemaFields = new SchemaFields();
     metadataMaximumBytes = getMetadataSizeLimit();
-    fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
-    fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
+    fieldsCache.add(Core.ID + SchemaFields.TEXT_SUFFIX);
+    fieldsCache.add(Core.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
     fieldsCache.add(
-        Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
-    fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
+        Core.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
+    fieldsCache.add(Core.METACARD_TAGS + SchemaFields.TEXT_SUFFIX);
 
-    anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
+    anyTextFieldsCache.add(Core.METADATA + SchemaFields.TEXT_SUFFIX);
     Set<String> basicTextAttributes =
         MetacardImpl.BASIC_METACARD
             .getAttributeDescriptors()
@@ -606,7 +607,7 @@ public class DynamicSchemaResolver {
       String propertyName, AttributeFormat format, boolean isSearchedAsExactValue) {
 
     if (Metacard.ANY_GEO.equals(propertyName)) {
-      return Metacard.GEOGRAPHY + "_geo_index";
+      return Core.LOCATION + "_geo_index";
     }
 
     final String fieldSuffix = getFieldSuffix(format);

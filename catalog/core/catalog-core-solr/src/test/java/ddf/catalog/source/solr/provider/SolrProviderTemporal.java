@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -83,7 +84,7 @@ public class SolrProviderTemporal {
     QueryImpl query =
         new QueryImpl(
             getFilterBuilder()
-                .attribute(Metacard.MODIFIED)
+                .attribute(Core.MODIFIED)
                 .is()
                 .during()
                 .dates(startDT.toDate(), endDT.toDate()));
@@ -101,7 +102,7 @@ public class SolrProviderTemporal {
 
     Filter filter =
         filterFactory.during(
-            filterFactory.property(Metacard.MODIFIED), filterFactory.literal(duration));
+            filterFactory.property(Core.MODIFIED), filterFactory.literal(duration));
 
     query = new QueryImpl(filter);
 
@@ -133,13 +134,12 @@ public class SolrProviderTemporal {
     addMetacardWithModifiedDate(now, provider);
 
     // POSITIVE CASE
-    Filter filter =
-        getFilterBuilder().attribute(Metacard.MODIFIED).before().date(dateAfterNow(now));
+    Filter filter = getFilterBuilder().attribute(Core.MODIFIED).before().date(dateAfterNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
     // NEGATIVE CASE
-    filter = getFilterBuilder().attribute(Metacard.MODIFIED).before().date(dateBeforeNow(now));
+    filter = getFilterBuilder().attribute(Core.MODIFIED).before().date(dateBeforeNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }
@@ -153,13 +153,12 @@ public class SolrProviderTemporal {
     addMetacardWithModifiedDate(now, provider);
 
     // POSITIVE CASE
-    Filter filter =
-        getFilterBuilder().attribute(Metacard.MODIFIED).after().date(dateBeforeNow(now));
+    Filter filter = getFilterBuilder().attribute(Core.MODIFIED).after().date(dateBeforeNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
     // NEGATIVE CASE
-    filter = getFilterBuilder().attribute(Metacard.MODIFIED).after().date(dateAfterNow(now));
+    filter = getFilterBuilder().attribute(Core.MODIFIED).after().date(dateAfterNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }
@@ -173,12 +172,12 @@ public class SolrProviderTemporal {
     addMetacardWithModifiedDate(now, provider);
 
     // POSITIVE CASE
-    Filter filter = getFilterBuilder().dateGreaterThan(Metacard.MODIFIED, dateBeforeNow(now));
+    Filter filter = getFilterBuilder().dateGreaterThan(Core.MODIFIED, dateBeforeNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
     // NEGATIVE CASE
-    filter = getFilterBuilder().dateGreaterThan(Metacard.MODIFIED, dateAfterNow(now));
+    filter = getFilterBuilder().dateGreaterThan(Core.MODIFIED, dateAfterNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }
@@ -192,13 +191,12 @@ public class SolrProviderTemporal {
     addMetacardWithModifiedDate(now, provider);
 
     // POSITIVE CASE
-    Filter filter =
-        getFilterBuilder().dateGreaterThanOrEqual(Metacard.MODIFIED, dateBeforeNow(now));
+    Filter filter = getFilterBuilder().dateGreaterThanOrEqual(Core.MODIFIED, dateBeforeNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
     // NEGATIVE CASE
-    filter = getFilterBuilder().dateGreaterThanOrEqual(Metacard.MODIFIED, dateAfterNow(now));
+    filter = getFilterBuilder().dateGreaterThanOrEqual(Core.MODIFIED, dateAfterNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }
@@ -212,12 +210,12 @@ public class SolrProviderTemporal {
     addMetacardWithModifiedDate(now, provider);
 
     // POSITIVE CASE
-    Filter filter = getFilterBuilder().dateLessThan(Metacard.MODIFIED, dateAfterNow(now));
+    Filter filter = getFilterBuilder().dateLessThan(Core.MODIFIED, dateAfterNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
     // NEGATIVE CASE
-    filter = getFilterBuilder().dateLessThan(Metacard.MODIFIED, dateNow(now));
+    filter = getFilterBuilder().dateLessThan(Core.MODIFIED, dateNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }
@@ -231,12 +229,12 @@ public class SolrProviderTemporal {
     addMetacardWithModifiedDate(now, provider);
 
     // POSITIVE CASE
-    Filter filter = getFilterBuilder().dateLessThanOrEqual(Metacard.MODIFIED, dateAfterNow(now));
+    Filter filter = getFilterBuilder().dateLessThanOrEqual(Core.MODIFIED, dateAfterNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
     // NEGATIVE CASE
-    filter = getFilterBuilder().dateLessThanOrEqual(Metacard.MODIFIED, dateBeforeNow(now));
+    filter = getFilterBuilder().dateLessThanOrEqual(Core.MODIFIED, dateBeforeNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }
@@ -251,7 +249,7 @@ public class SolrProviderTemporal {
 
     // POSITIVE CASE
     Filter filter =
-        getFilterBuilder().dateIsDuring(Metacard.MODIFIED, dateBeforeNow(now), dateAfterNow(now));
+        getFilterBuilder().dateIsDuring(Core.MODIFIED, dateBeforeNow(now), dateAfterNow(now));
     List<Result> results = getResultsForFilteredQuery(filter, provider);
     assertEquals(1, results.size());
 
@@ -259,14 +257,14 @@ public class SolrProviderTemporal {
     filter =
         getFilterBuilder()
             .dateIsDuring(
-                Metacard.MODIFIED, getCannedTime(1980, Calendar.JANUARY, 1, 3), dateBeforeNow(now));
+                Core.MODIFIED, getCannedTime(1980, Calendar.JANUARY, 1, 3), dateBeforeNow(now));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
 
     filter =
         getFilterBuilder()
             .dateIsDuring(
-                Metacard.MODIFIED, dateAfterNow(now), getCannedTime(2035, Calendar.JULY, 23, 46));
+                Core.MODIFIED, dateAfterNow(now), getCannedTime(2035, Calendar.JULY, 23, 46));
     results = getResultsForFilteredQuery(filter, provider);
     assertEquals(0, results.size());
   }

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import org.junit.Test;
@@ -52,8 +53,7 @@ public class KmlStyleMapTest {
     Metacard metacard = new MockMetacard();
     KmlStyleMap mapper = new KmlStyleMap();
     mapper.addMapEntry(
-        new KmlStyleMapEntryImpl(
-            Metacard.METADATA, MockMetacard.DEFAULT_METADATA, DEFAULT_STYLE_URL));
+        new KmlStyleMapEntryImpl(Core.METADATA, MockMetacard.DEFAULT_METADATA, DEFAULT_STYLE_URL));
     assertThat(mapper.getStyleForMetacard(metacard), is(DEFAULT_STYLE_URL));
   }
 
@@ -62,8 +62,7 @@ public class KmlStyleMapTest {
     Metacard metacard = new MockMetacard();
     KmlStyleMap mapper = new KmlStyleMap();
     mapper.addMapEntry(
-        new KmlStyleMapEntryImpl(
-            Metacard.GEOGRAPHY, MockMetacard.DEFAULT_LOCATION, DEFAULT_STYLE_URL));
+        new KmlStyleMapEntryImpl(Core.LOCATION, MockMetacard.DEFAULT_LOCATION, DEFAULT_STYLE_URL));
     assertThat(mapper.getStyleForMetacard(metacard), is(DEFAULT_STYLE_URL));
   }
 
@@ -168,7 +167,7 @@ public class KmlStyleMapTest {
     KmlStyleMap mapper = new KmlStyleMap();
     mapper.addMapEntry(
         new KmlStyleMapEntryImpl(
-            Metacard.SOURCE_ID, MockMetacard.DEFAULT_SOURCE_ID, DEFAULT_STYLE_URL));
+            Core.SOURCE_ID, MockMetacard.DEFAULT_SOURCE_ID, DEFAULT_STYLE_URL));
     assertThat(mapper.getStyleForMetacard(metacard), is(DEFAULT_STYLE_URL));
   }
 }

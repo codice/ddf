@@ -209,7 +209,7 @@ public class PdfInputTransformer implements InputTransformer {
     metacard.setAttribute(Media.TYPE, MediaType.PDF.toString());
     metacard.setAttribute(Core.DATATYPE, DataType.TEXT.toString());
 
-    setIfNotBlank(metadataXml, (MetacardImpl) metacard, Metacard.METADATA);
+    setIfNotBlank(metadataXml, (MetacardImpl) metacard, Core.METADATA);
     setIfNotBlank(bodyText, (MetacardImpl) metacard, Extracted.EXTRACTED_TEXT);
     return metacard;
   }
@@ -263,17 +263,17 @@ public class PdfInputTransformer implements InputTransformer {
 
     PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
 
-    setDateIfNotNull(documentInformation.getCreationDate(), metacard, Metacard.CREATED);
+    setDateIfNotNull(documentInformation.getCreationDate(), metacard, Core.CREATED);
 
-    setDateIfNotNull(documentInformation.getModificationDate(), metacard, Metacard.MODIFIED);
+    setDateIfNotNull(documentInformation.getModificationDate(), metacard, Core.MODIFIED);
 
     if (usePdfTitleAsTitle) {
-      setIfNotBlank(documentInformation.getTitle(), metacard, Metacard.TITLE);
+      setIfNotBlank(documentInformation.getTitle(), metacard, Core.TITLE);
     }
 
     setIfNotBlank(documentInformation.getAuthor(), metacard, Contact.CREATOR_NAME);
 
-    setIfNotBlank(documentInformation.getSubject(), metacard, Metacard.DESCRIPTION);
+    setIfNotBlank(documentInformation.getSubject(), metacard, Core.DESCRIPTION);
 
     setIfNotBlank(documentInformation.getKeywords(), metacard, Topic.KEYWORD);
   }

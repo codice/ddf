@@ -18,6 +18,7 @@ import com.google.common.io.CharStreams;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
@@ -68,13 +69,13 @@ public class KmlInputTransformer implements InputTransformer {
       if (metacard == null) {
         throw new CatalogTransformerException("Unable to transform Kml to Metacard.");
       } else if (StringUtils.isNotEmpty(id)) {
-        metacard.setAttribute(Metacard.ID, id);
+        metacard.setAttribute(Core.ID, id);
       }
 
       try (Reader reader =
           fileBackedOutputStream.asByteSource().asCharSource(Charsets.UTF_8).openStream()) {
         String kmlString = CharStreams.toString(reader);
-        metacard.setAttribute(Metacard.METADATA, kmlString);
+        metacard.setAttribute(Core.METADATA, kmlString);
       }
 
     } catch (IOException e) {

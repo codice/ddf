@@ -18,6 +18,7 @@ import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -191,7 +192,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             .collect(Collectors.toList());
     Filter tagFilter =
         filterBuilder
-            .attribute(Metacard.TAGS)
+            .attribute(Core.METACARD_TAGS)
             .is()
             .equalTo()
             .text(RegistryConstants.REGISTRY_TAG_INTERNAL);
@@ -384,7 +385,11 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
   boolean registryInfoQuery() throws UnsupportedQueryException {
     List<Filter> filters = new ArrayList<>();
     filters.add(
-        filterBuilder.attribute(Metacard.TAGS).is().equalTo().text(RegistryConstants.REGISTRY_TAG));
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .equalTo()
+            .text(RegistryConstants.REGISTRY_TAG));
     filters.add(
         filterBuilder.not(
             filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE).empty()));

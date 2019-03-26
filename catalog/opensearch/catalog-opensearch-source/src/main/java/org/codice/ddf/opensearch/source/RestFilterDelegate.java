@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class RestFilterDelegate extends SimpleFilterDelegate<RestUrl> {
 
   @Override
   public RestUrl propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
-    if (Metacard.ID.equals(propertyName)) {
+    if (Core.ID.equals(propertyName)) {
       restUrl.setId(literal);
       return restUrl;
     }

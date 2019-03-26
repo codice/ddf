@@ -67,7 +67,7 @@ public class CatalogMetricsTest {
   private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
   private static Filter idFilter =
-      filterBuilder.attribute(Metacard.ID).is().equalTo().text("metacardId");
+      filterBuilder.attribute(Core.ID).is().equalTo().text("metacardId");
 
   private CatalogMetrics underTest;
 

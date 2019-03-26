@@ -23,8 +23,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.action.Action;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.source.Source;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -128,7 +128,7 @@ public class RegistryReportActionProviderTest {
   public void testMetacardIdUrlEncodedAmpersand() {
     ArrayList<String> tags = new ArrayList<>();
     tags.add(RegistryConstants.REGISTRY_TAG);
-    metacard.setAttribute(Metacard.TAGS, tags);
+    metacard.setAttribute(Core.METACARD_TAGS, tags);
     metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "abd&ef");
 
     configureActionProvider();

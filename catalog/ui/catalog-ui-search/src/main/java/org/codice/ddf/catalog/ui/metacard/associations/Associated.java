@@ -24,6 +24,8 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -55,7 +57,7 @@ import org.opengis.filter.sort.SortBy;
 public class Associated {
 
   private static final Set<String> ASSOCIATION_TYPES =
-      ImmutableSet.of(Metacard.DERIVED, Metacard.RELATED);
+      ImmutableSet.of(Associations.DERIVED, Associations.RELATED);
 
   private final EndpointUtil util;
 
@@ -104,7 +106,7 @@ public class Associated {
         Stream.concat(oldEdges.stream(), edges.stream())
             .flatMap(e -> Stream.of(e.child, e.parent))
             .filter(Objects::nonNull)
-            .map(m -> m.get(Metacard.ID))
+            .map(m -> m.get(Core.ID))
             .filter(Objects::nonNull)
             .map(Object::toString)
             .distinct()
@@ -144,7 +146,7 @@ public class Associated {
       Edge edge,
       Map<String, Metacard> metacards,
       /*Mutable*/ Map<String, Metacard> changedMetacards) {
-    String id = edge.parent.get(Metacard.ID).toString();
+    String id = edge.parent.get(Core.ID).toString();
     Metacard target = changedMetacards.getOrDefault(id, metacards.get(id));
     ArrayList<String> values =
         Optional.of(target)
@@ -152,14 +154,14 @@ public class Associated {
             .map(Attribute::getValues)
             .map(util::getStringList)
             .orElseGet(ArrayList::new);
-    values.remove(edge.child.get(Metacard.ID).toString());
+    values.remove(edge.child.get(Core.ID).toString());
     target.setAttribute(new AttributeImpl(edge.relation, values));
     changedMetacards.put(id, target);
   }
 
   private void addEdge(
       Edge edge, Map<String, Metacard> metacards, Map<String, Metacard> changedMetacards) {
-    String id = edge.parent.get(Metacard.ID).toString();
+    String id = edge.parent.get(Core.ID).toString();
     Metacard target = changedMetacards.getOrDefault(id, metacards.get(id));
     ArrayList<String> values =
         Optional.of(target)
@@ -167,7 +169,7 @@ public class Associated {
             .map(Attribute::getValues)
             .map(util::getStringList)
             .orElseGet(ArrayList::new);
-    values.add(edge.child.get(Metacard.ID).toString());
+    values.add(edge.child.get(Core.ID).toString());
     target.setAttribute(new AttributeImpl(edge.relation, values));
     changedMetacards.put(id, target);
   }
@@ -199,9 +201,11 @@ public class Associated {
   }
 
   private Filter forRootAndParents(String rootId) {
-    Filter root = util.getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(rootId);
-    Filter related = util.getFilterBuilder().attribute(Metacard.RELATED).is().like().text(rootId);
-    Filter derived = util.getFilterBuilder().attribute(Metacard.DERIVED).is().like().text(rootId);
+    Filter root = util.getFilterBuilder().attribute(Core.ID).is().equalTo().text(rootId);
+    Filter related =
+        util.getFilterBuilder().attribute(Associations.RELATED).is().like().text(rootId);
+    Filter derived =
+        util.getFilterBuilder().attribute(Associations.DERIVED).is().like().text(rootId);
     Filter parents = util.getFilterBuilder().anyOf(related, derived);
 
     return util.getFilterBuilder().anyOf(root, parents);
@@ -220,12 +224,12 @@ public class Associated {
             util.getFilterBuilder()
                 .anyOf(
                     util.getFilterBuilder()
-                        .attribute(Metacard.TAGS)
+                        .attribute(Core.METACARD_TAGS)
                         .is()
                         .like()
                         .text(DeletedMetacard.DELETED_TAG),
                     util.getFilterBuilder()
-                        .attribute(Metacard.TAGS)
+                        .attribute(Core.METACARD_TAGS)
                         .is()
                         .like()
                         .text(MetacardVersion.VERSION_TAG)));
@@ -251,7 +255,7 @@ public class Associated {
         .anyOf(
             childIds
                 .stream()
-                .map(id -> util.getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id))
+                .map(id -> util.getFilterBuilder().attribute(Core.ID).is().equalTo().text(id))
                 .collect(Collectors.toList()));
   }
 
@@ -310,8 +314,8 @@ public class Associated {
 
     public int hashCode() {
       return new HashCodeBuilder()
-          .append(parent.get(Metacard.ID).toString())
-          .append(child.get(Metacard.ID).toString())
+          .append(parent.get(Core.ID).toString())
+          .append(child.get(Core.ID).toString())
           .append(relation)
           .build();
     }
@@ -328,8 +332,8 @@ public class Associated {
       }
       Edge rhs = (Edge) o;
       return new EqualsBuilder()
-          .append(parent.get(Metacard.ID).toString(), rhs.parent.get(Metacard.ID).toString())
-          .append(child.get(Metacard.ID).toString(), rhs.child.get(Metacard.ID).toString())
+          .append(parent.get(Core.ID).toString(), rhs.parent.get(Core.ID).toString())
+          .append(child.get(Core.ID).toString(), rhs.child.get(Core.ID).toString())
           .append(relation, rhs.relation)
           .build();
     }

@@ -15,6 +15,7 @@ package org.codice.ddf.registry.federationadmin.service.impl;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +77,7 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
 
     // need to reset the id since the framework reset it in the groomer plugin
     // and we don't want to update with the wrong id
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
+    metacard.setAttribute(new AttributeImpl(Core.ID, metacardId));
 
     locations.add(destinationRegistryId);
     locations.remove(NO_PUBLICATIONS);

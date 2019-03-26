@@ -30,6 +30,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -506,7 +507,7 @@ public class AtomTransformerTest {
 
     when(response.getHits()).thenReturn(new Long(-1));
 
-    QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA).text("you"));
+    QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Core.METADATA).text("you"));
     query.setPageSize(1);
     query.setStartIndex(2);
     query.setRequestsTotalResultsCount(true);
@@ -552,7 +553,7 @@ public class AtomTransformerTest {
 
     when(response.getHits()).thenReturn(new Long(1));
 
-    QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA).text("you"));
+    QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Core.METADATA).text("you"));
     query.setPageSize(-1);
     query.setStartIndex(2);
     query.setRequestsTotalResultsCount(true);
@@ -1526,7 +1527,7 @@ public class AtomTransformerTest {
 
   private QueryRequest getStubRequest() {
 
-    QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA).text("you"));
+    QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Core.METADATA).text("you"));
     query.setPageSize(25);
     query.setStartIndex(2);
     query.setRequestsTotalResultsCount(true);

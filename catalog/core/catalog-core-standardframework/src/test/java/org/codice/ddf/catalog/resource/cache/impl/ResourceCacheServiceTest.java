@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.QueryRequest;
@@ -290,7 +291,7 @@ public class ResourceCacheServiceTest {
   }
 
   private void setupMockFilterBuilder(String metacardId) {
-    when(mockFilterBuilder.attribute(Metacard.ID).is().equalTo().text(metacardId))
+    when(mockFilterBuilder.attribute(Core.ID).is().equalTo().text(metacardId))
         .thenReturn(mockFilter);
   }
 

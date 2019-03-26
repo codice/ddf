@@ -43,7 +43,7 @@ public interface MetacardVersion extends Metacard {
   ////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Metacard#TAGS} when a
+   * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Core#METACARD_TAGS} when a
    * metacard is a History Metacard.
    */
   String VERSION_TAG = "revision";

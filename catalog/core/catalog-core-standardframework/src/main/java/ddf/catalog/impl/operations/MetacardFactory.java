@@ -16,6 +16,7 @@ package ddf.catalog.impl.operations;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
@@ -92,13 +93,13 @@ public class MetacardFactory {
     }
 
     if (id != null) {
-      generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+      generatedMetacard.setAttribute(new AttributeImpl(Core.ID, id));
     } else {
-      generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, uuidGenerator.generateUuid()));
+      generatedMetacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
     }
 
     if (StringUtils.isBlank(generatedMetacard.getTitle())) {
-      generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, fileName));
+      generatedMetacard.setAttribute(new AttributeImpl(Core.TITLE, fileName));
     }
 
     return generatedMetacard;

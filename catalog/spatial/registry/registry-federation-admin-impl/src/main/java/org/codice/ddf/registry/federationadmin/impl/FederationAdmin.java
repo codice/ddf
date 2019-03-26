@@ -18,6 +18,7 @@ import ddf.action.MultiActionProvider;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.Source;
@@ -280,7 +281,7 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
     Metacard existingMetacard = existingMetacards.get(0);
 
     Metacard updateMetacard = getRegistryMetacardFromRegistryPackage(registryPackage);
-    updateMetacard.setAttribute(new AttributeImpl(Metacard.ID, existingMetacard.getId()));
+    updateMetacard.setAttribute(new AttributeImpl(Core.ID, existingMetacard.getId()));
 
     federationAdminService.updateRegistryEntry(updateMetacard);
   }
@@ -524,8 +525,8 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
     metacardSummary.put(SUMMARY_METACARD_ID, metacard.getId());
     metacardSummary.put(SUMMARY_REGISTRY_ID, RegistryUtility.getRegistryId(metacard));
     metacardSummary.put(SUMMARY_NAME, metacard.getTitle());
-    metacardSummary.put(Metacard.CREATED, metacard.getCreatedDate());
-    metacardSummary.put(Metacard.MODIFIED, metacard.getModifiedDate());
+    metacardSummary.put(Core.CREATED, metacard.getCreatedDate());
+    metacardSummary.put(Core.MODIFIED, metacard.getModifiedDate());
     metacardSummary.put(SUMMARY_IDENTITY_NODE, RegistryUtility.isIdentityNode(metacard));
     metacardSummary.put(SUMMARY_LOCAL_NODE, RegistryUtility.isLocalNode(metacard));
     metacardSummary.put(SUMMARY_REPORT_ACTION, getReportAction(metacard));

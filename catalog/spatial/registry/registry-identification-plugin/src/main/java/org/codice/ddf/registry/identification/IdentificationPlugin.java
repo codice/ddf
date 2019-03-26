@@ -17,6 +17,7 @@ import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.OperationTransaction;
@@ -94,7 +95,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
                     metacard, RegistryObjectMetacardType.REMOTE_METACARD_ID, ""))) {
           throw new StopProcessingException("Can't create duplicate registry entries.");
         }
-        metacard.setAttribute(new AttributeImpl(Metacard.ID, uuidGenerator.generateUuid()));
+        metacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
         updateTags(metacard);
         updateIdentifiers(metacard, true);
       }
@@ -155,7 +156,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
       if (updateMetacard.getMetadata() != null
           && !updateMetacard.getModifiedDate().before(existingMetacard.getModifiedDate())) {
 
-        updateMetacard.setAttribute(new AttributeImpl(Metacard.ID, existingMetacard.getId()));
+        updateMetacard.setAttribute(new AttributeImpl(Core.ID, existingMetacard.getId()));
         copyTransientAttributes(updateMetacard, existingMetacard);
         updateTags(updateMetacard);
         if (isInternal(updateMetacard)) {
@@ -189,7 +190,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
       tags.addAll(metacard.getTags());
       tags.remove(RegistryConstants.REGISTRY_TAG);
       tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
-      metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+      metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
     }
   }
 

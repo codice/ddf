@@ -21,6 +21,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PolicyResponse;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,9 +41,9 @@ public class RegistryPolicyPluginTest {
   public void testBlackListPostQuery() throws Exception {
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     RegistryPolicyPlugin rpp = createRegistryPlugin();
 
@@ -61,9 +62,9 @@ public class RegistryPolicyPluginTest {
   public void testWhiteListPostQuery() throws Exception {
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     RegistryPolicyPlugin rpp = createRegistryPlugin();
     rpp.setWhiteList(true);
@@ -87,9 +88,9 @@ public class RegistryPolicyPluginTest {
     rpp.setDeleteAccessPolicyStrings(Collections.singletonList("role=guest"));
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     PolicyResponse response = rpp.processPreCreate(mcard, null);
     assertThat(response.operationPolicy(), equalTo(rpp.getCreateAccessPolicy()));
@@ -106,9 +107,9 @@ public class RegistryPolicyPluginTest {
     rpp.setReadAccessPolicyStrings(Collections.singletonList("role=guest"));
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     PolicyResponse response = rpp.processPostQuery(new ResultImpl(mcard), null);
     assertThat(response.itemPolicy(), equalTo(rpp.getReadAccessPolicy()));
@@ -121,9 +122,9 @@ public class RegistryPolicyPluginTest {
     rpp.setCreateAccessPolicyStrings(Collections.singletonList("role=guest"));
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     HashMap<String, Serializable> props = new HashMap<>();
     props.put("local-destination", false);
@@ -141,8 +142,8 @@ public class RegistryPolicyPluginTest {
     rpp.setRegistryBypassPolicyStrings(Collections.singletonList("role=system-admin"));
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, "some.type"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "some.type"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     PolicyResponse response = rpp.processPostQuery(new ResultImpl(mcard), null);
     assertThat(response.itemPolicy().isEmpty(), is(true));
@@ -153,7 +154,7 @@ public class RegistryPolicyPluginTest {
     response = rpp.processPreDelete(Collections.singletonList(mcard), null);
     assertThat(response.operationPolicy().isEmpty(), is(true));
     Metacard mcard2 = new MetacardImpl();
-    mcard2.setAttribute(new AttributeImpl(Metacard.ID, "abcdefghijklmnop1234567890"));
+    mcard2.setAttribute(new AttributeImpl(Core.ID, "abcdefghijklmnop1234567890"));
 
     response = rpp.processPostQuery(new ResultImpl(mcard2), null);
     assertThat(response.itemPolicy().isEmpty(), is(true));
@@ -168,9 +169,9 @@ public class RegistryPolicyPluginTest {
     rpp.setRegistryDisabled(true);
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     PolicyResponse response = rpp.processPreCreate(mcard, null);
     assertThat(response.operationPolicy(), equalTo(rpp.getBypassAccessPolicy()));
@@ -183,9 +184,9 @@ public class RegistryPolicyPluginTest {
   @Test
   public void testNoRegistryBypassPermissions() throws Exception {
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     RegistryPolicyPlugin rpp = createRegistryPlugin();
     rpp.setRegistryBypassPolicyStrings(null);
@@ -210,9 +211,9 @@ public class RegistryPolicyPluginTest {
     expectedPolicy.put("Illyana", secondSet);
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
     List<Serializable> securityValues = new ArrayList<>();
     securityValues.add("David=Charles,Haller");
     securityValues.add("Illyana=Nikolaevna, Alexandria, Rasputin");
@@ -230,9 +231,9 @@ public class RegistryPolicyPluginTest {
     RegistryPolicyPlugin rpp = createRegistryPlugin();
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
     List<Serializable> securityValues = new ArrayList<>();
     securityValues.add(" ");
     securityValues.add("");
@@ -262,9 +263,9 @@ public class RegistryPolicyPluginTest {
     assertThat(rpp.getRegistryEntryIds().contains("1234567890abcdefg987654321"), is(true));
 
     Metacard mcard = new MetacardImpl();
-    mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    mcard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
-    mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+    mcard.setAttribute(new AttributeImpl(Core.ID, "1234567890abcdefg987654321"));
 
     assertThat(rpp.processPostDelete(mcard, null).itemPolicy().isEmpty(), is(true));
     assertThat(rpp.processPostDelete(mcard, null).operationPolicy().isEmpty(), is(true));

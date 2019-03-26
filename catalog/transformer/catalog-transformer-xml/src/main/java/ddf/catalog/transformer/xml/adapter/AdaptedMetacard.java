@@ -19,6 +19,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transformer.xml.binding.Base64BinaryElement;
 import ddf.catalog.transformer.xml.binding.BooleanElement;
 import ddf.catalog.transformer.xml.binding.DateTimeElement;
@@ -112,7 +113,7 @@ public class AdaptedMetacard implements Metacard {
 
   /** @param id the id to set */
   protected void setId(String id) {
-    setAttribute(new AttributeImpl(Metacard.ID, id));
+    setAttribute(new AttributeImpl(Core.ID, id));
   }
 
   /*
@@ -175,7 +176,7 @@ public class AdaptedMetacard implements Metacard {
     if (StringUtils.isEmpty(name)) {
       return null;
     }
-    if (Metacard.ID.equals(name)) {
+    if (Core.ID.equals(name)) {
       return this.idAttribute;
     }
     return attributes
@@ -194,7 +195,7 @@ public class AdaptedMetacard implements Metacard {
   @Override
   public final void setAttribute(@Nullable Attribute attribute) {
     if (attribute != null) {
-      if (Metacard.ID.equals(attribute.getName())) {
+      if (Core.ID.equals(attribute.getName())) {
         this.idAttribute = attribute;
       } else {
         Attribute currentAttribute = getAttribute(attribute.getName());

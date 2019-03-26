@@ -17,6 +17,7 @@ import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -155,7 +156,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     }
 
     tags.add(valid);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, new ArrayList<String>(tags)));
 
     metacard.setAttribute(
         new AttributeImpl(

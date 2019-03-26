@@ -29,6 +29,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.FileInputStream;
@@ -64,8 +65,8 @@ public class GenericXmlLibTest {
     } catch (IOException e) {
       fail();
     }
-    assertThat(metacard.getAttribute(Metacard.METADATA).getValue(), notNullValue());
-    assertThat(metacard.getAttribute(Metacard.ID).getValue(), is("test"));
+    assertThat(metacard.getAttribute(Core.METADATA).getValue(), notNullValue());
+    assertThat(metacard.getAttribute(Core.ID).getValue(), is("test"));
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -179,8 +180,8 @@ public class GenericXmlLibTest {
     } catch (IOException e) {
       fail();
     }
-    assertThat(metacard.getAttribute(Metacard.METADATA).getValue(), notNullValue());
-    assertThat(metacard.getAttribute(Metacard.ID).getValue(), is("test"));
+    assertThat(metacard.getAttribute(Core.METADATA).getValue(), notNullValue());
+    assertThat(metacard.getAttribute(Core.ID).getValue(), is("test"));
   }
 
   @Test
@@ -203,17 +204,17 @@ public class GenericXmlLibTest {
     Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
     attributeDescriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.TITLE, false, false, false, false, BasicTypes.STRING_TYPE));
+            Core.TITLE, false, false, false, false, BasicTypes.STRING_TYPE));
     DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors, "Foo");
     assertThat(dynamicMetacardType.getName(), is("Foo.metacard"));
-    assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), notNullValue());
+    assertThat(dynamicMetacardType.getAttributeDescriptor(Core.TITLE), notNullValue());
     assertThat(
         dynamicMetacardType.getAttributeDescriptors().equals(attributeDescriptors), is(true));
   }
 
   private SaxEventHandler getNewHandler() {
-    Attribute attribute = new AttributeImpl(Metacard.TITLE, "foo");
-    Attribute attribute2 = new AttributeImpl(Metacard.TITLE, "bar");
+    Attribute attribute = new AttributeImpl(Core.TITLE, "foo");
+    Attribute attribute2 = new AttributeImpl(Core.TITLE, "bar");
     SaxEventHandler handler = mock(SaxEventHandler.class);
     when(handler.getAttributes()).thenReturn(Arrays.asList(attribute, attribute2));
     return handler;

@@ -20,6 +20,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
@@ -94,7 +95,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         throw new CatalogTransformerException(
             "Unable to transform from CSW RIM Service Record to Metacard.");
       } else if (StringUtils.isNotEmpty(id)) {
-        metacard.setAttribute(Metacard.ID, id);
+        metacard.setAttribute(Core.ID, id);
       }
 
       String xml;
@@ -103,7 +104,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         xml = CharStreams.toString(reader);
       }
 
-      metacard.setAttribute(Metacard.METADATA, xml);
+      metacard.setAttribute(Core.METADATA, xml);
       metacard.setTags(Collections.singleton(RegistryConstants.REGISTRY_TAG));
 
     } catch (IOException e) {

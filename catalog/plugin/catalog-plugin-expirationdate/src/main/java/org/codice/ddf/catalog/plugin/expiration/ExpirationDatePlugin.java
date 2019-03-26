@@ -131,7 +131,7 @@ public class ExpirationDatePlugin implements PreIngestPlugin {
         metacardCreatedDate,
         newExpirationDate);
 
-    Attribute expirationDate = new AttributeImpl(Metacard.EXPIRATION, newExpirationDate);
+    Attribute expirationDate = new AttributeImpl(Core.EXPIRATION, newExpirationDate);
     metacard.setAttribute(expirationDate);
   }
 

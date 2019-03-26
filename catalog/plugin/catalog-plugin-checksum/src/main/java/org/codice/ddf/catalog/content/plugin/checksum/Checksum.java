@@ -20,6 +20,8 @@ import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PluginExecutionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,7 +87,7 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
 
   private void addChecksumAttributes(
       Metacard metacard, final String checksumAlgorithm, final String checksumValue) {
-    metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM_ALGORITHM, checksumAlgorithm));
-    metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, checksumValue));
+    metacard.setAttribute(new AttributeImpl(Core.CHECKSUM_ALGORITHM, checksumAlgorithm));
+    metacard.setAttribute(new AttributeImpl(Associations.DERIVED, checksumValue));
   }
 }

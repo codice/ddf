@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Topic;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -188,7 +188,7 @@ public class ConfluenceFilterDelegateTest {
     Filter filter =
         builder.allOf(
             builder.attribute("anyText").is().like().text("val1"),
-            builder.attribute(Metacard.TAGS).is().like().text("confluence"));
+            builder.attribute(Core.METACARD_TAGS).is().like().text("confluence"));
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     adapter.adapt(filter, delegate);
     assertThat(delegate.isConfluenceQuery(), is(true));
@@ -196,7 +196,7 @@ public class ConfluenceFilterDelegateTest {
     filter =
         builder.allOf(
             builder.attribute("anyText").is().like().text("val1"),
-            builder.attribute(Metacard.TAGS).is().like().text("resource"));
+            builder.attribute(Core.METACARD_TAGS).is().like().text("resource"));
     delegate = new ConfluenceFilterDelegate();
     adapter.adapt(filter, delegate);
     assertThat(delegate.isConfluenceQuery(), is(true));
@@ -214,7 +214,7 @@ public class ConfluenceFilterDelegateTest {
     filter =
         builder.allOf(
             builder.attribute("anyText").is().like().text("*"),
-            builder.attribute(Metacard.TITLE).is().like().text("confluence"));
+            builder.attribute(Core.TITLE).is().like().text("confluence"));
     delegate = new ConfluenceFilterDelegate();
     adapter.adapt(filter, delegate);
     assertThat(delegate.isWildCardQuery(), is(false));
@@ -229,21 +229,21 @@ public class ConfluenceFilterDelegateTest {
 
   @Test
   public void testWildCardNotAllowed() throws Exception {
-    Filter filter = builder.allOf(builder.attribute(Metacard.ID).is().like().text("val*"));
+    Filter filter = builder.allOf(builder.attribute(Core.ID).is().like().text("val*"));
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     assertThat(StringUtils.isEmpty(adapter.adapt(filter, delegate)), is(true));
   }
 
   @Test
   public void testWildCardAllowed() throws Exception {
-    Filter filter = builder.allOf(builder.attribute(Metacard.TITLE).is().equalTo().text("val*"));
+    Filter filter = builder.allOf(builder.attribute(Core.TITLE).is().equalTo().text("val*"));
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     assertThat(adapter.adapt(filter, delegate), is("title = \"val*\""));
   }
 
   @Test
   public void testUnsupportedQuery() throws Exception {
-    Filter filter = builder.allOf(builder.attribute(Metacard.TITLE).is().greaterThan().number(0));
+    Filter filter = builder.allOf(builder.attribute(Core.TITLE).is().greaterThan().number(0));
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     adapter.adapt(filter, delegate);
     assertThat(delegate.isConfluenceQuery(), is(false));
@@ -254,7 +254,7 @@ public class ConfluenceFilterDelegateTest {
     Filter filter =
         builder.allOf(
             builder
-                .attribute(Metacard.MODIFIED)
+                .attribute(Core.MODIFIED)
                 .is()
                 .after()
                 .date(new SimpleDateFormat(DATE_FORMAT).parse("2015-12-31 17:00")));
@@ -266,7 +266,7 @@ public class ConfluenceFilterDelegateTest {
   public void testAndWithBlankOperand() throws Exception {
     Filter filter =
         builder.allOf(
-            builder.attribute(Metacard.TITLE).is().like().text("titleWithNoSpaces"),
+            builder.attribute(Core.TITLE).is().like().text("titleWithNoSpaces"),
             builder.attribute(Topic.KEYWORD).is().like().text("  "));
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     assertThat(
@@ -279,7 +279,7 @@ public class ConfluenceFilterDelegateTest {
   public void testOrWithBlankOperand() throws Exception {
     Filter filter =
         builder.anyOf(
-            builder.attribute(Metacard.TITLE).is().like().text("with blanks"),
+            builder.attribute(Core.TITLE).is().like().text("with blanks"),
             builder.attribute(Topic.KEYWORD).is().like().text("  "));
     ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
     assertThat(

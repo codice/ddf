@@ -17,6 +17,7 @@ import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.LiteralImpl;
@@ -569,7 +570,7 @@ public class ResourceOperations extends DescribableImpl {
                 "Could not resolve URI by doing a URI based query: " + value);
           }
         }
-        query = createPropertyStartsWithQuery(Metacard.RESOURCE_URI, truncatedUri.toString());
+        query = createPropertyStartsWithQuery(Core.RESOURCE_URI, truncatedUri.toString());
       } else if (ResourceRequest.GET_RESOURCE_BY_ID.equals(name)) {
         // since this is a get resource by id, we need to obtain the
         // product URI
@@ -631,11 +632,11 @@ public class ResourceOperations extends DescribableImpl {
     LOGGER.debug(
         "Trying to lookup resource URI {} for metacardId: {}", resourceUri, metacard.getId());
 
-    if (!requestProperties.containsKey(Metacard.ID)) {
-      requestProperties.put(Metacard.ID, metacard.getId());
+    if (!requestProperties.containsKey(Core.ID)) {
+      requestProperties.put(Core.ID, metacard.getId());
     }
-    if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
-      requestProperties.put(Metacard.RESOURCE_URI, metacard.getResourceURI());
+    if (!requestProperties.containsKey(Core.RESOURCE_URI)) {
+      requestProperties.put(Core.RESOURCE_URI, metacard.getResourceURI());
     }
 
     return new ResourceInfo(metacard, resourceUri);
@@ -660,7 +661,7 @@ public class ResourceOperations extends DescribableImpl {
     Filter anyTag =
         frameworkProperties
             .getFilterBuilder()
-            .attribute(Metacard.TAGS)
+            .attribute(Core.METACARD_TAGS)
             .is()
             .like()
             .text(FilterDelegate.WILDCARD_CHAR);
@@ -759,7 +760,7 @@ public class ResourceOperations extends DescribableImpl {
   }
 
   protected Query createMetacardIdQuery(String metacardId) {
-    return createPropertyIsEqualToQuery(Metacard.ID, metacardId);
+    return createPropertyIsEqualToQuery(Core.ID, metacardId);
   }
 
   protected Query createPropertyIsEqualToQuery(String propertyName, String literal) {

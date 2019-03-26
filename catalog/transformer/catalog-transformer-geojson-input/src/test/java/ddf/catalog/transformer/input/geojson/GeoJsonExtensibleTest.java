@@ -34,6 +34,7 @@ import ddf.catalog.data.impl.AttributeRegistryImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -562,7 +563,7 @@ public class GeoJsonExtensibleTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.ID,
+            Core.ID,
             true /* indexed */,
             true /* stored */,
             false /* tokenized */,
@@ -570,7 +571,7 @@ public class GeoJsonExtensibleTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.TITLE,
+            Core.TITLE,
             true /* indexed */,
             true /* stored */,
             true /* tokenized */,
@@ -608,7 +609,7 @@ public class GeoJsonExtensibleTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.ID,
+            Core.ID,
             true /* indexed */,
             true /* stored */,
             false /* tokenized */,
@@ -616,7 +617,7 @@ public class GeoJsonExtensibleTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.TITLE,
+            Core.TITLE,
             true /* indexed */,
             true /* stored */,
             true /* tokenized */,

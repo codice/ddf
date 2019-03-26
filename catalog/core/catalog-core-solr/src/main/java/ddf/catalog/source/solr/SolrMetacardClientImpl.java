@@ -40,6 +40,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
 import ddf.catalog.operation.QueryRequest;
@@ -96,7 +97,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String DISTANCE_SORT_FIELD = "_distance_";
 
-  private static final String GEOMETRY_FIELD = Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX;
+  private static final String GEOMETRY_FIELD = Core.LOCATION + SchemaFields.GEO_SUFFIX;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClientImpl.class);
 
@@ -264,7 +265,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       throws UnsupportedQueryException {
     for (SolrDocument doc : docs) {
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+        LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Core.ID + SchemaFields.TEXT_SUFFIX));
       }
       ResultImpl tmpResult;
       try {
@@ -749,7 +750,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       return;
     }
 
-    if (Metacard.ID.equals(fieldName)) {
+    if (Core.ID.equals(fieldName)) {
       CollectionUtils.transform(identifiers, Object::toString);
       client.deleteById((List<String>) identifiers);
     } else {

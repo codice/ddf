@@ -381,8 +381,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     final TemporalFilter temporalSearch = openSearchFilterVisitorObject.getTemporalSearch();
     final String idSearch =
         StringUtils.defaultIfEmpty(
-            (String) queryRequest.getPropertyValue(Metacard.ID),
-            openSearchFilterVisitorObject.getId());
+            (String) queryRequest.getPropertyValue(Core.ID), openSearchFilterVisitorObject.getId());
 
     final Map<String, String> searchPhraseMap =
         contextualSearch == null ? new HashMap<>() : contextualSearch.getSearchPhraseMap();
@@ -878,7 +877,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       throw new ResourceNotFoundException("Could not retrieve resource with null properties.");
     }
 
-    Serializable serializableId = requestProperties.get(Metacard.ID);
+    Serializable serializableId = requestProperties.get(Core.ID);
 
     if (serializableId != null) {
       String metacardId = serializableId.toString();

@@ -18,6 +18,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -230,7 +231,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         if (isSourceIdSet) {
           throw new IngestException("Metacard from a separate distribution must have ID");
         }
-        metacard.setAttribute(new AttributeImpl(Metacard.ID, generatePrimaryKey()));
+        metacard.setAttribute(new AttributeImpl(Core.ID, generatePrimaryKey()));
       }
 
       if (!isSourceIdSet) {
@@ -277,7 +278,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         updates.stream().map(Entry::getKey).map(Serializable::toString).collect(Collectors.toSet());
 
     Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
-    if (Metacard.ID.equals(attributeName)) {
+    if (Core.ID.equals(attributeName)) {
       try {
         idToMetacardMap =
             client
@@ -465,7 +466,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   private List<Metacard> getMetacards(
       List<? extends Serializable> identifierPaged, String fieldName) throws IngestException {
-    if (fieldName.equals(Metacard.ID + SchemaFields.TEXT_SUFFIX)) {
+    if (fieldName.equals(Core.ID + SchemaFields.TEXT_SUFFIX)) {
       Set<String> ids =
           identifierPaged
               .stream()

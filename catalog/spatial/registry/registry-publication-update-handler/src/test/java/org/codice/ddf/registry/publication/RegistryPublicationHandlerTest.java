@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
@@ -61,7 +62,7 @@ public class RegistryPublicationHandlerTest {
   public void setup() {
     MockitoAnnotations.initMocks(this);
     mcard = new MetacardImpl();
-    mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+    mcard.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG);
     rph = new RegistryPublicationHandler(service, executorService);
     eventProperties = new Hashtable<>();
     eventProperties.put("ddf.catalog.event.metacard", mcard);
@@ -80,7 +81,7 @@ public class RegistryPublicationHandlerTest {
 
   @Test
   public void testNonRegistryMetacard() {
-    mcard.setAttribute(Metacard.TAGS, Metacard.DEFAULT_TAG);
+    mcard.setAttribute(Core.METACARD_TAGS, Metacard.DEFAULT_TAG);
     when(executorService.schedule(any(Runnable.class), anyLong(), any(TimeUnit.class)))
         .thenReturn(null);
     rph.handleEvent(event);
@@ -97,7 +98,7 @@ public class RegistryPublicationHandlerTest {
 
   @Test
   public void testProcessUpdateNoPublications() throws Exception {
-    mcard.setAttribute(Metacard.TAGS, Metacard.DEFAULT_TAG);
+    mcard.setAttribute(Core.METACARD_TAGS, Metacard.DEFAULT_TAG);
     mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, new ArrayList<>());
     setupSerialExecutor();
     rph.handleEvent(event);

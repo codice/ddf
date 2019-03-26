@@ -19,6 +19,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.impl.ResourceRequestById;
@@ -75,7 +76,7 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
             LOGGER.debug(
                 "Setting resourceSize = {} for metacard ID = {}", resourceSize, metacard.getId());
             Attribute resourceSizeAttribute =
-                new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(resourceSize));
+                new AttributeImpl(Core.RESOURCE_SIZE, String.valueOf(resourceSize));
             metacard.setAttribute(resourceSizeAttribute);
           } else {
             LOGGER.debug("resourceSize <= 0 for metacard ID = {}", metacard.getId());

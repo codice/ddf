@@ -31,6 +31,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import java.io.Serializable;
 import java.net.URI;
@@ -115,11 +116,11 @@ public class QueryResponsePostProcessorImplTest {
 
     queryResponsePostProcessor.processResponse(queryResponse);
 
-    verifyMetacardAttribute(metacards[0], Metacard.RESOURCE_DOWNLOAD_URL, URL1);
-    verifyMetacardAttribute(metacards[1], Metacard.RESOURCE_DOWNLOAD_URL, URL2);
+    verifyMetacardAttribute(metacards[0], Core.RESOURCE_DOWNLOAD_URL, URL1);
+    verifyMetacardAttribute(metacards[1], Core.RESOURCE_DOWNLOAD_URL, URL2);
 
-    verifyMetacardAttribute(metacards[0], Metacard.DERIVED_RESOURCE_DOWNLOAD_URL, DERIVED_URL1);
-    verifyMetacardAttribute(metacards[1], Metacard.DERIVED_RESOURCE_DOWNLOAD_URL, DERIVED_URL2);
+    verifyMetacardAttribute(metacards[0], Core.DERIVED_RESOURCE_DOWNLOAD_URL, DERIVED_URL1);
+    verifyMetacardAttribute(metacards[1], Core.DERIVED_RESOURCE_DOWNLOAD_URL, DERIVED_URL2);
   }
 
   @Test
@@ -154,7 +155,7 @@ public class QueryResponsePostProcessorImplTest {
     queryResponsePostProcessor.processResponse(queryResponse);
 
     verify(metacards[0], never()).setAttribute(any(AttributeImpl.class));
-    verifyMetacardAttribute(metacards[1], Metacard.RESOURCE_DOWNLOAD_URL, URL2);
+    verifyMetacardAttribute(metacards[1], Core.RESOURCE_DOWNLOAD_URL, URL2);
   }
 
   @Test
@@ -170,7 +171,7 @@ public class QueryResponsePostProcessorImplTest {
     queryResponsePostProcessor.processResponse(queryResponse);
 
     verify(metacards[0], never()).setAttribute(any(AttributeImpl.class));
-    verifyMetacardAttribute(metacards[1], Metacard.RESOURCE_DOWNLOAD_URL, URL2);
+    verifyMetacardAttribute(metacards[1], Core.RESOURCE_DOWNLOAD_URL, URL2);
   }
 
   @Test
@@ -187,7 +188,7 @@ public class QueryResponsePostProcessorImplTest {
     queryResponsePostProcessor.processResponse(queryResponse);
 
     verify(metacards[0], never()).setAttribute(any(AttributeImpl.class));
-    verifyMetacardAttribute(metacards[1], Metacard.RESOURCE_DOWNLOAD_URL, URL2);
+    verifyMetacardAttribute(metacards[1], Core.RESOURCE_DOWNLOAD_URL, URL2);
   }
 
   private void setUpExpectationsForResult(int resultNumber) {
@@ -197,7 +198,7 @@ public class QueryResponsePostProcessorImplTest {
         .thenReturn(resourceActions[resultNumber]);
     when(resourceActions[resultNumber].getUrl()).thenReturn(urls[resultNumber]);
 
-    when(metacards[resultNumber].getAttribute(Metacard.DERIVED_RESOURCE_URI))
+    when(metacards[resultNumber].getAttribute(Core.DERIVED_RESOURCE_URI))
         .thenReturn(attrs[resultNumber]);
     when(attrs[resultNumber].getValues()).thenReturn(Arrays.asList(derivedUris[resultNumber]));
     when(derivedActionProvider.getActions(metacards[resultNumber]))

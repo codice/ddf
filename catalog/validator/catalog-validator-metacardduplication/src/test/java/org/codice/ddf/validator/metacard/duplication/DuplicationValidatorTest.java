@@ -28,11 +28,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -95,8 +96,8 @@ public class DuplicationValidatorTest {
     matchingMetacard = new MetacardImpl();
     matchingMetacard.setId(ID);
     testMetacard.setId("test metacard ID");
-    matchingMetacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, "checksum-value"));
-    testMetacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, "checksum-value"));
+    matchingMetacard.setAttribute(new AttributeImpl(Associations.DERIVED, "checksum-value"));
+    testMetacard.setAttribute(new AttributeImpl(Associations.DERIVED, "checksum-value"));
     matchingMetacard.setTags(tags);
     testMetacard.setTags(tags);
 
@@ -159,8 +160,8 @@ public class DuplicationValidatorTest {
   @Test
   public void testValidateMetacardWithValidationErrorAndWarning() {
 
-    String[] checksumAttribute = {Metacard.CHECKSUM};
-    String[] idAttribute = {Metacard.ID};
+    String[] checksumAttribute = {Associations.DERIVED};
+    String[] idAttribute = {Core.ID};
 
     validator.setWarnOnDuplicateAttributes(checksumAttribute);
     validator.setErrorOnDuplicateAttributes(idAttribute);
@@ -181,16 +182,16 @@ public class DuplicationValidatorTest {
     ValidationViolation errorViolation = violations.get(ValidationViolation.Severity.ERROR);
 
     assertThat(warnViolation.getAttributes(), is(new HashSet<>(Arrays.asList(checksumAttribute))));
-    assertThat(warnViolation.getMessage(), containsString(Metacard.CHECKSUM));
+    assertThat(warnViolation.getMessage(), containsString(Associations.DERIVED));
     assertThat(errorViolation.getAttributes(), is(new HashSet<>(Arrays.asList(idAttribute))));
-    assertThat(errorViolation.getMessage(), containsString(Metacard.ID));
+    assertThat(errorViolation.getMessage(), containsString(Core.ID));
   }
 
   @Test
   public void testValidateWithValidationErrorAndWarning() throws ValidationException {
 
-    String[] checksumAttribute = {Metacard.CHECKSUM};
-    String[] idAttribute = {Metacard.ID};
+    String[] checksumAttribute = {Associations.DERIVED};
+    String[] idAttribute = {Core.ID};
     ValidationException expectedException = null;
 
     validator.setWarnOnDuplicateAttributes(checksumAttribute);
@@ -209,15 +210,15 @@ public class DuplicationValidatorTest {
 
     expectedException
         .getWarnings()
-        .forEach(warning -> assertThat(warning, containsString(Metacard.CHECKSUM)));
-    expectedException.getErrors().forEach(error -> assertThat(error, containsString(Metacard.ID)));
+        .forEach(warning -> assertThat(warning, containsString(Associations.DERIVED)));
+    expectedException.getErrors().forEach(error -> assertThat(error, containsString(Core.ID)));
   }
 
   @Test
   public void testValidateMetacardWithMultiValuedAttribute()
       throws StopProcessingException, PluginExecutionException, FederationException,
           UnsupportedQueryException, SourceUnavailableException {
-    String[] tagAttributes = {Metacard.TAGS};
+    String[] tagAttributes = {Core.METACARD_TAGS};
 
     ArgumentCaptor<String> attributeValueCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -225,7 +226,7 @@ public class DuplicationValidatorTest {
     when(mockFilterBuilder.attribute(anyString()).equalTo().text(attributeValueCaptor.capture()))
         .thenReturn(mock(Filter.class));
 
-    String[] attributes = {Metacard.TAGS};
+    String[] attributes = {Core.METACARD_TAGS};
     validator.setWarnOnDuplicateAttributes(attributes);
 
     Optional<MetacardValidationReport> report = validator.validateMetacard(testMetacard);
@@ -241,7 +242,7 @@ public class DuplicationValidatorTest {
             violation -> {
               assertThat(
                   violation.getAttributes(), is(new HashSet<>(Arrays.asList(tagAttributes))));
-              assertThat(violation.getMessage(), containsString(Metacard.TAGS));
+              assertThat(violation.getMessage(), containsString(Core.METACARD_TAGS));
             });
   }
 }

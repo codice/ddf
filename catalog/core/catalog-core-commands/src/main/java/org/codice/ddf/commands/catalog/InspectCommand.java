@@ -18,6 +18,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -53,7 +54,7 @@ public class InspectCommand extends CatalogCommands {
       return null;
     }
 
-    Filter filter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
+    Filter filter = filterBuilder.attribute(Core.ID).is().equalTo().text(id);
 
     QueryImpl query = new QueryImpl(filter);
 

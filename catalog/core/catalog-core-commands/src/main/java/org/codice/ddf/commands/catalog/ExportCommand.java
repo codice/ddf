@@ -22,8 +22,8 @@ import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
@@ -376,13 +376,13 @@ public class ExportCommand extends CqlCommands {
   }
 
   private List<String> getDerivedResources(Result result) {
-    if (result.getMetacard().getAttribute(Metacard.DERIVED_RESOURCE_URI) == null) {
+    if (result.getMetacard().getAttribute(Core.DERIVED_RESOURCE_URI) == null) {
       return Collections.emptyList();
     }
 
     return result
         .getMetacard()
-        .getAttribute(Metacard.DERIVED_RESOURCE_URI)
+        .getAttribute(Core.DERIVED_RESOURCE_URI)
         .getValues()
         .stream()
         .filter(Objects::nonNull)
@@ -590,7 +590,7 @@ public class ExportCommand extends CqlCommands {
   }
 
   private Filter initRevisionFilter() {
-    return filterBuilder.attribute(Metacard.TAGS).is().like().text(REVISION_METACARD);
+    return filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(REVISION_METACARD);
   }
 
   private Filter getHistoryFilter(Result result) {
@@ -617,7 +617,8 @@ public class ExportCommand extends CqlCommands {
     if (archived) {
       filter =
           filterBuilder.allOf(
-              filter, filterBuilder.attribute(Metacard.TAGS).is().like().text(DELETED_METACARD));
+              filter,
+              filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(DELETED_METACARD));
     }
     return filter;
   }

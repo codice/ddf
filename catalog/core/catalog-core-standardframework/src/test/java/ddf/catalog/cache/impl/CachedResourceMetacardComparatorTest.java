@@ -21,6 +21,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.EmptyMetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Core;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -151,7 +152,7 @@ public class CachedResourceMetacardComparatorTest {
 
   @Test
   public void isNotSameChecksum() {
-    updatedMetacard.setAttribute(Metacard.CHECKSUM, "2");
+    updatedMetacard.setAttribute(Associations.DERIVED, "2");
 
     assertThat(isSame(cachedMetacard, updatedMetacard), is(false));
   }
@@ -211,9 +212,9 @@ public class CachedResourceMetacardComparatorTest {
     metacard.setModifiedDate(Date.from(productModDate));
     metacard.setAttribute(Core.METACARD_MODIFIED, metaModDate);
     metacard.setSourceId("testSourceId");
-    metacard.setAttribute(Metacard.CHECKSUM, "1");
-    metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM_ALGORITHM, "sha1"));
-    metacard.setAttribute(new AttributeImpl(Metacard.DERIVED, "derivedMetacard"));
+    metacard.setAttribute(Associations.DERIVED, "1");
+    metacard.setAttribute(new AttributeImpl(Core.CHECKSUM_ALGORITHM, "sha1"));
+    metacard.setAttribute(new AttributeImpl(Associations.DERIVED, "derivedMetacard"));
     return metacard;
   }
 }

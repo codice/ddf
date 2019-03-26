@@ -28,7 +28,7 @@ import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 /**
  * Metacard used for storing sharing attribute groups in the catalog. Should not be used as a
  * resource. Identifiable by the presence of {@link AttributeGroupType#ATTRIBUTE_GROUP_TAG} in
- * {@link Metacard#TAGS}.
+ * {@link Core#METACARD_TAGS}.
  *
  * <p>Relevant attributes:
  *

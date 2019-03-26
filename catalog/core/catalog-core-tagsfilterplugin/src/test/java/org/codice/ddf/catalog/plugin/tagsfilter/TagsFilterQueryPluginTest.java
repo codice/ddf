@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.ExpressionBuilder;
@@ -119,7 +120,7 @@ public class TagsFilterQueryPluginTest {
     when(filterBuilder.allOf(anyOf, query)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
-    when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
+    when(filterBuilder.attribute(Core.METACARD_TAGS)).thenReturn(attributeBuilder);
     QueryRequest process = plugin.process(source, queryRequest);
 
     assertThat(process, not(queryRequest));
@@ -143,7 +144,7 @@ public class TagsFilterQueryPluginTest {
     when(filterBuilder.allOf(anyOf, query)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
-    when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
+    when(filterBuilder.attribute(Core.METACARD_TAGS)).thenReturn(attributeBuilder);
     QueryRequest process = plugin.process(cache, queryRequest);
 
     assertThat(process, not(queryRequest));

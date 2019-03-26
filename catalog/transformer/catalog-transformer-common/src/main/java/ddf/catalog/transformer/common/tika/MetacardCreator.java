@@ -44,10 +44,10 @@ public class MetacardCreator {
   /**
    * @param metadata the {@code Metadata} object containing the metadata relevant to the metacard,
    *     must not be null
-   * @param id the value for the {@link Metacard#ID} attribute that should be set in the generated
+   * @param id the value for the {@link Core#ID} attribute that should be set in the generated
    *     {@code Metacard}, may be null
-   * @param metadataXml the XML for the {@link Metacard#METADATA} attribute that should be set in
-   *     the generated {@code Metacard}, may be null
+   * @param metadataXml the XML for the {@link Core#METADATA} attribute that should be set in the
+   *     generated {@code Metacard}, may be null
    * @param metacardType The {@link MetacardType} for the created metacard
    * @return a new {@code Metacard}
    */
@@ -62,10 +62,10 @@ public class MetacardCreator {
   /**
    * @param metadata the {@code Metadata} object containing the metadata relevant to the metacard,
    *     must not be null
-   * @param id the value for the {@link Metacard#ID} attribute that should be set in the generated
+   * @param id the value for the {@link Core#ID} attribute that should be set in the generated
    *     {@code Metacard}, may be null
-   * @param metadataXml the XML for the {@link Metacard#METADATA} attribute that should be set in
-   *     the generated {@code Metacard}, may be null
+   * @param metadataXml the XML for the {@link Core#METADATA} attribute that should be set in the
+   *     generated {@code Metacard}, may be null
    * @param metacardType The {@link MetacardType} for the created metacard
    * @param useMetadataTitle If true then use title from the metadata as the metacard title
    * @return a new {@code Metacard}
@@ -79,7 +79,7 @@ public class MetacardCreator {
     final Metacard metacard = new MetacardImpl(metacardType);
 
     if (useMetadataTitle) {
-      setAttribute(metacard, Metacard.TITLE, metadata.get(TikaCoreProperties.TITLE));
+      setAttribute(metacard, Core.TITLE, metadata.get(TikaCoreProperties.TITLE));
     }
 
     setAttribute(metacard, Metacard.CONTENT_TYPE, metadata.get(Metadata.CONTENT_TYPE));
@@ -87,21 +87,21 @@ public class MetacardCreator {
     final String createdDateStr = metadata.get(TikaCoreProperties.CREATED);
     final Date createdDate = convertDate(createdDateStr);
     if (createdDate != null) {
-      metacard.setAttribute(new AttributeImpl(Metacard.CREATED, createdDate));
+      metacard.setAttribute(new AttributeImpl(Core.CREATED, createdDate));
     }
 
     final String modifiedDateStr = metadata.get(TikaCoreProperties.MODIFIED);
     final Date modifiedDate = convertDate(modifiedDateStr);
     if (modifiedDate != null) {
-      metacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, modifiedDate));
+      metacard.setAttribute(new AttributeImpl(Core.MODIFIED, modifiedDate));
     }
 
-    setAttribute(metacard, Metacard.ID, id);
+    setAttribute(metacard, Core.ID, id);
 
-    setAttribute(metacard, Metacard.METADATA, metadataXml);
+    setAttribute(metacard, Core.METADATA, metadataXml);
     final String lat = metadata.get(Metadata.LATITUDE);
     final String lon = metadata.get(Metadata.LONGITUDE);
-    setAttribute(metacard, Metacard.GEOGRAPHY, toWkt(lon, lat));
+    setAttribute(metacard, Core.LOCATION, toWkt(lon, lat));
 
     setAttribute(metacard, Media.FORMAT, metadata.get(TikaCoreProperties.FORMAT));
 

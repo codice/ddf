@@ -34,6 +34,7 @@ import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -146,7 +147,7 @@ public class RestEndpointIT extends AbstractComponentTest {
     Metacard metacard = mock(Metacard.class);
     BinaryContent content = mock(BinaryContent.class);
 
-    given(filterBuilder.attribute(Metacard.ID).is().equalTo().text(metacardId)).willReturn(filter);
+    given(filterBuilder.attribute(Core.ID).is().equalTo().text(metacardId)).willReturn(filter);
     given(catalogFramework.query(any(QueryRequest.class), any(FederationStrategy.class)))
         .willReturn(queryResponse);
     given(queryResponse.getResults()).willReturn(ImmutableList.of(result));
@@ -175,7 +176,7 @@ public class RestEndpointIT extends AbstractComponentTest {
     Filter filter = mock(Filter.class);
     QueryResponse queryResponse = mock(QueryResponse.class);
 
-    given(filterBuilder.attribute(Metacard.ID).is().equalTo().text(metacardId)).willReturn(filter);
+    given(filterBuilder.attribute(Core.ID).is().equalTo().text(metacardId)).willReturn(filter);
     given(catalogFramework.query(any(QueryRequest.class), any(FederationStrategy.class)))
         .willReturn(queryResponse);
     given(queryResponse.getResults()).willReturn(ImmutableList.of());

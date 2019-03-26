@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.validator.EnumerationValidator;
@@ -58,9 +59,8 @@ public class ReportingMetacardValidatorImplTest {
 
   private void registerValidators() {
     registry.registerValidators(
-        Metacard.TITLE, Sets.newHashSet(new SizeValidator(1, 20), new PatternValidator("[A-Z]+")));
-    registry.registerValidators(
-        Metacard.MODIFIED, Sets.newHashSet(PastDateValidator.getInstance()));
+        Core.TITLE, Sets.newHashSet(new SizeValidator(1, 20), new PatternValidator("[A-Z]+")));
+    registry.registerValidators(Core.MODIFIED, Sets.newHashSet(PastDateValidator.getInstance()));
     registry.registerValidators(
         Metacard.EFFECTIVE, Sets.newHashSet(FutureDateValidator.getInstance()));
     final EnumerationValidator enumerationValidator =
@@ -116,11 +116,7 @@ public class ReportingMetacardValidatorImplTest {
     assertThat(
         violatedAttributes,
         containsInAnyOrder(
-            Metacard.TITLE,
-            Metacard.TITLE,
-            Metacard.MODIFIED,
-            Metacard.EFFECTIVE,
-            Metacard.CONTENT_TYPE));
+            Core.TITLE, Core.TITLE, Core.MODIFIED, Metacard.EFFECTIVE, Metacard.CONTENT_TYPE));
   }
 
   @Test

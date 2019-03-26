@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import com.jayway.restassured.response.Response;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.security.Subject;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
@@ -736,7 +736,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_1
                     + "']"),

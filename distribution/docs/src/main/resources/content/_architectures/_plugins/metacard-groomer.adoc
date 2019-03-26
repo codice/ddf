@@ -11,15 +11,15 @@ Use this pre-ingest plugin as a convenience to apply basic rules for your metaca
 
 This plugin makes the following modifications when metacards are in a `CreateRequest`:
 
-* Overwrites the `Metacard.ID` field with a generated, unique, 32 character hexadecimal value if missing or if the resource URI is not a catalog resource URI.
-* Sets `Metacard.CREATED` to the current time stamp if not already set.
-* Sets `Metacard.MODIFIED` to the current time stamp if not already set.
+* Overwrites the `Core.ID` field with a generated, unique, 32 character hexadecimal value if missing or if the resource URI is not a catalog resource URI.
+* Sets `Core.CREATED` to the current time stamp if not already set.
+* Sets `Core.MODIFIED` to the current time stamp if not already set.
 * Sets `Core.METACARD_CREATED` to the current time stamp if not present.
 * Sets `Core.METACARD_MODIFIED` to the current time stamp.
 
 In an `UpdateRequest`, the same operations are performed as a `CreateRequest`, except:
 
-* If no value is provided for `Metacard.ID` in the new metacard, it will be set using the `UpdateRequest` ID if applicable.
+* If no value is provided for `Core.ID` in the new metacard, it will be set using the `UpdateRequest` ID if applicable.
 
 ===== Installing the Metacard Groomer
 

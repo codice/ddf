@@ -15,7 +15,7 @@ package ddf.catalog.operation;
 
 import static org.junit.Assert.assertEquals;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.QueryImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.BeforeClass;
@@ -42,7 +42,7 @@ public class QueryImplTest {
     // Dummy filter copied from another test
     filter1 =
         filterFactory.like(
-            filterFactory.property(Metacard.METADATA),
+            filterFactory.property(Core.METADATA),
             "million",
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,
@@ -51,7 +51,7 @@ public class QueryImplTest {
 
     filter2 =
         filterFactory.like(
-            filterFactory.property(Metacard.METADATA),
+            filterFactory.property(Core.METADATA),
             "zillion",
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,
@@ -99,7 +99,7 @@ public class QueryImplTest {
     // Dummy filter copied from another test
     Filter filter1 =
         filterFactory.like(
-            filterFactory.property(Metacard.METADATA),
+            filterFactory.property(Core.METADATA),
             "million",
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,

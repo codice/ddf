@@ -30,6 +30,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
@@ -249,7 +250,7 @@ public class FederationStrategyTest {
     QueryImpl query =
         new QueryImpl(
             filterFactory.equals(
-                filterFactory.property(Metacard.ID),
+                filterFactory.property(Core.ID),
                 filterFactory.literal(createResponse.getCreatedMetacards().get(0).getId())));
     query.setTimeoutMillis(SHORT_TIMEOUT);
     query.setSortBy(new FilterFactoryImpl().sort(Result.RELEVANCE, SortOrder.ASCENDING));

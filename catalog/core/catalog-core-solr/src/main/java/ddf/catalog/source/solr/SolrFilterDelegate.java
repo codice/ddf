@@ -23,6 +23,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.impl.filter.DivisibleByFunction;
 import ddf.catalog.impl.filter.ProximityFunction;
@@ -333,7 +334,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       return new SolrQuery("-" + mappedPropertyName + ":[\"\" TO *]");
     }
 
-    if (Metacard.ID.equals(propertyName)) {
+    if (Core.ID.equals(propertyName)) {
       isIdQuery = true;
       ids.add(literal);
     }
@@ -865,7 +866,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       }
       xpath = xpath + "[contains(" + result + ", '" + phrase + "')]";
       query =
-          resolver.getField(Metacard.METADATA, AttributeFormat.STRING, false)
+          resolver.getField(Core.METADATA, AttributeFormat.STRING, false)
               + ":\""
               + searchPhrase.replaceAll("\"", "\\\\")
               + "\"";

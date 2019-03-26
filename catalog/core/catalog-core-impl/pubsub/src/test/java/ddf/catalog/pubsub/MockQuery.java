@@ -15,6 +15,7 @@ package ddf.catalog.pubsub;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -179,8 +180,7 @@ public class MockQuery implements FederatedSource, Query {
     if (id != null) {
       LOGGER.debug("Creating entry by ID filter");
 
-      filter =
-          FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.ID), FILTER_FACTORY.literal(id));
+      filter = FILTER_FACTORY.equals(FILTER_FACTORY.property(Core.ID), FILTER_FACTORY.literal(id));
       filters.add(filter);
     } else {
       LOGGER.debug("id was NULL - EntryFilter not created");

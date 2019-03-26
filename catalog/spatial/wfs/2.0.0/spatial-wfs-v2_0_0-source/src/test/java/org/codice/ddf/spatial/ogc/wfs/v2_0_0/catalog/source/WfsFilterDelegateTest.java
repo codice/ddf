@@ -1018,7 +1018,7 @@ public class WfsFilterDelegateTest {
     String featureId = "1234567";
 
     // Perform Test
-    FilterType matchIdFilter = delegate.propertyIsLike(Metacard.ID, featureId, true);
+    FilterType matchIdFilter = delegate.propertyIsLike(Core.ID, featureId, true);
 
     // Verify
     assertThat(((ResourceIdType) matchIdFilter.getId().get(0).getValue()).getRid(), is(featureId));
@@ -1034,7 +1034,7 @@ public class WfsFilterDelegateTest {
     String mockTypeFeatureId = mockType + "." + featureId;
 
     // Perform Test
-    FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
+    FilterType matchIdFilter = delegate.propertyIsEqualTo(Core.ID, mockTypeFeatureId, true);
 
     // Verify
     assertThat(
@@ -1051,7 +1051,7 @@ public class WfsFilterDelegateTest {
     String mockTypeFeatureId = nonExistentType + "." + featureId;
 
     // Perform Test
-    FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
+    FilterType matchIdFilter = delegate.propertyIsEqualTo(Core.ID, mockTypeFeatureId, true);
     assertNull(matchIdFilter);
   }
 

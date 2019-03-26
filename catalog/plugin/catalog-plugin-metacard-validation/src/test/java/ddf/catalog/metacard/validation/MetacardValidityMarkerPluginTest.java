@@ -35,6 +35,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -178,7 +179,7 @@ public class MetacardValidityMarkerPluginTest {
 
     Set<String> tags = m1.getTags();
     tags.add(INVALID_TAG);
-    m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+    m1.setAttribute(new AttributeImpl(Core.METACARD_TAGS, new ArrayList<String>(tags)));
 
     CreateRequest filteredRequest = plugin.process(request);
     assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(VALID_TAG));
@@ -194,7 +195,7 @@ public class MetacardValidityMarkerPluginTest {
 
     Set<String> tags = m1.getTags();
     tags.add(VALID_TAG);
-    m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+    m1.setAttribute(new AttributeImpl(Core.METACARD_TAGS, new ArrayList<String>(tags)));
 
     CreateRequest filteredRequest = plugin.process(request);
     assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(INVALID_TAG));
@@ -475,7 +476,7 @@ public class MetacardValidityMarkerPluginTest {
     List<Map.Entry<Serializable, Metacard>> updates = new ArrayList<>();
     updates.add(new AbstractMap.SimpleEntry<>(FIRST, metacardWithTitle(FIRST)));
     updates.add(new AbstractMap.SimpleEntry<>(SECOND, metacardWithTitle(SECOND)));
-    return new UpdateRequestImpl(updates, Metacard.TITLE, PROPERTIES, DESTINATIONS);
+    return new UpdateRequestImpl(updates, Core.TITLE, PROPERTIES, DESTINATIONS);
   }
 
   private MetacardValidator getMockPassingValidator() {

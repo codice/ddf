@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
@@ -135,7 +136,7 @@ public class SolrProviderUpdate {
 
     deleteAll(provider);
 
-    UpdateResponse response = provider.update(new UpdateRequestImpl(null, Metacard.ID, null));
+    UpdateResponse response = provider.update(new UpdateRequestImpl(null, Core.ID, null));
 
     assertEquals(0, response.getUpdatedMetacards().size());
   }
@@ -147,7 +148,7 @@ public class SolrProviderUpdate {
     deleteAll(provider);
 
     UpdateResponse response =
-        provider.update(new UpdateRequestImpl(new ArrayList<>(), Metacard.ID, null));
+        provider.update(new UpdateRequestImpl(new ArrayList<>(), Core.ID, null));
 
     assertEquals(0, response.getUpdatedMetacards().size());
   }
@@ -197,8 +198,7 @@ public class SolrProviderUpdate {
 
     // READ
     QueryImpl query =
-        new QueryImpl(
-            getFilterBuilder().attribute(Metacard.RESOURCE_URI).is().equalTo().text(uri2));
+        new QueryImpl(getFilterBuilder().attribute(Core.RESOURCE_URI).is().equalTo().text(uri2));
     query.setRequestsTotalResultsCount(true);
 
     QueryRequestImpl queryRequest = new QueryRequestImpl(query);
@@ -311,12 +311,12 @@ public class SolrProviderUpdate {
 
   @Test
   public void testUpdateWithNullThumbnail() throws Exception {
-    verifyAttributeUpdate(Metacard.THUMBNAIL, null);
+    verifyAttributeUpdate(Core.THUMBNAIL, null);
   }
 
   @Test
   public void testUpdateWithNullExpirationDate() throws Exception {
-    verifyAttributeUpdate(Metacard.EXPIRATION, null);
+    verifyAttributeUpdate(Core.EXPIRATION, null);
   }
 
   @Test
@@ -342,7 +342,7 @@ public class SolrProviderUpdate {
   @Test
   public void testUpdateWithNewResourceUri() throws Exception {
     String uri1 = "http://youwillfindme.com/here/now";
-    verifyAttributeUpdate(Metacard.RESOURCE_URI, uri1);
+    verifyAttributeUpdate(Core.RESOURCE_URI, uri1);
   }
 
   private void verifyAttributeUpdate(String attributeName, Serializable updatedValue)
@@ -496,7 +496,7 @@ public class SolrProviderUpdate {
 
               @Override
               public String getAttributeName() {
-                return Metacard.TITLE;
+                return Core.TITLE;
               }
             });
 
@@ -564,7 +564,7 @@ public class SolrProviderUpdate {
 
           @Override
           public String getAttributeName() {
-            return Metacard.TITLE;
+            return Core.TITLE;
           }
         });
   }
@@ -629,7 +629,7 @@ public class SolrProviderUpdate {
 
           @Override
           public String getAttributeName() {
-            return Metacard.TITLE;
+            return Core.TITLE;
           }
         });
   }

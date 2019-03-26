@@ -15,6 +15,7 @@ package org.codice.ddf.registry.schemabindings.helper;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -115,7 +116,7 @@ public class MetacardMarshaller {
   public void setMetacardRegistryPackage(Metacard metacard, RegistryPackageType registryPackage)
       throws ParserException {
     metacard.setAttribute(
-        new AttributeImpl(Metacard.METADATA, getRegistryPackageAsXml(registryPackage)));
+        new AttributeImpl(Core.METADATA, getRegistryPackageAsXml(registryPackage)));
   }
 
   private void setParser(Parser parser) {

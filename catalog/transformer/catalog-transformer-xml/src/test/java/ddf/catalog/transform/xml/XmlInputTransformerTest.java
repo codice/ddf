@@ -25,6 +25,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.XmlInputTransformer;
 import java.io.FileInputStream;
@@ -120,23 +121,23 @@ public class XmlInputTransformerTest {
     // TODO use JTS to check for equality, not string comparison.
     assertEquals(
         "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10), (20 30, 35 35, 30 20, 20 30))",
-        metacard.getAttribute(Metacard.GEOGRAPHY).getValue());
+        metacard.getAttribute(Core.LOCATION).getValue());
 
-    assertEquals("Title!", metacard.getAttribute(Metacard.TITLE).getValue());
+    assertEquals("Title!", metacard.getAttribute(Core.TITLE).getValue());
 
     assertArrayEquals(
         Base64.getDecoder()
             .decode("AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
-        (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
+        (byte[]) metacard.getAttribute(Core.THUMBNAIL).getValue());
 
     // TODO use XMLUnit to test equivalence
     assertThat(
-        metacard.getAttribute(Metacard.METADATA).getValue().toString(),
+        metacard.getAttribute(Core.METADATA).getValue().toString(),
         startsWith("<foo xmlns=\"http://foo.com\">"));
 
     assertEquals(
         (new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z")).parse("Dec 27, 2012 16:31:01.641 MST"),
-        metacard.getAttribute(Metacard.EXPIRATION).getValue());
+        metacard.getAttribute(Core.EXPIRATION).getValue());
 
     assertEquals(DESCRIPTION, metacard.getAttribute("description").getValue());
     assertEquals(POINT_OF_CONTACT, metacard.getAttribute("point-of-contact").getValue());
@@ -169,22 +170,22 @@ public class XmlInputTransformerTest {
 
     assertThat(
         "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10), (20 30, 35 35, 30 20, 20 30))",
-        is(metacard.getAttribute(Metacard.GEOGRAPHY).getValue()));
+        is(metacard.getAttribute(Core.LOCATION).getValue()));
 
-    assertThat("Title!", is(metacard.getAttribute(Metacard.TITLE).getValue()));
+    assertThat("Title!", is(metacard.getAttribute(Core.TITLE).getValue()));
 
     assertArrayEquals(
         Base64.getDecoder()
             .decode("AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
-        (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
+        (byte[]) metacard.getAttribute(Core.THUMBNAIL).getValue());
 
     assertThat(
-        metacard.getAttribute(Metacard.METADATA).getValue().toString(),
+        metacard.getAttribute(Core.METADATA).getValue().toString(),
         startsWith("<foo xmlns=\"http://foo.com\">"));
 
     assertThat(
         (new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z")).parse("Dec 27, 2012 16:31:01.641 MST"),
-        is(metacard.getAttribute(Metacard.EXPIRATION).getValue()));
+        is(metacard.getAttribute(Core.EXPIRATION).getValue()));
 
     assertEquals(DESCRIPTION, metacard.getAttribute("description").getValue());
     assertEquals(POINT_OF_CONTACT, metacard.getAttribute("point-of-contact").getValue());

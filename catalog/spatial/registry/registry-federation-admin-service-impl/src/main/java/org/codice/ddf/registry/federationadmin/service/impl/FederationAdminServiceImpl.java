@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.CreateRequest;
@@ -207,7 +208,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
               .text(updateMetacard.getId());
       Filter tagFilter =
           filterBuilder
-              .attribute(Metacard.TAGS)
+              .attribute(Core.METACARD_TAGS)
               .is()
               .like()
               .text(RegistryConstants.REGISTRY_TAG_INTERNAL);
@@ -229,7 +230,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         ImmutableSet.of(RegistryConstants.REGISTRY_TAG, RegistryConstants.REGISTRY_TAG_INTERNAL));
 
     UpdateRequest updateRequest =
-        new UpdateRequestImpl(updateList, Metacard.ID, properties, destinations);
+        new UpdateRequestImpl(updateList, Core.ID, properties, destinations);
 
     try {
       UpdateResponse updateResponse =
@@ -266,7 +267,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
     String deleteField = RegistryObjectMetacardType.REGISTRY_ID;
     if (CollectionUtils.isNotEmpty(destinations)) {
-      deleteField = Metacard.ID;
+      deleteField = Core.ID;
       try {
         List<Metacard> localMetacards =
             security.runWithSubjectOrElevate(
@@ -333,7 +334,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     List<Serializable> serializableIds = new ArrayList<>(metacardIds);
     Map<String, Serializable> properties = new HashMap<>();
     DeleteRequest deleteRequest =
-        new DeleteRequestImpl(serializableIds, Metacard.ID, properties, destinations);
+        new DeleteRequestImpl(serializableIds, Core.ID, properties, destinations);
     try {
       DeleteResponse deleteResponse =
           security.runWithSubjectOrElevate(() -> catalogFramework.delete(deleteRequest));
@@ -575,7 +576,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     if (filter == null) {
       throw new FederationAdminException("Error getting registry metacards. Null filter provided.");
     }
-    PropertyName propertyName = new PropertyNameImpl(Metacard.MODIFIED);
+    PropertyName propertyName = new PropertyNameImpl(Core.MODIFIED);
     SortBy sortBy = new SortByImpl(propertyName, SortOrder.ASCENDING);
     QueryImpl query = new QueryImpl(filter);
     query.setSortBy(sortBy);
@@ -647,7 +648,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
   private List<Filter> getBasicFilter(String tag) {
     List<Filter> filters = new ArrayList<>();
-    filters.add(filterBuilder.attribute(Metacard.TAGS).is().equalTo().text(tag));
+    filters.add(filterBuilder.attribute(Core.METACARD_TAGS).is().equalTo().text(tag));
     return filters;
   }
 

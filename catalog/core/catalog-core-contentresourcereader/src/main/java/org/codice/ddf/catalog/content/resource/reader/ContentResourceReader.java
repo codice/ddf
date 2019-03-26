@@ -20,6 +20,7 @@ import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
@@ -114,12 +115,12 @@ public class ContentResourceReader implements ResourceReader {
   @Override
   public Set<String> getOptions(Metacard metacard) {
     if (metacard != null
-        && metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL) != null
+        && metacard.getAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL) != null
         && !CollectionUtils.isEmpty(
-            metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL).getValues())) {
+            metacard.getAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL).getValues())) {
       Set<String> options = new HashSet<>();
       for (Serializable value :
-          metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL).getValues()) {
+          metacard.getAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL).getValues()) {
         try {
           URI contentUri = new URI((String) value);
           if (ContentItem.CONTENT_SCHEME.equals(contentUri.getScheme())) {

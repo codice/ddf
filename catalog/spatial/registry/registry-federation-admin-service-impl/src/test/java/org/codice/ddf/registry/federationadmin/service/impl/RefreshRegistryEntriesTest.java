@@ -28,6 +28,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -395,7 +396,7 @@ public class RefreshRegistryEntriesTest {
     MetacardImpl registryMetacard = new MetacardImpl(new RegistryObjectMetacardType());
     registryMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, regId));
     registryMetacard.setAttribute(
-        new AttributeImpl(Metacard.MODIFIED, new Date(new Date().getTime() + dateOffset)));
+        new AttributeImpl(Core.MODIFIED, new Date(new Date().getTime() + dateOffset)));
     if (internal) {
       registryMetacard.setAttribute(
           new AttributeImpl(RegistryObjectMetacardType.REMOTE_METACARD_ID, remoteMcardId));
@@ -403,14 +404,15 @@ public class RefreshRegistryEntriesTest {
           new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "remoteRegId"));
       registryMetacard.setAttribute(
           new AttributeImpl(
-              Metacard.TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG_INTERNAL)));
+              Core.METACARD_TAGS,
+              Collections.singletonList(RegistryConstants.REGISTRY_TAG_INTERNAL)));
     } else {
       registryMetacard.setAttribute(
           new AttributeImpl(
-              Metacard.TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
+              Core.METACARD_TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
     }
-    registryMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-    registryMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, TEST_XML_STRING));
+    registryMetacard.setAttribute(new AttributeImpl(Core.ID, id));
+    registryMetacard.setAttribute(new AttributeImpl(Core.METADATA, TEST_XML_STRING));
     return registryMetacard;
   }
 

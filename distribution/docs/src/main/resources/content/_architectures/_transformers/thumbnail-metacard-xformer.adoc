@@ -3,9 +3,9 @@
 :subtype: metacard
 :status: published
 :link: _thumbnail_metacard_transformer
-:summary: Retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
+:summary: Retrieves the thumbnail bytes of a Metacard by returning the `Core.THUMBNAIL` attribute value.
 
-The Thumbnail Metacard Transformer retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
+The Thumbnail Metacard Transformer retrieves the thumbnail bytes of a Metacard by returning the `Core.THUMBNAIL` attribute value.
 
 ===== Installing the Thumbnail Metacard Transformer
 
@@ -25,6 +25,6 @@ Endpoints or other components can retrieve an instance of the Thumbnail Metacard
 <reference id="metacardTransformer" interface="ddf.catalog.transform.MetacardTransformer" filter="(id=thumbnail)"/>
 ----
 
-The Thumbnail Metacard Transformer returns a `BinaryContent` object of the `Metacard.THUMBNAIL` bytes and a MIME Type of `image/jpeg`.
+The Thumbnail Metacard Transformer returns a `BinaryContent` object of the `Core.THUMBNAIL` bytes and a MIME Type of `image/jpeg`.
 
 '''

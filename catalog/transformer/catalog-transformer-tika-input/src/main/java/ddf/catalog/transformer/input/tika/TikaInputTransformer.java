@@ -638,7 +638,7 @@ public class TikaInputTransformer implements InputTransformer {
           ImageIO.write(thumb, "jpeg", out);
 
           byte[] thumbBytes = out.toByteArray();
-          metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
+          metacard.setAttribute(new AttributeImpl(Core.THUMBNAIL, thumbBytes));
         }
       } else {
         LOGGER.debug("Unable to read image from input stream to create thumbnail.");

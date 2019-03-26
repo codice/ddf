@@ -19,6 +19,7 @@ import ddf.action.MultiActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import java.net.URL;
 import java.util.List;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Class called by the catalog framework after all the results have been received from the different
  * federated sources, before any of the post-query plug-ins are called. The current implementation
- * adds the {@link Metacard#RESOURCE_DOWNLOAD_URL} attribute to all the {@link Metacard} objects
+ * adds the {@link Core#RESOURCE_DOWNLOAD_URL} attribute to all the {@link Metacard} objects
  * contained in the {@link QueryResponse}. The download URL is generated using the {@link
  * ActionProvider} whose ID is "catalog.data.metacard.resource".
  */
@@ -60,7 +61,7 @@ public class QueryResponsePostProcessor {
     if (resourceActionProvider == null && derivedMultiActionProvider == null) {
       LOGGER.debug(
           "No ActionProvider, skipping addition of {} attribute in Metacards",
-          Metacard.RESOURCE_DOWNLOAD_URL);
+          Core.RESOURCE_DOWNLOAD_URL);
       return;
     }
 
@@ -75,19 +76,19 @@ public class QueryResponsePostProcessor {
 
           if (resourceUrl != null) {
             metacard.setAttribute(
-                new AttributeImpl(Metacard.RESOURCE_DOWNLOAD_URL, resourceUrl.toString()));
+                new AttributeImpl(Core.RESOURCE_DOWNLOAD_URL, resourceUrl.toString()));
           }
         }
       }
-      if (metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI) != null
-          && !metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI).getValues().isEmpty()
+      if (metacard.getAttribute(Core.DERIVED_RESOURCE_URI) != null
+          && !metacard.getAttribute(Core.DERIVED_RESOURCE_URI).getValues().isEmpty()
           && derivedMultiActionProvider != null) {
         List<Action> actions = derivedMultiActionProvider.getActions(metacard);
 
         if (!CollectionUtils.isEmpty(actions)) {
           metacard.setAttribute(
               new AttributeImpl(
-                  Metacard.DERIVED_RESOURCE_DOWNLOAD_URL,
+                  Core.DERIVED_RESOURCE_DOWNLOAD_URL,
                   actions
                       .stream()
                       .map(action -> action.getUrl().toString())

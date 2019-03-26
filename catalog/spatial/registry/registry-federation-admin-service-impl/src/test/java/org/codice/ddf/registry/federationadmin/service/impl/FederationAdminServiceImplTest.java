@@ -279,7 +279,7 @@ public class FederationAdminServiceImplTest {
   public void testAddRegistryEntryWithInvalidMetacardNoRegistryTag() throws Exception {
     String destination = TEST_DESTINATION;
     Metacard metacard = getTestMetacard();
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, Collections.singletonList(null)));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, Collections.singletonList(null)));
     Set<String> destinations = new HashSet<>();
     destinations.add(destination);
     federationAdminServiceImpl.addRegistryEntry(metacard, destinations);
@@ -369,7 +369,7 @@ public class FederationAdminServiceImplTest {
     Metacard metacard = testMetacard;
     metacard.setAttribute(
         new AttributeImpl(
-            Metacard.TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
+            Core.METACARD_TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
     Metacard createdMetacard = testMetacard;
     Subject systemSubject = security.getSystemSubject();
     Map<String, Serializable> properties = new HashMap<>();
@@ -948,7 +948,7 @@ public class FederationAdminServiceImplTest {
   @Test(expected = FederationAdminException.class)
   public void testGetLocalRegistryObjectsWithEmptyMetadata() throws Exception {
     Metacard localMetacard = getTestMetacard();
-    localMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, ""));
+    localMetacard.setAttribute(new AttributeImpl(Core.METADATA, ""));
     List<Metacard> localMetacards = new ArrayList<>();
     localMetacards.add(localMetacard);
     doReturn(localMetacards).when(federationAdminServiceImpl).getLocalRegistryMetacards();
@@ -1013,7 +1013,7 @@ public class FederationAdminServiceImplTest {
   @Test(expected = FederationAdminException.class)
   public void testGetRegistryObjectsWithEmptyMetadata() throws Exception {
     Metacard metacard = getTestMetacard();
-    metacard.setAttribute(new AttributeImpl(Metacard.METADATA, ""));
+    metacard.setAttribute(new AttributeImpl(Core.METADATA, ""));
     QueryRequest request = getTestQueryRequest();
     QueryResponse response = getPopulatedTestQueryResponse(request, metacard);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
@@ -1067,7 +1067,7 @@ public class FederationAdminServiceImplTest {
             FILTER_FACTORY.property(Metacard.CONTENT_TYPE),
             RegistryConstants.REGISTRY_NODE_METACARD_TYPE_NAME),
         FILTER_FACTORY.like(
-            FILTER_FACTORY.property(Metacard.TAGS), RegistryConstants.REGISTRY_TAG));
+            FILTER_FACTORY.property(Core.METACARD_TAGS), RegistryConstants.REGISTRY_TAG));
   }
 
   private QueryRequest getTestQueryRequest() {
@@ -1102,12 +1102,12 @@ public class FederationAdminServiceImplTest {
     registryMetacard.setAttribute(
         new AttributeImpl(
             RegistryObjectMetacardType.REGISTRY_ID, RegistryObjectMetacardType.REGISTRY_ID));
-    registryMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, new Date()));
+    registryMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
     registryMetacard.setAttribute(
         new AttributeImpl(
-            Metacard.TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
-    registryMetacard.setAttribute(new AttributeImpl(Metacard.ID, TEST_METACARD_ID));
-    registryMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, TEST_XML_STRING));
+            Core.METACARD_TAGS, Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
+    registryMetacard.setAttribute(new AttributeImpl(Core.ID, TEST_METACARD_ID));
+    registryMetacard.setAttribute(new AttributeImpl(Core.METADATA, TEST_XML_STRING));
     return registryMetacard;
   }
 }

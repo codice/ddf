@@ -14,6 +14,7 @@
 package ddf.catalog.pubsub.internal;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.pubsub.EventProcessorImpl.DateType;
 import ddf.catalog.pubsub.criteria.geospatial.SpatialOperator;
@@ -365,7 +366,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     Predicate predicate = null;
 
-    if (Metacard.ID.equals(propertyName)) {
+    if (Core.ID.equals(propertyName)) {
       String entryId = (String) exp2.getValue();
       LOGGER.debug("entry id for new entry predicate: {}", entryId);
       predicate = new EntryPredicate(entryId);
@@ -375,7 +376,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     } else if (Metacard.CONTENT_TYPE_VERSION.equals(propertyName)) {
       String versionValue = (String) exp2.getValue();
       predicate = new ContentTypePredicate(null, versionValue);
-    } else if (Metacard.RESOURCE_URI.equals(propertyName)) {
+    } else if (Core.RESOURCE_URI.equals(propertyName)) {
       URI productUri = null;
 
       if (exp2.getValue() instanceof URI) {

@@ -28,6 +28,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
@@ -108,7 +109,7 @@ public class SolrProviderExtensibleMetacards {
   private Metacard createAuthor() {
     MetacardImpl customMetacard;
     authorDescriptors.add(
-        new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
+        new AttributeDescriptorImpl(Core.ID, true, true, true, false, BasicTypes.STRING_TYPE));
     authorDescriptors.add(
         new AttributeDescriptorImpl(AUTHOR_FIELD, true, true, true, false, BasicTypes.XML_TYPE));
     MetacardTypeImpl newType = new MetacardTypeImpl("34ga$^TGHfg:/", authorDescriptors);
@@ -119,7 +120,7 @@ public class SolrProviderExtensibleMetacards {
 
   private Metacard createDescriptionMetacard() {
     descriptionDescriptors.add(
-        new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
+        new AttributeDescriptorImpl(Core.ID, true, true, true, false, BasicTypes.STRING_TYPE));
     descriptionDescriptors.add(
         new AttributeDescriptorImpl(
             DESCRIPTION_FIELD, true, true, true, false, BasicTypes.STRING_TYPE));
@@ -132,7 +133,7 @@ public class SolrProviderExtensibleMetacards {
   private Metacard createTypesMetacard() {
 
     typesDescriptors.add(
-        new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
+        new AttributeDescriptorImpl(Core.ID, true, true, true, false, BasicTypes.STRING_TYPE));
     typesDescriptors.add(
         new AttributeDescriptorImpl(doubleField, true, true, false, false, BasicTypes.DOUBLE_TYPE));
     typesDescriptors.add(
@@ -291,7 +292,7 @@ public class SolrProviderExtensibleMetacards {
 
     Metacard resultMetacard = response.getResults().get(0).getMetacard();
 
-    assertThat(resultMetacard.getAttribute(Metacard.ID), notNullValue());
+    assertThat(resultMetacard.getAttribute(Core.ID), notNullValue());
     assertThat(resultMetacard.getAttribute(doubleField).getValue(), equalTo(doubleFieldValue));
     assertThat(resultMetacard.getAttribute(intField).getValue(), equalTo(intFieldValue));
     assertThat(resultMetacard.getAttribute(floatField).getValue(), equalTo(floatFieldValue));

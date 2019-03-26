@@ -21,6 +21,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
@@ -215,57 +216,57 @@ public class MetacardImpl implements Metacard {
 
   @Override
   public Date getCreatedDate() {
-    return requestDate(Metacard.CREATED);
+    return requestDate(Core.CREATED);
   }
 
   /**
    * Sets the date/time the {@link Metacard} was created. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#CREATED}, created))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#CREATED}, created))
    * </code>
    *
    * @param created {@link Date} when this {@link Metacard} was created.
-   * @see Metacard#CREATED
+   * @see Core#CREATED
    */
   public void setCreatedDate(Date created) {
-    setAttribute(Metacard.CREATED, created);
+    setAttribute(Core.CREATED, created);
   }
 
   @Override
   public Date getModifiedDate() {
-    return requestDate(Metacard.MODIFIED);
+    return requestDate(Core.MODIFIED);
   }
 
   /**
    * Sets the date/time the {@link Metacard} was last modifed. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#MODIFIED}, modified))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#MODIFIED}, modified))
    * </code>
    *
    * @param modified {@link Date} when this {@link Metacard} was last modified.
-   * @see Metacard#MODIFIED
+   * @see Core#MODIFIED
    */
   public void setModifiedDate(Date modified) {
-    setAttribute(Metacard.MODIFIED, modified);
+    setAttribute(Core.MODIFIED, modified);
   }
 
   @Override
   public Date getExpirationDate() {
-    return requestDate(Metacard.EXPIRATION);
+    return requestDate(Core.EXPIRATION);
   }
 
   /**
    * Sets the date/time this {@link Metacard} is no longer valid and could be removed. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#EXPIRATION}, expiration))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#EXPIRATION}, expiration))
    * </code>
    *
    * @param expiration {@link Date} when the {@link Metacard} expires and should be removed from any
    *     stores.
-   * @see Metacard#EXPIRATION
+   * @see Core#EXPIRATION
    */
   public void setExpirationDate(Date expiration) {
-    setAttribute(Metacard.EXPIRATION, expiration);
+    setAttribute(Core.EXPIRATION, expiration);
   }
 
   @Override
@@ -289,38 +290,38 @@ public class MetacardImpl implements Metacard {
 
   @Override
   public String getId() {
-    return requestString(Metacard.ID);
+    return requestString(Core.ID);
   }
 
   /**
    * Sets the ID of the {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#ID}, id))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#ID}, id))
    * </code>
    *
    * @param id unique identifier of the Metacard.
-   * @see Metacard#ID
+   * @see Core#ID
    */
   public void setId(String id) {
-    setAttribute(Metacard.ID, id);
+    setAttribute(Core.ID, id);
   }
 
   @Override
   public String getLocation() {
-    return requestString(Metacard.GEOGRAPHY);
+    return requestString(Core.LOCATION);
   }
 
   /**
    * Sets the WKT representation of the geometry. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#GEOGRAPHY}, wkt))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#LOCATION}, wkt))
    * </code>
    *
    * @param wkt WKT-defined geospatial {@link String}, returns null if not applicable
-   * @see Metacard#GEOGRAPHY
+   * @see Core#LOCATION
    */
   public void setLocation(String wkt) {
-    setAttribute(Metacard.GEOGRAPHY, wkt);
+    setAttribute(Core.LOCATION, wkt);
   }
 
   @Override
@@ -338,56 +339,56 @@ public class MetacardImpl implements Metacard {
 
   @Override
   public byte[] getThumbnail() {
-    return requestBytes(Metacard.THUMBNAIL);
+    return requestBytes(Core.THUMBNAIL);
   }
 
   /**
    * Sets the thumbnail associated with this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#THUMBNAIL}, bytes))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#THUMBNAIL}, bytes))
    * </code>
    *
    * @param bytes thumbnail for the {@link Metacard}.
-   * @see Metacard#THUMBNAIL
+   * @see Core#THUMBNAIL
    */
   public void setThumbnail(byte[] bytes) {
-    setAttribute(Metacard.THUMBNAIL, bytes);
+    setAttribute(Core.THUMBNAIL, bytes);
   }
 
   @Override
   public String getTitle() {
-    return requestString(Metacard.TITLE);
+    return requestString(Core.TITLE);
   }
 
   /**
    * Sets the title of this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#TITLE}, id))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#TITLE}, id))
    * </code>
    *
    * @param title Title of the {@link Metacard}
-   * @see Metacard#TITLE
+   * @see Core#TITLE
    */
   public void setTitle(String title) {
-    setAttribute(Metacard.TITLE, title);
+    setAttribute(Core.TITLE, title);
   }
 
   @Override
   public String getMetadata() {
-    return requestString(Metacard.METADATA);
+    return requestString(Core.METADATA);
   }
 
   /**
    * Sets the metadata associated with this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#METADATA}, metadata))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#METADATA}, metadata))
    * </code>
    *
    * @param metadata Associated metadata of the {@link Metacard}
-   * @see Metacard#METADATA
+   * @see Core#METADATA
    */
   public void setMetadata(String metadata) {
-    setAttribute(Metacard.METADATA, metadata);
+    setAttribute(Core.METADATA, metadata);
   }
 
   @Override
@@ -453,7 +454,7 @@ public class MetacardImpl implements Metacard {
    * @param tags set of tags
    */
   public void setTags(Set<String> tags) {
-    setAttribute(Metacard.TAGS, new ArrayList<>(tags));
+    setAttribute(Core.METACARD_TAGS, new ArrayList<>(tags));
   }
 
   /**
@@ -484,20 +485,20 @@ public class MetacardImpl implements Metacard {
    * @return A String representing the description for the {@link Metacard}.
    */
   public String getDescription() {
-    return requestString(Metacard.DESCRIPTION);
+    return requestString(Core.DESCRIPTION);
   }
 
   /**
    * Sets the description of the {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#DESCRIPTION}, description))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#DESCRIPTION}, description))
    * </code>
    *
    * @param description the description of the {@link Metacard}
-   * @see Metacard#DESCRIPTION
+   * @see Core#DESCRIPTION
    */
   public void setDescription(String description) {
-    setAttribute(Metacard.DESCRIPTION, description);
+    setAttribute(Core.DESCRIPTION, description);
   }
 
   @Override
@@ -521,7 +522,7 @@ public class MetacardImpl implements Metacard {
   @Override
   public URI getResourceURI() {
     URI uri = null;
-    String data = requestString(Metacard.RESOURCE_URI);
+    String data = requestString(Core.RESOURCE_URI);
     if (data != null) {
       try {
         uri = new URI(data);
@@ -536,38 +537,38 @@ public class MetacardImpl implements Metacard {
    * Sets the value of this {@link Metacard}s Resource URI and in the form of a {@link URI} Object.
    * <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#RESOURCE_URI}, uri))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#RESOURCE_URI}, uri))
    * </code>
    *
-   * @param uri a {@link URI} representation of the {@link Metacard}'s {@link Metacard#RESOURCE_URI
+   * @param uri a {@link URI} representation of the {@link Metacard}'s {@link Core#RESOURCE_URI
    *     Resource URI} which itself is stored as a {@link
    *     ddf.catalog.data.AttributeType.AttributeFormat#STRING String
    *     ddf.catalog.data.AttributeType.AttributeFormat}
-   * @see Metacard#RESOURCE_URI
+   * @see Core#RESOURCE_URI
    */
   public void setResourceURI(URI uri) {
     if (uri == null) {
       return;
     }
-    setAttribute(RESOURCE_URI, uri.toString());
+    setAttribute(Core.RESOURCE_URI, uri.toString());
   }
 
   @Override
   public String getResourceSize() {
-    return requestString(Metacard.RESOURCE_SIZE);
+    return requestString(Core.RESOURCE_SIZE);
   }
 
   /**
    * Sets the size of the resource which may or may not contain a unit. <br>
    * Convenience method for <code>
-   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#RESOURCE_SIZE}, dadSize))
+   * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Core#RESOURCE_SIZE}, dadSize))
    * </code>
    *
    * @param dadSize {@link String} representation of the size
-   * @see Metacard#RESOURCE_SIZE
+   * @see Core#RESOURCE_SIZE
    */
   public void setResourceSize(String dadSize) {
-    setAttribute(RESOURCE_SIZE, dadSize);
+    setAttribute(Core.RESOURCE_SIZE, dadSize);
   }
 
   /**

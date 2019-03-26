@@ -16,7 +16,7 @@ package ddf.catalog.filter.delegate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -40,14 +40,14 @@ public class TagsFilterDelegateTest {
 
   @Test
   public void testTagsBasic() throws Exception {
-    Filter filter = builder.attribute(Metacard.TAGS).is().like().text("value1");
+    Filter filter = builder.attribute(Core.METACARD_TAGS).is().like().text("value1");
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(true));
   }
 
   @Test
   public void testTagsInvalidOr() throws Exception {
     Filter filter1 = builder.attribute("attribute1").is().like().text("value1");
-    Filter filter2 = builder.attribute(Metacard.TAGS).is().like().text("value2");
+    Filter filter2 = builder.attribute(Core.METACARD_TAGS).is().like().text("value2");
     Filter filter = builder.anyOf(filter1, filter2);
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(false));
   }
@@ -55,8 +55,8 @@ public class TagsFilterDelegateTest {
   @Test
   public void testTagsOr() throws Exception {
     Filter filter1 = builder.attribute("attribute1").is().like().text("value1");
-    Filter filter2 = builder.attribute(Metacard.TAGS).is().like().text("value2");
-    Filter filter3 = builder.attribute(Metacard.TAGS).is().like().text("value3");
+    Filter filter2 = builder.attribute(Core.METACARD_TAGS).is().like().text("value2");
+    Filter filter3 = builder.attribute(Core.METACARD_TAGS).is().like().text("value3");
     Filter filter = builder.anyOf(filter2, builder.allOf(filter1, filter3));
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(true));
   }
@@ -64,14 +64,14 @@ public class TagsFilterDelegateTest {
   @Test
   public void testCollectionTypeAnd() throws Exception {
     Filter filter1 = builder.attribute("attribute1").is().like().text("value1");
-    Filter filter2 = builder.attribute(Metacard.TAGS).is().like().text("value2");
+    Filter filter2 = builder.attribute(Core.METACARD_TAGS).is().like().text("value2");
     Filter filter = builder.allOf(filter1, filter2);
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(true));
   }
 
   @Test
   public void testTagsWithParam() throws Exception {
-    Filter filter = builder.attribute(Metacard.TAGS).is().like().text("value1");
+    Filter filter = builder.attribute(Core.METACARD_TAGS).is().like().text("value1");
     assertThat(adapter.adapt(filter, new TagsFilterDelegate("value1")), is(true));
     assertThat(adapter.adapt(filter, new TagsFilterDelegate("value2")), is(false));
     assertThat(
@@ -82,14 +82,14 @@ public class TagsFilterDelegateTest {
 
   @Test
   public void testTagsNot() throws Exception {
-    Filter filter = builder.not(builder.attribute(Metacard.TAGS).is().like().text("value1"));
+    Filter filter = builder.not(builder.attribute(Core.METACARD_TAGS).is().like().text("value1"));
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(true));
     assertThat(adapter.adapt(filter, new TagsFilterDelegate("value1")), is(false));
   }
 
   @Test
   public void testTagsNotWithoutTag() throws Exception {
-    Filter filter = builder.not(builder.attribute(Metacard.TITLE).is().like().text("value1"));
+    Filter filter = builder.not(builder.attribute(Core.TITLE).is().like().text("value1"));
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(false));
   }
 }

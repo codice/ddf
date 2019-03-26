@@ -14,7 +14,7 @@
 package org.codice.ddf.endpoints.rest;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import java.io.InputStream;
@@ -351,7 +351,7 @@ public class RESTEndpoint implements RESTService {
 
       UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder().path("/" + id);
       ResponseBuilder responseBuilder = Response.created(uriBuilder.build());
-      responseBuilder.header(Metacard.ID, id);
+      responseBuilder.header(Core.ID, id);
 
       return responseBuilder.build();
 

@@ -18,6 +18,7 @@ import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostQueryPlugin;
@@ -83,7 +84,7 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
           continue;
         }
         ImageIO.write(thumbnail, "jpeg", converted);
-        metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, converted.toByteArray()));
+        metacard.setAttribute(new AttributeImpl(Core.THUMBNAIL, converted.toByteArray()));
       } catch (IOException e) {
         throw new PluginExecutionException(e);
       }

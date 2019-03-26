@@ -31,6 +31,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
@@ -128,7 +129,7 @@ public class ConfluenceInputTransformerTest {
     assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue().toString(), equalTo("user"));
     assertThat(mcard.getAttribute(Contact.CONTRIBUTOR_NAME).getValues().contains("user"), is(true));
     assertThat(
-        mcard.getAttribute(Metacard.RESOURCE_URI).getValue().toString(),
+        mcard.getAttribute(Core.RESOURCE_URI).getValue().toString(),
         equalTo(
             "https://codice.atlassian.net/wiki/download/attachments/1179681/ddf-eclipse-code-formatter.xml?version=1&modificationDate=1379541042655&api=v2"));
     assertThat(mcard.getResourceSize(), equalTo("30895"));

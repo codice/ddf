@@ -16,6 +16,7 @@ package ddf.catalog.transformer.xml;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.xml.adapter.MetacardTypeAdapter;
@@ -68,7 +69,7 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
       }
 
       if (!StringUtils.isEmpty(id)) {
-        metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+        metacard.setAttribute(new AttributeImpl(Core.ID, id));
       }
 
       return metacard;

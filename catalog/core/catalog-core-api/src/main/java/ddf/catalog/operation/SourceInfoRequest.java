@@ -13,15 +13,15 @@
  */
 package ddf.catalog.operation;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.Federatable;
 
 /** The SourceInfoRequest represents a request to obtain {@link Source} information. */
 public interface SourceInfoRequest extends Request, Federatable {
 
-  public static final String GET_RESOURCE_BY_ID = Metacard.ID;
+  public static final String GET_RESOURCE_BY_ID = Core.ID;
 
-  public static final String GET_RESOURCE_BY_PRODUCT_URI = Metacard.RESOURCE_URI;
+  public static final String GET_RESOURCE_BY_PRODUCT_URI = Core.RESOURCE_URI;
 
   /**
    * Include content types.

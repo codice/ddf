@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -70,11 +71,11 @@ public class SolrProviderXpath {
             .allOf(
                 getFilterBuilder().xpath("/rss/channel[item/link]").exists(),
                 getFilterBuilder()
-                    .attribute(Metacard.MODIFIED)
+                    .attribute(Core.MODIFIED)
                     .before()
                     .date(new DateTime().plus(1).toDate()),
                 getFilterBuilder()
-                    .attribute(Metacard.GEOGRAPHY)
+                    .attribute(Core.LOCATION)
                     .intersecting()
                     .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT));
 
@@ -88,7 +89,7 @@ public class SolrProviderXpath {
         getFilterBuilder()
             .allOf(
                 getFilterBuilder()
-                    .attribute(Metacard.MODIFIED)
+                    .attribute(Core.MODIFIED)
                     .before()
                     .date(new DateTime().plus(1).toDate()),
                 getFilterBuilder()
@@ -113,7 +114,7 @@ public class SolrProviderXpath {
                 getFilterBuilder()
                     .allOf(
                         getFilterBuilder()
-                            .attribute(Metacard.GEOGRAPHY)
+                            .attribute(Core.LOCATION)
                             .intersecting()
                             .wkt(Library.TAMPA_AIRPORT_POINT_WKT),
                         getFilterBuilder().xpath("/rss//item/enclosure/@url").exists()));
@@ -129,7 +130,7 @@ public class SolrProviderXpath {
         getFilterBuilder()
             .allOf(
                 getFilterBuilder()
-                    .attribute(Metacard.GEOGRAPHY)
+                    .attribute(Core.LOCATION)
                     .intersecting()
                     .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT),
                 getFilterBuilder()

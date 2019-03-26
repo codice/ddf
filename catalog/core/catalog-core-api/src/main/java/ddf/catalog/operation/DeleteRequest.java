@@ -14,15 +14,16 @@
 package ddf.catalog.operation;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.List;
 
 /** A request to delete {@link Metacard}s from the {@link ddf.catalog.source.CatalogProvider} */
 public interface DeleteRequest extends Request {
 
-  public static final String DELETE_BY_ID = Metacard.ID;
+  public static final String DELETE_BY_ID = Core.ID;
 
-  public static final String DELETE_BY_PRODUCT_URI = Metacard.RESOURCE_URI;
+  public static final String DELETE_BY_PRODUCT_URI = Core.RESOURCE_URI;
 
   /**
    * The attribute name tells the {@link ddf.catalog.source.CatalogProvider} implementer what type

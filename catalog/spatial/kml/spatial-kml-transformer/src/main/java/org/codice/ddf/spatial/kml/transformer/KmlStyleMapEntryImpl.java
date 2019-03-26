@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.kml.transformer;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,7 +59,7 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
 
   @Override
   public boolean metacardMatch(Metacard metacard) {
-    if (Metacard.SOURCE_ID.equals(attributeName)) {
+    if (Core.SOURCE_ID.equals(attributeName)) {
       return metacard.getSourceId().equals(attributeValue);
     } else {
       Attribute attribute = metacard.getAttribute(attributeName);

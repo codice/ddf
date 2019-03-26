@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Applies general Create and Update grooming rules such as populating the {@link Metacard#ID},
- * {@link Metacard#MODIFIED}, and {@link Metacard#CREATED} fields.
+ * Applies general Create and Update grooming rules such as populating the {@link Core#ID}, {@link
+ * Core#MODIFIED}, and {@link Core#CREATED} fields.
  */
 public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin {
 
@@ -48,15 +48,15 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     LOGGER.debug("Applying standard rules on CreateRequest");
     if ((aMetacard.getResourceURI() != null && !isCatalogResourceUri(aMetacard.getResourceURI()))
         || !uuidGenerator.validateUuid(aMetacard.getId())) {
-      aMetacard.setAttribute(new AttributeImpl(Metacard.ID, uuidGenerator.generateUuid()));
+      aMetacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
     }
 
     if (aMetacard.getCreatedDate() == null) {
-      aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
+      aMetacard.setAttribute(new AttributeImpl(Core.CREATED, now));
     }
 
     if (aMetacard.getModifiedDate() == null) {
-      aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
+      aMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, now));
     }
 
     if (aMetacard.getEffectiveDate() == null) {
@@ -87,19 +87,19 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
       LOGGER.debug(
           "{} in metacard must match the Update {}, overwriting metacard {} [{}] with the update identifier [{}]",
-          Metacard.ID,
-          Metacard.ID,
-          Metacard.ID,
+          Core.ID,
+          Core.ID,
+          Core.ID,
           aMetacard.getId(),
           anUpdate.getKey());
-      aMetacard.setAttribute(new AttributeImpl(Metacard.ID, anUpdate.getKey()));
+      aMetacard.setAttribute(new AttributeImpl(Core.ID, anUpdate.getKey()));
     }
 
     if (aMetacard.getCreatedDate() == null) {
       LOGGER.debug(
           "{} date should match the original metacard. Changing date to current timestamp so it is at least not null.",
-          Metacard.CREATED);
-      aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
+          Core.CREATED);
+      aMetacard.setAttribute(new AttributeImpl(Core.CREATED, now));
     }
 
     if (isDateAttributeEmpty(aMetacard, Core.METACARD_CREATED)) {
@@ -110,7 +110,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     }
 
     if (aMetacard.getModifiedDate() == null) {
-      aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
+      aMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, now));
     }
 
     if (aMetacard.getEffectiveDate() == null) {

@@ -19,6 +19,7 @@ import ddf.action.MultiActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -57,7 +58,7 @@ public class DerivedContentActionProvider implements MultiActionProvider {
     }
 
     return ((Metacard) input)
-        .getAttribute(Metacard.DERIVED_RESOURCE_URI)
+        .getAttribute(Core.DERIVED_RESOURCE_URI)
         .getValues()
         .stream()
         .map(
@@ -111,8 +112,8 @@ public class DerivedContentActionProvider implements MultiActionProvider {
   public <T> boolean canHandle(T subject) {
     if (subject instanceof Metacard) {
       Metacard metacard = (Metacard) subject;
-      if (metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI) != null
-          && !metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI).getValues().isEmpty()) {
+      if (metacard.getAttribute(Core.DERIVED_RESOURCE_URI) != null
+          && !metacard.getAttribute(Core.DERIVED_RESOURCE_URI).getValues().isEmpty()) {
         return true;
       }
     }

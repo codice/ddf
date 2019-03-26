@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.Constants;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.plugin.PluginExecutionException;
@@ -296,10 +296,10 @@ public class ResourceUsagePluginTest {
     ResourceResponse resourceResponse = mock(ResourceResponse.class);
     Map<String, Serializable> responseProperties = new HashMap<>();
     responseProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-    responseProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
+    responseProperties.put(Core.RESOURCE_SIZE, resourceSize);
     when(resourceResponse.getPropertyNames()).thenReturn(responseProperties.keySet());
     when(resourceResponse.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(subject);
-    when(resourceResponse.getPropertyValue(Metacard.RESOURCE_SIZE)).thenReturn(resourceSize);
+    when(resourceResponse.getPropertyValue(Core.RESOURCE_SIZE)).thenReturn(resourceSize);
     return resourceResponse;
   }
 
@@ -308,10 +308,10 @@ public class ResourceUsagePluginTest {
     ResourceRequest resourceRequest = mock(ResourceRequest.class);
     Map<String, Serializable> requestProperties = new HashMap<>();
     requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-    requestProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
+    requestProperties.put(Core.RESOURCE_SIZE, resourceSize);
     when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
     when(resourceRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(subject);
-    when(resourceRequest.getPropertyValue(Metacard.RESOURCE_SIZE)).thenReturn(resourceSize);
+    when(resourceRequest.getPropertyValue(Core.RESOURCE_SIZE)).thenReturn(resourceSize);
     return resourceRequest;
   }
 

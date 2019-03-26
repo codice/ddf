@@ -237,7 +237,7 @@ public class TestCswSourceBase {
 
     metacardMappings =
         new String[] {
-          Metacard.ID + "=" + IDENTIFIER_MAPPING,
+          Core.ID + "=" + IDENTIFIER_MAPPING,
           Core.CREATED + "=" + CREATED_DATE,
           Metacard.EFFECTIVE + "=" + EFFECTIVE_DATE,
           Core.MODIFIED + "=" + MODIFIED_DATE,

@@ -20,6 +20,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
@@ -81,7 +82,7 @@ public class SolrProviderTestUtil {
 
     QueryImpl query;
     SourceResponse sourceResponse;
-    query = new QueryImpl(filterBuilder.attribute(Metacard.ID).is().like().text("*"));
+    query = new QueryImpl(filterBuilder.attribute(Core.ID).is().like().text("*"));
     query.setPageSize(ALL_RESULTS);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -178,7 +179,7 @@ public class SolrProviderTestUtil {
       String doubleField, String floatField, String intField, String longField, String shortField) {
     Set<AttributeDescriptor> descriptors = new HashSet<>();
     descriptors.add(
-        new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
+        new AttributeDescriptorImpl(Core.ID, true, true, true, false, BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(doubleField, true, true, true, false, BasicTypes.DOUBLE_TYPE));
     descriptors.add(

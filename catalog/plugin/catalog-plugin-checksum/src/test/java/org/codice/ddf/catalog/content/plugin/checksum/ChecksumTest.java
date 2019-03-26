@@ -30,6 +30,8 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PluginExecutionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,7 +89,7 @@ public class ChecksumTest {
                 .getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.CHECKSUM)
+                .getAttribute(Associations.DERIVED)
                 .getValue();
     String checksumAlgorithm =
         (String)
@@ -95,7 +97,7 @@ public class ChecksumTest {
                 .getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.CHECKSUM_ALGORITHM)
+                .getAttribute(Core.CHECKSUM_ALGORITHM)
                 .getValue();
     assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
     assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));
@@ -111,7 +113,7 @@ public class ChecksumTest {
                 .getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.CHECKSUM)
+                .getAttribute(Associations.DERIVED)
                 .getValue();
     String checksumAlgorithm =
         (String)
@@ -119,7 +121,7 @@ public class ChecksumTest {
                 .getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.CHECKSUM_ALGORITHM)
+                .getAttribute(Core.CHECKSUM_ALGORITHM)
                 .getValue();
     assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
     assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));

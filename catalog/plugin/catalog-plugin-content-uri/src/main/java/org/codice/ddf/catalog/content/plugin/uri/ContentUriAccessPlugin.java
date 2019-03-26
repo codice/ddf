@@ -29,8 +29,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * The {@code ContentUriAccessPlugin} prevents a {@link Metacard}s {@link Metacard#RESOURCE_URI}
- * with a scheme of {@link ContentItem#CONTENT_SCHEME} from being overridden by an incoming {@link
+ * The {@code ContentUriAccessPlugin} prevents a {@link Metacard}s {@link Core#RESOURCE_URI} with a
+ * scheme of {@link ContentItem#CONTENT_SCHEME} from being overridden by an incoming {@link
  * UpdateRequest}.
  */
 public class ContentUriAccessPlugin implements AccessPlugin {

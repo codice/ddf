@@ -200,7 +200,7 @@ public class UpdateOperations {
                 OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true);
 
             updatedMetacard.setAttribute(
-                new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(contentItem.getSize())));
+                new AttributeImpl(Core.RESOURCE_SIZE, String.valueOf(contentItem.getSize())));
 
             metacardMap.put(contentItem.getId(), updatedMetacard);
           }
@@ -325,7 +325,7 @@ public class UpdateOperations {
   private UpdateRequest rewriteRequestToAvoidHistoryConflicts(
       UpdateRequest updateRequest, QueryResponse response) {
     final String attributeName = updateRequest.getAttributeName();
-    if (Metacard.ID.equals(attributeName)) {
+    if (Core.ID.equals(attributeName)) {
       return updateRequest;
     }
 
@@ -338,7 +338,7 @@ public class UpdateOperations {
             .collect(Collectors.toList());
 
     return new UpdateRequestImpl(
-        updatedList, Metacard.ID, updateRequest.getProperties(), updateRequest.getStoreIds());
+        updatedList, Core.ID, updateRequest.getProperties(), updateRequest.getStoreIds());
   }
 
   private boolean foundAllUpdateRequestMetacards(

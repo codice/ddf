@@ -323,8 +323,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           List<String> ids = GSON.fromJson(util.safeGetBody(req), LIST_STRING);
           DeleteResponse deleteResponse =
-              catalogFramework.delete(
-                  new DeleteRequestImpl(new ArrayList<>(ids), Metacard.ID, null));
+              catalogFramework.delete(new DeleteRequestImpl(new ArrayList<>(ids), Core.ID, null));
           if (deleteResponse.getProcessingErrors() != null
               && !deleteResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
@@ -1113,7 +1112,7 @@ public class MetacardApplication implements SparkApplication {
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     LOGGER.trace("Attemping to delete metacard [{}]", id);
     Filter tags =
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(DeletedMetacard.DELETED_TAG);
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(DeletedMetacard.DELETED_TAG);
     Filter deletion = filterBuilder.attribute(DeletedMetacard.DELETION_OF_ID).is().like().text(id);
     Filter filter = filterBuilder.allOf(tags, deletion);
 
@@ -1223,7 +1222,11 @@ public class MetacardApplication implements SparkApplication {
 
   private List<Result> getMetacardHistory(String id) {
     Filter historyFilter =
-        filterBuilder.attribute(Metacard.TAGS).is().equalTo().text(MetacardVersion.VERSION_TAG);
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .equalTo()
+            .text(MetacardVersion.VERSION_TAG);
     Filter idFilter =
         filterBuilder.attribute(MetacardVersion.VERSION_OF_ID).is().equalTo().text(id);
 

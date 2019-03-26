@@ -118,7 +118,7 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
    * @param anUpdate a single {@link ddf.catalog.operation.Update} within the {@link UpdateRequest}
    * @param aMetacard a {@link Metacard} within the request
    * @param timestamp a current {@link Date} timestamp to be optionally used to timestamp each
-   *     Metacard, such as stamping each Metacard with the same {@link Metacard#MODIFIED} date.
+   *     Metacard, such as stamping each Metacard with the same {@link Core#MODIFIED} date.
    * @throws PluginExecutionException
    * @throws StopProcessingException
    */

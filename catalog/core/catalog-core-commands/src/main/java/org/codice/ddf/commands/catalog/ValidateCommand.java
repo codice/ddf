@@ -17,6 +17,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -128,8 +129,8 @@ public class ValidateCommand extends CqlCommands {
     for (File file : files) {
       Metacard metacard = new MetacardImpl();
       String metadata = IOUtils.toString(file.toURI());
-      metacard.setAttribute(new AttributeImpl(Metacard.METADATA, metadata));
-      metacard.setAttribute(new AttributeImpl(Metacard.TITLE, file.getName()));
+      metacard.setAttribute(new AttributeImpl(Core.METADATA, metadata));
+      metacard.setAttribute(new AttributeImpl(Core.TITLE, file.getName()));
       metacards.add(metacard);
     }
     return metacards;

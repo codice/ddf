@@ -21,6 +21,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
@@ -709,13 +710,21 @@ public class QueryOperations extends DescribableImpl {
       return filterBuilder.anyOf(
           queryTags
               .stream()
-              .map(tag -> filterBuilder.attribute(Metacard.TAGS).is().like().text(tag))
+              .map(tag -> filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tag))
               .collect(Collectors.toList()));
     }
     return filterBuilder.not(
         filterBuilder.anyOf(
-            filterBuilder.attribute(Metacard.TAGS).is().like().text(MetacardVersion.VERSION_TAG),
-            filterBuilder.attribute(Metacard.TAGS).is().like().text(DeletedMetacard.DELETED_TAG)));
+            filterBuilder
+                .attribute(Core.METACARD_TAGS)
+                .is()
+                .like()
+                .text(MetacardVersion.VERSION_TAG),
+            filterBuilder
+                .attribute(Core.METACARD_TAGS)
+                .is()
+                .like()
+                .text(DeletedMetacard.DELETED_TAG)));
   }
 
   private Filter getFilterWithValidationFilter() {

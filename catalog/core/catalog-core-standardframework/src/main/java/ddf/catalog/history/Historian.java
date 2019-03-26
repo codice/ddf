@@ -36,6 +36,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
@@ -683,7 +684,7 @@ public class Historian {
             contentItem);
         continue;
       }
-      metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
+      metacard.setAttribute(new AttributeImpl(Core.RESOURCE_URI, contentItem.getUri()));
     }
   }
 

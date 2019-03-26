@@ -22,6 +22,7 @@ import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.geo.formatter.CompositeGeometry;
@@ -93,7 +94,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
       if (attribute != null) {
         Object value = convertAttribute(attribute, ad);
         if (value != null) {
-          if (Metacard.GEOGRAPHY.equals(attribute.getName())) {
+          if (Core.LOCATION.equals(attribute.getName())) {
             rootObject.put(CompositeGeometry.GEOMETRY_KEY, value);
           } else {
             properties.put(attribute.getName(), value);

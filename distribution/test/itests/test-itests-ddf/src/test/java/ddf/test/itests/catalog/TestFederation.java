@@ -63,7 +63,7 @@ import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
 import com.xebialabs.restito.server.secure.SecureStubServer;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
 import java.io.File;
@@ -347,14 +347,14 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_1
                     + "']"),
             hasXPath("/metacards/metacard/geometry/value"),
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_2
                     + "']"),
@@ -396,13 +396,13 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_1
                     + "']"),
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_2
                     + "']"));
@@ -431,13 +431,13 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_1
                     + "']"),
             hasXPath(
                 "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_2
                     + "']"));
@@ -504,7 +504,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/metacard/string[@name='"
-                    + Metacard.TITLE
+                    + Core.TITLE
                     + "']/value[text()='"
                     + RECORD_TITLE_1
                     + "']"),
@@ -548,7 +548,7 @@ public class TestFederation extends AbstractIntegrationTest {
           .body(
               hasXPath(
                   "/metacard/string[@name='"
-                      + Metacard.TITLE
+                      + Core.TITLE
                       + "']/value[text()='"
                       + RECORD_TITLE_1
                       + "']"),
@@ -844,7 +844,7 @@ public class TestFederation extends AbstractIntegrationTest {
             containsString(RECORD_TITLE_1),
             containsString(RECORD_TITLE_2),
             hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.RESOURCE_DOWNLOAD_URL + "']",
+                "/metacards/metacard/string[@name='" + Core.RESOURCE_DOWNLOAD_URL + "']",
                 containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
   }
 
@@ -860,7 +860,7 @@ public class TestFederation extends AbstractIntegrationTest {
             containsString(RECORD_TITLE_1),
             containsString(RECORD_TITLE_2),
             hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.RESOURCE_DOWNLOAD_URL + "']",
+                "/metacards/metacard/string[@name='" + Core.RESOURCE_DOWNLOAD_URL + "']",
                 containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
   }
 

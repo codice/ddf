@@ -94,7 +94,7 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
     writer.startNode(qname.getPrefix() + ":" + qname.getLocalPart());
 
     // Add the "fid" attribute if we have an ID
-    String fid = (String) metacard.getAttribute(Metacard.ID).getValue();
+    String fid = (String) metacard.getAttribute(Core.ID).getValue();
     if (fid != null) {
       writer.addAttribute(FID, fid);
     }

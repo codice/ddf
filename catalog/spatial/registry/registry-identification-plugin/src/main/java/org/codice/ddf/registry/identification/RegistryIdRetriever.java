@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -70,12 +71,12 @@ public class RegistryIdRetriever {
       Filter registryFilter =
           filterBuilder.anyOf(
               filterBuilder
-                  .attribute(Metacard.TAGS)
+                  .attribute(Core.METACARD_TAGS)
                   .is()
                   .equalTo()
                   .text(RegistryConstants.REGISTRY_TAG),
               filterBuilder
-                  .attribute(Metacard.TAGS)
+                  .attribute(Core.METACARD_TAGS)
                   .is()
                   .equalTo()
                   .text(RegistryConstants.REGISTRY_TAG_INTERNAL));

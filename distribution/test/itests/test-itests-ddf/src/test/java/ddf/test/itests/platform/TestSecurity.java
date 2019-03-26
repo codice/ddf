@@ -43,7 +43,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.jayway.restassured.path.json.JsonPath;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -656,8 +656,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
-        .body(
-            hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+        .body(hasXPath("//metacard/string[@name='" + Core.TITLE + "']/value[text()='myTitle']"));
 
     configureRestForGuest(SDK_SOAP_CONTEXT);
     getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
@@ -706,8 +705,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
-        .body(
-            hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+        .body(hasXPath("//metacard/string[@name='" + Core.TITLE + "']/value[text()='myTitle']"));
 
     String cswQuery = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
     given()
@@ -721,8 +719,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
-        .body(
-            hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+        .body(hasXPath("//metacard/string[@name='" + Core.TITLE + "']/value[text()='myTitle']"));
 
     // Negative tests
     String unavailableCswSourceId = "Unavailable Csw";
@@ -766,9 +763,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .statusCode(equalTo(200))
         .assertThat()
         .body(
-            not(
-                hasXPath(
-                    "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']")));
+            not(hasXPath("//metacard/string[@name='" + Core.TITLE + "']/value[text()='myTitle']")));
 
     configureRestForGuest(SDK_SOAP_CONTEXT);
     getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);

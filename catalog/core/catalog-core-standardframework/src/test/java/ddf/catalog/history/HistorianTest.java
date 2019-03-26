@@ -47,6 +47,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -570,13 +571,13 @@ public class HistorianTest {
 
   private List<Metacard> getMetacardUpdatePair() {
     Metacard old = new MetacardImpl();
-    old.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID));
-    old.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI));
+    old.setAttribute(new AttributeImpl(Core.ID, METACARD_ID));
+    old.setAttribute(new AttributeImpl(Core.RESOURCE_URI, RESOURCE_URI));
 
     Metacard update = new MetacardImpl();
-    update.setAttribute(new AttributeImpl(Metacard.ID, METACARD_ID));
-    update.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, RESOURCE_URI));
-    update.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, UPDATE_DESCRIPTION));
+    update.setAttribute(new AttributeImpl(Core.ID, METACARD_ID));
+    update.setAttribute(new AttributeImpl(Core.RESOURCE_URI, RESOURCE_URI));
+    update.setAttribute(new AttributeImpl(Core.DESCRIPTION, UPDATE_DESCRIPTION));
 
     return Arrays.asList(old, update);
   }

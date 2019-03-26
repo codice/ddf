@@ -22,6 +22,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
@@ -322,7 +323,7 @@ public class DeleteOperations {
 
   private DeleteRequest rewriteRequestToAvoidHistoryConflicts(
       DeleteRequest deleteRequest, SourceResponse response) {
-    if (Metacard.ID.equals(deleteRequest.getAttributeName())) {
+    if (Core.ID.equals(deleteRequest.getAttributeName())) {
       return deleteRequest;
     }
 
@@ -336,7 +337,7 @@ public class DeleteOperations {
             .collect(Collectors.toList());
 
     return new DeleteRequestImpl(
-        updatedList, Metacard.ID, deleteRequest.getProperties(), deleteRequest.getStoreIds());
+        updatedList, Core.ID, deleteRequest.getProperties(), deleteRequest.getStoreIds());
   }
 
   private boolean foundAllDeleteRequestMetacards(

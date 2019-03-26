@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.resource.cache.impl;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.QueryRequest;
@@ -105,12 +106,7 @@ public class ResourceCacheService implements ResourceCacheServiceMBean {
 
   private Optional<Metacard> queryForMetacard(String metacardId) {
     Filter filter =
-        frameworkProperties
-            .getFilterBuilder()
-            .attribute(Metacard.ID)
-            .is()
-            .equalTo()
-            .text(metacardId);
+        frameworkProperties.getFilterBuilder().attribute(Core.ID).is().equalTo().text(metacardId);
     QueryRequest queryRequest = new QueryRequestImpl(new QueryImpl(filter), true);
     QueryResponse queryResponse = null;
     try {

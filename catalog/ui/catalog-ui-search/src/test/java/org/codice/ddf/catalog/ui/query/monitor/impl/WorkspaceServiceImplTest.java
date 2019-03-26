@@ -32,6 +32,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -115,7 +116,7 @@ public class WorkspaceServiceImplTest {
     when(metacard.getMetacardType()).thenReturn(MetacardImpl.BASIC_METACARD);
     Attribute attribute = mock(Attribute.class);
     when(attribute.getValue()).thenReturn(id);
-    when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
+    when(metacard.getAttribute(Core.ID)).thenReturn(attribute);
     when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
     when(persistentStore.get(eq(SUBSCRIPTION_TYPE.toString()), anyString(), eq(0), eq(100)))
         .thenReturn(Collections.singletonList(Collections.singletonMap("id_txt", id)));

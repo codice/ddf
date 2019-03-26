@@ -384,8 +384,8 @@ public class SearchFormsApplication implements SparkApplication {
   @Nullable
   private Metacard getMetacardIfExistsOrNull(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
-    Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
+    Filter idFilter = filterBuilder.attribute(Core.ID).is().equalTo().text(id);
+    Filter tagsFilter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text("*");
     Filter filter = filterBuilder.allOf(idFilter, tagsFilter);
 
     QueryResponse queryResponse =

@@ -39,6 +39,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -215,7 +216,7 @@ public class CatalogServiceImpl implements CatalogService {
       try {
         String transformer = DEFAULT_METACARD_TRANSFORMER;
 
-        Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+        Filter filter = getFilterBuilder().attribute(Core.ID).is().equalTo().text(id);
 
         Collection<String> sources = null;
         if (sourceid != null) {
@@ -362,7 +363,7 @@ public class CatalogServiceImpl implements CatalogService {
         if (transformerParam != null) {
           transformer = transformerParam;
         }
-        Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+        Filter filter = getFilterBuilder().attribute(Core.ID).is().equalTo().text(id);
 
         Collection<String> sources = null;
         if (encodedSourceId != null) {
@@ -1185,7 +1186,7 @@ public class CatalogServiceImpl implements CatalogService {
       }
 
       if (id != null) {
-        generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+        generatedMetacard.setAttribute(new AttributeImpl(Core.ID, id));
       }
       LOGGER.debug("Metacard id is {}", generatedMetacard.getId());
 

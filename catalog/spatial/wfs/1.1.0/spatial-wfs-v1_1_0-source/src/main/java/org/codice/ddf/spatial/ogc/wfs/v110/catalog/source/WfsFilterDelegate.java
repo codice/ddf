@@ -23,6 +23,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -477,7 +478,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       return buildPropertyIsFilterTypeForAnyGeo(literal, propertyIsType);
     } else if (featureMetacardType.getProperties().contains(propertyName)) {
       return buildPropertyIsFilterTypeForProperty(propertyName, literal, propertyIsType);
-    } else if (Metacard.ID.equals(propertyName)) {
+    } else if (Core.ID.equals(propertyName)) {
       return buildPropertyIsFilterTypeForId(literal);
     }
 

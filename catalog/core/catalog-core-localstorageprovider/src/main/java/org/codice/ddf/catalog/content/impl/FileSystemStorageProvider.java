@@ -35,6 +35,7 @@ import ddf.catalog.content.operation.impl.ReadStorageResponseImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageResponseImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import java.io.IOException;
@@ -190,11 +191,11 @@ public class FileSystemStorageProvider implements StorageProvider {
           && StringUtils.isBlank(contentItem.getQualifier())) {
         contentItem
             .getMetacard()
-            .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
+            .setAttribute(new AttributeImpl(Core.RESOURCE_URI, contentItem.getUri()));
         try {
           contentItem
               .getMetacard()
-              .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, contentItem.getSize()));
+              .setAttribute(new AttributeImpl(Core.RESOURCE_SIZE, contentItem.getSize()));
         } catch (IOException e) {
           LOGGER.info(
               "Could not set size of content item [{}] on metacard [{}]",

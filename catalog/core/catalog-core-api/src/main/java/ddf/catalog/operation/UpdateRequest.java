@@ -14,6 +14,7 @@
 package ddf.catalog.operation;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,17 +31,17 @@ public interface UpdateRequest extends Request {
    * Shortcut for the {@link ddf.catalog.data.Attribute} name used for updating {@link Metacard}s by
    * ID.
    *
-   * @see Metacard#ID
+   * @see Core#ID
    */
-  public static final String UPDATE_BY_ID = Metacard.ID;
+  public static final String UPDATE_BY_ID = Core.ID;
 
   /**
    * Shortcut for the {@link ddf.catalog.data.Attribute} name used for updating {@link Metacard}s by
-   * the {@link String} value of the {@link Metacard}'s {@link Metacard#RESOURCE_URI Resource URI}.
+   * the {@link String} value of the {@link Metacard}'s {@link Core#RESOURCE_URI Resource URI}.
    *
-   * @see Metacard#RESOURCE_URI
+   * @see Core#RESOURCE_URI
    */
-  public static final String UPDATE_BY_PRODUCT_URI = Metacard.RESOURCE_URI;
+  public static final String UPDATE_BY_PRODUCT_URI = Core.RESOURCE_URI;
 
   /**
    * The attribute name tells the {@link ddf.catalog.source.CatalogProvider} what type of attribute

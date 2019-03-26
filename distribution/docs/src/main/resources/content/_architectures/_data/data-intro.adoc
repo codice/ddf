@@ -226,9 +226,9 @@ Developers hoping to query custom fields from extensible `Metacards` of other�
 A developer cannot question a source for all its _queryable_ fields.
 A developer only knows about the `MetacardTypes` which that individual developer has used or created previously. 
 
-The only exception to this limitation is the `Metacard.ID` field, which is required in every `Metacard` that is stored in a source.
-A developer can always request `Metacards` from a source for which that developer has the `Metacard.ID` value. 
-The developer could also perform a wildcard search on the `Metacard.ID` field if the source allows.
+The only exception to this limitation is the `Core.ID` field, which is required in every `Metacard` that is stored in a source.
+A developer can always request `Metacards` from a source for which that developer has the `Core.ID` value. 
+The developer could also perform a wildcard search on the `Core.ID` field if the source allows.
 
 ===== Processing Metacards
 

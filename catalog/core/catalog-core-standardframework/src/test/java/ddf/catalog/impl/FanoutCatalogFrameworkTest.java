@@ -39,6 +39,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -375,7 +376,7 @@ public class FanoutCatalogFrameworkTest {
   @Test(expected = IngestException.class)
   public void testBlacklistedTagCreateRequestFails() throws Exception {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "blacklisted"));
     CreateRequest request = new CreateRequestImpl(metacard);
     framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
     framework.create(request);
@@ -384,8 +385,8 @@ public class FanoutCatalogFrameworkTest {
   @Test(expected = IngestException.class)
   public void testBlacklistedTagUpdateRequestFails() throws Exception {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+    metacard.setAttribute(new AttributeImpl(Core.ID, "metacardId"));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "blacklisted"));
 
     UpdateRequest request = new UpdateRequestImpl(metacard.getId(), metacard);
     framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
@@ -395,8 +396,8 @@ public class FanoutCatalogFrameworkTest {
   @Test(expected = IngestException.class)
   public void testBlacklistedTagDeleteRequestFails() throws Exception {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+    metacard.setAttribute(new AttributeImpl(Core.ID, "metacardId"));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "blacklisted"));
 
     CatalogProvider catalogProvider = mock(CatalogProvider.class);
     doReturn(true).when(catalogProvider).isAvailable();
@@ -466,7 +467,7 @@ public class FanoutCatalogFrameworkTest {
   @Test(expected = IngestException.class)
   public void testBlacklistedTagCreateStorageRequestFails() throws Exception {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "blacklisted"));
 
     CatalogProvider catalogProvider = mock(CatalogProvider.class);
     doReturn(true).when(catalogProvider).isAvailable();
@@ -556,8 +557,8 @@ public class FanoutCatalogFrameworkTest {
   @Test(expected = IngestException.class)
   public void testBlacklistedTagUpdateStorageRequestFails() throws Exception {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+    metacard.setAttribute(new AttributeImpl(Core.ID, "metacardId"));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "blacklisted"));
 
     ContentItem item =
         new ContentItemImpl(

@@ -473,7 +473,7 @@ public class DumpCommand extends CqlCommands {
   }
 
   private Map<String, Resource> getAllMetacardContent(Metacard metacard) {
-    Attribute attribute = metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI);
+    Attribute attribute = metacard.getAttribute(Core.DERIVED_RESOURCE_URI);
     Map<String, Resource> resourceMap = getResourceMap(metacard, attribute);
 
     URI resourceUri = metacard.getResourceURI();

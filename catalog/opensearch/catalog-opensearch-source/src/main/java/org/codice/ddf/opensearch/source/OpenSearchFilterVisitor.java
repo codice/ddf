@@ -18,7 +18,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.Calendar;
 import java.util.Date;
@@ -277,7 +277,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       final Expression expression1 = filter.getExpression1();
       if (expression1 instanceof PropertyName) {
         final String propertyName = ((PropertyName) expression1).getPropertyName();
-        final String expectedPropertyIsEqualToTerm = Metacard.ID;
+        final String expectedPropertyIsEqualToTerm = Core.ID;
         if (expectedPropertyIsEqualToTerm.equals(propertyName)) {
           final Expression expression2 = filter.getExpression2();
           if (expression2 instanceof Literal) {

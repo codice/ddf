@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
@@ -149,7 +150,7 @@ public class SolrProviderDelete {
     assertThat(deleteResponse.getDeletedMetacards().size(), equalTo(0));
   }
 
-  /** Testing if another attribute can be used to delete records other than {@link Metacard#ID} */
+  /** Testing if another attribute can be used to delete records other than {@link Core#ID} */
   @Test
   public void testDeleteAlternativeAttribute() throws IngestException, UnsupportedQueryException {
 
@@ -195,7 +196,7 @@ public class SolrProviderDelete {
 
               @Override
               public String getAttributeName() {
-                return Metacard.TITLE;
+                return Core.TITLE;
               }
             });
 
@@ -206,7 +207,7 @@ public class SolrProviderDelete {
     // verify it is really not in SOLR
 
     Filter filter =
-        getFilterBuilder().attribute(Metacard.TITLE).like().text(MockMetacard.DEFAULT_TITLE);
+        getFilterBuilder().attribute(Core.TITLE).like().text(MockMetacard.DEFAULT_TITLE);
 
     QueryImpl query = new QueryImpl(filter);
 

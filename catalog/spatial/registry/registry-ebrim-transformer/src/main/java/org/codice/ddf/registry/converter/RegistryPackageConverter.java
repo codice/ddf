@@ -346,14 +346,14 @@ public class RegistryPackageConverter {
     if (registryObject.isSetName()) {
       setMetacardStringAttribute(
           INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getName()),
-          Metacard.TITLE,
+          Core.TITLE,
           metacard);
     }
 
     if (registryObject.isSetDescription()) {
       setMetacardStringAttribute(
           INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getDescription()),
-          Metacard.DESCRIPTION,
+          Core.DESCRIPTION,
           metacard);
     }
 
@@ -376,14 +376,14 @@ public class RegistryPackageConverter {
     if (registryObject.isSetName()) {
       setMetacardStringAttribute(
           INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getName()),
-          Metacard.TITLE,
+          Core.TITLE,
           metacard);
     }
 
     if (registryObject.isSetDescription()) {
       setMetacardStringAttribute(
           INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getDescription()),
-          Metacard.DESCRIPTION,
+          Core.DESCRIPTION,
           metacard);
     }
 

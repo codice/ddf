@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import org.junit.Test;
 
 public class MetacardMapperImplTest {
@@ -36,7 +36,7 @@ public class MetacardMapperImplTest {
     metacardMapper.setCreatedDateMapping(FEATURE_PROPERTY);
 
     // Test
-    String featureProperty = metacardMapper.getFeatureProperty(Metacard.CREATED);
+    String featureProperty = metacardMapper.getFeatureProperty(Core.CREATED);
 
     // Verify
     assertThat(featureProperty, is(FEATURE_PROPERTY));
@@ -50,7 +50,7 @@ public class MetacardMapperImplTest {
     metacardMapper.setCreatedDateMapping(FEATURE_PROPERTY);
 
     // Test
-    String featureProperty = metacardMapper.getFeatureProperty(Metacard.MODIFIED);
+    String featureProperty = metacardMapper.getFeatureProperty(Core.MODIFIED);
 
     // Verify
     assertThat(featureProperty, is(nullValue()));
@@ -69,7 +69,7 @@ public class MetacardMapperImplTest {
     String unit = metacardMapper.getDataUnit();
 
     // Verify
-    assertThat(metacardAttribute, is(Metacard.RESOURCE_SIZE));
+    assertThat(metacardAttribute, is(Core.RESOURCE_SIZE));
     assertThat(unit, is("MB"));
   }
 

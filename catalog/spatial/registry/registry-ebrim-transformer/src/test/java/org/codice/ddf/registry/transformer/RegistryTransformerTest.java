@@ -261,7 +261,7 @@ public class RegistryTransformerTest {
     String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
     Metacard metacard = registryTransformer.transform(IOUtils.toInputStream(in));
 
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "JustSomeMadeUpStuff"));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "JustSomeMadeUpStuff"));
     String out = IOUtils.toString(registryTransformer.transform(metacard, null).getInputStream());
     assertThat(in, is(out));
   }
@@ -345,9 +345,9 @@ public class RegistryTransformerTest {
         RegistryUtility.getStringAttribute(
             metacard, RegistryObjectMetacardType.SECURITY_LEVEL, null),
         is("role=guest"));
-    assertThat(RegistryUtility.getStringAttribute(metacard, Metacard.TITLE, null), is("Node Name"));
+    assertThat(RegistryUtility.getStringAttribute(metacard, Core.TITLE, null), is("Node Name"));
     assertThat(
-        RegistryUtility.getStringAttribute(metacard, Metacard.DESCRIPTION, null),
+        RegistryUtility.getStringAttribute(metacard, Core.DESCRIPTION, null),
         is("A little something describing this node in less than 1024 characters"));
     assertThat(
         RegistryUtility.getStringAttribute(metacard, Metacard.CONTENT_TYPE_VERSION, null),

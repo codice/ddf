@@ -96,9 +96,9 @@ class MetacardFactorySpec extends Specification {
 
         then:
         0 * uuidGenerator.generateUuid()
-        1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
+        1 * metacardXml.setAttribute({ it.name == Core.ID && it.values.first() == 'test-id' })
         1 * metacardXml.getTitle() >> { 'this is a title' }
-        0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
+        0 * metacardXml.setAttribute({ it.name == Core.TITLE })
 
         metacard == metacardXml
     }
@@ -111,10 +111,10 @@ class MetacardFactorySpec extends Specification {
         def metacard = metacardFactory.generateMetacard('text/plain', null, 'filename', path)
 
         then:
-        1 * metacardPlain.setAttribute({ it.name == Metacard.ID && it.values.first() != null })
+        1 * metacardPlain.setAttribute({ it.name == Core.ID && it.values.first() != null })
         1 * metacardPlain.getTitle() >> { null }
         1 * metacardPlain.setAttribute({
-            it.name == Metacard.TITLE && it.values.first() == 'filename'
+            it.name == Core.TITLE && it.values.first() == 'filename'
         })
 
         metacard == metacardPlain
@@ -126,9 +126,9 @@ class MetacardFactorySpec extends Specification {
 
         then:
         0 * uuidGenerator.generateUuid()
-        1 * metacardPlain.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
+        1 * metacardPlain.setAttribute({ it.name == Core.ID && it.values.first() == 'test-id' })
         1 * metacardPlain.getTitle() >> { 'this is a title' }
-        0 * metacardPlain.setAttribute({ it.name == Metacard.TITLE })
+        0 * metacardPlain.setAttribute({ it.name == Core.TITLE })
 
         metacard == metacardPlain
     }
@@ -139,9 +139,9 @@ class MetacardFactorySpec extends Specification {
 
         then:
         0 * uuidGenerator.generateUuid()
-        1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
+        1 * metacardXml.setAttribute({ it.name == Core.ID && it.values.first() == 'test-id' })
         1 * metacardXml.getTitle() >> { 'this is a title' }
-        0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
+        0 * metacardXml.setAttribute({ it.name == Core.TITLE })
 
         metacard == metacardXml
     }
@@ -152,9 +152,9 @@ class MetacardFactorySpec extends Specification {
 
         then:
         0 * uuidGenerator.generateUuid()
-        1 * metacardXml2.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
+        1 * metacardXml2.setAttribute({ it.name == Core.ID && it.values.first() == 'test-id' })
         1 * metacardXml2.getTitle() >> { 'this is a title' }
-        0 * metacardXml2.setAttribute({ it.name == Metacard.TITLE })
+        0 * metacardXml2.setAttribute({ it.name == Core.TITLE })
 
         metacard == metacardXml2
     }

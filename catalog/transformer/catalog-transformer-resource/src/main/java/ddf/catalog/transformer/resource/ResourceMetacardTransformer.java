@@ -16,6 +16,7 @@ package ddf.catalog.transformer.resource;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceRequestById;
@@ -68,7 +69,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
     }
 
     if (StringUtils.isNotEmpty(metacard.getResourceSize())) {
-      arguments.put(Metacard.RESOURCE_SIZE, metacard.getResourceSize());
+      arguments.put(Core.RESOURCE_SIZE, metacard.getResourceSize());
     }
 
     String id = metacard.getId();

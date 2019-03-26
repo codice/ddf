@@ -22,6 +22,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.List;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -54,7 +55,7 @@ public class RegistryUtilityTest {
   public void setup() {
     metacard = new MetacardImpl();
     tags.add(RegistryConstants.REGISTRY_TAG);
-    tagsAttribute = new AttributeImpl(Metacard.TAGS, tags);
+    tagsAttribute = new AttributeImpl(Core.METACARD_TAGS, tags);
 
     metacard.setAttribute(tagsAttribute);
   }
@@ -99,7 +100,7 @@ public class RegistryUtilityTest {
   public void testInternalMetacardHasRegistryTagNoRegistryId() {
     tags.clear();
     tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
     assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(false));
   }
 
@@ -108,7 +109,7 @@ public class RegistryUtilityTest {
     metacard.setAttribute(blankRegistryIdAttribute);
     tags.clear();
     tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
     assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(false));
   }
 
@@ -117,7 +118,7 @@ public class RegistryUtilityTest {
     metacard.setAttribute(registryIdAttribute);
     tags.clear();
     tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
     assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(true));
   }
 
@@ -176,14 +177,14 @@ public class RegistryUtilityTest {
 
   @Test
   public void testListAttribute() {
-    List<String> values = RegistryUtility.getListOfStringAttribute(metacard, Metacard.TAGS);
+    List<String> values = RegistryUtility.getListOfStringAttribute(metacard, Core.METACARD_TAGS);
     assertThat(values.size(), is(1));
     assertThat(values, contains(RegistryConstants.REGISTRY_TAG));
   }
 
   @Test
   public void testHasAttribute() {
-    assertThat(RegistryUtility.hasAttribute(metacard, Metacard.TAGS), is(true));
+    assertThat(RegistryUtility.hasAttribute(metacard, Core.METACARD_TAGS), is(true));
     assertThat(RegistryUtility.hasAttribute(metacard, "BadAttribute"), is(false));
   }
 }

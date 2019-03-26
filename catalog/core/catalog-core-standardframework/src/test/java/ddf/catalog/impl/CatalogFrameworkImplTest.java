@@ -561,12 +561,12 @@ public class CatalogFrameworkImplTest {
   }
 
   private void registerDefaults() {
-    defaultAttributeValueRegistry.setDefaultValue(Metacard.TITLE, DEFAULT_TITLE);
+    defaultAttributeValueRegistry.setDefaultValue(Core.TITLE, DEFAULT_TITLE);
     defaultAttributeValueRegistry.setDefaultValue(
-        CUSTOM_METACARD_TYPE_NAME, Metacard.TITLE, DEFAULT_TITLE_CUSTOM);
-    defaultAttributeValueRegistry.setDefaultValue(Metacard.EXPIRATION, DEFAULT_EXPIRATION);
+        CUSTOM_METACARD_TYPE_NAME, Core.TITLE, DEFAULT_TITLE_CUSTOM);
+    defaultAttributeValueRegistry.setDefaultValue(Core.EXPIRATION, DEFAULT_EXPIRATION);
     defaultAttributeValueRegistry.setDefaultValue(
-        CUSTOM_METACARD_TYPE_NAME, Metacard.EXPIRATION, DEFAULT_EXPIRATION_CUSTOM);
+        CUSTOM_METACARD_TYPE_NAME, Core.EXPIRATION, DEFAULT_EXPIRATION_CUSTOM);
   }
 
   private List<Metacard> getMetacards(String title, Date expiration) {
@@ -698,7 +698,7 @@ public class CatalogFrameworkImplTest {
 
     Map<String, Serializable> propertiesMap = new HashMap<>();
     HashMap<String, String> attributeMap = new HashMap<>();
-    attributeMap.put(Metacard.TITLE, "test");
+    attributeMap.put(Core.TITLE, "test");
     attributeMap.put("foo", "bar");
     propertiesMap.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeMap);
 
@@ -709,7 +709,7 @@ public class CatalogFrameworkImplTest {
 
     AttributeDescriptor stringAttributeDescriptor =
         new AttributeDescriptorImpl(
-            Metacard.TITLE,
+            Core.TITLE,
             true,
             true,
             true,
@@ -728,7 +728,7 @@ public class CatalogFrameworkImplTest {
               }
             });
 
-    when(metacardType.getAttributeDescriptor(Metacard.TITLE)).thenReturn(stringAttributeDescriptor);
+    when(metacardType.getAttributeDescriptor(Core.TITLE)).thenReturn(stringAttributeDescriptor);
     when(metacardType.getAttributeDescriptors())
         .thenReturn(Collections.singleton(new CoreAttributes().getAttributeDescriptor(Core.TITLE)));
 
@@ -777,7 +777,7 @@ public class CatalogFrameworkImplTest {
 
     Map<String, Serializable> propertiesMap = new HashMap<>();
     HashMap<String, Object> attributeMap = new HashMap<>();
-    attributeMap.put(Metacard.CREATED, "bad date");
+    attributeMap.put(Core.CREATED, "bad date");
     propertiesMap.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeMap);
 
     MetacardImpl newCard = new MetacardImpl();
@@ -787,7 +787,7 @@ public class CatalogFrameworkImplTest {
 
     AttributeDescriptor dateAttributeDescriptor =
         new AttributeDescriptorImpl(
-            Metacard.CREATED,
+            Core.CREATED,
             true,
             true,
             true,
@@ -806,7 +806,7 @@ public class CatalogFrameworkImplTest {
               }
             });
 
-    when(metacardType.getAttributeDescriptor(Metacard.TITLE)).thenReturn(dateAttributeDescriptor);
+    when(metacardType.getAttributeDescriptor(Core.TITLE)).thenReturn(dateAttributeDescriptor);
     when(metacardType.getAttributeDescriptors())
         .thenReturn(Collections.singleton(new CoreAttributes().getAttributeDescriptor(Core.TITLE)));
 
@@ -866,7 +866,7 @@ public class CatalogFrameworkImplTest {
     List<Entry<Serializable, Metacard>> updatedEntries =
         new ArrayList<Entry<Serializable, Metacard>>();
     updatedEntries.add(new SimpleEntry<Serializable, Metacard>(insertedCard.getId(), insertedCard));
-    UpdateRequest request = new UpdateRequestImpl(updatedEntries, Metacard.ID, null);
+    UpdateRequest request = new UpdateRequestImpl(updatedEntries, Core.ID, null);
     // send update to framework
     List<Update> returnedCards = framework.update(request).getUpdatedMetacards();
     for (Update curCard : returnedCards) {
@@ -1472,8 +1472,7 @@ public class CatalogFrameworkImplTest {
     FilterFactory filterFactory = new FilterFactoryImpl();
 
     Filter filter =
-        filterFactory.like(
-            filterFactory.property(Metacard.METADATA), "goodyear", "*", "?", "/", false);
+        filterFactory.like(filterFactory.property(Core.METADATA), "goodyear", "*", "?", "/", false);
 
     QueryRequest request = new QueryRequestImpl(new QueryImpl(filter));
 
@@ -1535,7 +1534,7 @@ public class CatalogFrameworkImplTest {
 
     final FilterFactory filterFactory = new FilterFactoryImpl();
     final Filter filter =
-        filterFactory.equals(filterFactory.property(Metacard.ID), filterFactory.literal(id));
+        filterFactory.equals(filterFactory.property(Core.ID), filterFactory.literal(id));
 
     final QueryRequest request = new QueryRequestImpl(new QueryImpl(filter));
 
@@ -2223,10 +2222,10 @@ public class CatalogFrameworkImplTest {
       MetacardImpl newCard = new MetacardImpl();
       newCard.setId(null);
       newCard.setResourceURI(new URI("uri:///1234"));
-      map.put(Metacard.ID, newCard);
+      map.put(Core.ID, newCard);
       metacards.addAll(map.entrySet());
 
-      UpdateRequest update = new UpdateRequestImpl(null, Metacard.ID, null);
+      UpdateRequest update = new UpdateRequestImpl(null, Core.ID, null);
       framework.update(update);
     } catch (URISyntaxException e) {
       fail();
@@ -2251,10 +2250,10 @@ public class CatalogFrameworkImplTest {
       MetacardImpl newCard = new MetacardImpl();
       newCard.setId(null);
       newCard.setResourceURI(new URI("uri:///1234"));
-      map.put(Metacard.ID, newCard);
+      map.put(Core.ID, newCard);
       metacards.addAll(map.entrySet());
 
-      UpdateRequest update = new UpdateRequestImpl(null, Metacard.RESOURCE_URI, null);
+      UpdateRequest update = new UpdateRequestImpl(null, Core.RESOURCE_URI, null);
       framework.update(update);
     } catch (URISyntaxException e) {
       fail();
@@ -2500,7 +2499,7 @@ public class CatalogFrameworkImplTest {
     FilterFactory filterFactory = new FilterFactoryImpl();
 
     Filter filter =
-        filterFactory.like(filterFactory.property(Metacard.METADATA), "*", "*", "?", "/", false);
+        filterFactory.like(filterFactory.property(Core.METADATA), "*", "*", "?", "/", false);
 
     List<Metacard> metacards = new ArrayList<>();
     String id = UUID.randomUUID().toString();
@@ -2520,7 +2519,7 @@ public class CatalogFrameworkImplTest {
     List<Entry<Serializable, Metacard>> updates = new ArrayList<>();
     updates.add(new SimpleEntry<>(id, updateCard));
     destinations.remove("mockMemoryProvider");
-    framework.update(new UpdateRequestImpl(updates, Metacard.ID, new HashMap<>(), destinations));
+    framework.update(new UpdateRequestImpl(updates, Core.ID, new HashMap<>(), destinations));
     assertThat(provider.hasReceivedUpdateByIdentifier(), is(false));
     assertThat(store.hasReceivedUpdateByIdentifier(), is(true));
     QueryResponse storeResponse =
@@ -2557,7 +2556,7 @@ public class CatalogFrameworkImplTest {
     FilterFactory filterFactory = new FilterFactoryImpl();
 
     Filter filter =
-        filterFactory.like(filterFactory.property(Metacard.METADATA), "*", "*", "?", "/", false);
+        filterFactory.like(filterFactory.property(Core.METADATA), "*", "*", "?", "/", false);
 
     List<Metacard> metacards = new ArrayList<>();
     String id = UUID.randomUUID().toString().replaceAll("-", "");
@@ -2573,7 +2572,7 @@ public class CatalogFrameworkImplTest {
 
     DeleteRequest deleteRequest =
         new DeleteRequestImpl(
-            Collections.singletonList(id), Metacard.ID, new HashMap<>(), destinations);
+            Collections.singletonList(id), Core.ID, new HashMap<>(), destinations);
     DeleteResponse response = framework.delete(deleteRequest);
     assertThat(response.getDeletedMetacards().size(), is(1));
     QueryResponse queryResponse =

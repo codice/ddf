@@ -20,8 +20,8 @@ import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PluginExecutionException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -247,7 +247,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
   }
 
   private void addThumbnailAttribute(final ContentItem contentItem, final byte[] thumbnailBytes) {
-    contentItem.getMetacard().setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
+    contentItem.getMetacard().setAttribute(new AttributeImpl(Core.THUMBNAIL, thumbnailBytes));
   }
 
   private byte[] createThumbnail(final String videoFilePath)

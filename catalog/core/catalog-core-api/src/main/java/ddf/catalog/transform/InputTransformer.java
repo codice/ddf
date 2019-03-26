@@ -47,7 +47,7 @@ public interface InputTransformer {
    * creation.
    *
    * @param input the binary {@code InputStream} to transform
-   * @param id the attribute value for the {@link Metacard#ID} attribute that should be set in the
+   * @param id the attribute value for the {@link Core#ID} attribute that should be set in the
    *     generated {@link Metacard}
    * @return the generated {@link Metacard}
    * @throws IOException if an I/O exception occurs when reading the {@link InputStream}

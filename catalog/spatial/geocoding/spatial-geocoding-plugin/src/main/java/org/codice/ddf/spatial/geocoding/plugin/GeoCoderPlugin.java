@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@code GeoCoderPlugin} is responsible for adding a {@link Location#COUNTRY_CODE} in ISO
- * 3166-1 format to {@code Metacard}s that have the {@link Metacard#GEOGRAPHY} attribute.
+ * 3166-1 format to {@code Metacard}s that have the {@link Core#LOCATION} attribute.
  */
 public class GeoCoderPlugin implements PreIngestPlugin {
 

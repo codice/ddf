@@ -21,7 +21,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import java.util.Date;
@@ -478,7 +478,7 @@ public class FilterBuilderTest {
     FilterVisitor visitor = spy(new DefaultFilterVisitor() {});
     FilterBuilder builder = new GeotoolsFilterBuilder();
 
-    Filter filter = builder.attribute(Metacard.GEOGRAPHY).intersecting().wkt(POINT_WKT);
+    Filter filter = builder.attribute(Core.LOCATION).intersecting().wkt(POINT_WKT);
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
@@ -490,9 +490,9 @@ public class FilterBuilderTest {
     FilterVisitor visitor = spy(new DefaultFilterVisitor() {});
     FilterBuilder builder = new GeotoolsFilterBuilder();
 
-    Filter filter = builder.attribute(Metacard.GEOGRAPHY).beyond().wkt(POINT_WKT, 123.45d);
+    Filter filter = builder.attribute(Core.LOCATION).beyond().wkt(POINT_WKT, 123.45d);
     filter.accept(visitor, null);
-    filter = builder.attribute(Metacard.GEOGRAPHY).beyond().wkt(POINT_WKT);
+    filter = builder.attribute(Core.LOCATION).beyond().wkt(POINT_WKT);
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
@@ -505,9 +505,9 @@ public class FilterBuilderTest {
     FilterVisitor visitor = spy(new DefaultFilterVisitor() {});
     FilterBuilder builder = new GeotoolsFilterBuilder();
 
-    Filter filter = builder.attribute(Metacard.GEOGRAPHY).within().wkt(POINT_WKT);
+    Filter filter = builder.attribute(Core.LOCATION).within().wkt(POINT_WKT);
     filter.accept(visitor, null);
-    filter = builder.attribute(Metacard.GEOGRAPHY).is().within().wkt(MULTIPOLYGON_WKT);
+    filter = builder.attribute(Core.LOCATION).is().within().wkt(MULTIPOLYGON_WKT);
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
@@ -519,13 +519,13 @@ public class FilterBuilderTest {
     FilterVisitor visitor = spy(new DefaultFilterVisitor() {});
     FilterBuilder builder = new GeotoolsFilterBuilder();
 
-    Filter filter = builder.attribute(Metacard.GEOGRAPHY).withinBuffer().wkt(POINT_WKT);
+    Filter filter = builder.attribute(Core.LOCATION).withinBuffer().wkt(POINT_WKT);
     filter.accept(visitor, null);
-    filter = builder.attribute(Metacard.GEOGRAPHY).withinBuffer().wkt(POINT_WKT, 123.45d);
+    filter = builder.attribute(Core.LOCATION).withinBuffer().wkt(POINT_WKT, 123.45d);
     filter.accept(visitor, null);
-    filter = builder.attribute(Metacard.GEOGRAPHY).is().withinBuffer().wkt(POINT_WKT);
+    filter = builder.attribute(Core.LOCATION).is().withinBuffer().wkt(POINT_WKT);
     filter.accept(visitor, null);
-    filter = builder.attribute(Metacard.GEOGRAPHY).is().withinBuffer().wkt(POINT_WKT, 123.45d);
+    filter = builder.attribute(Core.LOCATION).is().withinBuffer().wkt(POINT_WKT, 123.45d);
     filter.accept(visitor, null);
 
     InOrder inOrder = inOrder(visitor);
@@ -537,7 +537,7 @@ public class FilterBuilderTest {
   public void withinGeoTest() {
     FilterBuilder builder = new GeotoolsFilterBuilder();
 
-    Filter filter = builder.attribute(Metacard.GEOGRAPHY).within().wkt(POINT_WKT);
+    Filter filter = builder.attribute(Core.LOCATION).within().wkt(POINT_WKT);
 
     filter.accept(
         new DefaultFilterVisitor() {

@@ -22,13 +22,13 @@ import ddf.catalog.data.Metacard;
 public interface Core {
   /**
    * {@link ddf.catalog.data.Attribute} checksum value for the {@link
-   * ddf.catalog.data.Metacard#RESOURCE_URI}
+   * ddf.catalog.data.Core#RESOURCE_URI}
    */
   String CHECKSUM = "checksum";
 
   /**
    * {@link ddf.catalog.data.Attribute} algorithm used to calculate the checksum on the {@link
-   * ddf.catalog.data.Metacard#RESOURCE_URI} for local resources
+   * ddf.catalog.data.Core#RESOURCE_URI} for local resources
    */
   String CHECKSUM_ALGORITHM = "checksum-algorithm";
 
@@ -90,7 +90,7 @@ public interface Core {
 
   /**
    * {@link ddf.catalog.data.Attribute} that provides URIs for derived formats of the {@literal
-   * ddf.catalog.data.Metacard.RESOURCE_URI}
+   * ddf.catalog.data.Core.RESOURCE_URI}
    */
   String DERIVED_RESOURCE_URI = "resource.derived-uri";
 

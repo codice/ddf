@@ -22,6 +22,8 @@ import static org.junit.Assert.assertTrue;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
@@ -354,7 +356,7 @@ public class ResourceCacheImplTest {
   private Metacard createMetacard(String sourceId, String metacardId) throws URISyntaxException {
     Metacard metacard = generateMetacard();
     metacard.setSourceId(sourceId);
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
+    metacard.setAttribute(new AttributeImpl(Core.ID, metacardId));
     return metacard;
   }
 
@@ -375,7 +377,7 @@ public class ResourceCacheImplTest {
 
   private MetacardImpl generateMetacard() throws URISyntaxException {
     MetacardImpl metacard = new MetacardImpl();
-    metacard.setAttribute(Metacard.CHECKSUM, "1");
+    metacard.setAttribute(Associations.DERIVED, "1");
     metacard.setSourceId("source1");
     metacard.setId("id123");
     metacard.setContentTypeName("content-type-name");

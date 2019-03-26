@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import java.awt.Dimension;
@@ -158,7 +159,7 @@ public class PptxInputTransformer implements InputTransformer {
 
         byte[] thumbnail = generatePptxThumbnail(xmlSlideShow);
         if (thumbnail != null) {
-          metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbnail));
+          metacard.setAttribute(new AttributeImpl(Core.THUMBNAIL, thumbnail));
         }
 
       } else {

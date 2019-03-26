@@ -35,6 +35,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -301,7 +302,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
   }
 
   private void verifyResourceRequest(ResourceRequest request, String expectedAttributeValue) {
-    assertThat(request.getAttributeName(), is(Metacard.ID));
+    assertThat(request.getAttributeName(), is(Core.ID));
     assertThat(request.getAttributeValue(), is(expectedAttributeValue));
   }
 

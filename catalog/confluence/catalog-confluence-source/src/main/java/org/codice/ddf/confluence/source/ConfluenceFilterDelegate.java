@@ -51,18 +51,17 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
 
   static {
     Map<String, ConfluenceQueryParameter> params = new HashMap<>();
-    params.put(Metacard.ID, new ConfluenceQueryParameter("id", false, true, false, false, true));
+    params.put(Core.ID, new ConfluenceQueryParameter("id", false, true, false, false, true));
     params.put(
         Metacard.CONTENT_TYPE,
         new ConfluenceQueryParameter("type", false, true, false, false, true));
-    params.put(
-        Metacard.TITLE, new ConfluenceQueryParameter("title", true, true, false, true, false));
+    params.put(Core.TITLE, new ConfluenceQueryParameter("title", true, true, false, true, false));
     params.put(
         Metacard.ANY_TEXT, new ConfluenceQueryParameter("text", true, false, false, true, false));
     params.put(
-        Metacard.CREATED, new ConfluenceQueryParameter("created", false, true, true, false, false));
+        Core.CREATED, new ConfluenceQueryParameter("created", false, true, true, false, false));
     params.put(
-        Metacard.MODIFIED,
+        Core.MODIFIED,
         new ConfluenceQueryParameter("lastmodified", false, true, true, false, false));
     params.put(
         Topic.CATEGORY, new ConfluenceQueryParameter("type", false, true, false, false, true));
@@ -179,7 +178,7 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
 
   private void propertyCheck(String name, String literal) {
     parameterCount++;
-    if (Metacard.TAGS.equals(name)) {
+    if (Core.METACARD_TAGS.equals(name)) {
       queryTags.add(literal);
     }
     if (Metacard.ANY_TEXT.equals(name) && ConfluenceQueryParameter.WILD_CARD.equals(literal)) {

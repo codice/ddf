@@ -979,7 +979,7 @@ public class PredicateTest {
     DatatypeFactory df = DatatypeFactory.newInstance();
     XMLGregorianCalendar start = df.newXMLGregorianCalendarDate(2011, 10, 25, 0);
     XMLGregorianCalendar end = df.newXMLGregorianCalendarDate(2011, 10, 27, 0);
-    query.addTemporalFilter(start, end, Metacard.MODIFIED);
+    query.addTemporalFilter(start, end, Core.MODIFIED);
 
     String wkt = "POLYGON((0 10, 0 0, 10 0, 10 10, 0 10))";
     query.addSpatialFilter(wkt, 0.0, "Meter", "CONTAINS");

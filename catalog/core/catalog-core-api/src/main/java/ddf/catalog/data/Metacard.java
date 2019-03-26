@@ -64,7 +64,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.SOURCE_ID}
    */
-  String SOURCE_ID = Core.SOURCE_ID;
+  @Deprecated String SOURCE_ID = Core.SOURCE_ID;
 
   /**
    * Attribute name for querying the metadata content type of a {@link Metacard}.
@@ -89,7 +89,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.ID}.
    */
-  String ID = Core.ID;
+  @Deprecated String ID = Core.ID;
 
   /**
    * {@link Attribute} name for accessing the tags of the {@link Metacard}.
@@ -233,8 +233,8 @@ public interface Metacard extends Serializable {
   String DEFAULT_TAG = "resource";
 
   /**
-   * {@link Attribute} algorithm used to calculate the checksum on the {@link Metacard#RESOURCE_URI}
-   * for local resources
+   * {@link Attribute} algorithm used to calculate the checksum on the {@link Core#RESOURCE_URI} for
+   * local resources
    *
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM_ALGORITHM}
@@ -247,7 +247,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.RELATED}
    */
-  public static final String RELATED = Associations.RELATED;
+  String RELATED = Associations.RELATED;
 
   /**
    * {@link Attribute} name for derived {@link Metacard} ids.
@@ -255,10 +255,10 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.DERIVED}
    */
-  public static final String DERIVED = Associations.DERIVED;
+  String DERIVED = Associations.DERIVED;
 
   /**
-   * {@link Attribute} checksum value for the {@link Metacard#RESOURCE_URI}
+   * {@link Attribute} checksum value for the {@link Core#RESOURCE_URI}
    *
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM}
@@ -266,8 +266,7 @@ public interface Metacard extends Serializable {
   String CHECKSUM = Core.CHECKSUM;
 
   /**
-   * {@link Attribute} that provides URIs for derived formats of the {@literal
-   * Metacard.RESOURCE_URI}
+   * {@link Attribute} that provides URIs for derived formats of the {@literal Core.RESOURCE_URI}
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DERIVED_RESOURCE_URI}
    */
@@ -312,11 +311,11 @@ public interface Metacard extends Serializable {
   /**
    * Returns the ID of this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#ID})
+   * {@link #getAttribute getAttribute}({@link Core#ID})
    * </code>
    *
    * @return unique identifier of the Metacard
-   * @see Metacard#ID
+   * @see Core#ID
    */
   String getId();
 
@@ -326,12 +325,12 @@ public interface Metacard extends Serializable {
    * @return Returns the TAGS attribute values if it exists otherwise return null
    */
   default Set<String> getTags() {
-    Attribute attribute = getAttribute(TAGS);
+    Attribute attribute = getAttribute(Core.METACARD_TAGS);
     if (attribute == null || attribute.getValue() == null) {
       return new HashSet<>();
     } else {
       return new HashSet<>(
-          getAttribute(TAGS)
+          getAttribute(Core.METACARD_TAGS)
               .getValues()
               .stream()
               .map(String::valueOf)
@@ -342,22 +341,22 @@ public interface Metacard extends Serializable {
   /**
    * Returns the metadata associated with this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#METADATA})
+   * {@link #getAttribute getAttribute}({@link Core#METADATA})
    * </code>
    *
    * @return XML metadata
-   * @see Metacard#METADATA
+   * @see Core#METADATA
    */
   String getMetadata();
 
   /**
    * Returns the date/time this {@link Metacard} was created. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#CREATED})
+   * {@link #getAttribute getAttribute}({@link Core#CREATED})
    * </code>
    *
    * @return {@link Date} - when this {@link Metacard} was created.
-   * @see Metacard#CREATED
+   * @see Core#CREATED
    * @deprecated - Do not use. Concept of created date has changed. Instead access dates using
    *     catalog taxonomy fields.
    */
@@ -366,11 +365,11 @@ public interface Metacard extends Serializable {
   /**
    * Returns the date/time this {@link Metacard} was last modifed. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#MODIFIED})
+   * {@link #getAttribute getAttribute}({@link Core#MODIFIED})
    * </code>
    *
    * @return {@link Date} - when this {@link Metacard} was last modified.
-   * @see Metacard#MODIFIED
+   * @see Core#MODIFIED
    * @deprecated - Do not use. Concept of modified date has changed. Instead access dates using
    *     catalog taxonomy fields.
    */
@@ -379,12 +378,12 @@ public interface Metacard extends Serializable {
   /**
    * Returns the date/time this {@link Metacard} is no longer valid and could be removed. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#EXPIRATION})
+   * {@link #getAttribute getAttribute}({@link Core#EXPIRATION})
    * </code>
    *
    * @return {@link Date} - when this {@link Metacard} expires and should be removed from any
    *     stores.
-   * @see Metacard#EXPIRATION
+   * @see Core#EXPIRATION
    */
   Date getExpirationDate();
 
@@ -403,11 +402,11 @@ public interface Metacard extends Serializable {
   /**
    * Returns the WKT representation of the geometry. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#GEOGRAPHY})
+   * {@link #getAttribute getAttribute}({@link Core#LOCATION})
    * </code>
    *
    * @return {@link String} - WKT-defined geospatial object, returns null if not applicable
-   * @see Metacard#GEOGRAPHY
+   * @see Core#LOCATION
    */
   String getLocation();
 
@@ -424,11 +423,11 @@ public interface Metacard extends Serializable {
   /**
    * Returns the title of this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#TITLE})
+   * {@link #getAttribute getAttribute}({@link Core#TITLE})
    * </code>
    *
    * @return Title of the {@link Metacard}
-   * @see Metacard#TITLE
+   * @see Core#TITLE
    */
   String getTitle();
 
@@ -436,11 +435,11 @@ public interface Metacard extends Serializable {
    * Get the value of this {@link Metacard}s Resource URI and in the form of a {@link URI} Object.
    * <br>
    * Convenience method for <code>
-   * new URI({@link #getAttribute getAttribute}({@link Metacard#RESOURCE_URI}));
+   * new URI({@link #getAttribute getAttribute}({@link Core#RESOURCE_URI}));
    * </code>
    *
    * @return {@link URI} - a {@link URI} representation of the {@link Metacard}'s {@link
-   *     Metacard#RESOURCE_URI Resource URI} which itself is stored as a {@link
+   *     Core#RESOURCE_URI Resource URI} which itself is stored as a {@link
    *     ddf.catalog.data.AttributeType.AttributeFormat#STRING String
    *     ddf.catalog.data.AttributeType.AttributeFormat}
    */
@@ -456,11 +455,11 @@ public interface Metacard extends Serializable {
   /**
    * Returns the thumbnail associated with this {@link Metacard}. <br>
    * Convenience method for <code>
-   * {@link #getAttribute getAttribute}({@link Metacard#THUMBNAIL})
+   * {@link #getAttribute getAttribute}({@link Core#THUMBNAIL})
    * </code>
    *
    * @return thumbnail for the {@link Metacard}
-   * @see Metacard#THUMBNAIL
+   * @see Core#THUMBNAIL
    */
   byte[] getThumbnail();
 

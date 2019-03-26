@@ -14,7 +14,7 @@
 package org.codice.ddf.resourcemanagement.usage;
 
 import ddf.catalog.Constants;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.Response;
@@ -51,7 +51,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
     long resourceSize = 0L;
 
     if (input != null && (Requests.isEnterprise(input) || monitorLocalSources)) {
-      Object sizeObj = input.getPropertyValue(Metacard.RESOURCE_SIZE);
+      Object sizeObj = input.getPropertyValue(Core.RESOURCE_SIZE);
       if (sizeObj instanceof String) {
         try {
           LOGGER.debug("resource-size: {} bytes ", (String) sizeObj);
@@ -89,7 +89,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
       throws PluginExecutionException, StopProcessingException {
     long resourceSize = 0L;
     if (input != null && (isEnterprise(input) || monitorLocalSources)) {
-      Object sizeObj = input.getPropertyValue(Metacard.RESOURCE_SIZE);
+      Object sizeObj = input.getPropertyValue(Core.RESOURCE_SIZE);
       if (sizeObj instanceof String) {
         try {
           resourceSize = Long.parseLong((String) sizeObj);

@@ -21,6 +21,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
@@ -59,14 +60,14 @@ public class Jpeg2000ThumbnailConverterTest {
       }
       String imageResourcePath = new File(imageResource.getFile()).getAbsolutePath();
       j2kbytes = Files.readAllBytes(Paths.get(imageResourcePath));
-      metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, j2kbytes));
+      metacard.setAttribute(new AttributeImpl(Core.THUMBNAIL, j2kbytes));
       jpeg2000ThumbnailConverter.process(queryResponse);
       // verify the plugin converted the j2k/jp2 image
       assertTrue(!Arrays.equals(j2kbytes, metacard.getThumbnail()));
     }
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     ImageIO.write(ImageIO.read(new ByteArrayInputStream(j2kbytes)), "gif", output);
-    metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, output.toByteArray()));
+    metacard.setAttribute(new AttributeImpl(Core.THUMBNAIL, output.toByteArray()));
     jpeg2000ThumbnailConverter.process(queryResponse);
     // verify the plugin ignored  the non-j2k
     assertTrue(Arrays.equals(output.toByteArray(), metacard.getThumbnail()));
@@ -75,7 +76,7 @@ public class Jpeg2000ThumbnailConverterTest {
   @Test
   public void testEmptyThumbnail() throws Exception {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, new byte[0]));
+    metacard.setAttribute(new AttributeImpl(Core.THUMBNAIL, new byte[0]));
 
     List<Result> resultList = new ArrayList<>();
     resultList.add(new ResultImpl(metacard));

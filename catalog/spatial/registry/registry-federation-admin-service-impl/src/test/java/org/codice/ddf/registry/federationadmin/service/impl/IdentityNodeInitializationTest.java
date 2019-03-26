@@ -96,7 +96,7 @@ public class IdentityNodeInitializationTest {
     System.setProperty(SystemInfo.SITE_NAME, TEST_SITE_NAME);
     System.setProperty(SystemInfo.VERSION, TEST_VERSION);
     testMetacard = getTestMetacard();
-    testMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, ""));
+    testMetacard.setAttribute(new AttributeImpl(Core.METADATA, ""));
   }
 
   @Test
@@ -120,7 +120,7 @@ public class IdentityNodeInitializationTest {
   public void initWithPreviousPrimaryEntry() throws Exception {
     testMetacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
-    testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
+    testMetacard.setAttribute(new AttributeImpl(Core.TITLE, TEST_SITE_NAME));
     when(federationAdminService.getLocalRegistryIdentityMetacard())
         .thenReturn(Optional.of(testMetacard));
     identityNodeInitialization.init();
@@ -134,10 +134,10 @@ public class IdentityNodeInitializationTest {
 
     testMetacard.setAttribute(
         new AttributeImpl(
-            Metacard.METADATA, metacardMarshaller.getRegistryPackageAsXml(registryPackageType)));
+            Core.METADATA, metacardMarshaller.getRegistryPackageAsXml(registryPackageType)));
     testMetacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
-    testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
+    testMetacard.setAttribute(new AttributeImpl(Core.TITLE, TEST_SITE_NAME));
     testMetacard.setAttribute(new AttributeImpl(Core.ID, "metacardId"));
     when(federationAdminService.getLocalRegistryIdentityMetacard())
         .thenReturn(Optional.of(testMetacard));
@@ -211,10 +211,10 @@ public class IdentityNodeInitializationTest {
 
     testMetacard.setAttribute(
         new AttributeImpl(
-            Metacard.METADATA, metacardMarshaller.getRegistryPackageAsXml(registryPackageType)));
+            Core.METADATA, metacardMarshaller.getRegistryPackageAsXml(registryPackageType)));
     testMetacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
-    testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
+    testMetacard.setAttribute(new AttributeImpl(Core.TITLE, TEST_SITE_NAME));
     testMetacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true));
     testMetacard.setAttribute(

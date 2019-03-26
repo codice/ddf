@@ -36,7 +36,7 @@ import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 /**
  * Metacard used for storing query templates in the catalog. Should not be used as a resource.
  * Identifiable by the presence of {@link QueryTemplateType#QUERY_TEMPLATE_TAG} in {@link
- * Metacard#TAGS}.
+ * Core#METACARD_TAGS}.
  *
  * <p>Relevant attributes:
  *

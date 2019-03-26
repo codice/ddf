@@ -19,6 +19,7 @@ import static spark.Spark.halt;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SortByImpl;
@@ -219,9 +220,7 @@ public class CqlRequest {
     queryRequest = facetQueryRequest(queryRequest);
 
     if (excludeUnnecessaryAttributes) {
-      queryRequest
-          .getProperties()
-          .put("excludeAttributes", Sets.newHashSet(Metacard.METADATA, "lux"));
+      queryRequest.getProperties().put("excludeAttributes", Sets.newHashSet(Core.METADATA, "lux"));
     }
 
     if (sortBys.size() > 1) {

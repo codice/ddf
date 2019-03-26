@@ -28,6 +28,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -184,7 +185,7 @@ public class CatalogBackupPluginTest {
 
               // Verify that the metacard title has been updated to "newTitle" + index
               assertThat(
-                  updatedCard.getAttribute(Metacard.TITLE).getValue(), is(BASE_NEW_TITLE + index));
+                  updatedCard.getAttribute(Core.TITLE).getValue(), is(BASE_NEW_TITLE + index));
             });
   }
 
@@ -296,8 +297,8 @@ public class CatalogBackupPluginTest {
 
   private Metacard getMetacard(String metacardId, String title) {
     Metacard metacard = new MetacardImpl();
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
-    metacard.setAttribute((new AttributeImpl(Metacard.TITLE, title)));
+    metacard.setAttribute(new AttributeImpl(Core.ID, metacardId));
+    metacard.setAttribute((new AttributeImpl(Core.TITLE, title)));
 
     return metacard;
   }

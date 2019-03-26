@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -992,7 +993,7 @@ public class WfsFilterDelegateTest {
   public void testPropertyIsEqualToMetacardId() {
     WfsFilterDelegate delegate = createDelegate();
     when(featureMetacardType.getName()).thenReturn("test");
-    FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "test.123", true);
+    FilterType filter = delegate.propertyIsEqualTo(Core.ID, "test.123", true);
     assertThat(filter, notNullValue());
   }
 
@@ -1000,7 +1001,7 @@ public class WfsFilterDelegateTest {
   public void testPropertyIsEqualToMetacardIdSimpleId() {
     WfsFilterDelegate delegate = createDelegate();
     when(featureMetacardType.getName()).thenReturn("test");
-    FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "123", true);
+    FilterType filter = delegate.propertyIsEqualTo(Core.ID, "123", true);
     assertThat(filter, notNullValue());
   }
 
@@ -1008,7 +1009,7 @@ public class WfsFilterDelegateTest {
   public void testPropertyIsEqualToMetacardIdMismatchFeature() {
     WfsFilterDelegate delegate = createDelegate();
     when(featureMetacardType.getName()).thenReturn("badType");
-    FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "test.123", true);
+    FilterType filter = delegate.propertyIsEqualTo(Core.ID, "test.123", true);
     assertThat(filter, nullValue());
   }
 

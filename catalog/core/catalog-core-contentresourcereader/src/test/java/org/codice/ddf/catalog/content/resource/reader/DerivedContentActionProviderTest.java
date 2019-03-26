@@ -28,6 +28,7 @@ import ddf.action.impl.ActionImpl;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -70,7 +71,7 @@ public class DerivedContentActionProviderTest {
   @Before
   public void setUp() {
     when(metacard.getId()).thenReturn(CONTENT_ID);
-    when(metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI)).thenReturn(attribute);
+    when(metacard.getAttribute(Core.DERIVED_RESOURCE_URI)).thenReturn(attribute);
     when(attribute.getValues()).thenReturn(Arrays.asList(derivedResourceUri.toString()));
   }
 
@@ -122,7 +123,7 @@ public class DerivedContentActionProviderTest {
 
   @Test
   public void testCanHandleMetacardWithNoDerivedResources() throws Exception {
-    when(metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI)).thenReturn(null);
+    when(metacard.getAttribute(Core.DERIVED_RESOURCE_URI)).thenReturn(null);
     assertThat(actionProvider.canHandle(metacard), is(false));
   }
 

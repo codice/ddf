@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.IOException;
@@ -53,10 +54,10 @@ public class AttributeMetacardTransformerTest {
   }
 
   private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER =
-      new AttributeMetacardTransformer(Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
+      new AttributeMetacardTransformer(Core.THUMBNAIL, Core.THUMBNAIL, jpegMimeType);
 
   private static final AttributeMetacardTransformer METADATA_TRANSFORMER =
-      new AttributeMetacardTransformer(Metacard.METADATA, Metacard.METADATA, xmlMimeType);
+      new AttributeMetacardTransformer(Core.METADATA, Core.METADATA, xmlMimeType);
 
   /**
    * Tests case of null {@link Metacard}
@@ -162,7 +163,7 @@ public class AttributeMetacardTransformerTest {
     Metacard mockMetacard = mock(Metacard.class);
 
     when(mockMetacard.getAttribute(isA(String.class)))
-        .thenReturn(new AttributeImpl(Metacard.METADATA, new Date()));
+        .thenReturn(new AttributeImpl(Core.METADATA, new Date()));
 
     METADATA_TRANSFORMER.transform(mockMetacard, null);
   }
@@ -185,9 +186,9 @@ public class AttributeMetacardTransformerTest {
             + " {Impl="
             + AttributeMetacardTransformer.class.getName()
             + ", attributeName="
-            + Metacard.THUMBNAIL
+            + Core.THUMBNAIL
             + ", id="
-            + Metacard.THUMBNAIL
+            + Core.THUMBNAIL
             + ", MIME Type="
             + jpegMimeType
             + "}",
@@ -199,8 +200,8 @@ public class AttributeMetacardTransformerTest {
     Metacard mockMetacard = mock(Metacard.class);
 
     when(mockMetacard.getThumbnail()).thenReturn(thumbnailBytes);
-    when(mockMetacard.getAttribute(Metacard.THUMBNAIL))
-        .thenReturn(new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
+    when(mockMetacard.getAttribute(Core.THUMBNAIL))
+        .thenReturn(new AttributeImpl(Core.THUMBNAIL, thumbnailBytes));
 
     BinaryContent content = THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
 
@@ -214,7 +215,7 @@ public class AttributeMetacardTransformerTest {
     Metacard mockMetacard = mock(Metacard.class);
 
     when(mockMetacard.getAttribute(isA(String.class)))
-        .thenReturn(new AttributeImpl(Metacard.METADATA, metadata));
+        .thenReturn(new AttributeImpl(Core.METADATA, metadata));
 
     BinaryContent content = METADATA_TRANSFORMER.transform(mockMetacard, null);
 

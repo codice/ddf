@@ -23,9 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -370,8 +370,7 @@ public class ResourceOperationsTest {
     ResourceOperations resourceOperationsSpy = spy(resourceOperations);
     resourceOperationsSpy.getResourceInfo(
         resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
-    verify(resourceOperationsSpy)
-        .createPropertyStartsWithQuery(Metacard.RESOURCE_URI, "bobUri:test");
+    verify(resourceOperationsSpy).createPropertyStartsWithQuery(Core.RESOURCE_URI, "bobUri:test");
   }
 
   @Test
@@ -399,8 +398,7 @@ public class ResourceOperationsTest {
             resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
     verify(resourceOperationsSpy)
         .createPropertyStartsWithQuery(
-            Metacard.RESOURCE_URI,
-            "scheme:///" + URLEncoder.encode("part1?file://some/pathto/file"));
+            Core.RESOURCE_URI, "scheme:///" + URLEncoder.encode("part1?file://some/pathto/file"));
     assertThat(resourceInfo.getResourceUri(), equalTo(uri));
   }
 
@@ -430,8 +428,7 @@ public class ResourceOperationsTest {
     ResourceOperations.ResourceInfo resourceInfo =
         resourceOperationsSpy.getResourceInfo(
             resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
-    verify(resourceOperationsSpy)
-        .createPropertyStartsWithQuery(Metacard.RESOURCE_URI, "bobUri:test");
+    verify(resourceOperationsSpy).createPropertyStartsWithQuery(Core.RESOURCE_URI, "bobUri:test");
     assertThat(resourceInfo.getResourceUri(), equalTo(testUri));
   }
 

@@ -24,6 +24,7 @@ import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.UpdateRequest;
@@ -93,7 +94,7 @@ public class IdentificationPluginTest {
     sampleData = new MetacardImpl();
     sampleData.setId("testNewMetacardId");
     sampleData.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "testNewRegistryId");
-    sampleData.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
+    sampleData.setAttribute(Core.MODIFIED, new Date().from(Instant.now()));
     Set<String> tags = new HashSet<>();
     tags.add("registry");
     sampleData.setTags(tags);
@@ -107,7 +108,7 @@ public class IdentificationPluginTest {
     // metacard.getId()
 
     String xml = convert("/registry-no-extid.xml");
-    sampleData.setAttribute(Metacard.METADATA, xml);
+    sampleData.setAttribute(Core.METADATA, xml);
     CreateRequest result = identificationPlugin.process(new CreateRequestImpl(sampleData));
     Metacard testMetacard = result.getMetacards().get(0);
 
@@ -137,7 +138,7 @@ public class IdentificationPluginTest {
     // metacard.getId()
 
     String xml = convert("/registry-extra-extid.xml");
-    sampleData.setAttribute(Metacard.METADATA, xml);
+    sampleData.setAttribute(Core.METADATA, xml);
     CreateRequest result = identificationPlugin.process(new CreateRequestImpl(sampleData));
     Metacard testMetacard = result.getMetacards().get(0);
 
@@ -165,7 +166,7 @@ public class IdentificationPluginTest {
     // unmarshal metacard.metadata and confirm only local ext id are set to metacard.getId()
 
     String xml = convert("/registry-both-extid.xml");
-    sampleData.setAttribute(Metacard.METADATA, xml);
+    sampleData.setAttribute(Core.METADATA, xml);
     CreateRequest result = identificationPlugin.process(new CreateRequestImpl(sampleData));
     Metacard testMetacard = result.getMetacards().get(0);
 
@@ -191,7 +192,7 @@ public class IdentificationPluginTest {
   @Test
   public void testRemoteRequest() throws Exception {
     String xml = convert("/registry-no-extid.xml");
-    sampleData.setAttribute(Metacard.METADATA, xml);
+    sampleData.setAttribute(Core.METADATA, xml);
     Map<String, Serializable> props = new HashMap<>();
     props.put(Constants.LOCAL_DESTINATION_KEY, false);
     CreateRequest result =
@@ -209,7 +210,7 @@ public class IdentificationPluginTest {
   @Test
   public void testUpdateMetacardWithModifiedTimeSameAsCurrentMetacard() throws Exception {
     String xml = convert("/registry-both-extid.xml");
-    sampleData.setAttribute(Metacard.METADATA, xml);
+    sampleData.setAttribute(Core.METADATA, xml);
     sampleData.setAttribute(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "remoteRegistryId");
     OperationTransaction operationTransaction =
         new OperationTransactionImpl(null, Collections.singletonList(sampleData));
@@ -220,7 +221,7 @@ public class IdentificationPluginTest {
     Metacard updateMetacard = sampleData;
     updatedEntries.add(new AbstractMap.SimpleEntry<>(updateMetacard.getId(), updateMetacard));
 
-    UpdateRequest updateRequest = new UpdateRequestImpl(updatedEntries, Metacard.ID, properties);
+    UpdateRequest updateRequest = new UpdateRequestImpl(updatedEntries, Core.ID, properties);
     UpdateRequest processedUpdateRequest = identificationPlugin.process(updateRequest);
     assertThat(processedUpdateRequest.getUpdates().size(), is(1));
   }
@@ -229,13 +230,14 @@ public class IdentificationPluginTest {
   public void testSetTransientAttributesOnUpdateMetacard() throws Exception {
     String xml = convert("/registry-no-extid.xml");
     MetacardImpl previousMetacard = new MetacardImpl();
-    previousMetacard.setAttribute(Metacard.ID, "MetacardId");
+    previousMetacard.setAttribute(Core.ID, "MetacardId");
     previousMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
-    previousMetacard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+    previousMetacard.setAttribute(
+        new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
     previousMetacard.setAttribute(
         RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "Published Locations");
     previousMetacard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED, "Last Published Time");
-    previousMetacard.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
+    previousMetacard.setAttribute(Core.MODIFIED, new Date().from(Instant.now()));
 
     OperationTransaction operationTransaction =
         new OperationTransactionImpl(null, Collections.singletonList(previousMetacard));
@@ -246,14 +248,15 @@ public class IdentificationPluginTest {
     List<Map.Entry<Serializable, Metacard>> updatedEntries = new ArrayList<>();
 
     MetacardImpl updateMetacard = new MetacardImpl();
-    updateMetacard.setAttribute(Metacard.ID, "MetacardId");
+    updateMetacard.setAttribute(Core.ID, "MetacardId");
     updateMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
-    updateMetacard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
-    updateMetacard.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
-    updateMetacard.setAttribute(Metacard.METADATA, xml);
+    updateMetacard.setAttribute(
+        new AttributeImpl(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG));
+    updateMetacard.setAttribute(Core.MODIFIED, new Date().from(Instant.now()));
+    updateMetacard.setAttribute(Core.METADATA, xml);
     updatedEntries.add(new AbstractMap.SimpleEntry<>(updateMetacard.getId(), updateMetacard));
 
-    UpdateRequest updateRequest = new UpdateRequestImpl(updatedEntries, Metacard.ID, properties);
+    UpdateRequest updateRequest = new UpdateRequestImpl(updatedEntries, Core.ID, properties);
     UpdateRequest processedUpdateRequest = identificationPlugin.process(updateRequest);
     Metacard processedMetacard = processedUpdateRequest.getUpdates().get(0).getValue();
     assertThat(

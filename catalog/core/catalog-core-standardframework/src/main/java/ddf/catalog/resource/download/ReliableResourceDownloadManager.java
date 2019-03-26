@@ -16,6 +16,7 @@ package ddf.catalog.resource.download;
 import com.google.common.base.Stopwatch;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -128,7 +129,7 @@ public class ReliableResourceDownloadManager implements DownloadManager {
         throw new DownloadException("Cannot download resource", e);
       }
 
-      resourceResponse.getProperties().put(Metacard.ID, metacard.getId());
+      resourceResponse.getProperties().put(Core.ID, metacard.getId());
       // Sources do not create ResourceResponses with the original ResourceRequest, hence
       // it is added here because it will be needed for caching
       resourceResponse =

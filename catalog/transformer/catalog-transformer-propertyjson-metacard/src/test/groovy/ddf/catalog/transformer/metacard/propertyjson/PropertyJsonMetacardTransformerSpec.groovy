@@ -71,7 +71,7 @@ class PropertyJsonMetacardTransformerSpec extends Specification {
         metacard.setAttribute(MediaAttributes.BITS_PER_SAMPLE, bitspersample)
         def bitspersecond = 3.14159265358979323d
         metacard.setAttribute(MediaAttributes.BITS_PER_SECOND, bitspersecond)
-        metacard.setAttribute(Metacard.MODIFIED, dateFormat.format(created)) //date field with string value
+        metacard.setAttribute(Core.MODIFIED, dateFormat.format(created)) //date field with string value
 
 
         when:

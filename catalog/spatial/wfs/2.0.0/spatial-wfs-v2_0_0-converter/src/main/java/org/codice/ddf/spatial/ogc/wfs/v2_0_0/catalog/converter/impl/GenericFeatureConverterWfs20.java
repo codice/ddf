@@ -23,6 +23,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -89,8 +90,8 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
     writer.startNode(qname.getPrefix() + ":" + qname.getLocalPart());
 
     // Add the "id" attribute if we have an ID
-    if (metacard.getAttribute(Metacard.ID).getValue() != null) {
-      String id = (String) metacard.getAttribute(Metacard.ID).getValue();
+    if (metacard.getAttribute(Core.ID).getValue() != null) {
+      String id = (String) metacard.getAttribute(Core.ID).getValue();
       writer.addAttribute(ID, id);
     }
 

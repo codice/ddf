@@ -19,6 +19,7 @@ import ddf.action.ActionProvider;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,11 +43,11 @@ public class DescriptionTemplateHelper {
   private static final List<String> NON_PRINTABLE_ATTRIBUTES =
       Collections.unmodifiableList(
           Arrays.asList(
-              Metacard.RESOURCE_SIZE,
-              Metacard.RESOURCE_URI,
-              Metacard.GEOGRAPHY,
-              Metacard.METADATA,
-              Metacard.THUMBNAIL,
+              Core.RESOURCE_SIZE,
+              Core.RESOURCE_URI,
+              Core.LOCATION,
+              Core.METADATA,
+              Core.THUMBNAIL,
               Metacard.CONTENT_TYPE_VERSION));
 
   private final FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZ");

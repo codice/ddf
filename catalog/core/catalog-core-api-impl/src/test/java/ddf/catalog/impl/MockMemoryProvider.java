@@ -18,6 +18,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -469,13 +470,13 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
       LOGGER.trace("entry");
       Date d = null;
       if (propName != null && !propName.isEmpty()) {
-        if (propName.equals(Metacard.CREATED)) {
+        if (propName.equals(Core.CREATED)) {
           d = mc.getCreatedDate();
         } else if (propName.equals(Metacard.EFFECTIVE)) {
           d = mc.getEffectiveDate();
-        } else if (propName.equals(Metacard.EXPIRATION)) {
+        } else if (propName.equals(Core.EXPIRATION)) {
           d = mc.getExpirationDate();
-        } else if (propName.equals(Metacard.MODIFIED)) {
+        } else if (propName.equals(Core.MODIFIED)) {
           d = mc.getModifiedDate();
         }
       }

@@ -31,6 +31,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateResponse;
@@ -92,7 +93,7 @@ public class SolrProviderSpatial {
     // CREATE
     create(list, provider);
 
-    Filter filter = getFilterBuilder().attribute(Metacard.ID).is().like().text("*");
+    Filter filter = getFilterBuilder().attribute(Core.ID).is().like().text("*");
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertEquals("Failed to find all records.", 3, sourceResponse.getResults().size());
 
@@ -192,7 +193,7 @@ public class SolrProviderSpatial {
     Filter contentFilter = getFilterBuilder().attribute(Metacard.CONTENT_TYPE).is().text("product");
     Filter spatialFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
 
@@ -232,7 +233,7 @@ public class SolrProviderSpatial {
 
     // Ascending
     Filter positiveFilter =
-        getFilterBuilder().attribute(Metacard.GEOGRAPHY).beyond().wkt(Library.PHOENIX_POINT_WKT, 0);
+        getFilterBuilder().attribute(Core.LOCATION).beyond().wkt(Library.PHOENIX_POINT_WKT, 0);
     QueryImpl query = new QueryImpl(positiveFilter);
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -273,10 +274,7 @@ public class SolrProviderSpatial {
 
     // Using WKT polygon
     positiveFilter =
-        getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
-            .beyond()
-            .wkt(Library.ARIZONA_POLYGON_WKT, 0);
+        getFilterBuilder().attribute(Core.LOCATION).beyond().wkt(Library.ARIZONA_POLYGON_WKT, 0);
     query = new QueryImpl(positiveFilter);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -300,12 +298,12 @@ public class SolrProviderSpatial {
   public void testSpatialDistanceWithinPolygon() throws Exception {
     Filter positiveFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .withinBuffer()
             .wkt(Library.ARIZONA_POLYGON_WKT, 50 * METERS_PER_KM);
     Filter negativeFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .withinBuffer()
             .wkt(Library.ARIZONA_POLYGON_WKT, 10 * METERS_PER_KM);
     testSpatialWithWkt(Library.LAS_VEGAS_POINT_WKT, positiveFilter, negativeFilter);
@@ -320,7 +318,7 @@ public class SolrProviderSpatial {
     double radiusInMeters = radiusInKilometers * METERS_PER_KM;
     Filter positiveFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .withinBuffer()
             .wkt(Library.LAS_VEGAS_POINT_WKT, radiusInMeters);
 
@@ -355,7 +353,7 @@ public class SolrProviderSpatial {
 
   @Test
   public void testSpatialDistanceCalculationBetweenTwoPointsUsingDistanceSortBy() throws Exception {
-    spatialDistanceCalculationBetweenTwoPoints(Metacard.GEOGRAPHY, Result.DISTANCE);
+    spatialDistanceCalculationBetweenTwoPoints(Core.LOCATION, Result.DISTANCE);
   }
 
   @Test
@@ -378,7 +376,7 @@ public class SolrProviderSpatial {
             .wkt(Library.PHOENIX_POINT_WKT, radiusInMeters);
 
     MetacardImpl metacard;
-    if (attribute.equals(Metacard.GEOGRAPHY)) {
+    if (attribute.equals(Core.LOCATION)) {
       metacard = new MockMetacard(Library.getFlagstaffRecord());
     } else {
       metacard =
@@ -433,10 +431,10 @@ public class SolrProviderSpatial {
   @Test
   public void testSpatialWithin() throws Exception {
     Filter positiveFilter =
-        getFilterBuilder().attribute(Metacard.GEOGRAPHY).within().wkt(Library.ARIZONA_POLYGON_WKT);
+        getFilterBuilder().attribute(Core.LOCATION).within().wkt(Library.ARIZONA_POLYGON_WKT);
     Filter negativeFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .within()
             .wkt(Library.GULF_OF_GUINEA_POLYGON_WKT);
     testSpatialWithWkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT, positiveFilter, negativeFilter);
@@ -456,7 +454,7 @@ public class SolrProviderSpatial {
     // POSITIVE
     Filter filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.CLOCKWISE_ARIZONA_RECTANGLE_WKT);
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -483,7 +481,7 @@ public class SolrProviderSpatial {
     // POSITIVE - Counter Clockwise Orientation
     Filter filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT);
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -499,7 +497,7 @@ public class SolrProviderSpatial {
     // POSITIVE - Clockwise Orientation
     filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT);
     sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -515,7 +513,7 @@ public class SolrProviderSpatial {
     // NEGATIVE
     filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT);
     sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -536,7 +534,7 @@ public class SolrProviderSpatial {
 
     Filter filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -554,7 +552,7 @@ public class SolrProviderSpatial {
 
     filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
     sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -576,7 +574,7 @@ public class SolrProviderSpatial {
     // POSITIVE
     Filter filter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .intersecting()
             .wkt(Library.COUNTERCLOCKWISE_ARIZONA_RECTANGLE_WKT);
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -738,12 +736,12 @@ public class SolrProviderSpatial {
   public void testSpatialPolygonContainsPoint() throws Exception {
     Filter positiveFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .containing()
             .wkt(Library.FLAGSTAFF_AIRPORT_POINT_WKT);
     Filter negativeFilter =
         getFilterBuilder()
-            .attribute(Metacard.GEOGRAPHY)
+            .attribute(Core.LOCATION)
             .containing()
             .wkt(Library.GULF_OF_GUINEA_POINT_WKT);
     testSpatialWithWkt(Library.ARIZONA_POLYGON_WKT, positiveFilter, negativeFilter);

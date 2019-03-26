@@ -15,9 +15,9 @@ package ddf.catalog.util.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import java.util.Calendar;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,7 +100,7 @@ public class TemporalResultComparatorTest {
   @Test
   public void testCompareAscendingModified() {
     TemporalResultComparator comparer =
-        new TemporalResultComparator(SortOrder.ASCENDING, Metacard.MODIFIED);
+        new TemporalResultComparator(SortOrder.ASCENDING, Core.MODIFIED);
     assertEquals(-1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
     assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
     assertEquals(1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));

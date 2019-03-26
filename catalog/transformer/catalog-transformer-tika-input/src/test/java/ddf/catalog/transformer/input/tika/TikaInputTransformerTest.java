@@ -409,8 +409,7 @@ public class TikaInputTransformerTest {
     assertThat(metacard.getContentTypeName(), is("image/jpeg"));
     assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
     assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
-    assertThat(
-        metacard.getAttribute(Metacard.GEOGRAPHY).getValue(), is("POINT(-54.1234 12.54321)"));
+    assertThat(metacard.getAttribute(Core.LOCATION).getValue(), is("POINT(-54.1234 12.54321)"));
 
     // Reset timezone back to local time zone.
     TimeZone.setDefault(defaultTimeZone);

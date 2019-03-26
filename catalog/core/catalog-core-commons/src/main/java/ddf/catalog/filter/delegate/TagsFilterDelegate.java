@@ -13,7 +13,7 @@
  */
 package ddf.catalog.filter.delegate;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.Set;
 
 public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
-  public static final String NULL_TAGS = Metacard.TAGS + "_NULL";
+  public static final String NULL_TAGS = Core.METACARD_TAGS + "_NULL";
 
   private Set<String> tags;
 
@@ -67,12 +67,12 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
   @Override
   public Boolean propertyIsEqualTo(String propertyName, String pattern, boolean isCaseSensitive) {
-    return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(pattern));
+    return propertyName.equals(Core.METACARD_TAGS) && (tags == null || tags.contains(pattern));
   }
 
   @Override
   public Boolean propertyIsNull(String propertyName) {
-    return propertyName.equals(Metacard.TAGS)
+    return propertyName.equals(Core.METACARD_TAGS)
         && (tags == null
             || tags.contains(NULL_TAGS)
             || tags.contains(FilterDelegate.WILDCARD_CHAR));
@@ -80,6 +80,6 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
   @Override
   public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-    return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(pattern));
+    return propertyName.equals(Core.METACARD_TAGS) && (tags == null || tags.contains(pattern));
   }
 }

@@ -28,6 +28,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.resource.data.ReliableResource;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class MetacardResourceSizePluginTest {
     assertThat(metacard, is(notNullValue()));
     // Since using Metacard vs. MetacardImpl have to get resource-size as an
     // Attribute vs. Long
-    Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+    Attribute resourceSizeAttr = resultMetacard.getAttribute(Core.RESOURCE_SIZE);
     assertThat((String) resourceSizeAttr.getValue(), is("999"));
   }
 
@@ -100,7 +101,7 @@ public class MetacardResourceSizePluginTest {
     assertThat(metacard, is(notNullValue()));
     // Since using Metacard vs. MetacardImpl have to get resource-size as an
     // Attribute vs. String
-    Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+    Attribute resourceSizeAttr = resultMetacard.getAttribute(Core.RESOURCE_SIZE);
     assertThat((String) resourceSizeAttr.getValue(), equalTo("N/A"));
   }
 
@@ -145,7 +146,7 @@ public class MetacardResourceSizePluginTest {
     assertThat(metacard, is(notNullValue()));
     // Since using Metacard vs. MetacardImpl have to get resource-size as an
     // Attribute vs. Long
-    Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+    Attribute resourceSizeAttr = resultMetacard.getAttribute(Core.RESOURCE_SIZE);
     assertThat((String) resourceSizeAttr.getValue(), equalTo("N/A"));
   }
 
@@ -175,7 +176,7 @@ public class MetacardResourceSizePluginTest {
     assertThat(metacard, is(notNullValue()));
     // Since using Metacard vs. MetacardImpl have to get resource-size as an
     // Attribute vs. Long
-    Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+    Attribute resourceSizeAttr = resultMetacard.getAttribute(Core.RESOURCE_SIZE);
     assertThat((String) resourceSizeAttr.getValue(), equalTo("N/A"));
   }
 }

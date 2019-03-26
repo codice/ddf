@@ -32,7 +32,6 @@ import ddf.catalog.transform.MetacardTransformer
 import org.apache.karaf.shell.api.console.Session
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -195,7 +194,7 @@ class ExportCommandSpec extends Specification {
         }
 
         def attributes = simpleAttributes()
-        attributes.remove(Metacard.RESOURCE_URI) // removed Resource URI simulates no content
+        attributes.remove(Core.RESOURCE_URI) // removed Resource URI simulates no content
 
         def result = new ResultImpl(simpleMetacard(attributes))
 
@@ -235,7 +234,7 @@ class ExportCommandSpec extends Specification {
             it.delete = false
         }
 
-        def result = new ResultImpl(simpleMetacard(simpleAttributes() + [(Metacard.TAGS): [Metacard.DEFAULT_TAG]]))
+        def result = new ResultImpl(simpleMetacard(simpleAttributes() + [(Core.METACARD_TAGS): [Metacard.DEFAULT_TAG]]))
         def resourceName = "contentfor-${result.metacard.id}.xml" as String
 
         catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
@@ -287,7 +286,7 @@ class ExportCommandSpec extends Specification {
             it.catalogProvider = catalogProvider
         }
 
-        def result = new ResultImpl(simpleMetacard(simpleAttributes() + [(Metacard.TAGS): [Metacard.DEFAULT_TAG]]))
+        def result = new ResultImpl(simpleMetacard(simpleAttributes() + [(Core.METACARD_TAGS): [Metacard.DEFAULT_TAG]]))
         def resourceName = "contentfor-${result.metacard.id}.xml" as String
 
         catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
@@ -351,9 +350,9 @@ class ExportCommandSpec extends Specification {
     Map simpleAttributes() {
         String id = randomUUID()
         [
-                (Metacard.ID)          : id,
-                (Metacard.TITLE)       : 'Metacard Title',
-                (Metacard.RESOURCE_URI): "content:$id".toString(),
+                (Core.ID)          : id,
+                (Core.TITLE)       : 'Metacard Title',
+                (Core.RESOURCE_URI): "content:$id".toString(),
         ]
     }
 

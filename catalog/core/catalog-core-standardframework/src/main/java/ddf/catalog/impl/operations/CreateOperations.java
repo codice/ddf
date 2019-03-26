@@ -26,6 +26,7 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -577,10 +578,9 @@ public class CreateOperations {
         Metacard updatedMetacard =
             OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true);
 
+        updatedMetacard.setAttribute(new AttributeImpl(Core.RESOURCE_URI, contentItem.getUri()));
         updatedMetacard.setAttribute(
-            new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
-        updatedMetacard.setAttribute(
-            new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(contentItem.getSize())));
+            new AttributeImpl(Core.RESOURCE_SIZE, String.valueOf(contentItem.getSize())));
 
         metacardMap.put(contentItem.getId(), updatedMetacard);
       }

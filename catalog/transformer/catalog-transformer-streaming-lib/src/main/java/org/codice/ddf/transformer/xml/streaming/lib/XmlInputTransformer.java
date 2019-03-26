@@ -15,6 +15,7 @@ package org.codice.ddf.transformer.xml.streaming.lib;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.Describable;
@@ -111,7 +112,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     SaxEventHandlerDelegate delegate = create();
     /*
-     * Split the input stream, so that we can use it for parsing as well as read it into the Metacard.METADATA attribute
+     * Split the input stream, so that we can use it for parsing as well as read it into the Core.METADATA attribute
      */
     try (OutputStream baos = new ByteArrayOutputStream();
         OutputStream outputStream = new BufferedOutputStream(baos);
@@ -124,7 +125,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
       Metacard metacard = delegate.read(teeInputStream).getMetacard(id);
 
       /*
-       * Read the metadata from the split input stream and set it on the Metacard.METADATA attribute.
+       * Read the metadata from the split input stream and set it on the Core.METADATA attribute.
        * However, if the metadata is null or empty, throw an exception - we can't return a metacard
        * with no metadata
        */
@@ -134,7 +135,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
         throw new CatalogTransformerException(
             "Metadata is empty from output stream. Could not properly parse metacard.");
       }
-      metacard.setAttribute(new AttributeImpl(Metacard.METADATA, metadata));
+      metacard.setAttribute(new AttributeImpl(Core.METADATA, metadata));
 
       return metacard;
     } catch (IOException e) {
@@ -150,7 +151,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
    * declared in {@link XmlInputTransformer#saxEventHandlerConfiguration}s and with the specific ID
    *
    * @param inputStream an XML input stream to be turned into a Metacard.
-   * @param id the attribute value for the {@link Metacard#ID} attribute that should be set in the
+   * @param id the attribute value for the {@link Core#ID} attribute that should be set in the
    *     generated {@link Metacard}
    * @return a populated Metacard
    * @throws CatalogTransformerException
@@ -159,7 +160,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
   public Metacard transform(InputStream inputStream, String id)
       throws CatalogTransformerException, IOException {
     Metacard metacard = transform(inputStream);
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+    metacard.setAttribute(new AttributeImpl(Core.ID, id));
     return metacard;
   }
 

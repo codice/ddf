@@ -18,10 +18,10 @@ import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.validation.ValidationException;
 import java.io.UnsupportedEncodingException;
@@ -74,7 +74,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
 
   static {
     attributeDescriptors.addAll(new ValidationAttributes().getAttributeDescriptors());
-    attributeDescriptors.add(new CoreAttributes().getAttributeDescriptor(Metacard.GEOGRAPHY));
+    attributeDescriptors.add(new CoreAttributes().getAttributeDescriptor(Core.LOCATION));
   }
 
   public GmlHandler(GMLHandler gmlHandler, Gml3ToWkt gml3Converter) {
@@ -90,7 +90,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
     state = new ArrayDeque<>();
   }
 
-  /** @return list of {@link Attribute} (should be all <Metacard.GEOGRAPHY, WKT strings>) */
+  /** @return list of {@link Attribute} (should be all <Core.LOCATION, WKT strings>) */
   @Override
   public List<Attribute> getAttributes() {
     return saxEventHandlerUtils.getCombinedMultiValuedAttributes(
@@ -183,12 +183,11 @@ public class GmlHandler extends AbstractSaxEventHandler {
         readingGml = false;
         if (!readingGml3) {
           Geometry geo = gh.getGeometry();
-          attributes.add(new AttributeImpl(Metacard.GEOGRAPHY, wktWriter.write(geo)));
+          attributes.add(new AttributeImpl(Core.LOCATION, wktWriter.write(geo)));
         } else {
           try {
             attributes.add(
-                new AttributeImpl(
-                    Metacard.GEOGRAPHY, gml3Converter.convert(gml3Element.toString())));
+                new AttributeImpl(Core.LOCATION, gml3Converter.convert(gml3Element.toString())));
           } catch (ValidationException e) {
             this.attributes.add(
                 new AttributeImpl(Validation.VALIDATION_ERRORS, "geospatial-handler"));

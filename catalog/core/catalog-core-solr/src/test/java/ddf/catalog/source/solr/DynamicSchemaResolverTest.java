@@ -37,6 +37,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.source.solr.json.MetacardTypeMapperFactory;
 import java.io.IOException;
 import java.io.Serializable;
@@ -213,11 +214,11 @@ public class DynamicSchemaResolverTest {
     // Setup
     String metacardTypeName = "states";
     Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
-    String attributeName = Metacard.METADATA;
+    String attributeName = Core.METADATA;
     attributeDescriptors.add(new CoreAttributes().getAttributeDescriptor(attributeName));
     StringBuilder mockValue = new StringBuilder();
     mockValue.append("<?xml version=\"1.1\" encoding=\"UTF-32\"?><metadata></metadata>");
-    Attribute mockAttribute = new AttributeImpl(Metacard.METADATA, mockValue.toString());
+    Attribute mockAttribute = new AttributeImpl(Core.METADATA, mockValue.toString());
     Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
     when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
     when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);

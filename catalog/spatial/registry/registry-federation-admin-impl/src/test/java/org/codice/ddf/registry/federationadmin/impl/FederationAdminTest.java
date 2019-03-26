@@ -307,7 +307,7 @@ public class FederationAdminTest {
     String existingMetacardId = "someUpdateMetacardId";
 
     Metacard existingMetacard = getTestMetacard();
-    existingMetacard.setAttribute(new AttributeImpl(Metacard.ID, existingMetacardId));
+    existingMetacard.setAttribute(new AttributeImpl(Core.ID, existingMetacardId));
     List<Metacard> existingMetacards = new ArrayList<>();
     existingMetacards.add(existingMetacard);
     Metacard updateMetacard = getTestMetacard();
@@ -398,7 +398,7 @@ public class FederationAdminTest {
     String existingMetacardId = "someUpdateMetacardId";
 
     Metacard existingMetacard = getTestMetacard();
-    existingMetacard.setAttribute(new AttributeImpl(Metacard.ID, existingMetacardId));
+    existingMetacard.setAttribute(new AttributeImpl(Core.ID, existingMetacardId));
     List<Metacard> existingMetacards = new ArrayList<>();
     existingMetacards.add(existingMetacard);
     Metacard updateMetacard = getTestMetacard();
@@ -431,9 +431,9 @@ public class FederationAdminTest {
     String secondMetacardId = "secondMetacardId";
 
     Metacard firstMetacard = getTestMetacard();
-    firstMetacard.setAttribute(new AttributeImpl(Metacard.ID, firstMetacardId));
+    firstMetacard.setAttribute(new AttributeImpl(Core.ID, firstMetacardId));
     Metacard secondMetacard = getTestMetacard();
-    secondMetacard.setAttribute(new AttributeImpl(Metacard.ID, secondMetacardId));
+    secondMetacard.setAttribute(new AttributeImpl(Core.ID, secondMetacardId));
 
     List<Metacard> matchingMetacards = new ArrayList<>();
     matchingMetacards.add(firstMetacard);
@@ -487,7 +487,7 @@ public class FederationAdminTest {
     String firstMetacardId = "firstMetacardId";
 
     Metacard firstMetacard = getTestMetacard();
-    firstMetacard.setAttribute(new AttributeImpl(Metacard.ID, firstMetacardId));
+    firstMetacard.setAttribute(new AttributeImpl(Core.ID, firstMetacardId));
 
     List<Metacard> matchingMetacards = new ArrayList<>();
     matchingMetacards.add(firstMetacard);
@@ -613,7 +613,7 @@ public class FederationAdminTest {
     when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
     ArrayList<String> tags = new ArrayList<>();
     tags.add(RegistryConstants.REGISTRY_TAG);
-    mcard.setAttribute(Metacard.TAGS, tags);
+    mcard.setAttribute(Core.METACARD_TAGS, tags);
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
     mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "location1");
@@ -877,7 +877,7 @@ public class FederationAdminTest {
         .thenReturn(getRegistryObjectFromResource("/csw-full-registry-package.xml"));
     ArrayList<String> tags = new ArrayList<>();
     tags.add(RegistryConstants.REGISTRY_TAG);
-    mcard.setAttribute(Metacard.TAGS, tags);
+    mcard.setAttribute(Core.METACARD_TAGS, tags);
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
 
@@ -945,7 +945,7 @@ public class FederationAdminTest {
     Date now = new Date();
     ArrayList<String> tags = new ArrayList<>();
     tags.add(RegistryConstants.REGISTRY_TAG);
-    mcard.setAttribute(Metacard.TAGS, tags);
+    mcard.setAttribute(Core.METACARD_TAGS, tags);
     mcard.setTitle("TestTitle");
     mcard.setCreatedDate(now);
     mcard.setModifiedDate(now);
@@ -962,8 +962,8 @@ public class FederationAdminTest {
     assertThat(mcardMap.get(FederationAdmin.SUMMARY_METACARD_ID), is("someUUID"));
     assertThat(mcardMap.get(FederationAdmin.SUMMARY_REGISTRY_ID), is("myId"));
     assertThat(mcardMap.get(FederationAdmin.SUMMARY_NAME), is("TestTitle"));
-    assertThat(mcardMap.get(Metacard.CREATED), is(timestamp));
-    assertThat(mcardMap.get(Metacard.MODIFIED), is(timestamp));
+    assertThat(mcardMap.get(Core.CREATED), is(timestamp));
+    assertThat(mcardMap.get(Core.MODIFIED), is(timestamp));
     assertThat(mcardMap.get(FederationAdmin.SUMMARY_IDENTITY_NODE), is(true));
     assertThat(mcardMap.get(FederationAdmin.SUMMARY_LOCAL_NODE), is(true));
   }

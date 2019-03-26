@@ -34,6 +34,7 @@ import static org.junit.Assert.fail;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -133,7 +134,7 @@ public class SolrProviderCreate {
 
     Filter filter =
         filterFactory.like(
-            filterFactory.property(Metacard.TITLE),
+            filterFactory.property(Core.TITLE),
             MockMetacard.DEFAULT_TITLE,
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,
@@ -229,7 +230,7 @@ public class SolrProviderCreate {
     // SIMPLE TITLE SEARCH
     Filter filter =
         filterFactory.like(
-            filterFactory.property(Metacard.TITLE),
+            filterFactory.property(Core.TITLE),
             MockMetacard.DEFAULT_TITLE,
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,
@@ -265,7 +266,7 @@ public class SolrProviderCreate {
     // --- Simple KEYWORD SEARCH
     filter =
         filterFactory.like(
-            filterFactory.property(Metacard.METADATA),
+            filterFactory.property(Core.METADATA),
             MockMetacard.DEFAULT_TITLE,
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,
@@ -362,7 +363,7 @@ public class SolrProviderCreate {
     // SIMPLE TITLE SEARCH
     Filter filter =
         filterFactory.like(
-            filterFactory.property(Metacard.TITLE),
+            filterFactory.property(Core.TITLE),
             MockMetacard.DEFAULT_TITLE,
             DEFAULT_TEST_WILDCARD,
             DEFAULT_TEST_SINGLE_WILDCARD,
@@ -410,9 +411,9 @@ public class SolrProviderCreate {
       String createdId = response.getCreatedMetacards().get(0).getId();
 
       Filter titleFilter =
-          getFilterBuilder().attribute(Metacard.TITLE).like().text(MockMetacard.DEFAULT_TITLE);
+          getFilterBuilder().attribute(Core.TITLE).like().text(MockMetacard.DEFAULT_TITLE);
 
-      Filter idFilter = getFilterBuilder().attribute(Metacard.ID).equalTo().text(createdId);
+      Filter idFilter = getFilterBuilder().attribute(Core.ID).equalTo().text(createdId);
 
       SourceResponse titleResponse =
           provider.query(new QueryRequestImpl(new QueryImpl(titleFilter)));

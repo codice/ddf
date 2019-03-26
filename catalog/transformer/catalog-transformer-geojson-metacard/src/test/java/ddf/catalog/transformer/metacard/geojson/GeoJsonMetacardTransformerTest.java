@@ -28,6 +28,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.geo.formatter.CompositeGeometry;
 import ddf.geo.formatter.GeometryCollection;
@@ -82,7 +83,7 @@ public class GeoJsonMetacardTransformerTest {
   }
 
   /**
-   * Tests that proper JSON output is received when no {@link Metacard#GEOGRAPHY} is found.
+   * Tests that proper JSON output is received when no {@link Core#LOCATION} is found.
    *
    * @throws CatalogTransformerException
    * @throws IOException
@@ -577,19 +578,19 @@ public class GeoJsonMetacardTransformerTest {
     Map properties = ((Map) obj2.get("properties"));
     assertThat(properties.size(), is(10)); // no extra
     // properties
-    assertThat(toString(properties.get(Metacard.TITLE)), is(DEFAULT_TITLE));
+    assertThat(toString(properties.get(Core.TITLE)), is(DEFAULT_TITLE));
     assertThat(toString(properties.get(Metacard.CONTENT_TYPE)), is(DEFAULT_TYPE));
     assertThat(toString(properties.get(Metacard.CONTENT_TYPE_VERSION)), is(DEFAULT_VERSION));
     SimpleDateFormat dateFormat =
         new SimpleDateFormat(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(now)));
-    assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());
+    assertThat(toString(properties.get(Core.CREATED)), is(dateFormat.format(now)));
+    assertThat(toString(properties.get(Core.EXPIRATION)), nullValue());
     assertThat(toString(properties.get(Metacard.EFFECTIVE)), nullValue());
-    assertThat(toString(properties.get(Metacard.MODIFIED)), is(dateFormat.format(now)));
-    assertThat(toString(properties.get(Metacard.THUMBNAIL)), is("CA=="));
-    assertThat(toString(properties.get(Metacard.METADATA)), is("<xml></xml>"));
-    assertThat(toString(properties.get(Metacard.RESOURCE_URI)), is("http://example.com"));
+    assertThat(toString(properties.get(Core.MODIFIED)), is(dateFormat.format(now)));
+    assertThat(toString(properties.get(Core.THUMBNAIL)), is("CA=="));
+    assertThat(toString(properties.get(Core.METADATA)), is("<xml></xml>"));
+    assertThat(toString(properties.get(Core.RESOURCE_URI)), is("http://example.com"));
     assertThat(toString(properties.get(SOURCE_ID_PROPERTY)), is(DEFAULT_SOURCE_ID));
     assertThat(
         toString(properties.get(GeoJsonMetacardTransformer.METACARD_TYPE_PROPERTY_KEY)),

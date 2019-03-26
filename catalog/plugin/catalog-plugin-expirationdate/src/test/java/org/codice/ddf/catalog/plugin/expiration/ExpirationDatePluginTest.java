@@ -431,9 +431,9 @@ public class ExpirationDatePluginTest {
 
     for (int i = 0; i < number; i++) {
       Metacard mockMetacard = new MetacardImpl();
-      Attribute id = new AttributeImpl(Metacard.ID, Integer.toString(i));
+      Attribute id = new AttributeImpl(Core.ID, Integer.toString(i));
       mockMetacard.setAttribute(id);
-      Attribute title = new AttributeImpl(Metacard.TITLE, Integer.toString(i));
+      Attribute title = new AttributeImpl(Core.TITLE, Integer.toString(i));
       mockMetacard.setAttribute(title);
       Attribute createdDate = new AttributeImpl(Core.METACARD_CREATED, CREATED_DATE.toDate());
       mockMetacard.setAttribute(createdDate);
@@ -449,14 +449,13 @@ public class ExpirationDatePluginTest {
 
     for (int i = 0; i < number; i++) {
       Metacard mockMetacard = new MetacardImpl();
-      Attribute id = new AttributeImpl(Metacard.ID, Integer.toString(i));
+      Attribute id = new AttributeImpl(Core.ID, Integer.toString(i));
       mockMetacard.setAttribute(id);
-      Attribute title = new AttributeImpl(Metacard.TITLE, Integer.toString(i));
+      Attribute title = new AttributeImpl(Core.TITLE, Integer.toString(i));
       mockMetacard.setAttribute(title);
       Attribute createdDate = new AttributeImpl(Core.METACARD_CREATED, CREATED_DATE.toDate());
       mockMetacard.setAttribute(createdDate);
-      Attribute expirationDate =
-          new AttributeImpl(Metacard.EXPIRATION, ORIG_EXPIRATION_DATE.toDate());
+      Attribute expirationDate = new AttributeImpl(Core.EXPIRATION, ORIG_EXPIRATION_DATE.toDate());
       mockMetacard.setAttribute(expirationDate);
       mockMetacards.add(mockMetacard);
     }

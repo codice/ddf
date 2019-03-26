@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.event.EventProcessor;
 import java.util.Collections;
 import java.util.Date;
@@ -65,13 +66,13 @@ public class RegistryMetacardHandlerTest {
     mcardInternal = new MetacardImpl();
     mcardInternal.setModifiedDate(new Date());
     mcardInternal.setId("internalId");
-    mcardInternal.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG_INTERNAL);
+    mcardInternal.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG_INTERNAL);
     mcardInternal.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "testRegId"));
     mcard = new MetacardImpl();
     mcard.setId("id");
     mcard.setModifiedDate(new Date());
-    mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+    mcard.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG);
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "testRegId"));
     eventProperties = new Hashtable<>();
     eventProperties.put("ddf.catalog.event.metacard", mcardInternal);
@@ -88,14 +89,14 @@ public class RegistryMetacardHandlerTest {
 
   @Test
   public void testNonRegistryInternalMetacard() {
-    mcardInternal.setAttribute(Metacard.TAGS, Metacard.DEFAULT_TAG);
+    mcardInternal.setAttribute(Core.METACARD_TAGS, Metacard.DEFAULT_TAG);
     rmh.handleEvent(event);
     verify(executorService, never()).execute(any(Runnable.class));
   }
 
   @Test
   public void testRegistryMetacard() {
-    mcardInternal.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+    mcardInternal.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG);
     rmh.handleEvent(event);
     verify(executorService, never()).execute(any(Runnable.class));
   }

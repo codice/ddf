@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -168,7 +169,7 @@ public class SourceConfigurationHandlerTest {
   @Test
   public void testNonRegistryMetacard() {
     MetacardImpl metacard = new MetacardImpl();
-    metacard.setAttribute(Metacard.TAGS, Metacard.DEFAULT_TAG);
+    metacard.setAttribute(Core.METACARD_TAGS, Metacard.DEFAULT_TAG);
     Dictionary<String, Object> eventProperties = new Hashtable<>();
     eventProperties.put("ddf.catalog.event.metacard", metacard);
     Event event = new Event("ddf/catalog/event/CREATED", eventProperties);
@@ -179,7 +180,7 @@ public class SourceConfigurationHandlerTest {
   @Test
   public void testRegistryMetacardExecutorCall() {
     MetacardImpl mcard = new MetacardImpl();
-    mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+    mcard.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG);
     mcard.setAttribute(
         RegistryObjectMetacardType.REGISTRY_ID, "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
     Dictionary<String, Object> eventProperties = new Hashtable<>();
@@ -196,7 +197,7 @@ public class SourceConfigurationHandlerTest {
   @Test
   public void testIdentityNode() {
     MetacardImpl mcard = new MetacardImpl();
-    mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+    mcard.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG);
     mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "myRegId");
     mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true);
     Dictionary<String, Object> eventProperties = new Hashtable<>();
@@ -229,7 +230,7 @@ public class SourceConfigurationHandlerTest {
   public void testDefaultConfigurationLocalNodeCreateNoTitle() throws Exception {
 
     ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
-    mcard.setAttribute(Metacard.TITLE, null);
+    mcard.setAttribute(Core.TITLE, null);
     setupSerialExecutor();
     doReturn("Csw_Federated_Source_disabled").when(config).getFactoryPid();
     sch.handleEvent(createEvent);

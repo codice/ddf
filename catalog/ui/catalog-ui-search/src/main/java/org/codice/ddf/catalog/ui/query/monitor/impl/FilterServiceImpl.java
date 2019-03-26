@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import java.util.Date;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
@@ -31,7 +31,7 @@ public class FilterServiceImpl implements FilterService {
   @Override
   public Filter buildWorkspaceTagFilter() {
     return filterBuilder
-        .attribute(Metacard.TAGS)
+        .attribute(Core.METACARD_TAGS)
         .is()
         .like()
         .text(WorkspaceConstants.WORKSPACE_TAG);
@@ -39,12 +39,12 @@ public class FilterServiceImpl implements FilterService {
 
   @Override
   public Filter buildMetacardIdFilter(String id) {
-    return filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
+    return filterBuilder.attribute(Core.ID).is().equalTo().text(id);
   }
 
   @Override
   public Filter getModifiedDateFilter(Date lastCheckDate) {
-    return filterBuilder.attribute(Metacard.MODIFIED).after().date(lastCheckDate);
+    return filterBuilder.attribute(Core.MODIFIED).after().date(lastCheckDate);
   }
 
   @Override

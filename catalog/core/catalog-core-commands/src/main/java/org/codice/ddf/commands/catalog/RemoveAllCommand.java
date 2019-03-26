@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
@@ -285,13 +286,12 @@ public class RemoveAllCommand extends CatalogCommands {
   private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) {
     Filter filter =
         addValidationAttributeToQuery(
-            filterBuilder.attribute(Metacard.ID).is().like().text(WILDCARD), filterBuilder);
+            filterBuilder.attribute(Core.ID).is().like().text(WILDCARD), filterBuilder);
 
     if (expired) {
       filter =
           addValidationAttributeToQuery(
-              filterBuilder.attribute(Metacard.EXPIRATION).before().date(new Date()),
-              filterBuilder);
+              filterBuilder.attribute(Core.EXPIRATION).before().date(new Date()), filterBuilder);
     }
 
     QueryImpl query = new QueryImpl(filter);
@@ -319,7 +319,7 @@ public class RemoveAllCommand extends CatalogCommands {
       filter =
           addValidationAttributeToQuery(
               filterBuilder
-                  .attribute(Metacard.EXPIRATION)
+                  .attribute(Core.EXPIRATION)
                   .during()
                   .dates(twoThousandYearsAgo.toDate(), new Date()),
               filterBuilder);

@@ -32,6 +32,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -351,7 +352,11 @@ public class RegistryStoreTest {
   @Test
   public void testRegistryQuery() throws Exception {
     Filter filter =
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(RegistryConstants.REGISTRY_TAG);
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .like()
+            .text(RegistryConstants.REGISTRY_TAG);
     queryResults.add(new ResultImpl(getDefaultMetacard()));
     QueryRequest testRequest = new QueryRequestImpl(new QueryImpl(filter));
     SourceResponse answer = registryStore.query(testRequest);
@@ -363,7 +368,11 @@ public class RegistryStoreTest {
   @Test
   public void testRegistryQueryNullGetId() throws Exception {
     Filter filter =
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(RegistryConstants.REGISTRY_TAG);
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .like()
+            .text(RegistryConstants.REGISTRY_TAG);
     queryResults.add(new ResultImpl(getDefaultMetacard()));
     QueryRequest testRequest = new QueryRequestImpl(new QueryImpl(filter));
 
@@ -376,7 +385,11 @@ public class RegistryStoreTest {
   @Test
   public void testRegistryGetIdNotNull() throws Exception {
     Filter filter =
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(RegistryConstants.REGISTRY_TAG);
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .like()
+            .text(RegistryConstants.REGISTRY_TAG);
     queryResults.add(new ResultImpl(getDefaultMetacard()));
     QueryRequest testRequest = new QueryRequestImpl(new QueryImpl(filter));
 
@@ -401,7 +414,7 @@ public class RegistryStoreTest {
     when(transformer.getTransformerIdForSchema(any())).thenReturn(null);
     FilterAdapter mockAdaptor = mock(FilterAdapter.class);
     CswFilterFactory filterFactory = new CswFilterFactory(CswAxisOrder.LAT_LON, false);
-    FilterType filterType = filterFactory.buildPropertyIsLikeFilter(Metacard.ID, "testId", false);
+    FilterType filterType = filterFactory.buildPropertyIsLikeFilter(Core.ID, "testId", false);
     when(mockAdaptor.adapt(any(Filter.class), any(FilterDelegate.class))).thenReturn(filterType);
     registryStore.setFilterAdapter(mockAdaptor);
     DeleteRequestImpl request =
@@ -483,7 +496,7 @@ public class RegistryStoreTest {
                             MetacardImpl metacard = new MetacardImpl();
                             metacard.setAttribute(
                                 RegistryObjectMetacardType.REGISTRY_ID, "registryId");
-                            metacard.setAttribute(Metacard.TITLE, "title");
+                            metacard.setAttribute(Core.TITLE, "title");
                             return metacard;
                           }
 

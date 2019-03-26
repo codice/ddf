@@ -27,6 +27,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -551,7 +552,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         // blacklisted property encountered
         throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
       }
-    } else if (Metacard.ID.equals(propertyName)) {
+    } else if (Core.ID.equals(propertyName)) {
       LOGGER.debug("feature id query for : {}", literal);
       String[] idTokens = literal.toString().split("\\.");
       if (idTokens.length > 1) {

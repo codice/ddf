@@ -19,6 +19,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.types.ContactAttributes;
 import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,10 +64,10 @@ public class XmlSaxEventHandlerImpl extends AbstractSaxEventHandler {
 
   static {
     CoreAttributes coreAttributes = new CoreAttributes();
-    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.ID));
-    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.TITLE));
-    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.METADATA));
-    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.DESCRIPTION));
+    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Core.ID));
+    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Core.TITLE));
+    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Core.METADATA));
+    attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Core.DESCRIPTION));
     attributeDescriptors.add(
         new ContactAttributes().getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
   }
@@ -87,10 +88,10 @@ public class XmlSaxEventHandlerImpl extends AbstractSaxEventHandler {
     /*
      * Map the XML element names to the metacard attributes
      */
-    xmlToMetacard.put(Metacard.TITLE, Metacard.TITLE);
+    xmlToMetacard.put(Core.TITLE, Core.TITLE);
     xmlToMetacard.put(Metacard.POINT_OF_CONTACT, Metacard.POINT_OF_CONTACT);
-    xmlToMetacard.put(Metacard.DESCRIPTION, Metacard.DESCRIPTION);
-    xmlToMetacard.put("source", Metacard.RESOURCE_URI);
+    xmlToMetacard.put(Core.DESCRIPTION, Core.DESCRIPTION);
+    xmlToMetacard.put("source", Core.RESOURCE_URI);
   }
 
   protected XmlSaxEventHandlerImpl(Map<String, String> xmlToMetacardMap) {

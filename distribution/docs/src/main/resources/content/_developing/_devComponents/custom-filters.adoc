@@ -79,7 +79,7 @@ org.opengis.temporal.Instant endInstant = new org.geotools.temporal.object.Defau
 
 org.opengis.temporal.Period period =  new org.geotools.temporal.object.DefaultPeriod(startInstant, endInstant);
 
-String property = Metacard.MODIFIED ; // modified date of a metacard
+String property = Core.MODIFIED ; // modified date of a metacard
 
 org.opengis.filter.Filter filter = filterFactory.during( filterFactory.property(property), filterFactory.literal(period)  );
 
@@ -121,9 +121,9 @@ String escapeChar = "\\" ; // used to escape the meaning of the wildCard, single
 
 Filter filter =
     filterFactory.and(
-       filterFactory.like(filterFactory.property(Metacard.METADATA), "mission" ,
+       filterFactory.like(filterFactory.property(Core.METADATA), "mission" ,
 wildcardChar, singleChar, escapeChar, isCaseSensitive),
-       filterFactory.like(filterFactory.property(Metacard.METADATA), "planning" ,
+       filterFactory.like(filterFactory.property(Core.METADATA), "planning" ,
 wildcardChar, singleChar, escapeChar, isCaseSensitive)
     );
 

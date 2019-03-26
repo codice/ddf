@@ -22,6 +22,7 @@ import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PluginExecutionException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ public class PreviewStoragePlugin implements PreCreateStoragePlugin, PreUpdateSt
             metacard.getTitle(),
             metacard.getThumbnail().length,
             metacard);
-    metacard.setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_URI, preview.getUri()));
+    metacard.setAttribute(new AttributeImpl(Core.DERIVED_RESOURCE_URI, preview.getUri()));
     return preview;
   }
 }

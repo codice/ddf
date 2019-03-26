@@ -26,6 +26,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
@@ -202,7 +203,7 @@ public class CatalogFrameworkQueryTest {
     QueryImpl query =
         new QueryImpl(
             filterFactory.after(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(afterInstant)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(afterInstant)));
     QueryRequest queryReq = new QueryRequestImpl(query, false);
 
     try {
@@ -219,7 +220,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.after(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(afterInstant)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(afterInstant)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -238,7 +239,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.after(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(afterInstant)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(afterInstant)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -295,7 +296,7 @@ public class CatalogFrameworkQueryTest {
     QueryImpl query =
         new QueryImpl(
             filterFactory.before(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beforeInstant)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(beforeInstant)));
     QueryRequest queryReq = new QueryRequestImpl(query, false);
 
     try {
@@ -309,7 +310,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.before(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beforeInstant)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(beforeInstant)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -327,7 +328,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.before(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beforeInstant)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(beforeInstant)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -392,7 +393,7 @@ public class CatalogFrameworkQueryTest {
     QueryImpl query =
         new QueryImpl(
             filterFactory.begins(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beginsPeriod)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(beginsPeriod)));
     QueryRequest queryReq = new QueryRequestImpl(query, false);
 
     try {
@@ -410,7 +411,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.begins(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beginsPeriod)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(beginsPeriod)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -431,7 +432,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.begins(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beginsPeriod)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(beginsPeriod)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -500,7 +501,7 @@ public class CatalogFrameworkQueryTest {
     QueryImpl query =
         new QueryImpl(
             filterFactory.during(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(duringPeriod)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(duringPeriod)));
     QueryRequest queryReq = new QueryRequestImpl(query, false);
 
     try {
@@ -523,7 +524,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.during(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(duringPeriod)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(duringPeriod)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);
@@ -544,7 +545,7 @@ public class CatalogFrameworkQueryTest {
     query =
         new QueryImpl(
             filterFactory.during(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(duringPeriod)));
+                filterFactory.property(Core.EXPIRATION), filterFactory.literal(duringPeriod)));
     queryReq = new QueryRequestImpl(query, false);
     try {
       QueryResponse response = framework.query(queryReq);

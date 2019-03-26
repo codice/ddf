@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.StopProcessingException;
 import java.io.Serializable;
@@ -45,7 +46,7 @@ public class SecurityAuditPluginTest {
   @Before
   public void setup() {
     List<String> auditAttributes = new ArrayList<>();
-    auditAttributes.add(Metacard.TITLE);
+    auditAttributes.add(Core.TITLE);
     securityAuditPlugin = spy(new SecurityAuditPlugin());
     securityAuditPlugin.setAuditAttributes(auditAttributes);
   }
@@ -55,10 +56,10 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.TITLE, "A");
-    updateMetacard.setAttribute(Metacard.TITLE, "1");
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.TITLE, "A");
+    updateMetacard.setAttribute(Core.TITLE, "1");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -67,10 +68,10 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Metacard.TITLE, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.TITLE, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
-    verify(securityAuditPlugin, times(1)).auditMetacardUpdate(Metacard.TITLE, "test", "A", "1");
+    verify(securityAuditPlugin, times(1)).auditMetacardUpdate(Core.TITLE, "test", "A", "1");
   }
 
   @Test
@@ -78,10 +79,10 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.TITLE, "B");
-    updateMetacard.setAttribute(Metacard.TITLE, "B");
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.TITLE, "B");
+    updateMetacard.setAttribute(Core.TITLE, "B");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -90,10 +91,10 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Metacard.TITLE, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.TITLE, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
-    verify(securityAuditPlugin, never()).auditMetacardUpdate(Metacard.TITLE, "test", "B", "B");
+    verify(securityAuditPlugin, never()).auditMetacardUpdate(Core.TITLE, "test", "B", "B");
   }
 
   @Test
@@ -101,10 +102,10 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.METADATA, "A test string");
-    updateMetacard.setAttribute(Metacard.METADATA, "A different test string");
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.METADATA, "A test string");
+    updateMetacard.setAttribute(Core.METADATA, "A different test string");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -113,12 +114,11 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest =
-        new UpdateRequestImpl(updateMetacards, Metacard.METADATA, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.METADATA, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
     verify(securityAuditPlugin, never())
-        .auditMetacardUpdate(Metacard.METADATA, "test", "A test string", "A different test string");
+        .auditMetacardUpdate(Core.METADATA, "test", "A test string", "A different test string");
   }
 
   @Test
@@ -126,10 +126,10 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.METADATA, "A test string");
-    updateMetacard.setAttribute(Metacard.METADATA, "A test string");
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.METADATA, "A test string");
+    updateMetacard.setAttribute(Core.METADATA, "A test string");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -138,12 +138,11 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest =
-        new UpdateRequestImpl(updateMetacards, Metacard.METADATA, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.METADATA, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
     verify(securityAuditPlugin, never())
-        .auditMetacardUpdate(Metacard.METADATA, "test", "A test string", "A test string");
+        .auditMetacardUpdate(Core.METADATA, "test", "A test string", "A test string");
   }
 
   @Test
@@ -151,9 +150,9 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.TITLE, "A test string");
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.TITLE, "A test string");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -162,11 +161,11 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Metacard.TITLE, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.TITLE, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
     verify(securityAuditPlugin, times(1))
-        .auditMetacardUpdate(Metacard.TITLE, "test", "A test string", "[NO VALUE]");
+        .auditMetacardUpdate(Core.TITLE, "test", "A test string", "[NO VALUE]");
   }
 
   @Test
@@ -174,9 +173,9 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    updateMetacard.setAttribute(Metacard.TITLE, "A test string");
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    updateMetacard.setAttribute(Core.TITLE, "A test string");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -185,11 +184,11 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Metacard.TITLE, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.TITLE, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
     verify(securityAuditPlugin, times(1))
-        .auditMetacardUpdate(Metacard.TITLE, "test", "[NO VALUE]", "A test string");
+        .auditMetacardUpdate(Core.TITLE, "test", "[NO VALUE]", "A test string");
   }
 
   @Test
@@ -197,8 +196,8 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -207,7 +206,7 @@ public class SecurityAuditPluginTest {
     Map<String, Metacard> existingMetacards = new HashMap<>();
     existingMetacards.put(metacardKey, existingMetacard);
 
-    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Metacard.TITLE, null);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.TITLE, null);
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 
     verify(securityAuditPlugin, never())
@@ -227,8 +226,8 @@ public class SecurityAuditPluginTest {
     MetacardImpl existingMetacard = new MetacardImpl();
     MetacardImpl updateMetacard = new MetacardImpl();
 
-    existingMetacard.setAttribute(Metacard.ID, "test");
-    updateMetacard.setAttribute(Metacard.ID, "test");
+    existingMetacard.setAttribute(Core.ID, "test");
+    updateMetacard.setAttribute(Core.ID, "test");
 
     List<Map.Entry<Serializable, Metacard>> updateMetacards = new ArrayList<>();
     updateMetacards.add(
@@ -240,7 +239,7 @@ public class SecurityAuditPluginTest {
     Map<String, Serializable> props = new HashMap<>();
     props.put(Constants.LOCAL_DESTINATION_KEY, false);
 
-    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Metacard.TITLE, props);
+    UpdateRequestImpl updateRequest = new UpdateRequestImpl(updateMetacards, Core.TITLE, props);
 
     securityAuditPlugin.processPreUpdate(updateRequest, existingMetacards);
 

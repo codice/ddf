@@ -27,6 +27,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -105,8 +106,7 @@ public class SolrProviderSorting {
 
     QueryImpl query = new QueryImpl(filter);
 
-    query.setSortBy(
-        new ddf.catalog.filter.impl.SortByImpl(Metacard.ID, SortOrder.ASCENDING.name()));
+    query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Core.ID, SortOrder.ASCENDING.name()));
 
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -166,8 +166,7 @@ public class SolrProviderSorting {
 
     query = new QueryImpl(filter);
 
-    query.setSortBy(
-        new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE, SortOrder.ASCENDING.name()));
+    query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Core.TITLE, SortOrder.ASCENDING.name()));
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -182,7 +181,7 @@ public class SolrProviderSorting {
     // Sort all Textual DESCENDING
 
     query.setSortBy(
-        new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE, SortOrder.DESCENDING.name()));
+        new ddf.catalog.filter.impl.SortByImpl(Core.TITLE, SortOrder.DESCENDING.name()));
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -207,7 +206,7 @@ public class SolrProviderSorting {
       MetacardTypeImpl mType = new MetacardTypeImpl("numberMetacardType", descriptors);
 
       MetacardImpl customMetacard1 = new MetacardImpl(mType);
-      customMetacard1.setAttribute(Metacard.ID, "");
+      customMetacard1.setAttribute(Core.ID, "");
       customMetacard1.setAttribute(DOUBLE_FIELD, DOUBLE_FIELD_VALUE + FACTOR * i);
       customMetacard1.setAttribute(FLOAT_FIELD, FLOAT_FIELD_VALUE + FACTOR * i);
       customMetacard1.setAttribute(INT_FIELD, INT_FIELD_VALUE + FACTOR * i);
@@ -387,7 +386,7 @@ public class SolrProviderSorting {
     // Sort all Relevancy score DESC
 
     filter =
-        getFilterBuilder().attribute(Metacard.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
+        getFilterBuilder().attribute(Core.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
 
     query = new QueryImpl(filter);
 
@@ -407,7 +406,7 @@ public class SolrProviderSorting {
     // Sort all Relevancy score DESC
 
     filter =
-        getFilterBuilder().attribute(Metacard.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
+        getFilterBuilder().attribute(Core.METADATA).like().text(Library.FLAGSTAFF_QUERY_PHRASE);
 
     query = new QueryImpl(filter);
 
@@ -449,7 +448,7 @@ public class SolrProviderSorting {
         getFilterBuilder()
             .allOf(
                 getFilterBuilder().attribute(Metacard.ANY_GEO).nearestTo().wkt("POINT(1 1)"),
-                getFilterBuilder().attribute(Metacard.TITLE).like().text("Record"));
+                getFilterBuilder().attribute(Core.TITLE).like().text("Record"));
 
     query = new QueryImpl(filter);
 
@@ -459,7 +458,7 @@ public class SolrProviderSorting {
     SortBy relevanceSort =
         new ddf.catalog.filter.impl.SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING.name());
     SortBy titleSort =
-        new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE, SortOrder.ASCENDING.name());
+        new ddf.catalog.filter.impl.SortByImpl(Core.TITLE, SortOrder.ASCENDING.name());
     SortBy[] additionalSorts = new SortBy[] {relevanceSort, titleSort};
     properties.put(ADDITIONAL_SORT_BYS, additionalSorts);
     sourceResponse = provider.query(new QueryRequestImpl(query, properties));
@@ -496,7 +495,7 @@ public class SolrProviderSorting {
     filter =
         getFilterBuilder()
             .allOf(
-                getFilterBuilder().attribute(Metacard.TITLE).like().text("Record"),
+                getFilterBuilder().attribute(Core.TITLE).like().text("Record"),
                 getFilterBuilder().attribute(Metacard.ANY_GEO).nearestTo().wkt("POINT(1 1)"));
 
     query = new QueryImpl(filter);

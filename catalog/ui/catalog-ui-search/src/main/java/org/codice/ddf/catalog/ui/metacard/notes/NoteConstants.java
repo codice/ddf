@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.notes;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Associations;
 
 public final class NoteConstants {
 
@@ -21,7 +21,7 @@ public final class NoteConstants {
    * The metacard ID of the parent object. Uses original taxonomy to preserve backwards
    * compatibility.
    */
-  public static final String PARENT_ID = Metacard.RELATED;
+  public static final String PARENT_ID = Associations.RELATED;
 
   /** A comment against a result. */
   public static final String COMMENT = "ext.note.result-comment";

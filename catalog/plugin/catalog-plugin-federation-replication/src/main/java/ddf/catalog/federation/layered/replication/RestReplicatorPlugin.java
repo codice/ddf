@@ -15,6 +15,7 @@ package ddf.catalog.federation.layered.replication;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
@@ -90,10 +91,10 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
       }
 
       UpdateRequest request = input.getRequest();
-      if (request != null && !Metacard.ID.equals(request.getAttributeName())) {
+      if (request != null && !Core.ID.equals(request.getAttributeName())) {
         throw new PluginExecutionException(
             new UnsupportedOperationException(
-                "Cannot replicate records that are not updated by " + Metacard.ID));
+                "Cannot replicate records that are not updated by " + Core.ID));
       }
 
       for (int i = 0; i < updates.size(); i++) {

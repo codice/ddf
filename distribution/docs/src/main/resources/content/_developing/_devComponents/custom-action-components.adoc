@@ -48,7 +48,7 @@ The following is a sample taxonomy: 
 |Export as ...
 
 |`catalog.data.metacard.thumbnail`
-|Provides a valid URL to the bytes of a thumbnail (`Metacard.THUMBNAIL`) with MIME type image/jpeg.
+|Provides a valid URL to the bytes of a thumbnail (`Core.THUMBNAIL`) with MIME type image/jpeg.
 |Export as Thumbnail
 
 |`catalog.data.metacard.map.overlay.thumbnail`
@@ -72,7 +72,7 @@ The following is a sample taxonomy: 
 |Export as Resource
 
 |`catalog.data.metacard.metadata`
-|Provides a valid URL to the XML metadata in the metacard (`Metacard.METADATA`).
+|Provides a valid URL to the XML metadata in the metacard (`Core.METADATA`).
 |Export as Metadata
 
 |===

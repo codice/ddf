@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
@@ -86,7 +87,7 @@ public class RegistryStoreCleanupHandlerTest {
     mcard = new MetacardImpl();
     mcard.setId("id");
     mcard.setModifiedDate(new Date());
-    mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG_INTERNAL);
+    mcard.setAttribute(Core.METACARD_TAGS, RegistryConstants.REGISTRY_TAG_INTERNAL);
     mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
     mcard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "registryId"));

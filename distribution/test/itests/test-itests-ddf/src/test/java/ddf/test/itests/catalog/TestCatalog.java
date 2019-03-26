@@ -50,7 +50,6 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PostIngestPlugin;
@@ -2023,10 +2022,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     metacard4Xml = metacard4Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
 
-    verifyMetacardDoesNotContainAttribute(metacard3Xml, Metacard.DESCRIPTION);
-    verifyMetacardDoesNotContainAttribute(metacard3Xml, Metacard.EXPIRATION);
-    verifyMetacardDoesNotContainAttribute(metacard4Xml, Metacard.DESCRIPTION);
-    verifyMetacardDoesNotContainAttribute(metacard4Xml, Metacard.EXPIRATION);
+    verifyMetacardDoesNotContainAttribute(metacard3Xml, Core.DESCRIPTION);
+    verifyMetacardDoesNotContainAttribute(metacard3Xml, Core.EXPIRATION);
+    verifyMetacardDoesNotContainAttribute(metacard4Xml, Core.DESCRIPTION);
+    verifyMetacardDoesNotContainAttribute(metacard4Xml, Core.EXPIRATION);
 
     final String id3 = ingest(metacard3Xml, MediaType.APPLICATION_XML);
     final String id4 = ingest(metacard4Xml, MediaType.APPLICATION_XML);
@@ -2073,7 +2072,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .until(
                     () ->
                         !defaultsRegistry
-                            .getDefaultValue(customMetacardTypeName, Metacard.DESCRIPTION)
+                            .getDefaultValue(customMetacardTypeName, Core.DESCRIPTION)
                             .isPresent());
             return null;
           });
@@ -2115,10 +2114,10 @@ public class TestCatalog extends AbstractIntegrationTest {
       metacard1Xml = metacard1Xml.replaceFirst("Metacard\\-1", updatedTitle1);
       metacard2Xml = metacard2Xml.replaceFirst("Metacard\\-2", updatedTitle2);
 
-      verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
-      verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
-      verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
-      verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+      verifyMetacardDoesNotContainAttribute(metacard1Xml, Core.DESCRIPTION);
+      verifyMetacardDoesNotContainAttribute(metacard1Xml, Core.EXPIRATION);
+      verifyMetacardDoesNotContainAttribute(metacard2Xml, Core.DESCRIPTION);
+      verifyMetacardDoesNotContainAttribute(metacard2Xml, Core.EXPIRATION);
 
       update(id1, metacard1Xml, MediaType.APPLICATION_XML);
       update(id2, metacard2Xml, MediaType.APPLICATION_XML);
@@ -2162,7 +2161,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .until(
                     () ->
                         !defaultsRegistry
-                            .getDefaultValue(customMetacardTypeName, Metacard.DESCRIPTION)
+                            .getDefaultValue(customMetacardTypeName, Core.DESCRIPTION)
                             .isPresent());
             return null;
           });

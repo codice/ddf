@@ -19,6 +19,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class OverrideAttributesSupport {
         .stream()
         .map(attributeDescriptor -> otherMetacard.getAttribute(attributeDescriptor.getName()))
         .filter(Objects::nonNull)
-        .filter(attribute -> !attribute.getName().equals(Metacard.ID))
+        .filter(attribute -> !attribute.getName().equals(Core.ID))
         .filter(attribute -> !onlyFillNull || metacard.getAttribute(attribute.getName()) == null)
         .forEach(metacard::setAttribute);
   }

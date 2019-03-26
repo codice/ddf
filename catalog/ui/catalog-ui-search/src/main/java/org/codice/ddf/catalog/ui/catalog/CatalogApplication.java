@@ -21,7 +21,7 @@ import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableList;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import java.io.ByteArrayInputStream;
@@ -380,7 +380,7 @@ public class CatalogApplication implements SparkApplication {
 
       res.status(HttpStatus.SC_CREATED);
       res.header("Location", uriBuilder.build().toString());
-      res.header(Metacard.ID, id);
+      res.header(Core.ID, id);
       return "";
 
     } catch (CatalogServiceException | URISyntaxException e) {

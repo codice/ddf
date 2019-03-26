@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.validation.ValidationException;
@@ -83,17 +84,17 @@ public class XmlInputTransformerTest {
         new SaxEventHandlerDelegate(Arrays.asList(saxEventHandler, gmlHandler));
 
     Metacard metacard = saxEventHandlerDelegate.read(inputStream).getMetacard(null);
-    assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.TITLE).getValues().get(0), is("Title!"));
-    assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().get(0), is("Description!"));
+    assertThat(metacard.getAttribute(Core.TITLE).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.TITLE).getValues().get(0), is("Title!"));
+    assertThat(metacard.getAttribute(Core.DESCRIPTION).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.DESCRIPTION).getValues().get(0), is("Description!"));
     assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().size(), is(1));
     assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().get(0), is("POC!"));
-    assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().get(0), is("foobar"));
+    assertThat(metacard.getAttribute(Core.RESOURCE_URI).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.RESOURCE_URI).getValues().get(0), is("foobar"));
     assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE), is(nullValue()));
-    assertThat(metacard.getAttribute(Metacard.GEOGRAPHY).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.GEOGRAPHY).getValues().get(0), is("POINT (100 200)"));
+    assertThat(metacard.getAttribute(Core.LOCATION).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.LOCATION).getValues().get(0), is("POINT (100 200)"));
   }
 
   /*
@@ -102,10 +103,10 @@ public class XmlInputTransformerTest {
   @Test
   public void testConfiguredTransform() throws FileNotFoundException, CatalogTransformerException {
     Map xmlToMetacard = new HashMap<>();
-    xmlToMetacard.put("title", Metacard.TITLE);
+    xmlToMetacard.put("title", Core.TITLE);
     xmlToMetacard.put("point-of-contact", Metacard.POINT_OF_CONTACT);
-    xmlToMetacard.put("description", Metacard.DESCRIPTION);
-    xmlToMetacard.put("source", Metacard.RESOURCE_URI);
+    xmlToMetacard.put("description", Core.DESCRIPTION);
+    xmlToMetacard.put("source", Core.RESOURCE_URI);
     xmlToMetacard.put("type", Metacard.CONTENT_TYPE);
 
     XmlSaxEventHandlerFactoryImpl factory = new XmlSaxEventHandlerFactoryImpl();
@@ -118,14 +119,14 @@ public class XmlInputTransformerTest {
 
     saxEventHandlerDelegate.read(inputStream);
     Metacard metacard = saxEventHandlerDelegate.getMetacard(null);
-    assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.TITLE).getValues().get(0), is("Title!"));
-    assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().get(0), is("Description!"));
+    assertThat(metacard.getAttribute(Core.TITLE).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.TITLE).getValues().get(0), is("Title!"));
+    assertThat(metacard.getAttribute(Core.DESCRIPTION).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.DESCRIPTION).getValues().get(0), is("Description!"));
     assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().size(), is(1));
     assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().get(0), is("POC!"));
-    assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().size(), is(1));
-    assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().get(0), is("foobar"));
+    assertThat(metacard.getAttribute(Core.RESOURCE_URI).getValues().size(), is(1));
+    assertThat(metacard.getAttribute(Core.RESOURCE_URI).getValues().get(0), is("foobar"));
     assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE).getValues().size(), is(1));
     assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE).getValues().get(0), is("ddf.metacard"));
   }
@@ -160,7 +161,7 @@ public class XmlInputTransformerTest {
     xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(factory));
     Metacard metacard = xmlInputTransformer.transform(inputStream);
     assertThat(
-        metacard.getAttribute(Metacard.GEOGRAPHY).getValue(),
+        metacard.getAttribute(Core.LOCATION).getValue(),
         is("POLYGON ((10 35, 20 10, 40 15, 45 45, 10 35), (30 20, 35 35, 20 30, 30 20))"));
   }
 

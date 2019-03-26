@@ -213,11 +213,11 @@ public class ConfluenceInputTransformer implements InputTransformer {
     String downloadUrl = getStringOrDefault(links, null, "download");
     if (downloadUrl != null) {
       metacard.setAttribute(
-          Metacard.RESOURCE_DOWNLOAD_URL, String.format("%s%s", baseUrl, downloadUrl));
-      metacard.setAttribute(Metacard.RESOURCE_URI, String.format("%s%s", baseUrl, downloadUrl));
+          Core.RESOURCE_DOWNLOAD_URL, String.format("%s%s", baseUrl, downloadUrl));
+      metacard.setAttribute(Core.RESOURCE_URI, String.format("%s%s", baseUrl, downloadUrl));
       String fileSize = getStringOrDefault(json, null, "extensions", "fileSize");
       if (fileSize != null) {
-        metacard.setAttribute(Metacard.RESOURCE_SIZE, fileSize);
+        metacard.setAttribute(Core.RESOURCE_SIZE, fileSize);
       }
     }
     ArrayList<String> associations = new ArrayList<>();
@@ -247,16 +247,16 @@ public class ConfluenceInputTransformer implements InputTransformer {
       }
       if (StringUtils.isNotEmpty(description)) {
         String xmlSafeString = StringEscapeUtils.escapeXml10(cleanedText);
-        metacard.setAttribute(Metacard.DESCRIPTION, description);
+        metacard.setAttribute(Core.DESCRIPTION, description);
         metacard.setAttribute(
-            Metacard.METADATA, String.format(PRODUCT_XML, confluenceType, xmlSafeString));
+            Core.METADATA, String.format(PRODUCT_XML, confluenceType, xmlSafeString));
         metacard.setAttribute(Confluence.BODY_TEXT, xmlSafeString);
       }
     }
     if (confluenceType.equals("attachment")) {
       Object comment = getJsonElement(json, METADATA, "comment");
       if (comment != null) {
-        metacard.setAttribute(Metacard.DESCRIPTION, comment.toString());
+        metacard.setAttribute(Core.DESCRIPTION, comment.toString());
       }
       Object mediaType = getJsonElement(json, METADATA, "mediaType");
       if (mediaType != null) {

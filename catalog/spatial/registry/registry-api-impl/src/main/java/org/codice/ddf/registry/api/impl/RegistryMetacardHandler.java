@@ -15,6 +15,7 @@ package org.codice.ddf.registry.api.impl;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.event.EventProcessor;
 import java.io.Serializable;
 import java.security.PrivilegedActionException;
@@ -170,12 +171,12 @@ public class RegistryMetacardHandler implements EventHandler {
     tags.addAll(metacard.getTags());
     tags.remove(RegistryConstants.REGISTRY_TAG_INTERNAL);
     tags.add(RegistryConstants.REGISTRY_TAG);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
     metacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REMOTE_METACARD_ID, (Serializable) null));
     metacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, (Serializable) null));
-    metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+    metacard.setAttribute(new AttributeImpl(Core.ID, id));
   }
 
   private boolean shouldUpdate(Metacard newMetacard, Metacard oldMetacard) {

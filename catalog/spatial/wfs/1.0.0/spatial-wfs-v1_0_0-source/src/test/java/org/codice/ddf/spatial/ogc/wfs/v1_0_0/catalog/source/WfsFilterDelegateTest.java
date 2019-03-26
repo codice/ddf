@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -1638,7 +1639,7 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     when(featureMetacardType.getName()).thenReturn("test");
-    FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "test.123", true);
+    FilterType filter = delegate.propertyIsEqualTo(Core.ID, "test.123", true);
     assertNotNull(filter);
   }
 
@@ -1647,7 +1648,7 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     when(featureMetacardType.getName()).thenReturn("test");
-    FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "123", true);
+    FilterType filter = delegate.propertyIsEqualTo(Core.ID, "123", true);
     assertNotNull(filter);
   }
 
@@ -1656,7 +1657,7 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     when(featureMetacardType.getName()).thenReturn("badType");
-    FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "test.123", true);
+    FilterType filter = delegate.propertyIsEqualTo(Core.ID, "test.123", true);
     assertNull(filter);
   }
 

@@ -24,6 +24,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
@@ -154,13 +155,11 @@ public class SolrProviderRealTimeQueryTest {
     // return
     // 0 results.
     queryAndVerifyCount(
-        0,
-        getFilterBuilder().attribute(Metacard.TITLE).is().equalTo().text(metacardTitle),
-        provider);
+        0, getFilterBuilder().attribute(Core.TITLE).is().equalTo().text(metacardTitle), provider);
 
     // When performing a real time query by ID, we get the result.
     queryAndVerifyCount(
-        1, getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id.get()), provider);
+        1, getFilterBuilder().attribute(Core.ID).is().equalTo().text(id.get()), provider);
   }
 
   @Test
@@ -185,17 +184,15 @@ public class SolrProviderRealTimeQueryTest {
     // return
     // 0 results.
     queryAndVerifyCount(
-        0,
-        getFilterBuilder().attribute(Metacard.TITLE).is().equalTo().text(metacardTitle),
-        provider);
+        0, getFilterBuilder().attribute(Core.TITLE).is().equalTo().text(metacardTitle), provider);
 
     // When performing a real time query by ID and title, we get the result.
     queryAndVerifyCount(
         1,
         getFilterBuilder()
             .allOf(
-                getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id.get()),
-                getFilterBuilder().attribute(Metacard.TITLE).is().equalTo().text(metacardTitle)),
+                getFilterBuilder().attribute(Core.ID).is().equalTo().text(id.get()),
+                getFilterBuilder().attribute(Core.TITLE).is().equalTo().text(metacardTitle)),
         provider);
   }
 
@@ -228,19 +225,15 @@ public class SolrProviderRealTimeQueryTest {
     // return
     // 0 results.
     queryAndVerifyCount(
-        0,
-        getFilterBuilder().attribute(Metacard.TITLE).is().equalTo().text(metacardTitle1),
-        provider);
+        0, getFilterBuilder().attribute(Core.TITLE).is().equalTo().text(metacardTitle1), provider);
     queryAndVerifyCount(
-        0,
-        getFilterBuilder().attribute(Metacard.TITLE).is().equalTo().text(metacardTitle2),
-        provider);
+        0, getFilterBuilder().attribute(Core.TITLE).is().equalTo().text(metacardTitle2), provider);
 
     Filter filter =
         getFilterBuilder()
             .anyOf(
-                getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(ids.get(0)),
-                getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(ids.get(1)));
+                getFilterBuilder().attribute(Core.ID).is().equalTo().text(ids.get(0)),
+                getFilterBuilder().attribute(Core.ID).is().equalTo().text(ids.get(1)));
 
     // When performing a real time query by ID, we get the results.
     queryAndVerifyCount(2, filter, provider);
@@ -266,10 +259,10 @@ public class SolrProviderRealTimeQueryTest {
 
     // Verify the result is actually visible (searchable) in Solr using a real time query by ID.
     queryAndVerifyCount(
-        1, getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id.get()), provider);
+        1, getFilterBuilder().attribute(Core.ID).is().equalTo().text(id.get()), provider);
 
     Filter filter =
-        getFilterBuilder().not(getFilterBuilder().attribute(Metacard.ID).equalTo().text(id.get()));
+        getFilterBuilder().not(getFilterBuilder().attribute(Core.ID).equalTo().text(id.get()));
 
     // Verify a "not ID query" does not return the result.
     queryAndVerifyCount(0, filter, provider);
@@ -298,7 +291,7 @@ public class SolrProviderRealTimeQueryTest {
     QueryRequest request =
         new QueryRequestImpl(
             new QueryImpl(
-                getFilterBuilder().attribute(Metacard.TITLE).is().like().text("testCommit*Nrt")));
+                getFilterBuilder().attribute(Core.TITLE).is().like().text("testCommit*Nrt")));
 
     await()
         .pollInterval(100, TimeUnit.MILLISECONDS)

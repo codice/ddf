@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.MetacardTypeUnregistrationException;
 import ddf.catalog.data.QualifiedMetacardType;
@@ -28,6 +27,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
+import ddf.catalog.data.types.Core;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.BeforeClass;
@@ -446,7 +446,7 @@ public class MetacardTypeRegistryTest {
             BasicTypes.INTEGER_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.ID,
+            Core.ID,
             true /* indexed */,
             true /* stored */,
             false /* tokenized */,
@@ -454,7 +454,7 @@ public class MetacardTypeRegistryTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.TITLE,
+            Core.TITLE,
             true /* indexed */,
             true /* stored */,
             true /* tokenized */,
@@ -489,13 +489,13 @@ public class MetacardTypeRegistryTest {
     assertNotNull(freq);
     assertEquals(FREQUENCY_ATTRIBUTE_NAME_SAMPLE_METACARD_TYPE_A, freq.getName());
 
-    AttributeDescriptor metacardId = qmtResult.getAttributeDescriptor(Metacard.ID);
+    AttributeDescriptor metacardId = qmtResult.getAttributeDescriptor(Core.ID);
     assertNotNull(metacardId);
-    assertEquals(Metacard.ID, metacardId.getName());
+    assertEquals(Core.ID, metacardId.getName());
 
-    AttributeDescriptor metacardTitle = qmtResult.getAttributeDescriptor(Metacard.TITLE);
+    AttributeDescriptor metacardTitle = qmtResult.getAttributeDescriptor(Core.TITLE);
     assertNotNull(metacardTitle);
-    assertEquals(Metacard.TITLE, metacardTitle.getName());
+    assertEquals(Core.TITLE, metacardTitle.getName());
   }
 
   private QualifiedMetacardType sampleMetacardTypeB() {
@@ -526,7 +526,7 @@ public class MetacardTypeRegistryTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.ID,
+            Core.ID,
             true /* indexed */,
             true /* stored */,
             false /* tokenized */,
@@ -534,7 +534,7 @@ public class MetacardTypeRegistryTest {
             BasicTypes.STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
-            Metacard.TITLE,
+            Core.TITLE,
             true /* indexed */,
             true /* stored */,
             true /* tokenized */,
@@ -612,12 +612,12 @@ public class MetacardTypeRegistryTest {
     assertNotNull(numReviewers);
     assertEquals(NUMBER_REVIEWERS_ATTRIBUTE_KEY, numReviewers.getName());
 
-    AttributeDescriptor metacardId = qmt.getAttributeDescriptor(Metacard.ID);
+    AttributeDescriptor metacardId = qmt.getAttributeDescriptor(Core.ID);
     assertNotNull(metacardId);
-    assertEquals(Metacard.ID, metacardId.getName());
+    assertEquals(Core.ID, metacardId.getName());
 
-    AttributeDescriptor metacardTitle = qmt.getAttributeDescriptor(Metacard.TITLE);
+    AttributeDescriptor metacardTitle = qmt.getAttributeDescriptor(Core.TITLE);
     assertNotNull(metacardTitle);
-    assertEquals(Metacard.TITLE, metacardTitle.getName());
+    assertEquals(Core.TITLE, metacardTitle.getName());
   }
 }

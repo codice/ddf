@@ -50,6 +50,7 @@ import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
@@ -790,10 +791,10 @@ public class FileSystemStorageProviderTest {
       if (StringUtils.isBlank(responseContentItem.getQualifier())) {
         verify(metacard, times(2)).setAttribute(captor.capture());
         Attribute resourceUriAttribute = captor.getAllValues().get(0);
-        assertThat(resourceUriAttribute.getName(), is(Metacard.RESOURCE_URI));
+        assertThat(resourceUriAttribute.getName(), is(Core.RESOURCE_URI));
         assertThat(resourceUriAttribute.getValue(), is(uri.toString()));
         Attribute resourceSizeAttribute = captor.getAllValues().get(1);
-        assertThat(resourceSizeAttribute.getName(), is(Metacard.RESOURCE_SIZE));
+        assertThat(resourceSizeAttribute.getName(), is(Core.RESOURCE_SIZE));
         assertThat(resourceSizeAttribute.getValue(), is(responseContentItem.getSize()));
       } else {
         verify(metacard, never()).setAttribute(any());

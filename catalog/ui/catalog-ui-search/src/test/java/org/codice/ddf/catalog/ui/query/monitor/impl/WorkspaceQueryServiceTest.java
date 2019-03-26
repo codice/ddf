@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
@@ -120,7 +120,7 @@ public class WorkspaceQueryServiceTest {
 
     Attribute id1 = mock(Attribute.class);
     when(id1.getValue()).thenReturn("1");
-    when(queryMetacardWithSource.getAttribute(Metacard.ID)).thenReturn(id1);
+    when(queryMetacardWithSource.getAttribute(Core.ID)).thenReturn(id1);
 
     QueryMetacardImpl queryMetacardWithoutSource = mock(QueryMetacardImpl.class);
     when(queryMetacardWithoutSource.getSources()).thenReturn(Collections.emptyList());
@@ -128,7 +128,7 @@ public class WorkspaceQueryServiceTest {
 
     Attribute id2 = mock(Attribute.class);
     when(id2.getValue()).thenReturn("2");
-    when(queryMetacardWithoutSource.getAttribute(Metacard.ID)).thenReturn(id2);
+    when(queryMetacardWithoutSource.getAttribute(Core.ID)).thenReturn(id2);
 
     Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards =
         Collections.singletonMap(

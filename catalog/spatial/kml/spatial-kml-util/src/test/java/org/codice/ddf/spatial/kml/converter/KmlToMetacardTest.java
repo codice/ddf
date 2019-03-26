@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.nullValue;
 import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -49,7 +50,7 @@ public class KmlToMetacardTest {
 
     String wktBbox = jtsGeometryCollectionGeometry.getEnvelope().toText();
     assertThat(
-        metacard.getAttribute(Metacard.GEOGRAPHY).getValue().toString(),
+        metacard.getAttribute(Core.LOCATION).getValue().toString(),
         is(equalToIgnoringWhiteSpace(wktBbox)));
   }
 

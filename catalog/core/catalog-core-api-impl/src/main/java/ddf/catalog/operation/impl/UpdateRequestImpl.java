@@ -39,7 +39,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
    * Instantiates a new UpdateRequestImpl.
    *
    * @param updateList the list of updated {@link Metacard}
-   * @param attributeName the attribute name (e.g. Metacard.ID, Metacard.PRODUCT_URI)
+   * @param attributeName the attribute name (e.g. Core.ID, Metacard.PRODUCT_URI)
    * @param properties the properties associated with the operation
    * @param destinations the destination ids this request should be sent to
    */
@@ -60,7 +60,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
    * Instantiates a new UpdateRequestImpl.
    *
    * @param updateList - the list of updated {@link Metacard}
-   * @param attributeName the attribute name (e.g. Metacard.ID, Metacard.PRODUCT_URI)
+   * @param attributeName the attribute name (e.g. Core.ID, Metacard.PRODUCT_URI)
    * @param properties the properties associated with the operation
    */
   public UpdateRequestImpl(

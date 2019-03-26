@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.plugin.tagsfilter;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
@@ -67,8 +68,9 @@ public class TagsFilterQueryPlugin extends PreFederatedLocalProviderQueryPlugin 
 
       List<Filter> filters = new ArrayList<>();
       // no tags filter given in props or in query. Add the default ones.
-      filters.add(filterBuilder.attribute(Metacard.TAGS).is().like().text(Metacard.DEFAULT_TAG));
-      filters.add(filterBuilder.attribute(Metacard.TAGS).empty());
+      filters.add(
+          filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(Metacard.DEFAULT_TAG));
+      filters.add(filterBuilder.attribute(Core.METACARD_TAGS).empty());
       Filter newFilter = filterBuilder.allOf(filterBuilder.anyOf(filters), query);
 
       QueryImpl newQuery =

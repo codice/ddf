@@ -15,6 +15,7 @@ package org.codice.ddf.registry.federationadmin.service.impl;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.Query;
@@ -417,9 +418,13 @@ public class RefreshRegistryEntries {
   private Query getBasicRegistryQuery() {
     List<Filter> filters = new ArrayList<>();
     filters.add(
-        filterBuilder.attribute(Metacard.TAGS).is().equalTo().text(RegistryConstants.REGISTRY_TAG));
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .equalTo()
+            .text(RegistryConstants.REGISTRY_TAG));
 
-    PropertyName propertyName = new PropertyNameImpl(Metacard.MODIFIED);
+    PropertyName propertyName = new PropertyNameImpl(Core.MODIFIED);
     SortBy sortBy = new SortByImpl(propertyName, SortOrder.ASCENDING);
     QueryImpl query = new QueryImpl(filterBuilder.allOf(filters));
     query.setSortBy(sortBy);

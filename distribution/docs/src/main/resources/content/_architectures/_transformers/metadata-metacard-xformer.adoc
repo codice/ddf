@@ -3,9 +3,9 @@
 :subtype: metacard
 :status: published
 :link: _metadata_metacard_transformer
-:summary: returns the `Metacard.METADATA` attribute when given a metacard.
+:summary: returns the `Core.METADATA` attribute when given a metacard.
 
-The Metadata Metacard Transformer returns the `Metacard.METADATA` attribute when given a metacard.
+The Metadata Metacard Transformer returns the `Core.METADATA` attribute when given a metacard.
 The MIME Type returned is `text/xml`.
 
 ===== Installing the Metadata Metacard Transformer
