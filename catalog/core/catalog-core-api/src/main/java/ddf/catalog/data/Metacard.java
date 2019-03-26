@@ -96,28 +96,28 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.METACARD_TAGS}.
    */
-  String TAGS = Core.METACARD_TAGS;
+  @Deprecated String TAGS = Core.METACARD_TAGS;
 
   /**
    * {@link Attribute} name for accessing the title of the {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.TITLE}.
    */
-  String TITLE = Core.TITLE;
+  @Deprecated String TITLE = Core.TITLE;
 
   /**
    * {@link Attribute} name for accessing the XML metadata for this {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.METADATA}.
    */
-  String METADATA = Core.METADATA;
+  @Deprecated String METADATA = Core.METADATA;
 
   /**
    * {@link Attribute} name for accessing the location for this {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.LOCATION}.
    */
-  String GEOGRAPHY = Core.LOCATION;
+  @Deprecated String GEOGRAPHY = Core.LOCATION;
 
   /**
    * {@link Attribute} name for accessing the date/time this {@link Metacard} was created.
@@ -127,7 +127,7 @@ public interface Metacard extends Serializable {
    *     ddf.catalog.data.types.Core.CREATED}. The metacard created date can now be referenced with
    *     {@link ddf.catalog.data.types.Core.METACARD_CREATED}.
    */
-  String CREATED = Core.CREATED;
+  @Deprecated String CREATED = Core.CREATED;
 
   /**
    * {@link Attribute} name for accessing the date/time this {@link Metacard} was last modified.
@@ -137,7 +137,7 @@ public interface Metacard extends Serializable {
    *     ddf.catalog.data.types.Core.MODIFIED}. The metacard modified date can now be referenced
    *     with {@link ddf.catalog.data.types.Core.METACARD_MODIFIED}.
    */
-  String MODIFIED = Core.MODIFIED;
+  @Deprecated String MODIFIED = Core.MODIFIED;
 
   /**
    * {@link Attribute} name for accessing the date/time the {@link Metacard} is no longer valid and
@@ -145,7 +145,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.EXPIRATION}
    */
-  String EXPIRATION = Core.EXPIRATION;
+  @Deprecated String EXPIRATION = Core.EXPIRATION;
 
   /**
    * {@link Attribute} name for accessing the date/time the {@link Metacard} was last known to be
@@ -153,7 +153,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - excluded from catalog taxonomy
    */
-  String EFFECTIVE = "effective";
+  @Deprecated String EFFECTIVE = "effective";
 
   /**
    * {@link Attribute} name for accessing the point of contact to the product this {@link Metacard}
@@ -161,7 +161,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - excluded from catalog taxonomy
    */
-  String POINT_OF_CONTACT = "point-of-contact";
+  @Deprecated String POINT_OF_CONTACT = "point-of-contact";
 
   /**
    * {@link Attribute} name for accessing the {@link URI} reference to the product this {@link
@@ -169,7 +169,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_URI}
    */
-  String RESOURCE_URI = Core.RESOURCE_URI;
+  @Deprecated String RESOURCE_URI = Core.RESOURCE_URI;
 
   /**
    * {@link Attribute} name for accessing the resource download URL for the product this {@link
@@ -177,7 +177,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_DOWNLOAD_URL}
    */
-  String RESOURCE_DOWNLOAD_URL = Core.RESOURCE_DOWNLOAD_URL;
+  @Deprecated String RESOURCE_DOWNLOAD_URL = Core.RESOURCE_DOWNLOAD_URL;
 
   /**
    * {@link Attribute} name for accessing the size (in bytes) of the product this {@link Metacard}
@@ -185,7 +185,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_SIZE}
    */
-  String RESOURCE_SIZE = Core.RESOURCE_SIZE;
+  @Deprecated String RESOURCE_SIZE = Core.RESOURCE_SIZE;
 
   /**
    * {@link Attribute} name for accessing the thumbnail image of the product this {@link Metacard}
@@ -194,7 +194,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.THUMBNAIL}
    */
-  String THUMBNAIL = Core.THUMBNAIL;
+  @Deprecated String THUMBNAIL = Core.THUMBNAIL;
 
   /**
    * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -202,7 +202,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated Not to be used anymore, replaced with SECURITY attribute.
    */
-  String SECURITY_MATCH_ALL = "security-match-all";
+  @Deprecated String SECURITY_MATCH_ALL = "security-match-all";
 
   /**
    * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -210,7 +210,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated Not to be used anymore, replaced with SECURITY attribute.
    */
-  String SECURITY_MATCH_ONE = "security-match-one";
+  @Deprecated String SECURITY_MATCH_ONE = "security-match-one";
 
   /**
    * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -219,7 +219,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.2.0.RC1
    * @deprecated - excluded from catalog taxonomy
    */
-  String SECURITY = "security";
+  @Deprecated String SECURITY = "security";
 
   /**
    * {@link Attribute} description associated with the {@link Metacard}
@@ -227,7 +227,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.8.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DESCRIPTION}
    */
-  String DESCRIPTION = Core.DESCRIPTION;
+  @Deprecated String DESCRIPTION = Core.DESCRIPTION;
 
   /** The default tag type for all metacards */
   String DEFAULT_TAG = "resource";
@@ -239,7 +239,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM_ALGORITHM}
    */
-  String CHECKSUM_ALGORITHM = Core.CHECKSUM_ALGORITHM;
+  @Deprecated String CHECKSUM_ALGORITHM = Core.CHECKSUM_ALGORITHM;
 
   /**
    * {@link Attribute} name for related {@link Metacard} ids.
@@ -247,7 +247,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.RELATED}
    */
-  String RELATED = Associations.RELATED;
+  @Deprecated String RELATED = Associations.RELATED;
 
   /**
    * {@link Attribute} name for derived {@link Metacard} ids.
@@ -255,7 +255,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.DERIVED}
    */
-  String DERIVED = Associations.DERIVED;
+  @Deprecated String DERIVED = Associations.DERIVED;
 
   /**
    * {@link Attribute} checksum value for the {@link Core#RESOURCE_URI}
@@ -263,14 +263,14 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM}
    */
-  String CHECKSUM = Core.CHECKSUM;
+  @Deprecated String CHECKSUM = Core.CHECKSUM;
 
   /**
    * {@link Attribute} that provides URIs for derived formats of the {@literal Core.RESOURCE_URI}
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DERIVED_RESOURCE_URI}
    */
-  String DERIVED_RESOURCE_URI = Core.DERIVED_RESOURCE_URI;
+  @Deprecated String DERIVED_RESOURCE_URI = Core.DERIVED_RESOURCE_URI;
 
   /**
    * {@link Attribute} name for accessing the derived resource download URL for the derived products
@@ -279,7 +279,7 @@ public interface Metacard extends Serializable {
    * @deprecated - instead reference {@link
    *     ddf.catalog.data.types.Core.DERIVED_RESOURCE_DOWNLOAD_URL}
    */
-  String DERIVED_RESOURCE_DOWNLOAD_URL = Core.DERIVED_RESOURCE_DOWNLOAD_URL;
+  @Deprecated String DERIVED_RESOURCE_DOWNLOAD_URL = Core.DERIVED_RESOURCE_DOWNLOAD_URL;
 
   /**
    * Returns {@link Attribute} for given attribute name.
@@ -360,6 +360,7 @@ public interface Metacard extends Serializable {
    * @deprecated - Do not use. Concept of created date has changed. Instead access dates using
    *     catalog taxonomy fields.
    */
+  @Deprecated
   Date getCreatedDate();
 
   /**
@@ -373,6 +374,7 @@ public interface Metacard extends Serializable {
    * @deprecated - Do not use. Concept of modified date has changed. Instead access dates using
    *     catalog taxonomy fields.
    */
+  @Deprecated
   Date getModifiedDate();
 
   /**
