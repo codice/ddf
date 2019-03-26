@@ -31,9 +31,9 @@ export default class LoadingCompanionContainer extends React.Component<
   }
   ref = React.createRef()
   componentDidUpdate() {
-    if (this.props.loading === false) {
-      LoadingCompanionView.stopLoadingElement(this.ref.current)
-    }
+    this.props.loading
+      ? LoadingCompanionView.loadElement(this.ref.current)
+      : LoadingCompanionView.stopLoadingElement(this.ref.current)
   }
   componentDidMount() {
     if (this.props.loading) {
