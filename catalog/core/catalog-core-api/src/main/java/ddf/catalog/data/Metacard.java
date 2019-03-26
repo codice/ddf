@@ -13,6 +13,8 @@
  */
 package ddf.catalog.data;
 
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
@@ -62,7 +64,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.SOURCE_ID}
    */
-  String SOURCE_ID = "source-id";
+  String SOURCE_ID = Core.SOURCE_ID;
 
   /**
    * Attribute name for querying the metadata content type of a {@link Metacard}.
@@ -87,35 +89,35 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.ID}.
    */
-  String ID = "id";
+  String ID = Core.ID;
 
   /**
    * {@link Attribute} name for accessing the tags of the {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.METACARD_TAGS}.
    */
-  String TAGS = "metacard-tags";
+  String TAGS = Core.METACARD_TAGS;
 
   /**
    * {@link Attribute} name for accessing the title of the {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.TITLE}.
    */
-  String TITLE = "title";
+  String TITLE = Core.TITLE;
 
   /**
    * {@link Attribute} name for accessing the XML metadata for this {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.METADATA}.
    */
-  String METADATA = "metadata";
+  String METADATA = Core.METADATA;
 
   /**
    * {@link Attribute} name for accessing the location for this {@link Metacard}.
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.LOCATION}.
    */
-  String GEOGRAPHY = "location";
+  String GEOGRAPHY = Core.LOCATION;
 
   /**
    * {@link Attribute} name for accessing the date/time this {@link Metacard} was created.
@@ -125,7 +127,7 @@ public interface Metacard extends Serializable {
    *     ddf.catalog.data.types.Core.CREATED}. The metacard created date can now be referenced with
    *     {@link ddf.catalog.data.types.Core.METACARD_CREATED}.
    */
-  String CREATED = "created";
+  String CREATED = Core.CREATED;
 
   /**
    * {@link Attribute} name for accessing the date/time this {@link Metacard} was last modified.
@@ -135,7 +137,7 @@ public interface Metacard extends Serializable {
    *     ddf.catalog.data.types.Core.MODIFIED}. The metacard modified date can now be referenced
    *     with {@link ddf.catalog.data.types.Core.METACARD_MODIFIED}.
    */
-  String MODIFIED = "modified";
+  String MODIFIED = Core.MODIFIED;
 
   /**
    * {@link Attribute} name for accessing the date/time the {@link Metacard} is no longer valid and
@@ -143,7 +145,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.EXPIRATION}
    */
-  String EXPIRATION = "expiration";
+  String EXPIRATION = Core.EXPIRATION;
 
   /**
    * {@link Attribute} name for accessing the date/time the {@link Metacard} was last known to be
@@ -167,7 +169,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_URI}
    */
-  String RESOURCE_URI = "resource-uri";
+  String RESOURCE_URI = Core.RESOURCE_URI;
 
   /**
    * {@link Attribute} name for accessing the resource download URL for the product this {@link
@@ -175,7 +177,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_DOWNLOAD_URL}
    */
-  String RESOURCE_DOWNLOAD_URL = "resource-download-url";
+  String RESOURCE_DOWNLOAD_URL = Core.RESOURCE_DOWNLOAD_URL;
 
   /**
    * {@link Attribute} name for accessing the size (in bytes) of the product this {@link Metacard}
@@ -183,7 +185,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.RESOURCE_SIZE}
    */
-  String RESOURCE_SIZE = "resource-size";
+  String RESOURCE_SIZE = Core.RESOURCE_SIZE;
 
   /**
    * {@link Attribute} name for accessing the thumbnail image of the product this {@link Metacard}
@@ -192,7 +194,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.THUMBNAIL}
    */
-  String THUMBNAIL = "thumbnail";
+  String THUMBNAIL = Core.THUMBNAIL;
 
   /**
    * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -225,7 +227,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.8.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DESCRIPTION}
    */
-  String DESCRIPTION = "description";
+  String DESCRIPTION = Core.DESCRIPTION;
 
   /** The default tag type for all metacards */
   String DEFAULT_TAG = "resource";
@@ -237,7 +239,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM_ALGORITHM}
    */
-  String CHECKSUM_ALGORITHM = "checksum-algorithm";
+  String CHECKSUM_ALGORITHM = Core.CHECKSUM_ALGORITHM;
 
   /**
    * {@link Attribute} name for related {@link Metacard} ids.
@@ -245,7 +247,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.RELATED}
    */
-  public static final String RELATED = "metacard.associations.related";
+  public static final String RELATED = Associations.RELATED;
 
   /**
    * {@link Attribute} name for derived {@link Metacard} ids.
@@ -253,7 +255,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Associations.DERIVED}
    */
-  public static final String DERIVED = "metacard.associations.derived";
+  public static final String DERIVED = Associations.DERIVED;
 
   /**
    * {@link Attribute} checksum value for the {@link Metacard#RESOURCE_URI}
@@ -261,7 +263,7 @@ public interface Metacard extends Serializable {
    * @since DDF-2.9.0
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.CHECKSUM}
    */
-  String CHECKSUM = "checksum";
+  String CHECKSUM = Core.CHECKSUM;
 
   /**
    * {@link Attribute} that provides URIs for derived formats of the {@literal
@@ -269,7 +271,7 @@ public interface Metacard extends Serializable {
    *
    * @deprecated - instead reference {@link ddf.catalog.data.types.Core.DERIVED_RESOURCE_URI}
    */
-  String DERIVED_RESOURCE_URI = "resource.derived-uri";
+  String DERIVED_RESOURCE_URI = Core.DERIVED_RESOURCE_URI;
 
   /**
    * {@link Attribute} name for accessing the derived resource download URL for the derived products
@@ -278,7 +280,7 @@ public interface Metacard extends Serializable {
    * @deprecated - instead reference {@link
    *     ddf.catalog.data.types.Core.DERIVED_RESOURCE_DOWNLOAD_URL}
    */
-  String DERIVED_RESOURCE_DOWNLOAD_URL = "resource.derived-download-url";
+  String DERIVED_RESOURCE_DOWNLOAD_URL = Core.DERIVED_RESOURCE_DOWNLOAD_URL;
 
   /**
    * Returns {@link Attribute} for given attribute name.
