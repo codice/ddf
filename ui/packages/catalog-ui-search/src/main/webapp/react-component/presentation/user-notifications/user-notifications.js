@@ -25,10 +25,9 @@ const Empty = styled.div`
   transition: transform ${props => props.theme.coreTransitionTime} linear;
   transform: scale(1);
   text-align: center;
-  font-size: ${props => props.theme.largeFontSize}
-  padding: ${props => props.theme.mediumSpacing}
+  font-size: ${props => props.theme.largeFontSize};
+  padding: ${props => props.theme.mediumSpacing};
 `
-
 const Root = styled.div`
   height: 100%;
   width: 100%;
@@ -41,24 +40,57 @@ const Notifications = styled.div`
   padding: ${props => props.theme.mediumSpacing};
 `
 
+const informalName = daysAgo => {
+  switch (daysAgo) {
+    case 0:
+      return 'Today'
+      break
+    case 1:
+      return 'Yesterday'
+      break
+    default:
+      return moment()
+        .subtract(daysAgo, 'days')
+        .format('dddd')
+      break
+  }
+}
+
+const listPreviousDays = numDays => {
+  if (numDays < 7) {
+    return new NotificationGroupView({
+      filter: model => {
+        return moment().diff(model.get('sentAt'), 'days') === numDays
+      },
+      date: informalName(numDays),
+    })
+  } else {
+    return new NotificationGroupView({
+      filter: model => {
+        return moment().diff(model.get('sentAt'), 'days') >= 7
+      },
+      date: 'Older',
+    })
+  }
+}
+
+const dayRange = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
 class UserNotifications extends React.Component {
   constructor(props) {
     super(props)
     this.props.listenTo(userNotifications, 'add remove update', () =>
       this.setState({})
     )
+    this.notificationGroups = dayRange.map(i => (
+      <MarionetteRegionContainer
+        key={i.toString()}
+        view={listPreviousDays(i)}
+        viewOptions={{ replaceElement: true }}
+      />
+    ))
   }
   render() {
-    let notificationsList = []
-    for (let i = 0; i <= 8; i++) {
-      notificationsList.push(
-        <MarionetteRegionContainer
-          key={i.toString()}
-          view={this.listPreviousDays(i)}
-          viewOptions={{ replaceElement: true }}
-        />
-      )
-    }
     return userNotifications.isEmpty() ? (
       <Empty>
         <div>No Notifications</div>
@@ -66,46 +98,15 @@ class UserNotifications extends React.Component {
     ) : (
       <Root>
         <div>
-          <Notifications>{notificationsList}</Notifications>
+          <Notifications>{this.notificationGroups}</Notifications>
         </div>
       </Root>
     )
-  }
-  listPreviousDays(numDays) {
-    if (numDays < 7) {
-      return new NotificationGroupView({
-        filter: model => {
-          return moment().diff(model.get('sentAt'), 'days') === numDays
-        },
-        date: this.informalName(numDays),
-      })
-    } else {
-      return new NotificationGroupView({
-        filter: model => {
-          return moment().diff(model.get('sentAt'), 'days') >= 7
-        },
-        date: 'Older',
-      })
-    }
-  }
-  informalName(daysAgo) {
-    switch (daysAgo) {
-      case 0:
-        return 'Today'
-        break
-      case 1:
-        return 'Yesterday'
-        break
-      default:
-        return moment()
-          .subtract(daysAgo, 'days')
-          .format('dddd')
-        break
-    }
   }
   componentWillUnmount() {
     userNotifications.setSeen()
     user.savePreferences()
   }
 }
+
 export default withListenTo(UserNotifications)
