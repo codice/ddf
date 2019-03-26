@@ -64,6 +64,15 @@ public class SecurityPolicyFilePutOption extends KarafDistributionConfigurationF
     return this;
   }
 
+  /**
+   * Checks if permissions were added to this option.
+   *
+   * @return <code>true</code> if no permissions were added yet; <code>false</code> otherwise
+   */
+  public boolean isEmpty() {
+    return grants.isEmpty();
+  }
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + "{grants=" + grants + "}";

@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
-import org.codice.ddf.dominion.commons.pax.exam.options.extensions.ClaimExtension;
+import org.codice.ddf.dominion.commons.pax.exam.options.extensions.AddClaimExtension;
+import org.codice.ddf.dominion.commons.pax.exam.options.extensions.AddPolicyFileExtension;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.GrantPermissionExtension;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.InstallExtension;
-import org.codice.ddf.dominion.commons.pax.exam.options.extensions.PolicyFileExtension;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Option.Extension;
 import org.codice.dominion.options.Options;
@@ -34,10 +34,11 @@ public class DDFCommonsOptionExtensionFactory implements Option.Factory {
   static {
     final Map<Class<? extends Annotation>, Option.Extension> map = new HashMap<>(8);
 
+    map.put(DDFCommonOptions.AddClaim.class, new AddClaimExtension());
+    map.put(DDFCommonOptions.AddPolicyFile.class, new AddPolicyFileExtension());
     map.put(DDFCommonOptions.Install.class, new InstallExtension());
-    map.put(DDFCommonOptions.Claim.class, new ClaimExtension());
+
     map.put(Options.GrantPermission.class, new GrantPermissionExtension());
-    map.put(DDFCommonOptions.PolicyFile.class, new PolicyFileExtension());
     EXTENSIONS = Collections.unmodifiableMap(map);
   }
 

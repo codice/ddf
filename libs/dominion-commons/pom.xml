@@ -43,8 +43,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
             <version>${org.slf4j.version}</version>
         </dependency>
 
@@ -73,8 +73,7 @@
                             *
                         </Import-Package>
                         <Export-Package>
-                            org.codice.ddf.dominion.commons.options,
-                            org.codice.ddf.dominion.commons.options.karaf
+                            org.codice.ddf.dominion.commons.options
                         </Export-Package>
                         <!-- This ensures that the maven bundle plugin properly includes the
                              dependencies file created by the depends-bundle-plugin which it

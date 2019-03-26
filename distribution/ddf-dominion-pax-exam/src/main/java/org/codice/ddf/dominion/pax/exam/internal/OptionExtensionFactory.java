@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.codice.ddf.dominion.options.DDFOptions.InstallDistribution;
-import org.codice.ddf.dominion.options.DDFOptions.InstallKernel;
+import org.codice.ddf.dominion.options.DDFOptions;
 import org.codice.ddf.dominion.pax.exam.options.extensions.InstallDistributionExtension;
 import org.codice.ddf.dominion.pax.exam.options.extensions.InstallKernelExtension;
 import org.codice.dominion.options.Option;
@@ -31,8 +30,8 @@ public class OptionExtensionFactory implements Option.Factory {
   static {
     final Map<Class<? extends Annotation>, Option.Extension> map = new HashMap<>(6);
 
-    map.put(InstallKernel.class, new InstallKernelExtension());
-    map.put(InstallDistribution.class, new InstallDistributionExtension());
+    map.put(DDFOptions.InstallKernel.class, new InstallKernelExtension());
+    map.put(DDFOptions.InstallDistribution.class, new InstallDistributionExtension());
     EXTENSIONS = Collections.unmodifiableMap(map);
   }
 

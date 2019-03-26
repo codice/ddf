@@ -15,7 +15,7 @@ package org.codice.ddf.dominion.commons.pax.exam.options.extensions;
 
 import java.io.IOException;
 import org.apache.commons.io.FilenameUtils;
-import org.codice.ddf.dominion.commons.options.DDFCommonOptions.PolicyFile;
+import org.codice.ddf.dominion.commons.options.DDFCommonOptions.AddPolicyFile;
 import org.codice.dominion.options.SourceType;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption;
@@ -23,11 +23,11 @@ import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
-/** Defines the extension point for the {@link PolicyFile} extension. */
-public class PolicyFileExtension implements Extension<PolicyFile> {
+/** Defines the extension point for the {@link AddPolicyFile} extension. */
+public class AddPolicyFileExtension implements Extension<AddPolicyFile> {
   @Override
   public Option[] options(
-      PolicyFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
+      AddPolicyFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
       throws IOException {
     return new Option[] {
       new KarafDistributionConfigurationFileReplaceOption(

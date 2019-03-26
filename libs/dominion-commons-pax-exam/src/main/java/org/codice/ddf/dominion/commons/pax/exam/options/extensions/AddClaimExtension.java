@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.dominion.commons.pax.exam.options.extensions;
 
-import org.codice.ddf.dominion.commons.options.DDFCommonOptions.Claim;
+import org.codice.ddf.dominion.commons.options.DDFCommonOptions.AddClaim;
 import org.codice.ddf.dominion.commons.pax.exam.options.UsersAttributesFileClaimPutOption;
 import org.codice.dominion.options.Utilities;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
@@ -21,11 +21,11 @@ import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
-/** Defines the extension point for the {@link Claim} extension. */
-public class ClaimExtension implements Extension<Claim> {
+/** Defines the extension point for the {@link AddClaim} extension. */
+public class AddClaimExtension implements Extension<AddClaim> {
   @Override
   public Option[] options(
-      Claim annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
+      AddClaim annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final String userId = annotation.userId();
     final String system = annotation.system();
     final boolean userIdDefined = Utilities.isDefined(userId);

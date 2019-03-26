@@ -25,7 +25,7 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
  *
  * @param <A> The type of annotation this extension is used with
  */
-@KarafOptions.Feature(
+@KarafOptions.InstallFeature(
   repository =
       @MavenUrl(
         groupId = "org.codice.ddf",
@@ -34,7 +34,7 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
         type = "xml",
         classifier = "features"
       ),
-  names = "ddf-dominion"
+  name = "ddf-dominion"
 )
 public abstract class AbstractInstallExtension<A extends java.lang.annotation.Annotation>
     implements Extension<A> {

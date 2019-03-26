@@ -22,7 +22,7 @@ import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 
 /** Defines the extension point for the {@link Install} option. */
-@KarafOptions.Feature(
+@KarafOptions.InstallFeature(
   repository =
       @MavenUrl(
         groupId = "ddf.lib",
@@ -31,7 +31,7 @@ import org.ops4j.pax.exam.Option;
         type = "xml",
         classifier = "features"
       ),
-  names = "ddf-dominion-commons"
+  name = "ddf-dominion-commons"
 )
 public class InstallExtension implements Extension<Install> {
   @Override
