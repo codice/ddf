@@ -236,7 +236,7 @@ public class AdaptedMetacard implements Metacard {
    * @see ddf.catalog.data.Metacard#getCreatedDate()
    */
   public Date getCreatedDate() {
-    return delegate.getCreatedDate();
+    return (Date) delegate.getAttribute(Core.CREATED).getValue();
   }
 
   /**
@@ -276,7 +276,7 @@ public class AdaptedMetacard implements Metacard {
    * @see ddf.catalog.data.Metacard#getModifiedDate()
    */
   public Date getModifiedDate() {
-    return delegate.getModifiedDate();
+    return (Date) delegate.getAttribute(Core.MODIFIED).getValue();
   }
 
   /**

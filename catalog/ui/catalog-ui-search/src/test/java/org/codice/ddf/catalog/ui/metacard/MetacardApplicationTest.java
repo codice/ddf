@@ -97,7 +97,8 @@ public class MetacardApplicationTest {
 
     Metacard metacard = requestCaptor.getValue().getUpdates().get(0).getValue();
     assertThat(metacard.getId(), is(ID));
-    assertThat(metacard.getCreatedDate(), is(Date.from(Instant.parse(DATE_B))));
+    assertThat(
+        metacard.getAttribute(Core.CREATED).getValue(), is(Date.from(Instant.parse(DATE_B))));
   }
 
   private static List<MetacardChanges> generateTitleChange() {

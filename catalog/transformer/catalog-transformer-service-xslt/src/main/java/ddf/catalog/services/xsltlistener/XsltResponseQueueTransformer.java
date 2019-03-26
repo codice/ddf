@@ -16,6 +16,7 @@ package ddf.catalog.services.xsltlistener;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,22 +168,24 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
               }
             }
             DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-            if (metacard.getCreatedDate() != null) {
+            if (metacard.getAttribute(Core.CREATED).getValue() != null) {
               metacardElement.appendChild(
                   createElement(
                       doc,
                       XML_RESULTS_NAMESPACE,
                       "created",
-                      fmt.print(metacard.getCreatedDate().getTime())));
+                      fmt.print(
+                          ((Date) metacard.getAttribute(Core.CREATED).getValue()).getTime())));
             }
             // looking at the date last modified
-            if (metacard.getModifiedDate() != null) {
+            if (metacard.getAttribute(Core.MODIFIED).getValue() != null) {
               metacardElement.appendChild(
                   createElement(
                       doc,
                       XML_RESULTS_NAMESPACE,
                       "updated",
-                      fmt.print(metacard.getModifiedDate().getTime())));
+                      fmt.print(
+                          ((Date) metacard.getAttribute(Core.MODIFIED).getValue()).getTime())));
             }
             if (metacard.getEffectiveDate() != null) {
               metacardElement.appendChild(

@@ -99,8 +99,8 @@ public class TemporalPredicate implements Predicate {
 
       switch (this.type) {
         case MODIFIED:
-          LOGGER.debug("search by modified: {}", entry.getModifiedDate());
-          date = entry.getModifiedDate();
+          LOGGER.debug("search by modified: {}", entry.getAttribute(Core.MODIFIED).getValue());
+          date = (Date) entry.getAttribute(Core.MODIFIED).getValue();
           break;
         case METACARD_MODIFIED:
           LOGGER.debug(
@@ -112,8 +112,8 @@ public class TemporalPredicate implements Predicate {
           date = entry.getEffectiveDate();
           break;
         case CREATED:
-          LOGGER.debug("search by created: {}", entry.getCreatedDate());
-          date = entry.getCreatedDate();
+          LOGGER.debug("search by created: {}", entry.getAttribute(Core.CREATED).getValue());
+          date = (Date) entry.getAttribute(Core.CREATED).getValue();
           break;
         case METACARD_CREATED:
           LOGGER.debug("search by metacard created: {}", entry.getAttribute(Core.METACARD_CREATED));

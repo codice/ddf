@@ -836,7 +836,7 @@ public class CatalogFrameworkImplTest {
     for (Metacard curCard : response.getCreatedMetacards()) {
       assertNotNull(curCard.getId());
       // Assert value is not set for invalid format
-      assertThat(curCard.getCreatedDate(), nullValue());
+      assertThat(curCard.getAttribute(Core.CREATED).getValue(), nullValue());
     }
   }
 

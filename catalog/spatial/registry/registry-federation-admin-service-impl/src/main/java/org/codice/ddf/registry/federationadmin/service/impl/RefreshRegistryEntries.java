@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +182,8 @@ public class RefreshRegistryEntries {
         // If it isn't a local node and it is newer that our current internal representation update
         // it
         if (!RegistryUtility.isLocalNode(existingMetacard)
-            && remoteEntry.getValue().getModifiedDate().after(existingMetacard.getModifiedDate())) {
+            && ((Date) remoteEntry.getValue().getAttribute(Core.MODIFIED).getValue())
+                .after((Date) existingMetacard.getAttribute(Core.MODIFIED).getValue())) {
           remoteMetacardsToUpdate.add(remoteEntry.getValue());
           LOGGER.trace(
               "Scheduling update for {}:{}",

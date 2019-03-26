@@ -16,6 +16,7 @@ package ddf.catalog.services.xsltlistener;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.ByteArrayOutputStream;
@@ -80,7 +81,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
     mergedMap.put("siteName", getValueOrEmptyString(metacard.getSourceId()));
     mergedMap.put("title", getValueOrEmptyString(metacard.getTitle()));
     mergedMap.put("type", getValueOrEmptyString(metacard.getMetacardType()));
-    mergedMap.put("date", getValueOrEmptyString(metacard.getCreatedDate()));
+    mergedMap.put("date", getValueOrEmptyString(metacard.getAttribute(Core.CREATED).getValue()));
     mergedMap.put("product", getValueOrEmptyString(metacard.getResourceURI()));
     mergedMap.put("thumbnail", getValueOrEmptyString(metacard.getThumbnail()));
     mergedMap.put("geometry", getValueOrEmptyString(metacard.getLocation()));

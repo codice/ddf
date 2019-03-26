@@ -762,7 +762,8 @@ public class GetRecordsResponseConverterTest {
   private void assertMetacard(Metacard mc, Map<String, Object> expectedValues) {
     assertThat(mc.getId(), is((String) expectedValues.get(Core.ID)));
     assertThat(mc.getTitle(), is((String) expectedValues.get(Core.TITLE)));
-    assertThat(mc.getModifiedDate(), is((Date) expectedValues.get(Core.MODIFIED)));
+    assertThat(
+        mc.getAttribute(Core.MODIFIED).getValue(), is((Date) expectedValues.get(Core.MODIFIED)));
     assertThat(mc.getLocation(), is((String) expectedValues.get(Core.LOCATION)));
     assertListStringAttribute(mc, Topic.CATEGORY, (String[]) expectedValues.get(Topic.CATEGORY));
     assertListStringAttribute(

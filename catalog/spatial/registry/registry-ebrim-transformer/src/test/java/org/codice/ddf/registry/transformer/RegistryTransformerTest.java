@@ -269,7 +269,7 @@ public class RegistryTransformerTest {
   @Test
   public void testLastUpdated() throws Exception {
     MetacardImpl metacard = convert("/csw-last-updated.xml");
-    String utc = metacard.getModifiedDate().toInstant().toString();
+    String utc = ((Date) metacard.getAttribute(Core.MODIFIED).getValue()).toInstant().toString();
     assertThat(utc, is("2016-01-26T17:16:34.996Z"));
   }
 

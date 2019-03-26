@@ -20,6 +20,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.*
+import ddf.catalog.data.types.Core
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
@@ -68,8 +69,8 @@ class PdfInputTransformerSpec extends Specification {
     void verifySamplePdfMetacard(Metacard metacard) {
         verifyThumbnailSize(metacard.thumbnail)
         assert metacard.contentTypeName == 'application/pdf'
-        assert metacard.createdDate.getTime() == 1456150156000
-        assert metacard.modifiedDate.getTime() == 1456150156000
+        assert metacard.getAttribute(Core.CREATED).getTime() == 1456150156000
+        assert metacard.getAttribute(Core.MODIFIED).getTime() == 1456150156000
     }
 
     void verifyThumbnailSize(byte[] thumbnail) {
@@ -120,8 +121,8 @@ class PdfInputTransformerSpec extends Specification {
         verifyThumbnailSize(metacard.thumbnail)
         metacard.contentTypeName == 'application/pdf'
         metacard.title == null
-        metacard.createdDate.getTime() == 1253116122000
-        metacard.modifiedDate.getTime() == 1253116509000
+        metacard.getAttribute(Core.CREATED).getTime() == 1253116122000
+        metacard.getAttribute(Core.MODIFIED).getTime() == 1253116509000
 
     }
 

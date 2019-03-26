@@ -28,6 +28,7 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.util.impl.Requests;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -154,7 +155,8 @@ public class IdentificationPlugin implements PreIngestPlugin {
       }
 
       if (updateMetacard.getMetadata() != null
-          && !updateMetacard.getModifiedDate().before(existingMetacard.getModifiedDate())) {
+          && !((Date) updateMetacard.getAttribute(Core.MODIFIED).getValue())
+              .before((Date) existingMetacard.getAttribute(Core.MODIFIED).getValue())) {
 
         updateMetacard.setAttribute(new AttributeImpl(Core.ID, existingMetacard.getId()));
         copyTransientAttributes(updateMetacard, existingMetacard);

@@ -18,6 +18,7 @@ import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import com.google.common.collect.Lists;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -25,6 +26,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.util.XPathHelper;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
@@ -178,9 +180,10 @@ public class SearchCommand extends CqlCommands {
         }
       }
 
-      if (metacard.getModifiedDate() != null) {
+      if (metacard.getAttribute(Core.MODIFIED).getValue() != null) {
         modifiedDate =
-            new DateTime(metacard.getModifiedDate().getTime()).toString(DATETIME_FORMATTER);
+            new DateTime(((Date) metacard.getAttribute(Core.MODIFIED).getValue()).getTime())
+                .toString(DATETIME_FORMATTER);
       }
 
       console.printf(
@@ -227,7 +230,7 @@ public class SearchCommand extends CqlCommands {
         String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
         String modifiedDate = "";
 
-        if (metacard.getModifiedDate() != null) {
+        if (metacard.getAttribute(Core.MODIFIED).getValue() != null) {
           DateTime dt = new DateTime(DateTimeZone.UTC);
           modifiedDate = dt.toString(DATETIME_FORMATTER);
         }

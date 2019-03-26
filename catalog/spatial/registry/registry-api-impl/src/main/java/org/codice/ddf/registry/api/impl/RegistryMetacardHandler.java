@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -127,8 +128,8 @@ public class RegistryMetacardHandler implements EventHandler {
       LOGGER.debug(
           "New remote registry metacard {} is older ({}) than current local version ({}). Not updating local version.",
           mcard.getTitle(),
-          mcard.getModifiedDate(),
-          metacards.get(0).getModifiedDate());
+          mcard.getAttribute(Core.MODIFIED).getValue(),
+          metacards.get(0).getAttribute(Core.MODIFIED).getValue());
     }
   }
 
@@ -180,7 +181,8 @@ public class RegistryMetacardHandler implements EventHandler {
   }
 
   private boolean shouldUpdate(Metacard newMetacard, Metacard oldMetacard) {
-    return oldMetacard.getModifiedDate().before(newMetacard.getModifiedDate());
+    return ((Date) oldMetacard.getAttribute(Core.MODIFIED).getValue())
+        .before((Date) newMetacard.getAttribute(Core.MODIFIED).getValue());
   }
 
   public void destroy() {

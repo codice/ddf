@@ -170,7 +170,7 @@ public class PptxInputTransformerTest {
         try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
           PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
           Metacard m = t.transform(inStr);
-          assertThat(m.getCreatedDate().getTime(), is(d.getTime()));
+          assertThat(((Date) m.getAttribute(Core.CREATED).getValue()).getTime(), is(d.getTime()));
         }
       }
     }
@@ -191,7 +191,7 @@ public class PptxInputTransformerTest {
         try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
           PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
           Metacard m = t.transform(inStr);
-          assertThat(m.getModifiedDate().getTime(), is(d.getTime()));
+          assertThat(((Date) m.getAttribute(Core.MODIFIED).getValue()).getTime(), is(d.getTime()));
         }
       }
     }

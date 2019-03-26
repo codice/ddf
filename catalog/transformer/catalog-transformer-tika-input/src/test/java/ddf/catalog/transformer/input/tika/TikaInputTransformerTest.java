@@ -407,8 +407,12 @@ public class TikaInputTransformerTest {
         metacard.getMetadata(),
         containsString("<meta name=\"Model\" content=\"Canon EOS 40D\" />"));
     assertThat(metacard.getContentTypeName(), is("image/jpeg"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2009-08-11 09:09:45 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2009-10-02 23:02:49 UTC"));
     assertThat(metacard.getAttribute(Core.LOCATION).getValue(), is("POINT(-54.1234 12.54321)"));
 
     // Reset timezone back to local time zone.
@@ -441,7 +445,9 @@ public class TikaInputTransformerTest {
         metacard.getMetadata(),
         containsString("<meta name=\"Keywords\" content=\"grazelands\" />"));
     assertThat(metacard.getContentTypeName(), is("image/jpeg"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2010-07-28 11:02:00 UTC"));
 
     // Reset timezone back to local time zone.
     TimeZone.setDefault(defaultTimeZone);
@@ -485,8 +491,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Test Title"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2012-01-28 18:39:18 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2012-01-28 18:40:25 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2012-01-28 18:39:18 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2012-01-28 18:40:25 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getMetadata(),
@@ -502,8 +512,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Apache Tika - Apache Tika"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-15 09:02:31 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2007-09-15 09:02:31 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2007-09-15 09:02:31 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2007-09-15 09:02:31 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getMetadata(), containsString("<meta name=\"xmpTPg:NPages\" content=\"1\" />"));
@@ -518,7 +532,9 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Test Document"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2000-12-01 00:00:00 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2000-12-01 00:00:00 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -547,8 +563,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Sample Word Document"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2008-12-11 16:04:00 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2010-11-12 16:21:00 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2008-12-11 16:04:00 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2010-11-12 16:21:00 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -566,8 +586,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Sample Powerpoint Slide"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 17:33:12 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2007-09-14 19:16:39 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2007-09-14 17:33:12 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2007-09-14 19:16:39 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -583,8 +607,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Attachment Test"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2010-05-04 06:43:54 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2010-06-29 06:34:35 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2010-05-04 06:43:54 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2010-06-29 06:34:35 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -612,8 +640,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Simple Excel document"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2007-10-01 16:31:43 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2007-10-01 16:13:56 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2007-10-01 16:31:43 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -629,8 +661,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Simple Excel document"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2008-12-11 16:02:17 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2007-10-01 16:13:56 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2008-12-11 16:02:17 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -687,8 +723,12 @@ public class TikaInputTransformerTest {
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
     assertThat(metacard.getTitle(), is("Test OpenOffice2 Document"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
-    assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2007-09-14 11:06:08 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2013-02-13 06:52:10 UTC"));
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
@@ -705,8 +745,12 @@ public class TikaInputTransformerTest {
     InputStream stream =
         Thread.currentThread().getContextClassLoader().getResourceAsStream("testVisio.vsdx");
     Metacard metacard = transform(stream);
-    assertThat(convertDate(metacard.getModifiedDate()), is("2015-08-16 23:37:46 UTC"));
-    assertThat(convertDate(metacard.getCreatedDate()), is("2015-08-16 23:13:05 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2015-08-16 23:37:46 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.CREATED).getValue()),
+        is("2015-08-16 23:13:05 UTC"));
     assertThat(metacard.getMetadata(), notNullValue());
     assertThat(
         metacard.getMetadata(),

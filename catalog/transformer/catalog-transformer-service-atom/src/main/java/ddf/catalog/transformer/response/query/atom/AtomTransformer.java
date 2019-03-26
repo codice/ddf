@@ -26,6 +26,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -284,13 +285,16 @@ public class AtomTransformer implements QueryResponseTransformer {
      * publisher considers significant." Therefore, a new Date is used because we are making
      * the entry for the first time.
      */
-    entry.setUpdated(Optional.ofNullable(metacard.getModifiedDate()).orElse(currentDate));
+    entry.setUpdated(
+        Optional.ofNullable((Date) metacard.getAttribute(Core.MODIFIED).getValue())
+            .orElse(currentDate));
 
     /*
      * Atom spec text (rfc4287): "Typically, atom:published will be associated with the
      * initial creation or first availability of the resource."
      */
-    Optional.ofNullable(metacard.getCreatedDate()).ifPresent(entry::setPublished);
+    Optional.ofNullable((Date) metacard.getAttribute(Core.CREATED).getValue())
+        .ifPresent(entry::setPublished);
 
     /*
      * For atom:link elements, Atom spec text (rfc4287): "The value "related" signifies that

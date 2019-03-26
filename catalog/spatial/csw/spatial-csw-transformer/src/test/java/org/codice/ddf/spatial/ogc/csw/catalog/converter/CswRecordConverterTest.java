@@ -175,10 +175,14 @@ public class CswRecordConverterTest {
     Metacard expectedMetacard = getTestMetacard();
     assertThat(mc, notNullValue());
     assertThat(mc.getContentTypeName(), is(expectedMetacard.getContentTypeName()));
-    assertThat(mc.getCreatedDate(), is(expectedMetacard.getCreatedDate()));
+    assertThat(
+        mc.getAttribute(Core.CREATED).getValue(),
+        is(expectedMetacard.getAttribute(Core.CREATED).getValue()));
     assertThat(mc.getEffectiveDate(), is(expectedMetacard.getEffectiveDate()));
     assertThat(mc.getId(), is(expectedMetacard.getId()));
-    assertThat(mc.getModifiedDate(), is(expectedMetacard.getModifiedDate()));
+    assertThat(
+        mc.getAttribute(Core.MODIFIED).getValue(),
+        is(expectedMetacard.getAttribute(Core.MODIFIED).getValue()));
     assertThat(mc.getTitle(), is(expectedMetacard.getTitle()));
     assertThat(mc.getResourceURI(), is(expectedMetacard.getResourceURI()));
   }
@@ -221,10 +225,14 @@ public class CswRecordConverterTest {
     Metacard expectedMetacard = getTestMetacard();
     assertThat(mc, notNullValue());
     assertThat(mc.getContentTypeName(), is(mc.getContentTypeName()));
-    assertThat(mc.getCreatedDate(), is(expectedMetacard.getCreatedDate()));
+    assertThat(
+        mc.getAttribute(Core.CREATED).getValue(),
+        is(expectedMetacard.getAttribute(Core.CREATED).getValue()));
     assertThat(mc.getEffectiveDate(), is(expectedMetacard.getEffectiveDate()));
     assertThat(mc.getId(), is(expectedMetacard.getId()));
-    assertThat(mc.getModifiedDate(), is(expectedMetacard.getModifiedDate()));
+    assertThat(
+        mc.getAttribute(Core.MODIFIED).getValue(),
+        is(expectedMetacard.getAttribute(Core.MODIFIED).getValue()));
     assertThat(mc.getTitle(), is(expectedMetacard.getTitle()));
     assertThat(mc.getResourceURI(), is(expectedMetacard.getResourceURI()));
     XMLUnit.setIgnoreWhitespace(true);
@@ -502,10 +510,14 @@ public class CswRecordConverterTest {
     Metacard expectedMetacard = getTestMetacard();
     assertThat(mc, notNullValue());
     assertThat(mc.getContentTypeName(), is(expectedMetacard.getContentTypeName()));
-    assertThat(mc.getCreatedDate(), is(expectedMetacard.getCreatedDate()));
+    assertThat(
+        mc.getAttribute(Core.CREATED).getValue(),
+        is(expectedMetacard.getAttribute(Core.CREATED).getValue()));
     assertThat(mc.getEffectiveDate(), is(expectedMetacard.getEffectiveDate()));
     assertThat(mc.getId(), is(expectedMetacard.getId()));
-    assertThat(mc.getModifiedDate(), is(expectedMetacard.getModifiedDate()));
+    assertThat(
+        mc.getAttribute(Core.MODIFIED).getValue(),
+        is(expectedMetacard.getAttribute(Core.MODIFIED).getValue()));
     assertThat(mc.getTitle(), is(expectedMetacard.getTitle()));
     assertThat(mc.getResourceURI(), is(expectedMetacard.getResourceURI()));
   }

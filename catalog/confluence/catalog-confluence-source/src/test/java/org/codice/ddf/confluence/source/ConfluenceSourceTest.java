@@ -488,10 +488,10 @@ public class ConfluenceSourceTest {
     assertThat(response.getHits(), is(1L));
     Metacard mcard = response.getResults().get(0).getMetacard();
     assertThat(
-        mcard.getCreatedDate(),
+        mcard.getAttribute(Core.CREATED).getValue(),
         is(DatatypeConverter.parseDateTime("2013-09-18T14:50:42.616-07:00").getTime()));
     assertThat(
-        mcard.getModifiedDate(),
+        mcard.getAttribute(Core.MODIFIED).getValue(),
         is(DatatypeConverter.parseDateTime("2015-06-16T19:21:39.141-07:00").getTime()));
     assertThat(
         mcard.getAttribute(Core.METACARD_CREATED).getValue(),

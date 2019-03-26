@@ -31,6 +31,7 @@ import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,7 +115,7 @@ public class AttributeInjectorImplTest {
     final Metacard injectedBasicMetacard = attributeInjector.injectAttributes(basicMetacard);
     assertThat(injectedBasicMetacard.getMetacardType(), is(expectedBasicMetacardType));
     assertThat(injectedBasicMetacard.getTitle(), is(title));
-    assertThat(injectedBasicMetacard.getCreatedDate(), is(created));
+    assertThat(injectedBasicMetacard.getAttribute(Core.CREATED).getValue(), is(created));
 
     final MetacardImpl nitfMetacard = new MetacardImpl(NITF_TYPE);
     nitfMetacard.setTitle(title);
@@ -127,7 +128,7 @@ public class AttributeInjectorImplTest {
     final Metacard injectedNitfMetacard = attributeInjector.injectAttributes(nitfMetacard);
     assertThat(injectedNitfMetacard.getMetacardType(), is(expectedNitfMetacardType));
     assertThat(injectedNitfMetacard.getTitle(), is(title));
-    assertThat(injectedNitfMetacard.getCreatedDate(), is(created));
+    assertThat(injectedNitfMetacard.getAttribute(Core.CREATED).getValue(), is(created));
   }
 
   @Test

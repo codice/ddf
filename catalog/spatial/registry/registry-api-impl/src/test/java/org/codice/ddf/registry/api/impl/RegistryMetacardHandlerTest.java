@@ -127,7 +127,8 @@ public class RegistryMetacardHandlerTest {
   public void testUpdateEvent() throws Exception {
     event = new Event(EventProcessor.EVENTS_TOPIC_UPDATED, eventProperties);
     setupSerialExecutor();
-    mcard.setModifiedDate(new Date(mcardInternal.getModifiedDate().getTime() - 1000));
+    mcard.setModifiedDate(
+        new Date(((Date) mcardInternal.getAttribute(Core.MODIFIED).getValue()).getTime() - 1000));
     when(federationAdmin.getRegistryMetacardsByRegistryIds(any()))
         .thenReturn(Collections.singletonList(mcard));
     rmh.handleEvent(event);

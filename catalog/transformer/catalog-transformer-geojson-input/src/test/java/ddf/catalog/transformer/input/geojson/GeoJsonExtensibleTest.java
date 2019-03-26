@@ -495,8 +495,10 @@ public class GeoJsonExtensibleTest {
     SimpleDateFormat dateFormat =
         new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    assertEquals(DEFAULT_CREATED_DATE, dateFormat.format(metacard.getCreatedDate()));
-    assertEquals(DEFAULT_MODIFIED_DATE, dateFormat.format(metacard.getModifiedDate()));
+    assertEquals(
+        DEFAULT_CREATED_DATE, dateFormat.format(metacard.getAttribute(Core.CREATED).getValue()));
+    assertEquals(
+        DEFAULT_MODIFIED_DATE, dateFormat.format(metacard.getAttribute(Core.MODIFIED).getValue()));
     assertEquals(DEFAULT_EXPIRATION_DATE, dateFormat.format(metacard.getExpirationDate()));
     assertEquals(DEFAULT_EFFECTIVE_DATE, dateFormat.format(metacard.getEffectiveDate()));
     assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());

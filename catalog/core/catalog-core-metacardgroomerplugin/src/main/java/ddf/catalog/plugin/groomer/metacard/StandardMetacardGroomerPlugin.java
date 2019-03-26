@@ -51,11 +51,11 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
       aMetacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
     }
 
-    if (aMetacard.getCreatedDate() == null) {
+    if (aMetacard.getAttribute(Core.CREATED).getValue() == null) {
       aMetacard.setAttribute(new AttributeImpl(Core.CREATED, now));
     }
 
-    if (aMetacard.getModifiedDate() == null) {
+    if (aMetacard.getAttribute(Core.MODIFIED).getValue() == null) {
       aMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, now));
     }
 
@@ -95,7 +95,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
       aMetacard.setAttribute(new AttributeImpl(Core.ID, anUpdate.getKey()));
     }
 
-    if (aMetacard.getCreatedDate() == null) {
+    if (aMetacard.getAttribute(Core.CREATED).getValue() == null) {
       LOGGER.debug(
           "{} date should match the original metacard. Changing date to current timestamp so it is at least not null.",
           Core.CREATED);
@@ -109,7 +109,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
           Core.METACARD_CREATED);
     }
 
-    if (aMetacard.getModifiedDate() == null) {
+    if (aMetacard.getAttribute(Core.MODIFIED).getValue() == null) {
       aMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, now));
     }
 

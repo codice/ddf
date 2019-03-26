@@ -525,8 +525,8 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
     metacardSummary.put(SUMMARY_METACARD_ID, metacard.getId());
     metacardSummary.put(SUMMARY_REGISTRY_ID, RegistryUtility.getRegistryId(metacard));
     metacardSummary.put(SUMMARY_NAME, metacard.getTitle());
-    metacardSummary.put(Core.CREATED, metacard.getCreatedDate());
-    metacardSummary.put(Core.MODIFIED, metacard.getModifiedDate());
+    metacardSummary.put(Core.CREATED, metacard.getAttribute(Core.CREATED).getValue());
+    metacardSummary.put(Core.MODIFIED, metacard.getAttribute(Core.MODIFIED).getValue());
     metacardSummary.put(SUMMARY_IDENTITY_NODE, RegistryUtility.isIdentityNode(metacard));
     metacardSummary.put(SUMMARY_LOCAL_NODE, RegistryUtility.isLocalNode(metacard));
     metacardSummary.put(SUMMARY_REPORT_ACTION, getReportAction(metacard));

@@ -875,7 +875,9 @@ public class MetacardApplication implements SparkApplication {
               noteUtil.getAssociatedMetacardsByTwoAttributes(
                   NoteConstants.PARENT_ID, Core.METACARD_TAGS, queryId, "note");
           ArrayList<String> getResponse = new ArrayList<>();
-          retrievedMetacards.sort(Comparator.comparing(Metacard::getCreatedDate));
+          retrievedMetacards.sort(
+              Comparator.comparing(
+                  metacard -> (Date) metacard.getAttribute(Core.CREATED).getValue()));
           for (Metacard metacard : retrievedMetacards) {
             Map<String, String> responseNote = noteUtil.getResponseNote(metacard);
             if (responseNote != null) {

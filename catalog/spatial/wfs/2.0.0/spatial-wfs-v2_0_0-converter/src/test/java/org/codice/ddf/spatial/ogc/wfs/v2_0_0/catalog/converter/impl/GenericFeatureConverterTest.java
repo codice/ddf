@@ -25,6 +25,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,9 +135,9 @@ public class GenericFeatureConverterTest {
     assertEquals(
         mc.getLocation(), mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT).getValue());
 
-    assertNotNull(mc.getCreatedDate());
+    assertNotNull(mc.getAttribute(Core.CREATED).getValue());
     assertNotNull(mc.getEffectiveDate());
-    assertNotNull(mc.getModifiedDate());
+    assertNotNull(mc.getAttribute(Core.MODIFIED).getValue());
 
     assertNotNull(mc.getContentTypeNamespace());
     assertEquals(

@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -350,8 +351,12 @@ public class GeoJsonInputTransformerTest {
     SimpleDateFormat dateFormat =
         new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    assertEquals("2012-09-01T00:09:19.368+0000", dateFormat.format(metacard.getCreatedDate()));
-    assertEquals("2012-09-01T00:09:19.368+0000", dateFormat.format(metacard.getModifiedDate()));
+    assertEquals(
+        "2012-09-01T00:09:19.368+0000",
+        dateFormat.format(metacard.getAttribute(Core.CREATED).getValue()));
+    assertEquals(
+        "2012-09-01T00:09:19.368+0000",
+        dateFormat.format(metacard.getAttribute(Core.MODIFIED).getValue()));
     assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
   }
 }

@@ -356,10 +356,10 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     if (metacard.getEffectiveDate() == null) {
       metacard.setEffectiveDate(date);
     }
-    if (metacard.getCreatedDate() == null) {
+    if (metacard.getAttribute(Core.CREATED).getValue() == null) {
       metacard.setCreatedDate(date);
     }
-    if (metacard.getModifiedDate() == null) {
+    if (metacard.getAttribute(Core.MODIFIED).getValue() == null) {
       metacard.setModifiedDate(date);
     }
 

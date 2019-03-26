@@ -214,10 +214,10 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
     if (mc.getEffectiveDate() == null) {
       mc.setEffectiveDate(genericDate);
     }
-    if (mc.getCreatedDate() == null) {
+    if (mc.getAttribute(Core.CREATED).getValue() == null) {
       mc.setCreatedDate(genericDate);
     }
-    if (mc.getModifiedDate() == null) {
+    if (mc.getAttribute(Core.MODIFIED).getValue() == null) {
       mc.setModifiedDate(genericDate);
     }
     if (StringUtils.isBlank(mc.getTitle())) {

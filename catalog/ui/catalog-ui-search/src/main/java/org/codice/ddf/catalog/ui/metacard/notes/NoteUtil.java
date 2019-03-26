@@ -68,11 +68,12 @@ public class NoteUtil {
     } else {
       return null;
     }
-    if (metacard.getCreatedDate() != null) {
-      requiredAttributes.put("created", metacard.getCreatedDate().toString());
+    if (metacard.getAttribute(Core.CREATED).getValue() != null) {
+      requiredAttributes.put("created", metacard.getAttribute(Core.CREATED).getValue().toString());
     }
-    if (metacard.getModifiedDate() != null) {
-      requiredAttributes.put("modified", metacard.getModifiedDate().toString());
+    if (metacard.getAttribute(Core.MODIFIED).getValue() != null) {
+      requiredAttributes.put(
+          "modified", metacard.getAttribute(Core.MODIFIED).getValue().toString());
     }
     if (metacard.getAttribute(NoteConstants.COMMENT) != null) {
       requiredAttributes.put(

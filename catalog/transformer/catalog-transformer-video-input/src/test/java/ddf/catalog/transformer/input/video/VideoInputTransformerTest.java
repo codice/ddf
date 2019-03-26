@@ -40,7 +40,9 @@ public class VideoInputTransformerTest {
     Metacard metacard = transform(stream);
 
     assertThat(metacard, notNullValue());
-    assertThat(convertDate(metacard.getModifiedDate()), is("2012-09-01 12:31:21 UTC"));
+    assertThat(
+        convertDate((Date) metacard.getAttribute(Core.MODIFIED).getValue()),
+        is("2012-09-01 12:31:21 UTC"));
 
     String metadata = metacard.getMetadata();
     assertThat(metadata, notNullValue());

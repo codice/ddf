@@ -99,11 +99,15 @@ public class SolrProviderCreate {
     assertTrue(!createdMetacard.getMetadata().isEmpty());
 
     // DATES
-    assertEquals(mockMetacard.getCreatedDate(), createdMetacard.getCreatedDate());
-    assertThat(createdMetacard.getCreatedDate(), nullValue());
+    assertEquals(
+        mockMetacard.getAttribute(Core.CREATED).getValue(),
+        createdMetacard.getAttribute(Core.CREATED).getValue());
+    assertThat(createdMetacard.getAttribute(Core.CREATED).getValue(), nullValue());
 
-    assertEquals(mockMetacard.getModifiedDate(), createdMetacard.getModifiedDate());
-    assertThat(createdMetacard.getModifiedDate(), nullValue());
+    assertEquals(
+        mockMetacard.getAttribute(Core.MODIFIED).getValue(),
+        createdMetacard.getAttribute(Core.MODIFIED).getValue());
+    assertThat(createdMetacard.getAttribute(Core.MODIFIED).getValue(), nullValue());
 
     assertEquals(mockMetacard.getEffectiveDate(), createdMetacard.getEffectiveDate());
     assertThat(createdMetacard.getEffectiveDate(), nullValue());
@@ -255,8 +259,8 @@ public class SolrProviderCreate {
     assertThat(
         mResult.getMetadata(), containsString("<title>Flagstaff Chamber of Commerce</title>"));
     assertTrue(!mResult.getMetadata().isEmpty());
-    assertFalse(mResult.getCreatedDate().after(new Date()));
-    assertFalse(mResult.getModifiedDate().after(new Date()));
+    assertFalse(((Date) mResult.getAttribute(Core.CREATED).getValue()).after(new Date()));
+    assertFalse(((Date) mResult.getAttribute(Core.MODIFIED).getValue()).after(new Date()));
     assertEquals(metacard.getEffectiveDate(), mResult.getEffectiveDate());
     assertEquals(metacard.getExpirationDate(), mResult.getExpirationDate());
     assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
@@ -289,8 +293,8 @@ public class SolrProviderCreate {
     assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
     assertNotNull(mResult.getMetadata());
     assertTrue(!mResult.getMetadata().isEmpty());
-    assertFalse(mResult.getCreatedDate().after(new Date()));
-    assertFalse(mResult.getModifiedDate().after(new Date()));
+    assertFalse(((Date) mResult.getAttribute(Core.CREATED).getValue()).after(new Date()));
+    assertFalse(((Date) mResult.getAttribute(Core.MODIFIED).getValue()).after(new Date()));
     assertEquals(metacard.getEffectiveDate(), mResult.getEffectiveDate());
     assertEquals(metacard.getExpirationDate(), mResult.getExpirationDate());
     assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
@@ -348,8 +352,8 @@ public class SolrProviderCreate {
         createdMetacard.getMetadata(),
         containsString("<title>Flagstaff Chamber of Commerce</title>"));
     assertThat(createdMetacard.getMetadata().isEmpty(), is(not(true)));
-    assertThat(createdMetacard.getCreatedDate(), is(oneDayAgo));
-    assertThat(createdMetacard.getModifiedDate(), is(oneDayAgo));
+    assertThat(createdMetacard.getAttribute(Core.CREATED).getValue(), is(oneDayAgo));
+    assertThat(createdMetacard.getAttribute(Core.MODIFIED).getValue(), is(oneDayAgo));
     assertThat(createdMetacard.getEffectiveDate(), is(oneDayAgo));
     assertThat(createdMetacard.getExpirationDate(), is(oneDayAgo));
     assertTrue(Arrays.equals(metacard.getThumbnail(), createdMetacard.getThumbnail()));
@@ -388,8 +392,8 @@ public class SolrProviderCreate {
     assertThat(
         mResult.getMetadata(), containsString("<title>Flagstaff Chamber of Commerce</title>"));
     assertThat(mResult.getMetadata().isEmpty(), is(not(true)));
-    assertThat(mResult.getCreatedDate(), is(oneDayAgo));
-    assertThat(mResult.getModifiedDate(), is(oneDayAgo));
+    assertThat(mResult.getAttribute(Core.CREATED).getValue(), is(oneDayAgo));
+    assertThat(mResult.getAttribute(Core.MODIFIED).getValue(), is(oneDayAgo));
     assertThat(mResult.getEffectiveDate(), is(oneDayAgo));
     assertThat(mResult.getExpirationDate(), is(oneDayAgo));
     assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));

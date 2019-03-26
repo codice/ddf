@@ -35,6 +35,7 @@ import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Topic;
 import java.io.IOException;
 import java.io.Serializable;
@@ -480,7 +481,7 @@ public class TransactionMessageBodyReaderTest {
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     Date date = simpleDateFormat.parse("2008-08-10");
-    assertThat(metacard.getModifiedDate(), is(date));
+    assertThat(metacard.getAttribute(Core.MODIFIED).getValue(), is(date));
 
     assertThat(
         metacard.getLocation(), is("POLYGON ((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
@@ -579,7 +580,7 @@ public class TransactionMessageBodyReaderTest {
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     Date date = simpleDateFormat.parse("2008-08-10");
-    assertThat(metacard.getModifiedDate(), is(date));
+    assertThat(metacard.getAttribute(Core.MODIFIED).getValue(), is(date));
 
     assertThat(
         metacard.getLocation(), is("POLYGON ((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));

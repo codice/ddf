@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -142,14 +143,14 @@ public class MetacardImplTest {
     assertEquals(null, mi.getContentTypeName());
     assertEquals(null, mi.getContentTypeNamespace());
     assertEquals(null, mi.getContentTypeVersion());
-    assertEquals(null, mi.getCreatedDate());
+    assertEquals(null, mi.getAttribute(Core.CREATED).getValue());
     assertEquals(null, mi.getEffectiveDate());
     assertEquals(null, mi.getExpirationDate());
     assertEquals(null, mi.getId());
     assertEquals(null, mi.getLocation());
     assertEquals(MetacardImpl.BASIC_METACARD, mi.getMetacardType());
     assertEquals(null, mi.getMetadata());
-    assertEquals(null, mi.getModifiedDate());
+    assertEquals(null, mi.getAttribute(Core.MODIFIED).getValue());
     assertEquals(null, mi.getResourceSize());
     assertEquals(null, mi.getResourceURI());
     assertEquals(null, mi.getSourceId());
@@ -162,14 +163,14 @@ public class MetacardImplTest {
     assertEquals(null, mi.getContentTypeName());
     assertEquals(null, mi.getContentTypeNamespace());
     assertEquals(null, mi.getContentTypeVersion());
-    assertEquals(null, mi.getCreatedDate());
+    assertEquals(null, mi.getAttribute(Core.CREATED).getValue());
     assertEquals(null, mi.getEffectiveDate());
     assertEquals(null, mi.getExpirationDate());
     assertEquals(null, mi.getId());
     assertEquals(null, mi.getLocation());
     assertEquals(MetacardImpl.BASIC_METACARD, mi.getMetacardType());
     assertEquals(null, mi.getMetadata());
-    assertEquals(null, mi.getModifiedDate());
+    assertEquals(null, mi.getAttribute(Core.MODIFIED).getValue());
     assertEquals(null, mi.getResourceSize());
     assertEquals(null, mi.getResourceURI());
     assertEquals(null, mi.getSourceId());
@@ -182,7 +183,8 @@ public class MetacardImplTest {
     assertEquals(mc.getContentTypeName(), mi.getContentTypeName());
     assertEquals(mc.getContentTypeNamespace(), mi.getContentTypeNamespace());
     assertEquals(mc.getContentTypeVersion(), mi.getContentTypeVersion());
-    assertEquals(mc.getCreatedDate(), mi.getCreatedDate());
+    assertEquals(
+        mc.getAttribute(Core.CREATED).getValue(), mi.getAttribute(Core.CREATED).getValue());
     assertEquals(mc.getEffectiveDate(), mi.getEffectiveDate());
     assertEquals(mc.getExpirationDate(), mi.getExpirationDate());
     assertEquals(mc.getId(), mi.getId());
@@ -190,7 +192,8 @@ public class MetacardImplTest {
     assertEquals(MetacardImpl.BASIC_METACARD, mi.getMetacardType());
     assertEquals(mc.getMetacardType(), mi.getMetacardType());
     assertEquals(mc.getMetadata(), mi.getMetadata());
-    assertEquals(mc.getModifiedDate(), mi.getModifiedDate());
+    assertEquals(
+        mc.getAttribute(Core.MODIFIED).getValue(), mi.getAttribute(Core.MODIFIED).getValue());
     assertEquals(mc.getResourceSize(), mi.getResourceSize());
     assertEquals(mc.getResourceURI(), mi.getResourceURI());
     assertEquals(mc.getSourceId(), mi.getSourceId());
@@ -246,13 +249,13 @@ public class MetacardImplTest {
     assertEquals(null, mc.getAttribute("testNullValueAtt2"));
     assertEquals(null, mc.getContentTypeName());
     assertEquals(null, mc.getContentTypeVersion());
-    assertEquals(null, mc.getCreatedDate());
+    assertEquals(null, mc.getAttribute(Core.CREATED).getValue());
     assertEquals(null, mc.getEffectiveDate());
     assertEquals(null, mc.getExpirationDate());
     assertEquals(null, mc.getId());
     assertEquals(null, mc.getLocation());
     assertEquals(null, mc.getMetadata());
-    assertEquals(null, mc.getModifiedDate());
+    assertEquals(null, mc.getAttribute(Core.MODIFIED).getValue());
     assertEquals(null, mc.getResourceSize());
     assertNotNull(mc.getResourceURI());
     assertEquals(null, mc.getSourceId());
@@ -297,7 +300,9 @@ public class MetacardImplTest {
     assertEquals(metacard.getContentTypeVersion(), readMetacard.getContentTypeVersion());
     assertEquals(metacard.getLocation(), readMetacard.getLocation());
     assertEquals(metacard.getMetadata(), readMetacard.getMetadata());
-    assertEquals(metacard.getCreatedDate(), readMetacard.getCreatedDate());
+    assertEquals(
+        metacard.getAttribute(Core.CREATED).getValue(),
+        readMetacard.getAttribute(Core.CREATED).getValue());
     assertEquals(metacard.getExpirationDate(), readMetacard.getExpirationDate());
     assertEquals(metacard.getResourceURI(), readMetacard.getResourceURI());
     assertEquals(metacard.getResourceSize(), readMetacard.getResourceSize());
@@ -366,7 +371,9 @@ public class MetacardImplTest {
     assertEquals(metacard.getContentTypeVersion(), readMetacard.getContentTypeVersion());
     assertEquals(metacard.getLocation(), readMetacard.getLocation());
     assertEquals(metacard.getMetadata(), readMetacard.getMetadata());
-    assertEquals(metacard.getCreatedDate(), readMetacard.getCreatedDate());
+    assertEquals(
+        metacard.getAttribute(Core.CREATED).getValue(),
+        readMetacard.getAttribute(Core.CREATED).getValue());
     assertEquals(metacard.getExpirationDate(), readMetacard.getExpirationDate());
     assertEquals(metacard.getResourceURI(), readMetacard.getResourceURI());
     assertEquals(metacard.getResourceSize(), readMetacard.getResourceSize());

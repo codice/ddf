@@ -19,6 +19,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -106,10 +107,10 @@ public class GenericFeatureConverterWfs11 extends AbstractFeatureConverterWfs11 
     if (mc.getEffectiveDate() == null) {
       mc.setEffectiveDate(genericDate);
     }
-    if (mc.getCreatedDate() == null) {
+    if (mc.getAttribute(Core.CREATED).getValue() == null) {
       mc.setCreatedDate(genericDate);
     }
-    if (mc.getModifiedDate() == null) {
+    if (mc.getAttribute(Core.MODIFIED).getValue() == null) {
       mc.setModifiedDate(genericDate);
     }
     if (StringUtils.isBlank(mc.getTitle())) {

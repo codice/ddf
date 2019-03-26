@@ -471,13 +471,13 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
       Date d = null;
       if (propName != null && !propName.isEmpty()) {
         if (propName.equals(Core.CREATED)) {
-          d = mc.getCreatedDate();
+          d = (Date) mc.getAttribute(Core.CREATED).getValue();
         } else if (propName.equals(Metacard.EFFECTIVE)) {
           d = mc.getEffectiveDate();
         } else if (propName.equals(Core.EXPIRATION)) {
           d = mc.getExpirationDate();
         } else if (propName.equals(Core.MODIFIED)) {
-          d = mc.getModifiedDate();
+          d = (Date) mc.getAttribute(Core.MODIFIED).getValue();
         }
       }
       LOGGER.trace("exit {}", d);

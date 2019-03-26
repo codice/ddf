@@ -251,11 +251,15 @@ public class SolrProviderUpdate {
           assertTrue(!oldCard.getMetadata().isEmpty());
           assertTrue(!newCard.getMetadata().isEmpty());
           // Created Date
-          assertFalse(oldCard.getCreatedDate().after(new Date()));
-          assertFalse(newCard.getCreatedDate().after(new Date()));
-          assertTrue(newCard.getCreatedDate().after(oldCard.getCreatedDate()));
+          assertFalse(((Date) oldCard.getAttribute(Core.CREATED).getValue()).after(new Date()));
+          assertFalse(((Date) newCard.getAttribute(Core.CREATED).getValue()).after(new Date()));
+          assertTrue(
+              ((Date) newCard.getAttribute(Core.CREATED).getValue())
+                  .after((Date) oldCard.getAttribute(Core.CREATED).getValue()));
           // Modified Date
-          assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
+          assertTrue(
+              ((Date) newCard.getAttribute(Core.MODIFIED).getValue())
+                  .after((Date) oldCard.getAttribute(Core.MODIFIED).getValue()));
           // Effective Date
           assertTrue(newCard.getEffectiveDate().after(oldCard.getEffectiveDate()));
           // Expiration Date
@@ -289,11 +293,15 @@ public class SolrProviderUpdate {
           assertTrue(!oldCard.getMetadata().isEmpty());
           assertTrue(!newCard.getMetadata().isEmpty());
           // Created Date
-          assertFalse(oldCard.getCreatedDate().after(new Date()));
-          assertFalse(newCard.getCreatedDate().after(new Date()));
-          assertTrue(newCard.getCreatedDate().after(oldCard.getCreatedDate()));
+          assertFalse(((Date) oldCard.getAttribute(Core.CREATED).getValue()).after(new Date()));
+          assertFalse(((Date) newCard.getAttribute(Core.CREATED).getValue()).after(new Date()));
+          assertTrue(
+              ((Date) newCard.getAttribute(Core.CREATED).getValue())
+                  .after((Date) oldCard.getAttribute(Core.CREATED).getValue()));
           // Modified Date
-          assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
+          assertTrue(
+              ((Date) newCard.getAttribute(Core.MODIFIED).getValue())
+                  .after((Date) oldCard.getAttribute(Core.MODIFIED).getValue()));
           // Effective Date
           assertTrue(newCard.getEffectiveDate().after(oldCard.getEffectiveDate()));
           // Expiration Date

@@ -289,8 +289,8 @@ public class SolrProviderDelete {
     assertEquals(MockMetacard.DEFAULT_VERSION, deletedMetacard.getContentTypeVersion());
     assertNotNull(deletedMetacard.getMetadata());
     assertTrue(!deletedMetacard.getMetadata().isEmpty());
-    assertFalse(deletedMetacard.getCreatedDate().after(new Date()));
-    assertFalse(deletedMetacard.getModifiedDate().after(new Date()));
+    assertFalse(((Date) deletedMetacard.getAttribute(Core.CREATED).getValue()).after(new Date()));
+    assertFalse(((Date) deletedMetacard.getAttribute(Core.MODIFIED).getValue()).after(new Date()));
     assertEquals(metacard.getEffectiveDate(), deletedMetacard.getEffectiveDate());
     assertEquals(metacard.getExpirationDate(), deletedMetacard.getExpirationDate());
     assertTrue(Arrays.equals(metacard.getThumbnail(), deletedMetacard.getThumbnail()));

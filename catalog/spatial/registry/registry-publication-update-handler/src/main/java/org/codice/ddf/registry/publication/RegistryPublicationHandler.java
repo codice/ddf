@@ -15,6 +15,7 @@ package org.codice.ddf.registry.publication;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.security.PrivilegedActionException;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,7 +92,8 @@ public class RegistryPublicationHandler implements EventHandler {
 
     // If we haven't published this metacard before or if we have had an update
     // since the last time we published send an update to the remote location
-    if ((datePublished == null || datePublished.before(mcard.getModifiedDate()))) {
+    if ((datePublished == null
+        || datePublished.before((Date) mcard.getAttribute(Core.MODIFIED).getValue()))) {
       try {
         Security security = Security.getInstance();
 

@@ -124,8 +124,10 @@ public class ConfluenceInputTransformerTest {
         mcard.getAttribute(Associations.EXTERNAL).getValues(),
         contains(
             "https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code?preview=%2F1179681%2F1182017%2Fddf-eclipse-code-formatter.xml"));
-    assertThat(mcard.getCreatedDate(), is(getDate("2013-09-18T14:44:04.892-07:00")));
-    assertThat(mcard.getModifiedDate(), is(getDate("2013-09-18T14:50:42.655-07:00")));
+    assertThat(
+        mcard.getAttribute(Core.CREATED).getValue(), is(getDate("2013-09-18T14:44:04.892-07:00")));
+    assertThat(
+        mcard.getAttribute(Core.MODIFIED).getValue(), is(getDate("2013-09-18T14:50:42.655-07:00")));
     assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue().toString(), equalTo("user"));
     assertThat(mcard.getAttribute(Contact.CONTRIBUTOR_NAME).getValues().contains("user"), is(true));
     assertThat(
@@ -190,8 +192,10 @@ public class ConfluenceInputTransformerTest {
     assertThat(
         mcard.getAttribute(Associations.EXTERNAL).getValues(),
         contains("https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code"));
-    assertThat(mcard.getCreatedDate(), is(getDate("2013-09-18T14:50:42.616-07:00")));
-    assertThat(mcard.getModifiedDate(), is(getDate("2015-06-16T19:21:39.141-07:00")));
+    assertThat(
+        mcard.getAttribute(Core.CREATED).getValue(), is(getDate("2013-09-18T14:50:42.616-07:00")));
+    assertThat(
+        mcard.getAttribute(Core.MODIFIED).getValue(), is(getDate("2015-06-16T19:21:39.141-07:00")));
     assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue().toString(), equalTo("another"));
     assertThat(
         mcard.getAttribute(Contact.CONTRIBUTOR_NAME).getValues().contains("first.last"), is(true));

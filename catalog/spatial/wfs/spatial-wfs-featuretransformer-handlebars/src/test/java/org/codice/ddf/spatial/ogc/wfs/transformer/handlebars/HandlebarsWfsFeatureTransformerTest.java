@@ -234,7 +234,7 @@ public class HandlebarsWfsFeatureTransformerTest {
 
   private void assertDefaultAttributesExist(Metacard metacard) {
     assertThat(metacard.getEffectiveDate(), notNullValue());
-    assertThat(metacard.getModifiedDate(), notNullValue());
+    assertThat(metacard.getAttribute(Core.MODIFIED).getValue(), notNullValue());
     assertThat(metacard.getContentTypeName(), notNullValue());
     assertThat(metacard.getAttribute(Metacard.TARGET_NAMESPACE), notNullValue());
   }
