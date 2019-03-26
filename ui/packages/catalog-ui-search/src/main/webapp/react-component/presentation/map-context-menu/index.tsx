@@ -41,9 +41,9 @@ const Description = styled.div`
 
 interface Props {
   onChange: (value: string) => void
-  mouseLat: number | null | undefined
-  mouseLon: number | null | undefined
-  target: string | null | undefined
+  mouseLat?: number
+  mouseLon?: number
+  target?: string
   coordinateValues: {
     dms: string
     lat: string
@@ -56,7 +56,7 @@ interface Props {
 }
 
 const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
-  <MenuItem key="0" value="CopyCoordinates">
+  <MenuItem value="CopyCoordinates">
     <CopyCoordinates
       coordinateValues={coordinateValues}
       closeParent={closeMenu}
@@ -65,14 +65,14 @@ const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
 )
 
 const renderHistogramMenu = () => (
-  <MenuItem key="10" value="Histogram">
+  <MenuItem value="Histogram">
     <Icon className="interaction-icon fa fa-bar-chart" />
     <Title>View Histogram</Title>
   </MenuItem>
 )
 
 const renderHistogramSelectionMenu = ({ selectionCount }: Props) => (
-  <MenuItem key="11" value="HistogramSelection">
+  <MenuItem value="HistogramSelection">
     <Icon className="interaction-icon fa fa-bar-chart" />
     <Title>View Histogram</Title>
     <Description>({selectionCount} selected)</Description>
@@ -80,7 +80,7 @@ const renderHistogramSelectionMenu = ({ selectionCount }: Props) => (
 )
 
 const renderInspectorMenu = ({ target }: Props) => (
-  <MenuItem key="20" value="Inspector">
+  <MenuItem value="Inspector">
     <Icon className="interaction-icon fa fa-info" />
     <Title>View Inspector</Title>
     <Description>({target})</Description>
@@ -92,7 +92,7 @@ const renderMenu = ({ onChange }: Props, menuItems: any[]) => (
 )
 
 const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (
-  <MenuItem key="21" value="InspectorSelection">
+  <MenuItem value="InspectorSelection">
     <Icon className="interaction-icon fa fa-info" />
     <Title>View Inspector</Title>
     <Description>({selectionCount} selected)</Description>
@@ -100,11 +100,11 @@ const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (
 )
 
 export const MapContextMenu = (props: Props) => {
-  const hasTarget = typeof props.target === 'string'
-  const hasSelection = props.selectionCount > 0
+  const { mouseLat, mouseLon, selectionCount, target } = props
+  const hasTarget = typeof target === 'string'
+  const hasSelection = selectionCount > 0
   const hasMouseCoordinates =
-    typeof props.mouseLat !== 'undefined' &&
-    typeof props.mouseLon !== 'undefined'
+    typeof mouseLat === 'number' && typeof mouseLon === 'number'
   const menuItems = []
   if (hasMouseCoordinates) {
     menuItems.push(renderCopyCoordinatesMenu(props))
@@ -119,5 +119,6 @@ export const MapContextMenu = (props: Props) => {
   if (hasSelection) {
     menuItems.push(renderInspectorSelectionMenu(props))
   }
-  return renderMenu(props, menuItems)
+  const keyedItems = menuItems.map((m, i) => ({ key: i, ...m }))
+  return renderMenu(props, keyedItems)
 }

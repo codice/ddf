@@ -14,7 +14,7 @@
  **/
 /*global require*/
 import * as React from 'react'
-import { MapContextMenu } from '../../react-component/container/map-context-menu'
+import { MapContextMenu } from '../../react-component/presentation/map-context-menu'
 
 var _ = require('underscore')
 var Marionette = require('marionette')
@@ -25,15 +25,15 @@ var SelectionInterfaceModel = require('../selection-interface/selection-interfac
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template(props) {
+  template({ mouseLat, mouseLon, target, coordinateValues, selectionCount }) {
     return (
       <MapContextMenu
         onChange={(value: string) => this.selectMenu(value)}
-        mouseLat={props.mouseLat}
-        mouseLon={props.mouseLon}
-        target={props.target}
-        coordinateValues={props.coordinateValues}
-        selectionCount={props.selectionCount}
+        mouseLat={mouseLat}
+        mouseLon={mouseLon}
+        target={target}
+        coordinateValues={coordinateValues}
+        selectionCount={selectionCount}
         closeMenu={this.triggerClick.bind(this)}
       />
     )
