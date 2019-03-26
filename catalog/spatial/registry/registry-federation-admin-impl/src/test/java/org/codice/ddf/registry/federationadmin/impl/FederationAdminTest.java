@@ -35,6 +35,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;

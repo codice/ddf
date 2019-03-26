@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ObjectArrays;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;

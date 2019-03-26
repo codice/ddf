@@ -20,6 +20,7 @@ import ddf.catalog.data.Metacard
 import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.data.impl.ResultImpl
+import ddf.catalog.data.types.Core
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder
 import ddf.catalog.operation.QueryRequest
 import ddf.catalog.operation.ResourceRequest
