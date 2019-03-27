@@ -22,7 +22,6 @@ import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.AddClaimExtension;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.AddPolicyFileExtension;
 import org.codice.ddf.dominion.commons.pax.exam.options.extensions.GrantPermissionExtension;
-import org.codice.ddf.dominion.commons.pax.exam.options.extensions.InstallExtension;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Option.Extension;
 import org.codice.dominion.options.Options;
@@ -36,7 +35,6 @@ public class DDFCommonsOptionExtensionFactory implements Option.Factory {
 
     map.put(DDFCommonOptions.AddClaim.class, new AddClaimExtension());
     map.put(DDFCommonOptions.AddPolicyFile.class, new AddPolicyFileExtension());
-    map.put(DDFCommonOptions.Install.class, new InstallExtension());
 
     map.put(Options.GrantPermission.class, new GrantPermissionExtension());
     EXTENSIONS = Collections.unmodifiableMap(map);

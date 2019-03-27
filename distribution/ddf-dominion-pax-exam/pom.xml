@@ -89,13 +89,6 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>ddf-dominion</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>install-profiles</artifactId>
             <version>${project.version}</version>

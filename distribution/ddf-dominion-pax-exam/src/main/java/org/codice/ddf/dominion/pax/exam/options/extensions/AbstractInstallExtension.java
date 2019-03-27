@@ -14,9 +14,7 @@
 package org.codice.ddf.dominion.pax.exam.options.extensions;
 
 import org.apache.commons.io.FilenameUtils;
-import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
@@ -25,17 +23,6 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
  *
  * @param <A> The type of annotation this extension is used with
  */
-@KarafOptions.InstallFeature(
-  repository =
-      @MavenUrl(
-        groupId = "org.codice.ddf",
-        artifactId = "ddf-dominion",
-        version = MavenUrl.AS_IN_PROJECT,
-        type = "xml",
-        classifier = "features"
-      ),
-  name = "ddf-dominion"
-)
 public abstract class AbstractInstallExtension<A extends java.lang.annotation.Annotation>
     implements Extension<A> {
   private static final String SYSTEM_PROPERTIES_FILE_PATH = "etc/custom.system.properties";

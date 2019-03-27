@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
+import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.options.karaf.KarafOptions.DistributionConfiguration;
 
 /**
@@ -37,6 +38,7 @@ public class DDFOptions {
 
   /** Dominion option for installing the DDF kernel. */
   @DDFCommonOptions.Install
+  @KarafOptions.InstallFeature
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -62,6 +64,7 @@ public class DDFOptions {
    * allowing a particular test written for DDF a chance to run with any downstream distributions.
    */
   @DDFCommonOptions.Install
+  @KarafOptions.InstallFeature
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
