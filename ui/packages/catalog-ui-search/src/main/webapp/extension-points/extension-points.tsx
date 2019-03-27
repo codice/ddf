@@ -9,17 +9,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import ExtensionPoints, { ExtensionPointsType } from '../extension-points'
+import * as React from 'react'
+import routes from './routes'
+import navigator from './navigator'
 
-const entry = (extensionPoints: ExtensionPointsType = {}) => {
-  const { routes, navigator } = extensionPoints
-  if (routes) {
-    ExtensionPoints.routes = routes
-  }
-  if (navigator) {
-    ExtensionPoints.navigator = navigator
-  }
-  require('../js/ApplicationSetup')
+export type ExtensionPointsType = {
+  routes?: {}
+  navigator?: React.ReactNode
 }
 
-export default entry
+const ExtensionPoints: ExtensionPointsType = {
+  routes: routes,
+  navigator: navigator,
+}
+
+export default ExtensionPoints
