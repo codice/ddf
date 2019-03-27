@@ -79,6 +79,11 @@ export default hot(module)(
                 showLabel={false}
                 showValidationIssues={false}
                 onChange={handlePasswordChange}
+                onKeyPress={event => {
+                  if (event.key === 'Enter') {
+                    signIn()
+                  }
+                }}
               />
             </div>
             <div className="is-divider" />
