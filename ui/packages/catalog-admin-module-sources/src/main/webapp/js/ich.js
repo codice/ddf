@@ -38,7 +38,7 @@
  **/
 /*global define*/
 
-define(['ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
+define(['@connexta/ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
   'use strict'
   var ich = {}
 

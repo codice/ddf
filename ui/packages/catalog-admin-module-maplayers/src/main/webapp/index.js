@@ -1,7 +1,7 @@
 import inject from 'react-tap-event-plugin'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { AppContainer } from 'ace/react-hot-loader'
+import { AppContainer } from '@connexta/ace/react-hot-loader'
 
 import App from './app'
 

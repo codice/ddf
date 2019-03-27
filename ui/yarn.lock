@@ -222,6 +222,71 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@connexta/ace@git://github.com/connexta/ace.git#v0.0.3":
+  version "1.0.0"
+  resolved "git://github.com/connexta/ace.git#0b0ffd2141c974b7b7f6b63dd3a1285ed70c3058"
+  dependencies:
+    "@ljharb/eslint-config" "12.2.1"
+    ansi-colors "3.0.5"
+    archiver "2.1.1"
+    babel-core "6.26.0"
+    babel-eslint "8.2.3"
+    babel-loader "7.1.5"
+    babel-plugin-istanbul "4.1.6"
+    babel-plugin-transform-react-jsx-source "6.22.0"
+    babel-polyfill "6.22.0"
+    babel-preset-latest "6.24.1"
+    babel-preset-react "6.24.1"
+    babel-preset-stage-0 "6.24.1"
+    chalk "2.3.2"
+    cheerio "0.22.0"
+    commander "2.15.1"
+    console-polyfill "0.3.0"
+    cross-spawn "6.0.5"
+    css-loader "0.28.11"
+    eslint "4.19.1"
+    eslint-config-airbnb-base "12.1.0"
+    eslint-plugin-import "2.12.0"
+    eslint-plugin-node "6.0.1"
+    exports-loader "0.7.0"
+    file-loader "1.1.11"
+    find-up "2.1.0"
+    glob "7.1.2"
+    handlebars "4.1.0"
+    handlebars-loader "1.7.1"
+    html-loader "0.5.5"
+    html-webpack-plugin "3.1.0"
+    imports-loader "0.8.0"
+    less "3.0.1"
+    less-loader "4.1.0"
+    maven-deploy "1.5.0"
+    mini-css-extract-plugin "0.4.5"
+    minimist "1.2.0"
+    mocha "5.2.0"
+    mocha-headless-chrome "2.0.1"
+    mocha-loader "1.1.3"
+    ora "3.0.0"
+    prettier "1.14.2"
+    raw-loader "0.5.1"
+    react-dev-utils "5.0.2"
+    react-hot-loader "4.3.5"
+    rimraf "2.6.2"
+    script-loader "0.7.2"
+    simple-progress-webpack-plugin "1.1.2"
+    style-loader "0.20.3"
+    stylelint-custom-processor-loader "0.5.0"
+    ts-loader "5.3.3"
+    typescript "3.0.3"
+    url-loader "1.0.1"
+    username "3.0.0"
+    vkbeautify "0.99.3"
+    webpack "4.5.0"
+    webpack-bundle-analyzer "2.13.1"
+    webpack-dev-server "3.2.1"
+    webpack-merge "4.1.2"
+    whatwg-fetch "2.0.4"
+    worker-loader "1.1.1"
+
 "@connexta/atlas@0.0.32":
   version "0.0.32"
   resolved "https://registry.yarnpkg.com/@connexta/atlas/-/atlas-0.0.32.tgz#094497bfe4972b20e9453602d314f3d5f1396a9d"
@@ -230,6 +295,16 @@
     "@material-ui/icons" "3.0.2"
     html-react-parser "0.6.1"
     styled-components "3.5.0-0"
+
+"@connexta/icons@git://github.com/connexta/icons.git#v0.0.3":
+  version "1.0.0"
+  resolved "git://github.com/connexta/icons.git#b3399dca9e0eafbe4b15babb5ddbfd15d6004648"
+  dependencies:
+    css-loader "0.28.11"
+    style-loader "0.21.0"
+    webfonts-loader "4.1.0"
+    webpack "4.6.0"
+    webpack-cli "2.0.15"
 
 "@ljharb/eslint-config@12.2.1":
   version "12.2.1"
@@ -850,10 +925,6 @@
 "@types/underscore@*":
   version "1.8.8"
   resolved "https://registry.yarnpkg.com/@types/underscore/-/underscore-1.8.8.tgz#510fe1ca5e7fa87fccd405b9a8b566d420bc3d1b"
-
-"@types/webpack-env@1.13.6":
-  version "1.13.6"
-  resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.13.6.tgz#128d1685a7c34d31ed17010fc87d6a12c1de6976"
 
 JSONStream@^1.0.3, JSONStream@^1.0.4:
   version "1.3.2"
@@ -1535,7 +1606,7 @@ aws4@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.8.0.tgz#f0e003d9ca9e7f59c7a508945d7b2ef9a04a542f"
 
-babel-code-frame@6.26.0, babel-code-frame@^6.16.0, babel-code-frame@^6.22.0, babel-code-frame@^6.26.0:
+babel-code-frame@6.26.0, babel-code-frame@^6.22.0, babel-code-frame@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.26.0.tgz#63fd43f7dc1e3bb7ce35947db8fe369a3f58c74b"
   dependencies:
@@ -2886,10 +2957,6 @@ browser-resolve@^1.11.0, browser-resolve@^1.7.0:
   dependencies:
     resolve "1.1.7"
 
-browser-stdout@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/browser-stdout/-/browser-stdout-1.3.0.tgz#f351d32969d32fa5d7a5567154263d928ae3bd1f"
-
 browser-stdout@1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/browser-stdout/-/browser-stdout-1.3.1.tgz#baa559ee14ced73452229bad7326467c61fabd60"
@@ -3388,68 +3455,6 @@ caseless@~0.8.0:
 caseless@~0.9.0:
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.9.0.tgz#b7b65ce6bf1413886539cfd533f0b30effa9cf88"
-
-"catalog-ui-search@file:packages/catalog-ui-search":
-  version "0.0.1"
-  dependencies:
-    "@turf/circle" "3.3.3"
-    "@turf/meta" "3.13.0"
-    "@turf/turf" "3.4.1"
-    "@types/react-intl" "2.3.12"
-    backbone "1.1.2"
-    backbone-associations "0.6.2"
-    backbone-poller "1.1.3"
-    backbone.marionette "2.4.7"
-    backbone.modelbinder "1.1.0"
-    backbone.paginator "2.0.5"
-    bootstrap "3.4.0"
-    cesium "1.44"
-    clipboard "1.7.1"
-    codice-icons "file:../../../../Users/andre/AppData/Local/Yarn/Cache/v2/codice-icons"
-    content-disposition "0.5.3"
-    density-clustering "1.3.0"
-    dropzone "4.3.0"
-    eonasdan-bootstrap-datetimepicker Eonasdan/bootstrap-datetimepicker#4.17.47
-    font-awesome "4.7"
-    geo-convex-hull "1.2.0"
-    golden-layout "1.5.8"
-    html-react-parser "0.4.6"
-    immer "1.5.0"
-    jquery "3.2.1"
-    jquery-ui "1.12.1"
-    jquery-ui-multiselect-widget "1.17.0"
-    less-vars-to-js "1.1.2"
-    lodash "4.17.4"
-    lodash.get "4.4.2"
-    moment "2.22.0"
-    moment-timezone "0.5.16"
-    mt-geo "1.0.1"
-    openlayers "4.6.5"
-    plotly.js "1.16.0"
-    polished "1.9.3"
-    q "1.5.0"
-    react "16.4.2"
-    react-dom "16.4.2"
-    react-intl "2.7.2"
-    react-live "1.11.0"
-    react-redux "5.0.7"
-    react-text-mask "5.4.1"
-    redux "3.5.2"
-    redux-thunk "2.1.0"
-    rpc-websockets "4.0.0"
-    sanitize-html "1.15.0"
-    select2 "4.0.3"
-    sortablejs "1.4.2"
-    spectrum-colorpicker "1.8.0"
-    styled-components "3.4.2"
-    terraformer "1.0.5"
-    terraformer-wkt-parser "1.1.0"
-    urijs "1.19.1"
-    usng.js "0.4.1"
-    uuid "2.0.2"
-    vis "4.15.0"
-    wellknown "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82"
-    wkx "0.4.5"
 
 catharsis@~0.8.9:
   version "0.8.9"
@@ -3955,15 +3960,6 @@ codecov.io@^0.1.6:
     request "2.42.0"
     urlgrey "0.4.0"
 
-"codice-icons@file:packages/codice-icons":
-  version "1.0.0"
-  dependencies:
-    css-loader "0.28.11"
-    style-loader "0.21.0"
-    webfonts-loader "4.1.0"
-    webpack "4.6.0"
-    webpack-cli "2.0.15"
-
 coffee-script@~1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/coffee-script/-/coffee-script-1.10.0.tgz#12938bcf9be1948fa006f92e0c4c9e81705108c0"
@@ -4102,12 +4098,6 @@ commander@2.3.0:
 commander@2.8.x:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.8.1.tgz#06be367febfda0c330aa1e2a072d3dc9762425d4"
-  dependencies:
-    graceful-readlink ">= 1.0.0"
-
-commander@2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
     graceful-readlink ">= 1.0.0"
 
@@ -6041,45 +6031,6 @@ eslint-visitor-keys@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#3f3180fb2e291017716acb4c9d6d5b5c34a6a81d"
 
-eslint@3.9.1:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.9.1.tgz#5a8597706fc6048bc6061ac754d4a211d28f4f5b"
-  dependencies:
-    babel-code-frame "^6.16.0"
-    chalk "^1.1.3"
-    concat-stream "^1.4.6"
-    debug "^2.1.1"
-    doctrine "^1.2.2"
-    escope "^3.6.0"
-    espree "^3.3.1"
-    estraverse "^4.2.0"
-    esutils "^2.0.2"
-    file-entry-cache "^2.0.0"
-    glob "^7.0.3"
-    globals "^9.2.0"
-    ignore "^3.1.5"
-    imurmurhash "^0.1.4"
-    inquirer "^0.12.0"
-    is-my-json-valid "^2.10.0"
-    is-resolvable "^1.0.0"
-    js-yaml "^3.5.1"
-    json-stable-stringify "^1.0.0"
-    levn "^0.3.0"
-    lodash "^4.0.0"
-    mkdirp "^0.5.0"
-    natural-compare "^1.4.0"
-    optionator "^0.8.2"
-    path-is-inside "^1.0.1"
-    pluralize "^1.2.1"
-    progress "^1.1.8"
-    require-uncached "^1.0.2"
-    shelljs "^0.7.5"
-    strip-bom "^3.0.0"
-    strip-json-comments "~1.0.1"
-    table "^3.7.8"
-    text-table "~0.2.0"
-    user-home "^2.0.0"
-
 eslint@4.19.1:
   version "4.19.1"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-4.19.1.tgz#32d1d653e1d90408854bfb296f076ec7e186a300"
@@ -6161,7 +6112,7 @@ eslint@^2.7.0:
     text-table "~0.2.0"
     user-home "^2.0.0"
 
-espree@^3.1.6, espree@^3.3.1, espree@^3.5.4:
+espree@^3.1.6, espree@^3.5.4:
   version "3.5.4"
   resolved "https://registry.yarnpkg.com/espree/-/espree-3.5.4.tgz#b0f447187c8a8bed944b815a660bddf5deb5d1a7"
   dependencies:
@@ -7558,17 +7509,6 @@ glob@3.2.3:
     inherits "2"
     minimatch "~0.2.11"
 
-glob@7.0.5:
-  version "7.0.5"
-  resolved "https://registry.yarnpkg.com/glob/-/glob-7.0.5.tgz#b4202a69099bbb4d292a7c1b95b6682b67ebdc95"
-  dependencies:
-    fs.realpath "^1.0.0"
-    inflight "^1.0.4"
-    inherits "2"
-    minimatch "^3.0.2"
-    once "^1.3.0"
-    path-is-absolute "^1.0.0"
-
 glob@7.1.2, glob@^7.0.0, glob@^7.0.3, glob@^7.0.5, glob@^7.1.0, glob@^7.1.1, glob@^7.1.2, glob@~7.1.1, glob@~7.1.2:
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.2.tgz#c19c9df9a028702d678612384a6552404c636d15"
@@ -8031,10 +7971,6 @@ growl@1.7.x:
 growl@1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/growl/-/growl-1.8.1.tgz#4b2dec8d907e93db336624dcec0183502f8c9428"
-
-growl@1.9.2:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/growl/-/growl-1.9.2.tgz#0ea7743715db8d8de2c5ede1775e1b45ac85c02f"
 
 grunt-bower-task@0.4.0:
   version "0.4.0"
@@ -8818,7 +8754,7 @@ ignore@^3.1.2:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.3.7.tgz#612289bfb3c220e186a58118618d5be8c1bab021"
 
-ignore@^3.1.5, ignore@^3.3.3, ignore@^3.3.5, ignore@^3.3.6:
+ignore@^3.3.3, ignore@^3.3.5, ignore@^3.3.6:
   version "3.3.10"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.3.10.tgz#0a97fb876986e8081c631160f8f9f389157f0043"
 
@@ -9861,7 +9797,7 @@ json-stringify-safe@^5.0.1, json-stringify-safe@~5.0.0, json-stringify-safe@~5.0
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
 
-json3@3.3.2, json3@^3.3.2:
+json3@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/json3/-/json3-3.3.2.tgz#3c0434743df93e2f5c42aee7b19bcb483575f4e1"
 
@@ -10346,21 +10282,6 @@ lodash-es@^4.2.0, lodash-es@^4.2.1:
   version "4.17.8"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.8.tgz#6fa8c8c5d337481df0bdf1c0d899d42473121e45"
 
-lodash._baseassign@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/lodash._baseassign/-/lodash._baseassign-3.2.0.tgz#8c38a099500f215ad09e59f1722fd0c52bfe0a4e"
-  dependencies:
-    lodash._basecopy "^3.0.0"
-    lodash.keys "^3.0.0"
-
-lodash._basecopy@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/lodash._basecopy/-/lodash._basecopy-3.0.1.tgz#8da0e6a876cf344c0ad8a54882111dd3c5c7ca36"
-
-lodash._basecreate@^3.0.0:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/lodash._basecreate/-/lodash._basecreate-3.0.3.tgz#1bc661614daa7fc311b7d03bf16806a0213cf821"
-
 lodash._baseisequal@^3.0.0:
   version "3.0.7"
   resolved "https://registry.yarnpkg.com/lodash._baseisequal/-/lodash._baseisequal-3.0.7.tgz#d8025f76339d29342767dcc887ce5cb95a5b51f1"
@@ -10376,10 +10297,6 @@ lodash._bindcallback@^3.0.0:
 lodash._getnative@^3.0.0:
   version "3.9.1"
   resolved "https://registry.yarnpkg.com/lodash._getnative/-/lodash._getnative-3.9.1.tgz#570bc7dede46d61cdcde687d65d3eecbaa3aaff5"
-
-lodash._isiterateecall@^3.0.0:
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/lodash._isiterateecall/-/lodash._isiterateecall-3.0.9.tgz#5203ad7ba425fae842460e696db9cf3e6aac057c"
 
 lodash._isnative@~2.4.1:
   version "2.4.1"
@@ -10416,14 +10333,6 @@ lodash.capitalize@^4.1.0:
 lodash.clonedeep@^4.3.2:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
-
-lodash.create@3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/lodash.create/-/lodash.create-3.1.1.tgz#d7f2849f0dbda7e04682bb8cd72ab022461debe7"
-  dependencies:
-    lodash._baseassign "^3.0.0"
-    lodash._basecreate "^3.0.0"
-    lodash._isiterateecall "^3.0.0"
 
 lodash.debounce@^2.4.1:
   version "2.4.1"
@@ -11424,22 +11333,6 @@ mocha@2.3.4:
     jade "0.26.3"
     mkdirp "0.5.0"
     supports-color "1.2.0"
-
-mocha@3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/mocha/-/mocha-3.1.2.tgz#51f93b432bf7e1b175ffc22883ccd0be32dba6b5"
-  dependencies:
-    browser-stdout "1.3.0"
-    commander "2.9.0"
-    debug "2.2.0"
-    diff "1.4.0"
-    escape-string-regexp "1.0.5"
-    glob "7.0.5"
-    growl "1.9.2"
-    json3 "3.3.2"
-    lodash.create "3.1.1"
-    mkdirp "0.5.1"
-    supports-color "3.1.2"
 
 mocha@5.2.0:
   version "5.2.0"
@@ -14839,10 +14732,6 @@ require-uncached@^1.0.2, require-uncached@^1.0.3:
     caller-path "^0.1.0"
     resolve-from "^1.0.0"
 
-requireindex@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/requireindex/-/requireindex-1.1.0.tgz#e5404b81557ef75db6e49c5a72004893fe03e162"
-
 requirejs@2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/requirejs/-/requirejs-2.3.3.tgz#aa59fd3a0287eaf407959a138228044b5dd6a6a3"
@@ -15511,14 +15400,6 @@ shell-quote@~1.4.1:
 shelljs@^0.6.0:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.6.1.tgz#ec6211bed1920442088fe0f70b2837232ed2c8a8"
-
-shelljs@^0.7.5:
-  version "0.7.8"
-  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.7.8.tgz#decbcf874b0d1e5fb72e14b164a9683048e9acb3"
-  dependencies:
-    glob "^7.0.0"
-    interpret "^1.0.0"
-    rechoir "^0.6.2"
 
 shelljs@^0.8.0:
   version "0.8.1"
@@ -16495,12 +16376,6 @@ superscript-text@^1.0.0:
 supports-color@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-1.2.0.tgz#ff1ed1e61169d06b3cf2d588e188b18d8847e17e"
-
-supports-color@3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.1.2.tgz#72a262894d9d408b956ca05ff37b2ed8a6e2a2d5"
-  dependencies:
-    has-flag "^1.0.0"
 
 supports-color@5.4.0:
   version "5.4.0"

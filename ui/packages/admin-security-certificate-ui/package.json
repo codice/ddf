@@ -32,7 +32,7 @@
     "wd": "0.3.12",
     "which": "1.0.5",
     "yargs": "3.23.0",
-    "ace": "*"
+    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.3"
   },
   "dependencies": {
     "express": "4.16.3",

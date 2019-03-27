@@ -26,7 +26,7 @@ define([
   'underscore',
   'backbone',
   'backbone.marionette',
-  'ace/handlebars',
+  '@connexta/ace/handlebars',
   'jquery',
   'poller',
   'js/wreqr',
