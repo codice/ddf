@@ -363,7 +363,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         ImmutableMap.<String, Object>builder()
             .put(Core.TITLE, "title")
             .put(QUERY_CQL, "query")
-            .put("src", sources)
+            .put("sources", sources)
             .build();
 
     Response res =
