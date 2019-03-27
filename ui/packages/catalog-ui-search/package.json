@@ -112,9 +112,11 @@
     "Backbone.ModelBinder": "backbone.modelbinder/Backbone.ModelBinder",
     "cesium$": "cesium/Build/Cesium/Cesium.js"
   },
-  "files": [
-    "src/main/resources",
-    "target/webapp"
-  ],
+  "ace": {
+    "files": [
+      "src/main/resources",
+      "target/webapp"
+    ]
+  },
   "context-path": "/search/catalog"
 }
