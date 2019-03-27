@@ -33,8 +33,6 @@
         <feature version="[7.0.0,7.2.2]">pax-jsf-support</feature>
         <feature version="[7.0.0,7.2.2]">pax-jsf-resources-support</feature>
         <feature version="[7.0.0,7.2.2]">pax-http-undertow</feature>
-        <feature>decanter-appender-cassandra</feature>
-        <feature>decanter-appender-cassandra-core</feature>
     </blacklistedFeatures>
 
     <!-- A list of blacklisted bundle URIs that are not installed even if they are part of some features -->
