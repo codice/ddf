@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.test.performance</groupId>
         <artifactId>performance</artifactId>
-        <version>2.13.7-SNAPSHOT</version>
+        <version>2.13.7</version>
     </parent>
     <groupId>ddf.test.performance.jmeter</groupId>
     <artifactId>jmeter</artifactId>
