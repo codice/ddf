@@ -158,12 +158,12 @@ module.exports = InputView.extend({
 
         datetimepicker.viewDate(newValue)
         this.$el.find('input').val(newValue)
-        this.validate()
       }.bind(this)
     )
     this.$el.on(
       'dp.change click input change keyup',
       function(e) {
+        this.model.set('value', this.getCurrentValue())
         this.validate()
       }.bind(this)
     )
