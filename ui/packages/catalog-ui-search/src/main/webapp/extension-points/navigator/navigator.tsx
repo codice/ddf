@@ -1,6 +1,2 @@
-import * as React from 'react'
-const navigation = () => {
-  return <></>
-}
-
-export default navigation
+import NavigationContainer from './navigator.container'
+export default NavigationContainer
