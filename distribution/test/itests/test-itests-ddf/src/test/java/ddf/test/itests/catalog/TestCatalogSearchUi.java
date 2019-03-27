@@ -373,7 +373,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
-    assertThat(body.get("src"), is(sources));
+    assertThat(body.get("sources"), is(sources));
   }
 
   @Test
