@@ -37,6 +37,7 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.util.impl.ResultIterable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -96,9 +97,7 @@ public class QueryMetacardApplication implements SparkApplication {
                       TimeUnit.SECONDS.toMillis(10)),
                   false);
 
-          return catalogFramework
-              .query(queryRequest)
-              .getResults()
+          return ResultIterable.resultIterable(catalogFramework, queryRequest, count)
               .stream()
               .filter(Objects::nonNull)
               .map(Result::getMetacard)
