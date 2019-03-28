@@ -21,19 +21,25 @@ type Props = {
   isDisabled: boolean
 }
 
-const MultiSelectButton = styled(Button)`
-  width: calc(3.5 * ${props => props.theme.minimumButtonSize});
-`
-
 const Root = styled.div`
   border-left: 1px solid
     ${props =>
       transparentize(0.9, readableColor(props.theme.backgroundContent))};
 `
 
+const MultiSelectButton = styled(Button)`
+  min-width: calc(2.5 * ${props => props.theme.minimumButtonSize});
+  padding: 0px 5px 0px 5px;
+`
+
+const disabledStyle = {
+  cursor: 'not-allowed',
+  opacity: 0.3,
+}
+
 const Export = (props: Props) => (
   <MultiSelectButton
-    style={props.isDisabled ? { opacity: 0.3 } : {}}
+    style={props.isDisabled ? disabledStyle : {}}
     buttonType={buttonTypeEnum.neutral}
     onClick={props.handleExport}
     title={
@@ -41,9 +47,8 @@ const Export = (props: Props) => (
         ? 'Select one or more results to export.'
         : 'Export selected result(s).'
     }
-    disabled={props.isDisabled}
   >
-    <span className="fa fa-share" />
+    <span style={{ paddingRight: '5px' }} className="fa fa-share" />
     <span>Export</span>
   </MultiSelectButton>
 )
