@@ -584,6 +584,7 @@
     <bean id="queryMetacardApplication" class="org.codice.ddf.catalog.ui.metacard.QueryMetacardApplication">
         <argument ref="catalogFramework"/>
         <argument ref="endpointUtil"/>
+        <argument ref="filterBuilder"/>
     </bean>
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>

@@ -14,19 +14,27 @@
 package org.codice.ddf.catalog.ui.metacard;
 
 import static java.lang.String.format;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TAG;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static spark.Spark.stop;
 
 import com.jayway.restassured.RestAssured;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.filter.AttributeBuilder;
+import ddf.catalog.filter.ContextualExpressionBuilder;
+import ddf.catalog.filter.ExpressionBuilder;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -44,10 +52,12 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.opengis.filter.Filter;
 import spark.Request;
 import spark.Spark;
 
@@ -58,8 +68,10 @@ public class QueryMetacardApplicationTest {
 
   private static final EndpointUtil ENDPOINT_UTIL = mock(EndpointUtil.class);
 
+  private static final FilterBuilder FILTER_BUILDER = mock(FilterBuilder.class);
+
   private static final QueryMetacardApplication APPLICATION =
-      new QueryMetacardApplication(CATALOG_FRAMEWORK, ENDPOINT_UTIL);
+      new QueryMetacardApplication(CATALOG_FRAMEWORK, ENDPOINT_UTIL, FILTER_BUILDER);
 
   private static String localhostUrl;
 
@@ -74,6 +86,22 @@ public class QueryMetacardApplicationTest {
   @AfterClass
   public static void tearDownClass() {
     stop();
+  }
+
+  @Before
+  public void setup() {
+    AttributeBuilder attributeBuilder = mock(AttributeBuilder.class);
+    when(FILTER_BUILDER.attribute(any(String.class))).thenReturn(attributeBuilder);
+
+    ExpressionBuilder expressionBuilder = mock(ExpressionBuilder.class);
+    when(attributeBuilder.is()).thenReturn(expressionBuilder);
+
+    ContextualExpressionBuilder contextualExpressionBuilder =
+        mock(ContextualExpressionBuilder.class);
+    when(expressionBuilder.like()).thenReturn(contextualExpressionBuilder);
+
+    Filter filter = mock(Filter.class);
+    when(contextualExpressionBuilder.text(any(String.class))).thenReturn(filter);
   }
 
   @Test
@@ -105,10 +133,12 @@ public class QueryMetacardApplicationTest {
   }
 
   @Test
-  public void testRetrieveAllQueryMetacards() {
-    doReturn(Collections.singletonList(new MetacardImpl()))
-        .when(ENDPOINT_UTIL)
-        .getMetacardListByTag(QUERY_TAG);
+  public void testRetrieveAllQueryMetacards() throws Exception {
+    Result result = new ResultImpl(new MetacardImpl());
+    QueryResponse queryResponse = mock(QueryResponse.class);
+
+    doReturn(Collections.singletonList(result)).when(queryResponse).getResults();
+    doReturn(queryResponse).when(CATALOG_FRAMEWORK).query(any(QueryRequest.class));
 
     int statusCode = RestAssured.given().get(localhostUrl).statusCode();
 

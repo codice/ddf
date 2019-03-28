@@ -23,17 +23,28 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
-import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.metacard.query.data.model.QueryBasic;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
 import spark.servlet.SparkApplication;
 
 public class QueryMetacardApplication implements SparkApplication {
@@ -41,13 +52,25 @@ public class QueryMetacardApplication implements SparkApplication {
   private static final Gson GSON =
       new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
 
+  private static final int MIN_START = 1;
+
+  private static final int MAX_PAGE_SIZE = 100;
+
+  private static final String START = "start";
+
+  private static final String COUNT = "count";
+
   private final CatalogFramework catalogFramework;
 
   private final EndpointUtil endpointUtil;
 
-  public QueryMetacardApplication(CatalogFramework catalogFramework, EndpointUtil endpointUtil) {
+  private final FilterBuilder filterBuilder;
+
+  public QueryMetacardApplication(
+      CatalogFramework catalogFramework, EndpointUtil endpointUtil, FilterBuilder filterBuilder) {
     this.catalogFramework = catalogFramework;
     this.endpointUtil = endpointUtil;
+    this.filterBuilder = filterBuilder;
   }
 
   @Override
@@ -55,9 +78,33 @@ public class QueryMetacardApplication implements SparkApplication {
     get(
         "/queries",
         (req, res) -> {
-          List<Metacard> metacards = endpointUtil.getMetacardListByTag(QUERY_TAG);
+          Map<String, String[]> params = req.queryMap().toMap();
 
-          return metacards.stream().map(QueryBasic::new).collect(Collectors.toList());
+          int start = getOrDefaultParam(params, START, MIN_START);
+          int count = getOrDefaultParam(params, COUNT, MAX_PAGE_SIZE);
+
+          Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(QUERY_TAG);
+
+          QueryRequest queryRequest =
+              new QueryRequestImpl(
+                  new QueryImpl(
+                      filter,
+                      start,
+                      count,
+                      new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
+                      false,
+                      TimeUnit.SECONDS.toMillis(10)),
+                  false);
+
+          return catalogFramework
+              .query(queryRequest)
+              .getResults()
+              .stream()
+              .filter(Objects::nonNull)
+              .map(Result::getMetacard)
+              .filter(Objects::nonNull)
+              .map(QueryBasic::new)
+              .collect(Collectors.toList());
         },
         GSON::toJson);
 
@@ -115,5 +162,12 @@ public class QueryMetacardApplication implements SparkApplication {
           return null;
         },
         GSON::toJson);
+  }
+
+  private int getOrDefaultParam(Map<String, String[]> params, String key, int defaultValue) {
+    String[] defaultValues = new String[] {String.valueOf(defaultValue)};
+    String[] values = params.getOrDefault(key, defaultValues);
+
+    return Integer.parseInt(values[0]);
   }
 }
