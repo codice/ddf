@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
@@ -57,7 +59,7 @@
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
         <codice-maven.version>0.2</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
-        <codice-test.version>0.3</codice-test.version>
+        <codice-test.version>0.6</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.7</acdebugger.version>
         <!--temporary codice version of pax web-->
@@ -872,17 +874,20 @@ are essentially embedding a slightly modified version of felix -->
                                                 will be set to 0 not 0.75
                                                 -->
                                                 <limits>
-                                                    <limit implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit
+                                                        implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>INSTRUCTION</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
                                                     </limit>
-                                                    <limit implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit
+                                                        implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>BRANCH</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
                                                     </limit>
-                                                    <limit implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit
+                                                        implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>COMPLEXITY</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
@@ -1122,6 +1127,18 @@ are essentially embedding a slightly modified version of felix -->
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
+            <artifactId>maven-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>pax-exam-extensions</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
             <artifactId>hamcrest-extensions</artifactId>
             <version>${codice-test.version}</version>
             <scope>test</scope>
@@ -1135,6 +1152,12 @@ are essentially embedding a slightly modified version of felix -->
         <dependency>
             <groupId>org.codice.test</groupId>
             <artifactId>failsafe-controller</artifactId>
+            <version>${codice-test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion</artifactId>
             <version>${codice-test.version}</version>
             <scope>test</scope>
         </dependency>

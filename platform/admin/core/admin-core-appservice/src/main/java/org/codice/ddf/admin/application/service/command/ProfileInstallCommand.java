@@ -105,6 +105,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       throws Exception {
     Optional<Feature> optionalProfile = getProfile(applicationService, profileName);
     Optional<Map<String, List<String>>> optionalExtraProfiles = getProfile(profileName);
+    boolean done = false;
 
     try {
       if (optionalProfile.isPresent()) {
@@ -117,21 +118,17 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
                 .collect(Collectors.toList());
         installFeatures(featuresService, profileApps);
         uninstallInstallerModule(featuresService);
-        printSuccess("Installation Complete");
-      } else {
-        if (optionalExtraProfiles.isPresent()) {
-          Map<String, List<String>> profile = optionalExtraProfiles.get();
-          installFeatures(featuresService, profile.get(ADVANCED_PROFILE_INSTALL_FEATURES));
-          uninstallFeatures(featuresService, profile.get(ADVANCED_PROFILE_UNINSTALL_FEATURES));
-          /* The stop-bundles operation is a workaround currently in place for dealing with
-          the inter-dependencies of some features, this will likely be removed in the future. */
-          stopBundles(bundleService, profile.get(ADVANCED_PROFILE_STOP_BUNDLES));
-          uninstallInstallerModule(featuresService);
-          printSuccess("Installation Complete");
-          SecurityLogger.audit("Installed profile: {}", profile);
-        } else {
-          printError(String.format("Profile: %s not found", profileName));
-        }
+        done = true;
+      } else if (optionalExtraProfiles.isPresent()) {
+        Map<String, List<String>> profile = optionalExtraProfiles.get();
+        installFeatures(featuresService, profile.get(ADVANCED_PROFILE_INSTALL_FEATURES));
+        uninstallFeatures(featuresService, profile.get(ADVANCED_PROFILE_UNINSTALL_FEATURES));
+        /* The stop-bundles operation is a workaround currently in place for dealing with
+        the inter-dependencies of some features, this will likely be removed in the future. */
+        stopBundles(bundleService, profile.get(ADVANCED_PROFILE_STOP_BUNDLES));
+        uninstallInstallerModule(featuresService);
+        SecurityLogger.audit("Installed profile: {}", profile);
+        done = true;
       }
     } catch (ApplicationServiceException
         | ResolutionException
@@ -140,6 +137,12 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       SecurityLogger.audit("Failed to install profile: {}", profileName);
       printError(RESTART_WARNING);
       throw e;
+    }
+    if (done) {
+      printSuccess("Installation Complete");
+    } else {
+      printError(String.format("Profile: %s not found", profileName));
+      throw new IllegalArgumentException("Profile: " + profileName + " not found");
     }
   }
 

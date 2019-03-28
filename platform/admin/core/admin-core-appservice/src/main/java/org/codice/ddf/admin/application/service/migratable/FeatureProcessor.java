@@ -201,7 +201,6 @@ public class FeatureProcessor {
     final Set<String> ids = features.stream().map(Feature::getId).collect(Collectors.toSet());
     final Set<String> requirements =
         features.stream().map(JsonFeature::toRequirement).collect(Collectors.toSet());
-
     return run(
         report,
         region,
