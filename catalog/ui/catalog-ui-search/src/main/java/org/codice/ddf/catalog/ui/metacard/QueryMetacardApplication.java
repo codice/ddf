@@ -38,7 +38,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.util.impl.ResultIterable;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -46,6 +45,7 @@ import org.codice.ddf.catalog.ui.metacard.query.data.model.QueryBasic;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
+import spark.Request;
 import spark.servlet.SparkApplication;
 
 public class QueryMetacardApplication implements SparkApplication {
@@ -76,13 +76,18 @@ public class QueryMetacardApplication implements SparkApplication {
 
   @Override
   public void init() {
+    /*
+     * The start query parameter is used to specify the starting index for a collection of results.
+     * This value must be greater than or equal to 1.
+     *
+     * The count query parameter is used to specify the size of your page of results. This value
+     * must be greater than or equal to 0.
+     */
     get(
         "/queries",
         (req, res) -> {
-          Map<String, String[]> params = req.queryMap().toMap();
-
-          int start = getOrDefaultParam(params, START, MIN_START);
-          int count = getOrDefaultParam(params, COUNT, MAX_PAGE_SIZE);
+          int start = getOrDefaultParam(req, START, MIN_START);
+          int count = getOrDefaultParam(req, COUNT, MAX_PAGE_SIZE);
 
           Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(QUERY_TAG);
 
@@ -163,10 +168,13 @@ public class QueryMetacardApplication implements SparkApplication {
         GSON::toJson);
   }
 
-  private int getOrDefaultParam(Map<String, String[]> params, String key, int defaultValue) {
-    String[] defaultValues = new String[] {String.valueOf(defaultValue)};
-    String[] values = params.getOrDefault(key, defaultValues);
+  private int getOrDefaultParam(Request request, String key, int defaultValue) {
+    String value = request.queryParams(key);
 
-    return Integer.parseInt(values[0]);
+    if (value != null) {
+      return Integer.parseInt(value);
+    }
+
+    return defaultValue;
   }
 }
