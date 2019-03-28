@@ -41,6 +41,8 @@
         <module>geospatial</module>
         <module>tlmatcher</module>
         <module>alerts</module>
+        <module>dominion-commons</module>
+        <module>dominion-commons-pax-exam</module>
         <module>test-common</module>
     </modules>
 </project>

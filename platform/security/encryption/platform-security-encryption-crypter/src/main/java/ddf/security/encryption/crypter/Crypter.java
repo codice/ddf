@@ -172,9 +172,15 @@ public class Crypter {
    * @param plainTextValue The value to encrypt.
    */
   public String encrypt(String plainTextValue) throws CrypterException {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> encryptAndEncode(plainTextValue));
+  }
+
+  private String encryptAndEncode(String plainTextValue) {
     if (isBlank(plainTextValue)) {
       throw new CrypterException("Value to encrypt cannot be null or blank.");
     }
+
     if (associatedData == null) {
       throw new CrypterException("Associated data cannot be null.");
     }

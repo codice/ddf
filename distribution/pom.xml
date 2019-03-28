@@ -36,6 +36,8 @@
         <module>kernel</module>
         <module>docs</module>
         <module>ddf</module>
+        <module>ddf-dominion</module>
+        <module>ddf-dominion-pax-exam</module>
         <module>docker</module>
         <!--Test needs to be the last module because it depends on artifacts from earlier modules-->
         <module>test</module>
