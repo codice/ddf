@@ -75,7 +75,8 @@ public class QueryMetacardApplication implements SparkApplication {
     post(
         "/queries",
         (req, res) -> {
-          QueryBasic query = GSON.fromJson(req.body(), QueryBasic.class);
+          String body = endpointUtil.safeGetBody(req);
+          QueryBasic query = GSON.fromJson(body, QueryBasic.class);
 
           CreateRequest createRequest = new CreateRequestImpl(query.getMetacard());
           CreateResponse createResponse = catalogFramework.create(createRequest);
@@ -91,7 +92,8 @@ public class QueryMetacardApplication implements SparkApplication {
         "/queries/:id",
         (req, res) -> {
           String id = req.params("id");
-          QueryBasic query = GSON.fromJson(req.body(), QueryBasic.class);
+          String body = endpointUtil.safeGetBody(req);
+          QueryBasic query = GSON.fromJson(body, QueryBasic.class);
 
           UpdateRequest request = new UpdateRequestImpl(id, query.getMetacard());
           UpdateResponse response = catalogFramework.update(request);

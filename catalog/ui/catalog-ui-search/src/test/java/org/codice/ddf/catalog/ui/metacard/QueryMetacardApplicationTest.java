@@ -48,6 +48,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import spark.Request;
 import spark.Spark;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,6 +79,8 @@ public class QueryMetacardApplicationTest {
   @Test
   public void testCreateQueryMetacard() throws Exception {
     String content = getFileContents("/queries/basic.json");
+
+    doReturn(content).when(ENDPOINT_UTIL).safeGetBody(any(Request.class));
 
     doReturn(
             new CreateResponseImpl(
@@ -118,6 +121,8 @@ public class QueryMetacardApplicationTest {
 
     UpdateRequest request = new UpdateRequestImpl("", null);
     List<Update> updates = Collections.singletonList(new UpdateImpl(new MetacardImpl(), null));
+
+    doReturn(content).when(ENDPOINT_UTIL).safeGetBody(any(Request.class));
 
     doReturn(new UpdateResponseImpl(request, Collections.emptyMap(), updates))
         .when(CATALOG_FRAMEWORK)
