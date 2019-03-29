@@ -15,7 +15,8 @@
 /*global define*/
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-
+import styled from '../../react-component/styles/styled-components'
+import { readableColor } from 'polished'
 import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
@@ -38,6 +39,7 @@ require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
 const HandleBarsHelpers = require('../../js/HandlebarsHelpers.js')
 const ResultLinkView = require('../result-link/result-link.view.js')
+const CheckboxView = require('../selection-checkbox/selection-checkbox.view.js')
 const plugin = require('plugins/result-item')
 
 const LIST_DISPLAY_TYPE = 'List'
@@ -65,6 +67,21 @@ const getResultDisplayType = () =>
       .get('resultDisplay')) ||
   LIST_DISPLAY_TYPE
 
+const Divider = styled.div`
+  height: ${props => props.theme.borderRadius};
+  background: ${props => readableColor(props.theme.backgroundContent)};
+  opacity: 0.1;
+  margin-top: ${props => props.theme.minimumSpacing};
+`
+
+const Footer = styled.div`
+  background: rgba(0, 0, 0, 0.05);
+`
+
+const Container = styled.div`
+  overflow: auto;
+`
+
 const ResultItemView = Marionette.LayoutView.extend({
   template(data) {
     const model = this.model
@@ -88,49 +105,7 @@ const ResultItemView = Marionette.LayoutView.extend({
             viewOptions={{ model: model }}
           />
           <div className="container-content">
-            <div className="content-header">
-              <span
-                className="header-icon fa fa-history"
-                title="Type: Revision"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-icon fa fa-book"
-                title="Type: Workspace"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-icon fa fa-file"
-                title="Type: Resource"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-icon fa fa-trash"
-                title="Type: Deleted"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-
-              <span
-                className={`header-icon result-icon ${data.icon}`}
-                title="Type: Resource"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-title"
-                data-help={HandleBarsHelpers.getAlias('title')}
-                title={`${HandleBarsHelpers.getAlias('title')}: ${
-                  data.metacard.properties.title
-                }`}
-              >
-                {data.metacard.properties.title}
-              </span>
-            </div>
-            <div className="content-body">
+            <Container>
               {renderThumbnail && (
                 <MarionetteRegionContainer
                   className="detail-thumbnail details-property"
@@ -142,57 +117,110 @@ const ResultItemView = Marionette.LayoutView.extend({
                   }}
                 />
               )}
-              {data.customDetail.map(detail => {
-                return (
-                  <div
-                    key={detail.label}
-                    className="detail-custom details-property"
-                    data-help={HandleBarsHelpers.getAlias(detail.label)}
-                    title={`${HandleBarsHelpers.getAlias(detail.label)}: ${
-                      detail.value
+
+              <Container>
+                <div className="content-header">
+                  <span
+                    className="header-icon fa fa-history"
+                    title="Type: Revision"
+                    data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                  />
+                  <span
+                    className="header-icon fa fa-book"
+                    title="Type: Workspace"
+                    data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                  />
+                  <span
+                    className="header-icon fa fa-file"
+                    title="Type: Resource"
+                    data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                  />
+                  <span
+                    className="header-icon fa fa-trash"
+                    title="Type: Deleted"
+                    data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                  />
+
+                  <span
+                    className={`header-icon result-icon ${data.icon}`}
+                    title="Type: Resource"
+                    data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                  />
+                  <span
+                    className="header-title"
+                    data-help={HandleBarsHelpers.getAlias('title')}
+                    title={`${HandleBarsHelpers.getAlias('title')}: ${
+                      data.metacard.properties.title
                     }`}
                   >
-                    <span>{detail.value}</span>
-                  </div>
-                )
-              })}
-              {data.showRelevanceScore ? (
-                <div
-                  className="detail-custom details-property"
-                  data-help={`Relevance: ${data.relevance}`}
-                  title={`Relevance: ${data.relevance}`}
-                >
-                  <span>{data.roundedRelevance}</span>
+                    {data.metacard.properties.title}
+                  </span>
                 </div>
-              ) : (
-                ''
-              )}
-              {data.showSource ? (
-                <div
-                  className="detail-source details-property"
-                  title={`${HandleBarsHelpers.getAlias('source-id')}: ${
-                    data.metacard.properties['source-id']
-                  }`}
-                  data-help={HandleBarsHelpers.getAlias('source-id')}
-                >
-                  {data.local ? (
-                    <React.Fragment>
-                      <span className="fa source-icon fa-home" />
-                      <span>local</span>
-                    </React.Fragment>
+                <div className="content-body">
+                  {data.customDetail.map(detail => {
+                    const label =
+                      metacardDefinitions.metacardTypes[detail.label].alias
+                    return (
+                      <div
+                        key={detail.label}
+                        className="detail-custom details-property"
+                        data-help={HandleBarsHelpers.getAlias(detail.label)}
+                        title={`${HandleBarsHelpers.getAlias(detail.label)}: ${
+                          detail.value
+                        }`}
+                      >
+                        <span>
+                          {label}: {detail.value}
+                        </span>
+                      </div>
+                    )
+                  })}
+                  {data.showRelevanceScore ? (
+                    <div
+                      className="detail-custom details-property"
+                      data-help={`Relevance: ${data.relevance}`}
+                      title={`Relevance: ${data.relevance}`}
+                    >
+                      <span>{data.roundedRelevance}</span>
+                    </div>
                   ) : (
-                    <React.Fragment>
-                      <span className="fa source-icon fa-cloud" />
-                      <span>{data.metacard.properties['source-id']}</span>
-                    </React.Fragment>
+                    ''
+                  )}
+                  {data.showSource ? (
+                    <div
+                      className="detail-source details-property"
+                      title={`${HandleBarsHelpers.getAlias('source-id')}: ${
+                        data.metacard.properties['source-id']
+                      }`}
+                      data-help={HandleBarsHelpers.getAlias('source-id')}
+                    >
+                      {data.local ? (
+                        <React.Fragment>
+                          <span className="fa source-icon fa-home" />
+                          <span>local</span>
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <span className="fa source-icon fa-cloud" />
+                          <span>{data.metacard.properties['source-id']}</span>
+                        </React.Fragment>
+                      )}
+                    </div>
+                  ) : (
+                    ''
                   )}
                 </div>
-              ) : (
-                ''
-              )}
-            </div>
-            {this.getExtensions()}
-            <div className="content-footer">
+                {this.getExtensions()}
+              </Container>
+            </Container>
+            <Divider />
+            <Footer className="content-footer">
+              <div className="checkbox-container" />
               <div className="result-validation">
                 {data.hasError ? (
                   <span
@@ -235,11 +263,25 @@ const ResultItemView = Marionette.LayoutView.extend({
               <MetacardInteractionsDropdown
                 model={new Backbone.Collection([this.options.model])}
               />
-            </div>
+            </Footer>
           </div>
         </div>
       </React.Fragment>
     )
+  },
+  onRender() {
+    const isSelected = this.isSelected()
+    this.checkbox.show(
+      new CheckboxView({
+        isSelected: isSelected,
+        onClick: this.selected.bind(this),
+      })
+    )
+  },
+  selected: function(checked) {
+    checked
+      ? this.options.selectionInterface.addSelectedResult(this.model)
+      : this.options.selectionInterface.removeSelectedResult(this.model)
   },
   getExtensions: function() {
     return null
@@ -259,6 +301,7 @@ const ResultItemView = Marionette.LayoutView.extend({
   },
   regions: {
     resultAdd: '.result-add',
+    checkbox: '.checkbox-container',
   },
   behaviors() {
     return {
@@ -311,10 +354,16 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
     this.handleSelectionChange()
   },
-  handleSelectionChange: function() {
+  isSelected: function() {
     const selectedResults = this.options.selectionInterface.getSelectedResults()
-    const isSelected = selectedResults.get(this.model.id)
-    this.$el.toggleClass('is-selected', Boolean(isSelected))
+    return Boolean(selectedResults.get(this.model.id))
+  },
+  handleSelectionChange: function() {
+    const isSelected = this.isSelected()
+    this.$el.toggleClass('is-selected', isSelected)
+    if (this.checkbox.currentView) {
+      this.checkbox.currentView.check(isSelected)
+    }
   },
   handleMetacardUpdate: function() {
     this.$el.attr(this.attributes())

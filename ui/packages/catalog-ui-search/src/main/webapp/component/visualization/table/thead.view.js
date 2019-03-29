@@ -13,21 +13,19 @@
  *
  **/
 /*global require, setTimeout*/
-var wreqr = require('../../../js/wreqr.js')
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./thead.hbs')
 var Marionette = require('marionette')
 var CustomElements = require('../../../js/CustomElements.js')
-var Common = require('../../../js/Common.js')
 var user = require('../../singletons/user-instance.js')
 var properties = require('../../../js/properties.js')
 var metacardDefinitions = require('../../singletons/metacard-definitions.js')
-var jqueryui = require('jquery-ui')
 require('jquery-ui/ui/widgets/resizable')
 var isResizing = false
+const CheckboxView = require('../../selection-checkbox/selection-checkbox.view.js')
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Marionette.LayoutView.extend({
   template: template,
   className: 'is-thead',
   tagName: CustomElements.register('result-thead'),
@@ -36,6 +34,9 @@ module.exports = Marionette.ItemView.extend({
     'resize th': 'updateColumnWidth',
     'resizestart th': 'startResize',
     'resizestop th': 'stopResize',
+  },
+  regions: {
+    checkboxContainer: '.checkbox-container',
   },
   initialize: function(options) {
     if (!options.selectionInterface) {
@@ -56,6 +57,11 @@ module.exports = Marionette.ItemView.extend({
       'change:columnOrder',
       this.render
     )
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.updateCheckbox
+    )
     this.updateSorting = _.debounce(this.updateSorting, 500)
   },
   onRender: function() {
@@ -63,6 +69,20 @@ module.exports = Marionette.ItemView.extend({
     this.$el.find('.resizer').resizable({
       handles: 'e',
     })
+    this.showCheckbox()
+  },
+  showCheckbox: function() {
+    this.checkboxContainer.show(
+      new CheckboxView({
+        isSelected: this.allSelected(),
+        onClick: this.toggleCurrentResults.bind(this),
+      })
+    )
+  },
+  updateCheckbox: function() {
+    if (this.checkboxContainer.currentView) {
+      this.checkboxContainer.currentView.check(this.allSelected())
+    }
   },
   updateSorting: function(e) {
     var attribute = e.currentTarget.getAttribute('data-propertyid')
@@ -166,6 +186,23 @@ module.exports = Marionette.ItemView.extend({
   checkIfResizing: function(e) {
     if (!isResizing) {
       this.updateSorting(e)
+    }
+  },
+  allSelected: function() {
+    const currentResultsLength = this.options.selectionInterface.getActiveSearchResults()
+      .length
+    return (
+      currentResultsLength > 0 &&
+      currentResultsLength ===
+        this.options.selectionInterface.getSelectedResults().length
+    )
+  },
+  toggleCurrentResults: function() {
+    if (this.allSelected()) {
+      this.options.selectionInterface.clearSelectedResults()
+    } else {
+      const currentResults = this.options.selectionInterface.getActiveSearchResults()
+      this.options.selectionInterface.addSelectedResult(currentResults.models)
     }
   },
 })

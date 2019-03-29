@@ -28,6 +28,7 @@ const ResultStatusView = require('../result-status/result-status.view.js')
 require('../../behaviors/selection.behavior.js')
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import ResultItemCollection from '../result-item/result-item.collection'
+const CheckboxView = require('../selection-checkbox/selection-checkbox.view.js')
 
 function mixinBlackListCQL(originalCQL) {
   var blackListCQL = {
@@ -141,6 +142,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     resultDisplay: '.menu-resultDisplay',
     resultFilter: '.menu-resultFilter',
     resultSort: '.menu-resultSort',
+    checkboxContainer: '.checkbox-container',
   },
   initialize: function(options) {
     if (!this.model.get('result')) {
@@ -157,6 +159,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     this.startListeningToResult()
     this.startListeningToMerged()
     this.startListeningToStatus()
+    this.startListeningToSelectedResults()
   },
   mergeNewResults: function() {
     this.model.get('result').mergeNewResults()
@@ -208,6 +211,35 @@ var ResultSelector = Marionette.LayoutView.extend({
       this.render
     )
   },
+  startListeningToSelectedResults: function() {
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.handleSelectionChange
+    )
+  },
+  handleSelectionChange: function() {
+    if (this.checkboxContainer.currentView) {
+      this.checkboxContainer.currentView.check(this.allSelected())
+    }
+  },
+  allSelected: function() {
+    const currentResultsLength = this.options.selectionInterface.getActiveSearchResults()
+      .length
+    return (
+      currentResultsLength > 0 &&
+      currentResultsLength ===
+        this.options.selectionInterface.getSelectedResults().length
+    )
+  },
+  toggleCurrentResults: function() {
+    if (this.allSelected()) {
+      this.options.selectionInterface.clearSelectedResults()
+    } else {
+      const currentResults = this.options.selectionInterface.getActiveSearchResults()
+      this.options.selectionInterface.addSelectedResult(currentResults.models)
+    }
+  },
   scrollIntoView: function(metacard) {
     var result = this.$el.find(
       '.resultSelector-list ' +
@@ -225,6 +257,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     this.showResultDisplayDropdown()
     this.showResultFilterDropdown()
     this.showResultSortDropdown()
+    this.showCheckbox()
     this.handleMerged()
     this.handleStatus()
     let resultCountOnly =
@@ -247,6 +280,14 @@ var ResultSelector = Marionette.LayoutView.extend({
     this.resultSort.show(
       new ResultSortDropdownView({
         model: new DropdownModel(),
+      })
+    )
+  },
+  showCheckbox: function() {
+    this.checkboxContainer.show(
+      new CheckboxView({
+        isSelected: this.allSelected(),
+        onClick: this.toggleCurrentResults.bind(this),
       })
     )
   },
