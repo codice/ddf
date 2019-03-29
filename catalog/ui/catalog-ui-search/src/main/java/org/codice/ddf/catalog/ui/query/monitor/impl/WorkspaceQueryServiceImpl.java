@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;

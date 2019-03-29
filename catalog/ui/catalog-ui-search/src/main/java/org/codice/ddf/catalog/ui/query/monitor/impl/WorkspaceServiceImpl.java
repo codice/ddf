@@ -14,7 +14,7 @@
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_TAG;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TAG;
 import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_TAG;
 
 import ddf.catalog.CatalogFramework;
@@ -47,7 +47,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.ws.rs.NotFoundException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;

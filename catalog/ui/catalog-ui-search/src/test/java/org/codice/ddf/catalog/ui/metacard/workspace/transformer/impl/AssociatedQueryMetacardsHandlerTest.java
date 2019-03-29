@@ -31,7 +31,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import java.util.Collections;
 import java.util.List;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

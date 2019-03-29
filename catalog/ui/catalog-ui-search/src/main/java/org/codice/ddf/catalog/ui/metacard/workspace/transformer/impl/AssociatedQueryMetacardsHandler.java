@@ -26,8 +26,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeImpl;
 
 public class AssociatedQueryMetacardsHandler {
 

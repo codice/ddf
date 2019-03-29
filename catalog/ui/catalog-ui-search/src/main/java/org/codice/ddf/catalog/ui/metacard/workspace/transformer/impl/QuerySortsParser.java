@@ -13,13 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SORTS;
+
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.Metacard;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
@@ -36,7 +37,7 @@ public class QuerySortsParser extends WorkspaceValueTransformation<List, List> {
 
   @Override
   public String getKey() {
-    return QueryMetacardTypeImpl.QUERY_SORTS;
+    return QUERY_SORTS;
   }
 
   @Override

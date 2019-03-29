@@ -15,10 +15,10 @@ package org.codice.ddf.catalog.ui.forms.data;
 
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_FILTER;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
-import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.DETAIL_LEVEL;
-import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_FEDERATION;
-import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_SORTS;
-import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_SOURCES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SORTS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
 import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGet;
 import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGetList;
 
