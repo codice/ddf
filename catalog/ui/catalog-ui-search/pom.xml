@@ -456,6 +456,8 @@
                             !org.hibernate.*,
                             !weblogic.jdbc.*,
                             !org.abego.treelayout.*,
+                            <!-- TODO - verify why excluding bouncycastle was needed to bundle:watch -->
+                            !org.bouncycastle.crypto.*,
                             *
                         </Import-Package>
                         <Export-Package>

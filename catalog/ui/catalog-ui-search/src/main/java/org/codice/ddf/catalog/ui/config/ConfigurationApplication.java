@@ -1130,7 +1130,9 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public void bind(HistorianConfiguration historianConfiguration) {
-    this.historianConfiguration = historianConfigurations.get(0);
+    if (this.historianConfigurations != null && !this.historianConfigurations.isEmpty()) {
+      this.historianConfiguration = historianConfigurations.get(0);
+    }
   }
 
   public void unbind(HistorianConfiguration historianConfiguration) {
