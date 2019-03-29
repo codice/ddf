@@ -55,18 +55,11 @@ interface Props {
   footer: React.ReactNode
   className?: string
   style?: React.CSSProperties
-  onClick?: (e: any) => void
+  onClick?: (e: React.MouseEvent) => void
 }
 
 const Card = (props: Props) => {
-  const {
-    header,
-    details,
-    footer,
-    className,
-    style,
-    onClick,
-  } = props
+  const { header, details, footer, className, style, onClick } = props
   return (
     <Root className={className} style={style as any} onClick={onClick}>
       <Header>{header}</Header>
