@@ -44,6 +44,7 @@
     "packages/*"
   ],
   "resolutions": {
-    "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8"
+    "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
+    "@connexta/ace/html-webpack-plugin": "4.0.0-beta.5"
   }
 }

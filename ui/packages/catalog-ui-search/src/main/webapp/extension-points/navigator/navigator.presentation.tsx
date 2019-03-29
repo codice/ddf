@@ -4,9 +4,12 @@ import MarionetteRegionContainer from '../../react-component/container/marionett
 const SaveView = require('../../component/save/workspaces/workspaces-save.view')
 const UnsavedIndicatorView = require('../../component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view')
 import styled from '../../react-component/styles/styled-components'
-import { hot } from 'react-hot-loader'
+import {
+  Button,
+  buttonTypeEnum,
+} from '../../react-component/presentation/button'
 
-type Props = {
+export type Props = {
   hasUnavailableSources: boolean
   isSaved: boolean
   branding: string
@@ -18,72 +21,82 @@ type Props = {
   navigateToRoute: (route: string) => void
 }
 
-const Root = styled<Props, 'div'>('div')`
+export const Divider = () => {
+  return <div className="is-divider" />
+}
+
+export const Root = styled<Props, 'div'>('div')`
   height: 100%;
   width: 100%;
   overflow: auto;
+`
 
-  button.navigation-choice,
-  .navigation-choice {
-    display: block;
+export const WorkspacesSave = styled<
+  {
+    isSaved: Props['isSaved']
+  },
+  'div'
+>('div')`
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  height: auto;
+  overflow: hidden;
+  max-width: ${props => (props.isSaved ? '0%' : '100%')};
+  font-size: ${props => props.theme.largeFontSize};
+  line-height: ${props => props.theme.minimumButtonSize};
+  ${props =>
+    props.isSaved
+      ? `
+  transition: max-width 0s linear
+  ${props.theme.multiple(10, props.theme.coreTransitionTime, 's')};
+  opacity: 1;
+  `
+      : ''}
+
+  > * {
     padding: ${props => props.theme.largeSpacing};
-    height: auto;
-    text-align: left;
-    width: 100%;
-    word-wrap: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    position: relative;
   }
+`
 
-  .navigation-choice > span:first-of-type {
+export const WorkspacesIndicator = styled.div`
+  padding-left: ${props => props.theme.minimumSpacing};
+  display: inline-block;
+`
+
+export const SourcesIndicator = styled<
+  {
+    hasUnavailableSources: Props['hasUnavailableSources']
+  },
+  'span'
+>('span')`
+  opacity: ${props => (props.hasUnavailableSources ? '1' : '0')};
+  transform: ${props =>
+    props.hasUnavailableSources ? 'scale(1)' : 'scale(0)'};
+  color: ${props => props.theme.warningColor};
+  padding: 0px ${props => props.theme.minimumSpacing};
+  transition: transform ${props => props.theme.coreTransitionTime} ease-out,
+    opacity ${props => props.theme.coreTransitionTime} ease-out;
+`
+
+export const Link = styled(Button)`
+  display: block;
+  padding: ${props => props.theme.largeSpacing};
+  height: auto;
+  text-align: left;
+  width: 100%;
+  word-wrap: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+
+  > span:first-of-type {
     min-width: ${props => props.theme.minimumButtonSize};
     text-align: center;
   }
 
-  .navigation-links {
-    position: relative;
-    .navigation-choice .fa {
-      padding-right: ${props => props.theme.minimumSpacing};
-    }
-  }
-
-  .choice-workspaces .workspaces-indicator {
-    padding-left: ${props => props.theme.minimumSpacing};
-    display: inline-block;
-  }
-
-  .workspaces-save {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    height: auto;
-    overflow: hidden;
-    max-width: ${props => (props.isSaved ? '0%' : '100%')};
-    font-size: ${props => props.theme.largeFontSize};
-    line-height: ${props => props.theme.minimumButtonSize};
-    ${props =>
-      props.isSaved
-        ? `
-    transition: max-width 0s linear
-    ${props.theme.multiple(10, props.theme.coreTransitionTime, 's')};
-    opacity: 1;
-    `
-        : ''}
-  }
-  /* stylelint-disable-next-line */
-  .workspaces-save > intrigue-save {
-    padding: ${props => props.theme.largeSpacing};
-  }
-
-  .sources-indicator {
-    opacity: ${props => (props.hasUnavailableSources ? '1' : '0')};
-    transform: ${props =>
-      props.hasUnavailableSources ? 'scale(1)' : 'scale(0)'};
-    color: ${props => props.theme.warningColor};
-    padding: 0px ${props => props.theme.minimumSpacing};
-    transition: transform ${props => props.theme.coreTransitionTime} ease-out,
-      opacity ${props => props.theme.coreTransitionTime} ease-out;
+  .fa {
+    padding-right: ${props => props.theme.minimumSpacing};
   }
 
   .dynamic-text {
@@ -101,88 +114,222 @@ const Root = styled<Props, 'div'>('div')`
 
 export const ProductLink = ({ navigateToRoute, branding, product }: Props) => {
   return (
-    <button
-      className="navigation-choice is-neutral choice-product is-button"
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('workspaces')
       }}
     >
       <span className="is-bold">{branding} </span>
       <span className="">{product}</span>
-    </button>
+    </Link>
   )
+}
+
+export const WorkspaceLink = ({
+  navigateToRoute,
+  isSaved,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+  isSaved: Props['isSaved']
+}) => {
+  return (
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
+      onClick={() => {
+        navigateToRoute('workspaces')
+      }}
+    >
+      <span className="fa fa-book" />
+      <span>Workspaces</span>
+      <WorkspacesIndicator>
+        <MarionetteRegionContainer view={UnsavedIndicatorView} replaceElement />
+      </WorkspacesIndicator>
+      <WorkspacesSave
+        isSaved={isSaved}
+        onClick={(e: any) => {
+          e.stopPropagation()
+        }}
+      >
+        <MarionetteRegionContainer view={SaveView} replaceElement />
+      </WorkspacesSave>
+    </Link>
+  )
+}
+
+export const UploadLink = ({
+  navigateToRoute,
+  uploadEnabled,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+  uploadEnabled: Props['uploadEnabled']
+}) => {
+  if (uploadEnabled) {
+    return (
+      <Link
+        buttonType={buttonTypeEnum.neutral}
+        className="is-neutral is-button"
+        onClick={() => {
+          navigateToRoute('ingest')
+        }}
+      >
+        <span className="fa fa-upload" />
+        <span>Upload</span>
+      </Link>
+    )
+  }
+  return null
+}
+
+export const SourcesLink = ({
+  navigateToRoute,
+  hasUnavailableSources,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+  hasUnavailableSources: Props['hasUnavailableSources']
+}) => {
+  return (
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
+      onClick={() => {
+        navigateToRoute('sources')
+      }}
+    >
+      <span className="fa fa-cloud" />
+      <FormattedMessage id="sources.title" defaultMessage="Sources" />
+      <SourcesIndicator
+        hasUnavailableSources={hasUnavailableSources}
+        className="fa fa-bolt"
+      />
+    </Link>
+  )
+}
+
+const SearchFormsLink = ({
+  navigateToRoute,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+}) => {
+  return (
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
+      onClick={() => {
+        navigateToRoute('forms')
+      }}
+    >
+      <span className="fa cf cf-search-forms" />
+      <span>Search Forms</span>
+      <div className="forms-indicator" />
+    </Link>
+  )
+}
+
+const ResultFormsLink = ({
+  navigateToRoute,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+}) => {
+  return (
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
+      onClick={() => {
+        navigateToRoute('resultForms')
+      }}
+    >
+      <span className="fa cf cf-result-forms" />
+      <span>Result Forms</span>
+      <div className="forms-indicator" />
+    </Link>
+  )
+}
+
+export const LegacyNavigationExtensions = () => {
+  return <div className="navigation-extensions" />
 }
 
 export const UpperNavigationLinks = ({
   navigateToRoute,
   uploadEnabled,
+  hasUnavailableSources,
+  isSaved,
 }: Props) => {
   return (
-    <div className="navigation-links">
-      <button
-        className="navigation-choice is-neutral choice-workspaces is-button"
-        onClick={() => {
-          navigateToRoute('workspaces')
-        }}
-      >
-        <span className="fa fa-book" />
-        <span>Workspaces</span>
-        <div className="workspaces-indicator">
-          <MarionetteRegionContainer
-            view={UnsavedIndicatorView}
-            replaceElement
-          />
-        </div>
-      </button>
-      <div className="workspaces-save">
-        <MarionetteRegionContainer view={SaveView} replaceElement />
-      </div>
-      {uploadEnabled ? (
-        <button
-          className="navigation-choice is-neutral choice-upload is-button"
-          onClick={() => {
-            navigateToRoute('ingest')
-          }}
-        >
-          <span className="fa fa-upload" />
-          <span>Upload</span>
-        </button>
-      ) : (
-        ''
-      )}
-      <button
-        className="navigation-choice is-neutral choice-sources is-button"
-        onClick={() => {
-          navigateToRoute('sources')
-        }}
-      >
-        <span className="fa fa-cloud" />
-        <FormattedMessage id="sources.title" defaultMessage="Sources" />
-        <span className="sources-indicator fa fa-bolt" />
-      </button>
-      <button
-        className="navigation-choice is-neutral choice-search-forms is-button"
-        onClick={() => {
-          navigateToRoute('forms')
-        }}
-      >
-        <span className="fa cf cf-search-forms" />
-        <span>Search Forms</span>
-        <div className="forms-indicator" />
-      </button>
-      <button
-        className="navigation-choice is-neutral choice-result-forms is-button"
-        onClick={() => {
-          navigateToRoute('resultForms')
-        }}
-      >
-        <span className="fa cf cf-result-forms" />
-        <span>Result Forms</span>
-        <div className="forms-indicator" />
-      </button>
-      <div className="navigation-extensions" />
-    </div>
+    <>
+      <WorkspaceLink navigateToRoute={navigateToRoute} isSaved={isSaved} />
+      <UploadLink
+        navigateToRoute={navigateToRoute}
+        uploadEnabled={uploadEnabled}
+      />
+      <SourcesLink
+        navigateToRoute={navigateToRoute}
+        hasUnavailableSources={hasUnavailableSources}
+      />
+      <SearchFormsLink navigateToRoute={navigateToRoute} />
+      <ResultFormsLink navigateToRoute={navigateToRoute} />
+      <LegacyNavigationExtensions />
+    </>
   )
+}
+
+export const RecentWorkspaceLink = ({
+  recentWorkspace,
+  navigateToRoute,
+}: {
+  recentWorkspace: Props['recentWorkspace']
+  navigateToRoute: Props['navigateToRoute']
+}) => {
+  if (recentWorkspace) {
+    return (
+      <Link
+        buttonType={buttonTypeEnum.neutral}
+        className="is-neutral is-button"
+        title={`Most Recent Workspace: ${recentWorkspace.title}`}
+        onClick={() => {
+          navigateToRoute(`workspaces/${recentWorkspace.id}`)
+        }}
+      >
+        <div>Most Recent Workspace</div>
+        <span className="fa fa-history" />
+        <span className="dynamic-text">{recentWorkspace.title}</span>
+      </Link>
+    )
+  }
+  return null
+}
+
+export const RecentMetacardLink = ({
+  recentMetacard,
+  navigateToRoute,
+}: {
+  recentMetacard: Props['recentMetacard']
+  navigateToRoute: Props['navigateToRoute']
+}) => {
+  if (recentMetacard) {
+    return (
+      <Link
+        buttonType={buttonTypeEnum.neutral}
+        className="is-neutral is-button"
+        title={`Most Recent Metacard: ${
+          recentMetacard.metacard.properties.title
+        }`}
+        onClick={() => {
+          navigateToRoute(`metacards/${recentMetacard.metacard.id}`)
+        }}
+      >
+        <div className="">Most Recent Metacard</div>
+        <span className="fa fa-history" />
+        <span className="dynamic-text">
+          {recentMetacard.metacard.properties.title}
+        </span>
+      </Link>
+    )
+  }
+  return null
 }
 
 export const RecentLinks = ({
@@ -194,41 +341,80 @@ export const RecentLinks = ({
     <>
       {(recentMetacard || recentWorkspace) && (
         <>
-          <div className="navigation-links">
-            {recentWorkspace && (
-              <button
-                className="navigation-choice is-neutral choice-previous-workspace is-button"
-                title={`Most Recent Workspace: ${recentWorkspace.title}`}
-                onClick={() => {
-                  navigateToRoute(`workspaces/${recentWorkspace.id}`)
-                }}
-              >
-                <div>Most Recent Workspace</div>
-                <span className="fa fa-history" />
-                <span className="dynamic-text">{recentWorkspace.title}</span>
-              </button>
-            )}
-            {recentMetacard ? (
-              <button
-                className="navigation-choice is-neutral choice-previous-metacard is-button"
-                title={`Most Recent Metacard: ${
-                  recentMetacard.metacard.properties.title
-                }`}
-                onClick={() => {
-                  navigateToRoute(`metacards/${recentMetacard.metacard.id}`)
-                }}
-              >
-                <div className="">Most Recent Metacard</div>
-                <span className="fa fa-history" />
-                <span className="dynamic-text">
-                  {recentMetacard.metacard.properties.title}
-                </span>
-              </button>
-            ) : null}
-          </div>
+          <RecentWorkspaceLink
+            recentWorkspace={recentWorkspace}
+            navigateToRoute={navigateToRoute}
+          />
+          <RecentMetacardLink
+            recentMetacard={recentMetacard}
+            navigateToRoute={navigateToRoute}
+          />
         </>
-      )}{' '}
+      )}
     </>
+  )
+}
+
+export const AboutLink = ({
+  navigateToRoute,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+}) => {
+  return (
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
+      onClick={() => {
+        navigateToRoute('about')
+      }}
+    >
+      <span className="fa fa-info" />
+      <span>About</span>
+    </Link>
+  )
+}
+export const DevelopmentLink = ({
+  navigateToRoute,
+  isDevelopment,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+  isDevelopment: Props['isDevelopment']
+}) => {
+  if (isDevelopment) {
+    return (
+      <Link
+        buttonType={buttonTypeEnum.neutral}
+        className="is-neutral is-button"
+        onClick={() => {
+          navigateToRoute('_dev')
+        }}
+      >
+        <span className="fa fa-user-md" />
+        <span>Developer</span>
+      </Link>
+    )
+  }
+  return null
+}
+
+export const HomeLink = ({
+  navigateToRoute,
+  branding,
+}: {
+  navigateToRoute: Props['navigateToRoute']
+  branding: Props['branding']
+}) => {
+  return (
+    <Link
+      buttonType={buttonTypeEnum.neutral}
+      className="is-neutral is-button"
+      onClick={() => {
+        navigateToRoute('_home')
+      }}
+    >
+      <span className="fa fa-home" />
+      <span>{branding} Home</span>
+    </Link>
   )
 }
 
@@ -238,61 +424,14 @@ export const LowerNavigationLinks = ({
   branding,
 }: Props) => {
   return (
-    <div className="navigation-links">
-      <button
-        className="navigation-choice is-neutral choice-about is-button"
-        onClick={() => {
-          navigateToRoute('about')
-        }}
-      >
-        <span className="fa fa-info" />
-        <span>About</span>
-      </button>
-      {isDevelopment ? (
-        <button
-          className="navigation-choice is-neutral choice-dev is-button"
-          onClick={() => {
-            navigateToRoute('_dev')
-          }}
-        >
-          <span className="fa fa-user-md" />
-          <span>Developer</span>
-        </button>
-      ) : (
-        ''
-      )}
-      <div className="is-divider" />
-      <button
-        className="navigation-choice is-neutral choice-home is-button"
-        onClick={() => {
-          navigateToRoute('_home')
-        }}
-      >
-        <span className="fa fa-home" />
-        <span>{branding} Home</span>
-      </button>
-    </div>
+    <>
+      <AboutLink navigateToRoute={navigateToRoute} />
+      <DevelopmentLink
+        navigateToRoute={navigateToRoute}
+        isDevelopment={isDevelopment}
+      />
+      <Divider />
+      <HomeLink branding={branding} navigateToRoute={navigateToRoute} />
+    </>
   )
 }
-
-const Divider = () => {
-  return <div className="is-divider" />
-}
-
-const navigation = (props: Props) => {
-  const { recentMetacard, recentWorkspace } = props
-  return (
-    <Root {...props}>
-      <ProductLink {...props} />
-      <Divider />
-
-      <UpperNavigationLinks {...props} />
-      {recentMetacard || recentWorkspace ? <Divider /> : ''}
-      <RecentLinks {...props} />
-      <Divider />
-      <LowerNavigationLinks {...props} />
-    </Root>
-  )
-}
-
-export default hot(module)(navigation)

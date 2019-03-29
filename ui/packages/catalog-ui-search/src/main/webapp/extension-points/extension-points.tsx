@@ -11,16 +11,20 @@
  **/
 import * as React from 'react'
 import routes from './routes'
-import navigator from './navigator'
+import Navigator, { Props } from './navigator'
+import filterActions from './filter-actions'
+import { SFC } from '../react-component/hoc/utils'
 
 export type ExtensionPointsType = {
-  routes?: {}
-  navigator?: React.ReactNode
+  routes: {}
+  navigator: SFC<Props>
+  filterActions: React.ReactNode
 }
 
 const ExtensionPoints: ExtensionPointsType = {
   routes: routes,
-  navigator: navigator,
+  navigator: Navigator,
+  filterActions: filterActions,
 }
 
 export default ExtensionPoints

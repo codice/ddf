@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Navigation from './navigator.presentation'
+import { Props as PresentationProps } from './navigator.presentation'
 import withListenTo, {
   WithBackboneProps,
 } from '../../react-component/container/backbone-container'
@@ -13,6 +13,7 @@ import { hot } from 'react-hot-loader'
 
 type Props = {
   closeSlideout?: () => void
+  children: (props: PresentationProps) => React.ReactNode
 } & WithBackboneProps
 
 type State = {
@@ -105,29 +106,11 @@ class NavigationContainer extends React.Component<Props, State> {
     }
   }
   render() {
-    const {
-      isSaved,
-      hasUnavailableSources,
-      branding,
-      product,
-      recentMetacard,
-      recentWorkspace,
-      isDevelopment,
-      uploadEnabled,
-    } = this.state
-    return (
-      <Navigation
-        isSaved={isSaved}
-        hasUnavailableSources={hasUnavailableSources}
-        branding={branding}
-        product={product}
-        recentMetacard={recentMetacard}
-        recentWorkspace={recentWorkspace}
-        uploadEnabled={uploadEnabled}
-        isDevelopment={isDevelopment}
-        navigateToRoute={this.navigateToRoute}
-      />
-    )
+    const { children } = this.props
+    return children({
+      ...this.state,
+      navigateToRoute: this.navigateToRoute,
+    })
   }
 }
 

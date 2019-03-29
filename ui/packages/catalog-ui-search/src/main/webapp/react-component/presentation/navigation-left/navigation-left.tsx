@@ -159,7 +159,15 @@ const getClassesFromProps = (props: Props) => {
 }
 
 const openNavigator = () => {
-  SlideoutLeftViewInstance.updateContent(ExtensionPoints.navigator)
+  SlideoutLeftViewInstance.updateContent(() => {
+    return (
+      <ExtensionPoints.navigator
+        closeSlideout={() => {
+          SlideoutLeftViewInstance.close()
+        }}
+      />
+    )
+  })
   SlideoutLeftViewInstance.open()
 }
 

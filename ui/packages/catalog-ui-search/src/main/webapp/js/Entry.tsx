@@ -11,13 +11,22 @@
  **/
 import ExtensionPoints, { ExtensionPointsType } from '../extension-points'
 
-const entry = (extensionPoints: ExtensionPointsType = {}) => {
-  const { routes, navigator } = extensionPoints
+export type EntryParameters = {
+  routes?: ExtensionPointsType['routes']
+  navigator?: ExtensionPointsType['navigator']
+  filterActions?: ExtensionPointsType['filterActions']
+}
+
+const entry = (extensionPoints: EntryParameters = {}) => {
+  const { routes, navigator, filterActions } = extensionPoints
   if (routes) {
     ExtensionPoints.routes = routes
   }
   if (navigator) {
     ExtensionPoints.navigator = navigator
+  }
+  if (filterActions) {
+    ExtensionPoints.filterActions = filterActions
   }
   require('../js/ApplicationSetup')
 }
