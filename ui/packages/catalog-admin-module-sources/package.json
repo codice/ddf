@@ -24,7 +24,7 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.3"
+    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.4"
   },
   "dependencies": {
     "backbone-associations": "0.6.2",
