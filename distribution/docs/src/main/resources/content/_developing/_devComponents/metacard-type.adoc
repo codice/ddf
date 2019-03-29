@@ -18,7 +18,7 @@ To define Metacard Types, the definition file must have a `metacardTypes` key in
 }
 ----
 
-The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys.
+The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` (required), `extendsTypes` (optional), and `attributes` (optional) keys.
 
 [source,json]
 ----
@@ -26,15 +26,18 @@ The value of `metacardTypes` must be an array of Metacard Type Objects, which ar
     "metacardTypes": [
         {
             "type": "my-metacard-type",
+            "extendsTypes": ["core", "security"],
             "attributes": {...}
         }
     ]
 }
 ----
 
-The value of the `type` key is the name of the metacard type being defined.
+The value of the `type` key is the name of the metacard type being defined. This field is required.
 
-The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
+The value of the `extendsTypes` key is an array of metacard type names (strings) whose attributes you wish to include in your type. Valid Metacard Types already defined in the system or any Metacard Types already defined in this file will work. Please note this section is evaluated from top to bottom so order any types used in other definitions above where they are used in the `extendsTypes` of other definitions. This key and value may be completely omitted to not extend any types.
+
+The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors. `attributes` may be completely omitted. `required` may be omitted.
 
 [source,json]
 ----
@@ -49,9 +52,7 @@ The value of the `attributes` key is a map where each key is the name of an attr
                 "target-areas": {
                     "required": false
                 },
-                "expiration": {
-                    "required": false
-                },
+                "expiration": {},
                 "point-of-contact": {
                     "required": true
                 }

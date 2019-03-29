@@ -421,6 +421,36 @@ class DefinitionParserSpec extends Specification {
         { it.name == type2name })
   }
 
+    def "test metacardTypes without listing attributes and attributes without required listed still work"() {
+        setup:
+        file.withPrintWriter { it.write(extendsTypesNoRequiredNoAttributes) }
+        def type3name = "type3"
+
+        def coreAttributes = new CoreAttributes().attributeDescriptors.collect({ ad -> ad.name })
+        def type1Attributes = ["attribute1", "attribute2"]
+        def type2Attributes = ["attribute3"]
+
+        when:
+        validationParser.install(file)
+
+        then: "type 3 contains the type1 and type2 (and still works without 'attributes' field)"
+        1 * mockBundleContext.registerService(
+                MetacardType.class,
+                { MetacardType it ->
+                    it.attributeDescriptors.collect({ ad -> ad.name })
+                            .containsAll(coreAttributes.plus(type1Attributes).plus(type2Attributes))
+                },
+                { it.name == type3name })
+
+        then: "No validators were registered since required:true wasn't set"
+        0 * mockBundleContext.registerService(
+                MetacardValidator.class,
+                _,
+                _)
+
+
+    }
+
     def "test metacard validators"() {
         setup:
         file.withPrintWriter { it.write(metacardValidator) }
@@ -764,6 +794,57 @@ class DefinitionParserSpec extends Specification {
                     "required": false
                 }
             }
+        }
+    ],
+    "attributeTypes": {
+        "attribute1": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "attribute2": {
+            "type": "XML_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        },
+        "attribute3": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
+    }
+}
+'''
+
+    String extendsTypesNoRequiredNoAttributes = '''
+{
+    "metacardTypes": [
+        {
+            "type": "type1",
+            "extendsTypes": ["already-registered-type"],
+            "attributes": {
+                "attribute1": {},
+                "attribute2": {}
+            }
+        },
+        {
+            "type": "type2",
+            "extendsTypes": ["type1"],
+            "attributes": {
+                "attribute3": {
+                    "required": false
+                }
+            }
+        },
+        {
+            "type": "type3",
+            "extendsTypes": ["type1", "type2"]
         }
     ],
     "attributeTypes": {

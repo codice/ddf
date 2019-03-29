@@ -316,22 +316,24 @@ public class DefinitionParser implements ArtifactInstaller {
 
       attributeDescriptors.addAll(extendedAttributes);
 
-      metacardType.attributes.forEach(
-          (attributeName, attribute) -> {
-            AttributeDescriptor descriptor =
-                attributeRegistry
-                    .lookup(attributeName)
-                    .orElseThrow(
-                        () ->
-                            new IllegalStateException(
-                                String.format(
-                                    "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
-                                    metacardType.type, attributeName)));
-            attributeDescriptors.add(descriptor);
-            if (attribute.required) {
-              requiredAttributes.add(attributeName);
-            }
-          });
+      Optional.ofNullable(metacardType.attributes)
+          .orElse(Collections.emptyMap())
+          .forEach(
+              (attributeName, attribute) -> {
+                AttributeDescriptor descriptor =
+                    attributeRegistry
+                        .lookup(attributeName)
+                        .orElseThrow(
+                            () ->
+                                new IllegalStateException(
+                                    String.format(
+                                        "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
+                                        metacardType.type, attributeName)));
+                attributeDescriptors.add(descriptor);
+                if (attribute.required) {
+                  requiredAttributes.add(attributeName);
+                }
+              });
 
       if (!requiredAttributes.isEmpty()) {
         final MetacardValidator validator =
