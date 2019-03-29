@@ -13,8 +13,8 @@
  *
  **/
 /*global require*/
-import React from 'react'
-import CopyCoordinates from '../../react-component/presentation/copy-coordinates'
+import * as React from 'react'
+import { MapContextMenu } from '../../react-component/presentation/map-context-menu'
 
 var _ = require('underscore')
 var Marionette = require('marionette')
@@ -25,76 +25,41 @@ var SelectionInterfaceModel = require('../selection-interface/selection-interfac
 var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template(props) {
+  template({ mouseLat, mouseLon, target, coordinateValues, selectionCount }) {
     return (
-      <React.Fragment>
-        {typeof props.mouseLat === 'undefined' ||
-        typeof props.mouseLon === 'undefined' ? null : (
-          <CopyCoordinates
-            clickDms={props.clickDms}
-            clickLat={props.clickLat}
-            clickLon={props.clickLon}
-            clickMgrs={props.clickMgrs}
-            clickUtmUps={props.clickUtmUps}
-            closeParent={this.triggerClick.bind(this)}
-          />
-        )}
-        <div
-          className="metacard-interaction interaction-view-histogram"
-          data-help="Open histogram of results."
-        >
-          <div className="interaction-icon fa fa-bar-chart" />
-          <div className="interaction-text">View Histogram</div>
-        </div>
-        <div
-          className="metacard-interaction interaction-view-details"
-          data-help="Open inspector for result."
-        >
-          <div className="interaction-icon fa fa-info" />
-          <div className="interaction-text">
-            View Inspector
-            <div>
-              <span>{props.target}</span>
-            </div>
-          </div>
-        </div>
-        <div
-          className="metacard-interaction interaction-view-details-selection"
-          data-help="Open inspector for selected results."
-        >
-          <div className="interaction-icon fa fa-info" />
-          <div className="interaction-text">
-            View Inspector (Current Selection)
-            <div>
-              <span>{props.selectionCount} selected</span>
-            </div>
-          </div>
-        </div>
-        <div
-          className="metacard-interaction interaction-view-histogram-selection"
-          data-help="Open histogram of selected results."
-        >
-          <div className="interaction-icon fa fa-bar-chart" />
-          <div className="interaction-text">
-            View Histogram (Current Selection)
-            <div>
-              <span>{props.selectionCount} selected</span>
-            </div>
-          </div>
-        </div>
-      </React.Fragment>
+      <MapContextMenu
+        onChange={(value: string) => this.selectMenu(value)}
+        mouseLat={mouseLat}
+        mouseLon={mouseLon}
+        target={target}
+        coordinateValues={coordinateValues}
+        selectionCount={selectionCount}
+        closeMenu={this.triggerClick.bind(this)}
+      />
     )
   },
   tagName: CustomElements.register('map-context-menu'),
   className: 'composed-menu',
-  modelEvents: {},
-  events: {
-    'click > .interaction-view-details': 'triggerViewDetails',
-    'click > .interaction-view-details-selection':
-      'triggerViewDetailsSelection',
-    'click > .interaction-view-histogram-selection':
-      'triggerHistogramSelection',
-    'click > .interaction-view-histogram': 'triggerHistogram',
+  modelEvents: {
+    change: 'render',
+  },
+  selectMenu(value) {
+    switch (value) {
+      case 'Histogram':
+        this.triggerHistogram()
+        break
+      case 'HistogramSelection':
+        this.triggerHistogramSelection()
+        break
+      case 'Inspector':
+        this.triggerViewDetails()
+        break
+      case 'InspectorSelection':
+        this.triggerViewDetailsSelection()
+        break
+      default:
+        break
+    }
   },
   initialize: function() {
     this.debounceUpdateSelectionInterface()
@@ -166,7 +131,6 @@ module.exports = Marionette.LayoutView.extend({
       'update add remove reset',
       this.updateSelectionInterface
     )
-    this.selectionInterface.clearSelectedResults()
     this.selectionInterface.addSelectedResult(
       this.options.selectionInterface.getSelectedResults().models
     )

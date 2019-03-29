@@ -21,13 +21,26 @@ const Clipboard = require('clipboard')
 const announcement = require('component/announcement')
 
 type Props = {
-  clickLat: string
-  clickLon: string
-  clickDms: string
-  clickMgrs: string
-  clickUtmUps: string
+  coordinateValues: {
+    dms: string
+    lat: string
+    lon: string
+    mgrs: string
+    utmUps: string
+  }
   closeParent: () => void
 }
+
+const Label = styled.div`
+  display: inline-box;
+  margin-left: ${props => props.theme.minimumSpacing};
+`
+const Icon = styled.div`
+  margin-left: ${props => props.theme.minimumSpacing};
+  display: inline-block;
+  text-align: center;
+  width: ${props => props.theme.minimumFontSize};
+`
 
 const CustomDropdown = styled(Dropdown)`
   width: 100%;
@@ -74,6 +87,8 @@ const generateClipboardHandler = (
 }
 
 const render = (props: Props) => {
+  const { dms, lat, lon, mgrs, utmUps } = props.coordinateValues
+  const { closeParent } = props
   return (
     <CustomDropdown
       content={context => (
@@ -82,72 +97,60 @@ const render = (props: Props) => {
             icon="fa fa-clipboard"
             data-help="Copies the coordinates to your clipboard."
             onClick={generateClipboardHandler(
-              `${props.clickLat} ${props.clickLon}`,
+              `${lat} ${lon}`,
               context,
-              props.closeParent
+              closeParent
             )}
           >
             <Text>
               <Description>Decimal Degrees (DD)</Description>
-              {props.clickLat + ' ' + props.clickLon}
+              {lat + ' ' + lon}
             </Text>
           </MenuAction>
           <MenuAction
             icon="fa fa-clipboard"
             data-help="Copies the DMS coordinates to your clipboard."
-            onClick={generateClipboardHandler(
-              props.clickDms,
-              context,
-              props.closeParent
-            )}
+            onClick={generateClipboardHandler(dms, context, closeParent)}
           >
             <Text>
               <Description>Degrees Minutes Seconds (DMS)</Description>
-              {props.clickDms}
+              {dms}
             </Text>
           </MenuAction>
-          {props.clickMgrs ? (
+          {mgrs ? (
             <MenuAction
               icon="fa fa-clipboard"
               data-help="Copies the MGRS coordinates to your clipboard."
-              onClick={generateClipboardHandler(
-                props.clickMgrs,
-                context,
-                props.closeParent
-              )}
+              onClick={generateClipboardHandler(mgrs, context, closeParent)}
             >
               <Text>
                 <Description>MGRS</Description>
-                {props.clickMgrs}
+                {mgrs}
               </Text>
             </MenuAction>
           ) : null}
           <MenuAction
             icon="fa fa-clipboard"
             data-help="Copies the UTM/UPS coordinates to your clipboard."
-            onClick={generateClipboardHandler(
-              props.clickUtmUps,
-              context,
-              props.closeParent
-            )}
+            onClick={generateClipboardHandler(utmUps, context, closeParent)}
           >
             <Text>
               <Description>UTM/UPS</Description>
-              {props.clickUtmUps}
+              {utmUps}
             </Text>
           </MenuAction>
           <MenuAction
             icon="fa fa-clipboard"
             data-help="Copies the WKT of the coordinates to your clipboard."
             onClick={generateClipboardHandler(
-              `POINT (${props.clickLon} ${props.clickLat})`,
+              `POINT (${lon} ${lat})`,
               context,
-              props.closeParent
+              closeParent
             )}
           >
             <Text>
               <Description>Well Known Text (WKT)</Description>
-              POINT ({props.clickLon} {props.clickLat})
+              POINT ({lon} {lat})
             </Text>
           </MenuAction>
         </NavigationBehavior>
@@ -155,10 +158,10 @@ const render = (props: Props) => {
     >
       <div className="metacard-interaction interaction-copy-coordinates">
         <div className="interaction-icon fa fa-clipboard" />
-        <div className="interaction-text">
+        <Label className="interaction-text">
           Copy Coordinates as
-          <span className="fa fa-chevron-down fa-chevron-withmargin" />
-        </div>
+          <Icon className="fa fa-chevron-down fa-chevron-withmargin" />
+        </Label>
       </div>
     </CustomDropdown>
   )

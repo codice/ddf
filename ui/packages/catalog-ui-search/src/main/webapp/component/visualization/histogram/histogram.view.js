@@ -13,12 +13,14 @@
  *
  **/
 /*global define, window*/
+import * as React from 'react'
+import { HistogramContainer } from '../../../react-component/container/histogram'
+
 const wreqr = require('../../../js/wreqr.js')
 const $ = require('jquery')
 const _ = require('underscore')
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
-const template = require('./histogram.hbs')
 const Plotly = require('plotly.js/dist/plotly.js')
 const Property = require('../../property/property.js')
 const PropertyView = require('../../property/property.view.js')
@@ -246,7 +248,7 @@ function getLayout(plot) {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('histogram'),
-  template: template,
+  template: () => <HistogramContainer />,
   regions: {
     histogramAttribute: '.histogram-attribute',
   },
@@ -297,6 +299,7 @@ module.exports = Marionette.LayoutView.extend({
   updateHistogram: function() {
     var histogramElement = this.el.querySelector('.histogram-container')
     if (
+      histogramElement !== null &&
       histogramElement.children.length !== 0 &&
       this.histogramAttribute.currentView.model.getValue()[0] &&
       this.options.selectionInterface.getCompleteActiveSearchResults()
@@ -309,7 +312,10 @@ module.exports = Marionette.LayoutView.extend({
       )
       this.handleResize()
     } else {
-      this.el.querySelector('.histogram-container').innerHTML = ''
+      const container = this.el.querySelector('.histogram-container')
+      if (container) {
+        container.innerHTML = ''
+      }
     }
   },
   updateTheme: function(e) {
