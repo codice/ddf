@@ -9,6 +9,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/**
+ * ApplicationSetup needs to happen first.
+ * This ensures styles are applied correctly,
+ * because some of our styles have the same specificity as vendor
+ * styles.
+ */
+require('../js/ApplicationSetup')
 import ExtensionPoints, { ExtensionPointsType } from '../extension-points'
 
 export type EntryParameters = {
@@ -28,7 +35,7 @@ const entry = (extensionPoints: EntryParameters = {}) => {
   if (filterActions) {
     ExtensionPoints.filterActions = filterActions
   }
-  require('../js/ApplicationSetup')
+  require('../js/ApplicationStart')
 }
 
 export default entry
