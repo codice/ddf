@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.metacard;
 
-import static ddf.catalog.data.types.Security.ACCESS_ADMINISTRATORS;
-import static ddf.catalog.data.types.Security.ACCESS_GROUPS;
-import static ddf.catalog.data.types.Security.ACCESS_GROUPS_READ;
-import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS;
-import static ddf.catalog.data.types.Security.ACCESS_INDIVIDUALS_READ;
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -88,8 +83,6 @@ import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValueCollectionPermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -97,7 +90,6 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -117,7 +109,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.NotFoundException;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -496,49 +487,11 @@ public class MetacardApplication implements SparkApplication {
         "/workspaces",
         (req, res) -> {
           String email = getSubjectEmail();
-          Map<String, Result> workspaceMetacards;
-
-          // TODO: DDF-4249 to refactor this logic for PreQueryPlugin Access Control
-          Map<String, Set<String>> permissions = new HashMap<>();
-          if (StringUtils.isNotEmpty(
-              accessControlSecurityConfiguration.getSystemUserAttributeValue())) {
-            Set<String> systemUserSet =
-                new HashSet<>(
-                    Arrays.asList(
-                        accessControlSecurityConfiguration.getSystemUserAttributeValue()));
-            permissions.put(ACCESS_GROUPS, systemUserSet);
-            permissions.put(ACCESS_GROUPS_READ, systemUserSet);
-          }
-
-          KeyValueCollectionPermission securityPermission =
-              new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, permissions);
-
-          if (SecurityUtils.getSubject().isPermitted(securityPermission)) {
-            workspaceMetacards = util.getMetacardsByTag(WorkspaceConstants.WORKSPACE_TAG);
-          } else {
-            List<String> subjectRoles = getSubjectRoles();
-            Map<String, Collection<String>> attributeMap = new HashMap<>();
-            if (StringUtils.isNotEmpty(email)) {
-              attributeMap.put(Core.METACARD_OWNER, Collections.singletonList(email));
-              attributeMap.put(ACCESS_ADMINISTRATORS, Collections.singletonList(email));
-              attributeMap.put(ACCESS_INDIVIDUALS, Collections.singletonList(email));
-              attributeMap.put(ACCESS_INDIVIDUALS_READ, Collections.singletonList(email));
-            }
-
-            if (CollectionUtils.isNotEmpty(subjectRoles)) {
-              attributeMap.put(ACCESS_GROUPS_READ, subjectRoles);
-              attributeMap.put(ACCESS_GROUPS, subjectRoles);
-            }
-
-            workspaceMetacards =
-                util.getMetacardsWithTagByLikeAttributes(
-                    attributeMap, WorkspaceConstants.WORKSPACE_TAG);
-          }
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
           Set<String> ids =
               isEmpty(email) ? Collections.emptySet() : subscriptions.getSubscriptions(email);
 
-          return workspaceMetacards
+          return util.getMetacardsByTag(WorkspaceConstants.WORKSPACE_TAG)
               .entrySet()
               .stream()
               .map(Map.Entry::getValue)
