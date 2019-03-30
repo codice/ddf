@@ -1,14 +1,14 @@
 import * as React from 'react'
 
 type Props = {
-  dataStore: any
+  model: Backbone.Model
 }
 
-export default ({ dataStore }: Props) => {
+export default ({ model }: Props) => {
   return (
     <input
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-        dataStore.text = e.currentTarget.value
+        model.set('extensionData', e.currentTarget.value)
       }}
     />
   )
