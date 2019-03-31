@@ -68,11 +68,11 @@ const transformFilter = filter => {
       )
     }
 
-    const [property, distance, value] = params
+    const [type, distance, value] = params
 
     return {
       // this is confusing but 'type' on the model is actually the name of the property we're filtering on
-      type: property,
+      type,
       comparator: 'NEAR',
       value: [{ value, distance }],
     }
