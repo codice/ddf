@@ -15,7 +15,6 @@
 /*global define, alert, setTimeout*/
 const Marionette = require('marionette')
 const _ = require('underscore')
-const template = require('./filter.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const FilterComparatorDropdownView = require('../dropdown/filter-comparator/dropdown.filter-comparator.view.js')
 const MultivalueView = require('../multivalue/multivalue.view.js')
@@ -36,6 +35,8 @@ import {
   numberComparators,
   booleanComparators,
 } from './comparators'
+import * as React from 'react'
+import ExtensionPoints from '../../extension-points'
 
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
@@ -107,7 +108,35 @@ function comparatorToCQL() {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template() {
+    return (
+      <React.Fragment>
+        <div className="filter-rearrange">
+          <span className="cf cf-sort-grabber" />
+        </div>
+        <button className="filter-remove is-negative">
+          <span className="fa fa-minus" />
+        </button>
+        <div
+          className="filter-attribute"
+          data-help="Property to compare against."
+        />
+        <div
+          className="filter-comparator"
+          data-help="How to compare the value for this property against
+the provided value."
+        />
+        <div
+          className="filter-input"
+          data-help="The value for the property to use during comparison."
+        />
+        <ExtensionPoints.filterActions
+          model={this.model}
+          metacardDefinitions={metacardDefinitions}
+        />
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('filter'),
   attributes: function() {
     return { 'data-id': this.model.cid }

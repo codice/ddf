@@ -144,23 +144,30 @@ export const serialize = model => {
     const value = model.get('value')[0]
     const type = comparatorToCQL[comparator]
 
-    if (comparator === 'NEAR') {
-      return CQLUtils.generateFilterForFilterFunction('proximity', [
-        property,
-        value.distance,
-        value.value,
-      ])
+    let filter
+    switch (comparator) {
+      case 'NEAR':
+        filter = CQLUtils.generateFilterForFilterFunction('proximity', [
+          property,
+          value.distance,
+          value.value,
+        ])
+        break
+      case 'IS EMPTY':
+        filter = CQLUtils.generateIsEmptyFilter(property)
+        break
+      default:
+        filter = CQLUtils.generateFilter(
+          type,
+          property,
+          value === undefined ? '' : value
+        )
+        break
     }
-
-    if (comparator === 'IS EMPTY') {
-      return CQLUtils.generateIsEmptyFilter(property)
+    return {
+      ...filter,
+      extensionData: model.get('extensionData'),
     }
-
-    return CQLUtils.generateFilter(
-      type,
-      property,
-      value === undefined ? '' : value
-    )
   }
 }
 
@@ -177,8 +184,8 @@ export const deserialize = (filter = defaultFilter) => {
   return new FilterBuilderModel({
     operator: type,
     filters: new FilterBuilderCollection(
-      filters.map(
-        filter => (filter.filters !== undefined ? deserialize(filter) : filter)
+      filters.map(filter =>
+        filter.filters !== undefined ? deserialize(filter) : filter
       )
     ),
   })
