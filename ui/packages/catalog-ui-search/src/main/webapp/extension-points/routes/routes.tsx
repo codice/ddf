@@ -2,11 +2,9 @@ const plugin = require('../../plugins/router')
 
 // notfound route needs to come at the end otherwise no other routes will work
 const routes = {
-  ...plugin(
-    require('!../../js/router/routes-loader!../../js/router/routes.js')
-  ),
-  ...require('!../../js/router/routes-loader!../../js/router/routes-dev.js'),
-  ...require('!../../js/router/routes-loader!../../js/router/routes-notfound.js'),
+  ...plugin(require('!./definitions/loader!./definitions/base.js')),
+  ...require('!./definitions/loader!./definitions/dev.js'),
+  ...require('!./definitions/loader!./definitions/not-found.js'),
 }
 
 export default routes
