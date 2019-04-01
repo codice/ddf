@@ -220,7 +220,7 @@ var ResultSelector = Marionette.LayoutView.extend({
   },
   handleSelectionChange: function() {
     if (this.checkboxContainer.currentView) {
-      this.checkboxContainer.currentView.check(this.allSelected())
+      this.checkboxContainer.currentView.setCheck(this.allSelected())
     }
   },
   allSelected: function() {

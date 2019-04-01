@@ -362,7 +362,7 @@ const ResultItemView = Marionette.LayoutView.extend({
     const isSelected = this.isSelected()
     this.$el.toggleClass('is-selected', isSelected)
     if (this.checkbox.currentView) {
-      this.checkbox.currentView.check(isSelected)
+      this.checkbox.currentView.setCheck(isSelected)
     }
   },
   handleMetacardUpdate: function() {

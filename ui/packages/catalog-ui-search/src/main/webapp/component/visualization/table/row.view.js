@@ -78,7 +78,7 @@ module.exports = Marionette.LayoutView.extend({
     const isSelected = this.isSelected()
     this.$el.toggleClass('is-selected', isSelected)
     if (this.checkboxContainer.currentView) {
-      this.checkboxContainer.currentView.check(isSelected)
+      this.checkboxContainer.currentView.setCheck(isSelected)
     }
   },
   onRender: function() {

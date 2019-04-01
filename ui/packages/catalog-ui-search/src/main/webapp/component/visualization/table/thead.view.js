@@ -81,7 +81,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   updateCheckbox: function() {
     if (this.checkboxContainer.currentView) {
-      this.checkboxContainer.currentView.check(this.allSelected())
+      this.checkboxContainer.currentView.setCheck(this.allSelected())
     }
   },
   updateSorting: function(e) {

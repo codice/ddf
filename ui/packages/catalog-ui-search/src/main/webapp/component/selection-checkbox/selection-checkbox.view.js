@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
 const Marionette = require('marionette')
 import React from 'react'
 import styled from '../../react-component/styles/styled-components'
@@ -30,7 +29,7 @@ module.exports = Marionette.ItemView.extend({
   },
   handleClick(e) {
     e.stopPropagation()
-    this.check(!this.isSelected)
+    this.setCheck(!this.isSelected)
     this.options.onClick(this.isSelected)
   },
   template() {
@@ -47,7 +46,7 @@ module.exports = Marionette.ItemView.extend({
   initialize() {
     this.isSelected = this.options.isSelected
   },
-  check: function(isSelected) {
+  setCheck: function(isSelected) {
     this.isSelected = isSelected
     this.render()
   },
