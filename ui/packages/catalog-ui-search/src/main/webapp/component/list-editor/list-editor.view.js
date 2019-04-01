@@ -42,6 +42,9 @@ module.exports = Marionette.LayoutView.extend({
     listIcon: '.list-icon',
   },
   listTemplateId: 'custom',
+  initialize: function(options) {
+    this.model.set('showFooter', this.options.showFooter)
+  },
   onBeforeShow: function() {
     this.showListTitle()
     this.showListTemplate()

@@ -14,17 +14,49 @@ const Marionette = require('marionette')
 const Tabs = require('../tabs')
 const MetacardBasicView = require('../../editor/metacard-basic/metacard-basic.view.js')
 const MetacardAdvancedView = require('../../editor/metacard-advanced/metacard-advanced.view.js')
-const MetacardHistoryView = require('../../metacard-history/metacard-history.view.js')
 const MetacardAssociationsView = require('../../metacard-associations/metacard-associations.view.js')
-const MetacardQualityView = require('../../metacard-quality/metacard-quality.view.js')
-const MetacardActionsView = require('../../metacard-actions/metacard-actions.view.js')
-const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
 const MetacardPreviewView = require('../../metacard-preview/metacard-preview.view.js')
-import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
 import React from 'react'
+import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
+import MetacardArchive from '../../../react-component/container/metacard-archive'
+import MetacardActions from '../../../react-component/container/metacard-actions'
+import MetacardQuality from '../../../react-component/container/metacard-quality'
+import MetacardHistory from '../../../react-component/container/metacard-history'
 
 const MetacardOverwriteView = Marionette.LayoutView.extend({
   template: () => <MetacardOverwrite />,
+})
+
+const MetacardArchiveView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardArchive selectionInterface={this.options.selectionInterface} />
+    )
+  },
+})
+
+const MetacardActionsView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardActions selectionInterface={this.options.selectionInterface} />
+    )
+  },
+})
+
+const MetacardQualityView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardQuality selectionInterface={this.options.selectionInterface} />
+    )
+  },
+})
+
+const MetacardHistoryView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardHistory selectionInterface={this.options.selectionInterface} />
+    )
+  },
 })
 
 module.exports = Tabs.extend({

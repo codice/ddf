@@ -222,6 +222,55 @@ public class SystemPropertiesAdminTest {
     assertThat(systemProps.getProperty(SystemInfo.VERSION), equalTo("version"));
   }
 
+  @Test
+  public void testCorrectValuesAreWrittenAfterAnotherWrite() throws Exception {
+    String testPropertyKey = "test.password";
+    String testPropertyOldValue = "password";
+    String testPropertyNewValue = "aNewValue";
+
+    // Init a system properties admin
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+
+    // Check the value of test property
+    org.apache.felix.utils.properties.Properties systemDotProperties =
+        new org.apache.felix.utils.properties.Properties(systemPropsFile);
+    assertThat(systemDotProperties.getProperty(testPropertyKey), equalTo(testPropertyOldValue));
+
+    // Write the value of test property manually
+    systemDotProperties.setProperty(testPropertyKey, testPropertyNewValue);
+    systemDotProperties.save();
+
+    // Write out the installer properties
+    Map<String, String> map = new HashMap<>();
+    map.put(SystemBaseUrl.INTERNAL_HOST, "localhost");
+    map.put(SystemBaseUrl.INTERNAL_HTTP_PORT, "9999");
+    map.put(SystemBaseUrl.INTERNAL_HTTPS_PORT, "1111");
+    map.put(SystemBaseUrl.EXTERNAL_HOST, "localhost");
+    map.put(SystemBaseUrl.EXTERNAL_HTTP_PORT, "5678");
+    map.put(SystemBaseUrl.EXTERNAL_HTTPS_PORT, "1234");
+
+    spa.writeSystemProperties(map);
+    // Read the system dot properties file and make sure that the new values evaluate to what we
+    // expect
+    org.apache.felix.utils.properties.Properties systemProps =
+        new org.apache.felix.utils.properties.Properties(systemPropsFile);
+
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTP_PORT), equalTo("5678"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT), equalTo("1234"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HOST), equalTo("localhost"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTP_PORT), equalTo("9999"));
+    assertThat(systemProps.getProperty(SystemBaseUrl.INTERNAL_HTTPS_PORT), equalTo("1111"));
+    assertThat(systemProps.getProperty(SystemInfo.ORGANIZATION), equalTo("org"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_CONTACT), equalTo("contact"));
+    assertThat(systemProps.getProperty(SystemInfo.SITE_NAME), equalTo("site"));
+    assertThat(systemProps.getProperty(SystemInfo.VERSION), equalTo("version"));
+
+    // Test that the test property wasn't overridden
+    assertThat(systemProps.getProperty(testPropertyKey), equalTo(testPropertyNewValue));
+  }
+
   private String getDetailsValue(List<SystemPropertyDetails> props, String key) {
     for (SystemPropertyDetails spd : props) {
       if (spd.getKey().equals(key)) {

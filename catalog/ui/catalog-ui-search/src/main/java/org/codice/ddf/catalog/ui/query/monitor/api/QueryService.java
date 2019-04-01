@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.monitor.api;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 
 /** Determine if a query metacard is active. */
 public interface QueryService {

@@ -34,11 +34,13 @@ module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     mouseLat: undefined,
     mouseLon: undefined,
-    clickLat: undefined,
-    clickLon: undefined,
-    clickDms: undefined,
-    clickMgrs: undefined,
-    clickUtmUps: undefined,
+    coordinateValues: {
+      dms: '',
+      lat: '',
+      lon: '',
+      mgrs: '',
+      utmUps: '',
+    },
     target: undefined,
     targetMetacard: undefined,
   },
@@ -61,19 +63,18 @@ module.exports = Backbone.AssociatedModel.extend({
     const lat = this.get('mouseLat')
     const lon = this.get('mouseLon')
     const dms = `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`
-    // TODO: Move leaking defensive check knowledge to usng library (DDF-4335)
-    const mgrs =
-      lat > 84 || lat < -80
-        ? undefined
-        : converter.LLtoUSNG(lat, lon, usngPrecision)
+    const mgrs = converter.isInUPSSpace(lat)
+      ? undefined
+      : converter.LLtoUSNG(lat, lon, usngPrecision)
     const utmUps = converter.LLtoUTMUPS(lat, lon)
-
     this.set({
-      clickLat: lat,
-      clickLon: lon,
-      clickDms: dms,
-      clickMgrs: mgrs,
-      clickUtmUps: utmUps,
+      coordinateValues: {
+        lat,
+        lon,
+        dms,
+        mgrs,
+        utmUps,
+      },
     })
   },
 })

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 
 public interface WorkspaceService {

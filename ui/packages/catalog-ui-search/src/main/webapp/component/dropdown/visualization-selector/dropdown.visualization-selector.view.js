@@ -18,10 +18,23 @@ var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./dropdown.visualization-selector.hbs')
 var DropdownView = require('../dropdown.view')
-var ComponentView = require('../../visualization-selector/visualization-selector.view.js')
+import VisualizationSelector from '../../../react-component/presentation/visualization-selector/visualization-selector'
+import React from 'react'
+const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = DropdownView.extend({
   template: template,
   className: 'is-visualizationSelector is-button',
-  componentToShow: ComponentView,
+  componentToShow: Marionette.ItemView.extend({
+    template() {
+      return (
+        <VisualizationSelector
+          onClose={() => {
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+          }}
+          goldenLayout={this.options.goldenLayout}
+        />
+      )
+    },
+  }),
 })

@@ -23,7 +23,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_TAG;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TAG;
 import static org.codice.gsonsupport.GsonTypeAdapters.LIST_STRING;
 import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import static spark.Spark.after;
@@ -131,9 +131,9 @@ import org.codice.ddf.catalog.ui.metacard.history.HistoryResponse;
 import org.codice.ddf.catalog.ui.metacard.notes.NoteConstants;
 import org.codice.ddf.catalog.ui.metacard.notes.NoteMetacard;
 import org.codice.ddf.catalog.ui.metacard.notes.NoteUtil;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
@@ -668,67 +668,6 @@ public class MetacardApplication implements SparkApplication {
               .map(Result::getMetacard)
               .map(transformer::transform)
               .collect(Collectors.toList());
-        },
-        util::getJson);
-
-    post(
-        "/queries",
-        APPLICATION_JSON,
-        (req, res) -> {
-          Map<String, Object> body =
-              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
-
-          Metacard query = new QueryMetacardImpl(transformer.transform(body));
-          Metacard stored = saveMetacard(query);
-
-          res.status(201);
-          return transformer.transform(stored);
-        },
-        util::getJson);
-
-    put(
-        "/queries/:id",
-        (req, res) -> {
-          String queryId = req.params("id");
-          Map<String, Object> body =
-              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
-
-          Metacard query = new QueryMetacardImpl(transformer.transform(body));
-          Metacard updated = updateMetacard(queryId, query);
-
-          return transformer.transform(updated);
-        },
-        util::getJson);
-
-    get(
-        "/queries/:id",
-        (req, res) -> {
-          String id = req.params("id");
-          Metacard metacard = util.getMetacardById(id);
-
-          Set<String> metacardTags = metacard.getTags();
-
-          if (metacardTags == null || !metacardTags.contains(QUERY_TAG)) {
-            res.status(400);
-            return ImmutableMap.of("message", "Requested ID is not a query metacard.");
-          } else {
-            return transformer.transform(metacard);
-          }
-        },
-        util::getJson);
-
-    delete(
-        "/queries/:id",
-        APPLICATION_JSON,
-        (req, res) -> {
-          String queryId = req.params(":id");
-
-          WorkspaceMetacardImpl workspace = workspaceService.getWorkspaceFromQueryId(queryId);
-          workspace.removeQueryAssociation(queryId);
-          saveMetacard(workspace);
-
-          catalogFramework.delete(new DeleteRequestImpl(queryId));
-          return ImmutableMap.of("message", "Successfully deleted.");
         },
         util::getJson);
 

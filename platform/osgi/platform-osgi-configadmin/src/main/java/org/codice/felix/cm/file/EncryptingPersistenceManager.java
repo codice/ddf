@@ -66,7 +66,7 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
     EXCLUDED_PROPERTIES.add(FELIX_FILENAME);
   }
 
-  @VisibleForTesting final EncryptionAgent agent;
+  private final EncryptionAgent agent;
 
   public EncryptingPersistenceManager(PersistenceManager persistenceManager) {
     super(persistenceManager);
@@ -137,6 +137,11 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
     return value;
   }
 
+  // cannot use apache-commons libraries in this bundle
+  private boolean isBlank(String string) {
+    return string == null || string.trim().length() == 0;
+  }
+
   /**
    * PAX Logging might not be fully configured and ready if there is a failure in the agent's
    * constructor. To remedy this, we will cache failure data to later throw back.
@@ -162,10 +167,16 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
       if (initFailureMessage != null) {
         alertSystem(initFailureMessage, initException);
       }
+      if (isBlank(plainTextValue)) {
+        LOGGER.debug(
+            "Failed to encrypt value of {}, because it was null or blank.", plainTextValue);
+        return plainTextValue;
+      }
+
       try {
         return crypter.encrypt(plainTextValue);
       } catch (CrypterException e) {
-        LOGGER.warn(String.format("Failed to encrypt to bundle cache. %s", e.getCause()));
+        LOGGER.warn("Failed to encrypt to bundle cache. {}", e.getMessage());
         AUDIT_LOG.warn(AUDIT_MESSAGE);
         return plainTextValue;
       }
@@ -175,10 +186,16 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
       if (initFailureMessage != null) {
         alertSystem(initFailureMessage, initException);
       }
+      if (isBlank(encryptedValue)) {
+        LOGGER.debug(
+            "Failed to decrypt value of {}, because it was null or blank.", encryptedValue);
+        return encryptedValue;
+      }
+
       try {
         return crypter.decrypt(encryptedValue);
       } catch (CrypterException e) {
-        LOGGER.warn(String.format("Failed to decrypt from bundle cache. %s", e.getCause()));
+        LOGGER.warn("Failed to decrypt from bundle cache. {}", e.getMessage());
         return encryptedValue;
       }
     }

@@ -390,7 +390,7 @@ public class Security {
     return System.getProperty("org.codice.ddf.system.hostname");
   }
 
-  private KeyStore getSystemKeyStore() {
+  public KeyStore getSystemKeyStore() {
     KeyStore keyStore;
 
     try {

@@ -33,7 +33,6 @@ var LayersDropdown = require('../../dropdown/layers/dropdown.layers.view.js')
 var DropdownModel = require('../../dropdown/dropdown.js')
 var MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
 var MapModel = require('./map.model')
-var MapInfoView = require('../../map-info/map-info.view.js')
 var properties = require('../../../js/properties.js')
 var Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
@@ -41,6 +40,7 @@ const announcement = require('../../announcement')
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/container/map-settings/map-settings'
+import MapInfo from '../../../react-component/container/map-info/map-info'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -365,11 +365,14 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupMapInfo: function() {
-    this.mapInfo.show(
-      new MapInfoView({
-        model: this.mapModel,
-      })
-    )
+    const map = this.mapModel
+    const MapInfoView = Marionette.ItemView.extend({
+      template() {
+        return <MapInfo map={map} />
+      },
+    })
+
+    this.mapInfo.show(new MapInfoView())
   },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and

@@ -13,26 +13,32 @@
  */
 package ddf.security.encryption.crypter;
 
+import static ddf.security.encryption.crypter.Crypter.CHUNK_SIZE;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.google.common.io.ByteStreams;
 import ddf.security.SecurityConstants;
 import ddf.security.encryption.crypter.Crypter.CrypterException;
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class CrypterTest {
-  private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
-    TEMPORARY_FOLDER.create();
-    String keysetHome = TEMPORARY_FOLDER.newFolder("keysets").getAbsolutePath();
-    String associatedDataHome = TEMPORARY_FOLDER.newFolder("etc").getAbsolutePath();
+    String keysetHome = temporaryFolder.newFolder("keysets").getAbsolutePath();
+    String associatedDataHome = temporaryFolder.newFolder("etc").getAbsolutePath();
     System.setProperty(SecurityConstants.KEYSET_DIR, keysetHome);
     System.setProperty(
         SecurityConstants.ASSOCIATED_DATA_PATH,
@@ -41,7 +47,6 @@ public class CrypterTest {
 
   @After
   public void cleanUp() throws Exception {
-    TEMPORARY_FOLDER.delete();
     System.clearProperty(SecurityConstants.KEYSET_DIR);
     System.clearProperty(SecurityConstants.ASSOCIATED_DATA_PATH);
   }
@@ -57,28 +62,76 @@ public class CrypterTest {
 
   @Test
   public void testEncryptDecrypt() throws Exception {
-    final String unencryptedPassword = "protect";
+    final byte[] plainBytes = new byte[16];
+    new SecureRandom().nextBytes(plainBytes);
     final Crypter crypter = new Crypter();
 
-    final String encryptedPassword = crypter.encrypt(unencryptedPassword);
+    final byte[] encryptedBytes = crypter.encrypt(plainBytes);
+
+    final byte[] decryptedBytes = crypter.decrypt(encryptedBytes);
+
+    assertArrayEquals(plainBytes, decryptedBytes);
+  }
+
+  @Test
+  public void testEncryptDecryptString() throws Exception {
+    final String plainPassword = "protect";
+    final Crypter crypter = new Crypter();
+
+    final String encryptedPassword = crypter.encrypt(plainPassword);
 
     final String decryptedPassword = crypter.decrypt(encryptedPassword);
 
-    assertEquals(unencryptedPassword, decryptedPassword);
+    assertEquals(plainPassword, decryptedPassword);
+  }
+
+  @Test
+  public void testEncryptDecryptStream() throws Exception {
+    // make test data larger than chunk size
+    final byte[] plainBytes = new byte[CHUNK_SIZE * 3];
+    new SecureRandom().nextBytes(plainBytes);
+    final InputStream plainInputStream = new ByteArrayInputStream(plainBytes);
+    final Crypter crypter = new Crypter();
+
+    final InputStream encryptedInputStream = crypter.encrypt(plainInputStream);
+
+    final InputStream decryptedInputStream = crypter.decrypt(encryptedInputStream);
+
+    final byte[] decryptedBytes = ByteStreams.toByteArray(decryptedInputStream);
+
+    assertArrayEquals(plainBytes, decryptedBytes);
   }
 
   @Test(expected = CrypterException.class)
   public void testEncryptNull() {
     final Crypter crypter = new Crypter();
+    final String nullString = null;
 
-    crypter.encrypt(null);
+    crypter.encrypt(nullString);
+  }
+
+  @Test(expected = CrypterException.class)
+  public void testEncryptNullStream() {
+    final Crypter crypter = new Crypter();
+    final InputStream nullInputStream = null;
+
+    crypter.encrypt(nullInputStream);
   }
 
   @Test(expected = CrypterException.class)
   public void testEncryptEmpty() {
     final Crypter crypter = new Crypter();
+    final String emptyString = "";
 
-    crypter.encrypt("");
+    crypter.encrypt(emptyString);
+  }
+
+  @Test(expected = CrypterException.class)
+  public void testEncryptEmptyStream() {
+    final Crypter crypter = new Crypter();
+    final InputStream emptyInputStream = new ByteArrayInputStream("".getBytes());
+
+    crypter.encrypt(emptyInputStream);
   }
 
   @Test(expected = CrypterException.class)
@@ -91,8 +144,17 @@ public class CrypterTest {
   @Test(expected = CrypterException.class)
   public void testDecryptNull() throws Exception {
     final Crypter crypter = new Crypter();
+    final String nullString = null;
 
-    crypter.decrypt(null);
+    crypter.decrypt(nullString);
+  }
+
+  @Test(expected = CrypterException.class)
+  public void testDecryptNullStream() throws Exception {
+    final Crypter crypter = new Crypter();
+    final InputStream nullInputStream = null;
+
+    crypter.decrypt(nullInputStream);
   }
 
   @Test(expected = CrypterException.class)
@@ -100,6 +162,14 @@ public class CrypterTest {
     final Crypter crypter = new Crypter();
 
     crypter.decrypt("");
+  }
+
+  @Test(expected = CrypterException.class)
+  public void testDecryptEmptyStream() {
+    final Crypter crypter = new Crypter();
+    final InputStream emptyInputStream = new ByteArrayInputStream("".getBytes());
+
+    crypter.decrypt(emptyInputStream);
   }
 
   @Test

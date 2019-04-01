@@ -47,8 +47,6 @@ public class ZipDecompression implements InputCollectionTransformer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ZipCompression.class);
 
-  private ZipValidator zipValidator;
-
   /**
    * Transforms a Zip InputStream into a List of {@link Metacard}s. This method expects there to be
    * a filePath and fileName key-value pair passed in the arguments map.
@@ -75,15 +73,6 @@ public class ZipDecompression implements InputCollectionTransformer {
     }
 
     String zipFileName = (String) arguments.get(FILE_PATH);
-    String zipPath = zipFileName + arguments.get(FILE_NAME);
-
-    try {
-      zipValidator.validateZipFile(zipPath);
-    } catch (ZipValidationException e) {
-      throw new CatalogTransformerException(
-          "Unable to validate Zip InputStream.  Ensure that the zip file is signed properly using jarsigner and the appropriate certificates.",
-          e);
-    }
 
     Map<String, Metacard> metacards = decompressFile(inputStream, zipFileName);
     return metacards.values().stream().filter(Objects::nonNull).collect(Collectors.toList());
@@ -134,13 +123,5 @@ public class ZipDecompression implements InputCollectionTransformer {
       LOGGER.debug("Unable to create metacard from file {}", file.getName(), e);
     }
     return result;
-  }
-
-  public ZipValidator getZipValidator() {
-    return zipValidator;
-  }
-
-  public void setZipValidator(ZipValidator zipValidator) {
-    this.zipValidator = zipValidator;
   }
 }

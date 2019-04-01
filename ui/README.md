@@ -6,7 +6,7 @@ for javascript projects in DDF.
 To skip this module in a maven build, specify the `-pl !\ui` build flag.
 
 To build the `development` bundles in a maven build, specify the
-`-DwebBuildEnv=development` flag.
+`-DwebBuildEnv=dev` flag.
 
 **Warning:** If you choose to skip the ui module and the distribution
 module is unable to find a previously built artifact, the build will fail.

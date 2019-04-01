@@ -10,11 +10,19 @@
  *
  **/
 /*global define*/
-const _ = require('underscore')
+import React from 'react'
 const Tabs = require('../tabs')
-const store = require('../../../js/store.js')
+const Marionette = require('marionette')
 const MetacardsBasicView = require('../../editor/metacards-basic/metacards-basic.view.js')
-const MetacardArchiveView = require('../../metacard-archive/metacard-archive.view.js')
+import MetacardArchive from '../../../react-component/container/metacard-archive'
+
+const MetacardArchiveView = Marionette.LayoutView.extend({
+  template() {
+    return (
+      <MetacardArchive selectionInterface={this.options.selectionInterface} />
+    )
+  },
+})
 
 var MetacardsTabs = Tabs.extend({
   defaults: {

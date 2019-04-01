@@ -1,31 +1,3 @@
-@{customElementNamespace}inspector {
-  .customElement;
-  position: relative;
-
-  > .inspector-content {
-    display: block;
-    height: ~'calc(100% - @{minimumButtonSize})';
-  }
-
-  > .inspector-title {
-    text-align: center;
-    padding: 0px @minimumSpacing;
-  }
-
-  > .inspector-content,
-  > .inspector-title {
-    opacity: 1;
-    transition: opacity @coreTransitionTime linear;
-    transform: translateX(0%);
-  }
-
-  > .inspector-empty {
-    text-align: center;
-    display: none;
-    padding: 20px;
-  }
-}
-
 @{customElementNamespace}inspector.is-empty {
   overflow: hidden;
 

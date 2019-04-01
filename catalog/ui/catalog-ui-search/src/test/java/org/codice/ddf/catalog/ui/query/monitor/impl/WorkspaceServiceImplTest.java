@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.NotFoundException;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;

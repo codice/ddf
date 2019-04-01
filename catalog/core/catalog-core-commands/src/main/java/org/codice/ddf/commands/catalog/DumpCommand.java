@@ -39,6 +39,7 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +47,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +77,8 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.util.DigitalSignature;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
@@ -103,6 +109,8 @@ public class DumpCommand extends CqlCommands {
   private static final String CONTENT = "content";
 
   private static final int BUFFER_SIZE = 10_000_000;
+
+  private DigitalSignature signer;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -193,6 +201,14 @@ public class DumpCommand extends CqlCommands {
   )
   String zipFileName;
 
+  public DumpCommand() {
+    this.signer = new DigitalSignature();
+  }
+
+  public DumpCommand(DigitalSignature signer) {
+    this.signer = signer;
+  }
+
   @Override
   protected Object executeWithSubject() throws Exception {
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
@@ -265,7 +281,27 @@ public class DumpCommand extends CqlCommands {
     }
 
     if (StringUtils.isNotBlank(zipFileName)) {
-      createZip(catalog, queryRequest, dirPath + zipFileName, resultCount);
+      File outputFile = new File(dirPath + zipFileName);
+      createZip(catalog, queryRequest, outputFile, resultCount);
+
+      String alias =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty(SystemBaseUrl.EXTERNAL_HOST));
+      String password =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>)
+                  () -> System.getProperty("javax.net.ssl.keyStorePassword"));
+
+      try (InputStream inputStream = new FileInputStream(outputFile)) {
+        byte[] signature = signer.createDigitalSignature(inputStream, alias, password);
+
+        if (signature != null) {
+          String epoch = Long.toString(Instant.now().getEpochSecond());
+          String signatureFilepath = String.format("%sdump_%s.sig", dirPath, epoch);
+
+          FileUtils.writeByteArrayToFile(new File(signatureFilepath), signature);
+        }
+      }
     } else {
       ResultIterable.resultIterable(catalog::query, queryRequest)
           .stream()
@@ -410,9 +446,9 @@ public class DumpCommand extends CqlCommands {
   }
 
   private void createZip(
-      CatalogFacade catalog, QueryRequest queryRequest, String filePath, AtomicLong resultCount)
+      CatalogFacade catalog, QueryRequest queryRequest, File outputFile, AtomicLong resultCount)
       throws CatalogTransformerException {
-    try (FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+    try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
 
       // write the metacards to the zip
@@ -436,7 +472,8 @@ public class DumpCommand extends CqlCommands {
     } catch (IOException e) {
       throw new CatalogTransformerException(
           String.format(
-              "Error occurred when initializing/closing ZipOutputStream with path %s.", filePath),
+              "Error occurred when initializing/closing ZipOutputStream with path %s.",
+              outputFile.getAbsoluteFile()),
           e);
     }
   }

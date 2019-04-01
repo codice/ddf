@@ -1,37 +1,8 @@
 @{customElementNamespace}histogram {
   .customElement;
-
-  position: relative;
-  padding: 20px;
-
   > .histogram-attribute {
-    display: block;
-
     .property-revert {
       display: none !important;
-    }
-  }
-
-  > .histogram-container {
-    display: block;
-    height: ~'calc(100% - 135px)';
-  }
-
-  > .histogram-attribute,
-  > .histogram-container {
-    opacity: 1;
-    transition: opacity @coreTransitionTime linear;
-    transform: translateX(0%);
-  }
-
-  > .histogram-empty,
-  > .histogram-no-matching-data {
-    text-align: center;
-    padding: @largeSpacing;
-    display: none;
-
-    span {
-      color: @warning-color;
     }
   }
 }
