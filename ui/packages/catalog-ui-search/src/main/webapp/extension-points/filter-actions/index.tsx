@@ -1,1 +1,1 @@
-export { default } from './filter-actions'
+export { default, Props } from './filter-actions'

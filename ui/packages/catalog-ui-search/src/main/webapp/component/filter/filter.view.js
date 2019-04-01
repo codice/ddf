@@ -133,6 +133,7 @@ the provided value."
         <ExtensionPoints.filterActions
           model={this.model}
           metacardDefinitions={metacardDefinitions}
+          options={this.options}
         />
       </React.Fragment>
     )
