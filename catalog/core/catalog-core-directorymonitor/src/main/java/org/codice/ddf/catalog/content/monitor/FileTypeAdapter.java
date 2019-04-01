@@ -21,6 +21,11 @@ import com.google.gson.JsonParseException;
 import java.io.File;
 import java.lang.reflect.Type;
 
+/**
+ * A type adapter to fix an issue where gson deserialization of files corrupts the absolute path
+ *
+ * <p>https://github.com/google/gson/issues/414#issuecomment-237377182
+ */
 public class FileTypeAdapter implements JsonDeserializer<File> {
   @Override
   public File deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
