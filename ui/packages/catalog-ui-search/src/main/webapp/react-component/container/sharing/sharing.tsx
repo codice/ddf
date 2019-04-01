@@ -49,6 +49,7 @@ export type Item = {
 }
 
 export class Sharing extends React.Component<Props, State> {
+  usersToUnsubscribe: string[]
   constructor(props: Props) {
     super(props)
 
@@ -58,6 +59,7 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
   componentDidMount = () => {
+    this.usersToUnsubscribe = []
     this.fetchWorkspace(this.props.id).then(data => {
       const metacard = data
       const res = Restrictions.from(metacard)
@@ -168,7 +170,9 @@ export class Sharing extends React.Component<Props, State> {
     if (res.status !== 200) {
       throw new Error()
     }
-
+    if (this.usersToUnsubscribe.length > 0) {
+      this.unSubscribeUsers()
+    }
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)
     }
@@ -229,6 +233,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   remove = (i: number) => {
+    this.usersToUnsubscribe.push(this.state.items[i].value)
     this.state.items.splice(i, 1)
     this.setState({
       items: this.state.items,
@@ -253,6 +258,18 @@ export class Sharing extends React.Component<Props, State> {
     // resetting to a saved initial state is the preferred style, but
     // the react wrappers do not currently support updating state properly
     this.componentDidMount()
+  }
+
+  unSubscribeUsers = () => {
+    this.usersToUnsubscribe.forEach(async user => {
+      await fetch(
+        `/search/catalog/internal/unsubscribe/` + this.props.id + '/' + user,
+        {
+          method: 'POST',
+        }
+      )
+    })
+    this.usersToUnsubscribe = []
   }
 
   render() {

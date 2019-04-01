@@ -474,6 +474,21 @@ public class MetacardApplication implements SparkApplication {
         },
         util::getJson);
 
+    post(
+        "/unsubscribe/:id/:email",
+        (req, res) -> {
+          String email = req.params(":email");
+          String id = req.params(":id");
+          if (isEmpty(email)) {
+            throw new NotFoundException(
+                "Unable to un-subscribe from workspace, " + email + " is not a valid email.");
+          }
+          subscriptions.removeEmail(id, email);
+          return ImmutableMap.of(
+              "message", String.format("Successfully un-subscribed %s from id = %s.", email, id));
+        },
+        util::getJson);
+
     get(
         "/workspaces/:id",
         (req, res) -> {
