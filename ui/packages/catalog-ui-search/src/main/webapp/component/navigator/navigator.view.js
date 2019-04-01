@@ -58,6 +58,15 @@ module.exports = plugin(
               <div className="workspaces-indicator" />
             </button>
             <div className="workspaces-save" />
+            {properties.standaloneSearchesEnabled && (
+              <button
+                className="navigation-choice is-neutral choice-searches is-button"
+                data-fragment="searches"
+              >
+                <span className="fa fa-search" />
+                <span>Searches</span>
+              </button>
+            )}
             <button
               className="navigation-choice is-neutral choice-upload is-button"
               data-fragment="ingest"

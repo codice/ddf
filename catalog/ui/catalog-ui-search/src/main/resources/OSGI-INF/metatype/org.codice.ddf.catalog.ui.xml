@@ -204,6 +204,12 @@
             type="Boolean"
             default="true"/>
 
+        <AD id="standaloneSearchesEnabled"
+          name="Enable Standalone Searches"
+          description="Enable Standalone Searches in the UI."
+          type="Boolean"
+          default="false"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."

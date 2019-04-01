@@ -71,7 +71,7 @@ public class QueryMetacardApplicationTest {
   private static final FilterBuilder FILTER_BUILDER = mock(FilterBuilder.class);
 
   private static final QueryMetacardApplication APPLICATION =
-      new QueryMetacardApplication(CATALOG_FRAMEWORK, ENDPOINT_UTIL, FILTER_BUILDER);
+      new QueryMetacardApplicationUnderTest(CATALOG_FRAMEWORK, ENDPOINT_UTIL, FILTER_BUILDER);
 
   private static String localhostUrl;
 
@@ -202,6 +202,19 @@ public class QueryMetacardApplicationTest {
     } catch (IOException e) {
       throw new AssertionError(
           "Problem while enumerating ports (specifically, port " + socket.getLocalPort() + ")", e);
+    }
+  }
+
+  private static class QueryMetacardApplicationUnderTest extends QueryMetacardApplication {
+
+    private QueryMetacardApplicationUnderTest(
+        CatalogFramework catalogFramework, EndpointUtil endpointUtil, FilterBuilder filterBuilder) {
+      super(catalogFramework, endpointUtil, filterBuilder);
+    }
+
+    @Override
+    String getSubjectEmail() {
+      return "example@domain.com";
     }
   }
 }

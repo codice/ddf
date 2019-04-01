@@ -85,4 +85,13 @@
       classes: 'is-bold',
     },
   },
+  searches: {
+    patterns: ['searches(/)'],
+    component:
+      'react-component/container/searches-container/searches-container',
+    menu: {
+      text: 'Searches',
+      classes: 'is-bold',
+    },
+  },
 })
