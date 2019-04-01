@@ -9,42 +9,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import Searches from '../../presentation/searches'
+import SearchInteractionsPresentation from '../../presentation/search-interactions'
 
-type Search = {
+type Props = {
   id: string
-  title: string
-  owner: string
-  created: string
-  modified: string
 }
 
-type State = {
-  searches: Search[]
-}
-
-class SearchesContainer extends React.Component<{}, State> {
-  constructor(props: {}) {
+class SearchInteractions extends React.Component<Props, {}> {
+  constructor(props: Props) {
     super(props)
-    this.state = {
-      searches: [
-        {
-          id: 'metacardId',
-          title: 'Search Title',
-          owner: 'christopher.clark.bell@protonmail.com',
-          created: 'April 01, 2019',
-          modified: 'April 01, 2019',
-        },
-      ],
-    }
   }
 
   render() {
-    return <Searches searches={this.state.searches} />
+    return (
+      <SearchInteractionsPresentation
+        editSearch={() => {}}
+        deleteSearch={() => {}}
+        runSearch={() => {}}
+      />
+    )
   }
 }
 
-export default hot(module)(SearchesContainer)
+export default hot(module)(SearchInteractions)
