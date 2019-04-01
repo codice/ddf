@@ -19,8 +19,8 @@ import styled from '../../react-component/styles/styled-components'
 
 const Root = styled.div`
   display: block;
-  width: @minimumSpacing;
-  padding-right: @minimumButtonSize;
+  width: ${props => props.theme.minimumSpacing};
+  padding-right: ${props => props.theme.minimumButtonSize};
   cursor: pointer;
 `
 
