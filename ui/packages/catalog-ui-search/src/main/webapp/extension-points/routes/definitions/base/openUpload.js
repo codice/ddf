@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openUpload: {
     patterns: ['uploads/:id'],
     component: 'component/upload/upload.view',
@@ -6,4 +6,4 @@ module.exports = {
       component: 'component/upload-menu/upload-menu.view',
     },
   },
-}
+})

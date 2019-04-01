@@ -1,4 +1,4 @@
-module.exports = {
+;({
   newForm: {
     patterns: ['forms/:id'],
     component: 'component/search-form-editor/search-form-editor.view',
@@ -7,4 +7,4 @@ module.exports = {
       classes: 'is-bold',
     },
   },
-}
+})

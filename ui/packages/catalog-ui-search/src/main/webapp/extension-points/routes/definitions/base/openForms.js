@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openForms: {
     patterns: ['forms(/)'],
     component: 'component/tabs/search-form/tabs.search-form.view',
@@ -7,4 +7,4 @@ module.exports = {
       classes: 'is-bold',
     },
   },
-}
+})

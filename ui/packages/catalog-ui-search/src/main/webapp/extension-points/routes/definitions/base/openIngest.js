@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openIngest: {
     patterns: ['ingest(/)'],
     component: 'component/ingest/ingest.view',
@@ -7,4 +7,4 @@ module.exports = {
       classes: 'is-bold',
     },
   },
-}
+})

@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openSources: {
     patterns: ['sources(/)'],
     component: 'react-component/container/sources-container/sources-container',
@@ -9,4 +9,4 @@ module.exports = {
       classes: 'is-bold',
     },
   },
-}
+})

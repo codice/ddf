@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openMetacard: {
     patterns: ['metacards/:id'],
     component: 'component/metacard/metacard.view',
@@ -6,4 +6,4 @@ module.exports = {
       component: 'component/metacard-menu/metacard-menu.view',
     },
   },
-}
+})

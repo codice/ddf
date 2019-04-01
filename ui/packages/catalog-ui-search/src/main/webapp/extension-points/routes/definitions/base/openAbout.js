@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openAbout: {
     patterns: ['about(/)'],
     component: 'react-component/container/about-container/about-container',
@@ -7,4 +7,4 @@ module.exports = {
       classes: 'is-bold',
     },
   },
-}
+})

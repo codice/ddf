@@ -1,4 +1,4 @@
-module.exports = {
+;({
   home: {
     patterns: ['(?*)', 'workspaces(/)'],
     component:
@@ -7,4 +7,4 @@ module.exports = {
       component: 'component/workspaces-menu/workspaces-menu.view',
     },
   },
-}
+})

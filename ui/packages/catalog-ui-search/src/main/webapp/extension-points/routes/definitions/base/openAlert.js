@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openAlert: {
     patterns: ['alerts/:id'],
     component: 'component/alert/alert.view',
@@ -6,4 +6,4 @@ module.exports = {
       component: 'component/alert-menu/alert-menu.view',
     },
   },
-}
+})

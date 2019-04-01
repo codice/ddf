@@ -1,4 +1,4 @@
-module.exports = {
+;({
   openResultForms: {
     patterns: ['resultForms(/)'],
     component: 'component/tabs/result-form/tabs.result-form.view',
@@ -7,4 +7,4 @@ module.exports = {
       classes: 'is-bold',
     },
   },
-}
+})
