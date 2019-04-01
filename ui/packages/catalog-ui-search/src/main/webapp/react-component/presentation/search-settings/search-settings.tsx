@@ -61,8 +61,6 @@ type Props = {
 export default hot(module)(
   withListenTo(
     class SearchSettings extends React.Component<Props, {}> {
-      propertyModel: any
-      queryModel: any
       querySettingsView: any
       propertyView: any
       constructor(props: Props) {
@@ -121,7 +119,7 @@ export default hot(module)(
       }
       updateResultCountSettings = () => {
         user.getPreferences().set({
-          resultCount: this.propertyModel.getValue()[0],
+          resultCount: this.propertyView.model.getValue()[0],
         })
       }
       updateSearchSettings = () => {
@@ -145,22 +143,20 @@ export default hot(module)(
           .get('resultCount')
       }
       setPropertyView = () => {
-        this.propertyModel = new Property({
-          label: 'Number of Search Results',
-          value: [this.getUserResultCount()],
-          min: 1,
-          max: properties.resultCount,
-          type: 'RANGE',
-          isEditing: true,
-        })
         this.propertyView = new PropertyView({
-          model: this.propertyModel,
+          model: new Property({
+            label: 'Number of Search Results',
+            value: [this.getUserResultCount()],
+            min: 1,
+            max: properties.resultCount,
+            type: 'RANGE',
+            isEditing: true,
+          }),
         })
       }
       setQuerySettingsView = () => {
-        this.queryModel = new QueryModel.Model()
         this.querySettingsView = new QuerySettingsView({
-          model: this.queryModel,
+          model: new QueryModel.Model(),
           inSearchSettings: true,
         })
       }
