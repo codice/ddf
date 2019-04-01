@@ -1,3 +1,3 @@
-const dev = require('!./loader!./dev/dev.js')
+const dev = require('!./routes-loader!./dev/dev.js')
 
 export default dev

@@ -1,2 +1,2 @@
-const notFound = require('!./loader!./not-found/not-found.js')
+const notFound = require('!./routes-loader!./not-found/not-found.js')
 export default notFound
