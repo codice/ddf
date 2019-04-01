@@ -25,6 +25,7 @@ const Root = styled.div`
   border-left: 1px solid
     ${props =>
       transparentize(0.9, readableColor(props.theme.backgroundContent))};
+  display: inline-block;
 `
 
 const MultiSelectButton = styled(Button)`
@@ -37,31 +38,55 @@ const disabledStyle = {
   opacity: 0.3,
 }
 
+type MultiSelectActionProps = {
+  isDisabled: Boolean
+  onClick: (props: any) => void
+  disabledTitle: string
+  enabledTitle: string
+  icon: string
+  text: string
+}
+
+export const MultiSelectAction = (props: MultiSelectActionProps) => (
+  <Root>
+    <MultiSelectButton
+      buttonType={buttonTypeEnum.neutral}
+      style={props.isDisabled ? disabledStyle : {}}
+      onClick={
+        !props.isDisabled
+          ? props.onClick
+          : () => {
+              return null
+            }
+      }
+      title={props.isDisabled ? props.disabledTitle : props.enabledTitle}
+    >
+      <span style={{ paddingRight: '5px' }} className={props.icon} />
+      <span>{props.text}</span>
+    </MultiSelectButton>
+  </Root>
+)
+
 const Export = (props: Props) => (
-  <MultiSelectButton
-    style={props.isDisabled ? disabledStyle : {}}
-    buttonType={buttonTypeEnum.neutral}
+  <MultiSelectAction
+    isDisabled={props.isDisabled}
     onClick={props.handleExport}
-    title={
-      props.isDisabled
-        ? 'Select one or more results to export.'
-        : 'Export selected result(s).'
-    }
-  >
-    <span style={{ paddingRight: '5px' }} className="fa fa-share" />
-    <span>Export</span>
-  </MultiSelectButton>
+    disabledTitle="Select one or more results to export."
+    enabledTitle="Export selected result(s)."
+    icon="fa fa-share"
+    text="Export"
+  />
 )
 
 const buttons = plugin([Export])
 
 const render = (props: Props) => {
   return (
-    <Root>
+    <>
       {buttons.map((Component: any, i: number) => (
         <Component key={i} {...props} />
       ))}
-    </Root>
+    </>
   )
 }
 
