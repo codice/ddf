@@ -150,6 +150,7 @@ public class FrameworkProducer extends DefaultProducer {
     } catch (SourceUnavailableException | IngestException e) {
       exchange.getIn().setBody(new ArrayList<Metacard>());
       LOGGER.debug("Exception cataloging metacards", e);
+      throw new FrameworkProducerException(e);
     }
   }
 
