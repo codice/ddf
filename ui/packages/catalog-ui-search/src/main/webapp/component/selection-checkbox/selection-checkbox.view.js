@@ -15,11 +15,16 @@
 /*global define, setTimeout*/
 const Marionette = require('marionette')
 import React from 'react'
-const CustomElements = require('../../js/CustomElements.js')
-var metacardDefinitions = require('../singletons/metacard-definitions.js')
+import styled from '../../react-component/styles/styled-components'
+
+const Root = styled.div`
+  display: block;
+  width: @minimumSpacing;
+  padding-right: @minimumButtonSize;
+  cursor: pointer;
+`
 
 module.exports = Marionette.ItemView.extend({
-  tagName: CustomElements.register('selection-checkbox'),
   events: {
     'click span': 'handleClick',
   },
@@ -30,17 +35,20 @@ module.exports = Marionette.ItemView.extend({
   },
   template() {
     return (
-      <React.Fragment>
-        <span className="checked fa fa-check-square-o" />
-        <span className="not-checked fa fa-square-o" />
-      </React.Fragment>
+      <Root>
+        {this.isSelected ? (
+          <span className="fa fa-check-square-o" />
+        ) : (
+          <span className="fa fa-square-o" />
+        )}
+      </Root>
     )
   },
   initialize() {
-    this.check(this.options.isSelected)
+    this.isSelected = this.options.isSelected
   },
   check: function(isSelected) {
     this.isSelected = isSelected
-    this.$el.toggleClass('is-checked', isSelected)
+    this.render()
   },
 })
