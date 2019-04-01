@@ -208,7 +208,7 @@ export const SourcesLink = ({
   )
 }
 
-const SearchFormsLink = ({
+export const SearchFormsLink = ({
   navigateToRoute,
 }: {
   navigateToRoute: Props['navigateToRoute']
@@ -228,7 +228,7 @@ const SearchFormsLink = ({
   )
 }
 
-const ResultFormsLink = ({
+export const ResultFormsLink = ({
   navigateToRoute,
 }: {
   navigateToRoute: Props['navigateToRoute']
