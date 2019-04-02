@@ -423,7 +423,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     mockVerifierEndpoint.assertIsSatisfied();
   }
 
-  @Test
+  @Test(expected = CamelExecutionException.class)
   /** Operation: CREATE Body contains: Metacard */
   public void testCreateWithIngestException() throws Exception {
     resetMocks();
@@ -440,15 +440,6 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
     // Exercise the route with a CREATE operation
     template.sendBodyAndHeader("direct:sampleInput", metacard1, "Operation", "CREATE");
-
-    // Verify that the number of metacards in the exchange after the records
-    // is identical to the input
-    assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-    final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-    final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
-    assertListSize(cardsCreated, 0);
-
-    mockVerifierEndpoint.assertIsSatisfied();
   }
 
   @Test
@@ -589,7 +580,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     mockVerifierEndpoint.assertIsSatisfied();
   }
 
-  @Test
+  @Test(expected = CamelExecutionException.class)
   /** Operation: UPDATE Body contains: Metacard */
   public void testUpdateWithIngestException() throws Exception {
     resetMocks();
@@ -617,15 +608,6 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
     // Exercise the route with a UPDATE operation
     template.sendBodyAndHeader("direct:sampleInput", metacards, "Operation", "UPDATE");
-
-    // Verify that the number of metacards in the exchange after the records
-    // is identical to the input
-    assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-    final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-    final List<Update> cardsUpdated = (List<Update>) exchange.getIn().getBody();
-    assertListSize(cardsUpdated, 0);
-
-    mockVerifierEndpoint.assertIsSatisfied();
   }
 
   @Test
@@ -700,7 +682,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     mockVerifierEndpoint.assertIsSatisfied();
   }
 
-  @Test
+  @Test(expected = CamelExecutionException.class)
   /** Operation: DELETE Body contains: 12345678900987654321abcdeffedcba */
   public void testDeleteWithIngestException() throws Exception {
     resetMocks();
@@ -724,15 +706,6 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
     // Exercise the route with a DELETE operation
     template.sendBodyAndHeader("direct:sampleInput", metacardIds, "Operation", "DELETE");
-
-    // Verify that the number of metacards in the exchange after the records
-    // is identical to the input
-    assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-    final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-    final List<Update> cardsDeleted = (List<Update>) exchange.getIn().getBody();
-    assertListSize(cardsDeleted, 0);
-
-    mockVerifierEndpoint.assertIsSatisfied();
   }
 
   @Test

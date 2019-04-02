@@ -60,6 +60,14 @@ In the case of the UPDATE, it will be updated with the updated metacards and wit
 
 |===
 
+
+[NOTE]
+====
+If there is an exception thrown while the route is being executed, a
+FrameworkProducerException will be thrown causing the route to fail
+with a CamelExecutionException.
+====
+
 ====== Samples
 
 This example demonstrates:
