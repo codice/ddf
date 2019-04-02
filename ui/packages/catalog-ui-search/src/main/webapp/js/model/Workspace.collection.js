@@ -79,6 +79,8 @@ module.exports = Backbone.Collection.extend({
       title = '*'
     } else {
       cqlQuery = "anyText ILIKE '" + cql.translateUserqlToCql(text) + "'"
+      // bubbles up failure to parent if CQL cannot be parsed
+      cql.read(cqlQuery)
     }
     var queryForWorkspace = new Query.Model({
       title: title,

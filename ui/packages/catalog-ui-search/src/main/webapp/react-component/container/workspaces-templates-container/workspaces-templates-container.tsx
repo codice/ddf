@@ -15,6 +15,8 @@ import { hot } from 'react-hot-loader'
 
 const store = require('../../../js/store.js')
 const LoadingView = require('../../../component/loading/loading.view.js')
+const announcement = require('../../../component/announcement')
+
 const wreqr = require('../../../js/wreqr.js')
 const properties = require('../../../js/properties.js')
 
@@ -36,8 +38,16 @@ class WorkspacesTemplatesContainer extends React.Component<Props, State> {
     }
   }
   startAdhocSearch() {
-    this.prepForCreateNewWorkspace()
-    store.get('workspaces').createAdhocWorkspace(this.state.value)
+    try {
+      store.get('workspaces').createAdhocWorkspace(this.state.value)
+      this.prepForCreateNewWorkspace()
+    } catch (err) {
+      announcement.announce({
+        title: 'Error',
+        message: 'CQL Query Could Not be Parsed',
+        type: 'error',
+      })
+    }
   }
   onChange(value: string) {
     this.setState({
