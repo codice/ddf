@@ -160,7 +160,7 @@
                             *
                         </Import-Package>
                         <Export-Package>
-                            org.codice.ddf.rest.impl.action.*
+                            org.codice.ddf.rest.impl.*
                         </Export-Package>
                     </instructions>
                 </configuration>
