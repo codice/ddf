@@ -19,7 +19,20 @@ const Backbone = require('backbone')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
-const LayerItemView = require('./layer-item.view')
+
+import * as React from 'react'
+import LayerItem from '../../react-component/layer-item'
+
+const LayerItemView = Marionette.ItemView.extend({
+  attributes: function() {
+    return {
+      'data-id': this.model.id,
+    }
+  },
+  template() {
+    return <LayerItem layer={this.model} options={this.options} />
+  },
+})
 
 module.exports = Marionette.CollectionView.extend({
   childView: LayerItemView,

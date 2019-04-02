@@ -9,10 +9,31 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { CustomElement } from './custom-element'
-export { ChangeBackground } from './change-background'
-export { Dropshadow, DropshadowLight } from './dropshadow'
-export { GrabCursor } from './grab-cursor'
-export { IsButton } from './is-button'
-export { HighlightBehavior } from './highlight-behavior'
-export { DisabledBehavior } from './disabled-behavior'
+
+export type LayerInfo = {
+  name: string
+  id: string
+  warning: string
+  isRemovable: boolean
+}
+
+export type Order = {
+  order: number
+  isBottom: boolean
+  isTop: boolean
+}
+
+export type Visibility = {
+  alpha: number
+  show: boolean
+}
+
+export type Actions = {
+  updateLayerShow: () => void
+  updateLayerAlpha: (e: any) => void
+  moveDown: (e: any) => void
+  moveUp: (e: any) => void
+  onRemove: () => void
+}
+
+export { default } from './layer-item'
