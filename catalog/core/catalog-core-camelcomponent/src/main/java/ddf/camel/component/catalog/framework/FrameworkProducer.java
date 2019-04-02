@@ -147,6 +147,7 @@ public class FrameworkProducer extends DefaultProducer {
     } catch (ClassCastException cce) {
       exchange.getIn().setBody(new ArrayList<Metacard>());
       LOGGER.debug("Received a non-String as the operation type");
+      throw new FrameworkProducerException(cce);
     } catch (SourceUnavailableException | IngestException e) {
       LOGGER.debug("Exception cataloging metacards", e);
       throw new FrameworkProducerException(e);
