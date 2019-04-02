@@ -58,115 +58,113 @@ type Props = {
   showFooter: boolean
 } & WithBackboneProps
 
-export default hot(module)(
-  withListenTo(
-    class SearchSettings extends React.Component<Props, {}> {
-      querySettingsView: any
-      propertyView: any
-      constructor(props: Props) {
-        super(props)
-        this.setQuerySettingsView()
-        this.setPropertyView()
-      }
-      render() {
-        return (
-          <Root>
-            <div className="editor-properties">
-              <PropertyResultCount>
-                <MarionetteRegionContainer
-                  view={this.propertyView}
-                  replaceElement
-                />
-              </PropertyResultCount>
-              <div className="is-header">Defaults</div>
-              <QuerySettings className="property-search-settings">
-                <MarionetteRegionContainer view={this.querySettingsView} />
-              </QuerySettings>
-            </div>
-            <EditorFooter {...this.props}>
-              <button className="is-negative" onClick={this.triggerCancel}>
-                <span className="fa fa-times" />
-                <span>Cancel</span>
-              </button>
-              <button className="is-positive" onClick={this.triggerSave}>
-                <span className="fa fa-floppy-o" />
-                <span>Save</span>
-              </button>
-            </EditorFooter>
-          </Root>
-        )
-      }
-      triggerSave = () => {
-        this.updateResultCountSettings()
-        this.updateSearchSettings()
-        this.props.listenTo(
-          ConfirmationView.generateConfirmation({
-            prompt: 'Do you want to apply the new defaults to this search?',
-            no: 'No',
-            yes: 'Apply',
-          }),
-          'change:choice',
-          (confirmation: any) => {
-            if (confirmation.get('choice')) {
-              this.props.model.applyDefaults()
-            }
-          }
-        )
-        user.savePreferences()
-        if (!!this.props.onClose) {
-          this.props.onClose()
+class SearchSettings extends React.Component<Props, {}> {
+  querySettingsView: any
+  propertyView: any
+  constructor(props: Props) {
+    super(props)
+    this.setQuerySettingsView()
+    this.setPropertyView()
+  }
+  render() {
+    return (
+      <Root>
+        <div className="editor-properties">
+          <PropertyResultCount>
+            <MarionetteRegionContainer
+              view={this.propertyView}
+              replaceElement
+            />
+          </PropertyResultCount>
+          <div className="is-header">Defaults</div>
+          <QuerySettings className="property-search-settings">
+            <MarionetteRegionContainer view={this.querySettingsView} />
+          </QuerySettings>
+        </div>
+        <EditorFooter {...this.props}>
+          <button className="is-negative" onClick={this.triggerCancel}>
+            <span className="fa fa-times" />
+            <span>Cancel</span>
+          </button>
+          <button className="is-positive" onClick={this.triggerSave}>
+            <span className="fa fa-floppy-o" />
+            <span>Save</span>
+          </button>
+        </EditorFooter>
+      </Root>
+    )
+  }
+  triggerSave = () => {
+    this.updateResultCountSettings()
+    this.updateSearchSettings()
+    this.props.listenTo(
+      ConfirmationView.generateConfirmation({
+        prompt: 'Do you want to apply the new defaults to this search?',
+        no: 'No',
+        yes: 'Apply',
+      }),
+      'change:choice',
+      (confirmation: any) => {
+        if (confirmation.get('choice')) {
+          this.props.model.applyDefaults()
         }
       }
-      updateResultCountSettings = () => {
-        user.getPreferences().set({
-          resultCount: this.propertyView.model.getValue()[0],
-        })
-      }
-      updateSearchSettings = () => {
-        user
-          .getPreferences()
-          .get('querySettings')
-          .set(this.querySettingsView.toJSON())
-      }
-      triggerCancel = () => {
-        this.setPropertyView()
-        this.setQuerySettingsView()
-        if (!!this.props.onClose) {
-          this.props.onClose()
-        }
-        this.forceUpdate()
-      }
-      getUserResultCount = () => {
-        return user
-          .get('user')
-          .get('preferences')
-          .get('resultCount')
-      }
-      setPropertyView = () => {
-        this.propertyView = new PropertyView({
-          model: new Property({
-            label: 'Number of Search Results',
-            value: [this.getUserResultCount()],
-            min: 1,
-            max: properties.resultCount,
-            type: 'RANGE',
-            isEditing: true,
-          }),
-        })
-      }
-      setQuerySettingsView = () => {
-        this.querySettingsView = new QuerySettingsView({
-          model: new QueryModel.Model(),
-          inSearchSettings: true,
-        })
-      }
-      componentWillUnmount = () => {
-        if (!this.props.showFooter) {
-          this.updateResultCountSettings()
-          this.updateSearchSettings()
-          user.savePreferences()
-        }
-      }
+    )
+    user.savePreferences()
+    if (!!this.props.onClose) {
+      this.props.onClose()
     }
-  )
-)
+  }
+  updateResultCountSettings = () => {
+    user.getPreferences().set({
+      resultCount: this.propertyView.model.getValue()[0],
+    })
+  }
+  updateSearchSettings = () => {
+    user
+      .getPreferences()
+      .get('querySettings')
+      .set(this.querySettingsView.toJSON())
+  }
+  triggerCancel = () => {
+    this.setPropertyView()
+    this.setQuerySettingsView()
+    if (!!this.props.onClose) {
+      this.props.onClose()
+    }
+    this.forceUpdate()
+  }
+  getUserResultCount = () => {
+    return user
+      .get('user')
+      .get('preferences')
+      .get('resultCount')
+  }
+  setPropertyView = () => {
+    this.propertyView = new PropertyView({
+      model: new Property({
+        label: 'Number of Search Results',
+        value: [this.getUserResultCount()],
+        min: 1,
+        max: properties.resultCount,
+        type: 'RANGE',
+        isEditing: true,
+      }),
+    })
+  }
+  setQuerySettingsView = () => {
+    this.querySettingsView = new QuerySettingsView({
+      model: new QueryModel.Model(),
+      inSearchSettings: true,
+    })
+  }
+  componentWillUnmount = () => {
+    if (!this.props.showFooter) {
+      this.updateResultCountSettings()
+      this.updateSearchSettings()
+      user.savePreferences()
+    }
+  }
+}
+
+export default hot(module)(withListenTo(SearchSettings))
