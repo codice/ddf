@@ -79,7 +79,7 @@ export const SourcesIndicator = styled<
     opacity ${props => props.theme.coreTransitionTime} ease-out;
 `
 
-export const Link = styled(Button)`
+export const LinkBase = styled(Button)`
   display: block;
   padding: ${props => props.theme.largeSpacing};
   height: auto;
@@ -112,11 +112,30 @@ export const Link = styled(Button)`
   }
 `
 
+export const Link = ({
+  onClick,
+  children,
+  title,
+}: {
+  onClick: React.HTMLProps<HTMLButtonElement>['onClick']
+  children: any
+  title?: React.HTMLProps<HTMLButtonElement>['title']
+}) => {
+  return (
+    <LinkBase
+      fadeUntilHover
+      buttonType={buttonTypeEnum.neutral}
+      onClick={onClick}
+      title={title}
+    >
+      {children}
+    </LinkBase>
+  )
+}
+
 export const ProductLink = ({ navigateToRoute, branding, product }: Props) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('workspaces')
       }}
@@ -136,8 +155,6 @@ export const WorkspaceLink = ({
 }) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('workspaces')
       }}
@@ -169,8 +186,6 @@ export const UploadLink = ({
   if (uploadEnabled) {
     return (
       <Link
-        buttonType={buttonTypeEnum.neutral}
-        className="is-neutral is-button"
         onClick={() => {
           navigateToRoute('ingest')
         }}
@@ -192,8 +207,6 @@ export const SourcesLink = ({
 }) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('sources')
       }}
@@ -215,8 +228,6 @@ export const SearchFormsLink = ({
 }) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('forms')
       }}
@@ -235,8 +246,6 @@ export const ResultFormsLink = ({
 }) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('resultForms')
       }}
@@ -246,10 +255,6 @@ export const ResultFormsLink = ({
       <div className="forms-indicator" />
     </Link>
   )
-}
-
-export const LegacyNavigationExtensions = () => {
-  return <div className="navigation-extensions" />
 }
 
 export const UpperNavigationLinks = ({
@@ -271,7 +276,6 @@ export const UpperNavigationLinks = ({
       />
       <SearchFormsLink navigateToRoute={navigateToRoute} />
       <ResultFormsLink navigateToRoute={navigateToRoute} />
-      <LegacyNavigationExtensions />
     </>
   )
 }
@@ -286,8 +290,6 @@ export const RecentWorkspaceLink = ({
   if (recentWorkspace) {
     return (
       <Link
-        buttonType={buttonTypeEnum.neutral}
-        className="is-neutral is-button"
         title={`Most Recent Workspace: ${recentWorkspace.title}`}
         onClick={() => {
           navigateToRoute(`workspaces/${recentWorkspace.id}`)
@@ -312,8 +314,6 @@ export const RecentMetacardLink = ({
   if (recentMetacard) {
     return (
       <Link
-        buttonType={buttonTypeEnum.neutral}
-        className="is-neutral is-button"
         title={`Most Recent Metacard: ${
           recentMetacard.metacard.properties.title
         }`}
@@ -362,8 +362,6 @@ export const AboutLink = ({
 }) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('about')
       }}
@@ -383,8 +381,6 @@ export const DevelopmentLink = ({
   if (isDevelopment) {
     return (
       <Link
-        buttonType={buttonTypeEnum.neutral}
-        className="is-neutral is-button"
         onClick={() => {
           navigateToRoute('_dev')
         }}
@@ -406,8 +402,6 @@ export const HomeLink = ({
 }) => {
   return (
     <Link
-      buttonType={buttonTypeEnum.neutral}
-      className="is-neutral is-button"
       onClick={() => {
         navigateToRoute('_home')
       }}

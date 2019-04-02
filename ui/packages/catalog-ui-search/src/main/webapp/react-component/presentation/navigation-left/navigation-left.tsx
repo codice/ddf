@@ -14,7 +14,6 @@ import styled from '../../styles/styled-components'
 import UnsavedIndicator from '../unsaved-indicator'
 const SlideoutLeftViewInstance = require('../../../component/singletons/slideout.left.view-instance.js')
 import ExtensionPoints from '../../../extension-points'
-//const NavigatorView = require('../../../component/navigator/navigator.view.js')
 import { Button, buttonTypeEnum } from '../button'
 const HandlebarsHelpers = require('../../../js/HandlebarsHelpers')
 import { hot } from 'react-hot-loader'
