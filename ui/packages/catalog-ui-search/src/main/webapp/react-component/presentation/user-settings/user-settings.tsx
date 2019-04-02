@@ -12,9 +12,9 @@
 import * as React from 'react'
 import ThemeSettings from '../../container/theme-settings'
 import AlertSettings from '../../container/alert-settings'
-const MapSettings = require('../../../component/layers/layers.view.js')
-const SearchSettings = require('../../../component/search-settings/search-settings.view.js')
+import SearchSettings from '../../../react-component/presentation/search-settings/search-settings'
 import HiddenSettings from '../../../react-component/container/user-blacklist/user-blacklist'
+const MapSettings = require('../../../component/layers/layers.view.js')
 const TimeSettings = require('../../../component/time-settings/time-settings.view.js')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import styled from '../../styles/styled-components'
@@ -141,9 +141,7 @@ class UserSettings extends React.Component<Props, State> {
             text="Search Options"
             icon="fa fa-search"
             onClick={() => {
-              this.updateComponent(
-                <MarionetteRegionContainer view={SearchSettings} />
-              )
+              this.updateComponent(<SearchSettings showFooter={false} />)
             }}
             disabled={Boolean(component)}
           />

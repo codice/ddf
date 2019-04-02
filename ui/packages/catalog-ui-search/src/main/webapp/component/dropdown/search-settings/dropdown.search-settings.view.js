@@ -18,13 +18,28 @@ const _ = require('underscore')
 const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-settings.hbs')
-const ComponentView = require('../../search-settings/search-settings.view.js')
+const CustomElements = require('../../../js/CustomElements.js')
+
+import React from 'react'
+import SearchSettings from '../../../react-component/presentation/search-settings/search-settings'
 const store = require('../../../js/store.js')
 
 module.exports = DropdownView.extend({
   template: template,
   className: 'is-search-settings',
-  componentToShow: ComponentView,
+  componentToShow: Marionette.LayoutView.extend({
+    template() {
+      return (
+        <SearchSettings
+          onClose={() => {
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+          }}
+          model={this.options.modelForComponent}
+          showFooter={true}
+        />
+      )
+    },
+  }),
   initialize: function() {
     DropdownView.prototype.initialize.call(this)
   },

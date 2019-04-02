@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,26 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="editor-properties">
-    <div class="property-result-count">
-    </div>
-    <div class="is-header">Defaults</div>
-    <div class="property-search-settings">
-    </div>
-</div>
-<div class="editor-footer">
-    <button class="editor-cancel is-negative">
-        <span class="fa fa-times"></span>
-        <span>
-            Cancel
-        </span>
-    </button><!-- 
-    --><button class="editor-save is-positive">
-        <span class="fa fa-floppy-o">
-        </span>
-        <span>
-            Save
-        </span>
-    </button>
-</div>
+export { default } from './search-settings'
