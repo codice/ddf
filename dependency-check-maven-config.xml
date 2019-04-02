@@ -527,6 +527,7 @@
         <cve>CVE-2016-0785</cve>
         <cve>CVE-2016-6811</cve>
         <cve>CVE-2016-4461</cve>
+        <cve>CVE-2018-11766</cve>
     </suppress>
     <suppress>
         <notes>
