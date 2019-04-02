@@ -76,7 +76,7 @@ import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.SpellCheckResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -277,8 +277,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
     long maxHits = Integer.MIN_VALUE;
     String queryToResend = query.get("q");
-    for (SpellCheckResponse.Collation collation :
-        solrResponse.getSpellCheckResponse().getCollatedResults()) {
+    for (Collation collation : solrResponse.getSpellCheckResponse().getCollatedResults()) {
       if (maxHits < collation.getNumberOfHits()) {
         maxHits = collation.getNumberOfHits();
         queryToResend = collation.getCollationQueryString();
