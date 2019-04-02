@@ -13,6 +13,7 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import Searches from '../../presentation/searches'
+import fetch from '../../utils/fetch'
 
 type Search = {
   id: string
@@ -30,16 +31,18 @@ class SearchesContainer extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props)
     this.state = {
-      searches: [
-        {
-          id: 'metacardId',
-          title: 'Search Title',
-          owner: 'christopher.clark.bell@protonmail.com',
-          created: 'April 01, 2019',
-          modified: 'April 01, 2019',
-        },
-      ],
+      searches: [],
     }
+  }
+
+  componentDidMount() {
+    fetch('./internal/queries')
+      .then(response => response.json())
+      .then((searches: Search[]) => {
+        this.setState({
+          searches: searches,
+        })
+      })
   }
 
   render() {

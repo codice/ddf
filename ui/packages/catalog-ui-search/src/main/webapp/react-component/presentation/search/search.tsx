@@ -30,6 +30,7 @@ const Card = styled.div`
 
   &:hover {
     cursor: pointer;
+    border-color: rgba(255, 255, 255, 0.2);
   }
 `
 
@@ -91,7 +92,7 @@ const Search = (props: Props) => {
         </Dropdown>
       </Header>
       <Body>
-        <Item>Owned by: {props.owner}</Item>
+        <Item>Owner: {props.owner}</Item>
         <Item>Created: {props.created}</Item>
         <Item>Modified: {props.modified}</Item>
       </Body>
