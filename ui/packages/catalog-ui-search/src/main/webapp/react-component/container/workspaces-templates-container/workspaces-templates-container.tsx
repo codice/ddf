@@ -40,7 +40,7 @@ class WorkspacesTemplatesContainer extends React.Component<Props, State> {
   startAdhocSearch() {
     try {
       store.get('workspaces').createAdhocWorkspace(this.state.value)
-      this.prepForCreateNewWorkspace()
+      this.navigateToNewWorkspace()
     } catch (err) {
       announcement.announce({
         title: 'Error',
@@ -54,7 +54,7 @@ class WorkspacesTemplatesContainer extends React.Component<Props, State> {
       value,
     })
   }
-  prepForCreateNewWorkspace() {
+  navigateToNewWorkspace() {
     var loadingview = new LoadingView()
     store.get('workspaces').once('sync', function(workspace: any) {
       loadingview.remove()
