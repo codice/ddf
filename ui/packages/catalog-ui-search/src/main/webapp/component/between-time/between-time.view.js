@@ -96,6 +96,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   isValid() {
     const value = this.getModelValue()
+    if (value === undefined) {
+      return false
+    }
     const from = moment(value.from, moment.ISO_8601)
     const to = moment(value.to, moment.ISO_8601)
     return from.isValid() && to.isValid() && from.isBefore(to)
