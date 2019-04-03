@@ -23,45 +23,52 @@ const Root = styled.div`
   cursor: pointer;
 `
 
-const SelectItemToggle = Marionette.ItemView.extend({
-  events: {
-    'click span': 'handleClick',
-  },
-  handleClick(e) {
-    e.stopPropagation()
+const createToggle = ({ isSelected, handleClick }) => {
+  return Marionette.ItemView.extend({
+    events: {
+      'click span': 'handleClick',
+    },
+    handleClick(e) {
+      e.stopPropagation()
+      handleClick.call(this)
+    },
+    template() {
+      const className = `fa fa-${this.isSelected() ? 'check-' : ''}square-o`
+      return (
+        <Root>
+          <span className={className} />
+        </Root>
+      )
+    },
+    isSelected() {
+      return isSelected.call(this)
+    },
+    initialize() {
+      this.listenTo(
+        this.options.selectionInterface.getSelectedResults(),
+        'update add remove reset',
+        this.render
+      )
+    },
+  })
+}
+
+const SelectItemToggle = createToggle({
+  handleClick() {
     if (this.isSelected()) {
       this.options.selectionInterface.removeSelectedResult(this.model)
     } else {
       this.options.selectionInterface.addSelectedResult(this.model)
     }
   },
-  template() {
-    const className = `fa fa-${this.isSelected() ? 'check-' : ''}square-o`
-    return (
-      <Root>
-        <span className={className} />
-      </Root>
-    )
-  },
-  isSelected: function() {
+  isSelected() {
     const selectedResults = this.options.selectionInterface.getSelectedResults()
     return Boolean(selectedResults.get(this.model.id))
   },
-  initialize() {
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'update add remove reset',
-      this.render
-    )
-  },
 })
 
-const SelectAllToggle = Marionette.ItemView.extend({
-  events: {
-    'click span': 'handleClick',
-  },
-  handleClick(e) {
-    e.stopPropagation()
+const SelectAllToggle = createToggle({
+  handleClick() {
     if (this.isSelected()) {
       this.options.selectionInterface.clearSelectedResults()
     } else {
@@ -69,28 +76,13 @@ const SelectAllToggle = Marionette.ItemView.extend({
       this.options.selectionInterface.addSelectedResult(currentResults.models)
     }
   },
-  template() {
-    const className = `fa fa-${this.isSelected() ? 'check-' : ''}square-o`
-    return (
-      <Root>
-        <span className={className} />
-      </Root>
-    )
-  },
-  isSelected: function() {
+  isSelected() {
     const currentResultsLength = this.options.selectionInterface.getActiveSearchResults()
       .length
     return (
       currentResultsLength > 0 &&
       currentResultsLength ===
         this.options.selectionInterface.getSelectedResults().length
-    )
-  },
-  initialize() {
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'update add remove reset',
-      this.render
     )
   },
 })
