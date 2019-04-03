@@ -266,6 +266,27 @@ public class HandlebarsWfsFeatureTransformerTest {
     }
   }
 
+  @Test
+  public void xmlAttributesCanBeMapped() {
+    final List<String> mappings = new ArrayList<>(getMappings());
+    mappings.add(createMapping(Core.TITLE, "PeterPan@attr1", "{{PeterPan@attr1}}"));
+    mappings.add(createMapping(Core.DESCRIPTION, "PanTopic@attr1", "{{PanTopic@attr1}}"));
+    mappings.add(createMapping(Core.METACARD_OWNER, "PanTopic@attr2", "{{PanTopic@attr2}}"));
+    transformer.setAttributeMappings(mappings);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer did not return a metacard.", metacardOptional.isPresent(), equalTo(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertDefaultAttributesExist(metacard);
+    assertExpectedAttributes(metacard);
+
+    assertThat(getAttributeValue(Core.TITLE, metacard), is("value1"));
+    assertThat(getAttributeValue(Core.DESCRIPTION, metacard), is("value2"));
+    assertThat(getAttributeValue(Core.METACARD_OWNER, metacard), is("value3"));
+  }
+
   private void assertDefaultAttributesExist(Metacard metacard) {
     assertThat(metacard.getEffectiveDate(), notNullValue());
     assertThat(metacard.getModifiedDate(), notNullValue());
