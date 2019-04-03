@@ -1,8 +1,8 @@
 import * as React from 'react'
-import * as PopoutView from '../../../component/dropdown/popout/dropdown.popout.view'
-import * as ResultAddView from '../../../component/result-add/result-add.view'
+const PopoutView = require('../../../component/dropdown/popout/dropdown.popout.view')
+const ResultAddView = require('../../../component/result-add/result-add.view')
 import { Model, Props } from '.'
-import * as store from '../../../js/store'
+const store = require('../../../js/store')
 import MarionetteRegionContainer from '../marionette-region-container'
 import { hot } from 'react-hot-loader'
 

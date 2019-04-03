@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
-import * as router from '../../../component/router/router'
+const router = require('../../../component/router/router')
 import { Props } from '.'
 import { hot } from 'react-hot-loader'
 const wreqr = require('wreqr')

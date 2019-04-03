@@ -12,7 +12,7 @@
 import { readableColor } from 'polished'
 import { css } from '../styled-components'
 
-export const ChangeBackground = newBackground => {
+export const ChangeBackground = (newBackground: string) => {
   return css`
     background: ${newBackground};
     color: ${readableColor(newBackground)};

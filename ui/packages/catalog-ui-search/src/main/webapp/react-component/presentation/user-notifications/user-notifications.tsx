@@ -12,14 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import * as React from 'react'
 import styled from '../../styles/styled-components'
-import withListenTo from '../../container/backbone-container'
+import withListenTo, {
+  WithBackboneProps,
+} from '../../container/backbone-container'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 const NotificationGroupView = require('../../../component/notification-group/notification-group.view.js')
 const user = require('../../../component/singletons/user-instance.js')
 const moment = require('moment')
 const userNotifications = require('../../../component/singletons/user-notifications.js')
+
+type Props = WithBackboneProps
 
 const Empty = styled.div`
   transition: transform ${props => props.theme.coreTransitionTime} linear;
@@ -40,7 +44,7 @@ const Notifications = styled.div`
   padding: ${props => props.theme.mediumSpacing};
 `
 
-const informalName = daysAgo => {
+const informalName = (daysAgo: any) => {
   switch (daysAgo) {
     case 0:
       return 'Today'
@@ -56,17 +60,17 @@ const informalName = daysAgo => {
   }
 }
 
-const listPreviousDays = numDays => {
+const listPreviousDays = (numDays: any) => {
   if (numDays < 7) {
     return new NotificationGroupView({
-      filter: model => {
+      filter: (model: any) => {
         return moment().diff(model.get('sentAt'), 'days') === numDays
       },
       date: informalName(numDays),
     })
   } else {
     return new NotificationGroupView({
-      filter: model => {
+      filter: (model: any) => {
         return moment().diff(model.get('sentAt'), 'days') >= 7
       },
       date: 'Older',
@@ -76,8 +80,9 @@ const listPreviousDays = numDays => {
 
 const dayRange = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
-class UserNotifications extends React.Component {
-  constructor(props) {
+class UserNotifications extends React.Component<Props, {}> {
+  notificationGroups: any
+  constructor(props: Props) {
     super(props)
     this.props.listenTo(userNotifications, 'add remove update', () =>
       this.setState({})
