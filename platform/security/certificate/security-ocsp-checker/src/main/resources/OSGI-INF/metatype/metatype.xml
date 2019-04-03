@@ -21,12 +21,13 @@
             required="true"
             type="Boolean"
             default="false"/>
-        <AD name="OCSP server URL"
-            id="ocspServerUrl"
-            required="true"
+        <AD name="OCSP server URLs"
+            id="ocspServerUrls"
+            required="false"
             type="String"
+            cardinality="-1"
             default=""
-            description="Sets the Online Certificate Status Protocol (OCSP) server address."/>
+            description="Sets the Online Certificate Status Protocol (OCSP) server addresses."/>
     </OCD>
     <Designate pid="org.codice.ddf.security.ocsp.checker.OcspChecker">
         <Object ocdref="org.codice.ddf.security.ocsp.checker.OcspChecker"/>

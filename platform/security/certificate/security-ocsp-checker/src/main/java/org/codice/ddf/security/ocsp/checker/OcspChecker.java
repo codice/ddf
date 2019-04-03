@@ -13,22 +13,44 @@
  */
 package org.codice.ddf.security.ocsp.checker;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AccessDescription;
+import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateID;
+import org.bouncycastle.cert.ocsp.CertificateStatus;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.OCSPReq;
 import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
@@ -40,6 +62,7 @@ import org.bouncycastle.operator.DigestCalculator;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.OcspService;
@@ -57,7 +80,7 @@ public class OcspChecker implements OcspService {
   private final EventAdmin eventAdmin;
 
   private boolean ocspEnabled;
-  private String ocspServerUrl;
+  private List<String> ocspServerUrls;
 
   public OcspChecker(ClientFactoryFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
@@ -65,14 +88,16 @@ public class OcspChecker implements OcspService {
   }
 
   /**
-   * Checks the whether the given {@param certs} are revoked or not against the OCSP server.
+   * Checks whether the given {@param certs} are revoked or not against the configured OCSP server
+   * urls + the optionally given OCSP server url in the given {@param certs}.
    *
-   * @param certs - an array of certificates to verify
-   * @return true if the certificates are not revoked or if they could not be properly checked
-   *     against the OCSP server. Returns false if any of them are revoked.
+   * @param certs - an array of certificates to verify.
+   * @return true if the certificates are good or if they could not be properly checked against the
+   *     OCSP server. Returns false if any of them are revoked.
    */
+  @Override
   public boolean passesOcspCheck(X509Certificate[] certs) {
-    if (!ocspEnabled || ocspServerUrl == null) {
+    if (!ocspEnabled) {
       LOGGER.debug("OCSP check is not enabled. Skipping.");
       return true;
     }
@@ -81,17 +106,14 @@ public class OcspChecker implements OcspService {
       try {
         Certificate certificate = convertToBouncyCastleCert(cert);
         OCSPReq ocspRequest = generateOcspRequest(certificate);
-        Response response = sendOcspRequest(ocspRequest);
-        OCSPResp ocspResponse = createOcspResponse(response);
-        boolean certIsValid = isOCSPResponseValid(ocspResponse);
-        if (!certIsValid) {
+        List<OCSPResp> ocspResponses = sendOcspRequests(cert, ocspRequest);
+        if (anyOcspResponseStatusIsRevoked(ocspResponses)) {
           SecurityLogger.audit(
-              "Certificate {} has been revoked by the OCSP server {}.", cert, ocspServerUrl);
+              "Certificate {} has been revoked by the OCSP server {}.", cert, ocspServerUrls);
           LOGGER.debug("Certificate has been revoked by the OCSP server.");
           return false;
         }
-      } catch (OcspCheckerException e) {
-        // ignore
+      } catch (OcspCheckerException ignore) {
       }
     }
     // If an error occurred, the certificates will not be validated and will be permitted.
@@ -100,12 +122,11 @@ public class OcspChecker implements OcspService {
   }
 
   /**
-   * Converts a {@link java.security.cert.X509Certificate} to a {@link
-   * org.bouncycastle.asn1.x509.Certificate}
+   * Converts a {@link java.security.cert.X509Certificate} to a {@link Certificate}.
    *
-   * @param cert - the X509Certificate to convert
-   * @return a Bouncy Castle certificate
-   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
+   * @param cert - the X509Certificate to convert.
+   * @return a {@link Certificate}.
+   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs.
    */
   @VisibleForTesting
   Certificate convertToBouncyCastleCert(X509Certificate cert) throws OcspCheckerException {
@@ -123,21 +144,22 @@ public class OcspChecker implements OcspService {
   /**
    * Creates an {@link OCSPReq} to send to the OCSP server for the given certificate.
    *
-   * @param cert - certificate to verify
+   * @param cert - the certificate to verify
    * @return the created OCSP request
    * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
    */
   @VisibleForTesting
   OCSPReq generateOcspRequest(Certificate cert) throws OcspCheckerException {
     try {
+      X509CertificateHolder issuerCert = resolveIssuerCertificate(cert);
+
       JcaDigestCalculatorProviderBuilder digestCalculatorProviderBuilder =
           new JcaDigestCalculatorProviderBuilder();
       DigestCalculatorProvider digestCalculatorProvider = digestCalculatorProviderBuilder.build();
       DigestCalculator digestCalculator = digestCalculatorProvider.get(CertificateID.HASH_SHA1);
 
       CertificateID certId =
-          new CertificateID(
-              digestCalculator, new X509CertificateHolder(cert), cert.getSerialNumber().getValue());
+          new CertificateID(digestCalculator, issuerCert, cert.getSerialNumber().getValue());
 
       OCSPReqBuilder ocspReqGenerator = new OCSPReqBuilder();
       ocspReqGenerator.addRequest(certId);
@@ -145,105 +167,231 @@ public class OcspChecker implements OcspService {
 
     } catch (OCSPException | OperatorCreationException e) {
       postErrorEvent(
-          "Unable to create a OCSP request. The certificate status could not be verified. "
+          "Unable to create an OCSP request. The certificate status could not be verified. "
               + e.getMessage());
       throw new OcspCheckerException();
     }
   }
 
   /**
-   * Sends the {@param ocspReq} request and returns the returned Response
+   * Returns an {@link X509CertificateHolder} containing the issuer of the passed in {@param cert}.
+   * Search is performed in the system truststore.
    *
-   * @param ocspReq - the OCSP request to send
-   * @return the response from the OCSP server
-   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
+   * @param cert - the {@link Certificate} to get the issuer from.
+   * @return {@link X509CertificateHolder} containing the issuer of the passed in {@param cert}.
+   * @throws OcspCheckerException if the issuer cannot be resolved.
    */
-  @VisibleForTesting
-  Response sendOcspRequest(OCSPReq ocspReq) throws OcspCheckerException {
+  private X509CertificateHolder resolveIssuerCertificate(Certificate cert)
+      throws OcspCheckerException {
+    X500Name issuerName = cert.getIssuer();
+
+    String trustStorePath =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) SecurityConstants::getTruststorePath);
+    String trustStorePass =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) SecurityConstants::getTruststorePassword);
+
+    if (isBlank(trustStorePath) || isBlank(trustStorePass)) {
+      throw new OcspCheckerException("Problem retrieving truststore properties.");
+    }
+
+    KeyStore truststore;
+
+    try (InputStream truststoreInputStream = new FileInputStream(trustStorePath)) {
+      truststore = SecurityConstants.newTruststore();
+      truststore.load(truststoreInputStream, trustStorePass.toCharArray());
+    } catch (CertificateException | IOException | KeyStoreException | NoSuchAlgorithmException e) {
+      throw new OcspCheckerException(
+          String.format("Problem loading truststore on path %s", trustStorePath));
+    }
+
     try {
-      SecureCxfClientFactory cxfClientFactory =
-          factory.getSecureCxfClientFactory(ocspServerUrl, WebClient.class);
-      WebClient client =
-          cxfClientFactory
-              .getWebClient()
-              .accept("application/ocsp-response")
-              .type("application/ocsp-request");
-
-      return client.post(ocspReq.getEncoded());
-
-    } catch (ProcessingException | IOException e) {
-      postErrorEvent(
-          "Unable to send OCSP request. The certificate status could not be verified. "
-              + e.getMessage());
-      throw new OcspCheckerException();
+      return getCertFromTruststoreWithX500Name(issuerName, truststore);
+    } catch (OcspCheckerException e) {
+      throw new OcspCheckerException("Problem finding issuer in truststore.", e);
     }
   }
 
   /**
-   * Creates a {@link OCSPResp} from the given {@link Response}
+   * Returns an {@link X509CertificateHolder} containing the issuer of the given {@param name}.
+   * Search is performed in the given {@param truststore}.
    *
-   * @param response - the response to convert to
-   * @return an OCSP response of the given response
-   * @throws OcspCheckerException after posting an alert to the admin console, if any error occurs
+   * @param name - the {@link X500Name} of the issuer.
+   * @param truststore - the {@link KeyStore} to check.
+   * @return {@link X509CertificateHolder} of the certificate with the given {@param name}.
+   * @throws OcspCheckerException if the {@param name} cannot be found in the {@param truststore}.
+   */
+  private X509CertificateHolder getCertFromTruststoreWithX500Name(
+      X500Name name, KeyStore truststore) throws OcspCheckerException {
+    Enumeration<String> aliases;
+
+    try {
+      aliases = truststore.aliases();
+    } catch (KeyStoreException e) {
+      throw new OcspCheckerException("Problem getting aliases from truststore.", e);
+    }
+
+    while (aliases.hasMoreElements()) {
+      String currentAlias = aliases.nextElement();
+
+      try {
+        java.security.cert.Certificate currentCert = truststore.getCertificate(currentAlias);
+        X509CertificateHolder currentCertHolder =
+            new X509CertificateHolder(currentCert.getEncoded());
+        X500Name currentName = currentCertHolder.getSubject();
+        if (name.equals(currentName)) {
+          return currentCertHolder;
+        }
+      } catch (CertificateEncodingException | IOException | KeyStoreException ignore) {
+      }
+    }
+
+    throw new OcspCheckerException(
+        String.format("Could not find cert matching X500Name of %s", name));
+  }
+
+  /**
+   * Sends the {@param ocspReq} request to all configured {@code cspServerUrls} & the OCSP server
+   * urls optionally given in the given {@param cert}.
+   *
+   * @param cert - the {@link X509Certificate} to check.
+   * @param ocspRequest - the {@link OCSPReq} to send.
+   * @return a {@link List} of {@link OCSPResp}s for every configured {@code ocspServerUrls} & the
+   *     OCSP server * urls optionally given in the given {@param cert}. Problematic responses are
+   *     represented as null values.
    */
   @VisibleForTesting
-  OCSPResp createOcspResponse(Response response) throws OcspCheckerException {
+  List<OCSPResp> sendOcspRequests(X509Certificate cert, OCSPReq ocspRequest) {
+    Set<String> urlsToCheck = new HashSet<>();
+    if (ocspServerUrls != null) {
+      urlsToCheck.addAll(ocspServerUrls);
+    }
+
+    // try and pull an OCSP server url off of the cert
+    urlsToCheck.addAll(getOcspUrlsFromCert(cert));
+
+    List<OCSPResp> ocspResponses = new ArrayList<>();
+
+    for (String ocspServerUrl : urlsToCheck) {
+      if (isNotBlank(ocspServerUrl)) {
+        try {
+          SecureCxfClientFactory cxfClientFactory =
+              factory.getSecureCxfClientFactory(ocspServerUrl, WebClient.class);
+          WebClient client =
+              cxfClientFactory
+                  .getWebClient()
+                  .accept("application/ocsp-response")
+                  .type("application/ocsp-request");
+
+          Response response = client.post(ocspRequest.getEncoded());
+          ocspResponses.add(createOcspResponse(response));
+          continue;
+        } catch (IOException | OcspCheckerException | ProcessingException ignore) {
+        }
+      }
+      ocspResponses.add(null); // if ocspServerUrl is null or if there was an exception
+    }
+
+    return ocspResponses;
+  }
+
+  /**
+   * Attempts to grab additional OCSP server urls off of the given {@param cert}.
+   *
+   * @param - the {@link X509Certificate} to check.
+   * @return {@link List} of additional OCSP server urls found on the given {@param cert}.
+   */
+  private List<String> getOcspUrlsFromCert(X509Certificate cert) {
+    List<String> ocspUrls = new ArrayList<>();
+
+    try {
+      byte[] authorityInfoAccess = cert.getExtensionValue(Extension.authorityInfoAccess.getId());
+
+      if (authorityInfoAccess == null) {
+        return ocspUrls;
+      }
+
+      AuthorityInformationAccess authorityInformationAccess =
+          AuthorityInformationAccess.getInstance(
+              X509ExtensionUtil.fromExtensionValue(authorityInfoAccess));
+
+      if (authorityInformationAccess == null) {
+        return ocspUrls;
+      }
+
+      for (AccessDescription description : authorityInformationAccess.getAccessDescriptions()) {
+        GeneralName accessLocation = description.getAccessLocation();
+        if (accessLocation.getTagNo() == GeneralName.uniformResourceIdentifier)
+          ocspUrls.add(((DERIA5String) accessLocation.getName()).getString());
+      }
+    } catch (IOException ignore) {
+    }
+
+    return ocspUrls;
+  }
+
+  /**
+   * Creates a {@link OCSPResp} from the given {@param response}.
+   *
+   * @param response - the {@link Response} to convert.
+   * @return an {@link OCSPResp} of the given {@param response}.
+   * @throws OcspCheckerException if any error occurs.
+   */
+  private OCSPResp createOcspResponse(Response response) throws OcspCheckerException {
     Object entity = response.getEntity();
 
     if (!(entity instanceof InputStream)) {
-      postErrorEvent(
-          "Unable to send OCSP request. The certificate status could not be verified. Unable to get a response from the OCSP server.");
-      throw new OcspCheckerException();
+      throw new OcspCheckerException("Response did not contain an entity of type InputStream.");
     }
 
     try (InputStream inputStream = (InputStream) entity) {
       return new OCSPResp(inputStream);
     } catch (IOException e) {
-      postErrorEvent(
-          "Unable to send OCSP request. The certificate status could not be verified. "
-              + e.getMessage());
-      throw new OcspCheckerException();
+      throw new OcspCheckerException("Problem converting Response into OCSPResp.");
     }
   }
 
   /**
-   * Verifies the status of the {@param ocspResponse}
+   * Verifies the status of the {@param ocspResponse}.
    *
-   * @param ocspResponse - response with status to verify
-   * @return true if the status is not revoked or unknown, false otherwise
+   * @param ocspResponses - the {@link List} of responses with statuses to verify
+   * @return true if none of the statuses are revoked, false otherwise
    */
-  @VisibleForTesting
-  boolean isOCSPResponseValid(OCSPResp ocspResponse) {
-    try {
-      BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
+  private boolean anyOcspResponseStatusIsRevoked(List<OCSPResp> ocspResponses) {
+    return ocspResponses
+        .stream()
+        .filter(Objects::nonNull)
+        .anyMatch(
+            ocspResponse -> {
+              try {
+                BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
 
-      if (basicResponse == null) {
-        return false;
-      }
+                if (basicResponse == null) {
+                  return false;
+                }
 
-      SingleResp[] singleResps = basicResponse.getResponses();
-      if (singleResps == null) {
-        return false;
-      }
+                SingleResp[] singleResps = basicResponse.getResponses();
+                if (singleResps == null) {
+                  return false;
+                }
 
-      SingleResp response = Arrays.stream(singleResps).findFirst().orElse(null);
-      if (response == null) {
-        return false;
-      }
+                SingleResp response = Arrays.stream(singleResps).findFirst().orElse(null);
+                if (response == null) {
+                  return false;
+                }
 
-      Object status = response.getCertStatus();
-      if (status instanceof UnknownStatus) {
-        return false;
-      }
+                Object status = response.getCertStatus();
+                if (status instanceof UnknownStatus) {
+                  return false;
+                }
 
-      return !(status instanceof RevokedStatus);
+                return status instanceof RevokedStatus;
 
-    } catch (OCSPException e) {
-      postErrorEvent(
-          "Unable to read a OCSP response. The certificate status could not be verified. "
-              + e.getMessage());
-      return true;
-    }
+              } catch (OCSPException ignore) {
+                return false;
+              }
+            });
   }
 
   /**
@@ -272,8 +420,8 @@ public class OcspChecker implements OcspService {
     this.ocspEnabled = ocspEnabled;
   }
 
-  public void setOcspServerUrl(String ocspServerUrl) {
-    this.ocspServerUrl = ocspServerUrl;
+  public void setOcspServerUrls(List<String> ocspServerUrls) {
+    this.ocspServerUrls = ocspServerUrls;
   }
 
   /**
@@ -283,6 +431,18 @@ public class OcspChecker implements OcspService {
   class OcspCheckerException extends Exception {
     public OcspCheckerException() {
       super();
+    }
+
+    public OcspCheckerException(Exception cause) {
+      super(cause);
+    }
+
+    public OcspCheckerException(String msg) {
+      super(msg);
+    }
+
+    public OcspCheckerException(String msg, Exception cause) {
+      super(msg, cause);
     }
   }
 }
