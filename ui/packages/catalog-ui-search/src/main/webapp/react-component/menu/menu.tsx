@@ -149,6 +149,3 @@ export class MenuItem extends React.Component<any, any> {
     )
   }
 }
-
-exports.Menu = Menu
-exports.MenuItem = MenuItem
