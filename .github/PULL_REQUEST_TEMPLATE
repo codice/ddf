@@ -3,6 +3,8 @@
 issue number with a 0 until we roll over at issue #10000, ie: `DDF-0####`. This kludgy solution
 will avoid overlap with issues created in Jira.**
 
+See https://github.com/codice/ddf/wiki/%5BGH-ISSUES-PILOT%5D-Pull-Request-Guidelines
+for more info.
 -->
 
 <!--
@@ -23,13 +25,61 @@ ____
 #### Who is reviewing it? 
 <!--(please choose AT LEAST two reviewers that need to approve the PR before it can get merged)-->
 #### Select relevant component teams: 
-
-#### Ask at least 2 committers to review/merge the PR and tag them here.
-
+<!--
+@codice/build 
+@codice/continuous-integration 
+@codice/core-apis 
+@codice/data 
+@codice/docs 
+@codice/io 
+@codice/ogc 
+@codice/security 
+@codice/solr 
+@codice/test 
+@codice/ui 
+@codice/website 
+-->
+#### Ask 2 committers to review/merge the PR and tag them here.
+<!--
+If you don't know who to ask, you can request reviews in https://groups.google.com/forum/#!forum/ddf-developers .
+(please choose ONLY two committers from below, delete the rest)
+-->
+@andrewkfiedler
+@AzGoalie
+@bdeining
+@blen-desta
+@brendan-hofmann
+@brjeter
+@clockard
+@coyotesqrl
+@djblue
+@emmberk
+@ethantmanns
+@figliold
+@garrettfreibott
+@jlcsmith
+@jrnorth
+@lessarderic
+@mcalcote
+@millerw8
+@oconnormi
+@paouelle
+@pklinef
+@ricklarsen - Documentation
+@ryeats
+@rzwiefel
+@shaundmorris
+@stustison
+@tbatie
+@troymohl
+@vinamartin
 
 #### How should this be tested?
 <!--(List steps with links to updated documentation)-->
 #### Any background context you want to provide?
+#### What are the relevant tickets?
+For Jira:
+[](https://codice.atlassian.net/browse/)
 
 For GH Issues:
 Fixes: #____
@@ -43,6 +93,7 @@ Fixes: #____
 - [ ] Update / Add Integration Tests
 
 #### Notes on Review Process
+Please see [Notes on Review Process](https://codice.atlassian.net/wiki/spaces/DDF/pages/71946981/Pull+Request+Guidelines) for further guidance on requirements for merging and abbreviated reviews. 
 
 #### Review Comment Legend:
 - ✏️ (Pencil) This comment is a nitpick or style suggestion, no action required for approval. This comment should provide a suggestion either as an in line code snippet or a gist. 
